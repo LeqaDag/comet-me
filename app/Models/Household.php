@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Household extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['english_name', 'arabic_name', 'community_id', 'phone_number', 
+        'number_of_family_members', 'number_of_male', 'number_of_female', 'number_of_adults',
+        'number_of_children'];
+
+
+    public function Community()
+    {
+        return $this->belongsTo(Community::class, 'community_id', 'id');
+    }
+}

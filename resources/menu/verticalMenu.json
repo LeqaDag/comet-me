@@ -1,0 +1,84 @@
+{
+  "menu": [
+    {
+      "menuHeader": "Home"
+    },
+    {
+      "url": "region",
+      "name": "Regions",
+      "icon": "menu-icon tf-icons bx bx-map",
+      "slug": "region"
+    },
+    {
+      "url": "home",
+      "name": "Dashboards",
+      "icon": "menu-icon tf-icons bx bx-tachometer",
+      "slug": "dashboard"
+    },
+    {
+      "url": "community",
+      "name": "Communities",
+      "icon": "menu-icon tf-icons bx bx-home",
+      "slug": "communities",
+      "submenu": [
+        {
+          "name": "All",
+          "url": "community",
+          "slug": "communities"
+        },
+        {
+          "name": "Initial Survey",
+          "url": "initial-community",
+          "slug": "initial-survey-communities"
+        },
+        {
+          "name": "AC Survey",
+          "url": "ac-community",
+          "slug": "ac-survey-communities"
+        },
+        {
+          "name": "Served",
+          "url": "served-community",
+          "slug": "served-communities"
+        }
+      ]
+    },
+    {
+      "url": "household",
+      "name": "Households",
+      "icon": "menu-icon tf-icons bx bx-user",
+      "slug": "households"
+    },
+ 
+
+    {
+      "name": "System Holders",
+      "icon": "menu-icon tf-icons bx bx-dock-top",
+      "slug": "holders",
+      "submenu": [
+        {
+          "name": "Electricity Meter Holders",
+          "slug": "holders-meter"
+        },
+        {
+          "name": "Water System Holders",
+          "url": "water-user",
+          "slug": "holders-water"
+        },
+        {
+          "name": "Internet Contract Holders",
+          "slug": "holders-internet"
+        }
+      ]
+      },
+   
+
+    {
+      "url": "donor",
+      "name": "Donors",
+      "icon": "menu-icon tf-icons bx bx-money",
+      "slug": "donor"
+    }
+
+  ]
+}
