@@ -6,60 +6,34 @@
 
 @section('title', 'regions')
 
-@section('vendor-style')
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/formvalidation/dist/css/formValidation.min.css')}}" />
-<link rel="stylesheet" 
-href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}"/>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-<!-- JavaScript -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
-<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
-
-@endsection
-
-@section('vendor-script')
-<script src="{{asset('assets/vendor/libs/datatables/jquery.dataTables.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive/datatables.responsive.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.js')}}"></script>
-<!-- Flat Picker -->
-<script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/cleavejs/cleave.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/cleavejs/cleave-phone.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/FormValidation.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/apex-charts/apexcharts.js')}}"></script>
-@endsection
-
-@section('page-script')
-<script src="{{asset('assets/js/tables-datatables-advanced.js')}}"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js" async defer></script>
-<script src="{{asset('assets/js/community/charts.blade.php')}}"></script>
-<script src="{{asset('assets/js/dashboards-analytics.js')}}"></script>
-@endsection
-
+@include('layouts.all')
 
 @section('content')
+
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div id="pie_chart" style="height:350px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Sub-Regions
 </h4>
+
+@if(session()->has('message'))
+    <div class="row">
+        <div class="alert alert-success">
+            {{ session()->get('message') }}
+        </div>
+    </div>
+@endif
 
 @include('regions.update')
 
@@ -71,8 +45,13 @@ src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/t
                     data-bs-toggle="modal" data-bs-target="#createSubRegionModal">
                     Create New Sub-Region	
                 </button>
-                @include('regions.create')
+                @include('regions.create-sub')
 
+                <button type="button" class="btn btn-success" 
+                    data-bs-toggle="modal" data-bs-target="#createRegionModal">
+                    Create New Region	
+                </button>
+                @include('regions.create')
             </div>
             <table id="subRegionTable" class="table table-striped data-table-regions my-2">
                 <thead>
@@ -91,76 +70,142 @@ src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/t
     </div>
 </div>
 
-    <script type="text/javascript">
-        $(function () {
-            var table = $('.data-table-regions').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ route('region.index') }}",
-                    data: function (d) {
-                        d.search = $('input[type="search"]').val()
-                    }
-                },
-                columns: [
-                    {data: 'english_name', name: 'english_name'},
-                    {data: 'arabic_name', name: 'arabic_name'},
-                    {data: 'name', name: 'name'},
-                    { data: 'action' }
-                ]
-            });
+
+<script type="text/javascript">
+
+
+    $(function () {
+
+        var analytics = <?php echo $subregions; ?>
+
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart()
+        {
+            var data = google.visualization.arrayToDataTable(analytics);
+            var options = {
+                title : 'Sub Regional Areas'
+            };
+            var chart = new google.visualization.PieChart(document.getElementById('pie_chart'));
+            chart.draw(data, options);
+        }
+
+        // DataTable
+        var table = $('.data-table-regions').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('sub-region.index') }}",
+                data: function (d) {
+                    d.search = $('input[type="search"]').val()
+                }
+            },
+            columns: [
+                {data: 'english_name', name: 'english_name'},
+                {data: 'arabic_name', name: 'arabic_name'},
+                {data: 'name', name: 'name'},
+                { data: 'action' }
+            ],
             
-            $('#status').change(function() {
-                table.draw();
+        });
+        
+        $('#status').change(function() {
+            table.draw();
+        });
+
+        // Update record
+        $('#subRegionTable').on('click','.updateSubRegion',function() {
+            var id = $(this).data('id');
+
+            $('#txtSubRegionId').val(id);
+
+            // AJAX request
+            $.ajax({
+                url: 'getSubRegionData/' + id,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+
+                    if(response.success == 1) {
+
+                        $('#english_name').val(response.english_name);
+                        $('#arabic_name').val(response.arabic_name);
+
+                        // get region by id
+                        $.ajax({
+                            url: 'getRegionData/' + response.region_id,
+                            type: 'get',
+                            dataType: 'json',
+                            success: function(response) {
+
+                                if(response.success == 1) {
+                                    $('#selectedRegion').text(response.english_name);
+                                    $.ajax({
+                                        url: 'getAllSubRegion/',
+                                        type: 'get',
+                                        dataType: 'json',
+                                        success: function(response) {
+
+                                            if(response.success == 1) {
+                                                response.regions.forEach(el => {
+                                                    $(".updateRegionId").append(`<option value='${el.id}'> ${el.english_name}</option>`)
+    
+                                                });
+                                            };
+                                            
+                                        }
+                                    });
+                                    
+                                } else {
+
+                                    alert("Invalid ID.");
+                                }
+                            }
+                        });
+                    }
+                }
             });
 
-            // Update record
-            $('#subRegionTable').on('click','.updateSubRegion',function() {
-                var id = $(this).data('id');
+        });
+        
 
-                $('#txtSubRegionId').val(id);
+        // Delete record
+        $('#subRegionTable').on('click', '.deleteSubRegion',function() {
+            var id = $(this).data('id');
 
-                // AJAX request
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this sub region?',
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
                 $.ajax({
-                    url: 'getSubRegionData/' + id,
+                    url: "{{ route('deleteSubRegion') }}",
                     type: 'get',
-                    dataType: 'json',
+                    data: {id: id},
                     success: function(response) {
-
                         if(response.success == 1) {
 
-                            $('#english_name').val(response.english_name);
-                            $('#arabic_name').val(response.arabic_name);
-
-                            // get region by id
-                            $.ajax({
-                                url: 'getRegionData/' + response.region_id,
-                                type: 'get',
-                                dataType: 'json',
-                                success: function(response) {
-
-                                    if(response.success == 1) {
-
-                                        $('#selectedRegion').text(response.english_name);
-
-                                        empTable.ajax.reload();
-                                    } else {
-
-                                        alert("Invalid ID.");
-                                    }
-                                }
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $('#subRegionTable').DataTable().draw();
                             });
-
-                            empTable.ajax.reload();
                         } else {
 
                             alert("Invalid ID.");
                         }
                     }
                 });
-
             });
         });
-    </script>
+    });
+</script>
 
 @endsection

@@ -6,52 +6,56 @@
 
 @section('title', 'communities')
 
-@section('vendor-style')
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/formvalidation/dist/css/formValidation.min.css')}}" />
-<link rel="stylesheet" 
-href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}"/>
-@endsection
-
-@section('vendor-script')
-<script src="{{asset('assets/vendor/libs/datatables/jquery.dataTables.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive/datatables.responsive.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.js')}}"></script>
-<!-- Flat Picker -->
-<script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/cleavejs/cleave.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/cleavejs/cleave-phone.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/FormValidation.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/apex-charts/apexcharts.js')}}"></script>
-@endsection
-
-@section('page-script')
-<script src="{{asset('assets/js/tables-datatables-advanced.js')}}"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js" async defer></script>
-<script src="{{asset('assets/js/community/charts.blade.php')}}"></script>
-<script src="{{asset('assets/js/dashboards-analytics.js')}}"></script>
-@endsection
-
+@include('layouts.all')
 
 @section('content')
+
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div id="pie_chart_energy_donor_household" style="height:450px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div id="pie_chart_water_donor_community" style="height:450px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div id="pie_chart_internet_donor_community" style="height:450px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> donors
 </h4>
 
-<div class="card">
-    <div class="card-content collapse show">
+<div class="container">
+    <div class="card my-2">
         <div class="card-body">
             <p class="card-text">
                 <div>
@@ -70,53 +74,83 @@ src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/t
                 </div>
             </p>
         </div>
-        <div class="table-responsive">
-            @if (count($donors))
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-center">Name</th>
-                            <th class="text-center">Options</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($donors as $donor)
-                    @if($donor->is_archived == 0)
-                        <tr> 
-                            <td class="text-center">
-                                @if($donor->donor_name == "0") 
-                                    Not yet attributed
-                                @else
-                                    {{ $donor->donor_name }}
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                <a data-bs-target="#donorCommunity{{$donor->id}}"
-                                   type="button" data-bs-toggle="modal" title="View Communities">
-                                    <i class="fas fa-building" style="color:blue;"></i>
-                                </a>
-                                @include('admin.donor.community')
-                                <a href="">
-                                    <i class="fas fa-edit" style="color:green;"></i>
-                                </a>
-                                <a href="{{ url('donor/destory', $donor->id) }}"
-                                    title="delete">
-                                    <i class="fas fa-trash-alt delete-item"
-                                    style="color:red;"></i>
-                                    {{ method_field('delete') }} 
-                                </a>
-                            </td>
-                        </tr>
-                    @endif
-                    @endforeach
-                    </tbody>
-                </table>
-                <div class="d-flex justify-content-center">
-                    {!! $donors->links('pagination::bootstrap-4') !!}
-                </div>
-            @endif
-        </div>
+        <table id="donorTable" class="table table-striped data-table-donors my-2">
+            <thead>
+                <tr>
+                    <th class="text-center">Name</th>
+                    <th class="text-center">Community</th>
+                    <th class="text-center">Service</th>
+                    <th class="text-center">Options</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
 </div>
 
+<script type="text/javascript">
+    $(function () {
+
+        var analyticsWater = <?php echo $donorsWaterData; ?>;
+        var analyticsInternet = <?php echo $donorsInternetData; ?>;
+
+        var analyticsHouseholdEnergy = <?php echo $householdDonorsEnergyData; ?>;
+
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart()
+        {
+            var data1 = google.visualization.arrayToDataTable(analyticsWater);
+            var options1 = {
+                title : 'Communities by Donor (Water)' 
+            };
+
+            var dataInternet = google.visualization.arrayToDataTable(analyticsInternet);
+            var optionsInternet = {
+                title : 'Communities by Donor (Internet)' 
+            };
+
+            var dataHouseholdEnergy = google.visualization.arrayToDataTable(analyticsHouseholdEnergy);
+            var optionsHouseholdEnergy = {
+                title : 'Households by Donor (Energy)' 
+            };
+
+            var chart1 = new google.visualization.PieChart(
+                document.getElementById('pie_chart_water_donor_community'));
+            chart1.draw(data1, options1);
+
+            var chartInternet = new google.visualization.PieChart(
+                document.getElementById('pie_chart_internet_donor_community'));
+            chartInternet.draw(dataInternet, optionsInternet);
+
+            var chartHouseholdEnergy = new google.visualization.PieChart(
+                document.getElementById('pie_chart_energy_donor_household'));
+            chartHouseholdEnergy.draw(dataHouseholdEnergy, optionsHouseholdEnergy);
+        }
+
+        // DataTable
+        var table = $('.data-table-donors').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('donor.index') }}",
+                data: function (d) {
+                    d.search = $('input[type="search"]').val()
+                }
+            },
+            columns: [
+                {data: 'donor_name', name: 'donor_name'},
+                {data: 'english_name', name: 'english_name'},
+                {data: 'service_name', service_name: 'name'},
+                { data: 'action' }
+            ],
+            
+        });
+    });
+</script>
+
 @endsection
+
+

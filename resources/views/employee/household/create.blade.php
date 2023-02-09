@@ -53,11 +53,17 @@ label {
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-
-
             <form method="POST" action="{{url('household')}}" enctype="multipart/form-data" >
                 @csrf
                 <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Father/Husband Name</label>
+                            <input type="text" name="english_name" 
+                            placeholder="Write in English"
+                            class="form-control">
+                        </fieldset>
+                    </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Father/Husband Name</label>
@@ -72,6 +78,10 @@ label {
                             class="form-control">
                         </fieldset>
                     </div>
+                    
+                </div>
+
+                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Profession</label>
@@ -87,9 +97,6 @@ label {
                         </fieldset>
                         @include('employee.household.profession')
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Phone Number</label>
@@ -168,7 +175,7 @@ label {
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Demolition order in house?</label>
-                            <select name="demolition_order"  class="form-control">
+                            <select name="demolition_order" class="form-control">
                                 <option selected disabled>Choose One...</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
@@ -230,9 +237,9 @@ label {
                             <label class='col-md-12 control-label'>Electricity source</label>
                             <select name="electricity_source" id="electricitySource" class="form-control">
                                 <option selected disabled>Choose One...</option>
-                                <option value="yes">Old solar system</option>
-                                <option value="no">Grid</option>
-                                <option value="no">Generator</option>
+                                <option value="Old solar system">Old solar system</option>
+                                <option value="Grid">Grid</option>
+                                <option value="Generator">Generator</option>
                             </select>
                         </fieldset>
                     </div>

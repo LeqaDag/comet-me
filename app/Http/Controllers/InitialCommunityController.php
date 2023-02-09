@@ -26,6 +26,9 @@ use App\Models\ServiceType;
 use App\Models\PublicStructure;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
+use App\Models\PublicStructureCategory;
+use App\Models\Settlement;
+use App\Models\Town;
 use Carbon\Carbon;
 use Image;
 
@@ -44,8 +47,12 @@ class InitialCommunityController extends Controller
         $subregions = SubRegion::all();
         $products = ProductType::all();
         $energyTypes = EnergySystemType::all();
+        $settlements = Settlement::all();
+        $towns = Town::all();
+        $publicCategories = PublicStructureCategory::all();
 
 		return view('employee.community.initial', compact('communities', 'regions', 
-            'communityRecords', 'subregions', 'products', 'energyTypes'));
+            'communityRecords', 'subregions', 'products', 'energyTypes',
+            'settlements', 'towns', 'publicCategories'));
     }
 }

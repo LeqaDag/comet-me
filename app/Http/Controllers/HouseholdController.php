@@ -13,12 +13,14 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\Cistern;
 use App\Models\Household;
+use App\Models\HouseholdStatus;
 use App\Models\Region;
 use App\Models\Structure;
 use App\Models\SubRegion;
 use App\Models\Profession;
 use Carbon\Carbon;
 use DataTables;
+use mikehaertl\wkhtmlto\Pdf;
 
 class HouseholdController extends Controller
 {
@@ -34,8 +36,17 @@ class HouseholdController extends Controller
         //     if($house->community_id == 1 || $house->community_id == 2 || 
         //         $house->community_id == 3  || $house->community_id == 4 || 
         //         $house->community_id == 5 || $house->community_id == 7 ||
-        //         $house->community_id == 8 || $house->community_id == 9 ) {
-        //         $house->status = "AC Survey";
+        //         $house->community_id == 8 || $house->community_id == 9 ||
+        //         $house->community_id == 10 || $house->community_id == 11 ||
+        //         $house->community_id == 14 || $house->community_id == 15 ||
+        //         $house->community_id == 12 || $house->community_id == 126) {
+             
+        //         $house->household_status_id  = 2;
+        //         $house->save();
+
+        //     } if($house->community_id == 139 || $house->community_id == 140) {
+             
+        //         $house->household_status_id  = 1;
         //         $house->save();
         //     }
         // }
@@ -44,6 +55,20 @@ class HouseholdController extends Controller
         $households = Household::paginate();
         $regions = Region::all();
         $subregions = SubRegion::all();
+
+        
+        $householdRecords = Household::count();
+        $householdsInitial = Household::where("household_status_id", 1)->get();
+        $householdInitial = Household::where("household_status_id", 1)->count();
+        $householdsAC = Community::where("community_status_id", 2)->get();
+        $householdAC = Community::where("community_status_id", 2)->count();
+        $householdsServed = Household::where("household_status_id", 4)->get();
+        $householdServed = Household::where("household_status_id", 4)->count();
+
+        $householdWater =  Household::where("water_service", "Yes")
+            ->selectRaw('SUM(number_of_people) AS number_of_people')
+            ->count();
+        $householdInternet = 0;
 
         if ($request->ajax()) {
             
@@ -60,8 +85,8 @@ class HouseholdController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
 
-                    $updateButton = "<button class='btn btn-sm btn-info updateHousehold' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateHouseholdModal' ><i class='fa-solid fa-pen-to-square'></i></button>";
-                    $deleteButton = "<button class='btn btn-sm btn-danger deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash'></i></button>";
+                    $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateHouseholdModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                    $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                     
                     return $updateButton." ".$deleteButton;
    
@@ -80,11 +105,47 @@ class HouseholdController extends Controller
                 })
                 ->rawColumns(['action'])
                 ->make(true);
-                
+        }
+
+        $dataHouseholdsByRegion = DB::table('households')
+            ->where('households.household_status_id', 4)
+            ->join('communities', 'households.community_id', '=', 'communities.id')
+            ->join('regions', 'communities.region_id', '=', 'regions.id')
+            ->select(
+                    DB::raw('regions.english_name as english_name'),
+                    DB::raw('count(*) as number'))
+            ->groupBy('regions.english_name')
+            ->get();
+        $arrayHouseholdsByRegion[] = ['Region Name', 'Total'];
+        
+        foreach($dataHouseholdsByRegion as $key => $value) {
+
+            $arrayHouseholdsByRegion[++$key] = [$value->english_name, $value->number];
+        }
+
+        $dataHouseholdsBySubRegion = DB::table('households')
+            ->where('households.household_status_id', 4)
+            ->join('communities', 'households.community_id', '=', 'communities.id')
+            ->join('regions', 'communities.region_id', '=', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+            ->select(
+                    DB::raw('sub_regions.english_name as english_name'),
+                    DB::raw('count(*) as number'))
+            ->groupBy('sub_regions.english_name')
+            ->get();
+        $arrayHouseholdsBySubRegion[] = ['Region Name', 'Total'];
+        
+        foreach($dataHouseholdsBySubRegion as $key => $value) {
+
+            $arrayHouseholdsBySubRegion[++$key] = [$value->english_name, $value->number];
         }
 
 		return view('employee.household.index', compact('communities', 'regions', 
-            'households', 'subregions'));
+            'households', 'subregions', 'householdsInitial', 'householdInitial', 
+            'householdsServed', 'householdServed', 'householdRecords',
+            'householdsAC', 'householdAC', 'householdWater', 'householdInternet'))
+            ->with('regionHouseholdsData', json_encode($arrayHouseholdsByRegion))
+            ->with('subRegionHouseholdsData', json_encode($arrayHouseholdsBySubRegion));
     }
 
     /**
@@ -110,8 +171,9 @@ class HouseholdController extends Controller
      */
     public function store(Request $request)
     {
-      
+       // dd($request->all());
         $household = new Household();
+        $household->english_name = $request->english_name;
         $household->arabic_name = $request->arabic_name;
         $household->women_name_arabic = $request->women_name_arabic;
         $household->profession_id = $request->profession_id;
@@ -126,6 +188,8 @@ class HouseholdController extends Controller
         $household->demolition_order = $request->demolition_order;
         $household->notes = $request->notes;
         $household->size_of_herd = $request->size_of_herd;
+        $household->electricity_source = $request->electricity_source;
+        $household->electricity_source_shared = $request->electricity_source_shared;
         $household->save();
         $id = $household->id;
 
@@ -140,7 +204,8 @@ class HouseholdController extends Controller
         $cistern->household_id = $id;
         $cistern->save();
         
-        return redirect('/household');
+        return redirect('/initial-household')
+            ->with('message', 'New Household Added Successfully!');
     }
 
     /**
@@ -203,5 +268,22 @@ class HouseholdController extends Controller
         }
 
         return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Write code on Construct
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function exportPdf()
+    {
+        $render = view('employee.household.index')->render();
+  
+        $pdf = new Pdf;
+        $pdf->addPage($render);
+        $pdf->setOptions(['javascript-delay' => 5000]);
+        $pdf->saveAs(public_path('report.pdf'));
+   
+        return response()->download(public_path('report.pdf'));
     }
 }

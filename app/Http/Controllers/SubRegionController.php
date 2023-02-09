@@ -11,6 +11,7 @@ use DB;
 use Route;
 use App\Models\Region;
 use App\Models\SubRegion;
+use App\Models\Settlement;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -24,7 +25,21 @@ class SubRegionController extends Controller
      */
     public function index(Request $request)
     {	
-        $regions = Region::all();
+        $data = DB::table('sub_regions')
+            ->join('regions', 'sub_regions.region_id', '=', 'regions.id')
+            ->select(
+                    DB::raw('regions.english_name as english_name'),
+                    DB::raw('count(*) as number'))
+            ->groupBy('regions.english_name')
+            ->get();
+        $array[] = ['English Name', 'Number'];
+        
+        foreach($data as $key => $value) {
+
+            $array[++$key] = [$value->english_name, $value->number];
+        }
+
+        $regions = Region::all(); 
         if ($request->ajax()) {
             $data = DB::table('sub_regions')
                 ->join('regions', 'sub_regions.region_id', '=', 'regions.id')
@@ -61,7 +76,9 @@ class SubRegionController extends Controller
                 ->make(true);
         }
 
-        return view('regions.index', compact('regions'));
+        return view('regions.index', compact('regions'))
+            ->with('subregions', json_encode($array)
+        );
     }
 
     /**
@@ -75,7 +92,7 @@ class SubRegionController extends Controller
         $subregion = SubRegion::create($request->all());
         $subregion->save();
 
-        return redirect()->back();
+        return redirect()->back()->with('message', 'New Sub-Region Added Successfully!');
     }
 
     /**
@@ -130,6 +147,29 @@ class SubRegionController extends Controller
     }
 
     /**
+     * Get a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getAllSubRegion()
+    {
+        $regions = Region::all();
+        $response = array();
+
+        if(!empty($regions)) {
+
+            $response['regions'] = $regions;
+
+            $response['success'] = 1;
+        } else {
+
+            $response['success'] = 0;
+        }
+
+        return response()->json($response);
+    }
+    /**
      * Update a resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -172,14 +212,14 @@ class SubRegionController extends Controller
      */
     public function deleteSubRegion(Request $request)
     {
-        $id = $request->post('id');
+        $id = $request->id;
 
         $subRegion = SubRegion::find($id);
 
         if($subRegion->delete()) {
 
             $response['success'] = 1;
-            $response['msg'] = 'Delete successfully'; 
+            $response['msg'] = 'Sub Region Delete successfully'; 
         } else {
 
             $response['success'] = 0;

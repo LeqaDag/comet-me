@@ -207,6 +207,17 @@ Route::resource('household', App\Http\Controllers\HouseholdController::class);
 Route::get('community/get_by_region/{region_id}', [App\Http\Controllers\CommunityController::class, 'getByRegion']);
 Route::get('household/household/{name}', [App\Http\Controllers\HouseholdController::class, 'newProfession']);
 Route::get('household/community/{region_id}', [App\Http\Controllers\HouseholdController::class, 'newCommunity']);
+Route::get('export', [App\Http\Controllers\HouseholdController::class, 'exportPdf'])->name('export');
+
+
+Route::resource('initial-household', App\Http\Controllers\InitialHouseholdController::class);
+Route::get('/initial/ac', [App\Http\Controllers\InitialHouseholdController::class, 'initialToAcSurveyHousehold'])->name('initialToAcSurveyHousehold');
+
+Route::resource('ac-household', App\Http\Controllers\AcHouseholdController::class);
+Route::get('/ac/served', [App\Http\Controllers\AcHouseholdController::class, 'acToServedSurveyHousehold'])->name('acToServedSurveyHousehold');
+
+Route::resource('served-household', App\Http\Controllers\ServedHouseholdController::class);
+
 Route::resource('photo', App\Http\Controllers\PhotoController::class);
 Route::resource('initial-community', App\Http\Controllers\InitialCommunityController::class);
 Route::resource('ac-community', App\Http\Controllers\AcCommunityController::class);
@@ -218,8 +229,20 @@ Route::get('household/get_by_community/{community_id}', [App\Http\Controllers\Ho
 Route::resource('donor', App\Http\Controllers\DonorController::class);
 Route::get('donor/destory/{id}', App\Http\Controllers\DonorController::class.'@destroy');
 Route::resource('community-donor', App\Http\Controllers\CommunityDonorController::class);
-Route::resource('region', App\Http\Controllers\SubRegionController::class);
-Route::post('/update-sub', [SubRegionController::class, 'updateSubRegion'])->name('updateSubRegion');
-Route::post('/delete-sub', [SubRegionController::class, 'deleteSubRegion'])->name('deleteSubRegion');
+Route::resource('region', App\Http\Controllers\RegionController::class);
+Route::resource('sub-region', App\Http\Controllers\SubRegionController::class);
+Route::resource('sub-sub-region', App\Http\Controllers\SubSubRegionController::class);
+
+Route::post('/update-sub', [App\Http\Controllers\SubRegionController::class, 'updateSubRegion'])->name('updateSubRegion');
+Route::get('/delete-sub', [App\Http\Controllers\SubRegionController::class, 'deleteSubRegion'])->name('deleteSubRegion');
 Route::get('/getSubRegionData/{id}', [App\Http\Controllers\SubRegionController::class, 'getSubRegionData'])->name('getSubRegionData');
 Route::get('/getRegionData/{id}', [App\Http\Controllers\SubRegionController::class, 'getRegionData'])->name('getRegionData');
+Route::get('/getAllSubRegion', [App\Http\Controllers\SubRegionController::class, 'getAllSubRegion'])->name('getAllSubRegion');
+
+Route::resource('energy-user', App\Http\Controllers\EnergyUserController::class);
+Route::get('energy-user/get_by_community/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getHouseholdByCommunity']);
+Route::get('energy-user/get_by_energy_type/{energy_type_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergySystemByType']);
+Route::get('energy-user/shared_household/{community_id}/{user_id}', [App\Http\Controllers\EnergyUserController::class, 'getSharedHousehold']);
+
+Route::resource('energy-system', App\Http\Controllers\EnergySystemController::class);
+Route::resource('water-system', App\Http\Controllers\WaterSystemController::class);

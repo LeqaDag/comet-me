@@ -6,118 +6,188 @@
 
 @section('title', 'water-users')
 
-@section('vendor-style')
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/formvalidation/dist/css/formValidation.min.css')}}" />
-@endsection
-
-@section('vendor-script')
-<script src="{{asset('assets/vendor/libs/datatables/jquery.dataTables.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive/datatables.responsive.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.js')}}"></script>
-<!-- Flat Picker -->
-<script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/cleavejs/cleave.js')}}"></script>
-<script src="{{asset("assets/vendor/libs/cleavejs/cleave-phone.js")}}"></script>
-<script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/FormValidation.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js')}}"></script>
-@endsection
-
-@section('page-script')
-<script src="{{asset('assets/js/tables-datatables-advanced.js')}}"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js" async defer></script>
-@endsection
-
+@include('layouts.all')
 
 @section('content')
+
+<div class="container mb-4">
+    <div class="col-lg-12 col-12">
+        <div class="row">
+            <div class="col-6 col-md-3 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="avatar mx-auto mb-2">
+                            <span class="avatar-initial rounded-circle bg-label-info">
+                            <i class="bx bx-droplet fs-4"></i></span>
+                        </div>
+                        <span class="d-block text-nowrap">Water beneficiaries</span>
+                        <h2 class="mb-0">{{$totalWaterHouseholds->number_of_people}}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="avatar mx-auto mb-2">
+                            <span class="avatar-initial rounded-circle bg-label-success">
+                                <i class="bx bx-male fs-4"></i>
+                            </span>
+                        </div>
+                        <span class="d-block text-nowrap">Male</span>
+                        <h2 class="mb-0">{{$totalWaterMale->number_of_male}}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="avatar mx-auto mb-2">
+                            <span class="avatar-initial rounded-circle bg-label-danger">
+                                <i class="bx bx-female fs-4"></i>
+                            </span>
+                        </div>
+                        <span class="d-block text-nowrap">Female</span>
+                        <h2 class="mb-0">{{$totalWaterFemale->number_of_female}}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="avatar mx-auto mb-2">
+                            <span class="avatar-initial rounded-circle bg-label-secondary">
+                                <i class="bx bx-male fs-4"></i>
+                                <i class="bx bx-female fs-4"></i>
+                            </span>
+                        </div>
+                        <span class="d-block text-nowrap">Adults</span>
+                        <h2 class="mb-0">{{$totalWaterAdults->number_of_adults}}</h2>
+                    </div>
+                </div>
+            </div>   
+            <div class="col-6 col-md-3 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="avatar mx-auto mb-2">
+                            <span class="avatar-initial rounded-circle bg-label-dark">
+                                <i class="bx bx-face fs-4"></i>
+                            </span>
+                        </div>
+                        <span class="d-block text-nowrap">Children</span>
+                        <h2 class="mb-0">{{$totalWaterChildren->number_of_children}}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Classic H2O System</h5>
+                </div>
+                <div class="card-body">
+                    <div id="h2oUserChart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Grid Integration System</h5>
+                </div>
+                <div class="card-body">
+                    <div id="gridUserChart"></div>
+                </div>
+            </div>
+        </div>
+    </div> 
+</div>
+
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Water System Holders
 </h4>
 
-<div class="card">
-    <div class="card-content collapse show">
-        <div class="card-body">
-            <p class="card-text">
-                <div>
-                    <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createWaterUser">
-                        Create New Water System Holder	
-                    </button>
 
-                    @include('users.water.create')
-                </div>
-            </p>
-        </div>
-        <div class="table-responsive">
-            @if (count($waterUsers))
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-center"></th>
-                            <th class="text-center">Household Name</th>
-                            <th class="text-center">Community Name</th>
-                            <th class="text-center">H2O Status</th>
-                            <th class="text-center"># Grid Large</th>
-                            <th class="text-center"># Grid Small</th>
-                            <th class="text-center">Options</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($waterUsers as $waterUser)
-                    @if($waterUser->is_archived == 0)
-                        <tr> 
-                            <td class="text-center">
-                                <a type="button" data-bs-toggle="modal" 
-                                data-bs-target="">
-                                    <i class="fas fa-eye" style="color:blue;"></i>
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                {{ $waterUser->Household->english_name }}
-                            </td>
-                            <td class="text-center">
-                                {{ $waterUser->Community->english_name }}
-                            </td>
-                            <td class="text-center">
-                                {{ $waterUser->H2oStatus->status }}
-                            </td>
-                            <td class="text-center">
-                                {{$waterUser->grid_integration_large}}
-                            </td>
-                            <td class="text-center">
-                                {{$waterUser->grid_integration_small}}
-                            </td>
-                            <td class="text-center">
-                                <a href="">
-                                    <i class="fas fa-edit" style="color:green;"></i>
-                                </a>
-                                <a href="{{ url('water-user/destory', $waterUser->id) }}"
-                                    title="delete">
-                                    <i class="fas fa-trash-alt delete-item"
-                                    style="color:red;"></i>
-                                    {{ method_field('delete') }} 
-                                </a>
-                            </td>
-                        </tr>
-                    @endif
-                    @endforeach
-                    </tbody>
-                </table>
-                <div class="d-flex justify-content-center">
-                    {!! $waterUsers->links('pagination::bootstrap-4') !!}
-                </div>
-            @endif
+<div class="container">
+    <div class="card my-2">
+        <div class="card-body">
+            <div>
+                <button type="button" class="btn btn-success" 
+                    data-bs-toggle="modal" data-bs-target="#createWaterUser">
+                    Create New Water System Holder	
+                </button>
+
+                @include('users.water.create')
+            </div>
+            <table id="waterUsersTable" 
+                class="table table-striped data-table-water-users my-2">
+                <thead>
+                    <tr>
+                        <th class="text-center">User Name</th>
+                        <th class="text-center">Community</th>
+                        <th class="text-center">Number of H2O</th>
+                        <th class="text-center">H2O Status</th>
+                        <th class="text-center">Number of Grid Large</th>
+                        <th class="text-center">Number of Grid Small</th>
+                        <th class="text-center">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+
+    $(function () {
+
+        var analytics = <?php echo $h2oChartStatus; ?>;
+        var analyticsGrid = <?php echo $gridChartStatus; ?>;
+
+        google.charts.load('current', {'packages':['bar']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable(analytics);
+            var dataGrid = google.visualization.arrayToDataTable(analyticsGrid);
+
+            var chart = new google.charts.Bar(document.getElementById('h2oUserChart'));
+            chart.draw(
+                data
+            );
+            var chartGrid = new google.charts.Bar(document.getElementById('gridUserChart'));
+            chartGrid.draw(
+                dataGrid
+            );
+        }
+
+        // DataTable
+        var table = $('.data-table-water-users').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('water-user.index') }}",
+                data: function (d) {
+                    d.search = $('input[type="search"]').val()
+                }
+            },
+            columns: [
+                {data: 'english_name', name: 'english_name'},
+                {data: 'community_name', name: 'community_name'},
+                {data: 'number_of_h20', name: 'number_of_h20'},
+                {data: 'status', name: 'status'},
+                {data: 'grid_integration_large', name: 'grid_integration_large'},
+                {data: 'grid_integration_small', name: 'grid_integration_small' },
+                {data: 'action'}
+            ],
+            
+        });
+    });
+</script>
 @endsection

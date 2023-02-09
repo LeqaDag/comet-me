@@ -4,16 +4,28 @@
       "menuHeader": "Home"
     },
     {
-      "url": "region",
-      "name": "Regions",
-      "icon": "menu-icon tf-icons bx bx-map",
-      "slug": "region"
-    },
-    {
       "url": "home",
       "name": "Dashboards",
       "icon": "menu-icon tf-icons bx bx-tachometer",
       "slug": "dashboard"
+    },
+    {
+      "url": "region",
+      "name": "Regions",
+      "icon": "menu-icon tf-icons bx bx-map",
+      "slug": "region",
+      "submenu": [
+        {
+          "name": "Sub Regions",
+          "url": "sub-region",
+          "slug": "Sub Regions"
+        },
+        {
+          "name": "Sub-Sub Regions",
+          "url": "sub-sub-region",
+          "slug": "Sub Sub Regions"
+        }
+      ]
     },
     {
       "url": "community",
@@ -47,7 +59,29 @@
       "url": "household",
       "name": "Households",
       "icon": "menu-icon tf-icons bx bx-user",
-      "slug": "households"
+      "slug": "households",
+      "submenu": [
+        {
+          "name": "All",
+          "url": "household",
+          "slug": "households"
+        },
+        {
+          "name": "Initial Survey",
+          "url": "initial-household",
+          "slug": "initial-survey-households"
+        },
+        {
+          "name": "AC Survey",
+          "url": "ac-household",
+          "slug": "ac-survey-households"
+        },
+        {
+          "name": "Served",
+          "url": "served-household",
+          "slug": "served-households"
+        }
+      ]
     },
  
 
@@ -58,6 +92,7 @@
       "submenu": [
         {
           "name": "Electricity Meter Holders",
+          "url": "energy-user",
           "slug": "holders-meter"
         },
         {
@@ -70,8 +105,29 @@
           "slug": "holders-internet"
         }
       ]
-      },
+    },
    
+    {
+      "name": "Systems",
+      "icon": "menu-icon tf-icons bx bx-data",
+      "slug": "system",
+      "submenu": [
+        {
+          "name": "Energy System",
+          "url": "energy-system",
+          "slug": "system-energy"
+        },
+        {
+          "name": "Water System",
+          "url": "water-system",
+          "slug": "system-water"
+        },
+        {
+          "name": "Internet System",
+          "slug": "system-internet"
+        }
+      ]
+    },
 
     {
       "url": "donor",

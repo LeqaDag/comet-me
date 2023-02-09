@@ -24,10 +24,13 @@ use App\Models\Photo;
 use App\Models\Region;
 use App\Models\SubRegion;
 use App\Models\SubCommunity;
+use App\Models\Settlement;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
+use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
+use App\Models\Town;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -41,28 +44,43 @@ class CommunityController extends Controller
      */
     public function index(Request $request)
     {	
+        // $communitiesMasafers = Community::where("sub_sub_region_id", 1)->get();
+        // $count =0;
+
+        // foreach($communitiesMasafers as $communitiesMasafer) {
+        //     $masaferHousehold = Household::where('community_id', $communitiesMasafer->id)
+        //     ->count();
+        //     $count+=$masaferHousehold;
+        // }
+
+        // dd($count);
+
         if ($request->ajax()) {
 
             $data = DB::table('communities')
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
                 ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+                ->join('community_statuses', 'communities.community_status_id', '=', 'community_statuses.id')
                 ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
                     'communities.id as id', 'communities.created_at as created_at', 
                     'communities.updated_at as updated_at',
                     'communities.number_of_people as number_of_people',
                     'regions.english_name as name',
                     'regions.arabic_name as aname',
-                    'sub_regions.english_name as subname')
+                    'sub_regions.english_name as subname',
+                    'community_statuses.name as status_name')
                 ->latest(); 
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
 
-                    $updateButton = "<button class='btn btn-sm btn-info updateCommunity' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateCommunityModal' ><i class='fa-solid fa-pen-to-square'></i></button>";
-                    $deleteButton = "<button class='btn btn-sm btn-danger deleteCommunity' data-id='".$row->id."'><i class='fa-solid fa-trash'></i></button>";
-                    
-                    return $updateButton." ".$deleteButton;
+                    $mapButton = "<a type='button' class='mapCommunityButton' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#communityMap'><i class='fa-solid fa-map text-warning'></i></a>";
+                    $imageButton = "<a type='button' class='imageCommunity' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#communityImage' ><i class='fa-solid fa-image text-info'></i></a>";
+                    $updateButton = "<a type='button' class='updateCommunity' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateCommunityModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                    $deleteButton = "<a type='button' class='deleteCommunity' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+
+                    return $mapButton. " ". $imageButton. " ". $updateButton." ".$deleteButton;
    
                 })
                 ->filter(function ($instance) use ($request) {
@@ -73,7 +91,8 @@ class CommunityController extends Controller
                             ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                             ->orWhere('regions.english_name', 'LIKE', "%$search%")
                             ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('sub_regions.subname', 'LIKE', "%$search%");
+                            ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
+                            ->orWhere('community_statuses.name', 'LIKE', "%$search%");
                         });
                     }
                 })
@@ -101,13 +120,47 @@ class CommunityController extends Controller
         $communitiesSurvyed = Community::where("community_status_id", 3)->get();
         $communitySurvyed = Community::where("community_status_id", 3)->count();
 
+        $settlements = Settlement::all();
+        $towns = Town::all();
+        $publicCategories = PublicStructureCategory::all();
 
+        $data = DB::table('communities')
+            ->join('regions', 'communities.region_id', '=', 'regions.id')
+            ->select(
+                    DB::raw('regions.english_name as english_name'),
+                    DB::raw('count(*) as number'))
+            ->groupBy('regions.english_name')
+            ->get();
+        $array[] = ['English Name', 'Number'];
+        
+        foreach($data as $key => $value) {
+
+            $array[++$key] = [$value->english_name, $value->number];
+        }
+        
+        $dataSubRegions = DB::table('communities')
+            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+            ->select(
+                    DB::raw('sub_regions.english_name as english_name'),
+                    DB::raw('count(*) as number'))
+            ->groupBy('sub_regions.english_name')
+            ->get();
+        $arraySubRegions[] = ['English Name', 'Number'];
+        
+        foreach($dataSubRegions as $key => $value) {
+
+            $arraySubRegions[++$key] = [$value->english_name, $value->number];
+        }
 
 		return view('employee.community.index', compact('communities', 'regions', 
             'communityRecords', 'communityWater', 'communityInternet', 'subregions',
             'communitiesWater', 'communitiesInternet', 'communitiesAC', 'communityAC',
             'products', 'energyTypes', 'communitiesInitial', 'communityInitial', 
-            'communitiesSurvyed', 'communitySurvyed'));
+            'communitiesSurvyed', 'communitySurvyed', 'settlements', 'towns',
+            'publicCategories'))
+            ->with('regionsData', json_encode($array))->with(
+                'subRegionsData', json_encode($arraySubRegions))
+            ;
     }
 
     /**
