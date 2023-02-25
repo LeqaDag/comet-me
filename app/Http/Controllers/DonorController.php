@@ -159,10 +159,42 @@ class DonorController extends Controller
             $arrayInternet[++$key] = [$value->donor_name, $value->number];
         }
 
+        $dataUserDonors= DB::table('h2o_user_donors')
+            ->join('donors', 'h2o_user_donors.donor_id', '=', 'donors.id')
+            ->select(
+                    DB::raw('donors.donor_name as donor_name'),
+                    DB::raw('count(*) as number'))
+            ->groupBy('donors.donor_name')
+            ->get();
+
+        $arrayUserDonors[] = ['Donor Name', 'Number'];
+        
+        foreach($dataUserDonors as $key => $value) {
+
+            $arrayUserDonors[++$key] = [$value->donor_name, $value->number];
+        }
+
+        $dataGridDonors= DB::table('grid_user_donors')
+            ->join('donors', 'grid_user_donors.donor_id', '=', 'donors.id')
+            ->select(
+                    DB::raw('donors.donor_name as donor_name'),
+                    DB::raw('count(*) as number'))
+            ->groupBy('donors.donor_name')
+            ->get();
+
+        $arrayGridDonors[] = ['Donor Name', 'Number'];
+        
+        foreach($dataGridDonors as $key => $value) {
+
+            $arrayGridDonors[++$key] = [$value->donor_name, $value->number];
+        }
+
 		return view('admin.donor.index', compact('communities', 'donors', 'services'))
             ->with('donorsWaterData', json_encode($arrayWater))
             ->with('donorsInternetData', json_encode($arrayInternet))
-            ->with('householdDonorsEnergyData', json_encode($householdDonorsArray));
+            ->with('householdDonorsEnergyData', json_encode($householdDonorsArray))
+            ->with('waterUserDonors', json_encode($arrayUserDonors))
+            ->with('gridUserDonors', json_encode($arrayGridDonors));
     }
 
     /**

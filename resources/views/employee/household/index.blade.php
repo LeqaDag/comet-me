@@ -216,6 +216,16 @@
 All<span class="text-muted fw-light"> Households</span> 
 </h4>
 
+@include('employee.household.details')
+
+@if(session()->has('message'))
+    <div class="row">
+        <div class="alert alert-success">
+            {{ session()->get('message') }}
+        </div>
+    </div>
+@endif
+
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
@@ -285,10 +295,91 @@ All<span class="text-muted fw-light"> Households</span>
                 { data: 'action' }
             ]
         });
-        $('#status').change(function() {
-            table.draw();
+        
+        // View record details
+        $('#householdsTable').on('click', '.detailsHouseholdButton',function() {
+            var id = $(this).data('id');
+        
+            // AJAX request
+            $.ajax({
+                url: 'household/' + id,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+
+                    $('#householdModalTitle').html(response['household'].english_name);
+                    $('#englishNameHousehold').html(response['household'].english_name);
+                    $('#arabicNameHousehold').html(response['household'].arabic_name);
+                    $('#communityHousehold').html(response['community'].english_name);
+                    $('#professionHousehold').html(response['profession'].profession_name);
+                    $('#numberOfMaleHousehold').html(response['household'].number_of_male);
+                    $('#numberOfFemaleHousehold').html(response['household'].number_of_female);
+                    $('#numberOfChildrenHousehold').html(response['household'].number_of_children);
+                    $('#numberOfAdultsHousehold').html(response['household'].number_of_adults);
+                    $('#phoneNumberHousehold').html(response['household'].phone_number);
+                    $('#energyServiceHousehold').html(response['household'].energy_service);
+                    $('#energyMeterHousehold').html(response['household'].energy_meter);
+                    $('#waterServiceHousehold').html(response['household'].water_service);
+                    $('#energyStatusHousehold').html(response['status'].status);
+                }
+            });
         });
     
+        // View record details
+        $('#householdsTable').on('click', '.updateHousehold',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            // AJAX request
+            $.ajax({
+                url: 'household/' + id + '/editpage',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    window.open(url); 
+                }
+            });
+        });
+
+        // Delete record
+        $('#householdsTable').on('click', '.deleteHousehold',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this household?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteHousehold') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#householdsTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
     });
 </script>
 @endsection

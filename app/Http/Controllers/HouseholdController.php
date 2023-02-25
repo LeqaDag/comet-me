@@ -11,6 +11,7 @@ use DB;
 use Route;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\CommunityHousehold;
 use App\Models\Cistern;
 use App\Models\Household;
 use App\Models\HouseholdStatus;
@@ -68,12 +69,15 @@ class HouseholdController extends Controller
         $householdWater =  Household::where("water_service", "Yes")
             ->selectRaw('SUM(number_of_people) AS number_of_people')
             ->count();
-        $householdInternet = 0;
+        $householdInternet = Household::where("internet_system_status", "Served")
+            ->count();
 
         if ($request->ajax()) {
             
             $data = DB::table('households')
                 ->join('communities', 'households.community_id', '=', 'communities.id')
+                ->join('regions', 'communities.region_id', '=', 'regions.id')
+                ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
                 ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
                     'households.id as id', 'households.created_at as created_at', 
                     'households.updated_at as updated_at',
@@ -84,12 +88,11 @@ class HouseholdController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
-
-                    $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateHouseholdModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                    $detailsButton = "<a type='button' class='detailsHouseholdButton' data-bs-toggle='modal' data-bs-target='#householdDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
+                    $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                     $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                     
-                    return $updateButton." ".$deleteButton;
-   
+                    return $detailsButton." ". $updateButton." ".$deleteButton;
                 })
                
                 ->filter(function ($instance) use ($request) {
@@ -99,6 +102,9 @@ class HouseholdController extends Controller
                                 $w->orWhere('households.english_name', 'LIKE', "%$search%")
                                 ->orWhere('communities.english_name', 'LIKE', "%$search%")
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('sub_regions.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%");
                         });
                     }
@@ -256,11 +262,13 @@ class HouseholdController extends Controller
     public function getByCommunity(Request $request)
     {
         $households = Household::where('community_id', $request->community_id)->get();
- 
+
         if (!$request->community_id) {
+
             $html = '<option value="">Choose One...</option>';
         } else {
-            $html = '';
+
+            $html = '<option selected>Choose One...</option>';
             $households = Household::where('community_id', $request->community_id)->get();
             foreach ($households as $household) {
                 $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
@@ -285,5 +293,176 @@ class HouseholdController extends Controller
         $pdf->saveAs(public_path('report.pdf'));
    
         return response()->download(public_path('report.pdf'));
+    }
+
+    /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $household = Household::findOrFail($id);
+        $community = Community::where('id', $household->community_id)->first();
+        $profession = Profession::where('id', $household->profession_id)->first();
+        $status = HouseholdStatus::where('id', $household->household_status_id)->first();
+
+        $response['community'] = $community;
+        $response['household'] = $household;
+        $response['profession'] = $profession;
+        $response['status'] = $status;
+
+        return response()->json($response);
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteHousehold(Request $request)
+    {
+        $id = $request->id;
+
+        $household = Household::find($id);
+
+        if($household->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Household Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $household = Household::findOrFail($id);
+
+        return response()->json($household);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $communities = Community::all();
+        $regions = Region::all();
+        $professions = Profession::all();
+        $household = Household::findOrFail($id);
+        $structure = Structure::where("household_id", $id)->first();
+        $cistern = Cistern::where("household_id", $id)->first();
+        $communityHousehold = CommunityHousehold::where('household_id', $id)->first();
+
+        return view('employee.household.edit', compact('household', 'regions', 'communities',
+            'professions', 'structure', 'cistern', 'communityHousehold'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $household = Household::findOrFail($id);
+        $household->english_name = $request->english_name;
+        $household->arabic_name = $request->arabic_name;
+        $household->women_name_arabic = $request->women_name_arabic;
+        $household->profession_id = $request->profession_id;
+        $household->phone_number = $request->phone_number;
+        $household->community_id = $request->community_id;
+        $household->number_of_children = $request->number_of_children;
+        $household->number_of_adults = $request->number_of_adults;
+        $household->university_students = $request->university_students;
+        $household->school_students = $request->school_students;
+        $household->number_of_male = $request->number_of_male;
+        $household->number_of_female = $request->number_of_female;
+        $household->demolition_order = $request->demolition_order;
+        $household->notes = $request->notes;
+        $household->size_of_herd = $request->size_of_herd;
+        $household->electricity_source = $request->electricity_source;
+        $household->electricity_source_shared = $request->electricity_source_shared;
+        $household->save();
+
+        $cistern = Cistern::where('household_id', $id)->first();
+        if($cistern == null) {
+
+            $newCistern = new Cistern();
+            $newCistern->number_of_cisterns = $request->number_of_cisterns;
+            $newCistern->volume_of_cisterns = $request->volume_of_cisterns;
+            $newCistern->shared_cisterns = $request->shared_cisterns;
+            $newCistern->distance_from_house = $request->distance_from_house;
+            $newCistern->depth_of_cisterns = $request->depth_of_cisterns;
+            $newCistern->household_id = $id;
+            $newCistern->save();
+        } else {
+            
+            $cistern->number_of_cisterns = $request->number_of_cisterns;
+            $cistern->volume_of_cisterns = $request->volume_of_cisterns;
+            $cistern->shared_cisterns = $request->shared_cisterns;
+            $cistern->distance_from_house = $request->distance_from_house;
+            $cistern->depth_of_cisterns = $request->depth_of_cisterns;
+            $cistern->household_id = $id;
+            $cistern->save();
+        }
+        
+        $structure = Structure::where('household_id', $id)->first();
+        if($structure == null) {
+
+            $newStructure = new Structure();
+            $newStructure->number_of_structures = $request->number_of_structures;
+            $newStructure->number_of_kitchens = $request->number_of_kitchens;
+            $newStructure->number_of_animal_shelters = $request->number_of_animal_shelters;
+            $newStructure->household_id = $id;
+            $newStructure->save();
+        } else {
+            
+            $structure->number_of_structures = $request->number_of_structures;
+            $structure->number_of_kitchens = $request->number_of_kitchens;
+            $structure->number_of_animal_shelters = $request->number_of_animal_shelters;
+            $structure->household_id = $id;
+            $structure->save();
+        }
+        
+        $communityHousehold = CommunityHousehold::where('household_id', $id)->first();
+        if($communityHousehold == null) {
+
+            $newCommunityHousehold = new CommunityHousehold();
+            $newCommunityHousehold->is_there_house_in_town = $request->is_there_house_in_town;
+            $newCommunityHousehold->is_there_izbih = $request->is_there_izbih;
+            $newCommunityHousehold->how_long = $request->how_long;
+            $newCommunityHousehold->length_of_stay = $request->length_of_stay;
+            $newCommunityHousehold->household_id = $id;
+            $newCommunityHousehold->save();
+        } else {
+            
+            $communityHousehold->is_there_house_in_town = $request->is_there_house_in_town;
+            $communityHousehold->is_there_izbih = $request->is_there_izbih;
+            $communityHousehold->length_of_stay = $request->length_of_stay;
+            $communityHousehold->how_long = $request->how_long;
+            $communityHousehold->household_id = $id;
+            $communityHousehold->save();
+        }
+
+        return redirect('/household')
+            ->with('message', 'Household Updated Successfully!');
     }
 }

@@ -213,6 +213,8 @@
   <span class="text-muted fw-light">All </span> communities
 </h4>
 
+@include('employee.community.details')
+
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
@@ -275,7 +277,7 @@
             chart1.draw(data1, options1);
 
         }
-
+        
         var table = $('.data-table-communities').DataTable({
             processing: true,
             serverSide: true,
@@ -295,93 +297,59 @@
                 {data: 'action'}
             ]
         });
+
+        // View record details
+        $('#communityTable').on('click','.detailsCommunityButton',function() {
+            var id = $(this).data('id');
         
+            // AJAX request
+            $.ajax({
+                url: 'community/' + id,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+
+                    $('#communityModalTitle').html(response['community'].english_name);
+                    $('#englishNameCommunity').html(response['community'].english_name);
+                    $('#arabicNameCommunity').html(response['community'].arabic_name);
+                    $('#numberOfCompoundsCommunity').html(response['community'].number_of_compound);
+                    $('#numberOfPeopleCommunity').html(response['community'].number_of_people);
+                    $('#englishNameRegion').html(response['region'].english_name);
+                    $('#numberOfHouseholdCommunity').html(response['community'].number_of_households);
+                    $('#englishNameSubRegion').html(response['sub-region'].english_name);
+                    $('#statusCommunity').html(response['status'].name);
+                    $('#energyServiceCommunity').html(response['community'].energy_service);
+                    $('#energyServiceYearCommunity').html(response['community'].energy_service_beginning_year);
+                    $('#waterServiceCommunity').html(response['community'].water_service);
+                    $('#waterServiceYearCommunity').html(response['community'].water_service_beginning_year);
+                    $('#internetServiceCommunity').html(response['community'].internet_service);
+                    $('#internetServiceYearCommunity').html(response['community'].internet_service_beginning_year);
+                    
+                    for (var i = 0; i < response['public'].length; i++) {
+                        $("#structuresCommunity").append(
+                            '<ul><li>'+ response['public'][i].english_name +'</li> </ul>');
+                    } 
+                }
+            });
+        });
+        
+        // View record photos
+        $('#communityTable').on('click', '.imageCommunity',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+           
+            url = url +'/'+ id +'/photo';
+            window.open(url); 
+        });
+
+        // View record map
+        $('#communityTable').on('click', '.mapCommunityButton',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+           
+            url = url +'/'+ id +'/map';
+            window.open(url); 
+        });
     });
 </script>
-
-
-<div class="card">
-    <div class="card-content collapse show">
-        <div class="card-body">
-            <p class="card-text">
-                <div>
-                </div>
-            </p>
-        </div>
-        <div class="table-responsive">
-            @if (count($communities))
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-center"></th>
-                            <th class="text-center">English Name</th>
-                            <th class="text-center">Arabic Name</th>
-                            <th class="text-center"># of Households</th>
-                            <th class="text-center">Region</th>
-                            <th class="text-center">Sub Region</th>
-                            <th class="text-center">Options</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($communities as $community)
-                    @if($community->is_archived == 0)
-                        <tr> 
-                            <td class="text-center">
-                                <a type="button" data-bs-toggle="modal" 
-                                data-bs-target="#communityDetails{{$community->id}}">
-                                    <i class="fas fa-eye" style="color:blue;"></i>
-                                </a>
-                            </td>
-                            @include('employee.community.details')
-                            <td class="text-center">
-                                {{ $community->english_name }}
-                            </td>
-                            <td class="text-center">
-                                {{ $community->arabic_name }}
-                            </td>
-                            <td class="text-center">
-                                {{ $community->number_of_people }}
-                            </td>
-                            <td class="text-center">
-                                {{ $community->Region->english_name }} 
-                            </td>
-                            <td class="text-center">
-                                @if($community->SubRegion)
-                                {{ $community->SubRegion->english_name }} 
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                <a data-bs-target="#communityMap{{$community->id}}"
-                                   type="button" data-bs-toggle="modal" title="View Map">
-                                    <i class="fas fa-map" style="color:orange;"></i>
-                                </a>
-                                @include('employee.community.map')
-                                <a data-bs-target="#communityImage{{$community->id}}"
-                                   type="button" data-bs-toggle="modal" title="Add Images">
-                                    <i class="fas fa-image" style="color:blue;"></i>
-                                </a>
-                                @include('employee.community.image')
-                                <a href="">
-                                    <i class="fas fa-edit" style="color:green;"></i>
-                                </a>
-                                <a href="{{ url('community/destory', $community->id) }}"
-                                    title="delete">
-                                    <i class="fas fa-trash-alt delete-item"
-                                    style="color:red;"></i>
-                                    {{ method_field('delete') }} 
-                                </a>
-                            </td>
-                        </tr>
-                    @endif
-                    @endforeach
-                    </tbody>
-                </table>
-                <div class="d-flex justify-content-center">
-                    {!! $communities->links('pagination::bootstrap-4') !!}
-                </div>
-            @endif
-        </div>
-    </div>
-</div>
-
 @endsection

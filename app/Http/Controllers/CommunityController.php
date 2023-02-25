@@ -74,13 +74,13 @@ class CommunityController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
-
-                    $mapButton = "<a type='button' class='mapCommunityButton' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#communityMap'><i class='fa-solid fa-map text-warning'></i></a>";
-                    $imageButton = "<a type='button' class='imageCommunity' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#communityImage' ><i class='fa-solid fa-image text-info'></i></a>";
+                    $detailsButton = "<a type='button' class='detailsCommunityButton' data-bs-toggle='modal' data-bs-target='#communityDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
+                    $mapButton = "<a type='button' class='mapCommunityButton' data-id='".$row->id."'><i class='fa-solid fa-map text-warning'></i></a>";
+                    $imageButton = "<a type='button' class='imageCommunity' data-id='".$row->id."' ><i class='fa-solid fa-image text-info'></i></a>";
                     $updateButton = "<a type='button' class='updateCommunity' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateCommunityModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                     $deleteButton = "<a type='button' class='deleteCommunity' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
 
-                    return $mapButton. " ". $imageButton. " ". $updateButton." ".$deleteButton;
+                    return $detailsButton. " ". $mapButton. " ". $imageButton. " ". $updateButton." ".$deleteButton;
    
                 })
                 ->filter(function ($instance) use ($request) {
@@ -251,7 +251,7 @@ class CommunityController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {      
         $community = new Community();
         $community->english_name = $request->english_name;
         $community->arabic_name = $request->arabic_name;
@@ -263,11 +263,9 @@ class CommunityController extends Controller
         $community->number_of_households = $request->number_of_households;
         $community->is_fallah = $request->is_fallah;
         $community->is_bedouin = $request->is_bedouin;
-        $community->settlement = $request->settlement;
         $community->demolition = $request->demolition;
         $community->land_status = $request->land_status;
         $community->lawyer = $request->lawyer;
-        $community->hospital_town = $request->hospital_town;
         $community->notes = $request->notes;
         $community->save();
         $id = $community->id;
@@ -285,36 +283,47 @@ class CommunityController extends Controller
             }
         }
         
-        if($request->school == "yes") {
-            $publicStructure = new PublicStructure();
-            $publicStructure->english_name = "School " . $lastCommunity->english_name;
-            $publicStructure->arabic_name = "مدرسة  " . $lastCommunity->arabic_name;
-            $publicStructure->category_id1 = 1;
-            $publicStructure->school_grade = $request->description;
-            $publicStructure->save();
+        // if($request->settlement) {
+        //     foreach($request->settlement as $sett) {
+        //         if($sett["subject"] != NULL) {
+        //             Settlement::create([
+        //                 'arabic_name' => $sett["subject"],
+        //                 'community_id' => $id,
+        //             ]);
+        //         }
+        //     }
+        // }
 
-        } else if($request->school == "no") {
-            $lastCommunity->school_town = $request->description;
-            $lastCommunity->save();
-        }
+        // if($request->school == "yes") {
+        //     $publicStructure = new PublicStructure();
+        //     $publicStructure->english_name = "School " . $lastCommunity->english_name;
+        //     $publicStructure->arabic_name = "مدرسة  " . $lastCommunity->arabic_name;
+        //     $publicStructure->category_id1 = 1;
+        //     $publicStructure->school_grade = $request->description;
+        //     $publicStructure->save();
 
-        if($request->mosque == "yes") {
+        // } else if($request->school == "no") {
+        //     $lastCommunity->school_town = $request->description;
+        //     $lastCommunity->save();
+        // }
+
+        // if($request->mosque == "yes") {
             
-            $publicStructure = new PublicStructure();
-            $publicStructure->english_name = "Mosque " . $lastCommunity->english_name;
-            $publicStructure->arabic_name = "مسجد  " . $lastCommunity->arabic_name;
-            $publicStructure->category_id1 = 2;
-            $publicStructure->save();
-        }
+        //     $publicStructure = new PublicStructure();
+        //     $publicStructure->english_name = "Mosque " . $lastCommunity->english_name;
+        //     $publicStructure->arabic_name = "مسجد  " . $lastCommunity->arabic_name;
+        //     $publicStructure->category_id1 = 2;
+        //     $publicStructure->save();
+        // }
 
-        if($request->clinic == "yes") {
+        // if($request->clinic == "yes") {
 
-            $publicStructure = new PublicStructure();
-            $publicStructure->english_name = "Clinic " . $lastCommunity->english_name;
-            $publicStructure->arabic_name = "عيادة  " . $lastCommunity->arabic_name;
-            $publicStructure->category_id1 = 3;
-            $publicStructure->save();
-        }
+        //     $publicStructure = new PublicStructure();
+        //     $publicStructure->english_name = "Clinic " . $lastCommunity->english_name;
+        //     $publicStructure->arabic_name = "عيادة  " . $lastCommunity->arabic_name;
+        //     $publicStructure->category_id1 = 3;
+        //     $publicStructure->save();
+        // }
 
         return redirect()->back();
     }
@@ -355,5 +364,71 @@ class CommunityController extends Controller
         $community->save();
 
         return redirect()->back();
+    }
+
+    /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $community = Community::findOrFail($id);
+        $region = Region::where('id', $community->region_id)->first();
+        $subRegion = SubRegion::where('id', $community->sub_region_id)->first();
+        $status = CommunityStatus::where('id', $community->community_status_id)->first();
+        $publicStructures = PublicStructure::where('community_id', $community->id)->get();
+
+        // $array = [];
+
+        // foreach($publicStructures as $public) {
+        //     $publicCategory1 = PublicStructureCategory::where('id', 
+        //         $public->public_structure_category_id1)->first();
+        //     $publicCategory2 = PublicStructureCategory::where('id', 
+        //         $public->public_structure_category_id2)->first();
+        //     $publicCategory3 = PublicStructureCategory::where($public->public_structure_category_id3, '!=', NULL)
+        //         ->where('id', $public->public_structure_category_id3)
+        //         ->first();
+
+        //     $array = $publicCategory1->name . " + ". $publicCategory2->name . $publicCategory3->name;
+        // }
+        
+        // die($array);
+
+        $response['community'] = $community;
+        $response['region'] = $region;
+        $response['sub-region'] = $subRegion;
+        $response['status'] = $status;
+        $response['public'] = $publicStructures;
+
+        return response()->json($response);
+    }
+
+    /**
+     * Get the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function photo($id)
+    {
+        $community = Community::findOrFail($id);
+        $photos = Photo::where("community_id", $id)->get();
+
+        return view('employee.community.photo', compact('community', 'photos'));
+    }
+
+    /**
+     * Get the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function map($id)
+    {
+        $community = Community::findOrFail($id);
+
+        return view('employee.community.map', compact('community'));
     }
 }

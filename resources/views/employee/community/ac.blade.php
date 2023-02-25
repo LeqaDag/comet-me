@@ -4,40 +4,9 @@
 
 @extends('layouts/layoutMaster')
 
-@section('title', 'communities')
+@section('title', 'ac communities')
 
-@section('vendor-style')
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/formvalidation/dist/css/formValidation.min.css')}}" />
-@endsection
-
-@section('vendor-script')
-<script src="{{asset('assets/vendor/libs/datatables/jquery.dataTables.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive/datatables.responsive.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.js')}}"></script>
-<!-- Flat Picker -->
-<script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/cleavejs/cleave.js')}}"></script>
-<script src="{{asset("assets/vendor/libs/cleavejs/cleave-phone.js")}}"></script>
-<script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/FormValidation.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js')}}"></script>
-@endsection
-
-@section('page-script')
-<script src="{{asset('assets/js/tables-datatables-advanced.js')}}"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js" async defer></script>
-@endsection
-
+@include('layouts.all')
 
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -47,82 +16,88 @@ src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/t
     <span class="text-muted fw-light">AC </span> communities
 </h4>
 
-<div class="card">
-    <div class="card-content collapse show">
-        <div class="card-body">
-            <p class="card-text">
-               
-            </p>
-        </div>
-        <div class="table-responsive">
-            @if (count($communities))
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-center"></th>
-                            <th class="text-center">English Name</th>
-                            <th class="text-center">Arabic Name</th>
-                            <th class="text-center"># of Households</th>
-                            <th class="text-center">Region</th>
-                            <th class="text-center">Sub Region</th>
-                            <th class="text-center">Options</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($communities as $community)
-                    @if($community->is_archived == 0)
-                        <tr> 
-                            <td class="text-center">
-                                <a type="button" data-bs-toggle="modal" 
-                                data-bs-target="#communityDetails{{$community->id}}">
-                                    <i class="fas fa-eye" style="color:blue;"></i>
-                                </a>
-                            </td>
-                            @include('employee.community.details')
-                            <td class="text-center">
-                                {{ $community->english_name }}
-                            </td>
-                            <td class="text-center">
-                                {{ $community->arabic_name }}
-                            </td>
-                            <td class="text-center">
-                                {{ $community->number_of_people }}
-                            </td>
-                            <td class="text-center">
-                                {{ $community->Region->english_name }} 
-                            </td>
-                            <td class="text-center">
-                                @if($community->SubRegion)
-                                {{ $community->SubRegion->english_name }} 
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                <a data-bs-target="#communityImage{{$community->id}}"
-                                   type="button" data-bs-toggle="modal" title="add images">
-                                    <i class="fas fa-image" style="color:blue;"></i>
-                                </a>
-                                @include('employee.community.image')
+@include('employee.community.details')
 
-                                <a href="">
-                                    <i class="fas fa-edit" style="color:green;"></i>
-                                </a>
-                                <a href="{{ url('community/destory', $community->id) }}"
-                                    title="delete">
-                                    <i class="fas fa-trash-alt delete-item"
-                                    style="color:red;"></i>
-                                    {{ method_field('delete') }} 
-                                </a>
-                            </td>
-                        </tr>
-                    @endif
-                    @endforeach
-                    </tbody>
-                </table>
-                <div class="d-flex justify-content-center">
-                    {!! $communities->links('pagination::bootstrap-4') !!}
-                </div>
-            @endif
+<div class="container">
+    <div class="card my-2">
+        <div class="card-body">
+            <table id="communityAcTable" 
+                class="table table-striped data-table-ac-communities my-2">
+                <thead>
+                    <tr>
+                        <th class="text-center">English Name</th>
+                        <th class="text-center">Arabic Name</th>
+                        <th class="text-center"># of Households</th>
+                        <th class="text-center">Region</th>
+                        <th class="text-center">Sub Region</th>
+                        <th class="text-center">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
+
+<script type="text/javascript">
+    $(function () {
+    
+        var table = $('.data-table-ac-communities').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('ac-community.index') }}",
+                data: function (d) {
+                    d.search = $('input[type="search"]').val()
+                }
+            },
+            columns: [
+                {data: 'english_name', name: 'english_name'},
+                {data: 'arabic_name', name: 'arabic_name'},
+                {data: 'number_of_people', name: 'number_of_people'},
+                {data: 'name', name: 'name'},
+                {data: 'subname', name: 'subname'},
+                {data: 'action'}
+            ]
+        });
+
+        // View record details
+        $('#communityAcTable').on('click','.detailsCommunityButton',function() {
+            var id = $(this).data('id');
+        
+            // AJAX request
+            $.ajax({
+                url: 'community/' + id,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+
+                    $('#communityModalTitle').html(response['community'].english_name);
+                    $('#englishNameCommunity').html(response['community'].english_name);
+                    $('#arabicNameCommunity').html(response['community'].arabic_name);
+                    $('#numberOfCompoundsCommunity').html(response['community'].number_of_compound);
+                    $('#numberOfPeopleCommunity').html(response['community'].number_of_people);
+                    $('#englishNameRegion').html(response['region'].english_name);
+                    $('#numberOfHouseholdCommunity').html(response['community'].number_of_households);
+                    $('#englishNameSubRegion').html(response['sub-region'].english_name);
+                    $('#statusCommunity').html(response['status'].name);
+                    $('#energyServiceCommunity').html(response['community'].energy_service);
+                    $('#energyServiceYearCommunity').html(response['community'].energy_service_beginning_year);
+                    $('#waterServiceCommunity').html(response['community'].water_service);
+                    $('#waterServiceYearCommunity').html(response['community'].water_service_beginning_year);
+                    $('#internetServiceCommunity').html(response['community'].internet_service);
+                    $('#internetServiceYearCommunity').html(response['community'].internet_service_beginning_year);
+                    
+                    for (var i = 0; i < response['public'].length; i++) {
+                        $("#structuresCommunity").append(
+                            '<ul><li>'+ response['public'][i].english_name +'</li> </ul>');
+                    } 
+                }
+            });
+        });
+        
+    });
+</script>
 @endsection

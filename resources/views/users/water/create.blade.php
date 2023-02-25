@@ -49,8 +49,15 @@ label, table {
                                 <select name="household_id" id="selectedHousehold" 
                                     class="form-control" disabled>
                                     <option disabled selected>Choose one...</option>
-                                    
                                 </select>
+                            </fieldset>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Electricity Meter user?</label>
+                                <input type="text" name="meter_user" id="meter_user"
+                                    class="form-control" disabled>
                             </fieldset>
                         </div>
 
@@ -80,6 +87,14 @@ label, table {
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Number of H2O</label>
+                                <input type="number" name="number_of_h2o" 
+                                class="form-control">
+                            </fieldset>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>H2O Status</label>
                                 <select name="h2o_status_id" class="form-control">
                                     <option disabled selected>Choose one...</option>
@@ -107,6 +122,14 @@ label, table {
                                     <option value="{{$bsfStatu->id}}">{{$bsfStatu->name}}</option>
                                     @endforeach
                                 </select>
+                            </fieldset>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Installation Year</label>
+                                <input type="number" name="installation_year" 
+                                class="form-control">
                             </fieldset>
                         </div>
                     </div>
@@ -234,4 +257,17 @@ label, table {
 
     });
 
+    $(document).on('change', '#selectedHousehold', function () {
+        household_id = $(this).val();
+
+        $.ajax({
+            url: "energy_user/get_by_household/" + household_id,
+            method: 'GET',
+            success: function(data) {
+
+                $('#meter_user').val(data.meter_number);
+            }
+        });
+
+    });
 </script>

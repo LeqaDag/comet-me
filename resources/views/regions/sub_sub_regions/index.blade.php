@@ -11,19 +11,6 @@
 
 @section('content')
 
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12">
-            <div class="panel panel-primary">
-                <div class="panel-body" >
-                    <div id="pie_chart" style="height:350px;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Sub-Sub-Regions
 </h4>
@@ -68,22 +55,6 @@
 
 
     $(function () {
-
-        var analytics = <?php echo $subSubRegions; ?>
-
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(drawChart);
-
-        function drawChart()
-        {
-            var data = google.visualization.arrayToDataTable(analytics);
-            var options = {
-                title : 'Sub-Sub Regional Communities'
-            };
-            var chart = new google.visualization.PieChart(
-                document.getElementById('pie_chart'));
-            chart.draw(data, options);
-        }
 
         // DataTable
         var table = $('.data-table-sub-regions').DataTable({

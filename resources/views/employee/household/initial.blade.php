@@ -51,7 +51,6 @@
                         </a>
                     </div>
                 </p>
-
             </div>
             <table id="initialHouseholdsTable" 
                 class="table table-striped data-table-initial-households my-2">
@@ -112,35 +111,77 @@
         $('#initialHouseholdsTable').on('click', '.initialToAcHousehold',function() {
             var id = $(this).data('id');
 
+            // swal.fire({
+            //     title: "Are you sure?",
+            //     text: "You want to change the status for this household to AC Survey?",
+            //     icon: "warning",
+            //     showCancelButton: true,
+            //     confirmButtonText: "Yes, do it!",
+            //     closeOnConfirm: false
+            // },
+            // function(isConfirm) {
+            //     if (isConfirm) {
+            //         $.ajax({
+            //             url: "{{ route('initialToAcSurveyHousehold') }}",
+            //             type: 'get',
+            //             data: {id: id},
+            //             success: function () {
+            //                 swal.fire({
+            //                     icon: 'success',
+            //                     title: response.msg,
+            //                     showDenyButton: false,
+            //                     showCancelButton: false,
+            //                     confirmButtonText: 'Okay!'
+            //                 }).then((result) => {
+            //                     $('#initialHouseholdsTable').DataTable().draw();
+            //                 });
+            //             }
+            //         });
+            //     } else {
+            //             swal("Cancelled", "Your imaginary file is safe :)", "error");
+            //     } 
+            // })
+
             Swal.fire({
-                icon: 'warning',
-                title: 'Are you sure you want to change the status for this household to AC Survey?',
-                showDenyButton: false,
+                title: "Are you sure?",
+                text: "You want to change the status for this household to AC Survey?",
+                icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: 'Confirm'
+                confirmButtonText: "Yes, do it!",
+                closeOnConfirm: false
             }).then((result) => {
-                $.ajax({
-                    url: "{{ route('initialToAcSurveyHousehold') }}",
-                    type: 'get',
-                    data: {id: id},
-                    success: function(response) {
-                        if(response.success == 1) {
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('initialToAcSurveyHousehold') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
 
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.msg,
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-                                $('#initialHouseholdsTable').DataTable().draw();
-                            });
-                        } else {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#initialHouseholdsTable').DataTable().draw();
+                                });
+                            } else {
 
-                            alert("Invalid ID.");
+                                alert("Invalid ID.");
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: "You cancelled it!",
+                        showDenyButton: false,
+                        showCancelButton: false,
+                        confirmButtonText: 'Okay!'
+                    })
+                }
             });
         });
     

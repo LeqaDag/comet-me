@@ -4,7 +4,7 @@
 
 @extends('layouts/layoutMaster')
 
-@section('title', 'communities')
+@section('title', 'donors')
 
 @include('layouts.all')
 
@@ -29,6 +29,27 @@
             <div class="panel panel-primary">
                 <div class="panel-body" >
                     <div id="pie_chart_water_donor_community" style="height:450px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-xl-6 col-lg-6 col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div id="pie_chart_h2o_donor_users" style="height:450px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-lg-6 col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div id="pie_chart_grid_donor_users" style="height:450px;">
                     </div>
                 </div>
             </div>
@@ -94,7 +115,8 @@
 
         var analyticsWater = <?php echo $donorsWaterData; ?>;
         var analyticsInternet = <?php echo $donorsInternetData; ?>;
-
+        var analyticsWaterUsers = <?php echo $waterUserDonors; ?>;
+        var analyticsGridUsers = <?php echo $gridUserDonors; ?>;
         var analyticsHouseholdEnergy = <?php echo $householdDonorsEnergyData; ?>;
 
         google.charts.load('current', {'packages':['corechart']});
@@ -110,6 +132,16 @@
             var dataInternet = google.visualization.arrayToDataTable(analyticsInternet);
             var optionsInternet = {
                 title : 'Communities by Donor (Internet)' 
+            };
+
+            var dataH2oDonor = google.visualization.arrayToDataTable(analyticsWaterUsers);
+            var optionsH2oDonor = {
+                title : 'Households by Donor (H2O )' 
+            };
+
+            var dataGridDonor = google.visualization.arrayToDataTable(analyticsGridUsers);
+            var optionsGridDonor = {
+                title : 'Households by Donor (Grid)' 
             };
 
             var dataHouseholdEnergy = google.visualization.arrayToDataTable(analyticsHouseholdEnergy);
@@ -128,6 +160,14 @@
             var chartHouseholdEnergy = new google.visualization.PieChart(
                 document.getElementById('pie_chart_energy_donor_household'));
             chartHouseholdEnergy.draw(dataHouseholdEnergy, optionsHouseholdEnergy);
+
+            var chartH2O = new google.visualization.PieChart(
+                document.getElementById('pie_chart_h2o_donor_users'));
+            chartH2O.draw(dataH2oDonor, optionsH2oDonor);
+
+            var chartGridUser = new google.visualization.PieChart(
+                document.getElementById('pie_chart_grid_donor_users'));
+             chartGridUser.draw(dataGridDonor, optionsGridDonor);
         }
 
         // DataTable

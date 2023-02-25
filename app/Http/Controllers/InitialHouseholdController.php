@@ -12,6 +12,7 @@ use Route;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\Cistern;
+use App\Models\EnergyUser;
 use App\Models\Household;
 use App\Models\HouseholdStatus;
 use App\Models\Region;
@@ -47,13 +48,20 @@ class InitialHouseholdController extends Controller
 
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('all', function($row) {
+
+                    $allButton = "<input title='select all' type='checkbox' class='initialToAcHouseholdAll' data-id='".$row->id."'></input>";
+                    
+                    return $allButton;
+   
+                })
                 ->addColumn('action', function($row) {
 
-                    $acButton = "<a title='From Initial to AC Survey' type='button' class='initialToAcHousehold' data-id='".$row->id."'><i class='fa-solid fa-check-square text-info'></i></a>";
+                   // $acButton = "<a title='From Initial to AC Survey' type='button' class='initialToAcHousehold' data-id='".$row->id."'><i class='fa-solid fa-check-square text-info'></i></a>";
                     $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateHouseholdModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                     $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                     
-                    return $acButton. " ".$updateButton." ".$deleteButton ;
+                    return $updateButton." ".$deleteButton ;
    
                 })
                
@@ -70,7 +78,7 @@ class InitialHouseholdController extends Controller
                         });
                     }
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'all'])
                 ->make(true);
         }
 
@@ -106,6 +114,13 @@ class InitialHouseholdController extends Controller
         $household = Household::find($id);
         $household->household_status_id = 2;
         $household->save();
+
+        // add this household as a energy user
+        $energyUser = new EnergyUser();
+        $energyUser->household_id = $household->id;
+        $energyUser->community_id = $household->community_id;
+        $energyUser->save();
+
         $response['success'] = 1;
         $response['msg'] = 'Household updated successfully'; 
       

@@ -38,20 +38,20 @@ $containerNav = $containerNav ?? 'container-fluid';
 
       @if(!isset($menuHorizontal))
       <!-- Search -->
-      <div class="navbar-nav align-items-center">
+      <!-- <div class="navbar-nav align-items-center">
         <div class="nav-item navbar-search-wrapper mb-0">
           <a class="nav-item nav-link search-toggler px-0" href="javascript:void(0);">
             <i class="bx bx-search-alt bx-sm"></i>
             <span class="d-none d-md-inline-block text-muted">Search </span>
           </a>
         </div>
-      </div>
+      </div> -->
       <!-- /Search -->
       @endif
 
       <ul class="navbar-nav flex-row align-items-center ms-auto">
         <!-- Language -->
-        <li class="nav-item dropdown-language dropdown me-2 me-xl-0">
+        <!-- <li class="nav-item dropdown-language dropdown me-2 me-xl-0">
           <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
             <i class='fi fi-us fis rounded-circle fs-3  me-1'></i>
           </a>
@@ -69,17 +69,17 @@ $containerNav = $containerNav ?? 'container-fluid';
               </a>
             </li>
           </ul>
-        </li>
+        </li> -->
         <!--/ Language -->
-        @if(isset($menuHorizontal))
-        <!-- Search -->
+        <!-- @if(isset($menuHorizontal))
+  
         <li class="nav-item navbar-search-wrapper me-2 me-xl-0">
           <a class="nav-item nav-link search-toggler" href="javascript:void(0);">
             <i class="bx bx-search bx-sm"></i>
           </a>
         </li>
-        <!-- /Search -->
-        @endif
+</Search -->
+      <!--  @endif -->
 
 
         <!-- Style Switcher -->
@@ -91,7 +91,7 @@ $containerNav = $containerNav ?? 'container-fluid';
         <!--/ Style Switcher -->
 
         <!-- Notification -->
-        <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
+        <!-- <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
           <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
             <i class="bx bx-bell bx-sm"></i>
             <span class="badge bg-danger rounded-pill badge-notifications">5</span>
@@ -275,7 +275,7 @@ $containerNav = $containerNav ?? 'container-fluid';
               </a>
             </li>
           </ul>
-        </li>
+        </li> -->
         <!--/ Notification -->
   
         <!-- User -->
@@ -286,10 +286,10 @@ $containerNav = $containerNav ?? 'container-fluid';
              
               @if(Auth::guard())
                 @if(Auth::guard('user')->user()->image == "")
-                  @if(Auth::guard('user')->user()->gender == "ذكر")
-                    <img src='/users/profile/male.jpg' alt class="rounded-circle">
+                  @if(Auth::guard('user')->user()->gender == "male")
+                    <img  src="/assets/images/male.png" alt class="rounded-circle">
                   @else
-                    <img src='/users/profile/female.jpg' alt class="rounded-circle">
+                    <img src="/assets/images/female.png" alt class="rounded-circle">
                   @endif
                 @else
                 <img alt class="rounded-circle" src="{{url('users/profile/'.@Auth::guard('user')->user()->image)}}">
@@ -305,10 +305,10 @@ $containerNav = $containerNav ?? 'container-fluid';
                     <div class="avatar avatar-online">
                     @if(Auth::guard('user')->user()->image == "")
                     
-                    @if(Auth::guard('user')->user()->gender == "ذكر")
+                    @if(Auth::guard('user')->user()->gender == "male")
                       <img src='/users/profile/male.jpg' class="rounded-circle">
                     @else
-                      <img src='/users/profile/female.jpg' class="rounded-circle" >
+                      <img src='/assets/images/female.png' class="rounded-circle" >
                     @endif
                     @else
                     <img class="rounded-circle" src="{{url('users/profile/'.@Auth::guard('user')->user()->image)}}">
@@ -319,7 +319,7 @@ $containerNav = $containerNav ?? 'container-fluid';
                   <div class="flex-grow-1">
                     <span class="fw-semibold d-block">
                       @if (Auth::guard())
-                      {{Auth::guard('user')->user()->fname}} {{Auth::guard('user')->user()->lname}} 
+                      {{Auth::guard('user')->user()->name}}  
                       @else
                       John Doe
                       @endif

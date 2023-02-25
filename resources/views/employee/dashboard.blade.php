@@ -267,6 +267,18 @@
     <div class="row">
       <div class="col-lg-3 col-md-6 col-12 mb-4">
         <div class="row align-items-end">
+            <div class="col-6">
+                <h4 class=" text-primary mb-2 pt-4 pb-1">{{$communitiesMasafersCount}}</h4>
+                <span class="d-block mb-4 text-nowrap">Communities</span>
+            </div>
+            <div class="col-6">
+                <i class="bx bx-home me-1 bx-lg text-primary"></i>
+            </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="row align-items-end">
           <div class="col-6">
             <h4 class=" text-primary mb-2 pt-4 pb-1">{{$countHouseholds}}</h4>
             <span class="d-block mb-4 text-nowrap">Households</span>
@@ -301,6 +313,9 @@
         </div>
       </div>
 
+    </div>
+
+    <div class="row">
       <div class="col-lg-3 col-md-6 col-12 mb-4">
         <div class="row align-items-end">
           <div class="col-6">
@@ -313,9 +328,6 @@
         </div>
       </div>
 
-    </div>
-
-    <div class="row">
       <div class="col-lg-3 col-md-6 col-12 mb-4">
         <div class="row align-items-end">
           <div class="col-6">
@@ -327,11 +339,39 @@
           </div>
         </div>
       </div>
+      <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="row align-items-end">
+            <div class="col-6">
+                <h4 class=" text-primary mb-2 pt-4 pb-1">{{$countInternetUsers}}</h4>
+                <span class="d-block mb-4 text-nowrap">Internet Holders</span>
+            </div>
+            <div class="col-6">
+                <i class="bx bx-wifi me-1 bx-lg text-light"></i>
+            </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+@include('employee.incident_details')
+  <div class="row mb-4">
+    <div class="col-md-12 col-lg-12">
+      <div class="col-xl-12 col-lg-12 col-md-12">
+        <div class="panel panel-primary">
+          <div class="panel-body" >
+            <div id="incidentsMgChart" style="height:400px;">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-</div>
+
+
 
 <script type="text/javascript">
 
@@ -370,4 +410,57 @@
     });
 </script>
 
+<script type="text/javascript">
+
+  $(function () {
+
+    var analytics = <?php echo $incidentsData; ?>;
+    var numberMg = <?php echo $mgIncidentsNumber;?>;
+
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    
+    function drawChart() {
+      var data = google.visualization.arrayToDataTable(analytics);
+      var options  ={
+        title:'Status of Micro-Grids Under Threat of Demolition (total '+ numberMg +')',
+        is3D:true,
+      };
+
+      var chart = new google.visualization.PieChart(
+        document.getElementById('incidentsMgChart'));
+      chart.draw(
+          data, options
+      );
+
+
+      google.visualization.events.addListener(chart,'select',function() {
+        
+        var row = chart.getSelection()[0].row;
+        var selected_data=data.getValue(row,0);
+        
+        $.ajax({
+          url: "{{ route('incidentDetails') }}",
+          type: 'get',
+          data: {
+            selected_data: selected_data
+          },
+          success: function(response) {
+            $('#incidentsDetailsModal').modal('toggle');
+            $('#incidentsDetailsTitle').html(selected_data);
+            $('#contentIncidentsTable').find('tbody').html('');
+              response.forEach(refill_table);
+              function refill_table(item, index){
+                  $('#contentIncidentsTable').find('tbody').append('<tr><td>'+item.community+'</td><td>'+item.energy+'</td><td>'+item.incident+'</td><td>'+item.date+'</td></tr>');
+              }
+          }
+        });
+      });
+    }
+
+
+    
+  });
+</script>
 @endsection

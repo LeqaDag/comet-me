@@ -66,6 +66,8 @@ class ServedHouseholdController extends Controller
         }
 
         $dataHouseholdsByCommunity = DB::table('households')
+            ->join('energy_users', 'households.id', '=', 'energy_users.household_id')
+            ->leftJoin('household_meters', 'energy_users.id', '=', 'household_meters.energy_user_id')
             ->where('households.household_status_id', 4)
             ->join('communities', 'households.community_id', '=', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
@@ -74,6 +76,7 @@ class ServedHouseholdController extends Controller
                     DB::raw('count(*) as number'))
             ->groupBy('regions.english_name')
             ->get();
+        
         $arrayHouseholdsByCommunity[] = ['Region Name', 'Total'];
         
         foreach($dataHouseholdsByCommunity as $key => $value) {

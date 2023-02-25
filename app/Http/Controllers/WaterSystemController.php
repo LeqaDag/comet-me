@@ -16,6 +16,7 @@ use App\Models\H2oStatus;
 use App\Models\H2oUser;
 use App\Models\Household;
 use App\Models\WaterUser;
+use App\Models\WaterSystem;
 use Auth;
 use DB;
 use Route;
@@ -28,8 +29,34 @@ class WaterSystemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {	
+        if ($request->ajax()) {
+
+            $data = DB::table('water_systems')->latest();
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function($row) {
+
+                    $viewButton = "<a type='button' class='viewWaterSystem' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWtaerSystemModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+
+                    return $viewButton;
+                })
+               
+                ->filter(function ($instance) use ($request) {
+                    if (!empty($request->get('search'))) {
+                            $instance->where(function($w) use($request){
+                            $search = $request->get('search');
+                            $w->orWhere('water_systems.type', 'LIKE', "%$search%")
+                            ->orWhere('water_systems.description', 'LIKE', "%$search%")
+                            ->orWhere('water_systems.year', 'LIKE', "%$search%");
+                        });
+                    }
+                })
+            ->rawColumns(['action'])
+            ->make(true);
+        }
+
         $gridLarge = GridUser::selectRaw('SUM(grid_integration_large) AS sumLarge')
             ->first();
         $gridSmall = GridUser::selectRaw('SUM(grid_integration_small) AS sumSmall')

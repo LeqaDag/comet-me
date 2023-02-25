@@ -4,13 +4,12 @@
         font-size: 14px;
     }
 </style>
-<div id="communityDetails{{$community->id}}" class="modal fade" tabindex="-1" aria-hidden="true" 
-    aria-labelledby="exampleModalLabel">
+<div id="communityDetails" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">
-                    {{$community->english_name}} Details
+                <h1 class="modal-title fs-5">
+                    <span id="communityModalTitle"></span> Details
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
@@ -18,22 +17,22 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <h4>General Details</h4>
+                    <h5>General Details</h5>
                 </div>
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             English Name: 
-                            <span class="spanDetails">
-                                {{$community->english_name}}
+                            <span class="spanDetails" id="englishNameCommunity">
+                                
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Number of Compounds: 
-                            <span class="spanDetails">
-                                {{$community->number_of_compound}}
+                            <span class="spanDetails" id="numberOfCompoundsCommunity">
+                               
                             </span>
                         </h6>
                     </div>
@@ -42,16 +41,16 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Arabic Name: 
-                            <span class="spanDetails">
-                                {{$community->arabic_name}}
+                            <span class="spanDetails" id="arabicNameCommunity">
+                                
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Number of People: 
-                            <span class="spanDetails">
-                                {{$community->number_of_people}}
+                            Number of Households: 
+                            <span class="spanDetails" id="numberOfPeopleCommunity">
+                             
                             </span>
                         </h6>
                     </div>
@@ -60,16 +59,16 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Region Name: 
-                            <span class="spanDetails">
-                                {{$community->Region->english_name}}
+                            <span class="spanDetails" id="englishNameRegion">
+                              
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Number of Households: 
-                            <span class="spanDetails">
-                                {{$community->number_of_households}}
+                            Number of People: 
+                            <span class="spanDetails" id="numberOfHouseholdCommunity">
+                               
                             </span>
                         </h6>
                     </div>
@@ -78,37 +77,38 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Sub Region Name: 
-                            <span class="spanDetails">
-                                {{$community->SubRegion->english_name}}
+                            <span class="spanDetails" id="englishNameSubRegion">
+                               
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Community Status: 
-                            <span class="spanDetails">
-                                {{$community->community_status}}
+                            <span class="spanDetails" id="statusCommunity">
+                              
                             </span>
                         </h6>
                     </div>
                 </div>
+                <hr>
                 <div class="row">
-                    <h4>Service Details</h4>
+                    <h5>Service Details</h5>
                 </div>
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Energy Service: 
-                            <span class="spanDetails">
-                                {{$community->energy_service}}
+                            <span class="spanDetails" id="energyServiceCommunity">
+                              
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Energy Service Beginning Year: 
-                            <span class="spanDetails">
-                                {{$community->energy_service_beginning_year}}
+                            <span class="spanDetails" id="energyServiceYearCommunity">
+                                
                             </span>
                         </h6>
                     </div>
@@ -117,16 +117,16 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Water Service: 
-                            <span class="spanDetails">
-                                {{$community->water_service}}
+                            <span class="spanDetails" id="waterServiceCommunity">
+                             
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Water Service Beginning Year: 
-                            <span class="spanDetails">
-                                {{$community->water_service_beginning_year}}
+                            <span class="spanDetails" id="waterServiceYearCommunity">
+                                
                             </span>
                         </h6>
                     </div>
@@ -135,32 +135,45 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Internet Service: 
-                            <span class="spanDetails">
-                                {{$community->internet_service}}
+                            <span class="spanDetails" id="internetServiceCommunity">
+                                
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Internet Service Beginning Year: 
-                            <span class="spanDetails">
-                                {{$community->internet_service_beginning_year}}
+                            <span class="spanDetails" id="internetServiceYearCommunity">
+                              
                             </span>
                         </h6>
                     </div>
                 </div>
+                <hr>
                 <div class="row">
-                    <h4>Public Structures Details</h4>
+                    <h5>Public Structures Details</h5>
                 </div>
+              
                 <div class="row">
-                    <h4>Compounds Details</h4>
+                    <div class="col-xl-6 col-lg-6 col-md-6" >
+                        <span class="spanDetails" id="structuresCommunity">
+                            
+                        </span>
+                    </div>
                 </div>
+                <hr>
                 <div class="row">
-                    <h4>Nearby Towns Details</h4>
+                    <h5>Compounds Details</h5>
                 </div>
+                <hr>
                 <div class="row">
-                    <h4>Nearby Settlements Details</h4>
+                    <h5>Nearby Towns Details</h5>
                 </div>
+                <hr>
+                <div class="row">
+                    <h5>Nearby Settlements Details</h5>
+                </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Close

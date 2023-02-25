@@ -7,6 +7,13 @@ label, table {
     margin-top: 20px;
 }
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
+
 <div id="createCommunity" class="modal fade" tabindex="-1" aria-hidden="true" 
     aria-labelledby="exampleModalLabel">
     <div class="modal-dialog modal-lg">
@@ -166,7 +173,8 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Structures</label>
-                                <select class="selectpicker form-control" multiple data-live-search="true" 
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" 
                                     name="public_structures[]" id="publicStructures">
                                     @foreach($publicCategories as $publicCategorie)
                                     <option value="{{$publicCategorie->id}}">
@@ -177,7 +185,7 @@ label, table {
                             </fieldset>
                         </div>
 
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <!-- <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label' id=""></label>
                                 <select class="selectpicker form-control" multiple data-live-search="true" 
@@ -189,9 +197,9 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
-                        </div>
+                        </div> -->
 
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1" 
+                        <!-- <div class="col-xl-4 col-lg-4 col-md-4 mb-1" 
                             id="schoolShared">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label' id="schoolSharedLabel"
@@ -203,11 +211,8 @@ label, table {
                                     <option value="No">No</option>
                                 </select>
                             </fieldset>
-                        </div>
-                    </div>
+                        </div> -->
 
-
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Recommended system type</label>
@@ -221,14 +226,15 @@ label, table {
                         </div>
                     </div>
 
+
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-12 mb-1" id="percentageQuestion1Div">
                             <fieldset class="form-group">
                                 <input type="text" name="description" class="form-control"
-                                    id="percentageInputQuestion1" style="visiblity:hidden; display:none">
+                                    id="percentageInputQuestion1" 
+                                    style="visiblity:hidden; display:none">
                             </fieldset>
                         </div>
-
                     </div>
 
                     <div class="row">
@@ -275,7 +281,6 @@ label, table {
     </div>
 </div>
 
-<script src="{{ asset('js/jquery.min.js') }}"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 

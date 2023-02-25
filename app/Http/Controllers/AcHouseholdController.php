@@ -12,12 +12,19 @@ use Route;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\Cistern;
+use App\Models\EnergyUser;
+use App\Models\EnergySystem;
 use App\Models\Household;
+use App\Models\HouseholdMeter;
 use App\Models\HouseholdStatus;
 use App\Models\Region;
 use App\Models\Structure;
 use App\Models\SubRegion;
 use App\Models\Profession;
+use App\Models\EnergySystemType;
+use App\Models\EnergyHolder;
+use App\Models\EnergyPublicStructure;
+use App\Models\MeterCase;
 use Carbon\Carbon;
 use DataTables;
 use mikehaertl\wkhtmlto\Pdf;
@@ -42,7 +49,8 @@ class AcHouseholdController extends Controller
                     'households.updated_at as updated_at',
                     'regions.english_name as region_name',
                     'communities.english_name as name',
-                    'communities.arabic_name as aname',)
+                    'communities.arabic_name as aname',
+                    'households.energy_meter')
                 ->latest(); 
 
             
@@ -50,7 +58,7 @@ class AcHouseholdController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
 
-                    $acButton = "<a title='From AC Survey to Served' type='button' class='acToServedHousehold' data-id='".$row->id."'><i class='fa-solid fa-check-square text-info'></i></a>";
+                    $acButton = "<select id='sharedHouseholdsSelect' class='sharedHousehold form-control' data-id='".$row->id."'><option selected>'". $row->energy_meter ."'</option><option value='No'>No</option><option value='Yes'>Yes</option></select>";
                     
                     return $acButton;
    
@@ -88,7 +96,14 @@ class AcHouseholdController extends Controller
             $arrayAcHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
         }
 
-		return view('employee.household.ac')
+        $communities = Community::all();
+        $households = Household::all();
+        $energySystems = EnergySystem::all();
+        $energySystemTypes = EnergySystemType::all();
+        $meters = MeterCase::all();
+
+		return view('employee.household.ac', compact('communities', 'households', 
+            'energySystems', 'energySystemTypes', 'meters'))
             ->with('communityAcHouseholdsData', json_encode($arrayAcHouseholdsByCommunity));
     }
 
@@ -98,16 +113,121 @@ class AcHouseholdController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function acToServedSurveyHousehold(Request $request)
+    public function acSubHousehold(Request $request)
     {
         $id = $request->id;
-
         $household = Household::find($id);
-        $household->household_status_id = 4;
-        $household->save();
-        $response['success'] = 1;
-        $response['msg'] = 'Household updated successfully'; 
+        $households = Household::where("community_id", $household->community_id)
+            ->where("id", "!=", $household->id)
+            ->select("english_name", "id")
+            ->get();
+
+        $response = $households; 
       
         return response()->json($response); 
+    }
+
+    /**
+     * Change resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function acSubHouseholdSave(Request $request)
+    {
+        $energyUser = EnergyUser::where("household_id", $request->id)->first();
+
+        $mainHousehold = Household::findOrFail($request->user_id);
+        $mainHousehold->energy_service = "Yes";
+        $mainHousehold->energy_meter = "Yes";
+        $mainHousehold->save();
+
+        if($energyUser != null) {
+            $energyUser->delete();
+
+            $householdMeter = Household::findOrFail($request->id);
+            $householdMeter->energy_service = "Yes";
+            $householdMeter->energy_meter = "No";
+            $householdMeter->save();
+
+            $householdMeter = new HouseholdMeter();
+            $householdMeter->user_name = $householdMeter->english_name;
+            $householdMeter->user_name_arabic = $householdMeter->arabic_name;
+            $householdMeter->energy_user_id = $user->id;
+            $householdMeter->household_id = $request->id;
+            $householdMeter->save();
+        }
+
+        $response = $mainHousehold;  
+      
+        return response()->json($response); 
+    }
+
+    /**
+     * Change resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function acMainHousehold(Request $request)
+    {
+        $householdMeter = HouseholdMeter::where("household_id", $request->id)->get();
+
+        if($householdMeter == []) {
+            $householdMeter->delete();
+        }
+
+        $mainHousehold = Household::findOrFail($request->id);
+        $mainHousehold->energy_service = "Yes";
+        $mainHousehold->energy_meter = "Yes";
+        $mainHousehold->save();
+      
+        $response = $mainHousehold;
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $communities = Community::all();
+        $energySystemTypes = EnergySystemType::all();
+        $households = Household::all();
+
+        return view('employee.household.create_ac', compact('communities', 'energySystemTypes', 
+            'households'));
+    }
+
+     /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        if($request->household_id) {
+            for($i=0; $i < count($request->household_id); $i++) {
+
+                $household = Household::findOrFail($request->household_id[$i]);
+                $household->household_status_id = 2;
+                $household->save();
+
+                EnergyUser::create([
+                    'household_id' => $request->household_id[$i],
+                    'community_id' => $request->community_id,
+                    'energy_system_type_id' => $request->energy_system_type_id,
+                    'energy_system_id' => $request->energy_system_id,
+                    'meter_number' => 0
+                ]);  
+            }
+        }
+     
+        return redirect('/ac-household')
+            ->with('message', 'New Elc. Added Successfully!');
     }
 }

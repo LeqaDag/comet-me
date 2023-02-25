@@ -84,23 +84,42 @@
 
 <div class="container mb-4">
     <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Classic H2O System</h5>
-                </div>
-                <div class="card-body">
-                    <div id="h2oUserChart"></div>
-                </div>
-            </div>
+        <div class="col-xl-6 col-lg-6 col-md-6">
+            <fieldset class="form-group">
+                <label class='col-md-12 control-label'>Water System Type</label>
+                <select name="water_type" id="selectedWaterSystemType" 
+                    class="form-control" required>
+                    <option disabled selected>Choose one...</option>
+                    <option value="h2o">Classic H2O System</option>
+                    <option value="grid">Grid Integration</option>
+                </select>
+            </fieldset>
         </div>
-        <div class="col-md-6">
+        <div class="col-xl-6 col-lg-6 col-md-6">
+            <fieldset class="form-group">
+                <label class='col-md-12 control-label'>Status</label>
+                <select name="status" id="selectedWaterStatus" 
+                class="form-control" disabled required>
+                    <option disabled selected>Choose one...</option>
+                    <option value="0">Complete</option>
+                    <option value="1">Not Complete</option>
+                    <option value="2">Delivery</option>
+                    <option value="3">Not Delivery</option>
+                </select>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-4" id="chartWaterSystem" style="visiblity:hidden; display:none">
+    <div class="row">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Grid Integration System</h5>
+                    <h5 id="chartWaterSystemTitle"></h5>
                 </div>
                 <div class="card-body">
-                    <div id="gridUserChart"></div>
+                    <div id="waterUserChart"></div>
                 </div>
             </div>
         </div>
@@ -108,21 +127,20 @@
 </div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Water System Holders
+  <span class="text-muted fw-light">All </span>Used Water System Holders
 </h4>
 
+@if(session()->has('message'))
+    <div class="row">
+        <div class="alert alert-success">
+            {{ session()->get('message') }}
+        </div>
+    </div>
+@endif
 
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createWaterUser">
-                    Create New Water System Holder	
-                </button>
-
-                @include('users.water.create')
-            </div>
             <table id="waterUsersTable" 
                 class="table table-striped data-table-water-users my-2">
                 <thead>
@@ -143,29 +161,93 @@
     </div>
 </div>
 
+@include('users.water.details')
+
 <script type="text/javascript">
 
-    $(function () {
+    $(document).on('change', '#selectedWaterSystemType', function () {
+        water_type = $(this).val();
 
-        var analytics = <?php echo $h2oChartStatus; ?>;
-        var analyticsGrid = <?php echo $gridChartStatus; ?>;
+        if(water_type == "h2o") {
+            $("#chartWaterSystem").css("visibility", "visible");
+            $("#chartWaterSystem").css('display', 'block');
+            $("#chartWaterSystemTitle").html("Classic H2O System");
 
-        google.charts.load('current', {'packages':['bar']});
-        google.charts.setOnLoadCallback(drawChart);
+            var analytics = <?php echo $h2oChartStatus; ?>;
 
-        function drawChart() {
-            var data = google.visualization.arrayToDataTable(analytics);
-            var dataGrid = google.visualization.arrayToDataTable(analyticsGrid);
+            google.charts.load('current', {'packages':['bar']});
+            google.charts.setOnLoadCallback(drawChart);
 
-            var chart = new google.charts.Bar(document.getElementById('h2oUserChart'));
-            chart.draw(
-                data
-            );
-            var chartGrid = new google.charts.Bar(document.getElementById('gridUserChart'));
-            chartGrid.draw(
-                dataGrid
-            );
+            function drawChart() {
+                var data = google.visualization.arrayToDataTable(analytics);
+                
+                var chart = new google.charts.Bar(document.getElementById('waterUserChart'));
+                chart.draw(
+                    data
+                );
+
+                google.visualization.events.addListener(chart,'select',function() {
+                    var row = chart.getSelection()[0].row;
+                    var selected_data=data.getValue(row,0);
+                   
+                    $.ajax({
+                    url: "{{ route('waterChartDetails') }}",
+                    type: 'get',
+                    data: {
+                        selected_data: selected_data
+                    },
+                    success: function(response) {
+                        $('#h2oDetailsModal').modal('toggle');
+                        $('#h2oDetailsTitle').html(selected_data);
+                        $('#contentH2oTable').find('tbody').html('');
+                        response.forEach(refill_table);
+                        function refill_table(item, index){
+                            $('#contentH2oTable').find('tbody').append('<tr><td>'+item.english_name+'</td><td>'+item.community_name+'</td><td>'+item.number_of_h20+'</td><td>'+ item.number_of_bsf +'</td></tr>');
+                        }
+                    }
+                    });
+                });
+            }
         }
+        if(water_type == "grid") {
+            $('#selectedWaterStatus').prop('disabled', false);
+            
+            $(document).on('change', '#selectedWaterStatus', function () {
+                water_status = $(this).val();
+
+                $.ajax({
+                    url: "{{ route('chartWater') }}",
+                    type: 'get',
+                    data: {
+                        water_type: water_type,
+                        water_status:water_status
+                    },
+                    success: function(data) {
+           
+                        $("#chartWaterSystem").css("visibility", "visible");
+                        $("#chartWaterSystem").css('display', 'block');
+                        $("#chartWaterSystemTitle").html("Grid Integration System");
+                        var analyticsGrid = data;
+
+                        google.charts.load('current', {'packages':['bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            var dataGrid = google.visualization.arrayToDataTable(analyticsGrid);
+
+                            var chartGrid = new google.charts.Bar(
+                                document.getElementById('waterUserChart'));
+                            chartGrid.draw(
+                                dataGrid
+                            );
+                        }
+                    }
+                });
+            });
+        }
+    });
+
+    $(function () {
 
         // DataTable
         var table = $('.data-table-water-users').DataTable({
@@ -186,7 +268,35 @@
                 {data: 'grid_integration_small', name: 'grid_integration_small' },
                 {data: 'action'}
             ],
-            
+        });
+
+        // View record details
+        $('#waterUsersTable').on('click','.viewWaterUser',function() {
+            var id = $(this).data('id');
+        
+            // AJAX request
+            $.ajax({
+                url: 'water-user/' + id,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    $('#WaterUserModalTitle').html(response['household'].english_name);
+                    $('#englishNameUser').html(response['household'].english_name);
+                    $('#communityUser').html(response['community'].english_name);
+                    $('#numberH2oUser').html(response['h2oUser'].number_of_h20);
+                    $('#statusH2oUser').html(response['h2oStatus'].status);
+                    $('#numberBsfUser').html(response['h2oUser'].number_of_bsf);
+                    $('#statusBsfUser').html(response['bsfStatus'].name);
+
+                    $('#gridLargeNumber').html(response['gridUser'].grid_integration_large);
+                    $('#gridLargeDateNumber').html(response['gridUser'].large_date);
+                    $('#gridSmallNumber').html(response['gridUser'].grid_integration_small);
+                    $('#gridSmallDateNumber').html(response['gridUser'].small_date);
+                    $('#gridDelivery').html(response['gridUser'].is_delivery);
+                    $('#gridPaid').html(response['gridUser'].is_paid);
+                    $('#gridComplete').html(response['gridUser'].is_complete);
+                }
+            });
         });
     });
 </script>

@@ -19,6 +19,7 @@ use App\Models\EnergySystemType;
 use App\Models\EnergyUser;
 use App\Models\EnergyHolder;
 use App\Models\EnergyPublicStructure;
+use App\Models\EnergyPublicStructureDonor;
 use App\Models\Household;
 use App\Models\HouseholdMeter;
 use App\Models\MeterCase;
@@ -156,25 +157,27 @@ class EnergyUserController extends Controller
                 ->join('energy_systems', 'energy_users.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'energy_users.energy_system_type_id', '=', 'energy_system_types.id')
                 ->join('meter_cases', 'energy_users.meter_case_id', '=', 'meter_cases.id')
+                ->where('energy_users.meter_active', 'Yes')
                 ->select('energy_users.meter_number', 'energy_users.meter_active',
                     'energy_users.id as id', 'energy_users.created_at as created_at', 
                     'energy_users.updated_at as updated_at', 
                     'communities.english_name as community_name',
                     'households.english_name as household_name',
                     'energy_systems.name as energy_name', 
-                    'energy_system_types.name as energy_type_name',)
+                    'energy_system_types.name as energy_type_name',
+                    'energy_users.daily_limit')
                 ->latest(); 
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
 
-                    $updateButton = "<a type='button' class='updateEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateEnergyUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteEnergyUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                    $viewButton = "<a type='button' class='viewEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
                     
-                    return $updateButton." ".$deleteButton;
+                    return $viewButton;
    
                 })
+               // ->with('total', $data->sum('daily_limit'))
                 ->filter(function ($instance) use ($request) {
                     if (!empty($request->get('search'))) {
                             $instance->where(function($w) use($request) {
@@ -191,49 +194,6 @@ class EnergyUserController extends Controller
                 })
                 ->rawColumns(['action'])
                 ->make(true);
-
-            // $dataPublic = DB::table('energy_public_structures')
-            //     ->join('public_structures', 'energy_public_structures.public_structure_id ', '=', 'public_structures.id')
-            //     ->join('communities', 'public_structures.community_id', '=', 'communities.id')
-            //     ->join('energy_systems', 'energy_public_structures.energy_system_id', '=', 'energy_systems.id')
-            //     ->join('energy_system_types', 'energy_public_structures.energy_system_type_id', '=', 'energy_system_types.id')
-            //     ->join('meter_cases', 'energy_public_structures.meter_case_id', '=', 'meter_cases.id')
-            //     ->select('energy_public_structures.meter_number', 'energy_public_structures.meter_active',
-            //         'energy_public_structures.id as id', 'energy_public_structures.created_at as created_at', 
-            //         'energy_public_structures.updated_at as updated_at', 
-            //         'communities.english_name as community_name',
-            //         'public_structures.english_name as public_name',
-            //         'energy_systems.name as energy_name', 
-            //         'energy_system_types.name as energy_type_name',)
-            //     ->latest(); 
-
-             
-            // return Datatables::of($dataPublic)
-            //     ->addIndexColumn()
-            //     ->addColumn('action', function($row) {
-
-            //         $updateButton = "<button class='btn btn-sm btn-info updateEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateEnergyUserModal' ><i class='fa-solid fa-pen-to-square'></i></button>";
-            //         $deleteButton = "<button class='btn btn-sm btn-danger deleteEnergyUser' data-id='".$row->id."'><i class='fa-solid fa-trash'></i></button>";
-                    
-            //         return $updateButton." ".$deleteButton;
-   
-            //     })
-            //     ->filter(function ($instance) use ($request) {
-            //         if (!empty($request->get('search'))) {
-            //                 $instance->where(function($w) use($request) {
-            //                 $search = $request->get('search');
-            //                 $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-            //                 ->orWhere('households.english_name', 'LIKE', "%$search%")
-            //                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-            //                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-            //                 ->orWhere('energy_systems.name', 'LIKE', "%$search%")
-            //                 ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
-            //                 ->orWhere('energy_users.meter_number', 'LIKE', "%$search%");
-            //             });
-            //         }
-            //     })
-            //     ->rawColumns(['action'])
-            //     ->make(true);
         }
 
         $communities = Community::all();
@@ -275,51 +235,13 @@ class EnergyUserController extends Controller
             ->orWhere('public_structures.public_structure_category_id2', 3)
             ->orWhere('public_structures.public_structure_category_id3', 3)
             ->count();
-     
 
-        $data = DB::table('energy_users')
-            ->join('meter_cases', 'energy_users.meter_case_id', '=', 'meter_cases.id')
-            ->where('meter_cases.meter_case_name_english', '!=', "Used")
-            ->select(
-                    DB::raw('meter_cases.meter_case_name_english as name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('meter_cases.meter_case_name_english')
-            ->get();
+        $totalSum = EnergyUser::where("meter_case_id", 1)->sum('daily_limit');
 
-          
-        $array[] = ['Meter Case', 'Total'];
-        
-        foreach($data as $key => $value) {
-
-            $array[++$key] = [$value->name, $value->number];
-        }
-      
-
-        $dataPublicStructures = DB::table('energy_public_structures')
-            ->join('meter_cases', 'energy_public_structures.meter_case_id', '=', 'meter_cases.id')
-            //->where('meter_cases.meter_case_name_english', '!=', "Used")
-            ->select(
-                    DB::raw('meter_cases.meter_case_name_english as name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('meter_cases.meter_case_name_english')
-            ->get();
-
-          
-        $arrayPublicStructures[] = ['Meter Case', 'Total'];
-        
-        foreach($dataPublicStructures as $key => $value) {
-
-            $arrayPublicStructures[++$key] = [$value->name, $value->number];
-        }
-
-        
         return view('users.energy.index', compact('communities', 'households', 
             'energySystems', 'energySystemTypes', 'meters', 'energyMgNumbers', 
             'energyFbsNumbers', 'energyMmgNumbers', 'energyUsersNumbers',
-            'energySmgNumbers', 'householdMeterNumbers',))
-            ->with('energy_users', json_encode($array))
-            ->with('energy_public_structures', json_encode($arrayPublicStructures)
-        );
+            'energySmgNumbers', 'householdMeterNumbers', 'totalSum'));
     }
 
     /**
@@ -361,24 +283,23 @@ class EnergyUserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getHouseholdByCommunity($community_id)
+    public function getHouseholdByCommunity($community_id, $misc)
     {
-        $households = Household::where('community_id', $community_id)
-            ->where("household_status_id", 2)
-            ->get();
- 
-        if (!$community_id) {
+        $html = '<option disabled selected>Choose One ...</option>';
 
-            $html = '<option value="">Choose One...</option>';
+        if($misc == 1) {
+
+            $households = Household::where('community_id', $community_id)->get();
+
         } else {
 
-            $html = '';
             $households = Household::where('community_id', $community_id)
                 ->where("household_status_id", 2)
                 ->get();
-            foreach ($households as $household) {
-                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
-            }
+        }
+
+        foreach ($households as $household) {
+            $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
         }
 
         return response()->json(['html' => $html]);
@@ -419,7 +340,7 @@ class EnergyUserController extends Controller
     {
         $households = Household::where('community_id', $community_id)
             ->where("id", "!=", $user_id)
-            ->where("household_status_id", 2)
+            //->where("household_status_id", 2)
             ->get();
  
         if (!$community_id) {
@@ -430,13 +351,89 @@ class EnergyUserController extends Controller
             $html = '';
             $households = Household::where('community_id', $community_id)
                 ->where("id", "!=", $user_id)
-                ->where("household_status_id", 2)
+                //->where("household_status_id", 2)
                 ->get();
             foreach ($households as $household) {
                 $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
             }
         }
 
+        return response()->json(['html' => $households]);
+    }
+
+     /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getMiscCommunity($misc)
+    {
+        $html = '<option disabled selected>Choose One ...</option>';
+        if($misc == 1) {
+
+            $communities = Community::where('is_archived', 0)->get();
+        } else if($misc == 0) {
+
+            $communities = Community::where('is_archived', 0)
+                ->where('community_status_id', 1)
+                ->get();
+        }
+
+        foreach ($communities as $community) {
+            $html .= '<option value="'.$community->id.'">'.$community->english_name.'</option>';
+        }
+        
+
         return response()->json(['html' => $html]);
+    }
+
+     /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $energyUser = EnergyUser::findOrFail($id);
+        $community = Community::where('id', $energyUser->community_id)->first();
+        $household = Household::where('id', $energyUser->household_id)->first();
+        $meter = MeterCase::where('id', $energyUser->meter_case_id)->first();
+        $systemType = EnergySystemType::where('id', $energyUser->energy_system_type_id)->first();
+        $system = EnergySystem::where('id', $energyUser->energy_system_id)->first();
+        $householdMeters = HouseholdMeter::where("energy_user_id", $id)->get();
+
+        $response['user'] = $energyUser;
+        $response['community'] = $community;
+        $response['household'] = $household;
+        $response['meter'] = $meter;
+        $response['type'] = $systemType;
+        $response['system'] = $system;
+        $response['householdMeters'] = $householdMeters;
+
+        return response()->json($response);
+    }
+
+    /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getByHousehold(Request $request)
+    {
+        $energyUser = EnergyUser::where('household_id', $request->household_id)->first();
+
+        if($energyUser == null) {
+
+            $response['meter_number'] = "No";
+        } else {
+
+            $response['meter_number'] = $energyUser->meter_number;
+        }
+        
+
+        return response()->json($response);
     }
 }

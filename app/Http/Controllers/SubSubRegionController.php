@@ -25,19 +25,19 @@ class SubSubRegionController extends Controller
      */
     public function index(Request $request)
     {	
-        $data = DB::table('communities')
-            ->join('sub_sub_regions', 'communities.sub_sub_region_id', '=', 'sub_sub_regions.id')
-            ->select(
-                    DB::raw('sub_sub_regions.english_name as english_name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('sub_sub_regions.english_name')
-            ->get();
-        $array[] = ['English Name', 'Number'];
+        // $data = DB::table('communities')
+        //     ->join('sub_sub_regions', 'communities.sub_sub_region_id', '=', 'sub_sub_regions.id')
+        //     ->select(
+        //             DB::raw('sub_sub_regions.english_name as english_name'),
+        //             DB::raw('count(*) as number'))
+        //     ->groupBy('sub_sub_regions.english_name')
+        //     ->get();
+        // $array[] = ['English Name', 'Number'];
         
-        foreach($data as $key => $value) {
+        // foreach($data as $key => $value) {
 
-            $array[++$key] = [$value->english_name, $value->number];
-        }
+        //     $array[++$key] = [$value->english_name, $value->number];
+        // }
 
         $regions = Region::all(); 
         if ($request->ajax()) {
@@ -75,8 +75,6 @@ class SubSubRegionController extends Controller
                 ->make(true);
         }
 
-        return view('regions.sub_sub_regions.index', compact('regions'))
-            ->with('subSubRegions', json_encode($array)
-        );
+        return view('regions.sub_sub_regions.index', compact('regions'));
     }
 }

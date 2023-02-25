@@ -29,7 +29,52 @@
   <span class="text-muted fw-light">All </span> Water Systems
 </h4>
 
+<div class="container">
+    <div class="card my-2">
+        <div class="card-body">
+            <div>
+                <button type="button" class="btn btn-success" 
+                    data-bs-toggle="modal" data-bs-target="#createWaterSystem">
+                    Create New Water System	
+                </button>
+            </div>
+            <table id="systemWaterTable" class="table table-striped data-table-water-system my-2">
+                <thead>
+                    <tr>
+                        <th class="text-center">Type</th>
+                        <th class="text-center">Description</th>
+                        <th class="text-center">Year</th>
+                        <th class="text-center">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
+
+    $(function () {
+
+        var table = $('.data-table-water-system').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('water-system.index') }}",
+                data: function (d) {
+                    d.search = $('input[type="search"]').val()
+                }
+            },
+            columns: [
+                {data: 'type', name: 'type'},
+                {data: 'description', name: 'description'},
+                {data: 'year', name: 'year'},
+                {data: 'action'},
+            ]
+        });
+    });
 
     $(function () {
 
@@ -45,7 +90,7 @@
             chart.draw(
                 data
             );
-        }
+        } 
     });
 </script>
 @endsection

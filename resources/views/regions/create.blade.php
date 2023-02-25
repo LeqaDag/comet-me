@@ -3,7 +3,7 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Create Sub-Region</h4>
+                <h4 class="modal-title">Create Region</h4>
                 <button type="button" class="close" data-bs-dismiss="modal">&times;</button> 
             </div>
             <form method="POST" enctype='multipart/form-data' action="{{url('region')}}">

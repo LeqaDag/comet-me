@@ -16,6 +16,11 @@
       "slug": "region",
       "submenu": [
         {
+          "name": "All Regions",
+          "url": "region",
+          "slug": "Regions"
+        },
+        {
           "name": "Sub Regions",
           "url": "sub-region",
           "slug": "Sub Regions"
@@ -102,11 +107,68 @@
         },
         {
           "name": "Internet Contract Holders",
+          "url": "internet-user",
           "slug": "holders-internet"
         }
       ]
     },
-   
+ 
+    {
+      "name": "Energy Meters",
+      "icon": "menu-icon tf-icons bx bx-tachometer",
+      "slug": "meters",
+      "submenu": [
+        {
+          "name": "Meter Holders",
+          "url": "all-meter",
+          "slug": "holders-meter"
+        },
+        {
+          "name": "Shared Meters",
+          "url": "household-meter",
+          "slug": "household-meter"
+        },
+        {
+          "name": "Public Structures Meters",
+          "url": "energy-public",
+          "slug": "energy-public"
+        },
+        {
+          "name": "Comet Meters",
+          "url": "comet-meter",
+          "slug": "comet-meter"
+        }
+      ]
+    },
+
+    {
+      "name": "Water Users",
+      "icon": "menu-icon tf-icons bx bx-droplet",
+      "slug": "water",
+      "submenu": [
+        {
+          "name": "All Users",
+          "url": "all-water",
+          "slug": "holders-meter"
+        },
+        {
+          "name": "Shared H2O Users",
+          "url": "shared-h2o",
+          "slug": "shared-h2o"
+        },
+        {
+          "name": "H2O Public Structures",
+          "url": "water-public",
+          "slug": "water-public"
+        },
+        {
+          "name": "Maintenance",
+          "url": "water-maintenance",
+          "slug": "water-maintenance"
+        }
+      ]
+    },
+
     {
       "name": "Systems",
       "icon": "menu-icon tf-icons bx bx-data",
@@ -124,6 +186,7 @@
         },
         {
           "name": "Internet System",
+          "url": "internet-system",
           "slug": "system-internet"
         }
       ]
