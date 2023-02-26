@@ -139,13 +139,13 @@
 
 
         function drawChart() {
-        var data = google.visualization.arrayToDataTable(analytics);
-        var options  ={
-            title:'Status of Micro-Grids Under Threat of Demolition (total '+ numberMg +')',
-            is3D:true,
-        };
+            var data = google.visualization.arrayToDataTable(analytics);
+            var options  ={
+                title:'Status of Micro-Grids Under Threat of Demolition (total '+ numberMg +')',
+                is3D:true,
+            };
 
-        var chart = new google.visualization.PieChart(
+            var chart = new google.visualization.PieChart(
             document.getElementById('incidentsMgChart'));
             chart.draw(
                 data, options

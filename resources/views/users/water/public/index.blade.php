@@ -51,12 +51,10 @@
     </div>
 </div>
 
-@include('users.water.details')
 
 <script type="text/javascript">
 
     $(function () {
-
         // DataTable
         var table = $('.data-table-water-public').DataTable({
             processing: true,
@@ -142,7 +140,6 @@
 
                     Swal.fire('Changes are not saved', '', 'info')
                 }
-                
             });
         });
     });

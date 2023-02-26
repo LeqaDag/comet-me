@@ -16,6 +16,7 @@ use App\Models\GridUserDonor;
 use App\Models\H2oSharedUser;
 use App\Models\H2oStatus;
 use App\Models\H2oUser;
+use App\Models\H2oSystemIncident;
 use App\Models\H2oUserDonor;
 use App\Models\Household;
 use App\Models\WaterUser;
@@ -123,7 +124,7 @@ class WaterUserController extends Controller
         $totalWaterChildren = Household::where("water_service", "Yes")
             ->selectRaw('SUM(number_of_children) AS number_of_children')
             ->first();
-  
+
 		return view('users.water.index', compact('communities', 'bsfStatus', 'households', 
             'h2oStatus', 'totalWaterHouseholds', 'totalWaterMale', 'totalWaterFemale',
             'totalWaterChildren', 'totalWaterAdults'))
