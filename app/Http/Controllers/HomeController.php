@@ -40,9 +40,12 @@ use App\Models\Incident;
 use App\Models\MgIncident;
 use App\Models\IncidentStatusMgSystem;
 use App\Models\InternetUser;
+use App\Models\MeterList;
 use Auth;
 use Route;
 use DB;
+use Excel;
+use PDF;
 
 class HomeController extends Controller
 {
@@ -61,8 +64,62 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
-    {    
+    public function index(Request $request)
+    {
+        $mgIncidentsYear = DB::table('mg_incidents')
+            ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
+            ->select('incidents.english_name as name', 'mg_incidents.year')
+            ->selectRaw('count(*) as number')
+            ->groupBy('incidents.english_name', 'mg_incidents.year')
+            ->get();
+
+        $fbsIncidentsYear = DB::table('fbs_user_incidents')
+            ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
+            ->select('incidents.english_name as name', 'fbs_user_incidents.year')
+            ->selectRaw('count(*) as number')
+            ->groupBy('incidents.english_name', 'fbs_user_incidents.year')
+            ->get();
+
+        $h2oIncidentsYear = DB::table('h2o_system_incidents')
+            ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
+            ->select('incidents.english_name as name', 'h2o_system_incidents.year')
+            ->selectRaw('count(*) as number')
+            ->groupBy('incidents.english_name', 'h2o_system_incidents.year')
+            ->get();
+
+        $allIncidents = DB::table('mg_incidents')
+            ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
+            ->leftJoin('fbs_user_incidents', 'mg_incidents.incident_id', '=', 
+                'fbs_user_incidents.incident_id')
+            ->leftJoin('h2o_system_incidents', 'mg_incidents.incident_id', '=', 
+                'h2o_system_incidents.incident_id')
+            ->select('incidents.english_name as name', 'mg_incidents.year as mg_year',
+                'fbs_user_incidents.year as fbs_year', 'h2o_system_incidents.year as h2o_year')
+            ->get();
+            
+        //die($allIncidents); 
+       
+        $meterLists = MeterList::where("energy_user_id", 0)->get();
+        $meterListCount = MeterList::where("energy_user_id", 0)
+           // ->where("status", "Installed")
+            ->count();
+
+        $energyMeter = EnergyUser::all();
+        $energyUserCount = EnergyUser::count();
+       // dd($meterListCount);
+
+        // foreach($meterLists as $meterList) {
+        //     $energyMeter = EnergyUser::where("meter_number", $meterList->meter_number)->first();
+
+        //     if($energyMeter != null) {
+        //         $meterList->energy_user_id = $energyMeter->id;
+
+        //         $household = Household::where("id", $energyMeter->household_id)->first();
+        //         $meterList->energy_user_name = $household->english_name;
+        //         $meterList->save();
+        //     }
+        // }
+
         if (Auth::guard('user')->user() != null) {
 
             $allUsers = User::where('type', 1)
@@ -79,6 +136,8 @@ class HomeController extends Controller
             $h2oSharedNumbers = H2oSharedUser::count();
             $gridUsersNumber = GridUser::count();
     
+            $totalH2oUsers = $h2oUsersNumbers + $h2oSharedNumbers;
+
             $gridLarge = GridUser::selectRaw('SUM(grid_integration_large) AS sum')
                 ->first();
             $gridSmall = GridUser::selectRaw('SUM(grid_integration_small) AS sum')
@@ -221,11 +280,12 @@ class HomeController extends Controller
                 ->join('communities', 'mg_incidents.community_id', '=', 'communities.id')
                 ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
                 ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
+                ->where('incidents.english_name', "=",  "SWO")
                 ->join('incident_status_mg_systems', 'mg_incidents.incident_status_mg_system_id', 
                     '=', 'incident_status_mg_systems.id')
                 ->select(
-                        DB::raw('incident_status_mg_systems.name as name'),
-                        DB::raw('count(*) as number'))
+                    DB::raw('incident_status_mg_systems.name as name'),
+                    DB::raw('count(*) as number'))
                 ->groupBy('incident_status_mg_systems.name')
                 ->get();
             $arrayIncidents[] = ['English Name', 'Number'];
@@ -235,19 +295,87 @@ class HomeController extends Controller
                 $arrayIncidents[++$key] = [$value->name, $value->number];
             }
 
+            // Cumulative sum
+            $totals = DB::table('communities')
+                ->whereNotNull("communities.energy_service_beginning_year")
+                ->select(
+                    DB::raw('communities.energy_service_beginning_year as energy_service_beginning_year'),
+                    DB::raw('count(*) as number'))
+                ->groupBy('communities.energy_service_beginning_year')
+                ->get();
+
+            $cumulativeSum[] = ['Year', 'Sum'];
+            $sum = 0;
+
+            foreach($totals as $key => $value) {
+
+                $sum += $value->number;
+                $cumulativeSum[++$key] = 
+                [$value->energy_service_beginning_year, $sum];
+            }
+
+            // Cumulative sum water
+            $totalWater = DB::table('communities')
+                ->whereNotNull("communities.water_service_beginning_year")
+                ->select(
+                    DB::raw('communities.water_service_beginning_year as water_service_beginning_year'),
+                    DB::raw('count(*) as number'))
+                ->groupBy('communities.water_service_beginning_year')
+                ->get();
+
+            $cumulativeSumWater[] = ['Year', 'Sum'];
+            $sumWater = 0;
+
+            foreach($totalWater as $key => $value) {
+
+                $sumWater += $value->number;
+                $cumulativeSumWater[++$key] = 
+                [$value->water_service_beginning_year, $sumWater];
+            }
+
+            // Cumulative sum Internet
+            $totalInternet = DB::table('communities')
+                ->whereNotNull("communities.internet_service_beginning_year")
+                ->select(
+                    DB::raw('communities.internet_service_beginning_year as internet_service_beginning_year'),
+                    DB::raw('count(*) as number'))
+                ->groupBy('communities.internet_service_beginning_year')
+                ->get();
+
+            $cumulativeSumInternet[] = ['Year', 'Sum'];
+            $sumInternet = 0;
+
+            foreach($totalInternet as $key => $value) {
+
+                $sumInternet += $value->number;
+                $cumulativeSumInternet[++$key] = 
+                [$value->internet_service_beginning_year, $sumInternet];
+            }
+
+            $energyUsers = EnergyUser::where("meter_active", "Yes")->count();
+            $sharedEnergy = HouseholdMeter::count();
+            $InternetUsers = InternetUser::count() * 5;
+
+            $energyUsers += $sharedEnergy;
+            // total of served households energyUsers/servedHouseholds
+            $servedHouseholdCount = Household::where('household_status_id', 4)->count();
+
             return view('employee.dashboard', compact('householdNumbers', 'numberOfPeople',
                 'communityNumbers', 'h2oUsersNumbers', 'h2oSharedNumbers', 'gridUsersNumber', 
                 'gridLarge', 'regionNumbers', 'gridSmall', 'h2oNumber', 'systemHoldersNumber',
                 'numberOfMale', 'numberOfFemale', 'numberOfAdults', 'numberOfChildren',
                 'countEnergyUsers', 'countHouseholds', 'countMgSystem', 'countFbsSystem', 
                 'countH2oUsers', 'countGridUsers', 'mgIncidentsNumber', 'communitiesMasafersCount',
-                'countInternetUsers'))
+                'countInternetUsers', 'energyUsers', 'InternetUsers', 'totalH2oUsers',
+                'servedHouseholdCount'))
                 ->with(
                     'initialYearEnergyData', json_encode($arrayYearEnergy))
                 ->with(
-                    'initialYearWaterData', json_encode($arrayYearWater))
+                    'cumulativeSumWaterData', json_encode($cumulativeSumWater))
                 ->with(
-                    'initialYearInternetData', json_encode($arrayYearInternet))
+                    'cumulativeSumInternetData', json_encode($cumulativeSumInternet))
+                ->with(
+                    'cumulativeSum', json_encode($cumulativeSum))
                 ->with(
                     'incidentsData', json_encode($arrayIncidents));
 

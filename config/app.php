@@ -164,8 +164,9 @@ return [
     Illuminate\Validation\ValidationServiceProvider::class,
     Illuminate\View\ViewServiceProvider::class,
     Yajra\DataTables\DataTablesServiceProvider::class,
-    Yajra\DataTables\ButtonsServiceProvider::class, 
-
+    Yajra\DataTables\ButtonsServiceProvider::class,
+    Barryvdh\DomPDF\ServiceProvider::class,
+    Maatwebsite\Excel\ExcelServiceProvider::class,
     /*
          * Package Service Providers...
          */
@@ -179,8 +180,6 @@ return [
     App\Providers\EventServiceProvider::class,
     App\Providers\RouteServiceProvider::class,
     App\Providers\MenuServiceProvider::class,
-    
-
   ],
 
   /*
@@ -198,6 +197,8 @@ return [
     // ...
     'Helper' => App\Helpers\Helpers::class,
     'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+    'PDF' => Barryvdh\DomPDF\Facade::class,
+    'Excel' => Maatwebsite\Excel\Facades\Excel::class,
   ])->toArray(),
 
 ];

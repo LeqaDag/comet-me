@@ -160,7 +160,7 @@
             $.ajax({
                 url: 'energy-user/' + id,
                 type: 'get',
-                dataType: 'json',
+                dataType: 'json', 
                 success: function(response) {
                     $('#energyUserModalTitle').html(response['household'].english_name);
                     $('#englishNameUser').html(response['household'].english_name);
@@ -171,6 +171,7 @@
                     $('#systemTypeUser').html(response['type'].name);
                     $('#systemLimitUser').html(response['user'].daily_limit);
                     $('#systemDateUser').html(response['user'].installation_date);
+                    $('#vendorDateUser').html(response['vendor'].name);
                     $('#systemNotesUser').html(response['user'].notes);
                 }
             });

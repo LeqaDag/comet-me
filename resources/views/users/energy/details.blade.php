@@ -77,7 +77,7 @@
                             <span class="spanDetails" id="systemLimitUser">
                               
                             </span>
-                        </h6>
+                        </h6> 
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
@@ -91,13 +91,21 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
+                            Vendor: 
+                            <span class="spanDetails" id="vendorDateUser">
+                               
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
                             Notes: 
                             <span class="spanDetails" id="systemNotesUser">
                               
                             </span>
                         </h6>
                     </div>
-                </div>
+                </div> 
 <!-- 
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">

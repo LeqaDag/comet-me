@@ -27,6 +27,7 @@ use App\Models\ServiceType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
+use App\Models\VendorUsername;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -403,6 +404,7 @@ class EnergyUserController extends Controller
         $systemType = EnergySystemType::where('id', $energyUser->energy_system_type_id)->first();
         $system = EnergySystem::where('id', $energyUser->energy_system_id)->first();
         $householdMeters = HouseholdMeter::where("energy_user_id", $id)->get();
+        $vendor = VendorUsername::where('id', $energyUser->vendor_username_id)->first();
 
         $response['user'] = $energyUser;
         $response['community'] = $community;
@@ -411,6 +413,7 @@ class EnergyUserController extends Controller
         $response['type'] = $systemType;
         $response['system'] = $system;
         $response['householdMeters'] = $householdMeters;
+        $response['vendor'] = $vendor;
 
         return response()->json($response);
     }

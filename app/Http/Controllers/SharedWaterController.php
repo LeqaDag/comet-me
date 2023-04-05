@@ -46,11 +46,11 @@ class SharedWaterController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
 
-                    $updateButton = "<a type='button' class='updateWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateWaterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                   // $updateButton = "<a type='button' class='updateWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateWaterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                     $deleteButton = "<a type='button' class='deleteWaterUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    $viewButton = "<a type='button' class='viewWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                    //$viewButton = "<a type='button' class='viewWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
 
-                    return $updateButton." ".$deleteButton. " ". $viewButton;
+                    return $deleteButton;
                 })
                
                 ->filter(function ($instance) use ($request) {
@@ -78,5 +78,85 @@ class SharedWaterController extends Controller
   
 		return view('users.water.shared.index', compact('communities', 'bsfStatus', 'households', 
             'h2oStatus'));
+    }
+
+    /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getH2oUsersByCommunity(Request $request)
+    {
+        $h2oUsers = DB::table('h2o_users')
+            ->join('communities', 'h2o_users.community_id', 'communities.id')
+            ->join('households', 'h2o_users.household_id', 'households.id')
+            ->where('h2o_users.community_id', $request->community_id)
+            ->select('h2o_users.id as id', 'households.english_name')
+            ->get();
+
+        if (!$request->community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option selected>Choose One...</option>';
+            $h2oUsers =  DB::table('h2o_users')
+                ->join('communities', 'h2o_users.community_id', 'communities.id')
+                ->join('households', 'h2o_users.household_id', 'households.id')
+                ->where('h2o_users.community_id', $request->community_id)
+                ->select('h2o_users.id as id', 'households.english_name')
+                ->get();
+            foreach ($h2oUsers as $household) {
+                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $h2oUser = H2oUser::findOrFail($request->h2o_user_id);
+        $household = Household::findOrFail($h2oUser->household_id);
+        $sharedUser = new H2oSharedUser();
+        $sharedUser->household_id = $request->household_id;
+        $sharedUser->h2o_user_id = $request->h2o_user_id;
+        $sharedUser->user_english_name = $household->english_name;
+        $sharedUser->user_arabic_name = $household->arabic_name;
+        $sharedUser->save();
+
+        return redirect()->back()->with('message', 'New Shared User Added Successfully!');
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteSharedWaterUser(Request $request)
+    {
+        $id = $request->id;
+
+        $sharedUser = H2oSharedUser::find($id);
+
+        if($sharedUser->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Shared H2O User Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 }

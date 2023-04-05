@@ -12,6 +12,7 @@ use Route;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
+use App\Models\CommunityVendor;
 use App\Models\Donor;
 use App\Models\EnergyDonor;
 use App\Models\EnergySystem;
@@ -27,6 +28,7 @@ use App\Models\ServiceType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
+use App\Models\VendorUsername;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -41,6 +43,18 @@ class AllEnergyController extends Controller
      */
     public function index(Request $request)
     {
+        $energyUsers = EnergyUser::all();
+
+        foreach($energyUsers as $energyUser) {
+            $communityVendor = CommunityVendor::where('community_id', $energyUser->community_id)->first();
+
+            if($communityVendor != null) {
+
+                $energyUser->vendor_username_id = $communityVendor->vendor_username_id;
+                $energyUser->save();
+            }
+        }
+
         if ($request->ajax()) {
 
             $data = DB::table('energy_users')
@@ -64,7 +78,7 @@ class AllEnergyController extends Controller
                 ->addColumn('action', function($row) {
                     $donorButton = "<a type='button' class='donorEnergyUser' data-id='".$row->id."'><i class='fa-solid fa-dollar text-warning'></i></a>";
                     $viewButton = "<a type='button' class='viewEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    $updateButton = "<a type='button' class='updateAllEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateAllEnergyUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                    $updateButton = "<a type='button' class='updateAllEnergyUser' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                     $deleteButton = "<a type='button' class='deleteAllEnergyUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                     
                     return $donorButton." ". $viewButton." ". $updateButton." ".$deleteButton;
@@ -146,78 +160,16 @@ class AllEnergyController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function updateEnergyUserData(Request $request)
-    {
-        $energyUser = EnergyUser::findOrFail($request->id);
-        $energyUser->meter_number = $request->meter_number;
-        $energyUser->daily_limit = $request->daily_limit;
-        $energyUser->installation_date = $request->installation_date;
-
-        $communityId = $energyUser->community_id;
-        $communityDonors = CommunityDonor::where('community_id', $communityId)->get();
-        if($communityDonors) {
-            foreach($communityDonors as $communityDonor) {
-                $energyDonor = EnergyDonor::where('household_id', $energyUser->household_id)->first();
-                $energyDonor->delete();
-                EnergyDonor::create([
-                    'community_id' => $communityDonor->community_id,
-                    'household_id' => $energyUser->household_id,
-                    'donor_id' => $communityDonor->donor_id
-                ]);
-            }
-        }
-      
-        if($request->meter_active) $energyUser->meter_active = $request->meter_active;
-
-        if($request->meter_case_id == 1 || $request->meter_case_id == 2 ||
-            $request->meter_case_id == 3 || $request->meter_case_id == 4 ||
-            $request->meter_case_id == 5 || $request->meter_case_id == 6 ||
-            $request->meter_case_id == 7 || $request->meter_case_id == 8 ||
-            $request->meter_case_id == 9 || $request->meter_case_id == 10 ||
-            $request->meter_case_id == 11 || $request->meter_case_id == 12 ||
-            $request->meter_case_id == 13 || $request->meter_case_id == 14) {
-
-                if($request->meter_case_id == 1) {
-                    $household = Household::findOrFail($energyUser->household_id);
-                    $household->household_status_id = 4;
-                    $household->save();
-                }
-
-                $energyUser->meter_case_id = $request->meter_case_id;
-            }
-
-        $energyUser->save();
-       
-        return response()->json(['success'=> 'Energy User updated successfully!']);
-    }
-
-     /**
-     * Get a resource from storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function getEnergyUserDonors(int $id)
-    {
-        
-    }
-
-    /**
      * View Edit page.
      *
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function editDonor($id)
+    public function editPage($id)
     {
-        $energy = EnergyUser::find($id);
-      
-        return response()->json($energy);
+        $energyUser = EnergyUser::findOrFail($id);
+
+        return response()->json($energyUser);
     }
 
     /**
@@ -228,32 +180,33 @@ class AllEnergyController extends Controller
      */
     public function edit($id)
     {
-        $energy = EnergyUser::find($id);
-        $energyDonors = DB::table('energy_donors')
-            ->join('communities', 'energy_donors.community_id', '=', 'communities.id')
-            ->join('households', 'energy_donors.household_id', '=', 'households.id')
-            ->join('donors', 'energy_donors.donor_id', '=', 'donors.id')
-            ->where('energy_donors.household_id', $energy->household_id)
-            ->select('energy_donors.id as id', 'communities.english_name as community_name',
-                'households.english_name as household_name',
-                'donors.donor_name as donor_name')
+        $energyUser = EnergyUser::findOrFail($id);
+        $community_id = Community::findOrFail($energyUser->community_id);
+        $communities = Community::all();
+        $communityVendors = DB::table('community_vendors')
+            ->where('community_id', $community_id->id)
+            ->join('vendor_usernames', 'community_vendors.vendor_username_id', 
+                '=', 'vendor_usernames.id')
+            ->select('vendor_usernames.name', 'community_vendors.id as id',
+                'vendor_usernames.id as vendor_username_id')
             ->get();
-        $donors = Donor::all();
 
-        return view('users.energy.not_active.donor_edit', compact('energy', 'energyDonors', 
-            'donors'));
+        $household = Household::findOrFail($id);
+        $meterCases = MeterCase::all();
+        $vendor = VendorUsername::where('id', $energyUser->vendor_username_id)->first();
+
+        return view('users.energy.not_active.edit_energy', compact('household', 'communities',
+            'meterCases', 'energyUser', 'communityVendors', 'vendor'));
     }
 
     /**
-     * Update an existing resource in storage.
+     * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request, int $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateEnergyDonorData(Request $request) 
     {
-       // dd($request->all());
-        $energyUser = EnergyUser::find($id);
         $energyDonors = DB::table('energy_donors')
             ->join('communities', 'energy_donors.community_id', '=', 'communities.id')
             ->join('households', 'energy_donors.household_id', '=', 'households.id')
@@ -283,6 +236,111 @@ class AllEnergyController extends Controller
             }
         }
 
-        return redirect('/all-meter')->with('message', 'Donors Updated Successfully!');
+        return response()->json(['success'=> 'Energy User updated successfully!']);
+    }
+
+     /**
+     * Get a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEnergyUserDonors(int $id)
+    {
+        
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editDonor($id)
+    {
+        $energy = EnergyUser::find($id);
+      
+        return response()->json($energy);
+    }
+
+    // /**
+    //  * View Edit page.
+    //  *
+    //  * @param  int $id
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function edit($id)
+    // {
+    //     $energy = EnergyUser::find($id);
+    //     $energyDonors = DB::table('energy_donors')
+    //         ->join('communities', 'energy_donors.community_id', '=', 'communities.id')
+    //         ->join('households', 'energy_donors.household_id', '=', 'households.id')
+    //         ->join('donors', 'energy_donors.donor_id', '=', 'donors.id')
+    //         ->where('energy_donors.household_id', $energy->household_id)
+    //         ->select('energy_donors.id as id', 'communities.english_name as community_name',
+    //             'households.english_name as household_name',
+    //             'donors.donor_name as donor_name')
+    //         ->get();
+    //     $donors = Donor::all();
+
+    //     return view('users.energy.not_active.donor_edit', compact('energy', 'energyDonors', 
+    //         'donors'));
+    // }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $energyUser = EnergyUser::find($id);
+
+        $energyUser->meter_number = $request->meter_number;
+        $energyUser->daily_limit = $request->daily_limit;
+        $energyUser->installation_date = $request->installation_date;
+      
+        if($request->meter_active) $energyUser->meter_active = $request->meter_active;
+
+        if($request->vendor_username_id) $energyUser->vendor_username_id = $request->vendor_username_id;
+
+        if($request->meter_case_id == 1 || $request->meter_case_id == 2 ||
+            $request->meter_case_id == 3 || $request->meter_case_id == 4 ||
+            $request->meter_case_id == 5 || $request->meter_case_id == 6 ||
+            $request->meter_case_id == 7 || $request->meter_case_id == 8 ||
+            $request->meter_case_id == 9 || $request->meter_case_id == 10 ||
+            $request->meter_case_id == 11 || $request->meter_case_id == 12 ||
+            $request->meter_case_id == 13 || $request->meter_case_id == 14) 
+        {
+
+            if($request->meter_case_id == 1) {
+                $household = Household::findOrFail($energyUser->household_id);
+                $household->household_status_id = 4;
+                $household->energy_service = "Yes";
+                $household->energy_meter = "Yes";
+                $household->save();
+            }
+
+            $energyUser->meter_case_id = $request->meter_case_id;
+        }
+
+        $energyUser->save();
+        
+        if($energyUser->meter_active == "Yes" || $energyUser->meter_case_id == 1) {
+
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)->get();
+
+            if($householdMeters != []) {
+                foreach($householdMeters as $householdMeter) {
+
+                    $household = Household::findOrFail($householdMeter->household_id);
+                    $household->household_status_id = 4;
+                    $household->save();
+                }
+            }
+        }
+
+        return redirect('/all-meter')->with('message', 'Energy User Updated Successfully!');
     }
 }

@@ -135,30 +135,41 @@ class AcHouseholdController extends Controller
      */
     public function acSubHouseholdSave(Request $request)
     {
-        $energyUser = EnergyUser::where("household_id", $request->id)->first();
-
+        $energyUserHouseholdMeter = EnergyUser::where("household_id", $request->id)->first();
+        
         $mainHousehold = Household::findOrFail($request->user_id);
         $mainHousehold->energy_service = "Yes";
         $mainHousehold->energy_meter = "Yes";
         $mainHousehold->save();
 
+        $energyUser = EnergyUser::where("household_id", $request->user_id)->first();
+      
+        if($energyUserHouseholdMeter != null) {
+            $energyUserHouseholdMeter->delete();
+        } 
+
+        $householdMeter = Household::findOrFail($request->id);
+        $householdMeter->energy_service = "Yes";
+        $householdMeter->energy_meter = "No";
+
         if($energyUser != null) {
-            $energyUser->delete();
+            if($energyUser->meter_active == "Yes") {
 
-            $householdMeter = Household::findOrFail($request->id);
-            $householdMeter->energy_service = "Yes";
-            $householdMeter->energy_meter = "No";
-            $householdMeter->save();
-
-            $householdMeter = new HouseholdMeter();
-            $householdMeter->user_name = $householdMeter->english_name;
-            $householdMeter->user_name_arabic = $householdMeter->arabic_name;
-            $householdMeter->energy_user_id = $user->id;
-            $householdMeter->household_id = $request->id;
-            $householdMeter->save();
+                $householdMeter->household_status_id = 4;
+            }
         }
+        
+        $householdMeter->save();
 
-        $response = $mainHousehold;  
+        $householdMeter = new HouseholdMeter();
+        $householdMeter->user_name = $mainHousehold->english_name;
+        $householdMeter->user_name_arabic = $mainHousehold->arabic_name;
+        $householdMeter->household_name = $householdMeter->english_name;
+        $householdMeter->energy_user_id = $energyUser->id;
+        $householdMeter->household_id = $request->id;
+        $householdMeter->save();
+
+        $response = $householdMeter;  
       
         return response()->json($response); 
     }

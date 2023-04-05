@@ -75,32 +75,9 @@ class WaterSystemController extends Controller
             if($key == 3) $waterArray[$key] = ["H2O System", $h2oSystem->h2oSystem];
         }
 
-        $h2oIncidentsNumber = H2oSystemIncident::count();
-
-        // H2O incidents
-        $dataIncidents = DB::table('h2o_system_incidents')
-            ->join('communities', 'h2o_system_incidents.community_id', '=', 'communities.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
-            ->join('incident_statuses', 'h2o_system_incidents.incident_status_id', 
-                '=', 'incident_statuses.id')
-            ->select(
-                DB::raw('incident_statuses.name as name'),
-                DB::raw('count(*) as number'))
-            ->groupBy('incident_statuses.name')
-            ->get();
-
-        $arrayIncidents[] = ['English Name', 'Number'];
-        
-        foreach($dataIncidents as $key => $value) {
-
-            $arrayIncidents[++$key] = [$value->name, $value->number];
-        }
-
-		return view('system.water.index', compact('h2oIncidentsNumber'))
+		return view('system.water.index')
         ->with(
-            'waterSystemTypeData', json_encode($waterArray))
-        ->with('h2oIncidents', json_encode($arrayIncidents));
+            'waterSystemTypeData', json_encode($waterArray));
     }
 
     /**

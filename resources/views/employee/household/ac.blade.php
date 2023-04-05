@@ -117,9 +117,10 @@
                     },
                     success: function(response) {
                         $('#subHouseholdModal').modal('toggle');
+                        $(".mainHousehold").html("");
                         response.forEach(el => {
                             $(".mainHousehold").append(`<option value='${el.id}'> ${el.english_name}</option>`)
-                        });
+                        }); 
 
                         $('#btn_save').click(function (e) {
                             e.preventDefault();

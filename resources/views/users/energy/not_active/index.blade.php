@@ -55,7 +55,6 @@
     </div>
 </div>
 
-@include('users.energy.not_active.edit')
 @include('users.energy.details')
 
 <script type="text/javascript">
@@ -131,77 +130,93 @@
             });
         });
 
-        // Update record
-        $('#energyAllUsersTable').on('click','.updateAllEnergyUser',function() {
-            var id = $(this).data('id');
 
+        // View record details
+        $('#energyAllUsersTable').on('click', '.updateAllEnergyUser',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
             // AJAX request
             $.ajax({
-                url: 'allMeter/' + id,
+                url: 'allMeter/' + id + '/editpage',
                 type: 'get',
                 dataType: 'json',
                 success: function(response) {
-
-                    if(response.success == 1) {
-                        $('#meter_number').val(response.meter_number);
-                        $('#daily_limit').val(response.daily_limit);
-                        $('#selectedActive').html(response.meter_active);
-                        $('#selectedMeterCase').html(response.meter_case_id);
-                        $('#installation_date').val(response.installation_date);
-
-                        meter_active = $('#selectedActive').val();
-                        meter_case_id = $('#selectedMeterCase').val();
-
-                        $(document).on('change', '#meter_active', function () {
-                            meter_active = $(this).val();
-                        });
-
-                        $(document).on('change', '#meter_case_id', function () {
-                            meter_case_id = $(this).val();
-                        });
-
-                        $('#btn_save').click(function (e) {
-                            e.preventDefault();
-                            $(this).html('Sending..');
-
-                            meter_number = $('#meter_number').val();
-                            daily_limit = $('#daily_limit').val();
-                            installation_date = $('#installation_date').val();
-
-                            $.ajax({
-                                data: {
-                                    id: id,
-                                    meter_number : meter_number,
-                                    installation_date : installation_date,
-                                    daily_limit : daily_limit,
-                                    meter_active : meter_active,
-                                    meter_case_id : meter_case_id,
-                                },
-                                url: 'allMeter/info/' + id,
-                                type: "get",
-                                dataType: 'json',
-                                success: function (data) {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: data.success,
-                                        showDenyButton: false,
-                                        showCancelButton: false,
-                                        confirmButtonText: 'Okay!'
-                                    }).then((result) => {
-                                        $("#energyAllUsersTable").DataTable().draw();
-                                    });
-
-                                    $('#subHouseholdModal').modal('hide');
-                                    table.draw();
-                                }
-                            });
-                        });
-
-                    }
+                    window.open(url, "_self"); 
                 }
             });
-
         });
+
+        // Update record
+        // $('#energyAllUsersTable').on('click', '.updateAllEnergyUser',function() {
+        //     var id = $(this).data('id');
+
+        //     // AJAX request
+        //     $.ajax({
+        //         url: 'allMeter/' + id,
+        //         type: 'get',
+        //         dataType: 'json',
+        //         success: function(response) {
+
+        //             if(response.success == 1) {
+        //                 $('#meter_number').val(response.meter_number);
+        //                 $('#daily_limit').val(response.daily_limit);
+        //                 $('#selectedActive').html(response.meter_active);
+        //                 $('#selectedMeterCase').html(response.meter_case_id);
+        //                 $('#installation_date').val(response.installation_date);
+
+        //                 meter_active = $('#selectedActive').val();
+        //                 meter_case_id = $('#selectedMeterCase').val();
+
+        //                 $(document).on('change', '#meter_active', function () {
+        //                     meter_active = $(this).val();
+        //                 });
+
+        //                 $(document).on('change', '#meter_case_id', function () {
+        //                     meter_case_id = $(this).val();
+        //                 });
+
+        //                 $('#btn_save').click(function (e) {
+        //                     e.preventDefault();
+        //                     $(this).html('Sending..');
+
+        //                     meter_number = $('#meter_number').val();
+        //                     daily_limit = $('#daily_limit').val();
+        //                     installation_date = $('#installation_date').val();
+
+        //                     $.ajax({
+        //                         data: {
+        //                             id: id,
+        //                             meter_number : meter_number,
+        //                             installation_date : installation_date,
+        //                             daily_limit : daily_limit,
+        //                             meter_active : meter_active,
+        //                             meter_case_id : meter_case_id,
+        //                         },
+        //                         url: 'allMeter/info/' + id,
+        //                         type: "get",
+        //                         dataType: 'json',
+        //                         success: function (data) {
+        //                             Swal.fire({
+        //                                 icon: 'success',
+        //                                 title: data.success,
+        //                                 showDenyButton: false,
+        //                                 showCancelButton: false,
+        //                                 confirmButtonText: 'Okay!'
+        //                             }).then((result) => {
+        //                                 $("#energyAllUsersTable").DataTable().draw();
+        //                             });
+
+        //                             $('#subHouseholdModal').modal('hide');
+        //                             table.draw();
+        //                         }
+        //                     });
+        //                 });
+
+        //             }
+        //         }
+        //     });
+        // });
         
         // View record details
         $('#energyAllUsersTable').on('click','.viewEnergyUser',function() {

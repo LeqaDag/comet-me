@@ -14,7 +14,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
                 </button>
-            </div>
+            </div> 
             <div class="modal-body">
                 <div class="row">
                     <h5>General Details</h5>
@@ -42,6 +42,22 @@
                     <h5>Old H2O Details</h5>
                 </div>
                 <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Request Date: 
+                            <span class="spanDetails" id="dateH2oUser">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Installation Year: 
+                            <span class="spanDetails" id="yearH2oUser">
+                                
+                            </span>
+                        </h6>
+                    </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Number of H2O: 
@@ -85,17 +101,17 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Number of Grid Large: 
-                            <span class="spanDetails" id="gridLargeNumber">
-                              
+                            Request Date: 
+                            <span class="spanDetails" id="dateGridUser">
+                                
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Number of Grid Small: 
-                            <span class="spanDetails" id="gridSmallNumber">
-                               
+                            Number of Grid Large: 
+                            <span class="gridLargeNumber spanDetails" id="gridLargeNumber">
+                              
                             </span>
                         </h6>
                     </div>
@@ -103,23 +119,31 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Grid Large Date: 
-                            <span class="spanDetails" id="gridLargeDateNumber">
-                              
+                            Number of Grid Small: 
+                            <span class="gridSmallNumber spanDetails" id="gridSmallNumber">
+                               
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Grid Small Date: 
-                            <span class="spanDetails" id="gridSmallDateNumber">
-                               
+                            Grid Large Date: 
+                            <span class="gridLargeDateNumber spanDetails" id="gridLargeDateNumber">
+                              
                             </span>
                         </h6>
                     </div>
                 </div>
 
                 <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Grid Small Date: 
+                            <span class="gridSmallDateNumber spanDetails" id="gridSmallDateNumber">
+                               
+                            </span>
+                        </h6>
+                    </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Delivery: 
@@ -147,7 +171,9 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <button id="closeDetailsModel" type="button" 
+                        class="closeDetailsModel btn btn-secondary" 
+                        data-bs-dismiss="modal">
                         Close
                     </button>
                 </div>

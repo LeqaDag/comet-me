@@ -63,9 +63,14 @@ label {
                             <label class='col-md-12 control-label'>Profession</label>
                             <select name="profession_id" id="selectedProfession" class="form-control" >
                                 @if($household->Profession)
-                                    <option value="{{$household->Profession->id}}" selected>
+                                    <option value="{{$household->Profession->id}}" disabled selected>
                                         {{$household->Profession->profession_name}}
                                     </option>
+                                    @foreach($professions as $profession)
+                                    <option value="{{$profession->id}}">
+                                        {{$profession->profession_name}}
+                                    </option>
+                                    @endforeach
                                 @else
                                 @foreach($professions as $profession)
                                 <option value="{{$profession->id}}">
@@ -90,9 +95,14 @@ label {
                             <label class='col-md-12 control-label'>Community</label>
                             <select name="community_id" class="form-control" >
                                 @if($household->Community)
-                                <option value="{{$household->Community->id}}" selected>
+                                <option value="{{$household->Community->id}}" disabled selected>
                                     {{$household->Community->english_name}}
                                 </option>
+                                @foreach($communities as $community)
+                                <option value="{{$community->id}}">
+                                    {{$community->english_name}}
+                                </option>
+                                @endforeach
                                 @else
                                 @foreach($communities as $community)
                                 <option value="{{$community->id}}">

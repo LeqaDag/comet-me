@@ -157,12 +157,66 @@
           "slug": "shared-h2o"
         },
         {
-          "name": "H2O Public Structures",
+          "name": "Water Public Structures",
           "url": "water-public",
           "slug": "water-public"
+        }
+      ]
+    },
+
+    {
+      "name": "Internet Users",
+      "icon": "menu-icon tf-icons bx bx-wifi",
+      "slug": "water",
+      "submenu": [
+        {
+          "name": "All Users",
+          "url": "internet-user",
+          "slug": "internet-user"
         },
         {
-          "name": "Maintenance",
+          "name": "Internet Public Structures",
+          "url": "internet-public",
+          "slug": "internet-public"
+        }
+      ]
+    },
+
+    {
+      "name": "Refrigerators",
+      "icon": "menu-icon tf-icons bx bx-fridge",
+      "slug": "refrigerators",
+      "submenu": [
+        {
+          "name": "Holders",
+          "url": "refrigerator-user",
+          "slug": "refrigerator-user"
+        }
+      ]
+    },
+
+    {
+      "name": "Maintenances",
+      "icon": "menu-icon tf-icons bx bx-extension",
+      "slug": "maintenance",
+      "submenu": [
+        {
+          "name": "New Electricity",
+          "url": "new-energy-maintenance",
+          "slug": "new-energy-maintenance"
+        },
+        {
+          "name": "Electricity Maintenance",
+          "url": "energy-maintenance",
+          "slug": "energy-maintenance"
+        }, 
+        {
+          "name": "Refrigerator Maintenance",
+          "url": "refrigerator-maintenance",
+          "slug": "refrigerator-maintenance"
+        },
+        {
+          "name": "Water Maintenance",
           "url": "water-maintenance",
           "slug": "water-maintenance"
         }
@@ -193,10 +247,40 @@
     },
 
     {
+      "name": "Incidents",
+      "icon": "menu-icon tf-icons bx bx-error-alt",
+      "slug": "incidents",
+      "submenu": [
+        {
+          "name": "MG System",
+          "url": "mg-incident",
+          "slug": "mg-incident"
+        },
+        {
+          "name": "FBS Users",
+          "url": "fbs-incident",
+          "slug": "fbs-incident"
+        },
+        {
+          "name": "Water Users",
+          "url": "water-incident",
+          "slug": "water-incident"
+        }
+      ]
+    },
+
+    {
       "url": "donor",
       "name": "Donors",
       "icon": "menu-icon tf-icons bx bx-money",
       "slug": "donor"
+    },
+
+    {
+      "url": "chart",
+      "name": "Charts",
+      "icon": "menu-icon tf-icons bx bx-chart",
+      "slug": "charts"
     }
 
   ]

@@ -84,8 +84,6 @@ class EnergySystemController extends Controller
         $communities = Community::all();
 		$donors = Donor::paginate();
         $services = ServiceType::all();
-        $fbsIncidentsNumber = FbsUserIncident::where('energy_user_id', '!=', '0')->count();
-        $mgIncidentsNumber = MgIncident::count();
 
         $dataEnergySystem = DB::table('energy_systems')
             ->join('energy_system_types', 'energy_systems.energy_system_type_id', 
@@ -103,52 +101,9 @@ class EnergySystemController extends Controller
             [$value->name, $value->number];
         }
 
-        $dataIncidents = DB::table('mg_incidents')
-            ->join('communities', 'mg_incidents.community_id', '=', 'communities.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
-            ->join('incident_status_mg_systems', 'mg_incidents.incident_status_mg_system_id', 
-                '=', 'incident_status_mg_systems.id')
-            ->select(
-                    DB::raw('incident_status_mg_systems.name as name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('incident_status_mg_systems.name')
-            ->get();
-        $arrayIncidents[] = ['English Name', 'Number'];
-        
-        foreach($dataIncidents as $key => $value) {
-
-            $arrayIncidents[++$key] = [$value->name, $value->number];
-        }
-
-        $dataFbsIncidents = DB::table('fbs_user_incidents')
-            ->join('energy_users', 'fbs_user_incidents.energy_user_id', '=', 'energy_users.id')
-            ->join('households', 'energy_users.household_id', '=', 'households.id')
-            ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
-            ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
-            ->join('incident_status_small_infrastructures', 
-                'fbs_user_incidents.incident_status_small_infrastructure_id', 
-                '=', 'incident_status_small_infrastructures.id')
-            ->select(
-                    DB::raw('incident_status_small_infrastructures.name as name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('incident_status_small_infrastructures.name')
-            ->get();
-        $arrayFbsIncidents[] = ['English Name', 'Number'];
-        
-        foreach($dataFbsIncidents as $key => $value) {
-
-            $arrayFbsIncidents[++$key] = [$value->name, $value->number];
-        }
-
-		return view('system.energy.index', compact('communities', 'donors', 'services', 
-            'fbsIncidentsNumber', 'mgIncidentsNumber'))
+		return view('system.energy.index', compact('communities', 'donors', 'services'))
         ->with(
-            'energySystemData', json_encode($arrayEnergySystem))
-        ->with(
-            'incidentsData', json_encode($arrayIncidents))
-        ->with(
-            'incidentsFbsData', json_encode($arrayFbsIncidents));
+            'energySystemData', json_encode($arrayEnergySystem));
 
     }
 

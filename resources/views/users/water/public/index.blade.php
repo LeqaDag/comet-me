@@ -22,12 +22,12 @@
     </div>
 @endif
 
-<div class="container">
+<div class="container"> 
     <div class="card my-2">
         <div class="card-body">
             <div>
                 <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createWaterUser">
+                    data-bs-toggle="modal" data-bs-target="#createWaterPublic">
                     Create New Water Public Facility	
                 </button>
 

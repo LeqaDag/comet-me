@@ -79,35 +79,72 @@
                 {data: 'action'}
             ],
         });
+ 
+        // Update record
+        $('#waterAllUsersTable').on('click','.updateWaterUser',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            // AJAX request
+            $.ajax({
+                url: 'all-water/' + id + '/editpage',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    window.open(url, "_self");
+                }
+            });
+        });
 
         // View record details
         $('#waterAllUsersTable').on('click','.viewWaterUser',function() {
             var id = $(this).data('id');
-        
+            
             // AJAX request
             $.ajax({
                 url: 'water-user/' + id,
-                type: 'get',
+                type: 'get', 
                 dataType: 'json',
                 success: function(response) {
                     $('#WaterUserModalTitle').html(response['household'].english_name);
                     $('#englishNameUser').html(response['household'].english_name);
                     $('#communityUser').html(response['community'].english_name);
                     $('#numberH2oUser').html(response['h2oUser'].number_of_h20);
+                    $('#dateH2oUser').html(response['h2oUser'].h2o_request_date);
+                    $('#yearH2oUser').html(response['h2oUser'].installation_year);
                     $('#statusH2oUser').html(response['h2oStatus'].status);
                     $('#numberBsfUser').html(response['h2oUser'].number_of_bsf);
-                    $('#statusBsfUser').html(response['bsfStatus'].name);
+                    $('#statusBsfUser').html(response['bsfStatus'].name); 
 
-                    $('#gridLargeNumber').html(response['gridUser'].grid_integration_large);
-                    $('#gridLargeDateNumber').html(response['gridUser'].large_date);
-                    $('#gridSmallNumber').html(response['gridUser'].grid_integration_small);
-                    $('#gridSmallDateNumber').html(response['gridUser'].small_date);
-                    $('#gridDelivery').html(response['gridUser'].is_delivery);
-                    $('#gridPaid').html(response['gridUser'].is_paid);
-                    $('#gridComplete').html(response['gridUser'].is_complete);
+                    
+                    if(response['gridUser'] != null) {
+                        $('#dateGridUser').append(" ");
+                        $('#dateGridUser').html(response['gridUser'].request_date);
+                        $('#gridLargeNumber').append(" ");
+                        $('#gridLargeNumber').html(response['gridUser'].grid_integration_large);
+                        $('#gridLargeDateNumber').append(" ");
+                        $('#gridLargeDateNumber').html(response['gridUser'].large_date);
+                        $('#gridSmallNumber').append(" ");
+                        $('#gridSmallNumber').html(response['gridUser'].grid_integration_small);
+                        $('#gridSmallDateNumber').append(" ");
+                        $('#gridSmallDateNumber').html(response['gridUser'].small_date);
+                        $('#gridDelivery').append(" ");
+                        $('#gridDelivery').html(response['gridUser'].is_delivery);
+                        $('#gridPaid').append(" ");
+                        $('#gridPaid').html(response['gridUser'].is_paid);
+                        $('#gridComplete').append(" ");
+                        $('#gridComplete').html(response['gridUser'].is_complete);
+                    }
                 }
             });
+
+            $('#closeDetailsModel').on('click', function() {
+                
+                $('#waterAllUsersTable').DataTable().draw();
+            });
+
         });
+
 
         // Delete record
         $('#waterAllUsersTable').on('click', '.deleteWaterUser',function() {

@@ -27,7 +27,7 @@
         <div class="card-body">
             <div>
                 <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createWaterUser">
+                    data-bs-toggle="modal" data-bs-target="#createSharedWaterUser">
                     Create New Shared Water System Holder	
                 </button>
 
@@ -80,7 +80,7 @@
         
             // AJAX request
             $.ajax({
-                url: 'water-user/' + id,
+                url: 'shared-h2o/' + id,
                 type: 'get',
                 dataType: 'json',
                 success: function(response) {
@@ -115,7 +115,7 @@
             }).then((result) => {
                 if(result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('deleteWaterUser') }}",
+                        url: "{{ route('deleteSharedWaterUser') }}",
                         type: 'get',
                         data: {id: id},
                         success: function(response) {

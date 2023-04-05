@@ -34,7 +34,7 @@ class AllWaterController extends Controller
     public function index(Request $request)
     {	
         if ($request->ajax()) {
-            $data = DB::table('h2o_users')
+            $data = DB::table('h2o_users') 
                 ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
                 ->join('households', 'h2o_users.household_id', 'households.id')
                 ->join('communities', 'h2o_users.community_id', 'communities.id')
@@ -84,5 +84,97 @@ class AllWaterController extends Controller
   
 		return view('users.water.all.index', compact('communities', 'bsfStatus', 'households', 
             'h2oStatus'));
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $h2oUser = H2oUser::findOrFail($id);
+
+        return response()->json($h2oUser);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $h2oUser = H2oUser::findOrFail($id);
+        $gridUser = GridUser::where('household_id', $h2oUser->household_id)->first();
+        $communities = Community::all();
+        $h2oStatuses = H2oStatus::all();
+        $bsfStatuses = BsfStatus::all();
+        $households = Household::where('community_id', $h2oUser->community_id)->get();
+
+        return view('users.water.all.edit', compact('households', 'h2oStatuses', 'communities',
+            'h2oUser', 'gridUser', 'bsfStatuses'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+       // dd($request->all());
+        $h2oUser = H2oUser::findOrFail($id);
+        $gridUser = GridUser::where('household_id', $h2oUser->household_id)->first();
+
+        if($request->household_id) {
+            $h2oUser->household_id = $request->household_id;
+        }
+
+        if($gridUser != null && $request->household_id) {
+            $gridUser->household_id = $request->household_id;
+        }
+            
+        if($request->h2o_status_id) {
+            $h2oUser->h2o_status_id = $request->h2o_status_id;
+        }
+        if($request->bsf_status_id) {
+            $h2oUser->bsf_status_id = $request->bsf_status_id;
+        }
+        $h2oUser->number_of_bsf = $request->number_of_bsf;
+        $h2oUser->number_of_h20 = $request->number_of_h20; 
+        $h2oUser->installation_year = $request->installation_year;
+        $h2oUser->h2o_request_date = $request->h2o_request_date; 
+        $h2oUser->save();
+
+        if($gridUser == null) {
+            $gridUser = new GridUser();
+            $gridUser->community_id = $h2oUser->community_id;
+            $gridUser->household_id = $h2oUser->household_id;
+        }
+        if($request->request_date) {
+            $gridUser->request_date = $request->request_date;
+        }
+        if($request->grid_integration_large) $gridUser->grid_integration_large = $request->grid_integration_large;
+        if($request->large_date) $gridUser->large_date = $request->large_date;
+        if($request->grid_integration_small) $gridUser->grid_integration_small = $request->grid_integration_small;
+        if($request->small_date) $gridUser->small_date = $request->small_date;
+
+        if($request->is_delivery) {
+            $gridUser->is_delivery = $request->is_delivery;
+        }
+        if($request->is_paid) {
+            $gridUser->is_paid = $request->is_paid;
+        }
+        if($request->is_complete) {
+            $gridUser->is_complete = $request->is_complete;
+        }
+
+        $gridUser->save();
+
+        return redirect('/all-water')->with('message', 'User Updated Successfully!');
     }
 }

@@ -64,6 +64,24 @@ label, table {
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Public Structure</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" 
+                                    name="public_structure_id[]" required>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($publics as $public)
+                                    <option value="{{$public->id}}">
+                                        {{$public->english_name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div> 
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Call</label>
                                 <input type="date" name="date_of_call" class="form-control">
                             </fieldset>

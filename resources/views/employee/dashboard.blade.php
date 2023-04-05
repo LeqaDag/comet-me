@@ -1,7 +1,7 @@
 
 @extends('layouts/layoutMaster')
 
-@section('title', 'Dashboard - Analytics')
+@section('title', 'Dashboard')
 
 @include('layouts.all')
 
@@ -9,7 +9,7 @@
 
 <h1>
   Welcome {{Auth::guard('user')->user()->name}}  
-</h1>
+</h1> 
 
 <div class="col-lg-12 col-md-12">
   <div class="row">
@@ -141,7 +141,82 @@
 </div>
 
 
+<!-- <div class="col-lg-12 col-md-12">
+  <div class="row">
+    <div class="col-sm-3 col-3 mb-4">
+      <div class="card">
+        <div class="card-body text-center">
+         
+         
+          <span class="text-muted">Energy Users</span>
+          <div class="">
+            <a href="" type="button">
+              <i class="bx bx-bulb me-1 bx-lg text-success"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-3 col-3 mb-4">
+      <div class="card">
+        <div class="card-body text-center">
+          
+   
+          <span class="text-muted">H2O Users</span>
+          <div class="primary">
+            <a href="{{'household'}}" type="button">
+              <i class="bx bx-droplet me-1 bx-lg text-primary"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-3 col-3 mb-4">
+      <div class="card">
+        <div class="card-body text-center">
+         
+       
+          <span class="text-muted">Grid Users</span>
+          <div class="primary">
+            <a href="{{'sub-region'}}" type="button">
+              <i class="bx bx-water me-1 bx-lg text-info"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-3 col-3 mb-4">
+      <div class="card">
+        <div class="card-body text-center">
+         
+       
+          <span class="text-muted">Internet Users</span>
+          <div class="">
+            <a href="{{'household'}}" type="button">
+              <i class="bx bx-wifi me-1 bx-lg text-warning"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+<!-- Cumulative Sum Energy -->
 <div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5>Number of communities vs. Initial Service year (energy)</h5>
+        </div>
+        <div class="card-body">
+            <div id="energyCumulativeSum"></div>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- <div class="row mb-4">
   <div class="col-md-12 col-lg-12">
     <div class="card">
         <div class="card-header">
@@ -152,7 +227,7 @@
         </div>
     </div>
   </div>
-</div>
+</div> -->
 <div class="row mb-4">
   <div class="col-md-12 col-lg-12">
     <div class="card">
@@ -177,6 +252,8 @@
     </div>
   </div>
 </div>
+
+
 
   <!-- H2O Users -->
   <div class="row mb-4">
@@ -372,42 +449,53 @@
 
 
 
-
 <script type="text/javascript">
 
-    $(function () {
+  $(function () {
+   
+    var water = <?php echo $cumulativeSumWaterData; ?>;
+    var internet = <?php echo $cumulativeSumInternetData; ?>;
 
-        var analytics = <?php echo $initialYearEnergyData; ?>;
-        var water = <?php echo $initialYearWaterData; ?>;
-        var internet = <?php echo $initialYearInternetData; ?>;
+    google.charts.load('current', {'packages':['bar']});
+    google.charts.setOnLoadCallback(drawChart);
+    
+    function drawChart() {
+  
+      var waterData = google.visualization.arrayToDataTable(water);
+      var internetData = google.visualization.arrayToDataTable(internet);
 
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(drawChart);
+      var chartWater = new google.charts.Bar
+        (document.getElementById('initialYearCommunityChartWater'));
+      chartWater.draw(
+        waterData
+      );
 
-        
-        function drawChart() {
-            var data = google.visualization.arrayToDataTable(analytics);
-            var waterData = google.visualization.arrayToDataTable(water);
-            var internetData = google.visualization.arrayToDataTable(internet);
+      var chartInternet = new google.charts.Bar
+        (document.getElementById('initialYearCommunityChartInternet'));
+      chartInternet.draw(
+        internetData
+      );
+    }
+  });
+</script>
+
+<script type="text/javascript">
+  $(function () {
+    var cumulativeSum = <?php echo $cumulativeSum; ?>;
+
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
       
-            var chart = new google.visualization.LineChart(document.getElementById('initialCommunityChart'));
-            chart.draw(
-                data
-            );
+    function drawChart() {
+        var cumulativeSumEnergyData = google.visualization.arrayToDataTable(cumulativeSum);
 
-            var chartWater = new google.visualization.LineChart
-              (document.getElementById('initialYearCommunityChartWater'));
-            chartWater.draw(
-              waterData
-            );
-
-            var chartInternet = new google.visualization.LineChart
-              (document.getElementById('initialYearCommunityChartInternet'));
-            chartInternet.draw(
-              internetData
-            );
-        }
-    });
+        var chartCumulativeSumEnergy = new google.visualization.LineChart
+          (document.getElementById('energyCumulativeSum'));
+          chartCumulativeSumEnergy.draw(
+          cumulativeSumEnergyData
+        );
+    }
+  });
 </script>
 
 <script type="text/javascript">
@@ -420,7 +508,6 @@
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(drawChart);
 
-    
     function drawChart() {
       var data = google.visualization.arrayToDataTable(analytics);
       var options  ={
@@ -431,12 +518,10 @@
       var chart = new google.visualization.PieChart(
         document.getElementById('incidentsMgChart'));
       chart.draw(
-          data, options
+        data, options
       );
 
-
       google.visualization.events.addListener(chart,'select',function() {
-        
         var row = chart.getSelection()[0].row;
         var selected_data=data.getValue(row,0);
         
@@ -452,14 +537,12 @@
             $('#contentIncidentsTable').find('tbody').html('');
               response.forEach(refill_table);
               function refill_table(item, index){
-                  $('#contentIncidentsTable').find('tbody').append('<tr><td>'+item.community+'</td><td>'+item.energy+'</td><td>'+item.incident+'</td><td>'+item.date+'</td></tr>');
+                $('#contentIncidentsTable').find('tbody').append('<tr><td>'+item.community+'</td><td>'+item.energy+'</td><td>'+item.incident+'</td><td>'+item.date+'</td></tr>');
               }
           }
         });
       });
     }
-
-
     
   });
 </script>

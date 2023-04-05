@@ -24,10 +24,13 @@ use App\Models\MaintenanceActionType;
 use App\Models\MaintenanceH2oAction;
 use App\Models\MaintenanceStatus;
 use App\Models\MaintenanceType;
+use App\Models\PublicStructure;
+use App\Exports\WaterMaintenanceExport;
 use Auth;
 use DB;
 use Route;
 use DataTables;
+use Excel;
 
 class H2oMaintenanceCallController extends Controller
 {
@@ -40,7 +43,9 @@ class H2oMaintenanceCallController extends Controller
     {	
         if ($request->ajax()) {
             $data = DB::table('h2o_maintenance_calls')
-                ->join('households', 'h2o_maintenance_calls.household_id', 'households.id')
+                ->leftJoin('households', 'h2o_maintenance_calls.household_id', 'households.id')
+                ->leftJoin('public_structures', 'h2o_maintenance_calls.public_structure_id', 
+                    'public_structures.id')
                 ->join('communities', 'h2o_maintenance_calls.community_id', 'communities.id')
                 ->join('maintenance_types', 'h2o_maintenance_calls.maintenance_type_id', 
                     '=', 'maintenance_types.id')
@@ -57,7 +62,7 @@ class H2oMaintenanceCallController extends Controller
                     'h2o_maintenance_calls.updated_at as updated_at',
                     'maintenance_h2o_actions.maintenance_action_h2o',
                     'maintenance_h2o_actions.maintenance_action_h2o_english',
-                    'users.name as user_name')
+                    'users.name as user_name', 'public_structures.english_name as public_name')
                 ->latest();
             return Datatables::of($data)
                 ->addIndexColumn()
@@ -65,7 +70,7 @@ class H2oMaintenanceCallController extends Controller
 
                     $updateButton = "<a type='button' class='updateWaterMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateMaintenanceModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                     $deleteButton = "<a type='button' class='deleteWaterMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    $viewButton = "<a type='button' class='viewWaterMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                    $viewButton = "<a type='button' class='viewWaterMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
 
                     return $updateButton." ".$deleteButton. " ". $viewButton;
                 })
@@ -77,9 +82,12 @@ class H2oMaintenanceCallController extends Controller
                             $w->orWhere('communities.english_name', 'LIKE', "%$search%")
                             ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                             ->orWhere('households.english_name', 'LIKE', "%$search%")
+                            ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
+                            ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
                             ->orWhere('households.arabic_name', 'LIKE', "%$search%")
                             ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
                             ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
+                            ->orWhere('maintenance_h2o_actions.maintenance_action_h2o', 'LIKE', "%$search%")
                             ->orWhere('users.name', 'LIKE', "%$search%");
                         });
                     }
@@ -98,23 +106,33 @@ class H2oMaintenanceCallController extends Controller
         $maintenanceTypes = MaintenanceType::all();
         $maintenanceStatuses = MaintenanceStatus::all();
         $maintenanceH2oActions = MaintenanceH2oAction::all();
+        $publics = PublicStructure::all();
         $users = User::all();
 
 		return view('users.water.maintenance.index', compact('maintenanceTypes', 'maintenanceStatuses',
-            'maintenanceH2oActions', 'users', 'communities', 'households'));
+            'maintenanceH2oActions', 'users', 'communities', 'households', 'publics'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response 
      */
     public function store(Request $request)
     {
         $maintenance = new H2oMaintenanceCall();
+        if($request->household_id) {
+
+            $maintenance->household_id = $request->household_id[0];
+        }
+        
+        if($request->public_structure_id) {
+
+            $maintenance->public_structure_id = $request->public_structure_id[0];
+        }
+
         $maintenance->community_id = $request->community_id[0];
-        $maintenance->household_id = $request->household_id[0];
         $maintenance->date_of_call = $request->date_of_call;
         $maintenance->date_completed = $request->date_completed;
         $maintenance->maintenance_status_id = $request->maintenance_status_id;
@@ -151,5 +169,55 @@ class H2oMaintenanceCallController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $h2oMaintenance = H2oMaintenanceCall::findOrFail($id);
+        
+        if($h2oMaintenance->household_id != NULL) {
+            $householdId = $h2oMaintenance->household_id;
+            $household = Household::where('id', $householdId)->first();
+            
+            $response['household'] = $household;
+        }
+
+        if($h2oMaintenance->public_structure_id != NULL) {
+            $publicId = $h2oMaintenance->public_structure_id;
+            $public = PublicStructure::where('id', $publicId)->first();
+            
+            $response['public'] = $public;
+        }
+       
+        $community = Community::where('id', $h2oMaintenance->community_id)->first();
+        $h2oAction = MaintenanceH2oAction::where('id', $h2oMaintenance->maintenance_h2o_action_id)->first();
+        $status = MaintenanceStatus::where('id', $h2oMaintenance->maintenance_status_id)->first();
+        $type = MaintenanceType::where('id', $h2oMaintenance->maintenance_type_id)->first();
+        $user = User::where('id', $h2oMaintenance->user_id)->first();
+
+        $response['community'] = $community;
+        $response['h2oMaintenance'] = $h2oMaintenance;
+        $response['h2oAction'] = $h2oAction;
+        $response['status'] = $status;
+        $response['type'] = $type;
+        $response['user'] = $user;
+
+        return response()->json($response);
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export() 
+    {
+                
+        return Excel::download(new WaterMaintenanceExport, 'water_maintenance.xlsx');
     }
 }

@@ -102,7 +102,7 @@ class WaterUserController extends Controller
         $gridSmall = GridUser::selectRaw('SUM(grid_integration_small) AS sumSmall')
             ->first();
         
-        $arrayGrid[] = ['Grid Integration', 'Total'];
+        $arrayGrid[] = ['Grid Integration', 'Total']; 
         
         for($key=0; $key <=2; $key++) {
             if($key == 1) $arrayGrid[$key] = ["Grid Large", $gridLarge->sumLarge];
@@ -153,8 +153,8 @@ class WaterUserController extends Controller
         $h2oUser = H2oUser::findOrFail($id);
         $householdId = $h2oUser->household_id;
         $gridUser = GridUser::where('household_id', $householdId)->first();
-        $community = Community::where('id', $gridUser->community_id)->first();
-        $household = Household::where('id', $gridUser->household_id)->first();
+        $community = Community::where('id', $h2oUser->community_id)->first();
+        $household = Household::where('id', $h2oUser->household_id)->first();
         $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
         $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
 
@@ -182,7 +182,8 @@ class WaterUserController extends Controller
         $h2oUser->h2o_status_id = $request->h2o_status_id;
         $h2oUser->bsf_status_id = $request->bsf_status_id;
         $h2oUser->number_of_bsf = $request->number_of_bsf;
-        $h2oUser->number_of_h20 = $request->number_of_h20;
+        $h2oUser->number_of_h20 = $request->number_of_h20; 
+        $h2oUser->h2o_request_date = $request->h2o_request_date; 
         $h2oUser->installation_year = $request->installation_year;
         $h2oUser->save();
 
@@ -234,13 +235,12 @@ class WaterUserController extends Controller
             ->where('water_source_id', 1)
             ->get();
  
-        
         if (!$request->community_id || $community->count() ==0) {
             $val = "New";
             $html = '<option disabled selected>Choose One...</option> <option value="Yes">Yes</option><option value="No">No</option>';
         } else {
             $val = "Yes";
-            $html = '<option value="Yes">Yes</option>';
+            $html = '<option value="Yes">Yes</option><option value="No">No</option>';
         }
 
         return response()->json([
@@ -325,7 +325,7 @@ class WaterUserController extends Controller
                 'h2o_users.updated_at as updated_at', 'h2o_statuses.status')
             ->get();
 
-        $response = $users; 
+        $response = $users;  
       
         return response()->json($response); 
     }
@@ -342,7 +342,8 @@ class WaterUserController extends Controller
 
         $h2oUser = H2oUser::find($id);
         $gridUser = GridUser::where('household_id', $h2oUser->household_id)->first();
-        $gridUser->delete();
+
+        if($gridUser) $gridUser->delete();
 
         if($h2oUser->delete()) {
 

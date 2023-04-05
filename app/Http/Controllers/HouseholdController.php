@@ -352,9 +352,9 @@ class HouseholdController extends Controller
         $household = Household::findOrFail($id);
 
         return response()->json($household);
-    }
+    } 
 
-    /**
+    /** 
      * View Edit page.
      *
      * @param  int $id
