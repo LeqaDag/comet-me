@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Cistern extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['household_id', 'number_of_cisterns'];
+
+
+    public function Household()
+    {
+        return $this->belongsTo(Household::class, 'household_id', 'id');
+    }
 }

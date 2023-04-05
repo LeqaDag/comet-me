@@ -17,7 +17,7 @@
                             <thead>
                                 <tr>
                                     <th class="text-center">English Name</th>
-                                    <th class="text-center"># of People</th>
+                                    <th class="text-center"># of Households</th>
                                     <th class="text-center">Region</th>
                                     <th class="text-center">Sub Region</th>
                                     <th class="text-center">Beginning Year</th>

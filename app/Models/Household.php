@@ -11,11 +11,17 @@ class Household extends Model
 
     protected $fillable = ['english_name', 'arabic_name', 'community_id', 'phone_number', 
         'number_of_family_members', 'number_of_male', 'number_of_female', 'number_of_adults',
-        'number_of_children'];
+        'number_of_children', 'profession_id'];
 
 
     public function Community()
     {
         return $this->belongsTo(Community::class, 'community_id', 'id');
     }
+
+    public function Profession()
+    {
+        return $this->belongsTo(Profession::class, 'profession_id', 'id');
+    }
+
 }

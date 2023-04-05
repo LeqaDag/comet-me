@@ -11,6 +11,7 @@ use DB;
 use Route;
 use App\Models\Region;
 use App\Models\SubRegion;
+use App\Models\Settlement;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -24,26 +25,26 @@ class SubRegionController extends Controller
      */
     public function index(Request $request)
     {	
-        $regions = Region::all();
+        $regions = Region::all(); 
         if ($request->ajax()) {
             $data = DB::table('sub_regions')
                 ->join('regions', 'sub_regions.region_id', '=', 'regions.id')
-                ->select('sub_regions.english_name as english_name', 'sub_regions.arabic_name as arabic_name',
+                ->select('sub_regions.english_name as english_name', 
+                    'sub_regions.arabic_name as arabic_name',
                     'sub_regions.id as id', 'sub_regions.created_at as created_at', 
                     'sub_regions.updated_at as updated_at',
                     'regions.english_name as name',
                     'regions.arabic_name as aname',
-                    'sub_regions.region_id as region_id',)
+                    'sub_regions.region_id as region_id')
                 ->latest(); 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
 
-                    $updateButton = "<button class='btn btn-sm btn-info updateSubRegion' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateSubRegionModal' ><i class='fa-solid fa-pen-to-square'></i></button>";
-                    $deleteButton = "<button class='btn btn-sm btn-danger deleteSubRegion' data-id='".$row->id."'><i class='fa-solid fa-trash'></i></button>";
+                    $updateButton = "<a type='button' class='updateSubRegion' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateSubRegionModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                    $deleteButton = "<a type='button' class='deleteSubRegion' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                     
                     return $updateButton." ".$deleteButton;
-   
                 })
                
                 ->filter(function ($instance) use ($request) {
@@ -61,7 +62,7 @@ class SubRegionController extends Controller
                 ->make(true);
         }
 
-        return view('regions.index', compact('regions'));
+        return view('regions.sub_regions.index', compact('regions'));
     }
 
     /**
@@ -75,7 +76,7 @@ class SubRegionController extends Controller
         $subregion = SubRegion::create($request->all());
         $subregion->save();
 
-        return redirect()->back();
+        return redirect()->back()->with('message', 'New Sub-Region Added Successfully!');
     }
 
     /**
@@ -118,7 +119,7 @@ class SubRegionController extends Controller
         if(!empty($region)) {
 
             $response['english_name'] = $region->english_name;
-            $response['id'] = $region->id;
+            $response['id'] = $id;
 
             $response['success'] = 1;
         } else {
@@ -130,6 +131,29 @@ class SubRegionController extends Controller
     }
 
     /**
+     * Get a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getAllSubRegion()
+    {
+        $regions = Region::all();
+        $response = array();
+
+        if(!empty($regions)) {
+
+            $response['regions'] = $regions;
+
+            $response['success'] = 1;
+        } else {
+
+            $response['success'] = 0;
+        }
+
+        return response()->json($response);
+    }
+    /**
      * Update a resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -137,25 +161,20 @@ class SubRegionController extends Controller
      */
     public function updateSubRegion(Request $request)
     {
-        $id = $request->post('id');
+        $id = $request->id;
 
         $subRegion = SubRegion::find($id);
 
         $response = array();
         if(!empty($subRegion)) {
-            $updata['english_name'] = $request->post('english_name');
-            $updata['arabic_name'] = $request->post('arabic_name');
-            $updata['region_id'] = $request->post('region_id');
+            $subRegion->english_name = $request->english_name;
+            $subRegion->arabic_name = $request->arabic_name;
+            $subRegion->region_id = $request->region_id;
+            $subRegion->save();
 
-            if($subRegion->update($updata)) {
-
-                $response['success'] = 1;
-                $response['msg'] = 'Update successfully'; 
-            } else {
-
-                $response['success'] = 0;
-                $response['msg'] = 'Record not updated';
-            }
+            $response['success'] = 1;
+            $response['msg'] = 'Update successfully'; 
+           
         } else {
             $response['success'] = 0;
             $response['msg'] = 'Invalid ID.';
@@ -172,14 +191,14 @@ class SubRegionController extends Controller
      */
     public function deleteSubRegion(Request $request)
     {
-        $id = $request->post('id');
+        $id = $request->id;
 
         $subRegion = SubRegion::find($id);
 
         if($subRegion->delete()) {
 
             $response['success'] = 1;
-            $response['msg'] = 'Delete successfully'; 
+            $response['msg'] = 'Sub Region Delete successfully'; 
         } else {
 
             $response['success'] = 0;
