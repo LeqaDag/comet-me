@@ -20,10 +20,12 @@ use App\Models\H2oSystemIncident;
 use App\Models\H2oUserDonor;
 use App\Models\Household;
 use App\Models\WaterUser;
+use App\Exports\WaterUserExport;
 use Auth;
 use DB;
 use Route;
 use DataTables;
+use Excel;
 
 class WaterUserController extends Controller
 { 
@@ -168,7 +170,7 @@ class WaterUserController extends Controller
         return response()->json($response);
     }
 
-    /**
+    /** 
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -358,5 +360,15 @@ class WaterUserController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export() 
+    {
+                
+        return Excel::download(new WaterUserExport, 'used_water_users.xlsx');
     }
 }

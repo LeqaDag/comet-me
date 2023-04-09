@@ -140,6 +140,14 @@
 
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div>
+                <a class="btn btn-info" href="{{ route('water-user.export') }}">
+                    <i class='fa-solid fa-file-excel'></i>
+                    Export Excel
+                </a>
+            </div>
+        </div>
         <div class="card-body">
             <table id="waterUsersTable" 
                 class="table table-striped data-table-water-users my-2">

@@ -17,9 +17,11 @@ use App\Models\InternetUser;
 use App\Models\InternetUserDonor;
 use App\Models\Household;
 use App\Models\Region;
+use App\Exports\InternetUserExport;
 use Carbon\Carbon;
 use Image;
 use DataTables;
+use Excel;
 
 class InternetUserController extends Controller
 {
@@ -75,5 +77,15 @@ class InternetUserController extends Controller
         }
 
         return view('users.internet.index');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export() 
+    {
+                
+        return Excel::download(new InternetUserExport, 'internet_holders.xlsx');
     }
 }

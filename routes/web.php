@@ -229,6 +229,7 @@ Route::resource('served-community', App\Http\Controllers\ServedCommunityControll
 Route::resource('water-user', App\Http\Controllers\WaterUserController::class);
 Route::get('water-user/get_water_source/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getGridSource']);
 Route::get('/delete-water-user', [App\Http\Controllers\WaterUserController::class, 'deleteWaterUser'])->name('deleteWaterUser');
+Route::get('water-user-export', [App\Http\Controllers\WaterUserController::class, 'export'])->name('water-user.export');
 
 Route::get('household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::resource('donor', App\Http\Controllers\DonorController::class);
@@ -257,6 +258,7 @@ Route::get('ac-household/energy-user/get_by_community/{community_id}/{misc}', [A
 Route::get('ac-household/energy-user/get_by_energy_type/{energy_type_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergySystemByType']);
 Route::get('ac-household/energy-user/shared_household/{community_id}/{user_id}', [App\Http\Controllers\EnergyUserController::class, 'getSharedHousehold']);
 Route::get('ac-household/energy-user/get_misc/{misc}', [App\Http\Controllers\EnergyUserController::class, 'getMiscCommunity']);
+Route::get('energy-user-export', [App\Http\Controllers\EnergyUserController::class, 'export'])->name('energy-user.export');
 
 Route::resource('energy-system', App\Http\Controllers\EnergySystemController::class);
 Route::resource('water-system', App\Http\Controllers\WaterSystemController::class);
@@ -280,6 +282,7 @@ Route::get('/delete-comet-meter', [App\Http\Controllers\EnergyCometMeterControll
 
 Route::resource('internet-user', App\Http\Controllers\InternetUserController::class);
 Route::get('/details/fbs/incident', [App\Http\Controllers\EnergySystemController::class, 'incidentFbsDetails'])->name('incidentFbsDetails');
+Route::get('internet-user-export', [App\Http\Controllers\InternetUserController::class, 'export'])->name('internet-user.export');
 
 Route::resource('household-meter', App\Http\Controllers\HouseholdMeterController::class);
 Route::get('household-meter/get_households/{id}', [App\Http\Controllers\HouseholdMeterController::class, 'getHouseholds'])->name('getHouseholds');

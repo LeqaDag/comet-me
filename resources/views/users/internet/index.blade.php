@@ -22,6 +22,14 @@
 
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div>
+                <a class="btn btn-info" href="{{ route('internet-user.export') }}">
+                    <i class='fa-solid fa-file-excel'></i>
+                    Export Excel
+                </a>
+            </div>
+        </div>
         <div class="card-body">
             <table id="internetAllUsersTable" class="table table-striped data-table-internet-users my-2">
                 <thead>

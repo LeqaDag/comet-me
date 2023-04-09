@@ -20,6 +20,7 @@
 
 <div class="container">
     <div class="card my-2">
+        
         <div class="card-body">
             <table id="allEnergyMeterTable" class="table table-striped data-table-energy-all my-2">
                 <thead>

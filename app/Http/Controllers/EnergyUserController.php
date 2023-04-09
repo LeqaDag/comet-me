@@ -25,10 +25,14 @@ use App\Models\MeterCase;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
+use App\Exports\EnergyUserExport;
 use App\Models\Region;
+use App\Models\Vendor;
+use App\Models\VendorUserName;
 use Carbon\Carbon;
 use Image;
 use DataTables;
+use Excel;
 
 class EnergyUserController extends Controller
 {
@@ -39,6 +43,14 @@ class EnergyUserController extends Controller
      */
     public function index(Request $request)
     {
+        $vendors = Vendor::all();
+        foreach($vendors as $vendor) {
+            $vendorUser = VendorUserName::where('name', $vendor->vendor_username)->first();
+
+            $vendor->vendor_username_id = $vendorUser->id;
+            $vendor->save();
+        }
+
         // $energyDonors = EnergyDonor::get();
         // foreach($energyDonors as $energyDonor) {
         //     $household = Household::where("english_name", $energyDonor->household_name)
@@ -54,99 +66,7 @@ class EnergyUserController extends Controller
         //     $energyDonor->donor_id = $donor->id;
 
         //     $energyDonor->save();
-        // }
 
-        // $households = Household::where("community_id", 126)
-        //     ->orWhere("community_id", 8)
-        //     ->orWhere("community_id", 7)
-        //     ->orWhere("community_id", 9)
-        //     ->orWhere("community_id", 10)
-        //     ->orWhere("community_id", 11)
-        //     ->orWhere("community_id", 12)
-        //     ->orWhere("community_id", 13)
-        //     ->orWhere("community_id", 14)
-        //     ->orWhere("community_id", 15)
-        //     ->get();
-
-        // foreach($households as $household) {
-        //     $household->energy_meter = "No";
-        //     $household->energy_service = "No";
-        //     $household->save();
-        // }
-
-
-        // $householdsUsers = EnergyUser::where("community_id", 126)
-        //     ->orWhere("community_id", 8)
-        //     ->orWhere("community_id", 7)
-        //     ->orWhere("community_id", 9)
-        //     ->orWhere("community_id", 10)
-        //     ->orWhere("community_id", 11)
-        //     ->orWhere("community_id", 12)
-        //     ->orWhere("community_id", 13)
-        //     ->orWhere("community_id", 14)
-        //     ->orWhere("community_id", 15)
-        //     ->get();
-
-        // foreach($householdsUsers as $household) {
-        //     $household->meter_active = "No";
-        //     $household->save();
-        // }
-
-
-        // $householdsMeters = EnergyUser::get();
-
-        // foreach($householdsMeters as $householdMeter) {
-        //     $household = Household::where("id", $householdMeter->household_id)
-        //     ->first();
-
-        //     $household->energy_meter = $householdMeter->meter_active;
-        //     $household->save();
-        // }
-
-        // $numberOfMeterActiveNo = Household::where("energy_meter", "Yes")
-        // ->count();
-        // dd($numberOfMeterActiveNo);
-
-        // $energyUsers = EnergyUser::all();
-        // foreach($energyUsers as $energyUser) {
-
-        //     $community = Community::where('english_name', $energyUser->community_name)
-        //     ->first();
-        //     $household = Household::where('english_name', $energyUser->household_name)
-        //     ->first();
-        //     $energySystem = EnergySystem::where('name', $energyUser->energy_system)
-        //     ->first();
-        //     $energySystemType = EnergySystemType::where('name', $energyUser->energy_system_type)
-        //     ->first();
-        //     $meter = MeterCase::where('meter_case_name_english', $energyUser->meter_case_name)
-        //     ->first();
-
-        //     $energyUser->community_id = $community->id;
-        //     $energyUser->household_id = $household->id;
-        //     $energyUser->energy_system_id = $energySystem->id;
-        //     $energyUser->energy_system_type_id = $energySystemType->id;
-        //     $energyUser->meter_case_id = $meter->id;
-        //     $energyUser->save();
-        // }
-
-        // $energyPublics = EnergyPublicStructure::all();
-        // foreach($energyPublics as $energyPublic) {
-
-        //     $public = PublicStructure::where('english_name', $energyPublic->public_structure_name)
-        //     ->first();
-        //     $energySystem = EnergySystem::where('name', $energyPublic->energy_system)
-        //     ->first();
-        //     $energySystemType = EnergySystemType::where('name', $energyPublic->energy_system_type)
-        //     ->first();
-        //     $meter = MeterCase::where('meter_case_name_english', $energyPublic->meter_case_name)
-        //     ->first();
-
-        //     $energyPublic->public_structure_id = $public->id;
-        //     $energyPublic->energy_system_id = $energySystem->id;
-        //     $energyPublic->energy_system_type_id = $energySystemType->id;
-        //     $energyPublic->meter_case_id = $meter->id;
-        //     $energyPublic->save();
-        // }
 
         if ($request->ajax()) {
 
@@ -515,5 +435,15 @@ class EnergyUserController extends Controller
         
 
         return response()->json($response);
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export() 
+    {
+                
+        return Excel::download(new EnergyUserExport, 'energy_users.xlsx');
     }
 }

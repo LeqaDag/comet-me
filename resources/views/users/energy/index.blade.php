@@ -73,13 +73,14 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
-            <!-- <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createMeterUser">
-                    Create New Meter Holder	
-                </button>
-                @include('users.energy.create')
-            </div> -->
+            <div class="card-header">
+                <div>
+                    <a class="btn btn-info" href="{{ route('energy-user.export') }}">
+                        <i class='fa-solid fa-file-excel'></i>
+                        Export Excel
+                    </a>
+                </div>
+            </div>
             <table id="energyUsersTable" class="table table-striped data-table-energy-users my-2">
                 <thead>
                     <tr>
