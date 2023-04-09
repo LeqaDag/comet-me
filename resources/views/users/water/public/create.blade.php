@@ -9,7 +9,7 @@ label, table {
 
 .headingLabel {
     font-size:18px;
-    font-weight: bold;
+    font-weight: bold; 
 }
 </style>
 
@@ -54,18 +54,18 @@ label, table {
 
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Grid Access</label>
-                                <select name="grid_access" id="selectedGridAccess" 
+                                <label class='col-md-12 control-label'>Public Meter?</label>
+                                <input type="text" name="meter_public" id="meter_public"
                                     class="form-control" disabled>
-                                </select>
                             </fieldset>
                         </div>
 
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Request Date</label>
-                                <input type="date" name="request_date" 
-                                    class="form-control">
+                                <label class='col-md-12 control-label'>Grid Access</label>
+                                <select name="grid_access" id="selectedGridAccess" 
+                                    class="form-control" disabled>
+                                </select>
                             </fieldset>
                         </div>
                     </div>
@@ -118,6 +118,14 @@ label, table {
 
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>H2O Request Date</label>
+                                <input type="date" name="h2o_request_date" 
+                                    class="form-control">
+                            </fieldset>
+                        </div> 
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Installation Year</label>
                                 <input type="number" name="installation_year" 
                                 class="form-control">
@@ -132,6 +140,14 @@ label, table {
                     </div>
 
                     <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Request Date</label>
+                                <input type="date" name="request_date" 
+                                    class="form-control">
+                            </fieldset>
+                        </div>
+
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Integration Large</label>
@@ -246,6 +262,20 @@ label, table {
                 $('#selectedPublic').html(data.html);
             }
         });
+
+        $(document).on('change', '#selectedPublic', function () {
+            public_id = $(this).val();
+
+            $.ajax({
+                url: "energy_public/get_by_public/" + public_id,
+                method: 'GET',
+                success: function(data) {
+
+                    $('#meter_public').val(data.meter_number);
+                }
+            });
+        });
+
     });
 
 </script>

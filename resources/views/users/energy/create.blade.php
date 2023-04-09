@@ -35,7 +35,7 @@ label, table {
                                         {{$community->english_name}}
                                     </option>
                                     @endforeach
-                                </select>
+                                </select> 
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">

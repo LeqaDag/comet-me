@@ -123,7 +123,7 @@ label, table {
                                 <input type="date" name="h2o_request_date" 
                                     class="form-control">
                             </fieldset>
-                        </div>
+                        </div> 
                         
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">

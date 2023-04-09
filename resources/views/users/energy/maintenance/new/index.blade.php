@@ -30,8 +30,8 @@
                         Export Excel
                     </a>
 
-                    <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createMaintenanceLogElectricity">
+                    <button type="button" class="btn btn-success"  
+                        data-bs-toggle="modal" data-bs-target="#createMaintenanceLogNewElectricity">
                         Create New Maintenancne Call	
                     </button>
                 @include('users.energy.maintenance.new.create')
@@ -89,11 +89,11 @@
             title: 'Are you sure you want to delete this Maintenance?',
             showDenyButton: true,
             confirmButtonText: 'Confirm'
-        }).then((result) => {
+        }).then((result) => { 
 
             if(result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('deleteMaintenanceEnergy') }}",
+                    url: "{{ route('deleteNewMaintenanceEnergy') }}",
                     type: 'get',
                     data: {id: id},
                     success: function(response) {

@@ -239,6 +239,7 @@ Route::get('region/get_region/{region_id}', [App\Http\Controllers\RegionControll
 Route::get('region/get_sub_region/{region_id}/{sub_region_id}', [App\Http\Controllers\RegionController::class, 'getBySubRegion']);
 Route::get('region/edit_region/{id}', [App\Http\Controllers\RegionController::class, 'updateRegion']);
 Route::get('energy_user/get_by_household/{household_id}', [App\Http\Controllers\EnergyUserController::class, 'getByHousehold']);
+Route::get('energy_public/get_by_public/{public_id}', [App\Http\Controllers\WaterPublicStructureController::class, 'getByPublic']);
 
 Route::resource('sub-region', App\Http\Controllers\SubRegionController::class);
 Route::resource('sub-sub-region', App\Http\Controllers\SubSubRegionController::class);
@@ -316,7 +317,7 @@ Route::get('/delete-energy-maintenance', [App\Http\Controllers\EnergyMaintenance
 Route::get('energy-maintenance-export', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'export'])->name('energy-maintenance.export');
 
 Route::resource('new-energy-maintenance', App\Http\Controllers\NewEnergyMaintenanceCallController::class);
-Route::get('/delete-new-energy-maintenance', [App\Http\Controllers\NewEnergyMaintenanceCallController::class, 'deleteMaintenanceEnergy'])->name('deleteMaintenanceEnergy');
+Route::get('/delete-new-energy-maintenance', [App\Http\Controllers\NewEnergyMaintenanceCallController::class, 'deleteNewMaintenanceEnergy'])->name('deleteNewMaintenanceEnergy');
 Route::get('new-energy-maintenance-export', [App\Http\Controllers\NewEnergyMaintenanceCallController::class, 'export'])->name('new-energy-maintenance.export');
 
 Route::resource('refrigerator-user', App\Http\Controllers\RefrigeratorHolderController::class);

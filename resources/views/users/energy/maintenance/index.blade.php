@@ -126,7 +126,7 @@
         }).then((result) => {
 
             if(result.isConfirmed) {
-                $.ajax({
+                $.ajax({ 
                     url: "{{ route('deleteMaintenanceEnergy') }}",
                     type: 'get',
                     data: {id: id},
@@ -140,7 +140,7 @@
                                 showCancelButton: false,
                                 confirmButtonText: 'Okay!'
                             }).then((result) => {
-                                $('#maintenanceWaterTable').DataTable().draw();
+                                $('#maintenanceEnergyTable').DataTable().draw();
                             });
                         } else {
 

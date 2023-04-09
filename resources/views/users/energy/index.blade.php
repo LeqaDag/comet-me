@@ -153,7 +153,7 @@
         });
 
         // View record details
-        $('#energyUsersTable').on('click','.viewEnergyUser',function() {
+        $('#energyUsersTable').on('click', '.viewEnergyUser',function() {
             var id = $(this).data('id');
         
             // AJAX request

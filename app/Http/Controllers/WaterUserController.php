@@ -208,6 +208,7 @@ class WaterUserController extends Controller
 
         return redirect()->back()->with('message', 'New User Added Successfully!');
     }
+    
     /**
      * Remove the specified resource from storage.
      *
