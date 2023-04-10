@@ -30,10 +30,12 @@ use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
+use App\Exports\CommunityExport;
 use App\Models\Town;
 use Carbon\Carbon;
 use Image;
 use DataTables;
+use Excel;
 
 class CommunityController extends Controller
 {
@@ -430,5 +432,15 @@ class CommunityController extends Controller
         $community = Community::findOrFail($id);
 
         return view('employee.community.map', compact('community'));
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export() 
+    {
+                
+        return Excel::download(new CommunityExport, 'communities.xlsx');
     }
 }

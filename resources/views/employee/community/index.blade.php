@@ -219,6 +219,10 @@
     <div class="card my-2">
         <div class="card-body">
             <div>
+                <a class="btn btn-info" href="{{ route('community.export') }}">
+                    <i class='fa-solid fa-file-excel'></i>
+                    Export Excel
+                </a>
                 <button type="button" class="btn btn-success" 
                     data-bs-toggle="modal" data-bs-target="#createCommunity">
                     Create New Community	

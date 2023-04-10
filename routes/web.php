@@ -209,6 +209,7 @@ Route::get('household/community/{region_id}', [App\Http\Controllers\HouseholdCon
 Route::get('export', [App\Http\Controllers\HouseholdController::class, 'exportPdf'])->name('export');
 Route::get('community/{id}/photo', App\Http\Controllers\CommunityController::class.'@photo');
 Route::get('community/{id}/map', App\Http\Controllers\CommunityController::class.'@map');
+Route::get('community-export', [App\Http\Controllers\CommunityController::class, 'export'])->name('community.export');
 
 
 Route::resource('initial-household', App\Http\Controllers\InitialHouseholdController::class);
