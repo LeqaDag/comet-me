@@ -9,6 +9,9 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
 use Route;
+use App\Models\Donor;
+use App\Models\EnergySystemType;
+use App\Models\PublicStructureCategory;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityHousehold;
@@ -19,9 +22,11 @@ use App\Models\Region;
 use App\Models\Structure;
 use App\Models\SubRegion;
 use App\Models\Profession;
+use App\Exports\HouseholdExport;
 use Carbon\Carbon;
 use DataTables;
 use mikehaertl\wkhtmlto\Pdf;
+use Excel;
 
 class HouseholdController extends Controller
 {
@@ -145,11 +150,16 @@ class HouseholdController extends Controller
 
             $arrayHouseholdsBySubRegion[++$key] = [$value->english_name, $value->number];
         }
+        
+        $energySystemTypes = EnergySystemType::all();
+        $donors = Donor::all();
+        $publicCategories = PublicStructureCategory::all();
 
 		return view('employee.household.index', compact('communities', 'regions', 
             'households', 'subregions', 'householdsInitial', 'householdInitial', 
             'householdsServed', 'householdServed', 'householdRecords',
-            'householdsAC', 'householdAC', 'householdWater', 'householdInternet'))
+            'householdsAC', 'householdAC', 'householdWater', 'householdInternet',
+            'publicCategories', 'donors', 'energySystemTypes'))
             ->with('regionHouseholdsData', json_encode($arrayHouseholdsByRegion))
             ->with('subRegionHouseholdsData', json_encode($arrayHouseholdsBySubRegion));
     }
@@ -464,5 +474,15 @@ class HouseholdController extends Controller
 
         return redirect('/household')
             ->with('message', 'Household Updated Successfully!');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+                
+        return Excel::download(new HouseholdExport($request), 'households.xlsx');
     }
 }

@@ -209,7 +209,8 @@ Route::get('household/community/{region_id}', [App\Http\Controllers\HouseholdCon
 Route::get('export', [App\Http\Controllers\HouseholdController::class, 'exportPdf'])->name('export');
 Route::get('community/{id}/photo', App\Http\Controllers\CommunityController::class.'@photo');
 Route::get('community/{id}/map', App\Http\Controllers\CommunityController::class.'@map');
-Route::get('community-export', [App\Http\Controllers\CommunityController::class, 'export'])->name('community.export');
+Route::post('community-export', [App\Http\Controllers\CommunityController::class, 'export'])->name('community.export');
+Route::post('household-export', [App\Http\Controllers\HouseholdController::class, 'export'])->name('household.export');
 
 
 Route::resource('initial-household', App\Http\Controllers\InitialHouseholdController::class);
@@ -230,7 +231,7 @@ Route::resource('served-community', App\Http\Controllers\ServedCommunityControll
 Route::resource('water-user', App\Http\Controllers\WaterUserController::class);
 Route::get('water-user/get_water_source/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getGridSource']);
 Route::get('/delete-water-user', [App\Http\Controllers\WaterUserController::class, 'deleteWaterUser'])->name('deleteWaterUser');
-Route::get('water-user-export', [App\Http\Controllers\WaterUserController::class, 'export'])->name('water-user.export');
+Route::post('water-user-export', [App\Http\Controllers\WaterUserController::class, 'export'])->name('water-user.export');
 
 Route::get('household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::resource('donor', App\Http\Controllers\DonorController::class);
@@ -239,9 +240,11 @@ Route::resource('community-donor', App\Http\Controllers\CommunityDonorController
 Route::resource('region', App\Http\Controllers\RegionController::class); 
 Route::get('region/get_region/{region_id}', [App\Http\Controllers\RegionController::class, 'getByRegion']);
 Route::get('region/get_sub_region/{region_id}/{sub_region_id}', [App\Http\Controllers\RegionController::class, 'getBySubRegion']);
-Route::get('region/edit_region/{id}', [App\Http\Controllers\RegionController::class, 'updateRegion']);
+Route::get('region/edit_region/{id}', [App\Http\Controllers\RegionController::class, 'updateRegion']); 
 Route::get('energy_user/get_by_household/{household_id}', [App\Http\Controllers\EnergyUserController::class, 'getByHousehold']);
 Route::get('energy_public/get_by_public/{public_id}', [App\Http\Controllers\WaterPublicStructureController::class, 'getByPublic']);
+Route::get('energy_user/get_by_community/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergyUserByCommunity']);
+Route::get('energy_public/get_by_community/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getPublicByCommunity']);
 
 Route::resource('sub-region', App\Http\Controllers\SubRegionController::class);
 Route::resource('sub-sub-region', App\Http\Controllers\SubSubRegionController::class);
@@ -256,13 +259,15 @@ Route::get('/delete-region', [App\Http\Controllers\RegionController::class, 'del
 
 Route::resource('energy-user', App\Http\Controllers\EnergyUserController::class);
 Route::get('ac-household/energy-user/get_by_community/{community_id}/{misc}', [App\Http\Controllers\EnergyUserController::class, 'getHouseholdByCommunity']);
-Route::get('ac-household/energy-user/get_by_energy_type/{energy_type_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergySystemByType']);
+Route::get('ac-household/energy-user/get_by_energy_type/{energy_type_id}/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergySystemByType']);
 Route::get('ac-household/energy-user/shared_household/{community_id}/{user_id}', [App\Http\Controllers\EnergyUserController::class, 'getSharedHousehold']);
 Route::get('ac-household/energy-user/get_misc/{misc}', [App\Http\Controllers\EnergyUserController::class, 'getMiscCommunity']);
-Route::get('energy-user-export', [App\Http\Controllers\EnergyUserController::class, 'export'])->name('energy-user.export');
+Route::post('energy-user-export', [App\Http\Controllers\EnergyUserController::class, 'export'])->name('energy-user.export');
 
 Route::resource('energy-system', App\Http\Controllers\EnergySystemController::class);
 Route::resource('water-system', App\Http\Controllers\WaterSystemController::class);
+Route::get('water_user/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getWaterUserByCommunity']);
+Route::get('water_public/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getPublicByCommunity']);
 
 Route::get('/details/incident', [App\Http\Controllers\HomeController::class, 'incidentDetails'])->name('incidentDetails');
 Route::get('/water/chart/', [App\Http\Controllers\WaterUserController::class, 'chartWater'])->name('chartWater');
@@ -283,7 +288,7 @@ Route::get('/delete-comet-meter', [App\Http\Controllers\EnergyCometMeterControll
 
 Route::resource('internet-user', App\Http\Controllers\InternetUserController::class);
 Route::get('/details/fbs/incident', [App\Http\Controllers\EnergySystemController::class, 'incidentFbsDetails'])->name('incidentFbsDetails');
-Route::get('internet-user-export', [App\Http\Controllers\InternetUserController::class, 'export'])->name('internet-user.export');
+Route::post('internet-user-export', [App\Http\Controllers\InternetUserController::class, 'export'])->name('internet-user.export');
 
 Route::resource('household-meter', App\Http\Controllers\HouseholdMeterController::class);
 Route::get('household-meter/get_households/{id}', [App\Http\Controllers\HouseholdMeterController::class, 'getHouseholds'])->name('getHouseholds');
@@ -299,7 +304,7 @@ Route::get('water-public/get_by_community/{community_id}', [App\Http\Controllers
 Route::get('allMeter/{id}/editpage', [App\Http\Controllers\AllEnergyController::class, 'editPage']);
 
 Route::resource('water-maintenance', App\Http\Controllers\H2oMaintenanceCallController::class);
-Route::get('water-maintenance-export', [App\Http\Controllers\H2oMaintenanceCallController::class, 'export'])->name('water-maintenance.export');
+Route::post('water-maintenance-export', [App\Http\Controllers\H2oMaintenanceCallController::class, 'export'])->name('water-maintenance.export');
 
 Route::resource('internet-system', App\Http\Controllers\InternetSystemController::class);
 Route::get('internet-system/{id}/showPage', [App\Http\Controllers\InternetSystemController::class, 'showPage']);
@@ -311,31 +316,37 @@ Route::get('/delete-maintenance', [App\Http\Controllers\H2oMaintenanceCallContro
 Route::get('/details/h2o/incident', [App\Http\Controllers\WaterSystemController::class, 'incidentH2oDetails'])->name('incidentH2oDetails');
 
 Route::get('household-fbs', [App\Http\Controllers\ExportController::class, 'index']);
-Route::get('household-export', [App\Http\Controllers\ExportController::class, 'export'])->name('household.export');
 Route::post('household-import', [App\Http\Controllers\ExportController::class, 'import'])->name('household.import');
 
 Route::resource('chart', App\Http\Controllers\ChartController::class);
 Route::get('chart/service/{service_id}/{region_id}', [App\Http\Controllers\ChartController::class, 'getByService']);
 Route::resource('energy-maintenance', App\Http\Controllers\EnergyMaintenanceCallController::class);
 Route::get('/delete-energy-maintenance', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deleteMaintenanceEnergy'])->name('deleteMaintenanceEnergy');
-Route::get('energy-maintenance-export', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'export'])->name('energy-maintenance.export');
+Route::post('energy-maintenance-export', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'export'])->name('energy-maintenance.export');
+Route::get('energy-maintenance/get_system/{system}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getMaintenanceAction']);
 
 Route::resource('new-energy-maintenance', App\Http\Controllers\NewEnergyMaintenanceCallController::class);
 Route::get('/delete-new-energy-maintenance', [App\Http\Controllers\NewEnergyMaintenanceCallController::class, 'deleteNewMaintenanceEnergy'])->name('deleteNewMaintenanceEnergy');
-Route::get('new-energy-maintenance-export', [App\Http\Controllers\NewEnergyMaintenanceCallController::class, 'export'])->name('new-energy-maintenance.export');
+Route::post('new-energy-maintenance-export', [App\Http\Controllers\NewEnergyMaintenanceCallController::class, 'export'])->name('new-energy-maintenance.export');
 
 Route::resource('refrigerator-user', App\Http\Controllers\RefrigeratorHolderController::class);
 Route::get('/delete-refrigerator', [App\Http\Controllers\RefrigeratorHolderController::class, 'deleteRefrigeratorHolder'])->name('deleteRefrigeratorHolder');
+Route::post('refrigerator-export', [App\Http\Controllers\RefrigeratorHolderController::class, 'export'])->name('refrigerator.export');
 
 Route::resource('refrigerator-maintenance', App\Http\Controllers\RefrigeratorMaintenanceCallController::class);
 Route::get('/delete-refrigerator-maintenance', [App\Http\Controllers\RefrigeratorMaintenanceCallController::class, 'deleteRefrigerator'])->name('deleteRefrigerator');
-Route::get('refrigerator-maintenance-export', [App\Http\Controllers\RefrigeratorMaintenanceCallController::class, 'export'])->name('refrigerator-maintenance.export');
+Route::post('refrigerator-maintenance-export', [App\Http\Controllers\RefrigeratorMaintenanceCallController::class, 'export'])->name('refrigerator-maintenance.export');
+Route::get('refrigerator-user/get_by_community/{community_id}', [App\Http\Controllers\RefrigeratorHolderController::class, 'getHouseholdByCommunity']);
+Route::get('refrigerator-public/get_by_community/{community_id}', [App\Http\Controllers\RefrigeratorHolderController::class, 'getPublicByCommunity']);
 
 Route::resource('mg-incident', App\Http\Controllers\MgIncidentController::class);
 Route::get('/delete-mg-incident', [App\Http\Controllers\MgIncidentController::class, 'deleteMgIncident'])->name('deleteMgIncident');
+Route::post('mg-incident-export', [App\Http\Controllers\MgIncidentController::class, 'export'])->name('mg-incident.export');
 
 Route::resource('fbs-incident', App\Http\Controllers\FbsIncidentController::class);
 Route::get('/delete-fbs-incident', [App\Http\Controllers\FbsIncidentController::class, 'deleteFbsIncident'])->name('deleteFbsIncident');
+Route::post('fbs-incident-export', [App\Http\Controllers\FbsIncidentController::class, 'export'])->name('fbs-incident.export');
 
 Route::resource('water-incident', App\Http\Controllers\WaterIncidentController::class);
 Route::get('/delete-water-incident', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncident'])->name('deleteWaterIncident');
+Route::post('water-incident-export', [App\Http\Controllers\WaterIncidentController::class, 'export'])->name('water-incident.export');

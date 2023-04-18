@@ -15,6 +15,7 @@ use App\Models\MaintenanceRefrigeratorAction;
 use App\Models\MaintenanceStatus;
 use App\Models\MaintenanceType;
 use App\Models\PublicStructure;
+use App\Models\PublicStructureCategory;
 use App\Exports\RefrigeratorMaintenanceExport;
 use Auth;
 use DB;
@@ -100,10 +101,11 @@ class RefrigeratorMaintenanceCallController extends Controller
             ->select('public_structures.id as id', 'public_structures.english_name')
             ->get();
         $users = User::all();
+        $publicCategories = PublicStructureCategory::all();
 
 		return view('users.refrigerator.maintenance.index', compact('maintenanceTypes', 
             'maintenanceStatuses', 'maintenanceRefrigeratorActions', 'users', 'communities', 
-            'households', 'publics'));
+            'households', 'publics', 'publicCategories'));
     }
 
     /**
@@ -117,12 +119,12 @@ class RefrigeratorMaintenanceCallController extends Controller
         $maintenance = new RefrigeratorMaintenanceCall();
         if($request->household_id) {
 
-            $maintenance->household_id = $request->household_id[0];
+            $maintenance->household_id = $request->household_id;
         }
         
         if($request->public_structure_id) {
 
-            $maintenance->public_structure_id = $request->public_structure_id[0];
+            $maintenance->public_structure_id = $request->public_structure_id;
         }
 
         $maintenance->community_id = $request->community_id[0];
@@ -211,9 +213,9 @@ class RefrigeratorMaintenanceCallController extends Controller
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function export() 
+    public function export(Request $request)
     {
                 
-        return Excel::download(new RefrigeratorMaintenanceExport, 'refrigerator_maintenance.xlsx');
+        return Excel::download(new RefrigeratorMaintenanceExport($request), 'refrigerator_maintenance.xlsx');
     }
 }

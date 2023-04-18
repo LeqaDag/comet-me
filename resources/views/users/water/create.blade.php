@@ -123,13 +123,21 @@ label, table {
                                 <input type="date" name="h2o_request_date" 
                                     class="form-control">
                             </fieldset>
-                        </div> 
+                        </div>  
                         
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Installation Year</label>
                                 <input type="number" name="installation_year" 
                                 class="form-control">
+                            </fieldset>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Installation Date</label>
+                                <input type="date" name="h2o_installation_date" 
+                                    class="form-control">
                             </fieldset>
                         </div>
                     </div>

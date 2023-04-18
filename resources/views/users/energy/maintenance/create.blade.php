@@ -18,7 +18,7 @@ label, table {
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
-                    Create New Maintenance Log
+                    Create New Maintenance Log 
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
@@ -34,7 +34,7 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select class="selectpicker form-control" 
-                                    multiple data-live-search="true" 
+                                    data-live-search="true" id="selectedUserCommunity"
                                     name="community_id[]" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
@@ -45,15 +45,39 @@ label, table {
                                 </select>
                             </fieldset>
                         </div> 
+
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>MG system/ FBS user?</label>
+                                <select name="system_user" class="form-control"
+                                    id="mgSystemOrFbsUser" disabled>
+                                    <option selected>Choose one...</option>
+                                    <option value="system">MG System</option>
+                                    <option value="user">FBS User</option>
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy User</label>
-                                <select name="household_id[]" class="selectpicker form-control" 
-                                    multiple data-live-search="true" required >
+                                <select name="household_id" class="form-control" 
+                                    id="selectedUserHousehold" disabled>
                                     <option disabled selected>Choose one...</option>
-                                    @foreach($households as $household)
-                                    <option value="{{$household->id}}">
-                                        {{$household->english_name}}
+                                </select>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Energy System</label>
+                                <select name="energy_system_id" class="form-control" 
+                                    id="selectedEnergySystem" disabled>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($mgSystems as $mgSystem)
+                                    <option value="{{$mgSystem->id}}">
+                                        {{$mgSystem->name}}
                                     </option>
                                     @endforeach
                                 </select>
@@ -65,18 +89,21 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Structure</label>
-                                <select class="selectpicker form-control" 
-                                    multiple data-live-search="true" 
-                                    name="public_structure_id[]" required>
+                                <select class="form-control" id="selectedPublic"
+                                    name="public_structure_id" disabled>
                                     <option disabled selected>Choose one...</option>
-                                    @foreach($publics as $public)
-                                    <option value="{{$public->id}}">
-                                        {{$public->english_name}}
-                                    </option>
-                                    @endforeach
                                 </select>
                             </fieldset>
                         </div> 
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
+                                <select name="maintenance_electricity_action_id" class="form-control"
+                                    id="maintenanceElectricityAction" disabled>
+                                    <option disabled selected>Choose one...</option>
+                                </select>
+                            </fieldset>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -137,19 +164,6 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
-                                <select name="maintenance_electricity_action_id" class="form-control">
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($maintenanceEnergyActions as $maintenanceEnergyAction)
-                                    <option value="{{$maintenanceEnergyAction->id}}">
-                                        {{$maintenanceEnergyAction->maintenance_action_electricity}}
-                                    </option>
-                                    @endforeach
-                                </select>
-                            </fieldset>
-                        </div>
                     </div>
                   
                     <div class="row">
@@ -179,30 +193,41 @@ label, table {
 
     $(document).on('change', '#selectedUserCommunity', function () {
         community_id = $(this).val();
-   
-        $.ajax({
-            url: "energy-user/get_by_community/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedUserHousehold').prop('disabled', false);
-                $('#selectedUserHousehold').html(data.html);
+
+        $('#mgSystemOrFbsUser').prop('disabled', false);
+
+        systemUser = $('#mgSystemOrFbsUser').val();
+
+        if(systemUser == "system") {
+           
+            $('#selectedEnergySystem').prop('disabled', false);
+            $('#selectedUserHousehold').prop('disabled', true);
+            $('#selectedPublic').prop('disabled', true);
+
+            getAction(1);
                 
-                $('#selectedSharedMeter').prop('disabled', false);
-                $(document).on('change', '#selectedSharedMeter', function () {
+        } else if(systemUser == "user") {
 
-                    user_id = $("#selectedUserHousehold").val();
+            getEnergyUserByCommunity(community_id);
+            getPublicByCommunity(community_id);
+            getAction(2);
+        }
 
-                    $.ajax({
-                        url: "energy-user/shared_household/" + community_id + "/" + user_id,
-                        method: 'GET',
-                        success: function(data) {
-                         
-                            $('#selectedHouseholdMeter').prop('disabled', false);
-                            $('#selectedHouseholdMeter').append(data.html);
-                            $('.selectpicker').selectpicker('refresh');
-                        }
-                    });
-                });
+        $(document).on('change', '#mgSystemOrFbsUser', function () {
+            systemUser = $('#mgSystemOrFbsUser').val();
+            if(systemUser == "system") {
+
+                $('#selectedEnergySystem').prop('disabled', false);
+                $('#selectedUserHousehold').prop('disabled', true);
+                $('#selectedPublic').prop('disabled', true);
+
+                getAction(1);
+
+            } else if(systemUser == "user") {
+
+                getEnergyUserByCommunity(community_id);
+                getPublicByCommunity(community_id);
+                getAction(2);
             }
         });
     });
@@ -210,6 +235,51 @@ label, table {
     $(document).on('change', '#selectedEnergySystemType', function () {
         energy_type_id = $(this).val();
    
+        getEnergyUser(energy_type_id);
+    });
+
+    function getAction(system) {
+        $.ajax({
+            url: "energy-maintenance/get_system/" + system,
+            method: 'GET',
+            success: function(data) {
+
+                $('#maintenanceElectricityAction').prop('disabled', false);
+                $('#maintenanceElectricityAction').html(data.html);
+            }
+        });
+    }
+
+    function getEnergyUserByCommunity(community_id) {
+
+        $.ajax({
+            url: "energy_user/get_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+               // $('#selectedPublic').prop('disabled', true);
+                $('#selectedEnergySystem').prop('disabled', true);
+                $('#selectedUserHousehold').prop('disabled', false);
+                $('#selectedUserHousehold').html(data.html);
+            }
+        });
+    } 
+
+    function getPublicByCommunity(community_id) {
+
+        $.ajax({
+            url: "energy_public/get_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                $('#selectedEnergySystem').prop('disabled', true);
+               // $('#selectedUserHousehold').prop('disabled', true);
+                $('#selectedPublic').prop('disabled', false);
+                $('#selectedPublic').html(data.html);
+            }
+        });
+    } 
+
+    function getEnergyUser(energy_type_id) {
+
         $.ajax({
             url: "energy-user/get_by_energy_type/" + energy_type_id,
             method: 'GET',
@@ -218,6 +288,6 @@ label, table {
                 $('#selectedEnergySystem').html(data.html);
             }
         });
-    });
+    } 
 
 </script>

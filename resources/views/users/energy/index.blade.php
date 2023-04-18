@@ -74,12 +74,65 @@
     <div class="card my-2">
         <div class="card-body">
             <div class="card-header">
-                <div>
-                    <a class="btn btn-info" href="{{ route('energy-user.export') }}">
-                        <i class='fa-solid fa-file-excel'></i>
-                        Export Excel
-                    </a>
-                </div>
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('energy-user.export') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <select name="community" id="selectedUserCommunity" 
+                                    class="form-control">
+                                    <option disabled selected>Search Community</option>
+                                    @foreach($communities as $community)
+                                    <option value="{{$community->english_name}}">
+                                        {{$community->english_name}}
+                                    </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <select name="system_type"
+                                    class="form-control">
+                                    <option disabled selected>Search System Type</option>
+                                    @foreach($energySystemTypes as $energySystemType)
+                                        <option value="{{$energySystemType->name}}">
+                                            {{$energySystemType->name}}
+                                        </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <select name="donor"
+                                    class="form-control">
+                                    <option disabled selected>Search Donor</option>
+                                    @foreach($donors as $donor)
+                                    <option value="{{$donor->id}}">
+                                        {{$donor->donor_name}}
+                                    </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <input type="date" name="installation_date" 
+                                class="form-control" title="Data from"> 
+                            </fieldset>
+                        </div>
+                    </div> <br>
+                    <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <button class="btn btn-info" type="submit">
+                                <i class='fa-solid fa-file-excel'></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
             <table id="energyUsersTable" class="table table-striped data-table-energy-users my-2">
                 <thead>

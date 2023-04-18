@@ -46,6 +46,7 @@ class CommunityController extends Controller
      */
     public function index(Request $request)
     {	
+        
         // $communitiesMasafers = Community::where("sub_sub_region_id", 1)->get();
         // $count =0;
 
@@ -125,6 +126,7 @@ class CommunityController extends Controller
         $settlements = Settlement::all();
         $towns = Town::all();
         $publicCategories = PublicStructureCategory::all();
+        $publicStructures = PublicStructure::all();
 
         $data = DB::table('communities')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
@@ -154,12 +156,15 @@ class CommunityController extends Controller
             $arraySubRegions[++$key] = [$value->english_name, $value->number];
         }
 
+        $energySystemTypes = EnergySystemType::all();
+        $donors = Donor::all();
+        
 		return view('employee.community.index', compact('communities', 'regions', 
             'communityRecords', 'communityWater', 'communityInternet', 'subregions',
             'communitiesWater', 'communitiesInternet', 'communitiesAC', 'communityAC',
             'products', 'energyTypes', 'communitiesInitial', 'communityInitial', 
             'communitiesSurvyed', 'communitySurvyed', 'settlements', 'towns',
-            'publicCategories'))
+            'publicCategories', 'energySystemTypes', 'publicStructures', 'donors'))
             ->with('regionsData', json_encode($array))->with(
                 'subRegionsData', json_encode($arraySubRegions))
             ;
@@ -228,18 +233,35 @@ class CommunityController extends Controller
         //     $subCommunity->save();
         // }
 
+        
         $data = DB::table('households')
             ->join('communities', 'communities.id', '=', 'households.community_id')
             ->select(
                 'households.community_id AS id',
-                DB::raw("count(households.community_id) AS total_people"))
+                DB::raw("count(households.community_id) AS total_household"))
             ->groupBy('households.community_id')
             ->get();
        
+        
         foreach($data as $d) {
             $community = Community::findOrFail($d->id);
-            //$community->number_of_people = NULL;
-            $community->number_of_people = $d->total_people;
+            //$community->number_of_household = NULL;
+            $community->number_of_household = $d->total_household;
+            $community->save();
+        }
+
+        $households = DB::table('households')
+            ->join('communities', 'communities.id', '=', 'households.community_id')
+            ->select(
+                'households.community_id AS id',
+                DB::raw("sum(households.number_of_male + households.number_of_female) AS total_people"))
+            ->groupBy('households.community_id')
+            ->get();
+
+        foreach($households as $household) {
+            $community = Community::findOrFail($household->id);
+            //$community->number_of_household = NULL;
+            $community->number_of_people = $household->total_people;
             $community->save();
         }
 
@@ -438,9 +460,9 @@ class CommunityController extends Controller
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function export() 
+    public function export(Request $request) 
     {
                 
-        return Excel::download(new CommunityExport, 'communities.xlsx');
+        return Excel::download(new CommunityExport($request), 'communities.xlsx');
     }
 }

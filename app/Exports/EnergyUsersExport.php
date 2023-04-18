@@ -18,7 +18,7 @@ class EnergyUsersExport implements FromCollection, WithHeadings
             ->join('energy_systems', 'energy_users.energy_system_id', '=', 'energy_systems.id')
             ->join('households', 'energy_users.household_id', '=', 'households.id')
             ->join('energy_donors', 'energy_users.household_id', '=', 'energy_donors.household_id')
-            ->where('energy_donors.donor_id', '=', 1)
+            ->where('energy_donors.donor_id', '=', 1) 
             ->where(function ($query) {
                 $query->where("energy_users.energy_system_id", 62)
                       ->orWhere("energy_users.energy_system_id", 61);

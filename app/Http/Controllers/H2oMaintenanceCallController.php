@@ -25,6 +25,7 @@ use App\Models\MaintenanceH2oAction;
 use App\Models\MaintenanceStatus;
 use App\Models\MaintenanceType;
 use App\Models\PublicStructure;
+use App\Models\PublicStructureCategory;
 use App\Exports\WaterMaintenanceExport;
 use Auth;
 use DB;
@@ -107,9 +108,11 @@ class H2oMaintenanceCallController extends Controller
         $maintenanceH2oActions = MaintenanceH2oAction::all();
         $publics = PublicStructure::all();
         $users = User::all();
+        $publicCategories = PublicStructureCategory::all();
 
 		return view('users.water.maintenance.index', compact('maintenanceTypes', 'maintenanceStatuses',
-            'maintenanceH2oActions', 'users', 'communities', 'households', 'publics'));
+            'maintenanceH2oActions', 'users', 'communities', 'households', 'publics',
+            'publicCategories'));
     }
 
     /**
@@ -123,12 +126,12 @@ class H2oMaintenanceCallController extends Controller
         $maintenance = new H2oMaintenanceCall();
         if($request->household_id) {
 
-            $maintenance->household_id = $request->household_id[0];
+            $maintenance->household_id = $request->household_id;
         }
         
         if($request->public_structure_id) {
 
-            $maintenance->public_structure_id = $request->public_structure_id[0];
+            $maintenance->public_structure_id = $request->public_structure_id;
         }
 
         $maintenance->community_id = $request->community_id[0];
@@ -214,9 +217,9 @@ class H2oMaintenanceCallController extends Controller
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function export() 
+    public function export(Request $request)
     {
                 
-        return Excel::download(new WaterMaintenanceExport, 'water_maintenance.xlsx');
+        return Excel::download(new WaterMaintenanceExport($request), 'water_maintenance.xlsx');
     }
 }

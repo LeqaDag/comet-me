@@ -76,16 +76,19 @@ class InternetUserController extends Controller
                 ->make(true);
         }
 
-        return view('users.internet.index');
+        $communities = Community::all();
+        $donors = Donor::all();
+
+        return view('users.internet.index', compact('communities', 'donors'));
     }
 
     /**
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function export() 
+    public function export(Request $request) 
     {
                 
-        return Excel::download(new InternetUserExport, 'internet_holders.xlsx');
+        return Excel::download(new InternetUserExport($request), 'internet_holders.xlsx');
     }
 }

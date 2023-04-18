@@ -233,11 +233,12 @@ class EnergyUserController extends Controller
         }
 
         $totalSum = EnergyUser::where("meter_case_id", 1)->sum('daily_limit');
-
+        $donors = Donor::all();
+        
         return view('users.energy.index', compact('communities', 'households', 
             'energySystems', 'energySystemTypes', 'meters', 'energyMgNumbers', 
             'energyFbsNumbers', 'energyMmgNumbers', 'energyUsersNumbers',
-            'energySmgNumbers', 'householdMeterNumbers', 'totalSum'))
+            'energySmgNumbers', 'householdMeterNumbers', 'totalSum', 'donors'))
             ->with('energy_users', json_encode($array))
             ->with('energy_public_structures', json_encode($arrayPublicStructures)
         );
@@ -311,9 +312,18 @@ class EnergyUserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getEnergySystemByType($energy_type_id)
+    public function getEnergySystemByType($energy_type_id, $community_id)
     {
-        $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)->get();
+        if($community_id == 0) {
+
+            $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)->get();
+        } else {
+
+            $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
+                ->where('community_id', $community_id)
+                ->get();
+        }
+        
  
         if (!$energy_type_id) {
 
@@ -321,7 +331,16 @@ class EnergyUserController extends Controller
         } else {
 
             $html = '';
-            $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)->get();
+            if($community_id == 0) {
+
+                $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)->get();
+            } else {
+                
+                $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
+                    ->where('community_id', $community_id)
+                    ->get();
+            }
+
             foreach ($energySystems as $energyType) {
                 $html .= '<option value="'.$energyType->id.'">'.$energyType->name.'</option>';
             }
@@ -441,9 +460,76 @@ class EnergyUserController extends Controller
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function export() 
+    public function export(Request $request) 
     {
-                
-        return Excel::download(new EnergyUserExport, 'energy_users.xlsx');
+
+        return Excel::download(new EnergyUserExport($request), 'energy_users.xlsx');
+    }
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEnergyUserByCommunity($community_id)
+    {
+        $households = DB::table('energy_users')
+            ->join('households', 'energy_users.household_id', '=', 'households.id')
+            ->where("households.community_id", $community_id)
+            ->select('households.id', 'households.english_name')
+            ->get();
+ 
+        if (!$community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option value="">Select...</option>';
+            $households = DB::table('energy_users')
+                ->join('households', 'energy_users.household_id', '=', 'households.id')
+                ->where("households.community_id", $community_id)
+                ->select('households.id', 'households.english_name')
+                ->get();
+            foreach ($households as $household) {
+                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getPublicByCommunity($community_id)
+    {
+        $publics = DB::table('energy_public_structures')
+            ->join('public_structures', 'energy_public_structures.public_structure_id', '=', 'public_structures.id')
+            ->where("energy_public_structures.community_id", $community_id)
+            ->select('public_structures.id', 'public_structures.english_name')
+            ->get();
+      
+        if (!$community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option value="">Select...</option>';
+            $publics = DB::table('energy_public_structures')
+                ->join('public_structures', 'energy_public_structures.public_structure_id', '=', 'public_structures.id')
+                ->where("energy_public_structures.community_id", $community_id)
+                ->select('public_structures.id', 'public_structures.english_name')
+                ->get();
+
+            foreach ($publics as $public) {
+                $html .= '<option value="'.$public->id.'">'.$public->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
     }
 }

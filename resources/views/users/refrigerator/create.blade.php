@@ -44,7 +44,7 @@ label, table {
 
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Household?</label>
+                                <label class='col-md-12 control-label'>Household/Public Structure</label>
                                 <select name="is_household" id="isHousehold" 
                                     class="form-control" disabled>
                                     <option disabled selected>Choose one...</option>
@@ -123,7 +123,7 @@ label, table {
 
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Receive Number</label>
+                                <label class='col-md-12 control-label'>Receipt Number</label>
                                 <input type="text" name="receive_number" 
                                 class="form-control">
                             </fieldset>

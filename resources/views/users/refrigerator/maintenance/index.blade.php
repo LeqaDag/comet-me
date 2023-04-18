@@ -24,12 +24,58 @@
     <div class="card my-2">
         <div class="card-body">
             <div class="card-header">
-                <div>
-                    <a class="btn btn-info" href="{{ route('refrigerator-maintenance.export') }}">
-                        <i class='fa-solid fa-file-excel'></i>
-                        Export Excel
-                    </a>
-
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('refrigerator-maintenance.export') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <select name="community_id"
+                                    class="form-control">
+                                    <option disabled selected>Search Community</option>
+                                    @foreach($communities as $community)
+                                        <option value="{{$community->id}}">
+                                            {{$community->english_name}}
+                                        </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <select name="public" class="form-control">
+                                    <option disabled selected>Search Public Structure</option>
+                                    @foreach($publicCategories as $publicCategory)
+                                    <option value="{{$publicCategory->id}}">
+                                        {{$publicCategory->name}}
+                                    </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <input type="date" name="call_date" 
+                                class="form-control" title="Call Data from"> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <input type="date" name="date" 
+                                class="form-control" title="Completed Data from"> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3" style="margin-top:18px">
+                            <fieldset class="form-group">
+                                <button class="btn btn-info" type="submit">
+                                    <i class='fa-solid fa-file-excel'></i>
+                                    Export Excel
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
+                </form>
+                <div style="margin-top:18px">
                     <button type="button" class="btn btn-success" 
                         data-bs-toggle="modal" data-bs-target="#createMaintenanceLogRefrigerator">
                         Create New Maintenancne Call	
@@ -37,6 +83,7 @@
                     @include('users.refrigerator.maintenance.create')
                 </div>
             </div>
+
             <table id="maintenanceRefrigeratorTable" class="table table-striped data-table-refrigerator-maintenance my-2">
                 <thead>
                     <tr>

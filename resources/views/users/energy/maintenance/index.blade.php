@@ -22,30 +22,73 @@
 
 <div class="container">
     <div class="card my-2">
-        <div class="card-body">
+        <div class="card-body"> 
             <div class="card-header">
-                <div>
-                    <a class="btn btn-info" href="{{ route('energy-maintenance.export') }}">
-                        <i class='fa-solid fa-file-excel'></i>
-                        Export Excel
-                    </a>
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('energy-maintenance.export') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <select name="community_id"
+                                    class="form-control">
+                                    <option disabled selected>Search Community</option>
+                                    @foreach($communities as $community)
+                                        <option value="{{$community->id}}">
+                                            {{$community->english_name}}
+                                        </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <select name="public" class="form-control">
+                                    <option disabled selected>Search Public Structure</option>
+                                    @foreach($publicCategories as $publicCategory)
+                                    <option value="{{$publicCategory->id}}">
+                                        {{$publicCategory->name}}
+                                    </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <input type="date" name="date" 
+                                class="form-control" title="Completed Data from"> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <button class="btn btn-info" type="submit">
+                                    <i class='fa-solid fa-file-excel'></i>
+                                    Export Excel
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
+                </form>
 
+
+                <div style="margin-top:18px">
                     <button type="button" class="btn btn-success" 
                         data-bs-toggle="modal" data-bs-target="#createMaintenanceLogElectricity">
-                        Create New Maintenancne Call	
+                        Create New Maintenance Call	
                     </button>
                     @include('users.energy.maintenance.create')
                 </div>
-            </div>
 
+            </div>
             <table id="maintenanceEnergyTable" class="table table-striped data-table-energy-maintenance my-2">
                 <thead>
                     <tr>
+                        <th class="text-center">MG System</th>
                         <th class="text-center">Household</th>
                         <th class="text-center">Public Structure</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Recipient</th>
-                        <th class="text-center">Action</th>
+                        <!--<th class="text-center">Action</th>-->
                         <th class="text-center">Status</th>
                         <th class="text-center">Options</th>
                     </tr>
@@ -103,11 +146,12 @@
                 }
             },
             columns: [
+                {data: 'energy_name', name: 'energy_name'},
                 {data: 'english_name', name: 'english_name'},
                 {data: 'public_name', name: 'public_name'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'user_name', name: 'user_name'},
-                {data: 'maintenance_action_electricity', name: 'maintenance_action_electricity'},
+               // {data: 'maintenance_action_electricity', name: 'maintenance_action_electricity'},
                 {data: 'name', name: 'name'},
                 {data: 'action'},
             ]
@@ -172,10 +216,14 @@
                     $('#energyModalTitle').html(response['household'].english_name);
                     $('#englishNameUser').html(response['household'].english_name);
 
-                } else if(response['public']) {
+                 } else if(response['public']) {
 
                     $('#energyModalTitle').html(response['public'].english_name);
                     $('#englishNameUser').html(response['public'].english_name);
+                } else if(response['energySystem']) {
+
+                    $('#energyModalTitle').html(response['energySystem'].name);
+                    $('#englishNameUser').html(response['energySystem'].name);
                 }
 
                 $('#communityUser').html('');

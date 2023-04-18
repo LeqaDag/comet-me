@@ -10,6 +10,7 @@ use Auth;
 use DB;
 use Route;
 use App\Models\GridUser;
+use App\Models\Donor;
 use App\Models\IncidentStatus;
 use App\Models\H2oStatus;
 use App\Models\H2oUser;
@@ -18,9 +19,11 @@ use App\Models\Household;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\Incident;
+use App\Exports\WaterIncidentExport;
 use Carbon\Carbon;
 use Image; 
 use DataTables;
+use Excel;
 
 class WaterIncidentController extends Controller
 {
@@ -30,7 +33,7 @@ class WaterIncidentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    { 
         if ($request->ajax()) {
 
             $data = DB::table('h2o_system_incidents')
@@ -88,6 +91,7 @@ class WaterIncidentController extends Controller
         $incidents = Incident::all();
         $incidentStatuses = IncidentStatus::all();
         $h2oIncidentsNumber = H2oSystemIncident::count();
+        $donors = Donor::all();
 
         // H2O incidents
         $dataIncidents = DB::table('h2o_system_incidents')
@@ -110,7 +114,7 @@ class WaterIncidentController extends Controller
         }
 
         return view('incidents.water.index', compact('communities', 'h2oUsers',
-            'incidents', 'incidentStatuses', 'h2oIncidentsNumber'))
+            'incidents', 'incidentStatuses', 'h2oIncidentsNumber', 'donors'))
             ->with('h2oIncidents', json_encode($arrayIncidents));
     }
 
@@ -191,5 +195,15 @@ class WaterIncidentController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+                
+        return Excel::download(new WaterIncidentExport($request), 'water_incidents.xlsx');
     }
 }

@@ -34,7 +34,7 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select class="selectpicker form-control" 
-                                    multiple data-live-search="true" 
+                                    data-live-search="true" id="selectedUserCommunity"
                                     name="community_id[]" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
@@ -48,14 +48,9 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Water User</label>
-                                <select name="household_id[]" class="selectpicker form-control" 
-                                    multiple data-live-search="true" required >
+                                <select name="household_id" class="form-control"
+                                        id="selectedWaterUser" disabled>
                                     <option disabled selected>Choose one...</option>
-                                    @foreach($households as $household)
-                                    <option value="{{$household->id}}">
-                                        {{$household->english_name}}
-                                    </option>
-                                    @endforeach
                                 </select>
                             </fieldset>
                         </div>
@@ -65,15 +60,9 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Structure</label>
-                                <select class="selectpicker form-control" 
-                                    multiple data-live-search="true" 
-                                    name="public_structure_id[]" required>
+                                <select class="form-control" id="selectedWaterPublic"
+                                    name="public_structure_id"disabled>
                                     <option disabled selected>Choose one...</option>
-                                    @foreach($publics as $public)
-                                    <option value="{{$public->id}}">
-                                        {{$public->english_name}}
-                                    </option>
-                                    @endforeach
                                 </select>
                             </fieldset>
                         </div> 
@@ -179,45 +168,36 @@ label, table {
 
     $(document).on('change', '#selectedUserCommunity', function () {
         community_id = $(this).val();
-   
-        $.ajax({
-            url: "energy-user/get_by_community/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedUserHousehold').prop('disabled', false);
-                $('#selectedUserHousehold').html(data.html);
-                
-                $('#selectedSharedMeter').prop('disabled', false);
-                $(document).on('change', '#selectedSharedMeter', function () {
 
-                    user_id = $("#selectedUserHousehold").val();
+        $('#selectedWaterUser').prop('disabled', false);
+        $('#selectedWaterPublic').prop('disabled', false);
+        getUserByCommunity(community_id);
+        getPublicByCommunity(community_id);
 
-                    $.ajax({
-                        url: "energy-user/shared_household/" + community_id + "/" + user_id,
-                        method: 'GET',
-                        success: function(data) {
-                         
-                            $('#selectedHouseholdMeter').prop('disabled', false);
-                            $('#selectedHouseholdMeter').append(data.html);
-                            $('.selectpicker').selectpicker('refresh');
-                        }
-                    });
-                });
-            }
-        });
     });
 
-    $(document).on('change', '#selectedEnergySystemType', function () {
-        energy_type_id = $(this).val();
+    function getUserByCommunity(community_id) {
    
         $.ajax({
-            url: "energy-user/get_by_energy_type/" + energy_type_id,
+            url: "water_user/get_by_community/" + community_id,
             method: 'GET',
             success: function(data) {
-                $('#selectedEnergySystem').prop('disabled', false);
-                $('#selectedEnergySystem').html(data.html);
+                $('#selectedWaterUser').prop('disabled', false);
+                $('#selectedWaterUser').html(data.html);
             }
         });
-    });
+    }
+
+    function getPublicByCommunity(community_id) {
+        
+        $.ajax({
+            url: "water_public/get_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                $('#selectedWaterPublic').prop('disabled', false);
+                $('#selectedWaterPublic').html(data.html);
+            }
+        });
+    }
 
 </script>

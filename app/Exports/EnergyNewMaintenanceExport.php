@@ -51,7 +51,7 @@ class EnergyNewMaintenanceExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return ["Household Name", "Public Structure", "Community", "Region", "Sub Region", 
-            "Recipient", "Action in English", "Action in Arabic", "Status", "Type", "Call Date",
+            "Recipient", "Action in Arabic", "Action in English", "Status", "Type", "Call Date",
             "Completed Date"];
     }
 }

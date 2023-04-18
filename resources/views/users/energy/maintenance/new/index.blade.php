@@ -32,7 +32,7 @@
 
                     <button type="button" class="btn btn-success"  
                         data-bs-toggle="modal" data-bs-target="#createMaintenanceLogNewElectricity">
-                        Create New Maintenancne Call	
+                        Create New Maintenance Call	
                     </button>
                 @include('users.energy.maintenance.new.create')
                 </div>

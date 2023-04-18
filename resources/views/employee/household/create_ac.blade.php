@@ -227,18 +227,38 @@ label {
     // });
 
 
+    $(document).on('change', '#selectedUserCommunity', function () {
+
+        community_id = $(this).val();
+        energy_type_id= $("#selectedEnergySystemType").val();
+        changeEnergySystemType(energy_type_id, community_id);
+    });
+    
     $(document).on('change', '#selectedEnergySystemType', function () {
+
         energy_type_id = $(this).val();
-   
+
+        if(energy_type_id == 1 || energy_type_id == 3) {
+
+            community_id = $("#selectedUserCommunity").val();
+        } else {
+
+            community_id = 0;
+        }
+
+        changeEnergySystemType(energy_type_id, community_id);
+    });
+
+    function changeEnergySystemType(energy_type_id, community_id) {
         $.ajax({
-            url: "energy-user/get_by_energy_type/" + energy_type_id,
+            url: "energy-user/get_by_energy_type/" + energy_type_id + "/" + community_id,
             method: 'GET',
             success: function(data) {
                 $('#selectedEnergySystem').prop('disabled', false);
                 $('#selectedEnergySystem').html(data.html);
             }
         });
-    });
+    }
 
 </script>
 

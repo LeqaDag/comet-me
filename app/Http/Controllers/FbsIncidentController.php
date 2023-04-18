@@ -11,6 +11,7 @@ use DB;
 use Route;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\Donor;
 use App\Models\EnergyUser;
 use App\Models\EnergySystem;
 use App\Models\HouseholdMeter;
@@ -19,9 +20,11 @@ use App\Models\Incident;
 use App\Models\Household;
 use App\Models\IncidentStatusSmallInfrastructure;
 use App\Models\Region;
+use App\Exports\FbsIncidentExport;
 use Carbon\Carbon;
 use Image; 
 use DataTables;
+use Excel;
 
 class FbsIncidentController extends Controller
 {
@@ -90,6 +93,7 @@ class FbsIncidentController extends Controller
         $incidents = Incident::all();
         $fbsIncidents = IncidentStatusSmallInfrastructure::all();
         $fbsIncidentsNumber = FbsUserIncident::where('energy_user_id', '!=', '0')->count();
+        $donors = Donor::all();
 
         $dataFbsIncidents = DB::table('fbs_user_incidents')
             ->join('energy_users', 'fbs_user_incidents.energy_user_id', '=', 'energy_users.id')
@@ -113,7 +117,7 @@ class FbsIncidentController extends Controller
         }
 
         return view('incidents.fbs.index', compact('communities', 'energyUsers',
-            'incidents', 'fbsIncidents', 'fbsIncidentsNumber'))
+            'incidents', 'fbsIncidents', 'fbsIncidentsNumber', 'donors'))
             ->with('incidentsFbsData', json_encode($arrayFbsIncidents));
     }
 
@@ -196,5 +200,15 @@ class FbsIncidentController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+                
+        return Excel::download(new FbsIncidentExport($request), 'fbs_incidents.xlsx');
     }
 }

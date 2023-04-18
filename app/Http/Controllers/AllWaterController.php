@@ -148,6 +148,7 @@ class AllWaterController extends Controller
         $h2oUser->number_of_h20 = $request->number_of_h20; 
         $h2oUser->installation_year = $request->installation_year;
         $h2oUser->h2o_request_date = $request->h2o_request_date; 
+        $h2oUser->h2o_installation_date = $request->h2o_installation_date;
         $h2oUser->save();
 
         if($gridUser == null) {

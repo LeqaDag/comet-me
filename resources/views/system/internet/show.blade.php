@@ -11,6 +11,16 @@
   <span class="text-muted fw-light"> {{$internetSystem->system_name}}</span> Details
 </h4>
 
+@foreach($lineOfSightMainCommunities as $lineOfSightMainCommunity)
+    <div class="">
+        <h4>{{$lineOfSightMainCommunity->main_community_name}}</h4>
+        <img src="/assets/images/upload.gif" alt class="img-responsive"
+        style=" transform: rotate(90deg)" width=90 height=90>
+    </div>
+@endforeach
+
+
+
 <div class="container">
     <div class="card my-2">
         <div class="card-body">

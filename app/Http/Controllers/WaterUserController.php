@@ -21,6 +21,7 @@ use App\Models\H2oUserDonor;
 use App\Models\Household;
 use App\Models\WaterUser;
 use App\Exports\WaterUserExport;
+use App\Models\EnergySystemType;
 use Auth;
 use DB;
 use Route;
@@ -127,9 +128,12 @@ class WaterUserController extends Controller
             ->selectRaw('SUM(number_of_children) AS number_of_children')
             ->first();
 
+        $donors = Donor::all();
+        $energySystemTypes = EnergySystemType::all();
+
 		return view('users.water.index', compact('communities', 'bsfStatus', 'households', 
             'h2oStatus', 'totalWaterHouseholds', 'totalWaterMale', 'totalWaterFemale',
-            'totalWaterChildren', 'totalWaterAdults'))
+            'totalWaterChildren', 'totalWaterAdults', 'donors', 'energySystemTypes'))
         ->with('h2oChartStatus', json_encode($array))
         ->with('gridChartStatus', json_encode($arrayGrid));
     }
@@ -187,6 +191,7 @@ class WaterUserController extends Controller
         $h2oUser->number_of_h20 = $request->number_of_h20; 
         $h2oUser->h2o_request_date = $request->h2o_request_date; 
         $h2oUser->installation_year = $request->installation_year;
+        $h2oUser->h2o_installation_date = $request->h2o_installation_date;
         $h2oUser->save();
 
         $gridUser = new GridUser();
@@ -363,12 +368,82 @@ class WaterUserController extends Controller
     }
 
     /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getWaterUserByCommunity($community_id)
+    {
+        $households = DB::table('h2o_users')
+            ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
+            ->join('households', 'h2o_users.household_id', 'households.id')
+            ->where("households.community_id", $community_id)
+            ->select('households.id as id', 'households.english_name')
+            ->get();
+ 
+        if (!$community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option value="">Select...</option>';
+            $households = DB::table('h2o_users')
+                ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
+                ->join('households', 'h2o_users.household_id', 'households.id')
+                ->where("households.community_id", $community_id)
+                ->select('households.id as id', 'households.english_name')
+                ->get();
+
+            foreach ($households as $household) {
+                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getPublicByCommunity($community_id)
+    {
+        $publics = DB::table('h2o_public_structures')
+            ->join('public_structures', 'h2o_public_structures.public_structure_id', '=', 'public_structures.id')
+            ->where("h2o_public_structures.community_id", $community_id)
+            ->select('public_structures.id', 'public_structures.english_name')
+            ->get();
+      
+        if (!$community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option value="">Select...</option>';
+            $publics = DB::table('h2o_public_structures')
+                ->join('public_structures', 'h2o_public_structures.public_structure_id', '=', 'public_structures.id')
+                ->where("h2o_public_structures.community_id", $community_id)
+                ->select('public_structures.id', 'public_structures.english_name')
+                ->get();
+
+            foreach ($publics as $public) {
+                $html .= '<option value="'.$public->id.'">'.$public->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function export() 
+    public function export(Request $request) 
     {
                 
-        return Excel::download(new WaterUserExport, 'used_water_users.xlsx');
+        return Excel::download(new WaterUserExport($request), 'used_water_users.xlsx');
     }
 }

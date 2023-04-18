@@ -16,7 +16,7 @@ use App\Models\GridUserDonor;
 use App\Models\H2oSharedUser;
 use App\Models\EnergyUser;
 use App\Models\H2oUser;
-use App\Models\H2oUserDonor;
+use App\Models\EnergySystem;
 use App\Models\ElectricityMaintenanceCall;
 use App\Models\Household;
 use App\Models\WaterUser;
@@ -25,6 +25,7 @@ use App\Models\MaintenanceElectricityAction;
 use App\Models\MaintenanceStatus;
 use App\Models\MaintenanceType;
 use App\Models\PublicStructure;
+use App\Models\PublicStructureCategory;
 use App\Exports\EnergyMaintenanceExport;
 use Auth;
 use DB;
@@ -43,6 +44,8 @@ class EnergyMaintenanceCallController extends Controller
     {	
         if ($request->ajax()) {
             $data = DB::table('electricity_maintenance_calls')
+                ->leftJoin('energy_systems', 'electricity_maintenance_calls.energy_system_id', 
+                    'energy_systems.id')
                 ->leftJoin('households', 'electricity_maintenance_calls.household_id', 
                     'households.id')
                 ->leftJoin('public_structures', 'electricity_maintenance_calls.public_structure_id', 
@@ -64,7 +67,8 @@ class EnergyMaintenanceCallController extends Controller
                     'electricity_maintenance_calls.updated_at as updated_at',
                     'maintenance_electricity_actions.maintenance_action_electricity',
                     'maintenance_electricity_actions.maintenance_action_electricity_english',
-                    'users.name as user_name', 'public_structures.english_name as public_name')
+                    'users.name as user_name', 'public_structures.english_name as public_name',
+                    'energy_systems.name as energy_name')
                 ->latest();
             return Datatables::of($data)
                 ->addIndexColumn()
@@ -104,10 +108,12 @@ class EnergyMaintenanceCallController extends Controller
         $maintenanceStatuses = MaintenanceStatus::all();
         $maintenanceEnergyActions = MaintenanceElectricityAction::all();
         $users = User::all();
+        $mgSystems = EnergySystem::where('energy_system_type_id', 1)->get();
+        $publicCategories = PublicStructureCategory::all();
 
 		return view('users.energy.maintenance.index', compact('maintenanceTypes', 
             'maintenanceStatuses', 'maintenanceEnergyActions', 'users', 'communities', 
-            'households', 'publics'));
+            'households', 'publics', 'mgSystems', 'publicCategories'));
     }
 
     /**
@@ -118,7 +124,7 @@ class EnergyMaintenanceCallController extends Controller
      */
     public function store(Request $request)
     {
-       // dd($request->all());
+        //dd($request->all());
         $maintenance = new ElectricityMaintenanceCall();
         if($request->household_id) {
 
@@ -130,7 +136,12 @@ class EnergyMaintenanceCallController extends Controller
         
         if($request->public_structure_id) {
 
-            $maintenance->public_structure_id = $request->public_structure_id[0];
+            $maintenance->public_structure_id = $request->public_structure_id;
+        }
+
+        if($request->energy_system_id) {
+
+            $maintenance->energy_system_id = $request->energy_system_id;
         }
 
         $maintenance->community_id = $request->community_id[0];
@@ -182,6 +193,13 @@ class EnergyMaintenanceCallController extends Controller
     {
         $energyMaintenance = ElectricityMaintenanceCall::findOrFail($id);
         
+        if($energyMaintenance->energy_system_id != NULL) {
+            $energyId = $energyMaintenance->energy_system_id;
+            $energySystem = EnergySystem::where('id', $energyId)->first();
+            
+            $response['energySystem'] = $energySystem;
+        }
+
         if($energyMaintenance->household_id != NULL) {
             $householdId = $energyMaintenance->household_id;
             $household = Household::where('id', $householdId)->first();
@@ -216,11 +234,56 @@ class EnergyMaintenanceCallController extends Controller
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function export() 
+    public function export(Request $request) 
     {
                 
-        return Excel::download(new EnergyMaintenanceExport, 'energy_maintenance.xlsx');
+        return Excel::download(new EnergyMaintenanceExport($request), 'energy_maintenance.xlsx');
     }
 
+     /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getMaintenanceAction($system)
+    {
+        if($system == 1) {
+
+            $actions = MaintenanceElectricityAction::where("system_user", 2)
+                ->orWhere("system_user", 3)
+                ->get();
+        } else if($system == 2) {
+
+            $actions = MaintenanceElectricityAction::where("system_user", 1)
+                ->orWhere("system_user", 3)
+                ->get();
+        }
+        
+ 
+        if (!$system) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option disabled selected>Select ...</option>';
+            if($system == 1) {
+
+                $actions = MaintenanceElectricityAction::where("system_user", 2)
+                    ->orWhere("system_user", 3)
+                    ->get();
+            } else if($system == 2) {
     
+                $actions = MaintenanceElectricityAction::where("system_user", 1)
+                    ->orWhere("system_user", 3)
+                    ->get();
+            }
+
+            foreach ($actions as $action) {
+                $html .= '<option value="'.$action->id.'">'.$action->maintenance_action_electricity.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
 }

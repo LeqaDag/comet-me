@@ -23,12 +23,53 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-header">
-            <div>
-                <a class="btn btn-info" href="{{ route('internet-user.export') }}">
-                    <i class='fa-solid fa-file-excel'></i>
-                    Export Excel
-                </a>
-            </div>
+            <form method="POST" enctype='multipart/form-data' 
+                action="{{ route('internet-user.export') }}">
+                @csrf
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <select name="community"
+                                class="form-control">
+                                <option disabled selected>Search Community</option>
+                                @foreach($communities as $community)
+                                <option value="{{$community->english_name}}">
+                                    {{$community->english_name}}
+                                </option>
+                                @endforeach
+                            </select> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <select name="donor"
+                                class="form-control">
+                                <option disabled selected>Search Donor</option>
+                                @foreach($donors as $donor)
+                                <option value="{{$donor->id}}">
+                                    {{$donor->donor_name}}
+                                </option>
+                                @endforeach
+                            </select> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <input type="date" name="start_date" 
+                            class="form-control" title="Data from"> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <button class="btn btn-info" type="submit">
+                            <i class='fa-solid fa-file-excel'></i>
+                            Export Excel
+                        </button>
+                    </div>
+                </div> 
+                <div class="row">
+                    
+                </div>
+            </form>
         </div>
         <div class="card-body">
             <table id="internetAllUsersTable" class="table table-striped data-table-internet-users my-2">

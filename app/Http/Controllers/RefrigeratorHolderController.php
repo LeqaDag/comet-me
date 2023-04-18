@@ -16,9 +16,11 @@ use App\Models\Household;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\RefrigeratorHolder;
+use App\Exports\RefrigeratorExport;
 use Carbon\Carbon;
 use Image;
 use DataTables;
+use Excel;
 
 class RefrigeratorHolderController extends Controller
 {
@@ -88,8 +90,10 @@ class RefrigeratorHolderController extends Controller
 
         $communities = Community::all();
         $households = Household::all();
+        $publicCategories = PublicStructureCategory::all();
 
-        return view('users.refrigerator.index', compact('communities', 'households'));
+        return view('users.refrigerator.index', compact('communities', 'households',
+            'publicCategories'));
     }
 
     /**
@@ -166,5 +170,86 @@ class RefrigeratorHolderController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getHouseholdByCommunity($community_id)
+    {
+        $households = DB::table('refrigerator_holders')
+            ->join('households', 'refrigerator_holders.household_id', '=', 'households.id')
+            ->where("refrigerator_holders.community_id", $community_id)
+            ->select('households.id', 'households.english_name')
+            ->get();
+ 
+        if (!$community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option value="">Choose One...</option>';
+            $households = DB::table('refrigerator_holders')
+                ->join('households', 'refrigerator_holders.household_id', '=', 'households.id')
+                ->where("refrigerator_holders.community_id", $community_id)
+                ->select('households.id', 'households.english_name')
+                ->get();
+
+            foreach ($households as $household) {
+                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getPublicByCommunity($community_id)
+    {
+        $publics = DB::table('refrigerator_holders')
+            ->join('public_structures', 'refrigerator_holders.public_structure_id', 
+                '=', 'public_structures.id')
+            ->where("refrigerator_holders.community_id", $community_id)
+            ->select('public_structures.id', 'public_structures.english_name')
+            ->get();
+ 
+        if (!$community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option value="">Choose One...</option>';
+            $publics = DB::table('refrigerator_holders')
+                ->join('public_structures', 'refrigerator_holders.public_structure_id', 
+                    '=', 'public_structures.id')
+                ->where("refrigerator_holders.community_id", $community_id)
+                ->select('public_structures.id', 'public_structures.english_name')
+                ->get();
+                
+            foreach ($publics as $public) {
+
+                $html .= '<option value="'.$public->id.'">'.$public->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+                
+        return Excel::download(new RefrigeratorExport($request), 'rfrigerators.xlsx');
     }
 }

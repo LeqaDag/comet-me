@@ -8,6 +8,14 @@ use DB;
 
 class InternetUserExport implements FromCollection, WithHeadings
 {
+
+    protected $request;
+
+    function __construct($request) {
+
+        $this->request = $request;
+    }
+
     /**
     * @return \Illuminate\Support\Collection
     */
@@ -19,14 +27,30 @@ class InternetUserExport implements FromCollection, WithHeadings
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->join('households', 'internet_users.household_id', '=', 'households.id')
             ->join('internet_statuses', 'internet_users.internet_status_id', '=', 'internet_statuses.id')
+            ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
+            ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
+            ->where('community_donors.service_id', 3)
             ->select('households.english_name as english_name', 
+                'households.arabic_name as arabic_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
-                'internet_users.start_date', 'internet_statuses.name',
-                'internet_users.number_of_people', 'internet_users.number_of_contract',)
-            ->get();
+                'internet_users.start_date', 'internet_statuses.name', 
+                'internet_users.number_of_contract');
 
-        return $data;
+        if($this->request->community) {
+
+            $data->where("communities.english_name", $this->request->community);
+        } 
+        if($this->request->donor) {
+
+            $data->where("community_donors.donor_id", $this->request->donor);
+        }
+        if($this->request->start_date) {
+            
+            $data->where("internet_users.start_date", ">=", $this->request->start_date);
+        } 
+
+        return $data->get();
     }
 
     /**
@@ -36,7 +60,7 @@ class InternetUserExport implements FromCollection, WithHeadings
      */
     public function headings(): array
     {
-        return ["Internet Holder", "Community", "Region", "Sub Region", 
-            "Start Date", "Internet Status", "Number of people", "Number of Contracts"];
+        return ["Internet Holder", "Arabic Name", "Community", "Region", "Sub Region", 
+            "Start Date", "Internet Status", "Number of Contracts"];
     }
 }

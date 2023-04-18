@@ -9,6 +9,13 @@ use DB;
 
 class RefrigeratorMaintenanceExport implements FromCollection, WithHeadings
 {
+    protected $request;
+
+    function __construct($request) {
+
+        $this->request = $request;
+    }
+
     /**
     * @return \Illuminate\Support\Collection
     */
@@ -36,10 +43,24 @@ class RefrigeratorMaintenanceExport implements FromCollection, WithHeadings
                 'maintenance_refrigerator_actions.maintenance_action_refrigerator',
                 'maintenance_refrigerator_actions.maintenance_action_refrigerator_english',
                 'maintenance_statuses.name', 'maintenance_types.type',
-                'date_of_call', 'date_completed')
-            ->get();
+                'date_of_call', 'date_completed');
 
-        return $data;
+        if($this->request->public) {
+            $data->where("public_structures.public_structure_category_id1", $this->request->public)
+                ->orWhere("public_structures.public_structure_category_id2", $this->request->public)
+                ->orWhere("public_structures.public_structure_category_id3", $this->request->public);
+        }
+        if($this->request->community_id) {
+            $data->where("refrigerator_maintenance_calls.community_id", $this->request->community_id);
+        }
+        if($this->request->date) {
+            $data->where("refrigerator_maintenance_calls.date_completed", ">=", $this->request->date);
+        }
+        if($this->request->call_date) {
+            $data->where("refrigerator_maintenance_calls.date_of_call", ">=", $this->request->call_date);
+        }
+
+        return $data->get();
     }
 
     /**

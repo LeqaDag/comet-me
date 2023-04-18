@@ -33,6 +33,7 @@ use App\Models\PtpInternetSystem;
 use App\Models\InternetPtp;
 use App\Models\InternetUisp;
 use App\Models\UispInternetSystem;
+use App\Models\LineOfSight;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -116,6 +117,14 @@ class InternetSystemController extends Controller
             $internetSystem->internet_system_type_id)
             ->first();
 
+        $internetCommunities = InternetSystemCommunity::where('internet_system_id', $id)->get();
+     
+        foreach($internetCommunities as $internetCommunity) {
+            
+            $lineOfSightMainCommunities = LineOfSight::where("main_community_id", $internetCommunity->community_id)->get();
+            $lineOfSightSubCommunities = LineOfSight::where("sub_community_id", $internetCommunity->community_id)->get();
+        }
+
         // Router
         $routers = DB::table('router_internet_systems')
             ->join('internet_systems', 'router_internet_systems.internet_system_id', 
@@ -193,9 +202,8 @@ class InternetSystemController extends Controller
                 'internet_uisps.brand', 'internet_systems.system_name')
             ->get();
 
- 
-
         return view('system.internet.show', compact('routers', 'switches', 'controllers',
-            'ptps', 'aps', 'apLites', 'uisps', 'internetSystem', 'internetSystemType'));
+            'ptps', 'aps', 'apLites', 'uisps', 'internetSystem', 'internetSystemType', 
+            'lineOfSightMainCommunities', 'lineOfSightSubCommunities'));
     }
 }

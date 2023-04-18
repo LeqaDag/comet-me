@@ -20,9 +20,11 @@ use App\Models\MgIncident;
 use App\Models\Incident;
 use App\Models\IncidentStatusMgSystem;
 use App\Models\Region;
+use App\Exports\MgIncidentExport;
 use Carbon\Carbon;
 use Image;
 use DataTables;
+use Excel;
 
 class MgIncidentController extends Controller
 {
@@ -83,7 +85,8 @@ class MgIncidentController extends Controller
         $incidents = Incident::all();
         $mgIncidents = IncidentStatusMgSystem::all();
         $mgIncidentsNumber = MgIncident::count();
- 
+        $donors = Donor::all();
+
         $dataIncidents = DB::table('mg_incidents')
             ->join('communities', 'mg_incidents.community_id', '=', 'communities.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
@@ -104,7 +107,7 @@ class MgIncidentController extends Controller
         }
 
         return view('incidents.mg.index', compact('communities', 'energySystems',
-            'incidents', 'mgIncidents', 'mgIncidentsNumber'))
+            'incidents', 'mgIncidents', 'mgIncidentsNumber', 'donors'))
             ->with('incidentsData', json_encode($arrayIncidents));
     }
 
@@ -182,5 +185,15 @@ class MgIncidentController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+                
+        return Excel::download(new MgIncidentExport($request), 'mg_incidents.xlsx');
     }
 }
