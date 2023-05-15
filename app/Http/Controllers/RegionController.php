@@ -47,6 +47,20 @@ use DataTables;
 
 class RegionController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    function __construct()
+    {
+        // $this->middleware('permission:quality-list|quality-create|quality-edit|quality-delete', ['only' => ['index']]);
+        // $this->middleware('permission:quality-create', ['only' => ['create','store']]);
+        // $this->middleware('permission:quality-edit', ['only' => ['edit','update']]);
+        // $this->middleware('permission:quality-delete', ['only' => ['destroy']]);
+    }
+
     /**
      * Display a listing of the resource.
      *

@@ -40,15 +40,15 @@ class CommunityExport implements FromCollection, WithHeadings
             ->leftJoin('public_structures', 'communities.id', '=', 'public_structures.community_id')
             ->join('community_statuses', 'communities.community_status_id', 
                 '=', 'community_statuses.id')
-            ->leftJoin('energy_users', function ($join) {
-                $join->on('energy_users.id', '=', 
-                DB::raw('(SELECT id FROM energy_users WHERE energy_users.community_id = communities.id LIMIT 1)'));
-            })
-            // ->leftJoin('energy_system_types', 'energy_users.energy_system_type_id', 
-            //     '=', 'energy_system_types.id')
-            ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
-            ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
-            ->leftJoin('service_types', 'community_donors.service_id', 'service_types.id')
+            // ->leftJoin('energy_users', function ($join) {
+            //     $join->on('energy_users.id', '=', 
+            //     DB::raw('(SELECT id FROM energy_users WHERE energy_users.community_id = communities.id LIMIT 1)'));
+            // })
+            // // ->leftJoin('energy_system_types', 'energy_users.energy_system_type_id', 
+            // //     '=', 'energy_system_types.id')
+            // ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
+            // ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
+            // ->leftJoin('service_types', 'community_donors.service_id', 'service_types.id')
             
             // ->leftJoin('community_donors', function ($join) {
             //     $join->on('community_donors.community_id', '=', 
@@ -66,7 +66,7 @@ class CommunityExport implements FromCollection, WithHeadings
                 'communities.energy_service', 'communities.energy_service_beginning_year',
                 'communities.water_service', 'communities.water_service_beginning_year',
                 'communities.internet_service', 'communities.internet_service_beginning_year', 
-                'donors.donor_name', 'service_types.service_name');
+                );
  
        // dd($data->count());
 

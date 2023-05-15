@@ -11,6 +11,9 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
+
+    protected $guard_name = 'web';
+
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
  
     /**

@@ -37,6 +37,8 @@ href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
 <script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/apex-charts/apexcharts.js')}}"></script>
+
+
 @endsection
 
 @section('page-script')

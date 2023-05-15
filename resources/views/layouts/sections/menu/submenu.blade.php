@@ -1,7 +1,7 @@
 <ul class="menu-sub">
   @if (isset($menu))
     @foreach ($menu as $submenu)
-
+ 
     {{-- active menu method --}}
     @php
       $activeClass = null;

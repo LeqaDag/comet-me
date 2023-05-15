@@ -165,6 +165,19 @@
     },
 
     {
+      "name": "Water Quality Results",
+      "icon": "menu-icon tf-icons bx bx-receipt",
+      "slug": "water",
+      "submenu": [
+        {
+          "name": "All Results",
+          "url": "quality-result",
+          "slug": "quality-result"
+        }
+      ]
+    },
+
+    {
       "name": "Internet Users",
       "icon": "menu-icon tf-icons bx bx-wifi",
       "slug": "water",

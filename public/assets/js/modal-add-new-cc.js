@@ -35,10 +35,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
     }
 
     // Init cleave on show modal (To fix the cc image issue)
-    // let addNewCCModal = document.getElementById('addNewCCModal');
-    // addNewCCModal.addEventListener('show.bs.modal', function (event) {
-    //   initCleave();
-    // });
+    let addNewCCModal = document.getElementById('addNewCCModal');
+    addNewCCModal.addEventListener('show.bs.modal', function (event) {
+      initCleave();
+    });
 
     // Expiry Date Mask
     if (expiryDateMask) {

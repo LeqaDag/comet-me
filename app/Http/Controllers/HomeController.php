@@ -120,7 +120,7 @@ class HomeController extends Controller
         //     }
         // }
 
-        if (Auth::guard('user')->user() != null) {
+        //if (Auth::guard('user')->user() != null) {
 
             $allUsers = User::where('type', 1)
                 ->where('is_admin', 0)
@@ -379,10 +379,10 @@ class HomeController extends Controller
                 ->with(
                     'incidentsData', json_encode($arrayIncidents));
 
-        } else {
+        // } else {
 
-            return view('errors.not-found');
-        }    
+        //     return view('errors.not-found');
+        // }    
     }
 
     /**

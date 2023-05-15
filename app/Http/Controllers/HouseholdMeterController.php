@@ -46,7 +46,7 @@ class HouseholdMeterController extends Controller
                 ->join('energy_users', 'household_meters.energy_user_id', '=', 'energy_users.id')
                 ->join('households', 'household_meters.household_id', '=', 'households.id')
                 ->join('communities', 'energy_users.community_id', '=', 'communities.id')
-                ->where('energy_users.meter_active', 'Yes')
+               // ->where('energy_users.meter_active', 'Yes')
                 ->select('communities.english_name as community_name',
                     'household_meters.id as id', 'household_meters.created_at',
                     'household_meters.updated_at',

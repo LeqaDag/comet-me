@@ -42,7 +42,7 @@
                     <div>
                         <a type="button" class="btn btn-success" 
                             href="{{url('ac-household', 'create')}}" >
-                             Create New Elc.
+                            Create New Elc.
                         </a>
                     </div>
                 </p>
@@ -106,7 +106,7 @@
         $('#acHouseholdsTable').on('change', '.sharedHousehold',function() {
             var id = $(this).data('id');
             var isShared = $(this).val();
-
+ 
             if(isShared == "No" ){
                 $.ajax({
                     url: "{{ route('acSubHousehold') }}",

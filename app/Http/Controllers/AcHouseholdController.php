@@ -126,7 +126,7 @@ class AcHouseholdController extends Controller
       
         return response()->json($response); 
     }
-
+ 
     /**
      * Change resource.
      *
@@ -135,12 +135,14 @@ class AcHouseholdController extends Controller
      */
     public function acSubHouseholdSave(Request $request)
     {
+       
         $energyUserHouseholdMeter = EnergyUser::where("household_id", $request->id)->first();
         
         $mainHousehold = Household::findOrFail($request->user_id);
         $mainHousehold->energy_service = "Yes";
         $mainHousehold->energy_meter = "Yes";
         $mainHousehold->save();
+
 
         $energyUser = EnergyUser::where("household_id", $request->user_id)->first();
       
@@ -161,15 +163,17 @@ class AcHouseholdController extends Controller
         
         $householdMeter->save();
 
-        $householdMeter = new HouseholdMeter();
-        $householdMeter->user_name = $mainHousehold->english_name;
-        $householdMeter->user_name_arabic = $mainHousehold->arabic_name;
-        $householdMeter->household_name = $householdMeter->english_name;
-        $householdMeter->energy_user_id = $energyUser->id;
-        $householdMeter->household_id = $request->id;
-        $householdMeter->save();
+        $householdSharedMeter = new HouseholdMeter();
+        $householdSharedMeter->user_name = $mainHousehold->english_name;
+        $householdSharedMeter->user_name_arabic = $mainHousehold->arabic_name;
+        $householdSharedMeter->household_name = $householdMeter->english_name;
+        $householdSharedMeter->energy_user_id = $energyUser->id;
+        $householdSharedMeter->household_id = $request->id;
+        $householdSharedMeter->save();
 
-        $response = $householdMeter;  
+       // die($householdSharedMeter);
+
+        $response = $householdSharedMeter;  
       
         return response()->json($response); 
     }
@@ -193,6 +197,9 @@ class AcHouseholdController extends Controller
         $mainHousehold->energy_meter = "Yes";
         $mainHousehold->save();
       
+    
+        die($mainHousehold);
+
         $response = $mainHousehold;
 
         return response()->json($response); 
@@ -221,6 +228,7 @@ class AcHouseholdController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request->all());
         if($request->household_id) {
             for($i=0; $i < count($request->household_id); $i++) {
 
@@ -228,12 +236,21 @@ class AcHouseholdController extends Controller
                 $household->household_status_id = 2;
                 $household->save();
 
+                $energyUser = new EnergyUser();
+                $energyUser->household_id = $request->household_id[$i];
+                $energyUser->household_id = $request->household_id[$i];
+                $energyUser->household_id = $request->household_id[$i];
+                $energyUser->household_id = $request->household_id[$i];
+                $energyUser->household_id = $request->household_id[$i];
+                $energyUser->household_id = $request->household_id[$i];
+                
                 EnergyUser::create([
                     'household_id' => $request->household_id[$i],
                     'community_id' => $request->community_id,
                     'energy_system_type_id' => $request->energy_system_type_id,
                     'energy_system_id' => $request->energy_system_id,
-                    'meter_number' => 0
+                    'meter_number' => 0,
+                    'meter_case_id' => 12
                 ]);  
             }
         }

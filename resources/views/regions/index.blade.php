@@ -147,11 +147,14 @@
     <div class="card my-2">
         <div class="card-body">
             <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createRegionModal">
-                    Create New Region	
-                </button>
-                @include('regions.create')
+                @can('quality-create')
+                
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createRegionModal">
+                        Create New Region	
+                    </button>
+                    @include('regions.create')
+                @endcan
             </div>
             <table id="regionsTable" class="table table-striped data-table-regions my-2">
                 <thead>
