@@ -16,6 +16,7 @@ use App\Models\H2oStatus;
 use App\Models\H2oUser;
 use App\Models\H2oSystemIncident;
 use App\Models\H2oPublicStructure;
+use App\Models\PublicStructure;
 use App\Models\Household;
 use App\Models\WaterQualityResult;
 use App\Models\WaterUser;
@@ -31,7 +32,7 @@ use Excel;
 class WaterQualityResultController extends Controller
 {
 
-    /**
+    /** 
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -90,8 +91,7 @@ class WaterQualityResultController extends Controller
 
             $data = DB::table('water_quality_results')
                 ->join('communities', 'water_quality_results.community_id', 'communities.id')
-                ->leftJoin('h2o_users', 'water_quality_results.h2o_user_id', 'h2o_users.id')
-                ->leftJoin('households', 'h2o_users.household_id', 'households.id')
+                ->leftJoin('households', 'water_quality_results.household_id', 'households.id')
                 ->leftJoin('public_structures', 'water_quality_results.public_structure_id', 
                     '=', 'public_structures.id')
                 ->select('water_quality_results.id as id', 'households.english_name as household', 
@@ -104,10 +104,11 @@ class WaterQualityResultController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
-
+                    $updateButton = "<a type='button' class='updateWaterResult' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                     $viewButton = "<a type='button' class='viewWaterResult' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterResultModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                    $deleteButton = "<a type='button' class='deleteWaterResult' data-id='".$row->id."'  ><i class='fa-solid fa-trash text-danger'></i></a>";
 
-                    return $viewButton;
+                    return $updateButton." ". $viewButton." ". $deleteButton;
                 })
                
                 ->filter(function ($instance) use ($request) {
@@ -143,12 +144,188 @@ class WaterQualityResultController extends Controller
         $result = WaterQualityResult::findOrFail($id);
         $community = Community::where('id', $result->community_id)->first();
         $household = Household::where('id', $result->household_id)->first();
+        $public = PublicStructure::where('id', $result->public_structure_id)->first();
 
         $response['result'] = $result;
         $response['community'] = $community;
         $response['household'] = $household;
+        $response['public'] = $public;
 
         return response()->json($response);
+    }
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getWaterHolderByCommunity($community_id, $flag)
+    {
+        $html = "<option disabled selected>Choose one...</option>";
+
+        if($flag == "user") {
+
+            $households = DB::table('h2o_users')
+                ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
+                ->join('households', 'h2o_users.household_id', 'households.id')
+                ->where("households.community_id", $community_id)
+                ->select('households.id as id', 'households.english_name')
+                ->get();
+        } else if($flag == "shared") {
+
+            $households = DB::table('h2o_shared_users')
+                ->join('households', 'h2o_shared_users.household_id', 'households.id')
+                ->where("households.community_id", $community_id)
+                ->select('households.id as id', 'households.english_name')
+                ->get();
+
+        } else if($flag == "public") {
+
+            $households = DB::table('h2o_public_structures')
+                ->join('public_structures', 'h2o_public_structures.public_structure_id', 'public_structures.id')
+                ->where("h2o_public_structures.community_id", $community_id)
+                ->select('public_structures.id as id', 'public_structures.english_name')
+                ->get();
+        }
+
+        foreach ($households as $household) {
+            $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+        }
+        
+
+        return response()->json(['html' => $html]);
+    }
+
+    /** 
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $waterResult = new WaterQualityResult();
+        $waterResult->community_id = $request->community_id;
+
+        if($request->public_user == "user") {
+
+            $waterResult->household_id = $request->household_id;
+            $h2o_user_id = H2oUser::where('household_id', $request->household_id)->select('id')->get();
+            $waterResult->h2o_user_id = $h2o_user_id[0]->id;
+
+        } else if($request->public_user == "shared") {
+
+            $waterResult->household_id = $request->household_id;
+            $h2oSharedUser = H2oSharedUser::where('household_id', $request->household_id)->select('id')->get();
+            $waterResult->h2o_shared_user_id = $h2oSharedUser[0]->id;
+
+        } else if($request->public_user == "public") {
+
+            $public_structure_id = $request->household_id;
+            $waterResult->public_structure_id = $public_structure_id;
+        }
+        
+        if($request->date) {
+
+            $waterResult->date = $request->date;
+            $year = explode('-', $request->date);
+            $waterResult->year = $year[0];
+        }
+     
+        $waterResult->cfu = $request->cfu;
+        $waterResult->fci = $request->fci;
+        $waterResult->ec = $request->ec;
+        $waterResult->ph = $request->ph;
+        $waterResult->save();
+
+        return redirect()->back()->with('message', 'New Water Result Added Successfully!');
+    }
+    
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteQualityResult(Request $request)
+    {
+        $id = $request->id;
+
+        $waterResult = WaterQualityResult::findOrFail($id);
+
+        if($waterResult->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Result Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $waterResult = WaterQualityResult::findOrFail($id);
+
+        return response()->json($waterResult);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $waterResult = WaterQualityResult::findOrFail($id);
+        $community_id = Community::findOrFail($waterResult->community_id);
+        $communities = Community::where('is_archived', 0)->get();
+        $household  = 0;
+        $public = 0;
+        if($waterResult->household_id) $household = Household::findOrFail($waterResult->household_id);
+        if($waterResult->public_structure_id) $public = PublicStructure::findOrFail($waterResult->public_structure_id);
+
+        return view('results.water.edit', compact('household', 'communities',
+            'public', 'waterResult'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //dd($request->all());
+        $waterResult = WaterQualityResult::find($id);
+
+        if($request->date) {
+
+            $waterResult->date = $request->date;
+            $year = explode('-', $request->date);
+            $waterResult->year = $year[0];
+        }
+
+        $waterResult->ph = $request->ph;
+        $waterResult->ec = $request->ec;
+        $waterResult->fci = $request->fci;
+        $waterResult->cfu = $request->cfu;
+
+        $waterResult->save(); 
+        
+        return redirect('/quality-result')->with('message', 'Water Result Updated Successfully!');
     }
 
     /**
@@ -159,5 +336,24 @@ class WaterQualityResultController extends Controller
     {
                 
         return Excel::download(new WaterQualityResultExport($request), 'water_quality_results.xlsx');
+    }
+
+    /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function summary($year)
+    {
+        $results = WaterQualityResult::where("year", $year)->get();
+        die($results);
+
+        $response['result'] = $result;
+        $response['community'] = $community;
+        $response['household'] = $household;
+        $response['public'] = $public;
+
+        return response()->json($response);
     }
 }

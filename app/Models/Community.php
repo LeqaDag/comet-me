@@ -13,7 +13,7 @@ class Community extends Model
         'is_fallah', 'number_of_compound', 'number_of_people', 'number_of_households', 
         'sub_region_id', 'location_gis', 'energy_service', 'energy_service_beginning_year',
         'water_service', 'water_service_beginning_year', 'internet_service', 
-        'internet_service_beginning_year','grid_access', 'is_archived'];
+        'internet_service_beginning_year', 'grid_access', 'is_archived', 'community_status_id'];
     
 
     public function Region()
@@ -24,5 +24,15 @@ class Community extends Model
     public function SubRegion()
     {
         return $this->belongsTo(SubRegion::class, 'sub_region_id', 'id');
+    }
+
+    public function ProductType()
+    {
+        return $this->belongsTo(ProductType::class, 'region_id', 'id');
+    }
+
+    public function CommunityStatus()
+    {
+        return $this->belongsTo(CommunityStatus::class, 'community_status_id', 'id');
     }
 }

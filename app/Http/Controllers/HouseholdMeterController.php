@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
 use Route;
+use App\Models\AllEnergyMeter;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
@@ -43,10 +44,10 @@ class HouseholdMeterController extends Controller
         if ($request->ajax()) {
 
             $data = DB::table('household_meters')
-                ->join('energy_users', 'household_meters.energy_user_id', '=', 'energy_users.id')
+                ->join('all_energy_meters', 'household_meters.energy_user_id', '=', 'all_energy_meters.id')
                 ->join('households', 'household_meters.household_id', '=', 'households.id')
-                ->join('communities', 'energy_users.community_id', '=', 'communities.id')
-               // ->where('energy_users.meter_active', 'Yes')
+                ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
+               // ->where('all_energy_meters.meter_active', 'Yes')
                 ->select('communities.english_name as community_name',
                     'household_meters.id as id', 'household_meters.created_at',
                     'household_meters.updated_at',
@@ -115,7 +116,7 @@ class HouseholdMeterController extends Controller
      */
     public function getHouseholds($id)
     {
-        $energyUser = EnergyUser::findOrFail($id);
+        $energyUser = AllEnergyMeter::findOrFail($id);
 
         if (!$id) {
 
@@ -142,7 +143,7 @@ class HouseholdMeterController extends Controller
      */
     public function store(Request $request)
     {
-        $energyUser = EnergyUser::where('household_id', $request->energy_user_id)->first();
+        $energyUser = AllEnergyMeter::where('household_id', $request->energy_user_id)->first();
         $household = Household::findOrFail($energyUser->household_id);
      
         $householdMeter = new HouseholdMeter();

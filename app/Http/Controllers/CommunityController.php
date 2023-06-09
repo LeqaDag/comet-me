@@ -31,6 +31,8 @@ use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
 use App\Exports\CommunityExport;
+use App\Models\NearbySettlement;
+use App\Models\NearbyTown;
 use App\Models\Town;
 use Carbon\Carbon;
 use Image;
@@ -64,10 +66,12 @@ class CommunityController extends Controller
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
                 ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
                 ->join('community_statuses', 'communities.community_status_id', '=', 'community_statuses.id')
+                ->where('communities.is_archived', 0)
                 ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
                     'communities.id as id', 'communities.created_at as created_at', 
                     'communities.updated_at as updated_at',
                     'communities.number_of_people as number_of_people',
+                    'communities.number_of_household as number_of_household',
                     'regions.english_name as name',
                     'regions.arabic_name as aname',
                     'sub_regions.english_name as subname',
@@ -105,23 +109,43 @@ class CommunityController extends Controller
         
 
 		$communities = Community::paginate();
-        $communityRecords = Community::count();
-        $communityWater = Community::where("water_service", "yes")->count();
-        $communityInternet = Community::where("internet_service", "yes")->count();
+        $communityRecords = Community::where('is_archived', 0)->count();
+        $communityWater = Community::where("water_service", "yes")
+            ->where('is_archived', 0)
+            ->count();
+        $communityInternet = Community::where("internet_service", "yes")
+            ->where('is_archived', 0)
+            ->count();
         $regions = Region::all();
         $subregions = SubRegion::all();
-        $communitiesWater = Community::where("water_service", "yes")->get();
-        $communitiesInternet = Community::where("internet_service", "yes")->get();
-        $communitiesAC = Community::where("community_status_id", 2)->get();
-        $communityAC = Community::where("community_status_id", 2)->count();
+        $communitiesWater = Community::where("water_service", "yes")
+            ->where('is_archived', 0)
+            ->get();
+        $communitiesInternet = Community::where("internet_service", "yes")
+            ->where('is_archived', 0)
+            ->get();
+        $communitiesAC = Community::where("community_status_id", 2)
+            ->where('is_archived', 0)
+            ->get();
+        $communityAC = Community::where("community_status_id", 2)
+            ->where('is_archived', 0)
+            ->count();
         $products = ProductType::all();
         $energyTypes = EnergySystemType::all();
 
-        $communitiesInitial = Community::where("community_status_id", 1)->get();
-        $communityInitial = Community::where("community_status_id", 1)->count();
+        $communitiesInitial = Community::where("community_status_id", 1)
+            ->where('is_archived', 0)
+            ->get();
+        $communityInitial = Community::where("community_status_id", 1)
+            ->where('is_archived', 0)
+            ->count();
 
-        $communitiesSurvyed = Community::where("community_status_id", 3)->get();
-        $communitySurvyed = Community::where("community_status_id", 3)->count();
+        $communitiesSurvyed = Community::where("community_status_id", 3)
+            ->where('is_archived', 0)
+            ->get();
+        $communitySurvyed = Community::where("community_status_id", 3)
+            ->where('is_archived', 0)
+            ->count();
 
         $settlements = Settlement::all();
         $towns = Town::all();
@@ -129,6 +153,7 @@ class CommunityController extends Controller
         $publicStructures = PublicStructure::all();
 
         $data = DB::table('communities')
+            ->where('communities.is_archived', 0)
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->select(
                     DB::raw('regions.english_name as english_name'),
@@ -143,6 +168,7 @@ class CommunityController extends Controller
         }
         
         $dataSubRegions = DB::table('communities')
+            ->where('communities.is_archived', 0)
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->select(
                     DB::raw('sub_regions.english_name as english_name'),
@@ -284,72 +310,142 @@ class CommunityController extends Controller
         $community->location_gis = $request->location_gis;
         $community->number_of_compound = $request->number_of_compound;
         $community->number_of_people = $request->number_of_people;
-        $community->number_of_households = $request->number_of_households;
+       // $community->number_of_households = $request->number_of_households;
         $community->is_fallah = $request->is_fallah;
         $community->is_bedouin = $request->is_bedouin;
         $community->demolition = $request->demolition;
         $community->land_status = $request->land_status;
         $community->lawyer = $request->lawyer;
         $community->notes = $request->notes;
+        if($request->product_type_id) $community->product_type_id = $request->product_type_id;
+        if($request->reception) $community->reception = $request->reception;
+        if($request->recommended_energy_system_id) $community->recommended_energy_system_id = $request->recommended_energy_system_id;
+        
         $community->save();
-        $id = $community->id;
 
+        $id = $community->id;
+ 
         $lastCommunity = Community::findOrFail($id);
       
         if($request->addMoreInputFieldsCompoundName) {
             foreach($request->addMoreInputFieldsCompoundName as $compoundName) {
                 if($compoundName["subject"] != NULL) {
                     Compound::create([
-                        'arabic_name' => $compoundName["subject"],
+                        'english_name' => $compoundName["subject"],
                         'community_id' => $id,
                     ]);
                 }
             }
         }
         
-        // if($request->settlement) {
-        //     foreach($request->settlement as $sett) {
-        //         if($sett["subject"] != NULL) {
-        //             Settlement::create([
-        //                 'arabic_name' => $sett["subject"],
-        //                 'community_id' => $id,
-        //             ]);
-        //         }
-        //     }
-        // }
+        if($request->settlement) {
+            for($i=0; $i < count($request->settlement); $i++) {
 
-        // if($request->school == "yes") {
-        //     $publicStructure = new PublicStructure();
-        //     $publicStructure->english_name = "School " . $lastCommunity->english_name;
-        //     $publicStructure->arabic_name = "مدرسة  " . $lastCommunity->arabic_name;
-        //     $publicStructure->category_id1 = 1;
-        //     $publicStructure->school_grade = $request->description;
-        //     $publicStructure->save();
+                $settlement = new NearbySettlement();
+                $settlement->settlement_id = $request->settlement[$i];
+                $settlement->community_id = $id;
+                $settlement->save();
+            }
+        }
 
-        // } else if($request->school == "no") {
-        //     $lastCommunity->school_town = $request->description;
-        //     $lastCommunity->save();
-        // }
+        if($request->towns) {
+            for($i=0; $i < count($request->towns); $i++) {
 
-        // if($request->mosque == "yes") {
-            
-        //     $publicStructure = new PublicStructure();
-        //     $publicStructure->english_name = "Mosque " . $lastCommunity->english_name;
-        //     $publicStructure->arabic_name = "مسجد  " . $lastCommunity->arabic_name;
-        //     $publicStructure->category_id1 = 2;
-        //     $publicStructure->save();
-        // }
+                $town = new NearbyTown();
+                $town->town_id = $request->towns[$i];
+                $town->community_id = $id;
+                $town->save();
+            }
+        }
 
-        // if($request->clinic == "yes") {
+        if($request->public_structures) {
+            for($i=0; $i < count($request->public_structures); $i++) {
 
-        //     $publicStructure = new PublicStructure();
-        //     $publicStructure->english_name = "Clinic " . $lastCommunity->english_name;
-        //     $publicStructure->arabic_name = "عيادة  " . $lastCommunity->arabic_name;
-        //     $publicStructure->category_id1 = 3;
-        //     $publicStructure->save();
-        // }
+                if($request->public_structures[$i] == 1) {
 
-        return redirect()->back();
+                    $publicStructure = new PublicStructure();
+                    $publicStructure->community_id = $lastCommunity->id;
+                    $publicStructure->english_name = "School " . $lastCommunity->english_name;
+                    $publicStructure->arabic_name = "مدرسة  " . $lastCommunity->arabic_name;
+                    $publicStructure->public_structure_category_id1 = 1;
+                    $publicStructure->save();
+                }
+                if($request->public_structures[$i] == 2) {
+
+                    $publicStructure = new PublicStructure();
+                    $publicStructure->community_id = $lastCommunity->id;
+                    $publicStructure->english_name = "Mosque " . $lastCommunity->english_name;
+                    $publicStructure->arabic_name = "مسجد  " . $lastCommunity->arabic_name;
+                    $publicStructure->public_structure_category_id1 = 2;
+                    $publicStructure->save();
+                }
+                if($request->public_structures[$i] == 3) {
+
+                    $publicStructure = new PublicStructure();
+                    $publicStructure->community_id = $lastCommunity->id;
+                    $publicStructure->english_name = "Clinic " . $lastCommunity->english_name;
+                    $publicStructure->arabic_name = "عيادة  " . $lastCommunity->arabic_name;
+                    $publicStructure->public_structure_category_id1 = 3;
+                    $publicStructure->save();
+                }
+                if($request->public_structures[$i] == 4) {
+
+                    $publicStructure = new PublicStructure();
+                    $publicStructure->community_id = $lastCommunity->id;
+                    $publicStructure->english_name = "Council " . $lastCommunity->english_name;
+                    $publicStructure->arabic_name = "مجلس  " . $lastCommunity->arabic_name;
+                    $publicStructure->public_structure_category_id1 = 4;
+                    $publicStructure->save();
+                }
+                if($request->public_structures[$i] == 5) {
+
+                    $publicStructure = new PublicStructure();
+                    $publicStructure->community_id = $lastCommunity->id;
+                    $publicStructure->english_name = "Kindergarten " . $lastCommunity->english_name;
+                    $publicStructure->arabic_name = "روضة  " . $lastCommunity->arabic_name;
+                    $publicStructure->public_structure_category_id1 = 5;
+                    $publicStructure->save();
+                }
+                if($request->public_structures[$i] == 6) {
+
+                    $publicStructure = new PublicStructure();
+                    $publicStructure->community_id = $lastCommunity->id;
+                    $publicStructure->english_name = "Community Center " . $lastCommunity->english_name;
+                    $publicStructure->arabic_name = "مركز التجمع   " . $lastCommunity->arabic_name;
+                    $publicStructure->public_structure_category_id1 = 6;
+                    $publicStructure->save();
+                }
+                if($request->public_structures[$i] == 7) {
+
+                    $publicStructure = new PublicStructure();
+                    $publicStructure->community_id = $lastCommunity->id;
+                    $publicStructure->english_name = "Madafah " . $lastCommunity->english_name;
+                    $publicStructure->arabic_name = "مضافة  " . $lastCommunity->arabic_name;
+                    $publicStructure->public_structure_category_id1 = 7;
+                    $publicStructure->save();
+                }
+                if($request->public_structures[$i] == 8) {
+
+                    $publicStructure = new PublicStructure();
+                    $publicStructure->community_id = $lastCommunity->id;
+                    $publicStructure->english_name = "Water System " . $lastCommunity->english_name;
+                    $publicStructure->arabic_name = "نظام الماء  " . $lastCommunity->arabic_name;
+                    $publicStructure->public_structure_category_id1 = 8;
+                    $publicStructure->save();
+                }
+                if($request->public_structures[$i] == 9) {
+
+                    $publicStructure = new PublicStructure();
+                    $publicStructure->community_id = $lastCommunity->id;
+                    $publicStructure->english_name = "Electricity System " . $lastCommunity->english_name;
+                    $publicStructure->arabic_name = "نظام الكهرباء  " . $lastCommunity->arabic_name;
+                    $publicStructure->public_structure_category_id1 = 9;
+                    $publicStructure->save();
+                }
+            }
+        }
+
+        return redirect()->back()->with('message', 'New Community Inserted Successfully!');
     }
 
     /**
@@ -381,13 +477,40 @@ class CommunityController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function deleteCommunity(Request $request)
     {
+        $id = $request->id;
+
         $community = Community::findOrFail($id);
         $community->is_archived = 1;
         $community->save();
 
-        return redirect()->back();
+        $compounds = Compound::where('community_id', $id)->get();
+        $nearbyTowns = NearbyTown::where('community_id', $id)->get();
+        $nearbySettlements = NearbySettlement::where('community_id', $id)->get();
+
+        if($compounds) {
+            foreach($compounds as $compound) {
+                $compound->delete();
+            }
+        }
+
+        if($nearbyTowns) {
+            foreach($nearbyTowns as $nearbyTown) {
+                $nearbyTown->delete();
+            }
+        }
+
+        if($nearbySettlements) {
+            foreach($nearbySettlements as $nearbySettlement) {
+                $nearbySettlement->delete();
+            }
+        }
+
+        $response['success'] = 1;
+        $response['msg'] = 'Community Deleted successfully'; 
+        
+        return response()->json($response); 
     }
 
     /**
@@ -403,28 +526,28 @@ class CommunityController extends Controller
         $subRegion = SubRegion::where('id', $community->sub_region_id)->first();
         $status = CommunityStatus::where('id', $community->community_status_id)->first();
         $publicStructures = PublicStructure::where('community_id', $community->id)->get();
-
-        // $array = [];
-
-        // foreach($publicStructures as $public) {
-        //     $publicCategory1 = PublicStructureCategory::where('id', 
-        //         $public->public_structure_category_id1)->first();
-        //     $publicCategory2 = PublicStructureCategory::where('id', 
-        //         $public->public_structure_category_id2)->first();
-        //     $publicCategory3 = PublicStructureCategory::where($public->public_structure_category_id3, '!=', NULL)
-        //         ->where('id', $public->public_structure_category_id3)
-        //         ->first();
-
-        //     $array = $publicCategory1->name . " + ". $publicCategory2->name . $publicCategory3->name;
-        // }
-        
-        // die($array);
+        $nearbySettlement = DB::table('nearby_settlements')
+            ->join('communities', 'nearby_settlements.community_id', '=', 'communities.id')
+            ->join('settlements', 'nearby_settlements.settlement_id', '=', 'settlements.id')
+            ->where('community_id', $community->id)
+            ->select('settlements.english_name')
+            ->get();
+        $nearbyTown = DB::table('nearby_towns')
+            ->join('communities', 'nearby_towns.community_id', '=', 'communities.id')
+            ->join('towns', 'nearby_towns.town_id', '=', 'towns.id')
+            ->where('community_id', $community->id)
+            ->select('towns.english_name')
+            ->get();
+        $compounds = Compound::where('community_id', $community->id)->get();
 
         $response['community'] = $community;
         $response['region'] = $region;
         $response['sub-region'] = $subRegion;
         $response['status'] = $status;
         $response['public'] = $publicStructures;
+        $response['nearbySettlement'] = $nearbySettlement;
+        $response['nearbyTown'] = $nearbyTown;
+        $response['compounds'] = $compounds;
 
         return response()->json($response);
     }
@@ -464,5 +587,71 @@ class CommunityController extends Controller
     {
                 
         return Excel::download(new CommunityExport($request), 'communities.xlsx');
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $community = Community::findOrFail($id);
+
+        return response()->json($community);
+    } 
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $community = Community::findOrFail($id);
+        $communityStatuses = CommunityStatus::all();
+        $products = ProductType::all();
+        $regions = Region::all();
+        $subRegions = SubRegion::all();
+
+        return view('employee.community.edit', compact('community', 'products', 
+            'communityStatuses', 'regions', 'subRegions'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $community = Community::findOrFail($id);
+
+        if($request->english_name) $community->english_name = $request->english_name;
+        if($request->arabic_name) $community->arabic_name = $request->arabic_name;
+        if($request->region_id) $community->region_id = $request->region_id;
+        if($request->sub_region_id) $community->sub_region_id = $request->sub_region_id;
+        if($request->community_status_id) $community->community_status_id = $request->community_status_id;
+        if($request->reception) $community->reception = $request->reception;
+        if($request->number_of_household) $community->number_of_household = $request->number_of_household;
+        if($request->number_of_people) $community->number_of_people = $request->number_of_people;
+        if($request->is_fallah) $community->is_fallah = $request->is_fallah;
+        if($request->is_bedouin) $community->is_bedouin = $request->is_bedouin;
+        if($request->demolition) $community->demolition = $request->demolition;
+        if($request->land_status) $community->land_status = $request->land_status;
+        if($request->energy_service) $community->energy_service = $request->energy_service;
+        if($request->energy_service_beginning_year) $community->energy_service_beginning_year = $request->energy_service_beginning_year;
+        if($request->water_service) $community->water_service = $request->water_service;
+        if($request->water_service_beginning_year) $community->water_service_beginning_year = $request->water_service_beginning_year;
+        if($request->internet_service) $community->internet_service = $request->internet_service;
+        if($request->internet_service_beginning_year) $community->internet_service_beginning_year = $request->internet_service_beginning_year;
+        if($request->description) $community->description = $request->description;
+
+        $community->save();
+
+        return redirect('/community')->with('message', 'Community Updated Successfully!');
     }
 }

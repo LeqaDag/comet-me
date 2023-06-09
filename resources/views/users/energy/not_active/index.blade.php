@@ -16,10 +16,63 @@
                 <div class="card-body">
                     <div id="energyUserChart"></div>
                 </div>
-            </div>
+            </div>  
         </div>
     </div> 
 </div> 
+
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5></h5>
+                </div>
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('energy-meter.export') }}">
+                    @csrf
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
+                                    <select name="misc" id="selectedWaterSystemType" 
+                                        class="form-control" required>
+                                        <option disabled selected>Choose one...</option>
+                                        <option value="new">New Community</option>
+                                        <option value="misc">MISC</option>
+                                        <option value="maintenance">Grid extension</option>
+                                    </select>
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Installation date from</label>
+                                    <input type="date" class="form-control" name="date_from">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Installation date to</label>
+                                    <input type="date" class="form-control" name="date_to">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <label class='col-md-12 control-label'>Download Excel</label>
+                                <button class="btn btn-info" type="submit">
+                                    <i class='fa-solid fa-file-excel'></i>
+                                    Export Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>  
+        </div>
+    </div> 
+</div> 
+
+
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Electricity Meter Users
@@ -99,38 +152,6 @@
             ]
         });
 
-        // View Donors
-        $('#energyAllUsersTable').on('click', '.donorEnergyUser',function() {
-            var id = $(this).data('id');
-            var url = window.location.href; 
-            url = url +'/'+ id +'/edit';
-            // AJAX request
-            $.ajax({
-                url: 'allMeter/donor/' +  id + '/editDonor',
-                type: 'get',
-                dataType: 'json',
-                success: function(response) {
-                    window.open(url); 
-                    // $('#energyDonorModalTitle').html(response.energyDonors[0].household_name);
-
-                    // //alert(response.energyDonors.length);
-                    // if(response.energyDonors.length > 1) {
-
-                    //     for (var i = 0; i < response.energyDonors.length; i++) {
-                    //         $("#donorsEnergyUser").append(
-                    //         '<option>'+ response['energyDonors'][i].donor_name +'</option>');
-                    //     } 
-                        
-                    // } else if(response.energyDonors.length == 1) {
-                    //     $("#donorsEnergyUser").html(
-                    //         '<option>'+ response['energyDonors'][0].donor_name +'</option>');
-                        
-                    // }
-                }
-            });
-        });
-
-
         // View record details
         $('#energyAllUsersTable').on('click', '.updateAllEnergyUser',function() {
             var id = $(this).data('id');
@@ -147,79 +168,8 @@
             });
         });
 
-        // Update record
-        // $('#energyAllUsersTable').on('click', '.updateAllEnergyUser',function() {
-        //     var id = $(this).data('id');
-
-        //     // AJAX request
-        //     $.ajax({
-        //         url: 'allMeter/' + id,
-        //         type: 'get',
-        //         dataType: 'json',
-        //         success: function(response) {
-
-        //             if(response.success == 1) {
-        //                 $('#meter_number').val(response.meter_number);
-        //                 $('#daily_limit').val(response.daily_limit);
-        //                 $('#selectedActive').html(response.meter_active);
-        //                 $('#selectedMeterCase').html(response.meter_case_id);
-        //                 $('#installation_date').val(response.installation_date);
-
-        //                 meter_active = $('#selectedActive').val();
-        //                 meter_case_id = $('#selectedMeterCase').val();
-
-        //                 $(document).on('change', '#meter_active', function () {
-        //                     meter_active = $(this).val();
-        //                 });
-
-        //                 $(document).on('change', '#meter_case_id', function () {
-        //                     meter_case_id = $(this).val();
-        //                 });
-
-        //                 $('#btn_save').click(function (e) {
-        //                     e.preventDefault();
-        //                     $(this).html('Sending..');
-
-        //                     meter_number = $('#meter_number').val();
-        //                     daily_limit = $('#daily_limit').val();
-        //                     installation_date = $('#installation_date').val();
-
-        //                     $.ajax({
-        //                         data: {
-        //                             id: id,
-        //                             meter_number : meter_number,
-        //                             installation_date : installation_date,
-        //                             daily_limit : daily_limit,
-        //                             meter_active : meter_active,
-        //                             meter_case_id : meter_case_id,
-        //                         },
-        //                         url: 'allMeter/info/' + id,
-        //                         type: "get",
-        //                         dataType: 'json',
-        //                         success: function (data) {
-        //                             Swal.fire({
-        //                                 icon: 'success',
-        //                                 title: data.success,
-        //                                 showDenyButton: false,
-        //                                 showCancelButton: false,
-        //                                 confirmButtonText: 'Okay!'
-        //                             }).then((result) => {
-        //                                 $("#energyAllUsersTable").DataTable().draw();
-        //                             });
-
-        //                             $('#subHouseholdModal').modal('hide');
-        //                             table.draw();
-        //                         }
-        //                     });
-        //                 });
-
-        //             }
-        //         }
-        //     });
-        // });
-        
         // View record details
-        $('#energyAllUsersTable').on('click','.viewEnergyUser',function() {
+        $('#energyAllUsersTable').on('click', '.viewEnergyUser',function() {
             var id = $(this).data('id');
         
             // AJAX request
@@ -227,31 +177,79 @@
                 url: 'energy-user/' + id,
                 type: 'get',
                 dataType: 'json',
-                success: function(response) {
+                success: function(response) { 
+                    $('#energyUserModalTitle').html(" ");
                     $('#energyUserModalTitle').html(response['household'].english_name);
+                    $('#englishNameUser').html(" ");
                     $('#englishNameUser').html(response['household'].english_name);
+                    $('#communityUser').html(" ");
                     $('#communityUser').html(response['community'].english_name);
-                    $('#meterActiveUser').html(response['user'].meter_active);
+                    $('#meterActiveUser').html(" ");
+                    $('#meterActiveUser').html(response['energy'].meter_active);
+                    $('#meterCaseUser').html(" ");
                     $('#meterCaseUser').html(response['meter'].meter_case_name_english);
+                    $('#systemNameUser').html(" ");
                     $('#systemNameUser').html(response['system'].name);
+                    $('#systemTypeUser').html(" ");
                     $('#systemTypeUser').html(response['type'].name);
-                    $('#systemLimitUser').html(response['user'].daily_limit);
-                    $('#systemDateUser').html(response['user'].installation_date);
-                    $('#systemNotesUser').html(response['user'].notes);
-
-                    if(response['householdMeters'] != []) {
-                        for (var i = 0; i < response['householdMeters'].length; i++) {
-                            $.ajax({
-                                url: 'household-meter/' + response['householdMeters'][i].id,
-                                type: 'get',
-                                dataType: 'json',
-                                success: function(response) {
-                                    $("#householdMeters").append(
-                                    '<ul><li>'+ response['household'].english_name +'</li> </ul>');
-                                }
-                            });
+                    $('#systemLimitUser').html(" ");
+                    $('#systemLimitUser').html(response['energy'].daily_limit);
+                    $('#systemDateUser').html(" ");
+                    $('#systemDateUser').html(response['energy'].installation_date);
+                    $('#systemNotesUser').html(" ");
+                    if(response['energy']) $('#systemNotesUser').html(response['energy'].notes);
+                    $('#vendorDateUser').html(" ");
+                    if(response['vendor']) $('#vendorDateUser').html(response['vendor'].name);
+                    
+                    $('#donorsDetails').html(" ");
+                    if(response['energyMeterDonors'] != []) {
+                        for (var i = 0; i < response['energyMeterDonors'].length; i++) {
+                            if(response['energyMeterDonors'][i].donor_name == "0")  {
+                                response['energyMeterDonors'][i].donor_name = "Not yet attributed";
+                            }
+                            $("#donorsDetails").append(
+                            '<ul><li>'+ response['energyMeterDonors'][i].donor_name +'</li></ul>');
+                               
                         }
                     }
+                }
+            });
+        }); 
+
+        // delete energy user
+        $('#energyAllUsersTable').on('click', '.deleteAllEnergyUser',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this user?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteEnergyUser') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#energyAllUsersTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info')
                 }
             });
         });

@@ -16,7 +16,7 @@
                 <div class="d-flex justify-content-around align-items-center flex-wrap mb-4">
                     <div class="user-analytics text-center me-2">
                         <i type="solid" class="bx bx-buildings me-1"></i>
-                        <span>Schools</span>
+                        <span>Schools</span> 
                         <div class="d-flex align-items-center mt-2">
                         <h5 class="mb-0">{{$schools}}</h5>
                     </div>
@@ -87,6 +87,8 @@
         </div>
     </div>
 @endif
+ 
+@include('users.energy.public.details')
 
 <div class="container mb-4">
     <div class="card my-2">
@@ -158,6 +160,72 @@
                 {data: 'energy_type_name', name: 'energy_type_name'},
                 {data: 'action'}
             ]
+        });
+
+        
+        // View record update page
+        $('#energyPublicStructuresTable').on('click', '.updateEnergyPublic',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            
+            // AJAX request
+            $.ajax({
+                url: 'energy_public/' + id + '/editpage',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    window.open(url, "_self"); 
+                }
+            });
+        });
+
+        // View record details
+        $('#energyPublicStructuresTable').on('click', '.viewEnergyPublic',function() {
+            var id = $(this).data('id');
+        
+            // AJAX request
+            $.ajax({
+                url: 'energy-public/' + id,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+
+                    $('#energyPublicModalTitle').html(" ");
+                    $('#englishNamePublic').html(" ");
+                    $('#communityPublic').html(" ");
+                    $('#meterActivePublic').html(" ");
+                    $('#meterCasePublic').html(" ");
+                    $('#systemNamePublic').html(" ");
+                    $('#systemTypePublic').html(" ");
+                    $('#systemLimitPublic').html(" ");
+                    $('#systemDatePublic').html(" ");
+                    $('#systemNotesPublic').html(" ");
+
+                    $('#energyPublicModalTitle').html(response['public'].english_name);
+                    $('#englishNamePublic').html(response['public'].english_name);
+                    $('#communityPublic').html(response['community'].english_name);
+                    $('#meterActivePublic').html(response['energyPublic'].meter_active);
+                    $('#meterCasePublic').html(response['meter'].meter_case_name_english);
+                    $('#systemNamePublic').html(response['system'].name);
+                    $('#systemTypePublic').html(response['type'].name);
+                    $('#systemLimitPublic').html(response['energyPublic'].daily_limit);
+                    $('#systemDatePublic').html(response['energyPublic'].installation_date);
+                    $('#systemNotesPublic').html(response['energyPublic'].notes);
+                    if(response['vendor']) $('#vendorDatePublic').html(response['vendor'].name);
+
+                    $('#donorsDetails').html(" ");
+                    if(response['energyMeterDonors'] != []) {
+                        for (var i = 0; i < response['energyMeterDonors'].length; i++) {
+                            if(response['energyMeterDonors'][i].donor_name == "0")  {
+                                response['energyMeterDonors'][i].donor_name = "Not yet attributed";
+                            }
+                            $("#donorsDetails").append(
+                            '<ul><li>'+ response['energyMeterDonors'][i].donor_name +'</li></ul>');  
+                        }
+                    }
+                }
+            });
         });
 
         // Delete record

@@ -34,7 +34,7 @@
                             <span class="spanDetails" id="numberOfCompoundsCommunity">
                                
                             </span>
-                        </h6>
+                        </h6> 
                     </div>
                 </div>
                 <div class="row">
@@ -162,17 +162,42 @@
                     </div>
                 </div>
                 <hr>
+
                 <div class="row">
                     <h5>Compounds Details</h5>
                 </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6" >
+                        <span class="spanDetails" id="compoundsCommunity">
+                            
+                        </span>
+                    </div>
+                </div>
+
                 <hr>
                 <div class="row">
                     <h5>Nearby Towns Details</h5>
                 </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6" >
+                        <span class="spanDetails" id="townsCommunity">
+                            
+                        </span>
+                    </div>
+                </div>
+
                 <hr>
                 <div class="row">
                     <h5>Nearby Settlements Details</h5>
                 </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6" >
+                        <span class="spanDetails" id="settlementsCommunity">
+                            
+                        </span>
+                    </div>
+                </div>
+
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">

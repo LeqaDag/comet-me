@@ -19,27 +19,27 @@ class EnergyUserExport implements FromCollection, WithHeadings
     */
     public function collection()
     {
-        $query = DB::table('energy_users')
-            ->join('communities', 'energy_users.community_id', '=', 'communities.id')
+        $query = DB::table('all_energy_meters')
+            ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->join('households', 'energy_users.household_id', '=', 'households.id')
-            ->join('energy_systems', 'energy_users.energy_system_id', '=', 'energy_systems.id')
-            ->join('energy_system_types', 'energy_users.energy_system_type_id', '=', 'energy_system_types.id')
-            ->join('meter_cases', 'energy_users.meter_case_id', '=', 'meter_cases.id')
-            ->join('vendors', 'energy_users.vendor_username_id', '=', 'vendors.id')
-            ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
-            ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
-            ->where('energy_users.meter_active', 'Yes')
-            ->where('community_donors.service_id', 1)
+            ->leftJoin('households', 'all_energy_meters.household_id', '=', 'households.id')
+            ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
+                '=', 'public_structures.id')
+            ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
+            ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
+            ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+            ->leftJoin('vendors', 'all_energy_meters.vendor_username_id', '=', 'vendors.id')
+            ->where('all_energy_meters.meter_active', 'Yes')
             ->select('households.english_name as english_name', 
+                'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
-                'energy_users.meter_number', 'energy_users.meter_active',
+                'all_energy_meters.meter_number', 'all_energy_meters.meter_active',
                 'meter_cases.meter_case_name_english as meter_case',
                 'energy_systems.name as energy_name', 
                 'energy_system_types.name as energy_type_name',
-                'energy_users.daily_limit', 'energy_users.installation_date',
+                'all_energy_meters.daily_limit', 'all_energy_meters.installation_date',
                 'vendors.english_name as vendor_name');
 
         if($this->request->community) {
@@ -52,7 +52,7 @@ class EnergyUserExport implements FromCollection, WithHeadings
             $query->where("energy_system_types.name", $this->request->system_type);
         }
         if($this->request->installation_date) {
-            $query->where("energy_users.installation_date", ">=", $this->request->installation_date);
+            $query->where("all_energy_meters.installation_date", ">=", $this->request->installation_date);
         }
 
         return $query->get();
@@ -65,7 +65,7 @@ class EnergyUserExport implements FromCollection, WithHeadings
      */
     public function headings(): array
     {
-        return ["Meter Holder", "Community", "Region", "Sub Region", 
+        return ["Meter User", "Meter Public",  "Community", "Region", "Sub Region", 
             "Meter Number", "Meter Active", "Meter Case", "Energy System", 
             "Energy System Type", "Daily Limit", "Installation Date", "Vendor"];
     }

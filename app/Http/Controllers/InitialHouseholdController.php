@@ -37,6 +37,7 @@ class InitialHouseholdController extends Controller
                 ->where('households.household_status_id', 1)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
+                ->where('internet_holder_young', 0)
                 ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
                     'households.id as id', 'households.created_at as created_at', 
                     'households.updated_at as updated_at',

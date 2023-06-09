@@ -9,7 +9,7 @@ class EnergyUser extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['household_id', 'meter_case_id'];
+    protected $fillable = ['household_id', 'meter_case_id', 'energy_system_id'];
 
 
     public function Household()
@@ -20,5 +20,10 @@ class EnergyUser extends Model
     public function MeterCase()
     {
         return $this->belongsTo(MeterCase::class, 'meter_case_id', 'id');
+    }
+
+    public function EnergySystem()
+    {
+        return $this->belongsTo(EnergySystem::class, 'energy_system_id', 'id');
     }
 }

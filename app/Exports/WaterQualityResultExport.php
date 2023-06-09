@@ -28,6 +28,7 @@ class WaterQualityResultExport implements FromCollection, WithHeadings
             ->leftJoin('public_structures', 'water_quality_results.public_structure_id', 
                 '=', 'public_structures.id')
             ->select('households.english_name as english_name', 
+                'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'water_quality_results.date', 'water_quality_results.year',  
@@ -58,7 +59,7 @@ class WaterQualityResultExport implements FromCollection, WithHeadings
      */
     public function headings(): array
     {
-        return ["Water Holder", "Community", "Region", "Sub Region",
+        return ["Water Holder", "Public Name", "Community", "Region", "Sub Region",
             "Date", "Year", "CFU",  "FCI", "EC", "PH"];
     }
 }

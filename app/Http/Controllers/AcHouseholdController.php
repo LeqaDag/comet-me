@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
 use Route;
+use App\Models\AllEnergyMeter;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\Cistern;
@@ -42,6 +43,7 @@ class AcHouseholdController extends Controller
             
             $data = DB::table('households')
                 ->where('households.household_status_id', 2)
+                ->where('internet_holder_young', 0)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
                 ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
@@ -96,14 +98,15 @@ class AcHouseholdController extends Controller
             $arrayAcHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
         }
 
-        $communities = Community::all();
+        $communities = Community::where('is_archived', 0)->get();
         $households = Household::all();
         $energySystems = EnergySystem::all();
         $energySystemTypes = EnergySystemType::all();
         $meters = MeterCase::all();
+        $professions  = Profession::all();
 
 		return view('employee.household.ac', compact('communities', 'households', 
-            'energySystems', 'energySystemTypes', 'meters'))
+            'energySystems', 'energySystemTypes', 'meters', 'professions'))
             ->with('communityAcHouseholdsData', json_encode($arrayAcHouseholdsByCommunity));
     }
 
@@ -136,7 +139,7 @@ class AcHouseholdController extends Controller
     public function acSubHouseholdSave(Request $request)
     {
        
-        $energyUserHouseholdMeter = EnergyUser::where("household_id", $request->id)->first();
+        $energyUserHouseholdMeter = AllEnergyMeter::where("household_id", $request->id)->first();
         
         $mainHousehold = Household::findOrFail($request->user_id);
         $mainHousehold->energy_service = "Yes";
@@ -144,7 +147,7 @@ class AcHouseholdController extends Controller
         $mainHousehold->save();
 
 
-        $energyUser = EnergyUser::where("household_id", $request->user_id)->first();
+        $energyUser = AllEnergyMeter::where("household_id", $request->user_id)->first();
       
         if($energyUserHouseholdMeter != null) {
             $energyUserHouseholdMeter->delete();
@@ -196,9 +199,6 @@ class AcHouseholdController extends Controller
         $mainHousehold->energy_service = "Yes";
         $mainHousehold->energy_meter = "Yes";
         $mainHousehold->save();
-      
-    
-        die($mainHousehold);
 
         $response = $mainHousehold;
 
@@ -212,12 +212,13 @@ class AcHouseholdController extends Controller
      */
     public function create()
     {
-        $communities = Community::all();
+        $communities = Community::where('is_archived', 0)->get();
         $energySystemTypes = EnergySystemType::all();
         $households = Household::all();
+        $professions  = Profession::all();
 
-        return view('employee.household.create_ac', compact('communities', 'energySystemTypes', 
-            'households'));
+        return view('employee.household.elc_create', compact('communities', 'energySystemTypes', 
+            'households', 'professions'));
     }
 
      /**
@@ -228,31 +229,26 @@ class AcHouseholdController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+       // dd($request->all());
         if($request->household_id) {
-            for($i=0; $i < count($request->household_id); $i++) {
+            //for($i=0; $i < count($request->household_id); $i++) {
 
-                $household = Household::findOrFail($request->household_id[$i]);
+                //$household = Household::findOrFail($request->household_id[$i]);
+                $household = Household::findOrFail($request->household_id);
                 $household->household_status_id = 2;
                 $household->save();
 
-                $energyUser = new EnergyUser();
-                $energyUser->household_id = $request->household_id[$i];
-                $energyUser->household_id = $request->household_id[$i];
-                $energyUser->household_id = $request->household_id[$i];
-                $energyUser->household_id = $request->household_id[$i];
-                $energyUser->household_id = $request->household_id[$i];
-                $energyUser->household_id = $request->household_id[$i];
-                
-                EnergyUser::create([
-                    'household_id' => $request->household_id[$i],
-                    'community_id' => $request->community_id,
-                    'energy_system_type_id' => $request->energy_system_type_id,
-                    'energy_system_id' => $request->energy_system_id,
-                    'meter_number' => 0,
-                    'meter_case_id' => 12
-                ]);  
-            }
+                $energyUser = new AllEnergyMeter();
+                $energyUser->misc = $request->misc;
+                $energyUser->household_id = $request->household_id;
+                $energyUser->community_id = $request->community_id;
+                $energyUser->energy_system_type_id = $request->energy_system_type_id;
+                $energyUser->energy_system_id = $request->energy_system_id;
+                $energyUser->meter_number = 0;
+                $energyUser->meter_case_id = 12;
+                $energyUser->save();
+
+           // }
         }
      
         return redirect('/ac-household')

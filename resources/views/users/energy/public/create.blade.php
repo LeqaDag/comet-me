@@ -46,7 +46,7 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                    </div>
+                    </div> 
 
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
@@ -66,9 +66,14 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy System</label>
-                                <select name="energy_system_id" id="selectedEnergySystem" 
+                                <select name="energy_system_id" id="selectedEnergySystemPublic"
                                     class="form-control" disabled required>
                                     <option disabled selected>Choose one...</option>
+                                    @foreach($energySystems as $energySystem)
+                                        <option value="{{$energySystem->id}}">
+                                            {{$energySystem->name}}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </fieldset>
                         </div>
@@ -157,18 +162,20 @@ label, table {
             }
         });
     });
-
+ 
     $(document).on('change', '#selectedEnergySystemType', function () {
         energy_type_id = $(this).val();
-   
-        $.ajax({
-            url: "energy-user/get_by_energy_type/" + energy_type_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedEnergySystem').prop('disabled', false);
-                $('#selectedEnergySystem').html(data.html);
-            }
-        });
+        community_id = $("#selectedPublicCommunity").val();
+        $('#selectedEnergySystemPublic').prop('disabled', false);
+        // $.ajax({
+        //     url: "energy_public/get_by_energy_type/" + community_id+ "/"+ energy_type_id,
+        //     method: 'GET',
+        //     success: function(data) {
+               
+        //         $('#selectedEnergySystemPublic').prop('disabled', false);
+        //         $('#selectedEnergySystemPublic').html(data.html);
+        //     }
+        // });
     });
 
 </script>

@@ -118,6 +118,17 @@
                     </div>
                 </div> -->
 
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Donors: 
+                            <div class="spanDetails" id="donorsDetails">
+                              
+                            </div>
+                        </h6>
+                    </div>
+                </div> 
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Close

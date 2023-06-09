@@ -231,6 +231,8 @@ label {
 
         community_id = $(this).val();
         energy_type_id= $("#selectedEnergySystemType").val();
+
+        
         changeEnergySystemType(energy_type_id, community_id);
     });
     

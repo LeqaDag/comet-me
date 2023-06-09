@@ -55,9 +55,82 @@
     </div>
 </div>
 
+<!-- <div class="container mb-4">
+    <div class="card my-2">
+        <div class="card-body">
+            <div class="card-header">
+                <h4>Summary</h4>
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label for="">Date from</label>
+                            <input type="date" name="installation_date" 
+                            class="form-control" title="Data from"> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label for="">Date to</label>
+                            <input type="date" name="installation_date" 
+                            class="form-control" title="Data from"> 
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <table id="energyHoldersSummaryTable" 
+                class="table table-striped data-table-energy-holders my-2">
+                <thead>
+                    <tr>
+                        <th class="text-center">Community</th>
+                        <th class="text-center">Energy System Type</th>
+                        <th class="text-center">Completed AC</th>
+                        <th class="text-center">Completed DC</th>
+                        <th class="text-center"># of Families</th>
+                        <th class="text-center"># of People</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($holders as $holder)
+                        <tr>
+                            <td>
+                                {{$holder->community_name}}
+                            </td>
+                            <td>
+                                {{$holder->energy_type_name}}
+                            </td>
+                            <td>
+                                <?php 
+                                    $initialHouseholdsNumber = App\Models\Household::where('community_id', $holder->community_id)
+                                        ->where('household_status_id', 2)->count();
+        
+                                ?>
+                                {{$initialHouseholdsNumber}}
+                            </td>
+                            <td>
+                                <?php 
+                                    $dcNumber = App\Models\AllEnergyMeter::where('community_id', $holder->community_id)
+                                        ->where('meter_case_id', 1)->count();
+        
+                                ?>
+                                {{$dcNumber}}
+                            </td>
+                            <td>
+                                {{$holder->number_of_household}}
+                            </td>
+                            <td>
+                                {{$holder->number_of_people}}
+                            </td>
+                        </tr>
+                    @endforeach 
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> -->
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Electricity Active Meter Users
+  <span class="text-muted fw-light">All </span> Electricity Active Meter Holders
 </h4>
 
 @if(session()->has('message'))
@@ -69,6 +142,9 @@
 @endif
 
 @include('users.energy.details')
+
+
+
 
 <div class="container">
     <div class="card my-2">
@@ -138,6 +214,7 @@
                 <thead>
                     <tr>
                         <th class="text-center">User Name</th>
+                        <th class="text-center">Public Structure</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Meter Number</th>
                         <th class="text-center">Daily Limit</th>
@@ -193,10 +270,11 @@
                 },
                 {
                     extend: 'excel',
-                }
+                } 
             ],
             columns: [
                 {data: 'household_name', name: 'household_name'},
+                {data: 'public_name', name: 'public_name'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'meter_number', name: 'meter_number'},
                 {data: 'daily_limit', name: 'daily_limit'},
@@ -216,17 +294,41 @@
                 type: 'get',
                 dataType: 'json', 
                 success: function(response) {
-                    $('#energyUserModalTitle').html(response['household'].english_name);
-                    $('#englishNameUser').html(response['household'].english_name);
+
+                    $('#energyUserModalTitle').html(" ");
+
+                    if(response['household'] != null) {
+
+                        $('#energyUserModalTitle').html(response['household'].english_name);
+                        $('#englishNameUser').html(" ");
+                        $('#englishNameUser').html(response['household'].english_name);
+
+                    } else if(response['public'] != null) {
+
+                        $('#energyUserModalTitle').html(response['public'].english_name);
+                        $('#englishNameUser').html(" ");
+                        $('#englishNameUser').html(response['public'].english_name);
+                    }
+
+                    $('#communityUser').html(" ");
+                    $('#meterActiveUser').html(" ");
+                    $('#meterCaseUser').html(" ");
+                    $('#systemNameUser').html(" ");
+                    $('#systemTypeUser').html(" ");
+                    $('#systemLimitUser').html(" ");
+                    $('#systemDateUser').html(" ");
+                    $('#vendorDateUser').html(" ");
+                    $('#systemNotesUser').html(" ");
+
                     $('#communityUser').html(response['community'].english_name);
-                    $('#meterActiveUser').html(response['user'].meter_active);
+                    $('#meterActiveUser').html(response['energy'].meter_active);
                     $('#meterCaseUser').html(response['meter'].meter_case_name_english);
                     $('#systemNameUser').html(response['system'].name);
                     $('#systemTypeUser').html(response['type'].name);
-                    $('#systemLimitUser').html(response['user'].daily_limit);
-                    $('#systemDateUser').html(response['user'].installation_date);
+                    $('#systemLimitUser').html(response['energy'].daily_limit);
+                    $('#systemDateUser').html(response['energy'].installation_date);
                     $('#vendorDateUser').html(response['vendor'].name);
-                    $('#systemNotesUser').html(response['user'].notes);
+                    $('#systemNotesUser').html(response['energy'].notes);
                 }
             });
         });

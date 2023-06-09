@@ -47,11 +47,11 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Products type</label>
-                                <select name="school" id="schoolchanges" 
+                                <select name="school" id="product_type_id" 
                                     class="form-control" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($products as $product)
-                                    <option value="{{$product->id}}">{{$product->name}}</option>
+                                        <option value="{{$product->id}}">{{$product->name}}</option>
                                     @endforeach
                                 </select>
                             </fieldset>
@@ -216,7 +216,7 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Recommended system type</label>
-                                <select name="clinic" class="form-control">
+                                <select name="recommended_energy_system_id" class="form-control">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($energyTypes as $energyType)
                                     <option value="{{$energyType->id}}">{{$energyType->name}}</option>
@@ -245,7 +245,7 @@ label, table {
                                    style="resize:none" cols="20" rows="3"></textarea>
                             </fieldset>
                         </div>
-                    </div>
+                    </div> 
 
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
@@ -257,7 +257,7 @@ label, table {
                                 <tr>
                                     <td>
                                         <input type="text" name="addMoreInputFieldsCompoundName[0][subject]" 
-                                        placeholder="Enter Copmound Name" class="target_point form-control" 
+                                        placeholder="Enter English Copmound Name" class="target_point form-control" 
                                         data-id="0"/>
                                     </td>
                                     <td>

@@ -1,0 +1,229 @@
+@php
+  $pricingModal = true;
+@endphp
+
+@extends('layouts/layoutMaster')
+
+@section('title', 'Edit Energy Public')
+
+@include('layouts.all')
+
+<style>
+    label, input {
+        display: block;
+    }
+
+    .dropdown-toggle {
+        height: 40px;
+    }
+
+    label {
+        margin-top: 20px;
+    } 
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
+@section('content')
+<h4 class="py-3 breadcrumb-wrapper mb-4">
+    <span class="text-muted fw-light">Edit </span> {{$energyPublic->PublicStructure->english_name}}
+    <span class="text-muted fw-light">Information </span> 
+</h4>
+
+<div class="card">
+    <div class="card-content collapse show">
+        <div class="card-body">
+            <form method="POST" action="{{route('energy-public.update', $energyPublic->id)}}"
+             enctype="multipart/form-data" >
+                @csrf
+                @method('PATCH')
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Meter Number</label>
+                            <input type="text" class="form-control" name="meter_number"
+                                value="{{$energyPublic->meter_number}}"> 
+                        </fieldset>
+                    </div> 
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Daily limit</label> 
+                            <input type="text" class="form-control" name="daily_limit"
+                                value="{{$energyPublic->daily_limit}}"> 
+                        </fieldset> 
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Installation date</label>
+                            <input type="date" class="form-control" name="installation_date" 
+                            value="{{$energyPublic->installation_date}}"> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Meter Active</label> 
+                            <select name='meter_active' class="form-control">
+                                <option selected disabled>
+                                    {{$energyPublic->meter_active}}
+                                </option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select> 
+                        </fieldset> 
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label' for="region_id">Meter Case</label>
+                            <select name='meter_case_id' name="meter_case_id " class="form-control">
+                                <option disabled selected>
+                                    {{$energyPublic->MeterCase->meter_case_name_english}}
+                                </option>
+                                @foreach($meterCases as $meterCase)
+                                    <option value="{{$meterCase->id}}">
+                                        {{$meterCase->meter_case_name_english}}
+                                    </option>
+                                @endforeach
+                            </select> 
+                        </fieldset> 
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Vendor Name</label> 
+                            <select name='vendor_username_id' class="form-control">
+                                <option selected disabled>
+                                    @if($vendor)
+                                    {{$vendor->name}}
+                                    @else
+                                    Choose one...
+                                    @endif
+                                </option>
+                                @foreach($communityVendors as $vendor)
+                                    <option value="{{$vendor->vendor_username_id}}">
+                                        {{$vendor->name}}
+                                    </option>
+                                @endforeach
+                            </select> 
+                        </fieldset> 
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>MISC</label> 
+                            <select name='misc' class="form-control">
+                                @if($energyPublic->misc == 1)
+                                    <option selected disabled>MISC</option>
+                                @else
+                                    <option selected disabled>New Community</option>
+                                @endif
+                                <option value="1">MISC</option>
+                                <option value="0">New Community</option>
+                            </select> 
+                        </fieldset> 
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy System</label> 
+                            <select name='energy_system_id' class="form-control">
+                                <option selected disabled>
+                                    {{$energyPublic->EnergySystem->name}}
+                                </option>
+                                @foreach($energySystems as $energySystem)
+                                    <option value="{{$energySystem->id}}">{{$energySystem->name}}</option>
+                                @endforeach
+                            </select> 
+                        </fieldset> 
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Notes</label> 
+                            <textarea class="form-control" name="notes" style="resize: none;">
+                                {{$energyPublic->notes}}
+                            </textarea>
+                        </fieldset> 
+                    </div>
+                </div><hr>
+
+                <div class="row">
+                    <h5>Donors</h5>
+                </div>
+                @if(count($energyDonors) > 0)
+                    <div class="row">
+                        @foreach($energyDonors as $energyDonor)
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Donor</label>
+                                <select class="form-control" name="donor_id[]"disabled>
+                                    <option selected disabled>
+                                        {{$energyDonor->Donor->donor_name}}
+                                    </option>
+                                </select>
+                            </fieldset>
+                        </div>
+                        @endforeach
+                        
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add more donors</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="donors[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($donors as $donor)
+                                        <option value="{{$donor->id}}">
+                                            {{$donor->donor_name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                        
+
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Donors</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_donors[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($donors as $donor)
+                                        <option value="{{$donor->id}}">{{$donor->donor_name}}</option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
+
+
+                <div class="row" style="margin-top:20px">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <button type="submit" class="btn btn-primary">
+                            Save changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+@endsection

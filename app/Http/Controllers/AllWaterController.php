@@ -76,7 +76,7 @@ class AllWaterController extends Controller
             ->make(true);
         }
 
-        $communities = Community::all();
+        $communities = Community::where('is_archived', 0)->get();
         $bsfStatus = BsfStatus::all();
         $households = Household::all();
         $h2oStatus = H2oStatus::all();
@@ -109,7 +109,7 @@ class AllWaterController extends Controller
     {
         $h2oUser = H2oUser::findOrFail($id);
         $gridUser = GridUser::where('household_id', $h2oUser->household_id)->first();
-        $communities = Community::all();
+        $communities = Community::where('is_archived', 0)->get();
         $h2oStatuses = H2oStatus::all();
         $bsfStatuses = BsfStatus::all();
         $households = Household::where('community_id', $h2oUser->community_id)->get();

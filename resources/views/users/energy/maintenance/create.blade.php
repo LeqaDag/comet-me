@@ -195,7 +195,7 @@ label, table {
         community_id = $(this).val();
 
         $('#mgSystemOrFbsUser').prop('disabled', false);
-
+ 
         systemUser = $('#mgSystemOrFbsUser').val();
 
         if(systemUser == "system") {

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Auth;
 use Route;
+use App\Models\AllEnergyMeter;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Community;
@@ -208,30 +209,30 @@ class LoginController extends Controller
             }
     
             foreach($communitiesMasafers as $communitiesMasafer) {
-                $energyUsers = EnergyUser::where('community_id', $communitiesMasafer->id)
+                $energyUsers = AllEnergyMeter::where('community_id', $communitiesMasafer->id)
                     ->count();
     
                 $countEnergyUsers+=$energyUsers;
             }
     
-            $countMgSystem =  DB::table('energy_users')
-                ->join('communities', 'energy_users.community_id', '=', 'communities.id')
-                ->join('energy_systems', 'energy_users.energy_system_id', '=', 'energy_systems.id')
-                ->join('energy_system_types', 'energy_users.energy_system_type_id', '=', 'energy_system_types.id')
+            $countMgSystem =  DB::table('all_energy_meters')
+                ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
+                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
                 ->where('communities.sub_sub_region_id', 1)
-                ->where('energy_users.energy_system_type_id', 1)
+                ->where('all_energy_meters.energy_system_type_id', 1)
                 ->select(
                     DB::raw('energy_systems.name as name'),
                     DB::raw('count(*) as number'))
                 ->groupBy('energy_systems.name')
                 ->get();
     
-            $countFbsSystem =  DB::table('energy_users')
-                ->join('communities', 'energy_users.community_id', '=', 'communities.id')
-                ->join('energy_systems', 'energy_users.energy_system_id', '=', 'energy_systems.id')
-                ->join('energy_system_types', 'energy_users.energy_system_type_id', '=', 'energy_system_types.id')
+            $countFbsSystem =  DB::table('all_energy_meters')
+                ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
+                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
                 ->where('communities.sub_sub_region_id', 1)
-                ->where('energy_users.energy_system_type_id', 2)
+                ->where('all_energy_meters.energy_system_type_id', 2)
                 ->get();
     
             $dataIncidents = DB::table('mg_incidents')

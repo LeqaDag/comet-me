@@ -78,13 +78,24 @@
                     </div>
                 </div>
             </form>
+
+
+
         </div>
         <div class="card-body">
+
+            <div>
+                <button type="button" class="btn btn-success" 
+                    data-bs-toggle="modal" data-bs-target="#createWaterResult">
+                    Add Water Result
+                </button>
+                @include('results.water.create')
+            </div>
             <table id="waterResultTable" 
                 class="table table-striped data-table-water-result my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">User Name</th>
+                        <th class="text-center">User Holder</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Public Name</th>
                         <th class="text-center">Date</th>
@@ -121,6 +132,22 @@
                 {data: 'date', name: 'date'},
                 {data: 'action'}
             ],
+        });
+
+        // View record edit page
+        $('#waterResultTable').on('click', '.updateWaterResult',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            // AJAX request
+            $.ajax({
+                url: 'quality-result/' + id + '/editpage',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    window.open(url, "_self"); 
+                }
+            });
         });
 
         // View record details
@@ -174,6 +201,62 @@
                     $('#phResult').html(response['result'].ph);
                 }
             });
+        });
+
+        // Delete record
+        $('#waterResultTable').on('click', '.deleteWaterResult',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this record?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteQualityResult') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#waterResultTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+
+        // View summary depending on the selected year
+        $('#selectedYear').on('change', function() {
+            year = $(this).val();
+
+            // AJAX request
+            $.ajax({
+                url: 'quality-result/summary/' + year,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                }
+            });
+            
         });
     });
 </script>

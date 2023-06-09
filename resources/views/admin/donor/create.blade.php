@@ -1,12 +1,15 @@
 <style>
     label, input {
-    display: block;
-}
-
-label, table {
-    margin-top: 20px;
-}
+        display: block;
+    }
+    .dropdown-toggle{
+        height: 40px;   
+    }
+    label, table {
+        margin-top: 20px;
+    }
 </style>
+
 
 <div id="createDonor" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">

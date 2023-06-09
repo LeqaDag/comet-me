@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+
+use App\Models\AllEnergyMeter;
 use App\Models\User;
 use App\Models\BsfStatus;
 use App\Models\Donor;
@@ -95,8 +97,8 @@ class NewEnergyMaintenanceCallController extends Controller
         }
 
         $communities = Community::all();
-        $households = DB::table('energy_users')
-            ->join('households', 'energy_users.household_id', 'households.id')
+        $households = DB::table('all_energy_meters')
+            ->join('households', 'all_energy_meters.household_id', 'households.id')
             ->select('households.id as id', 'households.english_name')
             ->get();
 
@@ -123,7 +125,7 @@ class NewEnergyMaintenanceCallController extends Controller
         $maintenance = new NewElectricityMaintenanceCall();
         if($request->household_id) {
 
-            $energyUserId = EnergyUser::where('household_id', $request->household_id[0])
+            $energyUserId = AllEnergyMeter::where('household_id', $request->household_id[0])
                 ->select('id')->get();
             $maintenance->household_id = $request->household_id[0];
             $maintenance->energy_user_id = $energyUserId[0]->id;

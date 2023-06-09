@@ -213,6 +213,13 @@
   <span class="text-muted fw-light">All </span> communities
 </h4>
 
+@if(session()->has('message'))
+    <div class="row">
+        <div class="alert alert-success">
+            {{ session()->get('message') }}
+        </div>
+    </div>
+@endif
 @include('employee.community.details')
 
 <div class="container">
@@ -300,7 +307,8 @@
                     <tr>
                         <th class="text-center">English Name</th>
                         <th class="text-center">Arabic Name</th>
-                        <th class="text-center"># of Households</th>
+                        <th class="text-center"># of Families</th>
+                        <th class="text-center"># of People</th>
                         <th class="text-center">Region</th>
                         <th class="text-center">Sub Region</th>
                         <th class="text-center">Status</th>
@@ -356,6 +364,7 @@
             columns: [
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
+                {data: 'number_of_household', name: 'number_of_household'},
                 {data: 'number_of_people', name: 'number_of_people'},
                 {data: 'name', name: 'name'},
                 {data: 'subname', name: 'subname'},
@@ -375,6 +384,22 @@
                 dataType: 'json',
                 success: function(response) {
 
+                    $('#communityModalTitle').html(" ");
+                    $('#englishNameCommunity').html(" ");
+                    $('#arabicNameCommunity').html(" ");
+                    $('#numberOfCompoundsCommunity').html(" ");
+                    $('#numberOfPeopleCommunity').html(" ");
+                    $('#englishNameRegion').html(" ");
+                    $('#numberOfHouseholdCommunity').html(" ");
+                    $('#englishNameSubRegion').html(" ");
+                    $('#statusCommunity').html(" ");
+                    $('#energyServiceCommunity').html(" ");
+                    $('#energyServiceYearCommunity').html(" ");
+                    $('#waterServiceCommunity').html(" ");
+                    $('#waterServiceYearCommunity').html(" ");
+                    $('#internetServiceCommunity').html(" ");
+                    $('#internetServiceYearCommunity').html(" ");
+
                     $('#communityModalTitle').html(response['community'].english_name);
                     $('#englishNameCommunity').html(response['community'].english_name);
                     $('#arabicNameCommunity').html(response['community'].arabic_name);
@@ -391,10 +416,30 @@
                     $('#internetServiceCommunity').html(response['community'].internet_service);
                     $('#internetServiceYearCommunity').html(response['community'].internet_service_beginning_year);
                     
+                    $("#structuresCommunity").html(" ");
                     for (var i = 0; i < response['public'].length; i++) {
                         $("#structuresCommunity").append(
                             '<ul><li>'+ response['public'][i].english_name +'</li> </ul>');
                     } 
+
+                    $("#compoundsCommunity").html(" ");
+                    for (var i = 0; i < response['compounds'].length; i++) {
+                        $("#compoundsCommunity").append(
+                            '<ul><li>'+ response['compounds'][i].english_name +'</li> </ul>');
+                    }
+
+                    $("#townsCommunity").html(" ");
+                    for (var i = 0; i < response['nearbyTown'].length; i++) {
+                        $("#townsCommunity").append(
+                            '<ul><li>'+ response['nearbyTown'][i].english_name +'</li> </ul>');
+                    }
+
+                    $("#settlementsCommunity").html(" ");
+                    for (var i = 0; i < response['nearbySettlement'].length; i++) {
+                        $("#settlementsCommunity").append(
+                            '<ul><li>'+ response['nearbySettlement'][i].english_name +'</li> </ul>');
+                    }
+
                 }
             });
         });
@@ -409,12 +454,66 @@
         });
 
         // View record map
-        $('#communityTable').on('click', '.mapCommunityButton',function() {
+        $('#communityTable').on('click', '.mapCommunityButton', function() {
             var id = $(this).data('id');
             var url = window.location.href; 
-           
             url = url +'/'+ id +'/map';
             window.open(url); 
+        });
+
+        // View record update page
+        $('#communityTable').on('click', '.updateCommunity', function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            
+            // AJAX request
+            $.ajax({
+                url: 'community/' + id + '/editpage',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    window.open(url, "_self"); 
+                }
+            });
+        });
+
+        // delete community
+        $('#communityTable').on('click', '.deleteCommunity',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this community?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteCommunity') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#communityTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
         });
     });
 </script>

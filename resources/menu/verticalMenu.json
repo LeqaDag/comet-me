@@ -170,6 +170,11 @@
       "slug": "water",
       "submenu": [
         {
+          "name": "Summary",
+          "url": "water-summary",
+          "slug": "water-summary"
+        },
+        {
           "name": "All Results",
           "url": "quality-result",
           "slug": "quality-result"
@@ -213,11 +218,6 @@
       "icon": "menu-icon tf-icons bx bx-extension",
       "slug": "maintenance",
       "submenu": [
-        {
-          "name": "New Electricity",
-          "url": "new-energy-maintenance",
-          "slug": "new-energy-maintenance"
-        },
         {
           "name": "Electricity Maintenance",
           "url": "energy-maintenance",

@@ -25,10 +25,17 @@
     </div> 
 </div>
 
-
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Energy Systems Design
 </h4>
+
+@if(session()->has('message'))
+    <div class="row">
+        <div class="alert alert-success">
+            {{ session()->get('message') }}
+        </div>
+    </div>
+@endif
 
 <div class="container">
     <div class="card my-2">
@@ -93,6 +100,24 @@
             );
         }
     });
+
+    // View record details
+    $('#systemEnergyTable').on('click', '.updateEnergySystem',function() {
+
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        url = url +'/'+ id +'/edit';
+        // AJAX request
+        $.ajax({
+            url: 'energy-system/' + id + '/editpage',
+            type: 'get',
+            dataType: 'json',
+            success: function(response) {
+                window.open(url, "_self"); 
+            }
+        });
+    });
+
 
 </script>
 @endsection

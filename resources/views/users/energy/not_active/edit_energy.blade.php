@@ -10,13 +10,27 @@
 
 <style>
     label, input {
-    display: block;
-}
 
-label {
-    margin-top: 20px;
-}
+        display: block;
+    }
+
+    .dropdown-toggle {
+
+        height: 40px;
+    }
+
+    label {
+
+        margin-top: 20px;
+    }
+
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> {{$energyUser->Household->english_name}}
@@ -30,6 +44,9 @@ label {
              enctype="multipart/form-data" >
                 @csrf
                 @method('PATCH')
+                <div class="row">
+                    <h5>General Details</h5>
+                </div>
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
@@ -105,6 +122,102 @@ label {
                         </fieldset> 
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>MISC</label> 
+                            <select name='misc' class="form-control">
+                                @if($energyUser->misc == 1)
+                                    <option selected disabled>MISC</option>
+                                @else @if($energyUser->misc == 2)
+                                    <option selected disabled>Maintenance</option>
+                                @else 
+                                    <option selected disabled>New Community</option>
+                                @endif
+                                @endif
+                                <option value="1">MISC</option>
+                                <option value="0">New Community</option>
+                                <option value="2">Maintenance</option>
+                            </select> 
+                        </fieldset> 
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy System</label> 
+                            <select name='energy_system_id' class="form-control">
+                                <option selected disabled>
+                                    {{$energyUser->EnergySystem->name}}
+                                </option>
+                                @foreach($energySystems as $energySystem)
+                                    <option value="{{$energySystem->id}}">{{$energySystem->name}}</option>
+                                @endforeach
+                            </select> 
+                        </fieldset> 
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Notes</label> 
+                            <textarea class="form-control" name="notes" style="resize: none;">
+                                {{$energyUser->notes}}
+                            </textarea>
+                        </fieldset> 
+                    </div>
+                </div> <hr>
+
+                <div class="row">
+                    <h5>Donors</h5>
+                </div>
+                @if(count($energyDonors) > 0)
+                    <div class="row">
+                        @foreach($energyDonors as $energyDonor)
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Donor</label>
+                                <select class="form-control" name="donor_id[]"disabled>
+                                    <option selected disabled>
+                                        {{$energyDonor->Donor->donor_name}}
+                                    </option>
+                                </select>
+                            </fieldset>
+                        </div>
+                        @endforeach
+                        
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add more donors</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="donors[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($donors as $donor)
+                                        <option value="{{$donor->id}}">
+                                            {{$donor->donor_name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                        
+
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Donors</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_donors[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($donors as $donor)
+                                        <option value="{{$donor->id}}">{{$donor->donor_name}}</option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
 
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -117,4 +230,8 @@ label {
         </div>
     </div>
 </div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
 @endsection

@@ -6,7 +6,6 @@
 
 @section('title', 'households')
 
-
 @include('layouts.all')
 
 @section('content')
@@ -208,7 +207,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> 
     </div>
 </div>
 
@@ -216,7 +215,7 @@
 All<span class="text-muted fw-light"> Households</span> 
 </h4>
 
-@include('employee.household.details')
+
 
 @if(session()->has('message'))
     <div class="row">
@@ -225,7 +224,7 @@ All<span class="text-muted fw-light"> Households</span>
         </div>
     </div>
 @endif
-
+@include('employee.household.details')
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
@@ -359,6 +358,20 @@ All<span class="text-muted fw-light"> Households</span>
                 type: 'get',
                 dataType: 'json',
                 success: function(response) {
+                    $('#householdModalTitle').html(" ");
+                    $('#englishNameHousehold').html(" ");
+                    $('#arabicNameHousehold').html(" ");
+                    $('#communityHousehold').html(" ");
+                    $('#professionHousehold').html(" ");
+                    $('#numberOfMaleHousehold').html(" ");
+                    $('#numberOfFemaleHousehold').html(" ");
+                    $('#numberOfChildrenHousehold').html(" ");
+                    $('#numberOfAdultsHousehold').html(" ");
+                    $('#phoneNumberHousehold').html(" ");
+                    $('#energyServiceHousehold').html(" ");
+                    $('#energyMeterHousehold').html(" ");
+                    $('#waterServiceHousehold').html(" ");
+                    $('#energyStatusHousehold').html(" ");
 
                     $('#householdModalTitle').html(response['household'].english_name);
                     $('#englishNameHousehold').html(response['household'].english_name);

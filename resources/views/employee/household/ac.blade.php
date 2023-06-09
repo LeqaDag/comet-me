@@ -10,7 +10,6 @@
 
 @section('content')
 
-
 <div class="container mb-4 my-2">
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12">
@@ -38,14 +37,12 @@
     <div class="card my-2">
         <div class="card-body">
             <div>
-                <p class="card-text">
-                    <div>
-                        <a type="button" class="btn btn-success" 
-                            href="{{url('ac-household', 'create')}}" >
-                            Create New Elc.
-                        </a>
-                    </div>
-                </p>
+                <div>
+                    <a type="button" class="btn btn-success" 
+                        href="{{url('ac-household', 'create')}}" >
+                        Create New Elc.
+                    </a>
+                </div>
             </div>
             <table id="acHouseholdsTable" 
                 class="table table-striped data-table-ac-households my-2">

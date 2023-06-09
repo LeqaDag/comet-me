@@ -49,6 +49,7 @@ class InitialCommunityController extends Controller
                 ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
                 ->join('community_statuses', 'communities.community_status_id', '=', 'community_statuses.id')
                 ->where('community_status_id', 1)
+                ->where('communities.is_archived', 0)
                 ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
                     'communities.id as id', 'communities.created_at as created_at', 
                     'communities.updated_at as updated_at',

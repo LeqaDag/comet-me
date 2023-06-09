@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class EnergyBattery extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['battery_model'];
 }

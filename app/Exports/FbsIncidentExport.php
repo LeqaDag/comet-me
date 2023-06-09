@@ -24,15 +24,15 @@ class FbsIncidentExport implements FromCollection, WithHeadings
             ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->join('energy_users', 'fbs_user_incidents.energy_user_id', '=', 'energy_users.id')
-            ->join('households', 'energy_users.household_id', '=', 'households.id')
+            ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
+            ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
             ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
             ->join('incident_status_small_infrastructures', 
                 'fbs_user_incidents.incident_status_small_infrastructure_id', 
                 '=', 'incident_status_small_infrastructures.id')
             ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
             ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
-            ->where('energy_users.energy_system_type_id', 2)
+            ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('community_donors.service_id', 1)
             ->select('households.english_name as household_name',
                 'communities.english_name as community_name', 

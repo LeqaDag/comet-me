@@ -28,7 +28,7 @@ class DonorController extends Controller
      */
     public function index(Request $request)
     {	
-        $communities = Community::all();
+        $communities = Community::where('communities.is_archived', 0)->get();
 		$donors = Donor::paginate();
         $services = ServiceType::all();
       
@@ -48,10 +48,9 @@ class DonorController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
 
-                    $updateButton = "<a type='button' class='updateDonor' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateDonorModal' ><i class='fa-solid fa-pen-to-square text-success'></i></s>";
                     $deleteButton = "<a type='button' class='deleteDonor' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></s>";
                     
-                    return $updateButton." ".$deleteButton;
+                    return $deleteButton;
                 })
                
                 ->filter(function ($instance) use ($request) {

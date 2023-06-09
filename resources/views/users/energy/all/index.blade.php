@@ -46,14 +46,14 @@
 
         var table = $('.data-table-energy-all').DataTable({
             processing: true,
-            serverSide: true,
+            serverSide: true, 
             ajax: {
                 url: "{{ route('all-meter.index') }}",
                 data: function (d) {
                     d.search = $('input[type="search"]').val()
                 }
             },
-            columns: [
+            columns: [ 
                 {data: 'household_name', name: 'household_name'},
                 {data: 'structure', name: 'structure'},
                 {data: 'community_name', name: 'community_name'},

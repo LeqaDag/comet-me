@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
 use Route;
+use App\Models\AllEnergyMeter;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\Donor;
@@ -39,8 +40,8 @@ class FbsIncidentController extends Controller
 
             $data = DB::table('fbs_user_incidents')
                 ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
-                ->join('energy_users', 'fbs_user_incidents.energy_user_id', '=', 'energy_users.id')
-                ->join('households', 'energy_users.household_id', '=', 'households.id')
+                ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
+                ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
                 ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
                 ->join('incident_status_small_infrastructures', 
                     'fbs_user_incidents.incident_status_small_infrastructure_id', 
@@ -84,10 +85,10 @@ class FbsIncidentController extends Controller
         }
 
         $communities = Community::all();
-        $energyUsers = DB::table('energy_users')
-            ->join('households', 'energy_users.household_id', '=', 'households.id')
-            ->where('energy_users.energy_system_type_id', 2)
-            ->select('households.english_name', 'energy_users.id')
+        $energyUsers = DB::table('all_energy_meters')
+            ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
+            ->where('all_energy_meters.energy_system_type_id', 2)
+            ->select('households.english_name', 'all_energy_meters.id')
             ->get();
 
         $incidents = Incident::all();
@@ -96,8 +97,8 @@ class FbsIncidentController extends Controller
         $donors = Donor::all();
 
         $dataFbsIncidents = DB::table('fbs_user_incidents')
-            ->join('energy_users', 'fbs_user_incidents.energy_user_id', '=', 'energy_users.id')
-            ->join('households', 'energy_users.household_id', '=', 'households.id')
+            ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
+            ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
             ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
             ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
             ->join('incident_status_small_infrastructures', 
@@ -160,7 +161,7 @@ class FbsIncidentController extends Controller
     public function show($id)
     {
         $fbsIncident = FbsUserIncident::findOrFail($id);
-        $householdId = EnergyUser::where('id', $fbsIncident->energy_user_id)->first();
+        $householdId = AllEnergyMeter::where('id', $fbsIncident->energy_user_id)->first();
 
         $energyUser = Household::findOrFail($householdId->household_id);
         $community = Community::where('id', $fbsIncident->community_id)->first();

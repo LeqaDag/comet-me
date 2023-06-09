@@ -14,17 +14,17 @@ class EnergyUsersExport implements FromCollection, WithHeadings
     */
     public function collection()
     {
-        $energyUsers = DB::table('energy_users')
-            ->join('energy_systems', 'energy_users.energy_system_id', '=', 'energy_systems.id')
-            ->join('households', 'energy_users.household_id', '=', 'households.id')
-            ->join('energy_donors', 'energy_users.household_id', '=', 'energy_donors.household_id')
+        $energyUsers = DB::table('all_energy_meters')
+            ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
+            ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
+            ->join('energy_donors', 'all_energy_meters.household_id', '=', 'energy_donors.household_id')
             ->where('energy_donors.donor_id', '=', 1) 
             ->where(function ($query) {
-                $query->where("energy_users.energy_system_id", 62)
-                      ->orWhere("energy_users.energy_system_id", 61);
+                $query->where("all_energy_meters.energy_system_id", 62)
+                      ->orWhere("all_energy_meters.energy_system_id", 61);
             })
             ->join('professions', 'households.profession_id', '=', 'professions.id')
-            ->join('communities', 'energy_users.community_id', '=', 'communities.id')
+            ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->join('donors', 'energy_donors.donor_id', '=', 'donors.id')
@@ -35,8 +35,8 @@ class EnergyUsersExport implements FromCollection, WithHeadings
                 'households.phone_number', 'households.number_of_male', 
                 'households.number_of_female', 'households.number_of_adults', 
                 'households.number_of_children', 'households.size_of_herd', 
-                'energy_users.meter_number', 'energy_users.daily_limit', 
-                'energy_users.installation_date', 'energy_systems.name as energy_system',
+                'all_energy_meters.meter_number', 'all_energy_meters.daily_limit', 
+                'all_energy_meters.installation_date', 'energy_systems.name as energy_system',
                 'donors.donor_name')
             ->get();
 

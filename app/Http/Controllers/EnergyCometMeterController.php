@@ -84,7 +84,7 @@ class EnergyCometMeterController extends Controller
                 ->make(true);
         }
 
-        $communities = Community::all();
+        $communities = Community::where('communities.is_archived', 0)->get();
         $households = Household::all();
         $energySystems = EnergySystem::all();
         $energySystemTypes = EnergySystemType::all();

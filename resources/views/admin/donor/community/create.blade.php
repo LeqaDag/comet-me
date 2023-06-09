@@ -1,3 +1,18 @@
+<style>
+    label, input {
+    display: block;
+}
+
+label, table {
+    margin-top: 20px;
+}
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 <div id="createCommunityDonor" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -16,24 +31,12 @@
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
-                                <select name="community_id" class="form-control" >
+                                <select name="community_id" class="selectpicker form-control" 
+                                    data-live-search="true" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
                                         {{$community->english_name}}
-                                    </option>
-                                    @endforeach
-                                </select>
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Donor</label>
-                                <select name="donor_id" class="form-control" >
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($donors as $donor)
-                                    <option value="{{$donor->id}}">
-                                        {{$donor->donor_name}}
                                     </option>
                                     @endforeach
                                 </select>
@@ -52,6 +55,20 @@
                                 </select>
                             </fieldset>
                         </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Donor</label>
+                                <select name="donor_id[]" class="selectpicker form-control" 
+                                    data-live-search="true" multiple>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($donors as $donor)
+                                    <option value="{{$donor->id}}">
+                                        {{$donor->donor_name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -62,3 +79,7 @@
         </div>
     </div>
 </div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+

@@ -83,6 +83,7 @@ class HouseholdController extends Controller
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
                 ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+                ->where('internet_holder_young', 0)
                 ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
                     'households.id as id', 'households.created_at as created_at', 
                     'households.updated_at as updated_at',
@@ -171,7 +172,7 @@ class HouseholdController extends Controller
      */
     public function create()
     {
-        $communities = Community::all();
+        $communities = Community::where('is_archived', 0)->get();
         $regions = Region::all();
         $professions = Profession::all();
 
@@ -222,6 +223,35 @@ class HouseholdController extends Controller
         
         return redirect('/initial-household')
             ->with('message', 'New Household Added Successfully!');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function newHousehold(Request $request)
+    {
+        //dd($request->all());
+        $household = new Household();
+        $household->english_name = $request->english_name;
+        $household->arabic_name = $request->arabic_name;
+        $household->women_name_arabic = $request->women_name_arabic;
+        $household->profession_id = $request->profession_id;
+        $household->phone_number = $request->phone_number;
+        $household->community_id = $request->community_id;
+        $household->number_of_children = $request->number_of_children;
+        $household->number_of_adults = $request->number_of_adults;
+        $household->university_students = $request->university_students;
+        $household->school_students = $request->school_students;
+        $household->number_of_male = $request->number_of_male;
+        $household->number_of_female = $request->number_of_female;
+        $household->save();
+ 
+        $html = '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+
+        return response()->json(['html' => $html]);
     }
 
     /**
@@ -372,7 +402,7 @@ class HouseholdController extends Controller
      */
     public function edit($id)
     {
-        $communities = Community::all();
+        $communities = Community::where('is_archived', 0)->get();
         $regions = Region::all();
         $professions = Profession::all();
         $household = Household::findOrFail($id);
@@ -398,7 +428,7 @@ class HouseholdController extends Controller
         $household->women_name_arabic = $request->women_name_arabic;
         $household->profession_id = $request->profession_id;
         $household->phone_number = $request->phone_number;
-        $household->community_id = $request->community_id;
+        if($request->community_id) $household->community_id = $request->community_id;
         $household->number_of_children = $request->number_of_children;
         $household->number_of_adults = $request->number_of_adults;
         $household->university_students = $request->university_students;

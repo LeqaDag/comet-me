@@ -22,7 +22,7 @@
         </div>
     </div>
 </div>
-
+ 
 <div class="container mb-4">
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12">
@@ -74,6 +74,14 @@
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> donors
 </h4>
+ 
+@if(session()->has('message'))
+    <div class="row">
+        <div class="alert alert-success">
+            {{ session()->get('message') }}
+        </div>
+    </div>
+@endif
 
 <div class="container">
     <div class="card my-2">
@@ -94,19 +102,20 @@
 
                 </div>
             </p>
+            <table id="donorTable" class="table table-striped data-table-donors my-2">
+                <thead>
+                    <tr>
+                        <th class="text-center">Name</th>
+                        <th class="text-center">Community</th>
+                        <th class="text-center">Service</th>
+                        <th class="text-center">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
-        <table id="donorTable" class="table table-striped data-table-donors my-2">
-            <thead>
-                <tr>
-                    <th class="text-center">Name</th>
-                    <th class="text-center">Community</th>
-                    <th class="text-center">Service</th>
-                    <th class="text-center">Options</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        
     </div>
 </div>
 
@@ -187,6 +196,44 @@
                 { data: 'action' }
             ],
             
+        });
+
+        // delete energy user
+        $('#donorTable').on('click', '.deleteDonor',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({ 
+                icon: 'warning',
+                title: 'Are you sure you want to delete this community-donor?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteCommunityDonor') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#donorTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
         });
     });
 </script>
