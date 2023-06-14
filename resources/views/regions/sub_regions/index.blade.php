@@ -74,7 +74,7 @@
             ],
             
         });
-        var id, region_id;
+        var id, region_id = 0;
         // Update record
         $('#subRegionTable').on('click','.updateSubRegion',function() {
             id = $(this).data('id');
@@ -109,7 +109,7 @@
                                         type: 'get',
                                         dataType: 'json',
                                         success: function(response) {
-
+                                            $("#updateRegionId").html(" ");
                                             if(response.success == 1) {
                                                 response.regions.forEach(el => {
                                                     $(".updateRegionId").append(`<option value='${el.id}'> ${el.english_name}</option>`)
@@ -132,44 +132,46 @@
 
                             region_id = $(this).val();
                         });
+                    }
+                }
+            });
+        });
 
-                        $('#btnSaveSubRegion').on('click', function() {
+        $('#btnSaveSubRegion').on('click', function() {
                         
-                            english_name = $('#english_name_region').val();
-                            arabic_name = $('#arabic_name_region').val();
+            english_name = $('#english_name').val();
+            arabic_name = $('#arabic_name').val();
 
-                            $.ajax({
-                                url: 'sub-region/edit_sub_region/' + id,
-                                type: 'get',
-                                data: {
-                                    id: id,
-                                    english_name: english_name,
-                                    arabic_name: arabic_name,
-                                    region_id: region_id
-                                },
-                                dataType: 'json',
-                                success: function(response) {
+            $.ajax({
+                url: 'sub-region/edit_sub_region/' + id,
+                type: 'get',
+                data: {
+                    id: id,
+                    english_name: english_name,
+                    arabic_name: arabic_name,
+                    region_id: region_id
+                },
+                dataType: 'json',
+                success: function(response) {
 
-                                    if(response == 1) {
-                                        
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Region Updated Successfully!',
-                                            showDenyButton: false,
-                                            showCancelButton: false,
-                                            confirmButtonText: 'Okay!'
-                                        }).then((result) => {
+                    $('#updateSubRegionModal').modal('toggle');
+                    $('#closeSubRegionUpdate').click ();
 
-                                            $('#regionsTable').DataTable().draw();
-                                        });
-                                    }
-                                }
-                            });
+                    if(response == 1) {
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sub Region Updated Successfully!',
+                            showDenyButton: false,
+                            showCancelButton: false,
+                            confirmButtonText: 'Okay!'
+                        }).then((result) => {
+
+                            $('#subRegionTable').DataTable().draw();
                         });
                     }
                 }
             });
-
         });
         
         // Delete record

@@ -1,7 +1,7 @@
 <?php
   // Variables
   return [
-    "creatorName" => "Comet-me",
+    "creatorName" => "Leqa Daghameen",
     "instagramUrl" => "",
     "websiteUrl" => "https://comet-me.org/",
 

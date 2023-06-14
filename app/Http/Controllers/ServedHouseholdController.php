@@ -31,57 +31,63 @@ class ServedHouseholdController extends Controller
      */
     public function index(Request $request)
     {	
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
+
+            if ($request->ajax()) {
             
-            $data = DB::table('households')
+                $data = DB::table('households')
+                    ->where('households.household_status_id', 4)
+                    ->join('communities', 'households.community_id', '=', 'communities.id')
+                    ->join('regions', 'communities.region_id', '=', 'regions.id')
+                    ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
+                        'households.id as id', 'households.created_at as created_at', 
+                        'households.updated_at as updated_at',
+                        'regions.english_name as region_name',
+                        'communities.english_name as name',
+                        'communities.arabic_name as aname',)
+                    ->latest(); 
+    
+                
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                   
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                    $search = $request->get('search');
+                                    $w->orWhere('households.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('regions.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('regions.arabic_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                ->make(true);
+            }
+    
+            $dataHouseholdsByCommunity = DB::table('households')
                 ->where('households.household_status_id', 4)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
-                ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
-                    'households.id as id', 'households.created_at as created_at', 
-                    'households.updated_at as updated_at',
-                    'regions.english_name as region_name',
-                    'communities.english_name as name',
-                    'communities.arabic_name as aname',)
-                ->latest(); 
-
+                ->select(
+                        DB::raw('regions.english_name as english_name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('regions.english_name')
+                ->get();
+            $arrayHouseholdsByCommunity[] = ['Region Name', 'Total'];
             
-            return Datatables::of($data)
-                ->addIndexColumn()
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                                $search = $request->get('search');
-                                $w->orWhere('households.english_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.english_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('regions.english_name', 'LIKE', "%$search%")
-                                ->orWhere('regions.arabic_name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-            ->make(true);
+            foreach($dataHouseholdsByCommunity as $key => $value) {
+    
+                $arrayHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
+            }
+    
+            return view('employee.household.served')
+                ->with('communityServedHouseholdsData', json_encode($arrayHouseholdsByCommunity));
+        } else {
+
+            return view('errors.not-found');
         }
-
-        $dataHouseholdsByCommunity = DB::table('households')
-            ->where('households.household_status_id', 4)
-            ->join('communities', 'households.community_id', '=', 'communities.id')
-            ->join('regions', 'communities.region_id', '=', 'regions.id')
-            ->select(
-                    DB::raw('regions.english_name as english_name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('regions.english_name')
-            ->get();
-        $arrayHouseholdsByCommunity[] = ['Region Name', 'Total'];
-        
-        foreach($dataHouseholdsByCommunity as $key => $value) {
-
-            $arrayHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
-        }
-
-		return view('employee.household.served')
-            ->with('communityServedHouseholdsData', json_encode($arrayHouseholdsByCommunity));
     }
 }

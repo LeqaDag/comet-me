@@ -34,88 +34,95 @@ class WaterIncidentController extends Controller
      */
     public function index(Request $request)
     { 
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
 
-            $data = DB::table('h2o_system_incidents')
-                ->join('communities', 'h2o_system_incidents.community_id', '=', 'communities.id')
-                ->join('h2o_users', 'h2o_system_incidents.h2o_user_id', '=', 'h2o_users.id')
+            if ($request->ajax()) {
+
+                $data = DB::table('h2o_system_incidents')
+                    ->join('communities', 'h2o_system_incidents.community_id', '=', 'communities.id')
+                    ->join('h2o_users', 'h2o_system_incidents.h2o_user_id', '=', 'h2o_users.id')
+                    ->join('households', 'h2o_users.household_id', '=', 'households.id')
+                    ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
+                    ->join('incident_statuses', 
+                        'h2o_system_incidents.incident_status_id', 
+                        '=', 'incident_statuses.id')
+                    ->select('h2o_system_incidents.date', 'h2o_system_incidents.year',
+                        'h2o_system_incidents.id as id', 'h2o_system_incidents.created_at as created_at', 
+                        'h2o_system_incidents.updated_at as updated_at', 
+                        'communities.english_name as community_name', 
+                        'households.english_name as household_name',
+                        'incidents.english_name as incident', 
+                        'incident_statuses.name as incident_status',
+                        'h2o_system_incidents.notes')
+                    ->latest(); 
+    
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $viewButton = "<a type='button' class='viewWaterIncident' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterIncidentModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteWaterIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $viewButton." ".$deleteButton;
+       
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('incident_statuses.name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('h2o_system_incidents.date', 'LIKE', "%$search%")
+                                ->orWhere('incidents.english_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+    
+            $communities = Community::all();
+            $h2oUsers = DB::table('h2o_users')
                 ->join('households', 'h2o_users.household_id', '=', 'households.id')
+                ->select('households.english_name', 'h2o_users.id')
+                ->get();
+    
+            $incidents = Incident::all();
+            $incidentStatuses = IncidentStatus::all();
+            $h2oIncidentsNumber = H2oSystemIncident::count();
+            $donors = Donor::all();
+    
+            // H2O incidents
+            $dataIncidents = DB::table('h2o_system_incidents')
+                ->join('communities', 'h2o_system_incidents.community_id', '=', 'communities.id')
+                ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
                 ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
-                ->join('incident_statuses', 
-                    'h2o_system_incidents.incident_status_id', 
+                ->join('incident_statuses', 'h2o_system_incidents.incident_status_id', 
                     '=', 'incident_statuses.id')
-                ->select('h2o_system_incidents.date', 'h2o_system_incidents.year',
-                    'h2o_system_incidents.id as id', 'h2o_system_incidents.created_at as created_at', 
-                    'h2o_system_incidents.updated_at as updated_at', 
-                    'communities.english_name as community_name', 
-                    'households.english_name as household_name',
-                    'incidents.english_name as incident', 
-                    'incident_statuses.name as incident_status',
-                    'h2o_system_incidents.notes')
-                ->latest(); 
+                ->select(
+                    DB::raw('incident_statuses.name as name'),
+                    DB::raw('count(*) as number'))
+                ->groupBy('incident_statuses.name')
+                ->get();
+    
+            $arrayIncidents[] = ['English Name', 'Number'];
+            
+            foreach($dataIncidents as $key => $value) {
+    
+                $arrayIncidents[++$key] = [$value->name, $value->number];
+            }
+    
+            return view('incidents.water.index', compact('communities', 'h2oUsers',
+                'incidents', 'incidentStatuses', 'h2oIncidentsNumber', 'donors'))
+                ->with('h2oIncidents', json_encode($arrayIncidents));
+                
+        } else {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-
-                    $viewButton = "<a type='button' class='viewWaterIncident' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterIncidentModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteWaterIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $viewButton." ".$deleteButton;
-   
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('incident_statuses.name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('h2o_system_incidents.date', 'LIKE', "%$search%")
-                            ->orWhere('incidents.english_name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return view('errors.not-found');
         }
-
-        $communities = Community::all();
-        $h2oUsers = DB::table('h2o_users')
-            ->join('households', 'h2o_users.household_id', '=', 'households.id')
-            ->select('households.english_name', 'h2o_users.id')
-            ->get();
-
-        $incidents = Incident::all();
-        $incidentStatuses = IncidentStatus::all();
-        $h2oIncidentsNumber = H2oSystemIncident::count();
-        $donors = Donor::all();
-
-        // H2O incidents
-        $dataIncidents = DB::table('h2o_system_incidents')
-            ->join('communities', 'h2o_system_incidents.community_id', '=', 'communities.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
-            ->join('incident_statuses', 'h2o_system_incidents.incident_status_id', 
-                '=', 'incident_statuses.id')
-            ->select(
-                DB::raw('incident_statuses.name as name'),
-                DB::raw('count(*) as number'))
-            ->groupBy('incident_statuses.name')
-            ->get();
-
-        $arrayIncidents[] = ['English Name', 'Number'];
-        
-        foreach($dataIncidents as $key => $value) {
-
-            $arrayIncidents[++$key] = [$value->name, $value->number];
-        }
-
-        return view('incidents.water.index', compact('communities', 'h2oUsers',
-            'incidents', 'incidentStatuses', 'h2oIncidentsNumber', 'donors'))
-            ->with('h2oIncidents', json_encode($arrayIncidents));
     }
 
     /**

@@ -144,8 +144,6 @@
 @include('users.energy.details')
 
 
-
-
 <div class="container">
     <div class="card my-2">
         <div class="card-body">

@@ -23,7 +23,19 @@ label, table {
                 <form method="POST" enctype='multipart/form-data' action="{{url('energy-public')}}">
                     @csrf
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>New/Old Community</label>
+                                <select name="misc" 
+                                    class="form-control" required>
+                                    <option disabled selected>Choose one...</option>
+                                    <option value="1">MISC FBS/MG extension</option> 
+                                    <option value="0">New Community</option>
+                                    <option value="2">Maintenance</option>
+                                </select>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select name="community_id" id="selectedPublicCommunity" 
@@ -37,7 +49,7 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Structure</label>
                                 <select name="public_structure_id" id="selectedPublicStructure" 

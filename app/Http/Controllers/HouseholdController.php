@@ -57,112 +57,120 @@ class HouseholdController extends Controller
         //     }
         // }
         
-		$communities = Community::paginate();
-        $households = Household::paginate();
-        $regions = Region::all();
-        $subregions = SubRegion::all();
+        if (Auth::guard('user')->user() != null) {
 
-        
-        $householdRecords = Household::count();
-        $householdsInitial = Household::where("household_status_id", 1)->get();
-        $householdInitial = Household::where("household_status_id", 1)->count();
-        $householdsAC = Community::where("community_status_id", 2)->get();
-        $householdAC = Community::where("community_status_id", 2)->count();
-        $householdsServed = Household::where("household_status_id", 4)->get();
-        $householdServed = Household::where("household_status_id", 4)->count();
+            $communities = Community::paginate();
+            $households = Household::paginate();
+            $regions = Region::all();
+            $subregions = SubRegion::all();
 
-        $householdWater =  Household::where("water_service", "Yes")
-            ->selectRaw('SUM(number_of_people) AS number_of_people')
-            ->count();
-        $householdInternet = Household::where("internet_system_status", "Served")
-            ->count();
-
-        if ($request->ajax()) {
             
-            $data = DB::table('households')
+            $householdRecords = Household::count();
+            $householdsInitial = Household::where("household_status_id", 1)->get();
+            $householdInitial = Household::where("household_status_id", 1)->count();
+            $householdsAC = Community::where("community_status_id", 2)->get();
+            $householdAC = Community::where("community_status_id", 2)->count();
+            $householdsServed = Household::where("household_status_id", 4)->get();
+            $householdServed = Household::where("household_status_id", 4)->count();
+
+            $householdWater =  Household::where("water_service", "Yes")
+                ->selectRaw('SUM(number_of_people) AS number_of_people')
+                ->count();
+            $householdInternet = Household::where("internet_system_status", "Served")
+                ->count(); 
+
+            if ($request->ajax()) {
+                
+                $data = DB::table('households')
+                    ->join('communities', 'households.community_id', '=', 'communities.id')
+                    ->join('regions', 'communities.region_id', '=', 'regions.id')
+                    ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+                    ->where('internet_holder_young', 0)
+                    ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
+                        'households.id as id', 'households.created_at as created_at', 
+                        'households.updated_at as updated_at',
+                        'communities.english_name as name',
+                        'communities.arabic_name as aname',)
+                    ->latest(); 
+
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+                        $detailsButton = "<a type='button' class='detailsHouseholdButton' data-bs-toggle='modal' data-bs-target='#householdDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
+                        $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $detailsButton." ". $updateButton." ".$deleteButton;
+                    })
+                
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                    $search = $request->get('search');
+                                    $w->orWhere('households.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('sub_regions.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('households.arabic_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+
+            $dataHouseholdsByRegion = DB::table('households')
+                ->where('households.household_status_id', 4)
+                ->join('communities', 'households.community_id', '=', 'communities.id')
+                ->join('regions', 'communities.region_id', '=', 'regions.id')
+                ->select(
+                        DB::raw('regions.english_name as english_name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('regions.english_name')
+                ->get();
+            $arrayHouseholdsByRegion[] = ['Region Name', 'Total'];
+            
+            foreach($dataHouseholdsByRegion as $key => $value) {
+
+                $arrayHouseholdsByRegion[++$key] = [$value->english_name, $value->number];
+            }
+
+            $dataHouseholdsBySubRegion = DB::table('households')
+                ->where('households.household_status_id', 4)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
                 ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-                ->where('internet_holder_young', 0)
-                ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
-                    'households.id as id', 'households.created_at as created_at', 
-                    'households.updated_at as updated_at',
-                    'communities.english_name as name',
-                    'communities.arabic_name as aname',)
-                ->latest(); 
+                ->select(
+                        DB::raw('sub_regions.english_name as english_name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('sub_regions.english_name')
+                ->get();
+            $arrayHouseholdsBySubRegion[] = ['Region Name', 'Total'];
+            
+            foreach($dataHouseholdsBySubRegion as $key => $value) {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $detailsButton = "<a type='button' class='detailsHouseholdButton' data-bs-toggle='modal' data-bs-target='#householdDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
-                    $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $detailsButton." ". $updateButton." ".$deleteButton;
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                                $search = $request->get('search');
-                                $w->orWhere('households.english_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.english_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('sub_regions.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
-                                ->orWhere('households.arabic_name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+                $arrayHouseholdsBySubRegion[++$key] = [$value->english_name, $value->number];
+            }
+            
+            $energySystemTypes = EnergySystemType::all();
+            $donors = Donor::all();
+            $publicCategories = PublicStructureCategory::all();
+            $householdStatuses = HouseholdStatus::all();
+
+            return view('employee.household.index', compact('communities', 'regions', 
+                'households', 'subregions', 'householdsInitial', 'householdInitial', 
+                'householdsServed', 'householdServed', 'householdRecords',
+                'householdsAC', 'householdAC', 'householdWater', 'householdInternet',
+                'publicCategories', 'donors', 'energySystemTypes', 'householdStatuses'))
+                ->with('regionHouseholdsData', json_encode($arrayHouseholdsByRegion))
+                ->with('subRegionHouseholdsData', json_encode($arrayHouseholdsBySubRegion));
+
+        } else {
+
+            return view('errors.not-found');
         }
-
-        $dataHouseholdsByRegion = DB::table('households')
-            ->where('households.household_status_id', 4)
-            ->join('communities', 'households.community_id', '=', 'communities.id')
-            ->join('regions', 'communities.region_id', '=', 'regions.id')
-            ->select(
-                    DB::raw('regions.english_name as english_name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('regions.english_name')
-            ->get();
-        $arrayHouseholdsByRegion[] = ['Region Name', 'Total'];
-        
-        foreach($dataHouseholdsByRegion as $key => $value) {
-
-            $arrayHouseholdsByRegion[++$key] = [$value->english_name, $value->number];
-        }
-
-        $dataHouseholdsBySubRegion = DB::table('households')
-            ->where('households.household_status_id', 4)
-            ->join('communities', 'households.community_id', '=', 'communities.id')
-            ->join('regions', 'communities.region_id', '=', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->select(
-                    DB::raw('sub_regions.english_name as english_name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('sub_regions.english_name')
-            ->get();
-        $arrayHouseholdsBySubRegion[] = ['Region Name', 'Total'];
-        
-        foreach($dataHouseholdsBySubRegion as $key => $value) {
-
-            $arrayHouseholdsBySubRegion[++$key] = [$value->english_name, $value->number];
-        }
-        
-        $energySystemTypes = EnergySystemType::all();
-        $donors = Donor::all();
-        $publicCategories = PublicStructureCategory::all();
-
-		return view('employee.household.index', compact('communities', 'regions', 
-            'households', 'subregions', 'householdsInitial', 'householdInitial', 
-            'householdsServed', 'householdServed', 'householdRecords',
-            'householdsAC', 'householdAC', 'householdWater', 'householdInternet',
-            'publicCategories', 'donors', 'energySystemTypes'))
-            ->with('regionHouseholdsData', json_encode($arrayHouseholdsByRegion))
-            ->with('subRegionHouseholdsData', json_encode($arrayHouseholdsBySubRegion));
     }
 
     /**
@@ -221,7 +229,7 @@ class HouseholdController extends Controller
         $cistern->household_id = $id;
         $cistern->save();
         
-        return redirect('/initial-household')
+        return redirect()->back()
             ->with('message', 'New Household Added Successfully!');
     }
 
@@ -347,11 +355,17 @@ class HouseholdController extends Controller
         $community = Community::where('id', $household->community_id)->first();
         $profession = Profession::where('id', $household->profession_id)->first();
         $status = HouseholdStatus::where('id', $household->household_status_id)->first();
+        $cistern = Cistern::where('household_id', $id)->first();
+        $structure = Structure::where('household_id', $id)->first();
+        $communityHousehold = CommunityHousehold::where('household_id', $id)->first();
 
         $response['community'] = $community;
         $response['household'] = $household;
         $response['profession'] = $profession;
         $response['status'] = $status;
+        $response['cistern'] = $cistern;
+        $response['structure'] = $structure;
+        $response['communityHousehold'] = $communityHousehold;
 
         return response()->json($response);
     }

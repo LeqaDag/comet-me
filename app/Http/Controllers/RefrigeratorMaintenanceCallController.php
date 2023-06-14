@@ -32,80 +32,86 @@ class RefrigeratorMaintenanceCallController extends Controller
      */
     public function index(Request $request)
     {	
-        if ($request->ajax()) {
-            $data = DB::table('refrigerator_maintenance_calls')
-                ->leftJoin('households', 'refrigerator_maintenance_calls.household_id', 'households.id')
-                ->leftJoin('public_structures', 'refrigerator_maintenance_calls.public_structure_id', 
-                    'public_structures.id')
-                ->join('communities', 'refrigerator_maintenance_calls.community_id', 'communities.id')
-                ->join('maintenance_types', 'refrigerator_maintenance_calls.maintenance_type_id', 
-                    '=', 'maintenance_types.id')
-                ->join('maintenance_refrigerator_actions', 'refrigerator_maintenance_calls.maintenance_refrigerator_action_id', 
-                    '=', 'maintenance_refrigerator_actions.id')
-                ->join('maintenance_statuses', 'refrigerator_maintenance_calls.maintenance_status_id', 
-                    '=', 'maintenance_statuses.id')
-                ->join('users', 'refrigerator_maintenance_calls.user_id', '=', 'users.id')
-                ->select('refrigerator_maintenance_calls.id as id', 'households.english_name', 
-                    'date_of_call', 'date_completed', 'refrigerator_maintenance_calls.notes',
-                    'maintenance_types.type', 'maintenance_statuses.name', 
-                    'communities.english_name as community_name',
-                    'refrigerator_maintenance_calls.created_at as created_at',
-                    'refrigerator_maintenance_calls.updated_at as updated_at',
-                    'maintenance_refrigerator_actions.maintenance_action_refrigerator',
-                    'maintenance_refrigerator_actions.maintenance_action_refrigerator_english',
-                    'users.name as user_name', 'public_structures.english_name as public_name')
-                ->latest();
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+        if (Auth::guard('user')->user() != null) {
 
-                   // $updateButton = "<a type='button' class='updateRefrigeratorMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateRefrigeratorMaintenanceModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteRefrigeratorMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    $viewButton = "<a type='button' class='viewRefrigeratorMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewRefrigeratorMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+            if ($request->ajax()) {
+                $data = DB::table('refrigerator_maintenance_calls')
+                    ->leftJoin('households', 'refrigerator_maintenance_calls.household_id', 'households.id')
+                    ->leftJoin('public_structures', 'refrigerator_maintenance_calls.public_structure_id', 
+                        'public_structures.id')
+                    ->join('communities', 'refrigerator_maintenance_calls.community_id', 'communities.id')
+                    ->join('maintenance_types', 'refrigerator_maintenance_calls.maintenance_type_id', 
+                        '=', 'maintenance_types.id')
+                    ->join('maintenance_refrigerator_actions', 'refrigerator_maintenance_calls.maintenance_refrigerator_action_id', 
+                        '=', 'maintenance_refrigerator_actions.id')
+                    ->join('maintenance_statuses', 'refrigerator_maintenance_calls.maintenance_status_id', 
+                        '=', 'maintenance_statuses.id')
+                    ->join('users', 'refrigerator_maintenance_calls.user_id', '=', 'users.id')
+                    ->select('refrigerator_maintenance_calls.id as id', 'households.english_name', 
+                        'date_of_call', 'date_completed', 'refrigerator_maintenance_calls.notes',
+                        'maintenance_types.type', 'maintenance_statuses.name', 
+                        'communities.english_name as community_name',
+                        'refrigerator_maintenance_calls.created_at as created_at',
+                        'refrigerator_maintenance_calls.updated_at as updated_at',
+                        'maintenance_refrigerator_actions.maintenance_action_refrigerator',
+                        'maintenance_refrigerator_actions.maintenance_action_refrigerator_english',
+                        'users.name as user_name', 'public_structures.english_name as public_name')
+                    ->latest();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                       // $updateButton = "<a type='button' class='updateRefrigeratorMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateRefrigeratorMaintenanceModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteRefrigeratorMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        $viewButton = "<a type='button' class='viewRefrigeratorMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewRefrigeratorMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+    
+                        return $deleteButton. " ". $viewButton;
+                    })
+                   
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request){
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_refrigerator_actions.maintenance_action_refrigerator', 'LIKE', "%$search%")
+                                ->orWhere('users.name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                ->rawColumns(['action'])
+                ->make(true);
+            }
+    
+            $communities = Community::all();
+            $households = DB::table('refrigerator_holders')
+                ->join('households', 'refrigerator_holders.household_id', 'households.id')
+                ->select('households.id as id', 'households.english_name')
+                ->get();
+    
+            $maintenanceTypes = MaintenanceType::all();
+            $maintenanceStatuses = MaintenanceStatus::all();
+            $maintenanceRefrigeratorActions = MaintenanceRefrigeratorAction::all();
+            $publics = DB::table('refrigerator_holders')
+                ->join('public_structures', 'refrigerator_holders.public_structure_id', 'public_structures.id')
+                ->select('public_structures.id as id', 'public_structures.english_name')
+                ->get();
+            $users = User::all();
+            $publicCategories = PublicStructureCategory::all();
+    
+            return view('users.refrigerator.maintenance.index', compact('maintenanceTypes', 
+                'maintenanceStatuses', 'maintenanceRefrigeratorActions', 'users', 'communities', 
+                'households', 'publics', 'publicCategories'));
+        } else {
 
-                    return $deleteButton. " ". $viewButton;
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request){
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
-                            ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
-                            ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
-                            ->orWhere('maintenance_refrigerator_actions.maintenance_action_refrigerator', 'LIKE', "%$search%")
-                            ->orWhere('users.name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-            ->rawColumns(['action'])
-            ->make(true);
+            return view('errors.not-found');
         }
-
-        $communities = Community::all();
-        $households = DB::table('refrigerator_holders')
-            ->join('households', 'refrigerator_holders.household_id', 'households.id')
-            ->select('households.id as id', 'households.english_name')
-            ->get();
-
-        $maintenanceTypes = MaintenanceType::all();
-        $maintenanceStatuses = MaintenanceStatus::all();
-        $maintenanceRefrigeratorActions = MaintenanceRefrigeratorAction::all();
-        $publics = DB::table('refrigerator_holders')
-            ->join('public_structures', 'refrigerator_holders.public_structure_id', 'public_structures.id')
-            ->select('public_structures.id as id', 'public_structures.english_name')
-            ->get();
-        $users = User::all();
-        $publicCategories = PublicStructureCategory::all();
-
-		return view('users.refrigerator.maintenance.index', compact('maintenanceTypes', 
-            'maintenanceStatuses', 'maintenanceRefrigeratorActions', 'users', 'communities', 
-            'households', 'publics', 'publicCategories'));
     }
 
     /**

@@ -48,21 +48,28 @@ class WaterQualitySummaryController extends Controller
      */
     public function index()
     {	
-        $results = DB::table('water_quality_results')
-            ->join('communities', 'water_quality_results.community_id', 'communities.id')
-            ->groupBy('water_quality_results.year', 'communities.english_name')
-            ->select('communities.english_name as community_name',
-                'water_quality_results.date', 'water_quality_results.year',
-                'water_quality_results.created_at','water_quality_results.id',
-                'water_quality_results.cfu','water_quality_results.community_id',)
-            ->selectRaw('COUNT("water_quality_results.community_id") as samples')
-            ->get();
+        if (Auth::guard('user')->user() != null) {
 
-          //  die($results);
-        $communities = Community::where("water_service", "Yes")->get();
-        $households = Household::where("water_system_status", "Served")->get();
+            $results = DB::table('water_quality_results')
+                ->join('communities', 'water_quality_results.community_id', 'communities.id')
+                ->groupBy('water_quality_results.year', 'communities.english_name')
+                ->select('communities.english_name as community_name',
+                    'water_quality_results.date', 'water_quality_results.year',
+                    'water_quality_results.created_at','water_quality_results.id',
+                    'water_quality_results.cfu','water_quality_results.community_id',)
+                ->selectRaw('COUNT("water_quality_results.community_id") as samples')
+                ->get();
 
-		return view('results.summary.index', compact('results', 'communities', 'households'));
+            //  die($results);
+            $communities = Community::where("water_service", "Yes")->get();
+            $households = Household::where("water_system_status", "Served")->get();
+
+            return view('results.summary.index', compact('results', 'communities', 'households'));
+
+        } else {
+
+            return view('errors.not-found');
+        }
     }
 
     /**

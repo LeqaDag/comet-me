@@ -1,6 +1,6 @@
 @php
   $pricingModal = true;
-@endphp
+@endphp 
 
 @extends('layouts/layoutMaster')
 
@@ -228,7 +228,7 @@
             <div class="card-header">
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('community.export') }}">
-                    @csrf
+                    @csrf 
                     <div class="row">
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
@@ -416,6 +416,26 @@
                     $('#internetServiceCommunity').html(response['community'].internet_service);
                     $('#internetServiceYearCommunity').html(response['community'].internet_service_beginning_year);
                     
+                    if(response['secondName']) {
+
+                        $("#secondNameDiv").css("visibility", "visible");
+                        $("#secondNameDiv").css('display', 'block');
+
+                        $('#secondNameEnglish').html(" ");
+                        $('#secondNameArabic').html(" ");
+                        $('#secondNameEnglish').html(response['secondName'].english_name);
+                        $('#secondNameArabic').html(response['secondName'].arabic_name);
+                    }
+
+                    $("#communityRepresentative").html(" "); 
+                    $("#representativeRole").html(" ");
+                    for (var i = 0; i < response['communityRepresentative'].length; i++) {
+                        $("#communityRepresentative").append(
+                            '<ul><li>'+ response['communityRepresentative'][i].english_name +'</li></ul>');
+                        $("#representativeRole").append(
+                            '<ul><li>'+ response['communityRepresentative'][i].role +'</li></ul>');
+                    }
+
                     $("#structuresCommunity").html(" ");
                     for (var i = 0; i < response['public'].length; i++) {
                         $("#structuresCommunity").append(
@@ -439,7 +459,12 @@
                         $("#settlementsCommunity").append(
                             '<ul><li>'+ response['nearbySettlement'][i].english_name +'</li> </ul>');
                     }
-
+ 
+                    $("#waterSourcesCommunity").html(" ");
+                    for (var i = 0; i < response['communityWaterSources'].length; i++) {
+                        $("#waterSourcesCommunity").append(
+                            '<ul><li>'+ response['communityWaterSources'][i].name +'</li> </ul>');
+                    }
                 }
             });
         });

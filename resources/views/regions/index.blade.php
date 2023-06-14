@@ -10,6 +10,10 @@
 
 @section('content')
 
+<h5 class="py-3 breadcrumb-wrapper mb-4">
+  <span class="text-muted fw-light">Summary /</span> Region and Sub-region
+</h5>
+
 <div class="container mb-4">
     <div class="row">
         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -147,14 +151,11 @@
     <div class="card my-2">
         <div class="card-body">
             <div>
-                @can('quality-create')
-                
-                    <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createRegionModal">
-                        Create New Region	
-                    </button>
-                    @include('regions.create')
-                @endcan
+                <button type="button" class="btn btn-success" 
+                    data-bs-toggle="modal" data-bs-target="#createRegionModal">
+                    Create New Region	
+                </button>
+                @include('regions.create')
             </div>
             <table id="regionsTable" class="table table-striped data-table-regions my-2">
                 <thead>
@@ -228,10 +229,11 @@
             ],
         });
 
+        var id = 0;
 
-         // Update record
-         $('#regionsTable').on('click','.updateRegion',function() {
-            var id = $(this).data('id');
+        // Update record
+        $('#regionsTable').on('click','.updateRegion',function() {
+            id = $(this).data('id');
 
             // AJAX request
             $.ajax({
@@ -242,39 +244,42 @@
                     
                     $('#english_name_region').val(response.english_name);
                     $('#arabic_name_region').val(response.arabic_name);
-                   
-                    $('#saveRegionButton').on('click', function() {
+                }
+            });
+        });
+
+        $('#saveRegionButton').on('click', function() {
                         
-                        english_name = $('#english_name_region').val();
-                        arabic_name = $('#arabic_name_region').val();
+            english_name = $('#english_name_region').val();
+            arabic_name = $('#arabic_name_region').val();
 
-                        $.ajax({
-                            url: 'region/edit_region/' + id,
-                            type: 'get',
-                            data: {
-                                id: id,
-                                english_name: english_name,
-                                arabic_name: arabic_name
-                            },
-                            dataType: 'json',
-                            success: function(response) {
+            $.ajax({
+                url: 'region/edit_region/' + id,
+                type: 'get',
+                data: {
+                    id: id,
+                    english_name: english_name,
+                    arabic_name: arabic_name
+                }, 
+                dataType: 'json',
+                success: function(response) {
 
-                                if(response == 1) {
-                                    
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Region Updated Successfully!',
-                                        showDenyButton: false,
-                                        showCancelButton: false,
-                                        confirmButtonText: 'Okay!'
-                                    }).then((result) => {
+                    $('#updateRegionModal').modal('toggle');
+                    $('#closeRegionUpdate').click ();
 
-                                        $('#regionsTable').DataTable().draw();
-                                    });
-                                }
-                            }
+                    if(response == 1) {
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Region Updated Successfully!',
+                            showDenyButton: false,
+                            showCancelButton: false,
+                            confirmButtonText: 'Okay!'
+                        }).then((result) => {
+
+                            $('#regionsTable').DataTable().draw();
                         });
-                    });
+                    }
                 }
             });
         });

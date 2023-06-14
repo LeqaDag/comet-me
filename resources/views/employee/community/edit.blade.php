@@ -30,7 +30,6 @@ label {
              enctype="multipart/form-data" >
                 @csrf
                 @method('PATCH')
-                
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
@@ -122,6 +121,26 @@ label {
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Products type</label>
+                                <select name="product_type_id" class="form-control">
+                                    @if($community->ProductType)
+                                        <option disabled selected>
+                                            {{$community->ProductType->name}}
+                                        </option>
+                                    @else
+                                        <option disabled selected>Choose one...</option>
+                                    @endif
+                                    @foreach($products as $product)
+                                        <option value="{{$product->id}}">{{$product->name}}</option>
+                                    @endforeach
+                                </select>
+                            </fieldset> 
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Fallah</label>
                                 <select name="is_fallah" class="form-control">
                                     <option disabled selected>{{$community->is_fallah}}</option>
@@ -130,9 +149,6 @@ label {
                                 </select>
                             </fieldset> 
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Bedouin</label>
@@ -150,6 +166,16 @@ label {
                                 value="{{$community->demolition}}" class="form-control">
                             </fieldset>
                         </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Lawyer</label>
+                                <input type="text" name="lawyer" class="form-control"
+                                    value="{{$community->lawyer}}">
+                            </fieldset>
+                        </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Land Status</label>
@@ -159,6 +185,44 @@ label {
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Notes</label>
+                                <textarea name="notes" class="form-control" 
+                                   style="resize:none" cols="20" rows="3">
+                                   {{$community->notes}}
+                                </textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                    @if($secondName)
+                    <hr>
+                    <div class="row" style="margin-top:12px">
+                        <h6>Second Name for community</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Second Name in English</label>
+                                
+                                <input name="second_name_english" type="text" 
+                                    value="{{$secondName->english_name}}" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Second Name in Arabic</label>
+                                <input name="second_name_arabic" type="text" 
+                                    value="{{$secondName->arabic_name}}" class="form-control">
+                            </fieldset>
+                        </div>
+                    </div> 
+                    @endif
+                    <hr>
+                    <div class="row">
+                        <h5>System Details</h5>
+                    </div>
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
@@ -222,16 +286,6 @@ label {
                                 <input type="text" name="description" class="form-control"
                                     id="percentageInputQuestion1" 
                                     style="visiblity:hidden; display:none">
-                            </fieldset>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Notes</label>
-                                <textarea name="notes" class="form-control" 
-                                   style="resize:none" cols="20" rows="3"></textarea>
                             </fieldset>
                         </div>
                     </div>

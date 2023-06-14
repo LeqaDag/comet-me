@@ -43,6 +43,13 @@ class EnergyMaintenanceCallController extends Controller
      */
     public function index(Request $request)
     {	
+        if (Auth::guard('user')->user() != null) {
+
+        } else {
+
+            return view('errors.not-found');
+        }
+        
         if ($request->ajax()) {
             $data = DB::table('electricity_maintenance_calls')
                 ->leftJoin('energy_systems', 'electricity_maintenance_calls.energy_system_id', 

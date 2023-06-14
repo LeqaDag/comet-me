@@ -43,6 +43,13 @@ class EnergyPublicStructureController extends Controller
      */
     public function index(Request $request)
     {
+        if (Auth::guard('user')->user() != null) {
+
+        } else {
+
+            return view('errors.not-found');
+        }
+        
         if ($request->ajax()) {
 
             $dataPublic = DB::table('all_energy_meters')
@@ -210,6 +217,7 @@ class EnergyPublicStructureController extends Controller
     public function store(Request $request)
     {
         $publicEnergy = new AllEnergyMeter();
+        $publicEnergy->misc = $request->misc;
         $publicEnergy->community_id = $request->community_id;
         $publicEnergy->meter_number = $request->meter_number;
         $publicEnergy->public_structure_id = $request->public_structure_id;

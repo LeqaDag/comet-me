@@ -57,80 +57,86 @@ class AllEnergyController extends Controller
         //     $energyMeter->meter_case_id = 1;
         //     $energyMeter->save();
         // }
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
 
+            if ($request->ajax()) {
+
+                $data = DB::table('all_energy_meters')
+                    ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
+                    ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
+                    ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
+                    ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
+                    ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+                    ->select('all_energy_meters.meter_number', 'all_energy_meters.meter_active',
+                        'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
+                        'all_energy_meters.updated_at as updated_at', 
+                        'communities.english_name as community_name',
+                        'households.english_name as household_name',
+                        'energy_systems.name as energy_name', 
+                        'energy_system_types.name as energy_type_name',
+                        'meter_cases.meter_case_name_english')
+                    ->latest(); 
+    
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+                        $viewButton = "<a type='button' class='viewEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateAllEnergyUser' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteAllEnergyUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $viewButton." ". $updateButton." ".$deleteButton;
+       
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('energy_systems.name', 'LIKE', "%$search%")
+                                ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
+                                ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%")
+                                ->orWhere('meter_cases.meter_case_name_english', 'LIKE', "%$search%")
+                                ->orWhere('meter_cases.meter_case_name_arabic', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+            
             $data = DB::table('all_energy_meters')
-                ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
-                ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
-                ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
-                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
                 ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
-                ->select('all_energy_meters.meter_number', 'all_energy_meters.meter_active',
-                    'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
-                    'all_energy_meters.updated_at as updated_at', 
-                    'communities.english_name as community_name',
-                    'households.english_name as household_name',
-                    'energy_systems.name as energy_name', 
-                    'energy_system_types.name as energy_type_name',
-                    'meter_cases.meter_case_name_english')
-                ->latest(); 
+                ->where('meter_cases.meter_case_name_english', '!=', "Used")
+                ->where('household_id', '!=', 0)
+                ->select(
+                        DB::raw('meter_cases.meter_case_name_english as name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('meter_cases.meter_case_name_english')
+                ->get();
+    
+              
+            $array[] = ['Meter Case', 'Total'];
+            
+            foreach($data as $key => $value) {
+    
+                $array[++$key] = [$value->name, $value->number];
+            }
+    
+            $communities = Community::where('is_archived', 0)->get();
+            $meterCases = MeterCase::get();
+            $energySystemTypes = EnergySystemType::all();
+    
+            return view('users.energy.not_active.index', compact('communities', 'energySystemTypes', 
+                'meterCases'))
+                ->with('energy_users', json_encode($array)
+            );
+        } else {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $viewButton = "<a type='button' class='viewEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    $updateButton = "<a type='button' class='updateAllEnergyUser' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteAllEnergyUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $viewButton." ". $updateButton." ".$deleteButton;
-   
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('energy_systems.name', 'LIKE', "%$search%")
-                            ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
-                            ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%")
-                            ->orWhere('meter_cases.meter_case_name_english', 'LIKE', "%$search%")
-                            ->orWhere('meter_cases.meter_case_name_arabic', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return view('errors.not-found');
         }
-        
-        $data = DB::table('all_energy_meters')
-            ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
-            ->where('meter_cases.meter_case_name_english', '!=', "Used")
-            ->where('household_id', '!=', 0)
-            ->select(
-                    DB::raw('meter_cases.meter_case_name_english as name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('meter_cases.meter_case_name_english')
-            ->get();
-
-          
-        $array[] = ['Meter Case', 'Total'];
-        
-        foreach($data as $key => $value) {
-
-            $array[++$key] = [$value->name, $value->number];
-        }
-
-        $communities = Community::where('is_archived', 0)->get();
-        $meterCases = MeterCase::get();
-        $energySystemTypes = EnergySystemType::all();
-
-        return view('users.energy.not_active.index', compact('communities', 'energySystemTypes', 
-            'meterCases'))
-            ->with('energy_users', json_encode($array)
-        );
     }
 
     /**

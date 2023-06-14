@@ -5,7 +5,7 @@ $configData = Helper::appClasses();
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
 
   <!-- ! Hide app brand if navbar-full -->
-  @if(!isset($navbarFull))
+  @if(!isset($navbarFull)) 
   <div class="app-brand demo">
     <a href="{{url('/')}}" class="app-brand-link">
       <img width=50 type="image/x-icon" src="{{('/logo.jpg')}}">
@@ -23,68 +23,36 @@ $configData = Helper::appClasses();
 
   <!-- ! Hide menu divider if navbar-full -->
   @if(!isset($navbarFull))
-  <div class="menu-divider mt-0 ">
-  </div>
+    <div class="menu-divider mt-0 ">
+    </div>
   @endif
 
   <div class="menu-inner-shadow"></div>
 
-  <ul class="menu-inner py-1">
-    @foreach ($menuData[0]->menu as $menu)
+  @if(Auth::guard('user')->user()->type == 1)
 
-    {{-- adding active and open class if child is active --}}
+    @include('layouts.sections.menu.admin.super_Admin')
+  @else @if(Auth::guard('user')->user()->type == 2)
 
-    {{-- menu headers --}}
-    @if (isset($menu->menuHeader))
-    <li class="menu-header small text-uppercase">
-      <span class="menu-header-text">{{ $menu->menuHeader }}</span>
-    </li>
+    @include('layouts.sections.menu.admin.admin')
+  @else @if(Auth::guard('user')->user()->type == 3)
 
-    @else
+    @include('layouts.sections.menu.managers.energy')
+  @else @if(Auth::guard('user')->user()->type == 4)
 
-    {{-- active menu method --}}
-    @php
-    $activeClass = null;
-    $currentRouteName = Route::currentRouteName();
+    @include('layouts.sections.menu.managers.water')
+  @else @if(Auth::guard('user')->user()->type == 5)
 
-    if ($currentRouteName === $menu->slug) {
-    $activeClass = 'active';
-    }
-    elseif (isset($menu->submenu)) {
-    if (gettype($menu->slug) === 'array') {
-    foreach($menu->slug as $slug){
-    if (str_contains($currentRouteName,$slug) and strpos($currentRouteName,$slug) === 0) {
-    $activeClass = 'active open';
-    }
-    }
-    }
-    else{
-    if (str_contains($currentRouteName,$menu->slug) and strpos($currentRouteName,$menu->slug) === 0) {
-    $activeClass = 'active open';
-    }
-    }
+    @include('layouts.sections.menu.managers.internet')
+  @else @if(Auth::guard('user')->user()->type == 6)
 
-    }
-    @endphp
+  @else @if(Auth::guard('user')->user()->type == 7)
 
-    {{-- main menu --}}
-    <li class="menu-item {{$activeClass}}">
-      <a href="{{ isset($menu->url) ? url($menu->url) : 'javascript:void(0);' }}" 
-        class="{{ isset($menu->submenu) ? 'menu-link menu-toggle' : 'menu-link' }}" 
-        @if (isset($menu->target) and !empty($menu->target)) target="_blank" @endif>
-        @isset($menu->icon)
-        <i class="{{ $menu->icon }}"></i>
-        @endisset
-        <div>{{ isset($menu->name) ? __($menu->name) : '' }}</div>
-      </a>
-
-      {{-- submenu --}}
-      @isset($menu->submenu)
-      @include('layouts.sections.menu.submenu',['menu' => $menu->submenu])
-      @endisset
-    </li>
-    @endif
-    @endforeach
-  </ul>
-
+  @endif
+  @endif
+  @endif
+  @endif
+  @endif
+  @endif
+  @endif
 </aside>

@@ -25,7 +25,7 @@ use App\Models\EnergySystemType;
 use App\Exports\WaterQualityResultExport;
 use Auth;
 use DB;
-use Route;
+use Route; 
 use DataTables;
 use Excel;
 
@@ -39,7 +39,7 @@ class WaterQualityResultController extends Controller
      */
     function __construct()
     {
-        // $this->middleware('permission:quality-list|quality-create|quality-edit|quality-delete', ['only' => ['index']]);
+        //$this->middleware('permission:quality-list|quality-create|quality-edit|quality-delete', ['only' => ['index']]);
         // $this->middleware('permission:quality-create', ['only' => ['create','store']]);
         // $this->middleware('permission:quality-edit', ['only' => ['edit','update']]);
         // $this->middleware('permission:quality-delete', ['only' => ['destroy']]);
@@ -86,51 +86,57 @@ class WaterQualityResultController extends Controller
         //     $result->save();
         // }
 
+        if (Auth::guard('user')->user() != null) {
 
-        if ($request->ajax()) {
+            if ($request->ajax()) {
 
-            $data = DB::table('water_quality_results')
-                ->join('communities', 'water_quality_results.community_id', 'communities.id')
-                ->leftJoin('households', 'water_quality_results.household_id', 'households.id')
-                ->leftJoin('public_structures', 'water_quality_results.public_structure_id', 
-                    '=', 'public_structures.id')
-                ->select('water_quality_results.id as id', 'households.english_name as household', 
-                    'communities.english_name as community_name',
-                    'water_quality_results.created_at as created_at',
-                    'water_quality_results.updated_at as updated_at',
-                    'public_structures.english_name as public_name',
-                    'water_quality_results.date')
-                ->latest();
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $updateButton = "<a type='button' class='updateWaterResult' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $viewButton = "<a type='button' class='viewWaterResult' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterResultModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteWaterResult' data-id='".$row->id."'  ><i class='fa-solid fa-trash text-danger'></i></a>";
+                $data = DB::table('water_quality_results')
+                    ->join('communities', 'water_quality_results.community_id', 'communities.id')
+                    ->leftJoin('households', 'water_quality_results.household_id', 'households.id')
+                    ->leftJoin('public_structures', 'water_quality_results.public_structure_id', 
+                        '=', 'public_structures.id')
+                    ->select('water_quality_results.id as id', 'households.english_name as household', 
+                        'communities.english_name as community_name',
+                        'water_quality_results.created_at as created_at',
+                        'water_quality_results.updated_at as updated_at',
+                        'public_structures.english_name as public_name',
+                        'water_quality_results.date')
+                    ->latest();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+                        $updateButton = "<a type='button' class='updateWaterResult' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $viewButton = "<a type='button' class='viewWaterResult' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterResultModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteWaterResult' data-id='".$row->id."'  ><i class='fa-solid fa-trash text-danger'></i></a>";
+    
+                        return $updateButton." ". $viewButton." ". $deleteButton;
+                    })
+                   
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request){
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('water_quality_results.date', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                ->rawColumns(['action'])
+                ->make(true);
+            }
+    
+            $communities = Community::where("water_service", "Yes")->get();
+            $households = Household::where("water_system_status", "Served")->get();
+    
+            return view('results.water.index', compact('communities', 'households'));
+            
+        } else { 
 
-                    return $updateButton." ". $viewButton." ". $deleteButton;
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request){
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('water_quality_results.date', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-            ->rawColumns(['action'])
-            ->make(true);
+            return view('errors.not-found');
         }
-
-        $communities = Community::where("water_service", "Yes")->get();
-        $households = Household::where("water_system_status", "Served")->get();
-
-		return view('results.water.index', compact('communities', 'households'));
     }
 
     /**

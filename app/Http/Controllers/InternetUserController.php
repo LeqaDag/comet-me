@@ -32,54 +32,61 @@ class InternetUserController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
 
-            $data = DB::table('internet_users')
-                ->join('communities', 'internet_users.community_id', '=', 'communities.id')
-                ->join('households', 'internet_users.household_id', '=', 'households.id')
-                ->join('internet_statuses', 'internet_users.internet_status_id', '=', 'internet_statuses.id')
-                ->select('internet_users.number_of_people', 'internet_users.number_of_contract',
-                    'internet_users.id as id', 'internet_users.created_at as created_at', 
-                    'internet_users.updated_at as updated_at', 
-                    'internet_users.start_date',
-                    'communities.english_name as community_name',
-                    'households.english_name as household_name',
-                    'internet_statuses.name')
-                ->latest(); 
+            if ($request->ajax()) {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+                $data = DB::table('internet_users')
+                    ->join('communities', 'internet_users.community_id', '=', 'communities.id')
+                    ->join('households', 'internet_users.household_id', '=', 'households.id')
+                    ->join('internet_statuses', 'internet_users.internet_status_id', '=', 'internet_statuses.id')
+                    ->select('internet_users.number_of_people', 'internet_users.number_of_contract',
+                        'internet_users.id as id', 'internet_users.created_at as created_at', 
+                        'internet_users.updated_at as updated_at', 
+                        'internet_users.start_date',
+                        'communities.english_name as community_name',
+                        'households.english_name as household_name',
+                        'internet_statuses.name')
+                    ->latest(); 
+    
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $updateButton = "<a type='button' class='updateInternetUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateInternetUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteInternetUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $updateButton." ".$deleteButton;
+       
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('internet_statuses.name', 'LIKE', "%$search%")
+                                ->orWhere('internet_users.start_date', 'LIKE', "%$search%")
+                                ->orWhere('internet_users.number_of_contract', 'LIKE', "%$search%")
+                                ->orWhere('internet_users.number_of_people', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+    
+            $communities = Community::all();
+            $donors = Donor::all();
+    
+            return view('users.internet.index', compact('communities', 'donors'));
+            
+        } else {
 
-                    $updateButton = "<a type='button' class='updateInternetUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateInternetUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteInternetUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $updateButton." ".$deleteButton;
-   
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('internet_statuses.name', 'LIKE', "%$search%")
-                            ->orWhere('internet_users.start_date', 'LIKE', "%$search%")
-                            ->orWhere('internet_users.number_of_contract', 'LIKE', "%$search%")
-                            ->orWhere('internet_users.number_of_people', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return view('errors.not-found');
         }
-
-        $communities = Community::all();
-        $donors = Donor::all();
-
-        return view('users.internet.index', compact('communities', 'donors'));
     }
 
     /**

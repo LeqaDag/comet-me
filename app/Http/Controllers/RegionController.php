@@ -68,42 +68,48 @@ class RegionController extends Controller
      */
     public function index(Request $request)
     {	
-        $regions = Region::all(); 
-        $subRegions = SubRegion::all(); 
+        if (Auth::guard('user')->user() != null) {
 
-        if ($request->ajax()) {
-            $data = DB::table('regions')
-                ->select('regions.english_name as english_name', 
-                'regions.arabic_name as arabic_name',
-                'regions.id as id', 'regions.created_at as created_at', 
-                'regions.updated_at as updated_at')
-                ->latest();
+            $regions = Region::all(); 
+            $subRegions = SubRegion::all(); 
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+            if ($request->ajax()) {
+                $data = DB::table('regions')
+                    ->select('regions.english_name as english_name', 
+                    'regions.arabic_name as arabic_name',
+                    'regions.id as id', 'regions.created_at as created_at', 
+                    'regions.updated_at as updated_at')
+                    ->latest();
+ 
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
 
-                    $updateButton = "<a type='button' class='updateRegion' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateRegionModal'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteRegion' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $updateButton." ".$deleteButton;
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request){
-                            $search = $request->get('search');
-                            $w->orWhere('regions.english_name', 'LIKE', "%$search%")
-                            ->orWhere('regions.arabic_name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+                        $updateButton = "<a type='button' class='updateRegion' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateRegionModal'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteRegion' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $updateButton." ".$deleteButton;
+                    })
+                
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request){
+                                $search = $request->get('search');
+                                $w->orWhere('regions.english_name', 'LIKE', "%$search%")
+                                ->orWhere('regions.arabic_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+            
+            return view('regions.index', compact('regions', 'subRegions'));
+
+        } else {
+
+            return view('errors.not-found');
         }
-        
-        
-        return view('regions.index', compact('regions', 'subRegions'));
     }
 
     /**
@@ -129,6 +135,7 @@ class RegionController extends Controller
     {
         $region = Region::findOrFail($request->id);
         $region->english_name = $request->english_name;
+        $region->arabic_name = $request->arabic_name;
         $region->save();
  
         $response = 1;

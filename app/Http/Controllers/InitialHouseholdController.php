@@ -31,67 +31,73 @@ class InitialHouseholdController extends Controller
      */
     public function index(Request $request)
     {	
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
+
+            if ($request->ajax()) {
             
-            $data = DB::table('households')
+                $data = DB::table('households')
+                    ->where('households.household_status_id', 1)
+                    ->join('communities', 'households.community_id', '=', 'communities.id')
+                    ->join('regions', 'communities.region_id', '=', 'regions.id')
+                    ->where('internet_holder_young', 0)
+                    ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
+                        'households.id as id', 'households.created_at as created_at', 
+                        'households.updated_at as updated_at',
+                        'regions.english_name as region_name',
+                        'communities.english_name as name',
+                        'communities.arabic_name as aname',)
+                    ->latest(); 
+    
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $acButton = "<a title='From Initial to AC Survey' type='button' class='initialToAcHousehold' data-id='".$row->id."'><i class='fa-solid fa-check-square text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateHouseholdModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $acButton. " ".$updateButton." ".$deleteButton ;
+       
+                    })
+                   
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                    $search = $request->get('search');
+                                    $w->orWhere('households.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('regions.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('regions.arabic_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+    
+            $dataHouseholdsByCommunity = DB::table('households')
                 ->where('households.household_status_id', 1)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
-                ->join('regions', 'communities.region_id', '=', 'regions.id')
-                ->where('internet_holder_young', 0)
-                ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
-                    'households.id as id', 'households.created_at as created_at', 
-                    'households.updated_at as updated_at',
-                    'regions.english_name as region_name',
-                    'communities.english_name as name',
-                    'communities.arabic_name as aname',)
-                ->latest(); 
+                ->select(
+                        DB::raw('communities.english_name as english_name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('communities.english_name')
+                ->get();
+            $arrayHouseholdsByCommunity[] = ['Community Name', 'Total'];
+            
+            foreach($dataHouseholdsByCommunity as $key => $value) {
+    
+                $arrayHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
+            }
+    
+            return view('employee.household.initial')
+                ->with('communityHouseholdsData', json_encode($arrayHouseholdsByCommunity));
+        } else {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-
-                    $acButton = "<a title='From Initial to AC Survey' type='button' class='initialToAcHousehold' data-id='".$row->id."'><i class='fa-solid fa-check-square text-info'></i></a>";
-                    $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateHouseholdModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $acButton. " ".$updateButton." ".$deleteButton ;
-   
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                                $search = $request->get('search');
-                                $w->orWhere('households.english_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.english_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('regions.english_name', 'LIKE', "%$search%")
-                                ->orWhere('regions.arabic_name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return view('errors.not-found');
         }
-
-        $dataHouseholdsByCommunity = DB::table('households')
-            ->where('households.household_status_id', 1)
-            ->join('communities', 'households.community_id', '=', 'communities.id')
-            ->select(
-                    DB::raw('communities.english_name as english_name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('communities.english_name')
-            ->get();
-        $arrayHouseholdsByCommunity[] = ['Community Name', 'Total'];
-        
-        foreach($dataHouseholdsByCommunity as $key => $value) {
-
-            $arrayHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
-        }
-
-		return view('employee.household.initial')
-            ->with('communityHouseholdsData', json_encode($arrayHouseholdsByCommunity));
     }
 
      /**

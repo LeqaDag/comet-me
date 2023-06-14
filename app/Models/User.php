@@ -26,8 +26,14 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
-        'type'
+        'type',
+        'user_type'
     ];
+
+    public function UserType()
+    {
+        return $this->belongsTo(UserType::class, 'user_type_id', 'id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -48,8 +54,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function recommendationProfit()
+
+
+
+    public function authorizeRoles($roles)
     {
-        return $this->hasMany(RecommendationProfit::class);
+        if ($this->hasAnyRole($roles)) {
+            return true;
+        }
+        abort(401, 'This action is unauthorized.');
     }
 }

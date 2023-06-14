@@ -63,66 +63,73 @@ class EnergySystemController extends Controller
      */
     public function index(Request $request)
     {	
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
 
-            $data = DB::table('energy_systems')
+            if ($request->ajax()) {
+
+                $data = DB::table('energy_systems')
+                    ->join('energy_system_types', 'energy_systems.energy_system_type_id', 
+                        '=', 'energy_system_types.id')
+                    ->select('energy_systems.id as id', 'energy_systems.created_at',
+                        'energy_systems.updated_at', 'energy_systems.name',
+                        'energy_systems.installation_year', 'energy_systems.upgrade_year1',
+                        'energy_system_types.name as type')
+                    ->latest();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $viewButton = "<a type='button' class='viewEnergySystem' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergySystemModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateEnergySystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteEnergySystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $viewButton." ". $updateButton." ".$deleteButton;
+                    })
+                   
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request){
+                                $search = $request->get('search');
+                                $w->orWhere('energy_systems.name', 'LIKE', "%$search%")
+                                ->orWhere('energy_systems.installation_year', 'LIKE', "%$search%")
+                                ->orWhere('energy_systems.upgrade_year1', 'LIKE', "%$search%")
+                                ->orWhere('energy_system_types.name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                ->rawColumns(['action'])
+                ->make(true);
+            }
+    
+            $communities = Community::all();
+            $donors = Donor::paginate();
+            $services = ServiceType::all();
+    
+            $dataEnergySystem = DB::table('energy_systems')
                 ->join('energy_system_types', 'energy_systems.energy_system_type_id', 
                     '=', 'energy_system_types.id')
-                ->select('energy_systems.id as id', 'energy_systems.created_at',
-                    'energy_systems.updated_at', 'energy_systems.name',
-                    'energy_systems.installation_year', 'energy_systems.upgrade_year1',
-                    'energy_system_types.name as type')
-                ->latest();
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+                ->select(
+                    DB::raw('energy_system_types.name as name'),
+                    DB::raw('count(*) as number'))
+                ->groupBy('energy_system_types.name')
+                ->get();
+            $arrayEnergySystem[] = ['System Type', 'Number'];
+            
+            foreach($dataEnergySystem as $key => $value) {
+    
+                $arrayEnergySystem[++$key] = 
+                [$value->name, $value->number];
+            }
+    
+            return view('system.energy.index', compact('communities', 'donors', 'services'))
+            ->with(
+                'energySystemData', json_encode($arrayEnergySystem)
+            );
+            
+        } else {
 
-                    $viewButton = "<a type='button' class='viewEnergySystem' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergySystemModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    $updateButton = "<a type='button' class='updateEnergySystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteEnergySystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $viewButton." ". $updateButton." ".$deleteButton;
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request){
-                            $search = $request->get('search');
-                            $w->orWhere('energy_systems.name', 'LIKE', "%$search%")
-                            ->orWhere('energy_systems.installation_year', 'LIKE', "%$search%")
-                            ->orWhere('energy_systems.upgrade_year1', 'LIKE', "%$search%")
-                            ->orWhere('energy_system_types.name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-            ->rawColumns(['action'])
-            ->make(true);
+            return view('errors.not-found');
         }
-
-        $communities = Community::all();
-		$donors = Donor::paginate();
-        $services = ServiceType::all();
-
-        $dataEnergySystem = DB::table('energy_systems')
-            ->join('energy_system_types', 'energy_systems.energy_system_type_id', 
-                '=', 'energy_system_types.id')
-            ->select(
-                DB::raw('energy_system_types.name as name'),
-                DB::raw('count(*) as number'))
-            ->groupBy('energy_system_types.name')
-            ->get();
-        $arrayEnergySystem[] = ['System Type', 'Number'];
-        
-        foreach($dataEnergySystem as $key => $value) {
-
-            $arrayEnergySystem[++$key] = 
-            [$value->name, $value->number];
-        }
-
-		return view('system.energy.index', compact('communities', 'donors', 'services'))
-        ->with(
-            'energySystemData', json_encode($arrayEnergySystem));
-
     }
 
     /**

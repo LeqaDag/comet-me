@@ -151,6 +151,122 @@
                         </h6>
                     </div>
                 </div>
+                <hr>
+                <div class="row">
+                    <h5>Door to door details</h5>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Herd Size: 
+                            <span class="spanDetails" id="herdSize">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            # of Structures: 
+                            <span class="spanDetails" id="numberOfStructures">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            # of kitchens: 
+                            <span class="spanDetails" id="numberOfkitchens">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            # of Animal Shelters:  
+                            <span class="spanDetails" id="numberOfShelters">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Is there house in town: 
+                            <span class="spanDetails" id="houseInTown">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Is there Izbih?: 
+                            <span class="spanDetails" id="izbih">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            How long: 
+                            <span class="spanDetails" id="howLong">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Length of stay:  
+                            <span class="spanDetails" id="lengthOfStay">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            # of Cisterns: 
+                            <span class="spanDetails" id="numberOfCistern">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Cistern Volume: 
+                            <span class="spanDetails" id="volumeCistern">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Cistern Depth: 
+                            <span class="spanDetails" id="depthCistern">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Shared Cisterns: 
+                            <span class="spanDetails" id="sharedCistern">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Distance from house: 
+                            <span class="spanDetails" id="distanceCistern">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
               
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">

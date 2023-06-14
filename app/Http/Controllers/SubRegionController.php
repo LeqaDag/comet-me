@@ -25,44 +25,51 @@ class SubRegionController extends Controller
      */
     public function index(Request $request)
     {	
-        $regions = Region::all(); 
-        if ($request->ajax()) {
-            $data = DB::table('sub_regions')
-                ->join('regions', 'sub_regions.region_id', '=', 'regions.id')
-                ->select('sub_regions.english_name as english_name', 
-                    'sub_regions.arabic_name as arabic_name',
-                    'sub_regions.id as id', 'sub_regions.created_at as created_at', 
-                    'sub_regions.updated_at as updated_at',
-                    'regions.english_name as name',
-                    'regions.arabic_name as aname',
-                    'sub_regions.region_id as region_id')
-                ->latest(); 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+        if (Auth::guard('user')->user() != null) {
 
-                    $updateButton = "<a type='button' class='updateSubRegion' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateSubRegionModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteSubRegion' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $updateButton." ".$deleteButton;
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request){
-                            $search = $request->get('search');
-                            $w->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
-                            ->orWhere('regions.english_name', 'LIKE', "%$search%")
-                            ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('sub_regions.arabic_name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            $regions = Region::all(); 
+            if ($request->ajax()) {
+                $data = DB::table('sub_regions')
+                    ->join('regions', 'sub_regions.region_id', '=', 'regions.id')
+                    ->select('sub_regions.english_name as english_name', 
+                        'sub_regions.arabic_name as arabic_name',
+                        'sub_regions.id as id', 'sub_regions.created_at as created_at', 
+                        'sub_regions.updated_at as updated_at',
+                        'regions.english_name as name',
+                        'regions.arabic_name as aname',
+                        'sub_regions.region_id as region_id')
+                    ->latest(); 
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+
+                        $updateButton = "<a type='button' class='updateSubRegion' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateSubRegionModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteSubRegion' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $updateButton." ".$deleteButton;
+                    })
+                
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request){
+                                $search = $request->get('search');
+                                $w->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
+                                ->orWhere('regions.english_name', 'LIKE', "%$search%")
+                                ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('sub_regions.arabic_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+
+            return view('regions.sub_regions.index', compact('regions'));
+
+        } else {
+
+            return view('errors.not-found');
         }
-
-        return view('regions.sub_regions.index', compact('regions'));
     }
 
     /**
@@ -119,6 +126,7 @@ class SubRegionController extends Controller
         if(!empty($region)) {
 
             $response['english_name'] = $region->english_name;
+            $response['arabic_name'] = $region->arabic_name;
             $response['id'] = $id;
 
             $response['success'] = 1;
@@ -169,15 +177,13 @@ class SubRegionController extends Controller
         if(!empty($subRegion)) {
             $subRegion->english_name = $request->english_name;
             $subRegion->arabic_name = $request->arabic_name;
-            $subRegion->region_id = $request->region_id;
+            if($request->region_id != 0) $subRegion->region_id = $request->region_id;
             $subRegion->save();
 
-            $response['success'] = 1;
-            $response['msg'] = 'Update successfully'; 
+            $response = 1;
            
         } else {
-            $response['success'] = 0;
-            $response['msg'] = 'Invalid ID.';
+            $response = 0;
         }
 
         return response()->json($response); 

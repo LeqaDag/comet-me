@@ -74,7 +74,7 @@
     $(function () {
 
         var analytics = <?php echo $communityHouseholdsData; ?>;
-
+        
         google.charts.load('current', {'packages':['bar']});
         google.charts.setOnLoadCallback(drawChart);
 

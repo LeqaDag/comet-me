@@ -23,12 +23,19 @@ class MenuServiceProvider extends ServiceProvider
    */
   public function boot()
   {
-    $verticalMenuJson = file_get_contents(base_path('resources/menu/verticalMenu.json'));
-    $verticalMenuData = json_decode($verticalMenuJson);
-    $horizontalMenuJson = file_get_contents(base_path('resources/menu/horizontalMenu.json'));
-    $horizontalMenuData = json_decode($horizontalMenuJson);
+    $adminVerticalMenuJson = file_get_contents(base_path('resources/menu/verticalMenu.json'));
+    $adminVerticalMenuData = json_decode($adminVerticalMenuJson);
+    $adminHorizontalMenuJson = file_get_contents(base_path('resources/menu/horizontalMenu.json'));
+    $adminHorizontalMenuData = json_decode($adminHorizontalMenuJson);
+
+    $managerVerticalMenuJson = file_get_contents(base_path('resources/menu/manager/verticalMenu.json'));
+    $managerVerticalMenuData = json_decode($managerVerticalMenuJson);
+    $managerHorizontalMenuJson = file_get_contents(base_path('resources/menu/manager/horizontalMenu.json'));
+    $managerHorizontalMenuData = json_decode($managerHorizontalMenuJson);
 
     // Share all menuData to all the views
-    \View::share('menuData', [$verticalMenuData, $horizontalMenuData]);
+    \View::share(
+      'menuDataAdmin', [$adminVerticalMenuData, $adminHorizontalMenuData],
+      'menuDataManager', [$managerVerticalMenuData, $managerHorizontalMenuData]);
   }
 }

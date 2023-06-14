@@ -1,0 +1,262 @@
+{
+    "menu": [
+      {
+        "menuHeader": "Home"
+      },
+      {
+        "url": "home",
+        "name": "Dashboards",
+        "icon": "menu-icon tf-icons bx bx-tachometer",
+        "slug": "dashboard"
+      },
+      {
+        "url": "region",
+        "name": "Regions",
+        "icon": "menu-icon tf-icons bx bx-map",
+        "slug": "region",
+        "submenu": [
+          {
+            "name": "All Regions",
+            "url": "region",
+            "slug": "Regions"
+          },
+          {
+            "name": "Sub Regions",
+            "url": "sub-region",
+            "slug": "Sub Regions"
+          },
+          {
+            "name": "Sub-Sub Regions",
+            "url": "sub-sub-region",
+            "slug": "Sub Sub Regions"
+          }
+        ]
+      },
+      {
+        "url": "community",
+        "name": "Communities",
+        "icon": "menu-icon tf-icons bx bx-home",
+        "slug": "communities",
+        "submenu": [
+          {
+            "name": "All",
+            "url": "community",
+            "slug": "communities"
+          },
+          {
+            "name": "Initial Survey",
+            "url": "initial-community",
+            "slug": "initial-survey-communities"
+          },
+          {
+            "name": "AC Survey",
+            "url": "ac-community",
+            "slug": "ac-survey-communities"
+          },
+          {
+            "name": "Served",
+            "url": "served-community",
+            "slug": "served-communities"
+          }
+        ]
+      },
+      {
+        "url": "household",
+        "name": "Households",
+        "icon": "menu-icon tf-icons bx bx-user",
+        "slug": "households",
+        "submenu": [
+          {
+            "name": "All",
+            "url": "household",
+            "slug": "households"
+          },
+          {
+            "name": "Initial Survey",
+            "url": "initial-household",
+            "slug": "initial-survey-households"
+          },
+          {
+            "name": "AC Survey",
+            "url": "ac-household",
+            "slug": "ac-survey-households"
+          },
+          {
+            "name": "Served",
+            "url": "served-household",
+            "slug": "served-households"
+          }
+        ]
+      },
+   
+      {
+        "name": "System Holders",
+        "icon": "menu-icon tf-icons bx bx-dock-top",
+        "slug": "holders",
+        "submenu": [
+          {
+            "name": "Electricity Meter Holders",
+            "url": "energy-user",
+            "slug": "holders-meter"
+          },
+          {
+            "name": "Water System Holders",
+            "url": "water-user",
+            "slug": "holders-water"
+          },
+          {
+            "name": "Internet Contract Holders",
+            "url": "internet-user",
+            "slug": "holders-internet"
+          }
+        ]
+      },
+   
+      {
+        "name": "Energy Meters",
+        "icon": "menu-icon tf-icons bx bx-tachometer",
+        "slug": "meters",
+        "submenu": [
+          {
+            "name": "Meter Holders",
+            "url": "all-meter",
+            "slug": "holders-meter"
+          },
+          {
+            "name": "Shared Meters",
+            "url": "household-meter",
+            "slug": "household-meter"
+          },
+          {
+            "name": "Public Structures Meters",
+            "url": "energy-public",
+            "slug": "energy-public"
+          },
+          {
+            "name": "Comet Meters",
+            "url": "comet-meter",
+            "slug": "comet-meter"
+          }
+        ]
+      },
+  
+      {
+        "name": "Water Users",
+        "icon": "menu-icon tf-icons bx bx-droplet",
+        "slug": "water",
+        "submenu": [
+          {
+            "name": "All Users",
+            "url": "all-water",
+            "slug": "holders-meter"
+          },
+          {
+            "name": "Shared H2O Users",
+            "url": "shared-h2o",
+            "slug": "shared-h2o"
+          },
+          {
+            "name": "Water Public Structures",
+            "url": "water-public",
+            "slug": "water-public"
+          }
+        ]
+      },
+  
+      {
+        "name": "Water Quality Results",
+        "icon": "menu-icon tf-icons bx bx-receipt",
+        "slug": "water",
+        "submenu": [
+          {
+            "name": "Summary",
+            "url": "water-summary",
+            "slug": "water-summary"
+          },
+          {
+            "name": "All Results",
+            "url": "quality-result",
+            "slug": "quality-result"
+          }
+        ]
+      },
+  
+      {
+        "name": "Internet Users",
+        "icon": "menu-icon tf-icons bx bx-wifi",
+        "slug": "water",
+        "submenu": [
+          {
+            "name": "All Users",
+            "url": "internet-user",
+            "slug": "internet-user"
+          },
+          {
+            "name": "Internet Public Structures",
+            "url": "internet-public",
+            "slug": "internet-public"
+          }
+        ]
+      },
+  
+      {
+        "name": "Refrigerators",
+        "icon": "menu-icon tf-icons bx bx-fridge",
+        "slug": "refrigerators",
+        "submenu": [
+          {
+            "name": "Holders",
+            "url": "refrigerator-user",
+            "slug": "refrigerator-user"
+          }
+        ]
+      },
+  
+      {
+        "name": "Maintenances",
+        "icon": "menu-icon tf-icons bx bx-extension",
+        "slug": "maintenance",
+        "submenu": [
+          {
+            "name": "Electricity Maintenance",
+            "url": "energy-maintenance",
+            "slug": "energy-maintenance"
+          }, 
+          {
+            "name": "Refrigerator Maintenance",
+            "url": "refrigerator-maintenance",
+            "slug": "refrigerator-maintenance"
+          },
+          {
+            "name": "Water Maintenance",
+            "url": "water-maintenance",
+            "slug": "water-maintenance"
+          }
+        ]
+      },
+  
+      {
+        "name": "Systems",
+        "icon": "menu-icon tf-icons bx bx-data",
+        "slug": "system",
+        "submenu": [
+          {
+            "name": "Energy System",
+            "url": "energy-system",
+            "slug": "system-energy"
+          },
+          {
+            "name": "Water System",
+            "url": "water-system",
+            "slug": "system-water"
+          },
+          {
+            "name": "Internet System",
+            "url": "internet-system",
+            "slug": "system-internet"
+          }
+        ]
+      }
+    ]
+  }
+  

@@ -15,6 +15,34 @@ use App\Http\Controllers\laravel_example\UserManagement;
 |
 */
 
+Auth::routes();
+
+Route::get('/profile-user/{id}', [App\Http\Controllers\Auth\LoginController::class, 'profile'])->name('profile');
+Route::resource('user', App\Http\Controllers\UserController::class);
+Route::get('/delete-user', [App\Http\Controllers\UserController::class, 'deleteUser'])->name('deleteUser');
+Route::get('user/{id}/editpage', [App\Http\Controllers\UserController::class, 'editPage']);
+
+/**
+ * Logout Routes
+ */
+Route::get('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
+
+Route::group(['namespace' => 'App\Http\Controllers'], function()
+{ 
+    /**
+     * Home Routes
+     */
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+    Route::middleware(['auth'])->group(function () {
+  
+    });
+
+    Route::resource('quality-result', WaterQualityResultController::class);
+
+});
+
+
 Route::resource('community', App\Http\Controllers\CommunityController::class);
 Route::get('community/destory/{id}', App\Http\Controllers\CommunityController::class.'@destroy');
 Route::resource('household', App\Http\Controllers\HouseholdController::class);
@@ -29,6 +57,11 @@ Route::post('household-export', [App\Http\Controllers\HouseholdController::class
 Route::get('ac-household/household/new', [App\Http\Controllers\HouseholdController::class, 'newHousehold']);
 Route::get('community/{id}/editpage', [App\Http\Controllers\CommunityController::class, 'editPage']);
 Route::get('/delete-community', [App\Http\Controllers\CommunityController::class, 'deleteCommunity'])->name('deleteCommunity');
+
+Route::resource('representative', App\Http\Controllers\CommunityRepresentativeController::class);
+Route::get('/delete-representative', [App\Http\Controllers\CommunityRepresentativeController::class, 
+    'deleteCommunityRepresentative'])->name('deleteCommunityRepresentative');
+Route::get('representative/edit_representative/{id}', [App\Http\Controllers\CommunityRepresentativeController::class, 'updateRepresentative']); 
 
 Route::resource('initial-household', App\Http\Controllers\InitialHouseholdController::class);
 Route::get('/initial/ac', [App\Http\Controllers\InitialHouseholdController::class, 'initialToAcSurveyHousehold'])->name('initialToAcSurveyHousehold');
@@ -49,6 +82,10 @@ Route::resource('water-user', App\Http\Controllers\WaterUserController::class);
 Route::get('water-user/get_water_source/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getGridSource']);
 Route::get('/delete-water-user', [App\Http\Controllers\WaterUserController::class, 'deleteWaterUser'])->name('deleteWaterUser');
 Route::post('water-user-export', [App\Http\Controllers\WaterUserController::class, 'export'])->name('water-user.export');
+Route::resource('sub-community', App\Http\Controllers\SubCommunityController::class);
+Route::resource('sub-community-household', App\Http\Controllers\SubCommunityHouseholdController::class);
+Route::get('/delete-sub-community-household', [App\Http\Controllers\SubCommunityHouseholdController::class, 'deleteSubCommunityHousehold'])->name('deleteSubCommunityHousehold');
+Route::post('sub-community-household-export', [App\Http\Controllers\SubCommunityHouseholdController::class, 'export'])->name('sub-community-household.export');
 
 Route::get('household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::resource('donor', App\Http\Controllers\DonorController::class);
@@ -67,7 +104,11 @@ Route::get('energy_public/get_by_energy_type/{community_id}/{energy_type_id}', [
 
 Route::resource('sub-region', App\Http\Controllers\SubRegionController::class);
 Route::resource('sub-sub-region', App\Http\Controllers\SubSubRegionController::class);
+Route::get('/delete-sub-sub', [App\Http\Controllers\SubSubRegionController::class, 'deleteSubSubRegion'])->name('deleteSubSubRegion');
 Route::get('sub-region/edit_sub_region/{id}', [App\Http\Controllers\SubRegionController::class, 'updateSubRegion']);
+Route::get('/getSubSubRegionData/{id}', [App\Http\Controllers\SubSubRegionController::class, 'getSubSubRegionData'])->name('getSubSubRegionData');
+Route::get('/getAllSubSubRegion', [App\Http\Controllers\SubSubRegionController::class, 'getAllSubSubRegion'])->name('getAllSubSubRegion');
+Route::get('sub-sub-region/edit_data/{id}', [App\Http\Controllers\SubSubRegionController::class, 'updateSubSubRegion']);
 
 Route::post('/update-sub', [App\Http\Controllers\SubRegionController::class, 'updateSubRegion'])->name('updateSubRegion');
 Route::get('/delete-sub', [App\Http\Controllers\SubRegionController::class, 'deleteSubRegion'])->name('deleteSubRegion');
@@ -136,6 +177,7 @@ Route::resource('internet-system', App\Http\Controllers\InternetSystemController
 Route::get('internet-system/{id}/showPage', [App\Http\Controllers\InternetSystemController::class, 'showPage']);
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'showMainPage']);
+Route::get('downloadPdf', [App\Http\Controllers\HomeController::class, 'downloadPdf']);
 
 Route::get('allMeter/donor/{id}/editDonor', [App\Http\Controllers\AllEnergyController::class, 'editDonor']);
 Route::get('/delete-maintenance', [App\Http\Controllers\H2oMaintenanceCallController::class, 'deleteMaintenanceWater'])->name('deleteMaintenanceWater');
@@ -187,36 +229,6 @@ Route::resource('water-summary',  App\Http\Controllers\WaterQualitySummaryContro
 Route::get('quality-result/cfu/max/{id}/{year}', [App\Http\Controllers\WaterQualitySummaryController::class, 'cfuMax']);
 
 Route::resource('region', App\Http\Controllers\RegionController::class); 
-Route::group(['namespace' => 'App\Http\Controllers'], function()
-{   
-    Route::resource('quality-result', WaterQualityResultController::class);
+Auth::routes();
 
-    /**
-     * Home Routes
-     */
-    Route::get('/home', 'HomeController@index')->name('home');
-
-    /**
-     * Login Routes
-     */
-    Route::get('/login', 'LoginController@showLoginForm')->name('user.login');
-    Route::post('/login', 'LoginController@login')->name('login');
-
-    /**
-     * Logout Routes
-     */
-    Route::get('/logout', 'LoginController@logout')->name('logout');
-
-
-    Route::resource('roles', RolesController::class);
-    Route::resource('permissions', PermissionsController::class);
-
-    // Route::group(['middleware' => ['guest']], function() {  
-       
-    // });
-
-    // Route::group(['middleware' => ['auth']], function() {
-
-        
-    // });
-});
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

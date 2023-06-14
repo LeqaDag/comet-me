@@ -22,6 +22,7 @@ use App\Models\EnergySystemType;
 use App\Models\Household;
 use App\Models\Photo;
 use App\Models\Region;
+use App\Models\SecondNameCommunity;
 use App\Models\SubRegion;
 use App\Models\SubCommunity;
 use App\Models\Settlement;
@@ -34,6 +35,7 @@ use App\Exports\CommunityExport;
 use App\Models\NearbySettlement;
 use App\Models\NearbyTown;
 use App\Models\Town;
+use App\Models\WaterSource;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -48,152 +50,148 @@ class CommunityController extends Controller
      */
     public function index(Request $request)
     {	
-        
-        // $communitiesMasafers = Community::where("sub_sub_region_id", 1)->get();
-        // $count =0;
+        if (Auth::guard('user')->user() != null) {
 
-        // foreach($communitiesMasafers as $communitiesMasafer) {
-        //     $masaferHousehold = Household::where('community_id', $communitiesMasafer->id)
-        //     ->count();
-        //     $count+=$masaferHousehold;
-        // }
+            if ($request->ajax()) {
 
-        // dd($count);
-
-        if ($request->ajax()) {
-
+                $data = DB::table('communities')
+                    ->join('regions', 'communities.region_id', '=', 'regions.id')
+                    ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+                    ->join('community_statuses', 'communities.community_status_id', 
+                        '=', 'community_statuses.id')
+                    ->where('communities.is_archived', 0)
+                    ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
+                        'communities.id as id', 'communities.created_at as created_at', 
+                        'communities.updated_at as updated_at',
+                        'communities.number_of_people as number_of_people',
+                        'communities.number_of_household as number_of_household',
+                        'regions.english_name as name',
+                        'regions.arabic_name as aname',
+                        'sub_regions.english_name as subname',
+                        'community_statuses.name as status_name')
+                    ->latest(); 
+    
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+                        $detailsButton = "<a type='button' class='detailsCommunityButton' data-bs-toggle='modal' data-bs-target='#communityDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
+                        $mapButton = "<a type='button' class='mapCommunityButton' data-id='".$row->id."'><i class='fa-solid fa-map text-warning'></i></a>";
+                        $imageButton = "<a type='button' class='imageCommunity' data-id='".$row->id."' ><i class='fa-solid fa-image text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateCommunity' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateCommunityModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteCommunity' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+    
+                        return $detailsButton. " ". $mapButton. " ". $imageButton. " ". $updateButton." ".$deleteButton;
+       
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('regions.english_name', 'LIKE', "%$search%")
+                                ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
+                                ->orWhere('community_statuses.name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+            
+            $communities = Community::paginate();
+            $communityRecords = Community::where('is_archived', 0)->count();
+            $communityWater = Community::where("water_service", "yes")
+                ->where('is_archived', 0)
+                ->count();
+            $communityInternet = Community::where("internet_service", "yes")
+                ->where('is_archived', 0)
+                ->count();
+            $regions = Region::all();
+            $subregions = SubRegion::all();
+            $communitiesWater = Community::where("water_service", "yes")
+                ->where('is_archived', 0)
+                ->get();
+            $communitiesInternet = Community::where("internet_service", "yes")
+                ->where('is_archived', 0)
+                ->get();
+            $communitiesAC = Community::where("community_status_id", 2)
+                ->where('is_archived', 0)
+                ->get();
+            $communityAC = Community::where("community_status_id", 2)
+                ->where('is_archived', 0)
+                ->count();
+            $products = ProductType::all();
+            $energyTypes = EnergySystemType::all();
+    
+            $communitiesInitial = Community::where("community_status_id", 1)
+                ->where('is_archived', 0)
+                ->get();
+            $communityInitial = Community::where("community_status_id", 1)
+                ->where('is_archived', 0)
+                ->count();
+    
+            $communitiesSurvyed = Community::where("community_status_id", 3)
+                ->where('is_archived', 0)
+                ->get();
+            $communitySurvyed = Community::where("community_status_id", 3)
+                ->where('is_archived', 0)
+                ->count();
+    
+            $settlements = Settlement::all();
+            $towns = Town::all();
+            $publicCategories = PublicStructureCategory::all();
+            $publicStructures = PublicStructure::all();
+    
             $data = DB::table('communities')
-                ->join('regions', 'communities.region_id', '=', 'regions.id')
-                ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-                ->join('community_statuses', 'communities.community_status_id', '=', 'community_statuses.id')
                 ->where('communities.is_archived', 0)
-                ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
-                    'communities.id as id', 'communities.created_at as created_at', 
-                    'communities.updated_at as updated_at',
-                    'communities.number_of_people as number_of_people',
-                    'communities.number_of_household as number_of_household',
-                    'regions.english_name as name',
-                    'regions.arabic_name as aname',
-                    'sub_regions.english_name as subname',
-                    'community_statuses.name as status_name')
-                ->latest(); 
+                ->join('regions', 'communities.region_id', '=', 'regions.id')
+                ->select(
+                        DB::raw('regions.english_name as english_name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('regions.english_name')
+                ->get();
+            $array[] = ['English Name', 'Number'];
+            
+            foreach($data as $key => $value) {
+    
+                $array[++$key] = [$value->english_name, $value->number];
+            }
+            
+            $dataSubRegions = DB::table('communities')
+                ->where('communities.is_archived', 0)
+                ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+                ->select(
+                        DB::raw('sub_regions.english_name as english_name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('sub_regions.english_name')
+                ->get();
+            $arraySubRegions[] = ['English Name', 'Number'];
+            
+            foreach($dataSubRegions as $key => $value) {
+    
+                $arraySubRegions[++$key] = [$value->english_name, $value->number];
+            }
+    
+            $energySystemTypes = EnergySystemType::all();
+            $donors = Donor::all();
+            $waterSources = WaterSource::all();
+            
+            return view('employee.community.index', compact('communities', 'regions', 
+                'communityRecords', 'communityWater', 'communityInternet', 'subregions',
+                'communitiesWater', 'communitiesInternet', 'communitiesAC', 'communityAC',
+                'products', 'energyTypes', 'communitiesInitial', 'communityInitial', 
+                'communitiesSurvyed', 'communitySurvyed', 'settlements', 'towns',
+                'publicCategories', 'energySystemTypes', 'publicStructures', 'donors',
+                'waterSources'))
+                ->with('regionsData', json_encode($array))->with(
+                    'subRegionsData', json_encode($arraySubRegions)
+                );
+        } else {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $detailsButton = "<a type='button' class='detailsCommunityButton' data-bs-toggle='modal' data-bs-target='#communityDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
-                    $mapButton = "<a type='button' class='mapCommunityButton' data-id='".$row->id."'><i class='fa-solid fa-map text-warning'></i></a>";
-                    $imageButton = "<a type='button' class='imageCommunity' data-id='".$row->id."' ><i class='fa-solid fa-image text-info'></i></a>";
-                    $updateButton = "<a type='button' class='updateCommunity' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateCommunityModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteCommunity' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-
-                    return $detailsButton. " ". $mapButton. " ". $imageButton. " ". $updateButton." ".$deleteButton;
-   
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('regions.english_name', 'LIKE', "%$search%")
-                            ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
-                            ->orWhere('community_statuses.name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return view('errors.not-found');
         }
-        
-
-		$communities = Community::paginate();
-        $communityRecords = Community::where('is_archived', 0)->count();
-        $communityWater = Community::where("water_service", "yes")
-            ->where('is_archived', 0)
-            ->count();
-        $communityInternet = Community::where("internet_service", "yes")
-            ->where('is_archived', 0)
-            ->count();
-        $regions = Region::all();
-        $subregions = SubRegion::all();
-        $communitiesWater = Community::where("water_service", "yes")
-            ->where('is_archived', 0)
-            ->get();
-        $communitiesInternet = Community::where("internet_service", "yes")
-            ->where('is_archived', 0)
-            ->get();
-        $communitiesAC = Community::where("community_status_id", 2)
-            ->where('is_archived', 0)
-            ->get();
-        $communityAC = Community::where("community_status_id", 2)
-            ->where('is_archived', 0)
-            ->count();
-        $products = ProductType::all();
-        $energyTypes = EnergySystemType::all();
-
-        $communitiesInitial = Community::where("community_status_id", 1)
-            ->where('is_archived', 0)
-            ->get();
-        $communityInitial = Community::where("community_status_id", 1)
-            ->where('is_archived', 0)
-            ->count();
-
-        $communitiesSurvyed = Community::where("community_status_id", 3)
-            ->where('is_archived', 0)
-            ->get();
-        $communitySurvyed = Community::where("community_status_id", 3)
-            ->where('is_archived', 0)
-            ->count();
-
-        $settlements = Settlement::all();
-        $towns = Town::all();
-        $publicCategories = PublicStructureCategory::all();
-        $publicStructures = PublicStructure::all();
-
-        $data = DB::table('communities')
-            ->where('communities.is_archived', 0)
-            ->join('regions', 'communities.region_id', '=', 'regions.id')
-            ->select(
-                    DB::raw('regions.english_name as english_name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('regions.english_name')
-            ->get();
-        $array[] = ['English Name', 'Number'];
-        
-        foreach($data as $key => $value) {
-
-            $array[++$key] = [$value->english_name, $value->number];
-        }
-        
-        $dataSubRegions = DB::table('communities')
-            ->where('communities.is_archived', 0)
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->select(
-                    DB::raw('sub_regions.english_name as english_name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('sub_regions.english_name')
-            ->get();
-        $arraySubRegions[] = ['English Name', 'Number'];
-        
-        foreach($dataSubRegions as $key => $value) {
-
-            $arraySubRegions[++$key] = [$value->english_name, $value->number];
-        }
-
-        $energySystemTypes = EnergySystemType::all();
-        $donors = Donor::all();
-        
-		return view('employee.community.index', compact('communities', 'regions', 
-            'communityRecords', 'communityWater', 'communityInternet', 'subregions',
-            'communitiesWater', 'communitiesInternet', 'communitiesAC', 'communityAC',
-            'products', 'energyTypes', 'communitiesInitial', 'communityInitial', 
-            'communitiesSurvyed', 'communitySurvyed', 'settlements', 'towns',
-            'publicCategories', 'energySystemTypes', 'publicStructures', 'donors'))
-            ->with('regionsData', json_encode($array))->with(
-                'subRegionsData', json_encode($arraySubRegions))
-            ;
     }
 
     /**
@@ -338,6 +336,16 @@ class CommunityController extends Controller
             }
         }
         
+        if($request->waters) {
+            for($i=0; $i < count($request->waters); $i++) {
+
+                $communityWaterSource = new CommunityWaterSource();
+                $communityWaterSource->water_source_id = $request->waters[$i];
+                $communityWaterSource->community_id = $id;
+                $communityWaterSource->save();
+            }
+        }
+
         if($request->settlement) {
             for($i=0; $i < count($request->settlement); $i++) {
 
@@ -445,6 +453,36 @@ class CommunityController extends Controller
             }
         }
 
+        if($request->second_name_english) {
+
+            $secondNameCommunity = SecondNameCommunity::where('community_id', $id)->first();
+            if($secondNameCommunity) {
+
+                $secondNameCommunity->english_name = $request->second_name_english;  
+            } else {
+
+                $secondNameCommunity = new SecondNameCommunity();
+                $secondNameCommunity->english_name = $request->second_name_english; 
+                $secondNameCommunity->community_id = $id;
+            }
+            $secondNameCommunity->save();
+        }
+
+        if($request->second_name_arabic) {
+
+            $secondNameCommunity = SecondNameCommunity::where('community_id', $id)->first();
+            if($secondNameCommunity) {
+
+                $secondNameCommunity->arabic_name = $request->second_name_arabic;  
+            } else {
+
+                $secondNameCommunity = new SecondNameCommunity();
+                $secondNameCommunity->arabic_name = $request->second_name_arabic; 
+                $secondNameCommunity->community_id = $id;
+            }
+            $secondNameCommunity->save();
+        }
+
         return redirect()->back()->with('message', 'New Community Inserted Successfully!');
     }
 
@@ -461,7 +499,7 @@ class CommunityController extends Controller
         if (!$request->region_id) {
             $html = '<option value="">Choose One...</option>';
         } else {
-            $html = '';
+            $html = '<option value="">Choose One...</option>';
             $regions = SubRegion::where('region_id', $request->region_id)->get();
             foreach ($regions as $region) {
                 $html .= '<option value="'.$region->id.'">'.$region->english_name.'</option>';
@@ -485,9 +523,17 @@ class CommunityController extends Controller
         $community->is_archived = 1;
         $community->save();
 
+        $communityWaterSources = CommunityWaterSource::where('community_id', $id)->get();
         $compounds = Compound::where('community_id', $id)->get();
         $nearbyTowns = NearbyTown::where('community_id', $id)->get();
         $nearbySettlements = NearbySettlement::where('community_id', $id)->get();
+        $secondName = SecondNameCommunity::where('community_id', $id)->first();
+
+        if($communityWaterSources) {
+            foreach($communityWaterSources as $communityWaterSource) {
+                $communityWaterSource->delete();
+            }
+        }
 
         if($compounds) {
             foreach($compounds as $compound) {
@@ -505,6 +551,10 @@ class CommunityController extends Controller
             foreach($nearbySettlements as $nearbySettlement) {
                 $nearbySettlement->delete();
             }
+        }
+
+        if($secondName) {
+            $secondName->delete();
         }
 
         $response['success'] = 1;
@@ -539,6 +589,22 @@ class CommunityController extends Controller
             ->select('towns.english_name')
             ->get();
         $compounds = Compound::where('community_id', $community->id)->get();
+        $communityWaterSources = DB::table('community_water_sources')
+            ->join('communities', 'community_water_sources.community_id', '=', 'communities.id')
+            ->join('water_sources', 'community_water_sources.water_source_id', '=', 'water_sources.id')
+            ->where('community_id', $community->id)
+            ->select('water_sources.name')
+            ->get();
+            
+        $communityRepresentative = DB::table('community_representatives')
+            ->join('communities', 'community_representatives.community_id', '=', 'communities.id')
+            ->join('households', 'community_representatives.household_id', '=', 'households.id')
+            ->join('community_roles', 'community_representatives.community_role_id', '=', 'community_roles.id')
+            ->where('community_representatives.community_id', $community->id)
+            ->select('households.english_name', 'community_roles.role')
+            ->get();
+
+        $secondName = SecondNameCommunity::where('community_id', $id)->first();
 
         $response['community'] = $community;
         $response['region'] = $region;
@@ -548,6 +614,9 @@ class CommunityController extends Controller
         $response['nearbySettlement'] = $nearbySettlement;
         $response['nearbyTown'] = $nearbyTown;
         $response['compounds'] = $compounds;
+        $response['communityWaterSources'] = $communityWaterSources;
+        $response['communityRepresentative'] = $communityRepresentative;
+        $response['secondName'] = $secondName;
 
         return response()->json($response);
     }
@@ -615,9 +684,10 @@ class CommunityController extends Controller
         $products = ProductType::all();
         $regions = Region::all();
         $subRegions = SubRegion::all();
+        $secondName = SecondNameCommunity::where('community_id', $id)->first();
 
         return view('employee.community.edit', compact('community', 'products', 
-            'communityStatuses', 'regions', 'subRegions'));
+            'communityStatuses', 'regions', 'subRegions', 'secondName'));
     }
 
     /**
@@ -651,6 +721,18 @@ class CommunityController extends Controller
         if($request->description) $community->description = $request->description;
 
         $community->save();
+
+        $secondNameCommunity = SecondNameCommunity::where('community_id', $id)->first();
+        if($request->second_name_english) {
+
+            $secondNameCommunity->english_name = $request->second_name_english; 
+        }
+        if($request->second_name_english) {
+
+            $secondNameCommunity->arabic_name = $request->second_name_arabic;
+        }
+        $secondNameCommunity->community_id = $id;
+        $secondNameCommunity->save();
 
         return redirect('/community')->with('message', 'Community Updated Successfully!');
     }

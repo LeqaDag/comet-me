@@ -47,48 +47,54 @@ class InternetSystemController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
 
-            $data = DB::table('internet_system_communities')
-                ->join('communities', 'internet_system_communities.community_id', 
-                    '=', 'communities.id')
-                ->join('internet_systems', 'internet_system_communities.internet_system_id', 
-                    '=', 'internet_systems.id')
-                ->join('internet_system_types', 'internet_systems.internet_system_type_id', 
-                    '=', 'internet_system_types.id')
-                ->select('internet_system_types.name', 'internet_system_types.start_year', 
-                    'internet_system_types.upgrade_year', 'internet_systems.system_name',
-                    'internet_systems.id as id',
-                    'internet_system_communities.created_at as created_at', 
-                    'internet_system_communities.updated_at as updated_at', 
-                    'communities.english_name as community_name')
-                ->latest(); 
+            if ($request->ajax()) {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $viewButton = "<a type='button' class='viewInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    
-                    return $viewButton;
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('internet_system_types.name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('internet_systems.system_name', 'LIKE', "%$search%")
-                            ->orWhere('internet_system_types.start_year', 'LIKE', "%$search%")
-                            ->orWhere('internet_system_types.upgrade_year', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+                $data = DB::table('internet_system_communities')
+                    ->join('communities', 'internet_system_communities.community_id', 
+                        '=', 'communities.id')
+                    ->join('internet_systems', 'internet_system_communities.internet_system_id', 
+                        '=', 'internet_systems.id')
+                    ->join('internet_system_types', 'internet_systems.internet_system_type_id', 
+                        '=', 'internet_system_types.id')
+                    ->select('internet_system_types.name', 'internet_system_types.start_year', 
+                        'internet_system_types.upgrade_year', 'internet_systems.system_name',
+                        'internet_systems.id as id',
+                        'internet_system_communities.created_at as created_at', 
+                        'internet_system_communities.updated_at as updated_at', 
+                        'communities.english_name as community_name')
+                    ->latest(); 
+    
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+                        $viewButton = "<a type='button' class='viewInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        
+                        return $viewButton;
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('internet_system_types.name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('internet_systems.system_name', 'LIKE', "%$search%")
+                                ->orWhere('internet_system_types.start_year', 'LIKE', "%$search%")
+                                ->orWhere('internet_system_types.upgrade_year', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+    
+            return view('system.internet.index');
+        } else {
+
+            return view('errors.not-found');
         }
-
-        return view('system.internet.index');
     }
 
     /**

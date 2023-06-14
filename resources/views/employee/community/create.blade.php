@@ -29,6 +29,10 @@ label, table {
             <div class="modal-body">
                 <form method="POST" enctype='multipart/form-data' action="{{url('community')}}">
                     @csrf
+                    <hr>
+                    <div class="row" style="margin-top:12px">
+                        <h6>General Details</h6>
+                    </div>
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
@@ -47,7 +51,7 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Products type</label>
-                                <select name="school" id="product_type_id" 
+                                <select name="product_type_id" id="product_type_id" 
                                     class="form-control" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($products as $product)
@@ -72,13 +76,36 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
-                        </div>
+                        </div> 
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Sub Region</label>
                                 <select name="sub_region_id" id="selectedSubRegions" 
                                 class="form-control" disabled required>
                                     <option disabled selected>Choose one...</option>
+                                </select>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Fallah</label>
+                                <select name="is_fallah" class="form-control">
+                                    <option disabled selected>Choose one...</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </fieldset> 
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Bedouin</label>
+                                <select name="is_bedouin" class="form-control">
+                                    <option disabled selected>Choose one...</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
                                 </select>
                             </fieldset>
                         </div>
@@ -93,37 +120,15 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                    </div>
 
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Fallah</label>
-                                <select name="is_fallah" class="form-control">
-                                    <option disabled selected>Choose one...</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </fieldset> 
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Bedouin</label>
-                                <select name="is_bedouin" class="form-control">
-                                    <option disabled selected>Choose one...</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Nearby Settlements</label>
+                                <label class='col-md-12 control-label'>Water Sources</label>
                                 <select class="selectpicker form-control" multiple data-live-search="true" 
-                                    name="settlement[]" id="nearbySettlements">
-                                    @foreach($settlements as $settlement)
-                                    <option value="{{$settlement->id}}">
-                                        {{$settlement->english_name}}
+                                    name="waters[]">
+                                    @foreach($waterSources as $waterSource)
+                                    <option value="{{$waterSource->id}}">
+                                        {{$waterSource->name}}
                                     </option>
                                     @endforeach
                                 </select>
@@ -132,7 +137,6 @@ label, table {
                     </div>
 
                     <div class="row">
-                        
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Demolition orders/demolitions </label>
@@ -170,6 +174,19 @@ label, table {
                             </fieldset>
                         </div>
 
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Nearby Settlements</label>
+                                <select class="selectpicker form-control" multiple data-live-search="true" 
+                                    name="settlement[]" id="nearbySettlements">
+                                    @foreach($settlements as $settlement)
+                                    <option value="{{$settlement->id}}">
+                                        {{$settlement->english_name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Structures</label>
@@ -212,18 +229,6 @@ label, table {
                                 </select>
                             </fieldset>
                         </div> -->
-
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Recommended system type</label>
-                                <select name="recommended_energy_system_id" class="form-control">
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($energyTypes as $energyType)
-                                    <option value="{{$energyType->id}}">{{$energyType->name}}</option>
-                                    @endforeach
-                                </select>
-                            </fieldset>
-                        </div>
                     </div>
 
 
@@ -240,13 +245,45 @@ label, table {
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Recommended system type</label>
+                                <select name="recommended_energy_system_id" class="form-control">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($energyTypes as $energyType)
+                                    <option value="{{$energyType->id}}">{{$energyType->name}}</option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-8 col-lg-8 col-md-8 mb-1">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Notes</label>
                                 <textarea name="notes" class="form-control" 
-                                   style="resize:none" cols="20" rows="3"></textarea>
+                                   style="resize:none" cols="20" rows="1"></textarea>
                             </fieldset>
                         </div>
                     </div> 
-
+                    <hr>
+                    <div class="row" style="margin-top:12px">
+                        <h6>Second Name for community</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Second Name in English</label>
+                                <input name="second_name_english" type="text" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Second Name in Arabic</label>
+                                <input name="second_name_arabic" type="text" class="form-control">
+                            </fieldset>
+                        </div>
+                    </div> 
+                    <hr>
+                    <div class="row" style="margin-top:12px">
+                        <h6>Compounds</h6>
+                    </div>
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <table class="table table-bordered" id="dynamicAddRemoveCompoundName">
@@ -295,7 +332,7 @@ label, table {
             $("#schoolSharedSelect").css("visibility", "visible");
             $("#schoolSharedSelect").css('display', 'block');
         }
-
+ 
     });
 
     $(document).on('change', '#selectedRegion', function () {

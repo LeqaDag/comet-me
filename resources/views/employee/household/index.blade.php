@@ -195,6 +195,7 @@
         </div>
     </div>
 </div>
+
 <div class="container mb-4 my-2">
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12">
@@ -215,8 +216,6 @@
 All<span class="text-muted fw-light"> Households</span> 
 </h4>
 
-
-
 @if(session()->has('message'))
     <div class="row">
         <div class="alert alert-success">
@@ -224,11 +223,13 @@ All<span class="text-muted fw-light"> Households</span>
         </div>
     </div>
 @endif
+
 @include('employee.household.details')
-<div class="container">
+
+<div class="container"> 
     <div class="card my-2">
         <div class="card-body">
-        <div class="card-header">
+            <div class="card-header">
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('household.export') }}">
                     @csrf
@@ -241,6 +242,18 @@ All<span class="text-muted fw-light"> Households</span>
                                     <option value="{{$region->id}}">
                                         {{$region->english_name}}
                                     </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <select name="status" class="form-control">
+                                    <option disabled selected>Search Household Status</option>
+                                    @foreach($householdStatuses as $householdStatus)
+                                        <option value="{{$householdStatus->id}}">
+                                            {{$householdStatus->status}}
+                                        </option>
                                     @endforeach
                                 </select> 
                             </fieldset>
@@ -270,16 +283,27 @@ All<span class="text-muted fw-light"> Households</span>
                                 </select> 
                             </fieldset>
                         </div>
-                        <div class="col-xl-3 col-lg-3 col-md-3">
-                            <fieldset class="form-group">
-                                <button class="btn btn-info" type="submit">
-                                    <i class='fa-solid fa-file-excel'></i>
-                                    Export Excel
-                                </button>
-                            </fieldset>
-                        </div>
+                    </div>
+                    <br>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <button class="btn btn-info" type="submit">
+                                <i class='fa-solid fa-file-excel'></i>
+                                Export Excel
+                            </button>
+                        </fieldset>
                     </div>
                 </form>
+            </div>
+            <div>
+                <p class="card-text">
+                    <div>
+                        <a type="button" class="btn btn-success" 
+                            href="{{url('household', 'create')}}" >
+                            Create New Household	
+                        </a>
+                    </div>
+                </p>
             </div>
             <table id="householdsTable" 
                 class="table table-striped data-table-households my-2">
@@ -387,6 +411,33 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#energyMeterHousehold').html(response['household'].energy_meter);
                     $('#waterServiceHousehold').html(response['household'].water_service);
                     $('#energyStatusHousehold').html(response['status'].status);
+                    
+                    $('#numberOfCistern').html(" ");
+                    $('#numberOfCistern').html(response['cistern'].number_of_cisterns);
+                    $('#volumeCistern').html(" ");
+                    $('#volumeCistern').html(response['cistern'].volume_of_cisterns);
+                    $('#depthCistern').html(" ");
+                    $('#depthCistern').html(response['cistern'].depth_of_cisterns);
+                    $('#sharedCistern').html(" ");
+                    $('#sharedCistern').html(response['cistern'].shared_cisterns);
+                    $('#distanceCistern').html(" ");
+                    $('#distanceCistern').html(response['cistern'].distance_from_house);
+                    $('#herdSize').html(" ");
+                    $('#herdSize').html(response['household'].size_of_herd);
+                    $('#numberOfStructures').html(" ");
+                    $('#numberOfStructures').html(response['structure'].number_of_structures);
+                    $('#numberOfkitchens').html(" ");
+                    $('#numberOfkitchens').html(response['structure'].number_of_kitchens);
+                    $('#numberOfShelters').html(" ");
+                    $('#numberOfShelters').html(response['structure'].number_of_animal_shelters);
+                    $('#izbih').html(" ");
+                    $('#izbih').html(response['communityHousehold'].is_there_izbih);
+                    $('#houseInTown').html(" ");
+                    $('#houseInTown').html(response['communityHousehold'].is_there_house_in_town);
+                    $('#howLong').html(" ");
+                    $('#howLong').html(response['communityHousehold'].how_long);
+                    $('#lengthOfStay').html(" ");
+                    $('#lengthOfStay').html(response['communityHousehold'].length_of_stay);
                 }
             });
         });
@@ -402,7 +453,7 @@ All<span class="text-muted fw-light"> Households</span>
                 type: 'get',
                 dataType: 'json',
                 success: function(response) {
-                    window.open(url); 
+                    window.open(url, '_self'); 
                 }
             });
         });

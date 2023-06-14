@@ -43,57 +43,64 @@ class RefrigeratorHolderController extends Controller
         //     $holder->save();
         // }
 
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
 
-            $data = DB::table('refrigerator_holders')
-                ->join('communities', 'refrigerator_holders.community_id', '=', 'communities.id')
-                ->leftJoin('households', 'refrigerator_holders.household_id', '=', 'households.id')
-                ->leftJoin('public_structures', 'refrigerator_holders.public_structure_id', 
-                    '=', 'public_structures.id')
-                ->select('refrigerator_holders.refrigerator_type_id', 'refrigerator_holders.date',
-                    'refrigerator_holders.id as id', 'refrigerator_holders.created_at as created_at', 
-                    'refrigerator_holders.updated_at as updated_at', 
-                    'communities.english_name as community_name',
-                    'households.english_name as household_name',
-                    'public_structures.english_name as public_name',
-                    'refrigerator_holders.payment', 'refrigerator_holders.is_paid', 
-                    'refrigerator_holders.receive_number', 'refrigerator_holders.status', 
-                    'refrigerator_holders.year')
-                ->latest(); 
+            if ($request->ajax()) {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+                $data = DB::table('refrigerator_holders')
+                    ->join('communities', 'refrigerator_holders.community_id', '=', 'communities.id')
+                    ->leftJoin('households', 'refrigerator_holders.household_id', '=', 'households.id')
+                    ->leftJoin('public_structures', 'refrigerator_holders.public_structure_id', 
+                        '=', 'public_structures.id')
+                    ->select('refrigerator_holders.refrigerator_type_id', 'refrigerator_holders.date',
+                        'refrigerator_holders.id as id', 'refrigerator_holders.created_at as created_at', 
+                        'refrigerator_holders.updated_at as updated_at', 
+                        'communities.english_name as community_name',
+                        'households.english_name as household_name',
+                        'public_structures.english_name as public_name',
+                        'refrigerator_holders.payment', 'refrigerator_holders.is_paid', 
+                        'refrigerator_holders.receive_number', 'refrigerator_holders.status', 
+                        'refrigerator_holders.year')
+                    ->latest(); 
+    
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $viewButton = "<a type='button' class='viewRefrigeratorHolder' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewRefrigeratorHolderModal'><i class='fa-solid fa-eye text-info'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteRefrigeratorHolder' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $viewButton." ".$deleteButton;
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('refrigerator_holders.receive_number', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+    
+            $communities = Community::all();
+            $households = Household::all();
+            $publicCategories = PublicStructureCategory::all();
+    
+            return view('users.refrigerator.index', compact('communities', 'households',
+                'publicCategories'));
+                
+        } else {
 
-                    $viewButton = "<a type='button' class='viewRefrigeratorHolder' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewRefrigeratorHolderModal'><i class='fa-solid fa-eye text-info'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteRefrigeratorHolder' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $viewButton." ".$deleteButton;
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
-                            ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('refrigerator_holders.receive_number', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return view('errors.not-found');
         }
-
-        $communities = Community::all();
-        $households = Household::all();
-        $publicCategories = PublicStructureCategory::all();
-
-        return view('users.refrigerator.index', compact('communities', 'households',
-            'publicCategories'));
     }
 
     /**

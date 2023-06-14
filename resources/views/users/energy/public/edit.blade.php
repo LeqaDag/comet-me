@@ -122,11 +122,15 @@
                             <select name='misc' class="form-control">
                                 @if($energyPublic->misc == 1)
                                     <option selected disabled>MISC</option>
-                                @else
+                                @else @if($energyPublic->misc == 0)
                                     <option selected disabled>New Community</option>
+                                @else 
+                                    <option selected disabled>Maintenance</option>
+                                @endif
                                 @endif
                                 <option value="1">MISC</option>
                                 <option value="0">New Community</option>
+                                <option value="2">Maintenance</option>
                             </select> 
                         </fieldset> 
                     </div>

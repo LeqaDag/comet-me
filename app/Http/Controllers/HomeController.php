@@ -47,7 +47,7 @@ use Route;
 use DB;
 use Excel;
 use PDF;
-
+ 
 class HomeController extends Controller
 {
     /**
@@ -57,7 +57,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-       // $this->middleware('auth');
+        //$this->middleware('auth');
     }
 
     /**
@@ -98,30 +98,15 @@ class HomeController extends Controller
                 'fbs_user_incidents.year as fbs_year', 'h2o_system_incidents.year as h2o_year')
             ->get();
             
-        //die($allIncidents); 
        
         $meterLists = MeterList::where("energy_user_id", 0)->get();
         $meterListCount = MeterList::where("energy_user_id", 0)
-           // ->where("status", "Installed")
             ->count();
 
         $energyMeter = AllEnergyMeter::all();
         $energyUserCount = AllEnergyMeter::count();
-       // dd($meterListCount);
 
-        // foreach($meterLists as $meterList) {
-        //     $energyMeter = EnergyUser::where("meter_number", $meterList->meter_number)->first();
-
-        //     if($energyMeter != null) {
-        //         $meterList->energy_user_id = $energyMeter->id;
-
-        //         $household = Household::where("id", $energyMeter->household_id)->first();
-        //         $meterList->energy_user_name = $household->english_name;
-        //         $meterList->save();
-        //     }
-        // }
-
-        //if (Auth::guard('user')->user() != null) {
+        if (Auth::guard('user')->user() != null) {
 
             $allUsers = User::where('type', 1)
                 ->where('is_admin', 0)
@@ -385,11 +370,12 @@ class HomeController extends Controller
                 ->with(
                     'incidentsData', json_encode($arrayIncidents));
 
-        // } else {
+        } else {
 
-        //     return view('errors.not-found');
-        // }    
+            return view('errors.not-found');
+        }    
     }
+
 
     /**
      * Show the application dashboard.
@@ -399,6 +385,20 @@ class HomeController extends Controller
     public function showMainPage()
     { 
         return view('welcome');
+    }
+
+    /**
+     * Get the manual as a pdf
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function downloadPdf()
+    {
+        $myFile = public_path("comet-me.pdf");
+        $headers = ['Content-Type: application/pdf'];
+        $newName = 'Comet-me-manual'.time().'.pdf';
+
+        return response()->download($myFile, $newName, $headers);
     }
 
     /**

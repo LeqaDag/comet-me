@@ -1,4 +1,5 @@
-<div id="updateSubRegionModal" class="modal fade" role="dialog">
+<div id="updateSubRegionModal"class="modal fade" tabindex="-1" aria-hidden="true" 
+        role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
@@ -33,11 +34,11 @@
                 </fieldset> 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success btn-sm" 
+                <button type="submit" class="btn btn-success btn-sm" 
                     id="btnSaveSubRegion">Save
                 </button>
                 <button type="button" class="btn btn-default btn-sm" 
-                    data-bs-dismiss="modal">Close
+                    data-bs-dismiss="modal" id="closeSubRegionUpdate">Close
                 </button>
             </div>
         </div>

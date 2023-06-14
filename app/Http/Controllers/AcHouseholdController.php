@@ -39,75 +39,81 @@ class AcHouseholdController extends Controller
      */
     public function index(Request $request)
     {	
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
             
-            $data = DB::table('households')
+            if ($request->ajax()) {
+            
+                $data = DB::table('households')
+                    ->where('households.household_status_id', 2)
+                    ->where('internet_holder_young', 0)
+                    ->join('communities', 'households.community_id', '=', 'communities.id')
+                    ->join('regions', 'communities.region_id', '=', 'regions.id')
+                    ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
+                        'households.id as id', 'households.created_at as created_at', 
+                        'households.updated_at as updated_at',
+                        'regions.english_name as region_name',
+                        'communities.english_name as name',
+                        'communities.arabic_name as aname',
+                        'households.energy_meter')
+                    ->latest(); 
+    
+                
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $acButton = "<select id='sharedHouseholdsSelect' class='sharedHousehold form-control' data-id='".$row->id."'><option selected>'". $row->energy_meter ."'</option><option value='No'>No</option><option value='Yes'>Yes</option></select>";
+                        
+                        return $acButton;
+       
+                    })
+                   
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                    $search = $request->get('search');
+                                    $w->orWhere('households.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('regions.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('regions.arabic_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+    
+            $dataHouseholdsByCommunity = DB::table('households')
                 ->where('households.household_status_id', 2)
-                ->where('internet_holder_young', 0)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
-                ->join('regions', 'communities.region_id', '=', 'regions.id')
-                ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
-                    'households.id as id', 'households.created_at as created_at', 
-                    'households.updated_at as updated_at',
-                    'regions.english_name as region_name',
-                    'communities.english_name as name',
-                    'communities.arabic_name as aname',
-                    'households.energy_meter')
-                ->latest(); 
-
+                ->select(
+                        DB::raw('communities.english_name as english_name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('communities.english_name')
+                ->get();
+            $arrayAcHouseholdsByCommunity[] = ['Community Name', 'Total'];
             
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+            foreach($dataHouseholdsByCommunity as $key => $value) {
+    
+                $arrayAcHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
+            }
+    
+            $communities = Community::where('is_archived', 0)->get();
+            $households = Household::all();
+            $energySystems = EnergySystem::all();
+            $energySystemTypes = EnergySystemType::all();
+            $meters = MeterCase::all();
+            $professions  = Profession::all();
+    
+            return view('employee.household.ac', compact('communities', 'households', 
+                'energySystems', 'energySystemTypes', 'meters', 'professions'))
+                ->with('communityAcHouseholdsData', json_encode($arrayAcHouseholdsByCommunity));
+        } else {
 
-                    $acButton = "<select id='sharedHouseholdsSelect' class='sharedHousehold form-control' data-id='".$row->id."'><option selected>'". $row->energy_meter ."'</option><option value='No'>No</option><option value='Yes'>Yes</option></select>";
-                    
-                    return $acButton;
-   
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                                $search = $request->get('search');
-                                $w->orWhere('households.english_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.english_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('regions.english_name', 'LIKE', "%$search%")
-                                ->orWhere('regions.arabic_name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return view('errors.not-found');
         }
-
-        $dataHouseholdsByCommunity = DB::table('households')
-            ->where('households.household_status_id', 2)
-            ->join('communities', 'households.community_id', '=', 'communities.id')
-            ->select(
-                    DB::raw('communities.english_name as english_name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('communities.english_name')
-            ->get();
-        $arrayAcHouseholdsByCommunity[] = ['Community Name', 'Total'];
-        
-        foreach($dataHouseholdsByCommunity as $key => $value) {
-
-            $arrayAcHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
-        }
-
-        $communities = Community::where('is_archived', 0)->get();
-        $households = Household::all();
-        $energySystems = EnergySystem::all();
-        $energySystemTypes = EnergySystemType::all();
-        $meters = MeterCase::all();
-        $professions  = Profession::all();
-
-		return view('employee.household.ac', compact('communities', 'households', 
-            'energySystems', 'energySystemTypes', 'meters', 'professions'))
-            ->with('communityAcHouseholdsData', json_encode($arrayAcHouseholdsByCommunity));
     }
 
     /**

@@ -42,77 +42,85 @@ class H2oMaintenanceCallController extends Controller
      */
     public function index(Request $request)
     {	
-        if ($request->ajax()) {
-            $data = DB::table('h2o_maintenance_calls')
-                ->leftJoin('households', 'h2o_maintenance_calls.household_id', 'households.id')
-                ->leftJoin('public_structures', 'h2o_maintenance_calls.public_structure_id', 
-                    'public_structures.id')
-                ->join('communities', 'h2o_maintenance_calls.community_id', 'communities.id')
-                ->join('maintenance_types', 'h2o_maintenance_calls.maintenance_type_id', 
-                    '=', 'maintenance_types.id')
-                ->join('maintenance_h2o_actions', 'h2o_maintenance_calls.maintenance_h2o_action_id', 
-                    '=', 'maintenance_h2o_actions.id')
-                ->join('maintenance_statuses', 'h2o_maintenance_calls.maintenance_status_id', 
-                    '=', 'maintenance_statuses.id')
-                ->join('users', 'h2o_maintenance_calls.user_id', '=', 'users.id')
-                ->select('h2o_maintenance_calls.id as id', 'households.english_name', 
-                    'date_of_call', 'date_completed', 'h2o_maintenance_calls.notes',
-                    'maintenance_types.type', 'maintenance_statuses.name', 
-                    'communities.english_name as community_name',
-                    'h2o_maintenance_calls.created_at as created_at',
-                    'h2o_maintenance_calls.updated_at as updated_at',
-                    'maintenance_h2o_actions.maintenance_action_h2o',
-                    'maintenance_h2o_actions.maintenance_action_h2o_english',
-                    'users.name as user_name', 'public_structures.english_name as public_name')
-                ->latest();
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+        if (Auth::guard('user')->user() != null) {
 
-                    $deleteButton = "<a type='button' class='deleteWaterMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    $viewButton = "<a type='button' class='viewWaterMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+            if ($request->ajax()) {
+                
+                $data = DB::table('h2o_maintenance_calls')
+                    ->leftJoin('households', 'h2o_maintenance_calls.household_id', 'households.id')
+                    ->leftJoin('public_structures', 'h2o_maintenance_calls.public_structure_id', 
+                        'public_structures.id')
+                    ->join('communities', 'h2o_maintenance_calls.community_id', 'communities.id')
+                    ->join('maintenance_types', 'h2o_maintenance_calls.maintenance_type_id', 
+                        '=', 'maintenance_types.id')
+                    ->join('maintenance_h2o_actions', 'h2o_maintenance_calls.maintenance_h2o_action_id', 
+                        '=', 'maintenance_h2o_actions.id')
+                    ->join('maintenance_statuses', 'h2o_maintenance_calls.maintenance_status_id', 
+                        '=', 'maintenance_statuses.id')
+                    ->join('users', 'h2o_maintenance_calls.user_id', '=', 'users.id')
+                    ->select('h2o_maintenance_calls.id as id', 'households.english_name', 
+                        'date_of_call', 'date_completed', 'h2o_maintenance_calls.notes',
+                        'maintenance_types.type', 'maintenance_statuses.name', 
+                        'communities.english_name as community_name',
+                        'h2o_maintenance_calls.created_at as created_at',
+                        'h2o_maintenance_calls.updated_at as updated_at',
+                        'maintenance_h2o_actions.maintenance_action_h2o',
+                        'maintenance_h2o_actions.maintenance_action_h2o_english',
+                        'users.name as user_name', 'public_structures.english_name as public_name')
+                    ->latest();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $deleteButton = "<a type='button' class='deleteWaterMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        $viewButton = "<a type='button' class='viewWaterMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+    
+                        return $deleteButton. " ". $viewButton;
+                    })
+                   
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request){
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_h2o_actions.maintenance_action_h2o', 'LIKE', "%$search%")
+                                ->orWhere('users.name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                ->rawColumns(['action'])
+                ->make(true);
+            }
+    
+            $communities = Community::all();
+            $households = DB::table('h2o_users')
+                ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
+                ->join('households', 'h2o_users.household_id', 'households.id')
+                ->select('households.id as id', 'households.english_name')
+                ->get();
+    
+            $maintenanceTypes = MaintenanceType::all();
+            $maintenanceStatuses = MaintenanceStatus::all();
+            $maintenanceH2oActions = MaintenanceH2oAction::all();
+            $publics = PublicStructure::all();
+            $users = User::all();
+            $publicCategories = PublicStructureCategory::all();
+    
+            return view('users.water.maintenance.index', compact('maintenanceTypes', 'maintenanceStatuses',
+                'maintenanceH2oActions', 'users', 'communities', 'households', 'publics',
+                'publicCategories'));
 
-                    return $deleteButton. " ". $viewButton;
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request){
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
-                            ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
-                            ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
-                            ->orWhere('maintenance_h2o_actions.maintenance_action_h2o', 'LIKE', "%$search%")
-                            ->orWhere('users.name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-            ->rawColumns(['action'])
-            ->make(true);
+        } else {
+
+            return view('errors.not-found');
         }
-
-        $communities = Community::all();
-        $households = DB::table('h2o_users')
-            ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
-            ->join('households', 'h2o_users.household_id', 'households.id')
-            ->select('households.id as id', 'households.english_name')
-            ->get();
-
-        $maintenanceTypes = MaintenanceType::all();
-        $maintenanceStatuses = MaintenanceStatus::all();
-        $maintenanceH2oActions = MaintenanceH2oAction::all();
-        $publics = PublicStructure::all();
-        $users = User::all();
-        $publicCategories = PublicStructureCategory::all();
-
-		return view('users.water.maintenance.index', compact('maintenanceTypes', 'maintenanceStatuses',
-            'maintenanceH2oActions', 'users', 'communities', 'households', 'publics',
-            'publicCategories'));
     }
 
     /**

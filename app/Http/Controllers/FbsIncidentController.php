@@ -36,90 +36,97 @@ class FbsIncidentController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
 
-            $data = DB::table('fbs_user_incidents')
-                ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
+            if ($request->ajax()) {
+
+                $data = DB::table('fbs_user_incidents')
+                    ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
+                    ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
+                    ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
+                    ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
+                    ->join('incident_status_small_infrastructures', 
+                        'fbs_user_incidents.incident_status_small_infrastructure_id', 
+                        '=', 'incident_status_small_infrastructures.id')
+                    ->select('fbs_user_incidents.date', 'fbs_user_incidents.year',
+                        'fbs_user_incidents.id as id', 'fbs_user_incidents.created_at as created_at', 
+                        'fbs_user_incidents.updated_at as updated_at', 
+                        'communities.english_name as community_name', 
+                        'households.english_name as household_name',
+                        'incidents.english_name as incident', 
+                        'incident_status_small_infrastructures.name as fbs_status',
+                        'fbs_user_incidents.notes')
+                    ->latest(); 
+    
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $viewButton = "<a type='button' class='viewFbsIncident' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewFbsIncidentModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteFbsIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $viewButton." ".$deleteButton;
+       
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('incident_status_small_infrastructures.name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('fbs_user_incidents.date', 'LIKE', "%$search%")
+                                ->orWhere('incidents.english_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+    
+            $communities = Community::all();
+            $energyUsers = DB::table('all_energy_meters')
+                ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->select('households.english_name', 'all_energy_meters.id')
+                ->get();
+    
+            $incidents = Incident::all();
+            $fbsIncidents = IncidentStatusSmallInfrastructure::all();
+            $fbsIncidentsNumber = FbsUserIncident::where('energy_user_id', '!=', '0')->count();
+            $donors = Donor::all();
+    
+            $dataFbsIncidents = DB::table('fbs_user_incidents')
                 ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
                 ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
+                ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
                 ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
                 ->join('incident_status_small_infrastructures', 
                     'fbs_user_incidents.incident_status_small_infrastructure_id', 
                     '=', 'incident_status_small_infrastructures.id')
-                ->select('fbs_user_incidents.date', 'fbs_user_incidents.year',
-                    'fbs_user_incidents.id as id', 'fbs_user_incidents.created_at as created_at', 
-                    'fbs_user_incidents.updated_at as updated_at', 
-                    'communities.english_name as community_name', 
-                    'households.english_name as household_name',
-                    'incidents.english_name as incident', 
-                    'incident_status_small_infrastructures.name as fbs_status',
-                    'fbs_user_incidents.notes')
-                ->latest(); 
+                ->select(
+                    DB::raw('incident_status_small_infrastructures.name as name'),
+                    DB::raw('count(*) as number'))
+                ->groupBy('incident_status_small_infrastructures.name')
+                ->get();
+         
+            $arrayFbsIncidents[] = ['English Name', 'Number'];
+            
+            foreach($dataFbsIncidents as $key => $value) {
+    
+                $arrayFbsIncidents[++$key] = [$value->name, $value->number];
+            }
+    
+            return view('incidents.fbs.index', compact('communities', 'energyUsers',
+                'incidents', 'fbsIncidents', 'fbsIncidentsNumber', 'donors'))
+                ->with('incidentsFbsData', json_encode($arrayFbsIncidents));
+                
+        } else {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-
-                    $viewButton = "<a type='button' class='viewFbsIncident' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewFbsIncidentModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteFbsIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $viewButton." ".$deleteButton;
-   
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('incident_status_small_infrastructures.name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('fbs_user_incidents.date', 'LIKE', "%$search%")
-                            ->orWhere('incidents.english_name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return view('errors.not-found');
         }
-
-        $communities = Community::all();
-        $energyUsers = DB::table('all_energy_meters')
-            ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
-            ->where('all_energy_meters.energy_system_type_id', 2)
-            ->select('households.english_name', 'all_energy_meters.id')
-            ->get();
-
-        $incidents = Incident::all();
-        $fbsIncidents = IncidentStatusSmallInfrastructure::all();
-        $fbsIncidentsNumber = FbsUserIncident::where('energy_user_id', '!=', '0')->count();
-        $donors = Donor::all();
-
-        $dataFbsIncidents = DB::table('fbs_user_incidents')
-            ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
-            ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
-            ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
-            ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
-            ->join('incident_status_small_infrastructures', 
-                'fbs_user_incidents.incident_status_small_infrastructure_id', 
-                '=', 'incident_status_small_infrastructures.id')
-            ->select(
-                DB::raw('incident_status_small_infrastructures.name as name'),
-                DB::raw('count(*) as number'))
-            ->groupBy('incident_status_small_infrastructures.name')
-            ->get();
-     
-        $arrayFbsIncidents[] = ['English Name', 'Number'];
-        
-        foreach($dataFbsIncidents as $key => $value) {
-
-            $arrayFbsIncidents[++$key] = [$value->name, $value->number];
-        }
-
-        return view('incidents.fbs.index', compact('communities', 'energyUsers',
-            'incidents', 'fbsIncidents', 'fbsIncidentsNumber', 'donors'))
-            ->with('incidentsFbsData', json_encode($arrayFbsIncidents));
     }
 
     /**

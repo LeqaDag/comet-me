@@ -12,11 +12,11 @@ class Community extends Model
     protected $fillable = ['english_name', 'arabic_name', 'region_id', 'is_bedouin', 
         'is_fallah', 'number_of_compound', 'number_of_people', 'number_of_households', 
         'sub_region_id', 'location_gis', 'energy_service', 'energy_service_beginning_year',
-        'water_service', 'water_service_beginning_year', 'internet_service', 
+        'water_service', 'water_service_beginning_year', 'internet_service', 'product_type_id',
         'internet_service_beginning_year', 'grid_access', 'is_archived', 'community_status_id'];
     
 
-    public function Region()
+    public function Region() 
     {
         return $this->belongsTo(Region::class, 'region_id', 'id');
     }
@@ -28,7 +28,7 @@ class Community extends Model
 
     public function ProductType()
     {
-        return $this->belongsTo(ProductType::class, 'region_id', 'id');
+        return $this->belongsTo(ProductType::class, 'product_type_id', 'id');
     }
 
     public function CommunityStatus()

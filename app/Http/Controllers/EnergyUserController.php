@@ -45,137 +45,117 @@ class EnergyUserController extends Controller
      */
     public function index(Request $request)
     {
-        $holders = DB::table('all_energy_meters')
-            ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
-            ->leftJoin('households', 'all_energy_meters.household_id', '=', 'households.id')
-            // ->leftJoin('household_meters', 'all_energy_meters.id', 
-            //     '=', 'household_meters.energy_user_id')
-            ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
-                '=', 'public_structures.id')
-            ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
-            ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
-            ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
-            ->groupBy('communities.english_name', 'energy_system_types.name')
-            ->where('all_energy_meters.installation_date', '>', '2023-03-01')
-            ->select('all_energy_meters.meter_active',
-                'all_energy_meters.id as id',
-                'communities.english_name as community_name',
-                'communities.id as community_id',
-                'energy_systems.name as energy_name', 
-                'all_energy_meters.installation_date',
-                'energy_system_types.name as energy_type_name',
-                'communities.number_of_household', 'communities.number_of_people')
-            //->selectRaw('COUNT("households.id") as number')
-            ->get(); 
+        if (Auth::guard('user')->user() != null) {
 
-       // die($data);
-        
-        // $vendors = Vendor::all();
-        // foreach($vendors as $vendor) {
-        //     $vendorUser = VendorUserName::where('name', $vendor->vendor_username)->first();
-
-        //     $vendor->vendor_username_id = $vendorUser->id;
-        //     $vendor->save();
-        // }
-
-        // $energyDonors = EnergyDonor::get();
-        // foreach($energyDonors as $energyDonor) {
-        //     $household = Household::where("english_name", $energyDonor->household_name)
-        //     ->first();
-        //     $energyDonor->household_id = $household->id;
-
-        //     $community = Community::where("english_name", $energyDonor->community_name)
-        //     ->first();
-        //     $energyDonor->community_id = $community->id;
-
-        //     $donor = Donor::where("donor_name", $energyDonor->donor_energy_name)
-        //     ->first();
-        //     $energyDonor->donor_id = $donor->id;
-
-        //     $energyDonor->save();
-
-
-        if ($request->ajax()) {
-
-            $data = DB::table('all_energy_meters')
+            $holders = DB::table('all_energy_meters')
                 ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
                 ->leftJoin('households', 'all_energy_meters.household_id', '=', 'households.id')
+                // ->leftJoin('household_meters', 'all_energy_meters.id', 
+                //     '=', 'household_meters.energy_user_id')
                 ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
                     '=', 'public_structures.id')
                 ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
                 ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
-                ->where('all_energy_meters.meter_active', 'Yes')
-                ->select('all_energy_meters.meter_number', 'all_energy_meters.meter_active',
-                    'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
-                    'all_energy_meters.updated_at as updated_at', 
+                ->groupBy('communities.english_name', 'energy_system_types.name')
+                ->where('all_energy_meters.installation_date', '>', '2023-03-01')
+                ->select('all_energy_meters.meter_active',
+                    'all_energy_meters.id as id',
                     'communities.english_name as community_name',
-                    'households.english_name as household_name',
-                    'public_structures.english_name as public_name',
+                    'communities.id as community_id',
                     'energy_systems.name as energy_name', 
+                    'all_energy_meters.installation_date',
                     'energy_system_types.name as energy_type_name',
-                    'all_energy_meters.daily_limit')
-                ->latest(); 
+                    'communities.number_of_household', 'communities.number_of_people')
+                //->selectRaw('COUNT("households.id") as number')
+                ->get(); 
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+            if ($request->ajax()) {
 
-                    $viewButton = "<a type='button' class='viewEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    
-                    return $viewButton;
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('energy_systems.name', 'LIKE', "%$search%")
-                            ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
-                            ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+                $data = DB::table('all_energy_meters')
+                    ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
+                    ->leftJoin('households', 'all_energy_meters.household_id', '=', 'households.id')
+                    ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
+                        '=', 'public_structures.id')
+                    ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
+                    ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
+                    ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+                    ->where('all_energy_meters.meter_active', 'Yes')
+                    ->select('all_energy_meters.meter_number', 'all_energy_meters.meter_active',
+                        'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
+                        'all_energy_meters.updated_at as updated_at', 
+                        'communities.english_name as community_name',
+                        'households.english_name as household_name',
+                        'public_structures.english_name as public_name',
+                        'energy_systems.name as energy_name', 
+                        'energy_system_types.name as energy_type_name',
+                        'all_energy_meters.daily_limit')
+                    ->latest(); 
+
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+
+                        $viewButton = "<a type='button' class='viewEnergyUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        
+                        return $viewButton;
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('energy_systems.name', 'LIKE', "%$search%")
+                                ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
+                                ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+
+            $communities = Community::where('is_archived', 0)->get();
+            $households = Household::all();
+            $energySystems = EnergySystem::all();
+            $energySystemTypes = EnergySystemType::all();
+            $meters = MeterCase::all();
+            $energyUsersNumbers = AllEnergyMeter::where('household_id', '!=', 0)->count();
+            
+            $energyMgNumbers = AllEnergyMeter::where("energy_system_type_id", 1)
+                ->where('household_id', '!=', 0)
+                ->where("meter_active", "Yes")
+                ->count();
+            $energyFbsNumbers = AllEnergyMeter::where("energy_system_type_id", 2)
+                ->where('household_id', '!=', 0)
+                ->where("meter_active", "Yes")
+                ->count();
+            $energyMmgNumbers = AllEnergyMeter::where("energy_system_type_id", 3)
+                ->where('household_id', '!=', 0)
+                ->where("meter_active", "Yes")
+                ->count();
+            $energySmgNumbers = AllEnergyMeter::where("energy_system_type_id", 4)
+                ->where('household_id', '!=', 0)
+                ->where("meter_active", "Yes")
+                ->count();
+            $householdMeterNumbers = HouseholdMeter::count();
+
+            $totalSum = AllEnergyMeter::where("meter_case_id", 1)->sum('daily_limit');
+            $donors = Donor::all();
+            
+            return view('users.energy.index', compact('communities', 'households', 
+                'energySystems', 'energySystemTypes', 'meters', 'energyMgNumbers', 
+                'energyFbsNumbers', 'energyMmgNumbers', 'energyUsersNumbers',
+                'energySmgNumbers', 'householdMeterNumbers', 'totalSum', 'donors',
+                'holders'));
+
+        } else {
+
+            return view('errors.not-found');
         }
-
-        $communities = Community::where('is_archived', 0)->get();
-        $households = Household::all();
-        $energySystems = EnergySystem::all();
-        $energySystemTypes = EnergySystemType::all();
-        $meters = MeterCase::all();
-        $energyUsersNumbers = AllEnergyMeter::where('household_id', '!=', 0)->count();
-        
-        $energyMgNumbers = AllEnergyMeter::where("energy_system_type_id", 1)
-            ->where('household_id', '!=', 0)
-            ->where("meter_active", "Yes")
-            ->count();
-        $energyFbsNumbers = AllEnergyMeter::where("energy_system_type_id", 2)
-            ->where('household_id', '!=', 0)
-            ->where("meter_active", "Yes")
-            ->count();
-        $energyMmgNumbers = AllEnergyMeter::where("energy_system_type_id", 3)
-            ->where('household_id', '!=', 0)
-            ->where("meter_active", "Yes")
-            ->count();
-        $energySmgNumbers = AllEnergyMeter::where("energy_system_type_id", 4)
-            ->where('household_id', '!=', 0)
-            ->where("meter_active", "Yes")
-            ->count();
-        $householdMeterNumbers = HouseholdMeter::count();
-
-        $totalSum = AllEnergyMeter::where("meter_case_id", 1)->sum('daily_limit');
-        $donors = Donor::all();
-        
-        return view('users.energy.index', compact('communities', 'households', 
-            'energySystems', 'energySystemTypes', 'meters', 'energyMgNumbers', 
-            'energyFbsNumbers', 'energyMmgNumbers', 'energyUsersNumbers',
-            'energySmgNumbers', 'householdMeterNumbers', 'totalSum', 'donors',
-            'holders'));
     }
 
     /**

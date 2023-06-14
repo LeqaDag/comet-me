@@ -93,6 +93,22 @@
                 </div>
                 <hr>
                 <div class="row">
+                    <h5>Community Representative</h5>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4" >
+                        <span class="spanDetails" id="communityRepresentative">
+                            
+                        </span>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4" >
+                        <span class="spanDetails" id="representativeRole">
+                            
+                        </span>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
                     <h5>Service Details</h5>
                 </div>
                 <div class="row">
@@ -134,6 +150,16 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
+                            Water Sources: 
+                            <span class="spanDetails" id="waterSourcesCommunity">
+                             
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
                             Internet Service: 
                             <span class="spanDetails" id="internetServiceCommunity">
                                 
@@ -162,6 +188,32 @@
                     </div>
                 </div>
                 <hr>
+
+                <div id="secondNameDiv" style="visiblity:hidden; display:none">
+                    <div class="row">
+                        <h5>Second Name</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                English Name: 
+                                <span class="spanDetails" id="secondNameEnglish">
+                                    
+                                </span>
+                            </h6>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                Arabic Name: 
+                                <span class="spanDetails" id="secondNameArabic">
+                                
+                                </span>
+                            </h6> 
+                        </div>
+                    </div> <hr>
+                </div>
+
+               
 
                 <div class="row">
                     <h5>Compounds Details</h5>

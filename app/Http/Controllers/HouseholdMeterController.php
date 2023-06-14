@@ -41,54 +41,61 @@ class HouseholdMeterController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if (Auth::guard('user')->user() != null) {
 
-            $data = DB::table('household_meters')
-                ->join('all_energy_meters', 'household_meters.energy_user_id', '=', 'all_energy_meters.id')
-                ->join('households', 'household_meters.household_id', '=', 'households.id')
-                ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
-               // ->where('all_energy_meters.meter_active', 'Yes')
-                ->select('communities.english_name as community_name',
-                    'household_meters.id as id', 'household_meters.created_at',
-                    'household_meters.updated_at',
-                    'households.english_name as household_name',
-                    'household_meters.user_name', 'household_meters.user_name_arabic')
-                ->latest(); 
+            if ($request->ajax()) {
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
+                $data = DB::table('household_meters')
+                    ->join('all_energy_meters', 'household_meters.energy_user_id', '=', 'all_energy_meters.id')
+                    ->join('households', 'household_meters.household_id', '=', 'households.id')
+                    ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
+                   // ->where('all_energy_meters.meter_active', 'Yes')
+                    ->select('communities.english_name as community_name',
+                        'household_meters.id as id', 'household_meters.created_at',
+                        'household_meters.updated_at',
+                        'households.english_name as household_name',
+                        'household_meters.user_name', 'household_meters.user_name_arabic')
+                    ->latest(); 
+    
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $viewButton = "<a type='button' class='viewHouseholdMeterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewHouseholdMeterUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateAllHouseholdMeterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateAllHouseholdMeterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteAllHouseholdMeterUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $viewButton." ". $updateButton." ".$deleteButton;
+       
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('household_meters.user_name', 'LIKE', "%$search%")
+                                ->orWhere('household_meters.user_name_arabic', 'LIKE', "%$search%")
+                                ->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+    
+            $communities = Community::all();
+            $households = DB::table('energy_users')
+                ->join('households', 'energy_users.household_id', '=', 'households.id')
+                ->get();
+    
+            return view('users.energy.shared.index', compact('communities', 'households'));
+            
+        } else {
 
-                    $viewButton = "<a type='button' class='viewHouseholdMeterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewHouseholdMeterUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    $updateButton = "<a type='button' class='updateAllHouseholdMeterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateAllHouseholdMeterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteAllHouseholdMeterUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    
-                    return $viewButton." ". $updateButton." ".$deleteButton;
-   
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('household_meters.user_name', 'LIKE', "%$search%")
-                            ->orWhere('household_meters.user_name_arabic', 'LIKE', "%$search%")
-                            ->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return view('errors.not-found');
         }
-
-        $communities = Community::all();
-        $households = DB::table('energy_users')
-            ->join('households', 'energy_users.household_id', '=', 'households.id')
-            ->get();
-
-        return view('users.energy.shared.index', compact('communities', 'households'));
     }
 
     /**

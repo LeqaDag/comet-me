@@ -167,6 +167,7 @@ return [
     Yajra\DataTables\ButtonsServiceProvider::class,
     Barryvdh\DomPDF\ServiceProvider::class,
     Maatwebsite\Excel\ExcelServiceProvider::class,
+    Intervention\Image\ImageServiceProvider::class,
     /*
          * Package Service Providers...
          */
@@ -199,6 +200,7 @@ return [
     'DataTables' => Yajra\DataTables\Facades\DataTables::class,
     'PDF' => Barryvdh\DomPDF\Facade::class,
     'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+    'Image' => Intervention\Image\Facades\Image::class,
   ])->toArray(),
 
 ];

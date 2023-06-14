@@ -41,6 +41,13 @@ class EnergyCometMeterController extends Controller
      */
     public function index(Request $request)
     {
+        if (Auth::guard('user')->user() != null) {
+
+        } else {
+
+            return view('errors.not-found');
+        }
+        
         if ($request->ajax()) {
 
             $dataPublic = DB::table('comet_meters')

@@ -4,11 +4,20 @@ namespace App\Http\Controllers;
     
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Spatie\Permission\Models\Role;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Auth;
 use DB;
-use Hash;
+use Route;
+use App\Models\User;
+use App\Models\UserType;
+use Carbon\Carbon;
+use DataTables;
+use mikehaertl\wkhtmlto\Pdf;
+use Illuminate\Support\Facades\Hash;
+use Intervention\Image\Facades\Image;
 use Illuminate\Support\Arr;
+use Excel;
     
 class UserController extends Controller
 {
@@ -18,11 +27,56 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
-        $data = User::orderBy('id','DESC')->paginate(5);
+    {	
+        if (Auth::guard('user')->user() != null) {
 
-        return view('users.index', compact('data'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+            if ($request->ajax()) {
+                
+                $data = DB::table('users')
+                    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+                    ->select('users.name as user_name', 'user_types.name as user_type',
+                        'users.id as id', 'users.created_at as created_at', 
+                        'users.updated_at as updated_at',
+                        'users.email', 'users.phone', 'users.image')
+                    ->latest(); 
+
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+                        $updateButton = "<a type='button' class='updateUser' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        return $updateButton." ".$deleteButton;
+                    })
+                    ->addColumn('photo', function($row) {
+
+                        return $row->image;
+                    })
+                
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                    $search = $request->get('search');
+                                    $w->orWhere('users.name', 'LIKE', "%$search%")
+                                    ->orWhere('users.email', 'LIKE', "%$search%")
+                                    ->orWhere('users.phone', 'LIKE', "%$search%")
+                                    ->orWhere('user_types.name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+
+
+            $userTypes = UserType::all();
+
+            return view('admin.users.index', compact('userTypes'));
+
+        } else {
+
+            return view('errors.not-found');
+        }
     }
     
     /**
@@ -49,17 +103,29 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|same:confirm-password',
-            'roles' => 'required'
+            'user_type_id' => 'required'
         ]);
     
         $input = $request->all();
-        $input['password'] = Hash::make($input['password']);
+
+        if(!empty($input['password'])) { 
+
+            $input['password'] = Hash::make($input['password']);
+        } else {
+
+            $input = Arr::except($input,array('password'));    
+        }
+        
+        $user = new User();
+        $user->name = $input['name'];
+        $user->email = $input['email'];
+        $user->phone = $input['phone'];
+        $user->user_type_id = $input['user_type_id'];
+        $user->password = $input['password'];
+        $user->save();
     
-        $user = User::create($input);
-        $user->assignRole($request->input('roles'));
-    
-        return redirect()->route('users.index')
-                        ->with('success','User created successfully');
+        return redirect()->back()
+            ->with('success', 'User created successfully');
     }
     
     /**
@@ -71,9 +137,28 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-        return view('users.show',compact('user'));
+        $userType = UserType::findOrFail($user->user_type_id);
+
+        $response['user'] = $user;
+        $response['userType'] = $userType;
+
+        return response()->json([
+            'response' => $response]);
     }
     
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $user = User::findOrFail($id);
+
+        return response()->json($user);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -83,10 +168,10 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::find($id);
-        $roles = Role::pluck('name','name')->all();
-        $userRole = $user->roles->pluck('name','name')->all();
+        $userTypes = UserType::all();
+
     
-        return view('users.edit',compact('user','roles','userRole'));
+        return view('admin.users.edit', compact('user', 'userTypes'));
     }
     
     /**
@@ -101,25 +186,39 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
-            'password' => 'same:confirm-password',
-            'roles' => 'required'
+            'password' => 'same:confirm-password'
         ]);
     
         $input = $request->all();
-        if(!empty($input['password'])){ 
+        if(!empty($input['password'])) { 
+
             $input['password'] = Hash::make($input['password']);
-        }else{
+        } else {
+
             $input = Arr::except($input,array('password'));    
         }
     
         $user = User::find($id);
+        if($request->name) $user->name = $request->name;
+        if($request->phone) $user->phone = $request->phone;
+        if($request->email) $user->email = $request->email;
         $user->update($input);
-        DB::table('model_has_roles')->where('model_id',$id)->delete();
-    
-        $user->assignRole($request->input('roles'));
-    
-        return redirect()->route('users.index')
-                        ->with('success','User updated successfully');
+        $extra_name = "";
+
+        if ($request->file('image')) {
+            $photo = $request->file('image');
+            $original_name = $photo->getClientOriginalName();
+            $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+            $encoded_base64_image = substr($photo, strpos($photo, ',') + 1);
+            $resized_image = Image::make($photo->getRealPath());
+            $resized_image->save('./users/profile/'.$extra_name);
+
+			$user->image = $extra_name;
+			$user->save();
+        }
+
+        return redirect()->back()
+            ->with('message', 'User updated successfully');
     }
     
     /**
@@ -128,10 +227,20 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function deleteUser(Request $request)
     {
-        User::find($id)->delete();
-        return redirect()->route('users.index')
-                        ->with('success','User deleted successfully');
+        $user = User::find($request->id);
+
+        if($user->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'User Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 }

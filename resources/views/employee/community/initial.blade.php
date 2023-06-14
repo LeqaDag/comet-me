@@ -38,6 +38,7 @@
                         <th class="text-center">English Name</th>
                         <th class="text-center">Arabic Name</th>
                         <th class="text-center"># of Households</th>
+                        <th class="text-center"># of People</th>
                         <th class="text-center">Region</th>
                         <th class="text-center">Sub Region</th>
                         <th class="text-center">Options</th>
@@ -66,6 +67,7 @@
             columns: [
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
+                {data: 'number_of_household', name: 'number_of_household'},
                 {data: 'number_of_people', name: 'number_of_people'},
                 {data: 'name', name: 'name'},
                 {data: 'subname', name: 'subname'},
