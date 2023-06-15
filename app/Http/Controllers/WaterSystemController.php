@@ -15,6 +15,18 @@ use App\Models\H2oSharedUser;
 use App\Models\H2oStatus;
 use App\Models\H2oUser;
 use App\Models\Household;
+use App\Models\WaterConnector;
+use App\Models\WaterElectrical;
+use App\Models\WaterFilter;
+use App\Models\WaterPipe;
+use App\Models\WaterPump;
+use App\Models\WaterSystemConnector;
+use App\Models\WaterSystemElectrical;
+use App\Models\WaterSystemFilter;
+use App\Models\WaterSystemPipe;
+use App\Models\WaterSystemPump;
+use App\Models\WaterSystemTank;
+use App\Models\WaterTank;
 use App\Models\WaterUser;
 use App\Models\WaterSystem;
 use App\Models\H2oSystemIncident;
@@ -36,16 +48,16 @@ class WaterSystemController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
-            if ($request->ajax()) {
+            if ($request->ajax()) { 
 
                 $data = DB::table('water_systems')->latest();
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
     
-                        $viewButton = "<a type='button' class='viewWaterSystem' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWtaerSystemModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateWaterSystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
     
-                        return $viewButton;
+                        return $updateButton;
                     })
                    
                     ->filter(function ($instance) use ($request) {
@@ -108,6 +120,47 @@ class WaterSystemController extends Controller
 
             return view('errors.not-found');
         }
+    }
+
+     /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $waterSystem = WaterSystem::findOrFail($id);
+
+        return response()->json($waterSystem);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $connectors = WaterConnector::all();
+        $electricals = WaterElectrical::all(); 
+        $filters = WaterFilter::all();
+        $pipes = WaterPipe::all();
+        $pumps = WaterPump::all();
+        $tanks = WaterTank::all();
+
+        $waterConnectors = WaterSystemConnector::where('water_system_id', $id)->get();
+       // $waterElectricals= WaterSystemElectrical::where('water_system_id', $id)->get();
+        $waterFilters = WaterSystemFilter::where('water_system_id', $id)->get();
+        $waterPipes = WaterSystemPipe::where('water_system_id', $id)->get();
+        $waterPumps = WaterSystemPump::where('water_system_id', $id)->get();
+        $waterTanks = WaterSystemTank::where('water_system_id', $id)->get();
+        $waterSystem = WaterSystem::findOrFail($id);
+        
+        return view('system.water.edit', compact('connectors', 'electricals', 'filters',
+            'pipes', 'pumps', 'tanks', 'waterConnectors', 'waterSystem',
+            'waterFilters', 'waterPipes', 'waterPumps', 'waterTanks'));
     }
 
     /**

@@ -132,6 +132,7 @@ Route::get('energy-system/{id}/editpage', [App\Http\Controllers\EnergySystemCont
 Route::resource('water-system', App\Http\Controllers\WaterSystemController::class);
 Route::get('water_user/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getWaterUserByCommunity']);
 Route::get('water_public/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getPublicByCommunity']);
+Route::get('water-system/{id}/editpage', [App\Http\Controllers\WaterSystemController::class, 'editPage']);
 
 Route::get('/details/incident', [App\Http\Controllers\HomeController::class, 'incidentDetails'])->name('incidentDetails');
 Route::get('/water/chart/', [App\Http\Controllers\WaterUserController::class, 'chartWater'])->name('chartWater');

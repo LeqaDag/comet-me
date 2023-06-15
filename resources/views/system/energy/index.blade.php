@@ -101,7 +101,7 @@
         }
     });
 
-    // View record details
+    // View record update page
     $('#systemEnergyTable').on('click', '.updateEnergySystem',function() {
 
         var id = $(this).data('id');
@@ -117,7 +117,6 @@
             }
         });
     });
-
 
 </script>
 @endsection

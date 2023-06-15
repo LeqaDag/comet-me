@@ -401,7 +401,7 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#englishNameHousehold').html(response['household'].english_name);
                     $('#arabicNameHousehold').html(response['household'].arabic_name);
                     $('#communityHousehold').html(response['community'].english_name);
-                    $('#professionHousehold').html(response['profession'].profession_name);
+                    if(response['profession']) $('#professionHousehold').html(response['profession'].profession_name);
                     $('#numberOfMaleHousehold').html(response['household'].number_of_male);
                     $('#numberOfFemaleHousehold').html(response['household'].number_of_female);
                     $('#numberOfChildrenHousehold').html(response['household'].number_of_children);

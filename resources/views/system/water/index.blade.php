@@ -93,5 +93,23 @@
             );
         } 
     });
+
+    // View record update page
+    $('#systemWaterTable').on('click', '.updateWaterSystem',function() {
+
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        url = url +'/'+ id +'/edit';
+        // AJAX request
+        $.ajax({
+            url: 'water-system/' + id + '/editpage',
+            type: 'get',
+            dataType: 'json',
+            success: function(response) {
+                window.open(url, "_self"); 
+            }
+        });
+    });
+
 </script>
 @endsection

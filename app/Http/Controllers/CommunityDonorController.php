@@ -53,16 +53,27 @@ class CommunityDonorController extends Controller
 
         $allEnergyMeters = AllEnergyMeter::where("community_id", $request->community_id)->get();
 
-        foreach($allEnergyMeters as $allEnergyMeter) {
+        if($request->service_id == 1) {
 
-            for($i=0; $i < count($request->donor_id); $i++) {
-
-                $allEnergyMeterDonor = new AllEnergyMeterDonor();
-                $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
-                $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
-                $allEnergyMeterDonor->donor_id = $request->donor_id[$i];
-                $allEnergyMeterDonor->save();
+            foreach($allEnergyMeters as $allEnergyMeter) {
+    
+                for($i=0; $i < count($request->donor_id); $i++) {
+    
+                    $allEnergyMeterDonor = new AllEnergyMeterDonor();
+                    $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                    $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
+                    $allEnergyMeterDonor->donor_id = $request->donor_id[$i];
+                    $allEnergyMeterDonor->save();
+                }
             }
+        }
+
+        if($request->service_id == 2) {
+
+        }
+
+        if($request->service_id ==3) {
+
         }
 
         return redirect()->back()->with('message', 'Community Donors Updated Successfully!');
