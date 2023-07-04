@@ -59,7 +59,7 @@ class HouseholdController extends Controller
         
         if (Auth::guard('user')->user() != null) {
 
-            $communities = Community::paginate();
+            $communities = Community::where("is_archived", 0)->get();
             $households = Household::paginate();
             $regions = Region::all();
             $subregions = SubRegion::all();
@@ -100,7 +100,13 @@ class HouseholdController extends Controller
                         $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $detailsButton." ". $updateButton." ".$deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id != 7 || 
+                            Auth::guard('user')->user()->user_type_id != 11 ) 
+                        {
+                                
+                            return $detailsButton." ". $updateButton." ".$deleteButton;
+                        } else return $detailsButton; 
+
                     })
                 
                     ->filter(function ($instance) use ($request) {
@@ -229,7 +235,7 @@ class HouseholdController extends Controller
         $cistern->household_id = $id;
         $cistern->save();
         
-        return redirect()->back()
+        return redirect('/household')
             ->with('message', 'New Household Added Successfully!');
     }
 

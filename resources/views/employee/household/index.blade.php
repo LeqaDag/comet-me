@@ -248,6 +248,18 @@ All<span class="text-muted fw-light"> Households</span>
                         </div>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
+                                <select name="community" class="form-control">
+                                    <option disabled selected>Search Community</option>
+                                    @foreach($communities as $community)
+                                    <option value="{{$community->id}}">
+                                        {{$community->english_name}}
+                                    </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
                                 <select name="status" class="form-control">
                                     <option disabled selected>Search Household Status</option>
                                     @foreach($householdStatuses as $householdStatus)
@@ -271,7 +283,7 @@ All<span class="text-muted fw-light"> Households</span>
                                 </select> 
                             </fieldset>
                         </div>
-                        <div class="col-xl-3 col-lg-3 col-md-3">
+                        <!-- <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
                                 <select name="donor" class="form-control">
                                     <option disabled selected>Search Donor</option>
@@ -282,7 +294,7 @@ All<span class="text-muted fw-light"> Households</span>
                                     @endforeach
                                 </select> 
                             </fieldset>
-                        </div>
+                        </div> -->
                     </div>
                     <br>
                     <div class="col-xl-3 col-lg-3 col-md-3">
@@ -295,16 +307,20 @@ All<span class="text-muted fw-light"> Households</span>
                     </div>
                 </form>
             </div>
-            <div>
-                <p class="card-text">
-                    <div>
-                        <a type="button" class="btn btn-success" 
-                            href="{{url('household', 'create')}}" >
-                            Create New Household	
-                        </a>
-                    </div>
-                </p>
-            </div>
+
+            @if(Auth::guard('user')->user()->user_type_id != 7 ||
+                Auth::guard('user')->user()->user_type_id != 11  )
+                <div>
+                    <p class="card-text">
+                        <div>
+                            <a type="button" class="btn btn-success" 
+                                href="{{url('household', 'create')}}" >
+                                Create New Household	
+                            </a>
+                        </div>
+                    </p>
+                </div>
+            @endif
             <table id="householdsTable" 
                 class="table table-striped data-table-households my-2">
                 <thead>

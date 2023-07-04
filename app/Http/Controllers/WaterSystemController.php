@@ -55,9 +55,18 @@ class WaterSystemController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
     
+                        $viewButton = "<a type='button' class='viewWaterSystem' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterSystemModal' ><i class='fa-solid fa-eye text-info'></i></a>";
                         $updateButton = "<a type='button' class='updateWaterSystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-    
-                        return $updateButton;
+                        $deleteButton = "<a type='button' class='deleteWaterSystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 5 ||
+                            Auth::guard('user')->user()->user_type_id == 11) 
+                        {
+                                
+                            return $viewButton." ". $updateButton." ".$deleteButton;
+                        } else return $viewButton;
                     })
                    
                     ->filter(function ($instance) use ($request) {

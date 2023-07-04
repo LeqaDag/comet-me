@@ -34,7 +34,7 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select class="selectpicker form-control" 
-                                    multiple data-live-search="true" 
+                                    data-live-search="true" id="selectedCommunityWater"
                                     name="community_id[]" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
@@ -47,15 +47,9 @@ label, table {
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>H2O User</label>
-                                <select name="h2o_user_id[]" class="selectpicker form-control" 
-                                    multiple data-live-search="true" required >
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($h2oUsers as $h2oUser)
-                                    <option value="{{$h2oUser->id}}">
-                                        {{$h2oUser->english_name}}
-                                    </option>
-                                    @endforeach
+                                <label class='col-md-12 control-label'>Water Holder</label>
+                                <select name="all_water_holder_id" class="form-control" 
+                                    id="waterHolderSelected" required disabled>
                                 </select>
                             </fieldset>
                         </div>
@@ -127,3 +121,20 @@ label, table {
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+<script>
+    $(document).on('change', '#selectedCommunityWater', function () {
+        community_id = $(this).val();
+        publicUser = "user";
+
+        $.ajax({
+            url: "water_holder/get_by_community/" + community_id + "/" + publicUser,
+            method: 'GET',
+            success: function(data) {
+                
+                $('#waterHolderSelected').prop('disabled', false);
+                $('#waterHolderSelected').html(data.html);
+            }
+        });
+    });
+</script>

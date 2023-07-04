@@ -4,9 +4,13 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class HouseholdExport implements FromCollection, WithHeadings
+class HouseholdExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
 {
 
     protected $request;
@@ -41,6 +45,10 @@ class HouseholdExport implements FromCollection, WithHeadings
 
             $data->where("regions.id", $this->request->region);
         }
+        if($this->request->community) {
+
+            $data->where("communities.id", $this->request->community);
+        }
         if($this->request->status) {
 
             $data->where("household_statuses.id", $this->request->status);
@@ -74,5 +82,25 @@ class HouseholdExport implements FromCollection, WithHeadings
             "Phone Number", "Profession", "# of Male", "# of Female", "# of Children",
             "# of School students", "Energy System Status", "Water System Status", 
             "Internet System Status"];
+    }
+
+    public function title(): string
+    {
+        return 'All Households';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:N1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

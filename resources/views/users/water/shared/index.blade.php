@@ -25,22 +25,34 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createSharedWaterUser">
-                    Create New Shared Water System Holder	
-                </button>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 5 ||
+                Auth::guard('user')->user()->user_type_id == 11)
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createSharedWaterUser">
+                        Create New Shared Water System Holder	
+                    </button>
 
-                @include('users.water.shared.create')
-            </div>
+                    @include('users.water.shared.create')
+                </div>
+            @endif
             <table id="waterAllSharedUsersTable" 
                 class="table table-striped data-table-water-all-users my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">H2O User</th>
-                        <th class="text-center">Sub Household</th>
-                        <th class="text-center">Community</th>
-                        <th class="text-center">Options</th>
+                        <th>Sub Household</th>
+                        <th>H2O User</th>
+                        <th>Community</th>
+                        @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 5 ||
+                            Auth::guard('user')->user()->user_type_id == 11)
+                            <th>Options</th>
+                        @else
+                            <th></th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -67,8 +79,8 @@
                 }
             },
             columns: [
-                {data: 'user_english_name', name: 'user_english_name'},
                 {data: 'english_name', name: 'english_name'},
+                {data: 'user_english_name', name: 'user_english_name'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'action'}
             ],

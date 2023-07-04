@@ -76,7 +76,15 @@ class EnergyPublicStructureController extends Controller
                     $updateButton = "<a type='button' class='updateEnergyPublic' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateEnergyUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                     $deleteButton = "<a type='button' class='deleteEnergyPublic' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
 
-                    return $viewButton." ".$updateButton." ".$deleteButton;
+                    if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 3 ||
+                            Auth::guard('user')->user()->user_type_id == 4 ||
+                            Auth::guard('user')->user()->user_type_id == 12) 
+                        {
+                                
+                            return $viewButton." ". $updateButton." ".$deleteButton;
+                        } else return $viewButton;
    
                 })
                 ->filter(function ($instance) use ($request) {
@@ -489,5 +497,30 @@ class EnergyPublicStructureController extends Controller
         }
 
         return redirect('/energy-public')->with('message', 'Energy Public Updated Successfully!');
+    }
+
+     /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergyPublicDonor(Request $request)
+    {
+        $id = $request->id;
+
+        $user = AllEnergyMeterDonor::find($id);
+        
+        if($user->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Energy Public Donor Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 }

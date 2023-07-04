@@ -119,72 +119,27 @@
                     <img class="brand-logo" alt="stack admin logo" src="{{ ('/logo.jpg')}}" >
                 </div>
 
+               
                 <div class="mt-8 bg-white dark:bg-gray-800 overflow-hidden shadow sm:rounded-lg">
                     <div class="grid grid-cols-1 md:grid-cols-2">
+                        @foreach($settings as $setting)   
                         <div class="p-6">
                             <div class="flex items-center">
                                 <div class="ml-4 text-lg leading-7 font-semibold">
-                                    <a href="https://comet-me.org/programs/energy/" 
+                                    <a href="{{$setting->link}}" 
                                     class="underline text-gray-900 dark:text-white">
-                                    ENERGY
+                                    {{$setting->name}}
                                     </a>
                                 </div>
                             </div>
 
                             <div class="ml-12">
                                 <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-                                The implementation of Comet-ME’s off-grid energy solutions in the communities over the past decade has had manifold humanitarian, economic, and social benefits. Those who experience the change in the most palpable and meaningful way are the women, who traditionally bear the brunt of the manual labor involved in the day-to-day tasks of maintaining the household and its economy—from carrying water, cleaning, cooking, and doing the laundry, to milking and producing dairy products for family consumption and sale. The core activities of the energy program are the installation of renewable energy systems and regular monitoring and maintenance of all systems.
+                                {{$setting->english_name}}
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="p-6 border-t border-gray-200 dark:border-gray-700 md:border-t-0 md:border-l">
-                            <div class="flex items-center">
-                                <div class="ml-4 text-lg leading-7 font-semibold">
-                                    <a href="https://comet-me.org/programs/water/" 
-                                    class="underline text-gray-900 dark:text-white">
-                                    WATER</a>
-                                </div>
-                            </div>
-
-                            <div class="ml-12">
-                                <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-                                Comet-ME has developed and implemented its water program since 2013, building on our extensive experience in the renewable energy sector. The goal of the program is to provide comprehensive renewable-energy-based water services for communities struggling to survive in harsh climatic and political conditions. The core activities of the program are the installation of household pumping, storage, distribution, and filtration systems and regular monitoring of water quality.                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-6 border-t border-gray-200 dark:border-gray-700">
-                            <div class="flex items-center">
-                                <div class="ml-4 text-lg leading-7 font-semibold">
-                                    <a href="https://comet-me.org/programs/rd/" 
-                                    class="underline text-gray-900 dark:text-white">
-                                    Solar Magnetic Plunger Pump
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="ml-12">
-                                <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-                                The Solar Magnetic Plunger Pump (SMPP) is a first-of-its-kind, double-action, submersible borehole piston pump designed for shallow aquifer pumping (with a pumping head in the range of 10-45 m) that can deliver 20-30 cubic meters a day, enough for irrigation of up to 1 hectare per day or for daily domestic usage for a small community.                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-6 border-t border-gray-200 dark:border-gray-700 md:border-l">
-                            <div class="flex items-center">
-                                <div class="ml-4 text-lg leading-7 font-semibold text-gray-900 dark:text-white">
-                                    <a href="https://comet-me.org/programs/internet/"
-                                        class="underline text-gray-900 dark:text-white">
-                                        Internet
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="ml-12">
-                                <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-                                Comet-ME has developed and implemented its community internet program since 2021. Through the provision of affordable, stable, high-speed internet services, the program aims to mitigate social, economic, educational, and gender disparities for and within vulnerable off-grid communities; to increase communities’ resilience in the face of settler and military violence—supporting documentation, dissemination of information, and advocacy efforts; and to provide tools that promote healthy and safe digital habits for men, women, and youth.
-                                </div>
-                            </div>
-                        </div>
+                        </div> 
+                        @endforeach
                     </div>
                 </div>
             </div>

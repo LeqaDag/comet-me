@@ -7,7 +7,7 @@
 @section('content')
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Household Meters 
+  <span class="text-muted fw-light">All </span> Shared Users
 </h4>
 
 @if(session()->has('message'))
@@ -21,18 +21,24 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createHouseholdMeter">
-                    Create New Household Meter	
-                </button>
-                @include('users.energy.shared.create')
-            </div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 ||
+                Auth::guard('user')->user()->user_type_id == 4 ||
+                Auth::guard('user')->user()->user_type_id == 12)
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createHouseholdMeter">
+                        Create New Shared User
+                    </button>
+                    @include('users.energy.shared.create')
+                </div>
+            @endif
             <table id="allHouseholdMeterTable" class="table table-striped data-table-energy-shared my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">Energy User</th>
-                        <th class="text-center">Household</th>
+                        <th class="text-center">Shared User (Household)</th>
+                        <th class="text-center">Meter Holder</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Options</th>
                     </tr>
@@ -57,8 +63,8 @@
                 }
             },
             columns: [
-                {data: 'user_name', name: 'user_name'},
                 {data: 'household_name', name: 'household_name'},
+                {data: 'user_name', name: 'user_name'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'action'},
             ]

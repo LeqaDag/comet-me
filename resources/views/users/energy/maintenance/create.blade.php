@@ -40,9 +40,12 @@ label, table {
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
                                         {{$community->english_name}}
-                                    </option>
+                                    </option> 
                                     @endforeach
                                 </select>
+                                @if ($errors->has('community_id'))
+                                    <span class="error">{{ $errors->first('community_id') }}</span>
+                                @endif
                             </fieldset>
                         </div> 
 
@@ -99,9 +102,12 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
                                 <select name="maintenance_electricity_action_id" class="form-control"
-                                    id="maintenanceElectricityAction" disabled>
+                                    id="maintenanceElectricityAction" disabled required>
                                     <option disabled selected>Choose one...</option>
                                 </select>
+                                @if ($errors->has('maintenance_electricity_action_id'))
+                                    <span class="error">{{ $errors->first('maintenance_electricity_action_id') }}</span>
+                                @endif
                             </fieldset>
                         </div>
                     </div>
@@ -110,7 +116,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Call</label>
-                                <input type="date" name="date_of_call" class="form-control">
+                                <input type="date" name="date_of_call" class="form-control" required>
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -125,7 +131,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Type</label>
-                                <select name="maintenance_type_id" class="form-control" required>
+                                <select name="maintenance_type_id" class="form-control" required="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($maintenanceTypes as $maintenanceType)
                                     <option value="{{$maintenanceType->id}}">
@@ -133,12 +139,15 @@ label, table {
                                     </option>
                                     @endforeach
                                 </select>
+                                @if ($errors->has('maintenance_type_id'))
+                                    <span class="error">{{ $errors->first('maintenance_type_id') }}</span>
+                                @endif
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Status</label>
-                                <select name="maintenance_status_id" class="form-control" >
+                                <select name="maintenance_status_id" class="form-control" required="true" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($maintenanceStatuses as $maintenanceStatus)
                                     <option value="{{$maintenanceStatus->id}}">
@@ -146,6 +155,9 @@ label, table {
                                     </option>
                                     @endforeach
                                 </select>
+                                @if ($errors->has('maintenance_status_id'))
+                                    <span class="error">{{ $errors->first('maintenance_status_id') }}</span>
+                                @endif
                             </fieldset>
                         </div>
                     </div>
@@ -154,7 +166,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Recipient</label>
-                                <select name="user_id" class="form-control">
+                                <select name="user_id" class="form-control" required="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($users as $user)
                                     <option value="{{$user->id}}">

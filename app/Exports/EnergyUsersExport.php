@@ -5,9 +5,10 @@ namespace App\Exports;
 use App\Models\EnergyUser;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class EnergyUsersExport implements FromCollection, WithHeadings
+class EnergyUsersExport implements FromCollection, WithHeadings, ShouldAutoSize
 {
     /**
     * @return \Illuminate\Support\Collection

@@ -62,10 +62,17 @@ class AcHouseholdController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
     
+                        $empty = "";
                         $acButton = "<select id='sharedHouseholdsSelect' class='sharedHousehold form-control' data-id='".$row->id."'><option selected>'". $row->energy_meter ."'</option><option value='No'>No</option><option value='Yes'>Yes</option></select>";
-                        
-                        return $acButton;
-       
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 || 
+                            Auth::guard('user')->user()->user_type_id == 3 || 
+                            Auth::guard('user')->user()->user_type_id == 4 || 
+                            Auth::guard('user')->user()->user_type_id == 12 ) 
+                        {
+                            return $acButton;
+                        }
+                        else  return $empty;
                     })
                    
                     ->filter(function ($instance) use ($request) {

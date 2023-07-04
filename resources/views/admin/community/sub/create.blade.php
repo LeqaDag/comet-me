@@ -1,16 +1,16 @@
 <style>
     label, input {
-    display: block;
-}
+        display: block;
+    } 
 
-label, table {
-    margin-top: 20px;
-}
+    label, table {
+        margin-top: 20px;
+    }
 
-.headingLabel {
-    font-size:18px;
-    font-weight: bold;
-}
+    .headingLabel {
+        font-size:18px;
+        font-weight: bold;
+    } 
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
@@ -60,7 +60,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Sub Community</label>
-                                <select name="sub_community_id" class="form-control">
+                                <select name="sub_community_id" id="selectedSubCommunity" class="form-control">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($subCommunities as $subCommunity)
                                     <option value="{{$subCommunity->id}}">
@@ -98,5 +98,16 @@ label, table {
                 $('#selectedHousehold').html(data.html);
             }
         });
+
+        $.ajax({
+            url: "sub-community/get_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                
+                $('#selectedSubCommunity').prop('disabled', false);
+                $('#selectedSubCommunity').html(data.html);
+            }
+        });
     });
+
 </script>

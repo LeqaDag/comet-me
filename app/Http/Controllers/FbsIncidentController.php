@@ -63,9 +63,17 @@ class FbsIncidentController extends Controller
                     ->addColumn('action', function($row) {
     
                         $viewButton = "<a type='button' class='viewFbsIncident' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewFbsIncidentModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateFbsIncident' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteFbsIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $viewButton." ".$deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 3 ||
+                            Auth::guard('user')->user()->user_type_id == 4) 
+                        {
+
+                            return $viewButton." ". $updateButton." ". $deleteButton;
+                        } else return $viewButton;
        
                     })
                     ->filter(function ($instance) use ($request) {
@@ -106,6 +114,7 @@ class FbsIncidentController extends Controller
                 ->join('incident_status_small_infrastructures', 
                     'fbs_user_incidents.incident_status_small_infrastructure_id', 
                     '=', 'incident_status_small_infrastructures.id')
+                ->where('incident_status_small_infrastructures.incident_id', 3)
                 ->select(
                     DB::raw('incident_status_small_infrastructures.name as name'),
                     DB::raw('count(*) as number'))
@@ -137,7 +146,6 @@ class FbsIncidentController extends Controller
      */
     public function store(Request $request)
     {      
-       // dd($request->all()); 
         $fbsIncident = new FbsUserIncident();
 
         if($request->date) {
@@ -147,8 +155,9 @@ class FbsIncidentController extends Controller
             $fbsIncident->year = $year[0];
         }
 
-        $fbsIncident->community_id = $request->community_id[0];
-        $fbsIncident->energy_user_id = $request->energy_user_id[0];
+        $fbsIncident->community_id = $request->community_id;
+        $energyUser = AllEnergyMeter::where('household_id', $request->energy_user_id)->first();
+        $fbsIncident->energy_user_id = $energyUser->id;
         $fbsIncident->incident_id = $request->incident_id;
         $fbsIncident->incident_status_small_infrastructure_id = $request->incident_status_small_infrastructure_id;
         $fbsIncident->equipment = $request->equipment;
@@ -183,6 +192,50 @@ class FbsIncidentController extends Controller
         $response['fbsStatus'] = $fbsStatus;
 
         return response()->json($response);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $fbsIncident = FbsUserIncident::findOrFail($id);
+        $communities = Community::where('is_archived', 0)->get();
+        $energyUsers = AllEnergyMeter::where('household_id', '!=', 0)->get();
+        $incidents = Incident::all();
+        $fbsStatuses = IncidentStatusSmallInfrastructure::all();
+
+        return view('incidents.fbs.edit', compact('fbsIncident', 'communities', 'energyUsers', 
+            'incidents', 'fbsStatuses'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $fbsIncident = FbsUserIncident::findOrFail($id);
+
+        if($request->date) {
+
+            $fbsIncident->date = $request->date;
+            $year = explode('-', $request->date);
+            $fbsIncident->year = $year[0];
+        }
+
+        $fbsIncident->incident_id = $request->incident_id;
+        $fbsIncident->incident_status_small_infrastructure_id = $request->incident_status_small_infrastructure_id;
+        $fbsIncident->equipment = $request->equipment;
+        $fbsIncident->notes = $request->notes;
+        $fbsIncident->save();
+
+        return redirect('/fbs-incident')->with('message', 'FBS Incident Updated Successfully!');
     }
 
     /**

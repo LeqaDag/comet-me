@@ -176,6 +176,15 @@
             });
         });
 
+        // View update
+        $('#refrigeratorTable').on('click', '.updateRefrigeratorHolder',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            
+            url = url +'/'+ id +'/edit';
+            window.open(url, "_self"); 
+        });
+
         // View record details
         $('#refrigeratorTable').on('click', '.viewRefrigeratorHolder',function() {
             var id = $(this).data('id');

@@ -91,10 +91,17 @@ class SubCommunityHouseholdController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
+
+                        $empty = "";
                         $updateButton = "<a type='button' class='updateSubCommunityHousehold' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateSubCommunityModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteSubCommunityHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
     
-                        return $updateButton." ".$deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ) 
+                        {
+                                
+                            return $updateButton." ".$deleteButton;
+                        } else return $empty; 
        
                     })
                     ->filter(function ($instance) use ($request) {
@@ -227,5 +234,30 @@ class SubCommunityHouseholdController extends Controller
         $subCommunity->save();
 
         return redirect()->back()->with('message', 'New Sub Community Household Added Successfully!');
+    }
+
+    /**
+     * Get sub communities by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getByCommunity(Request $request)
+    {
+        $subCommunities = SubCommunity::where('community_id', $request->community_id)->get();
+
+        if (!$request->community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '';
+            $subCommunities = SubCommunity::where('community_id', $request->community_id)->get();
+            foreach ($subCommunities as $subCommunity) {
+                $html .= '<option value="'.$subCommunity->id.'">'.$subCommunity->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
     }
 }

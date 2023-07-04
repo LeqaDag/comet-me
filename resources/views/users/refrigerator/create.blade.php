@@ -13,6 +13,11 @@ label, table {
 }
 </style>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 <div id="createRefrigeratorHolder" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -32,13 +37,16 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
-                                <select name="community_id" id="communityChanges" 
-                                    class="form-control">
+                                <select class="selectpicker form-control" name="community_id" data-live-search="true" 
+                                    id="communityChanges" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">{{$community->english_name}}</option>
                                     @endforeach
                                 </select>
+                                @if ($errors->has('community_id'))
+                                    <span class="error">{{ $errors->first('community_id') }}</span>
+                                @endif
                             </fieldset>
                         </div>
 
@@ -128,6 +136,15 @@ label, table {
                                 class="form-control">
                             </fieldset>
                         </div>
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Notes</label>
+                                <textarea name="notes" class="form-control" 
+                                    style="resize:none" cols="20" rows="1">
+                                </textarea>
+                            </fieldset>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -138,6 +155,9 @@ label, table {
         </div>
     </div>
 </div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script src="{{ asset('js/jquery.min.js') }}"></script>
 <script>

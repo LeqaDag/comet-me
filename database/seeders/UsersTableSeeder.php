@@ -17,24 +17,15 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
         DB::table('users')->delete();
-        User::create(array(
-            'name'     => 'Leqa Daghameen',
-            'email'    => 'leqa@gmail.com',
-            'password' => Hash::make('Leqa@2022'),
-            'gender' => "female",
-            'image' => "hh",
-            'phone' => "0598476334",
-            'type' => 1,
-            'is_admin' => 1
-        ));
+
         User::create(array(
             'name'     => 'Leqa Daghameen',
             'email'    => 'leqa@comet-me.org',
             'password' => Hash::make('Leqa@2023'),
             'gender' => "female",
-            'image' => "hh",
+            'image' => "2.png",
             'phone' => "0509338554",
-            'type' => 1,
+            'user_type_id' => 1,
             'is_admin' => 1
         ));
         User::create(array(
@@ -42,9 +33,9 @@ class UsersTableSeeder extends Seeder
             'email'    => 'tamar@comet-me.org',
             'password' => Hash::make('Tamar@2023'),
             'gender' => "female",
-            'image' => "hh",
+            'image' => "2.png",
             'phone' => "0544582376",
-            'type' => 1,
+            'user_type_id' => 1,
             'is_admin' => 1
         ));
         User::create(array(
@@ -52,9 +43,9 @@ class UsersTableSeeder extends Seeder
             'email'    => 'asmahan@comet-me.org',
             'password' => Hash::make('Asmahan@2023'),
             'gender' => "female",
-            'image' => "hh",
+            'image' => "4.png",
             'phone' => "0523930440",
-            'type' => 1,
+            'user_type_id' => 2,
             'is_admin' => 1
         ));
         User::create(array(
@@ -62,9 +53,9 @@ class UsersTableSeeder extends Seeder
             'email'    => 'elad@comet-me.org',
             'password' => Hash::make('Elad@2023'),
             'gender' => "male",
-            'image' => "hh",
+            'image' => "9.png",
             'phone' => "0523930440",
-            'type' => 1,
+            'user_type_id' => 2,
             'is_admin' => 1
         ));
         User::create(array(
@@ -72,9 +63,9 @@ class UsersTableSeeder extends Seeder
             'email'    => 'nidal@comet-me.org',
             'password' => Hash::make('Nidal@2023'),
             'gender' => "male",
-            'image' => "hh",
+            'image' => "5.png",
             'phone' => "0585124246",
-            'type' => 1,
+            'user_type_id' => 5,
             'is_admin' => 0
         ));
         User::create(array(
@@ -82,9 +73,9 @@ class UsersTableSeeder extends Seeder
             'email'    => 'waseem@comet-me.org',
             'password' => Hash::make('Waseem@2023'),
             'gender' => "male",
-            'image' => "hh",
+            'image' => "7.png",
             'phone' => "0526769174",
-            'type' => 1,
+            'user_type_id' => 1,
             'is_admin' => 1
         ));
         User::create(array(
@@ -92,9 +83,9 @@ class UsersTableSeeder extends Seeder
             'email'    => 'dahham@comet-me.org',
             'password' => Hash::make('Dahham@2023'),
             'gender' => "male",
-            'image' => "hh",
+            'image' => "13.png",
             'phone' => "0523912599",
-            'type' => 1,
+            'user_type_id' => 4,
             'is_admin' => 0
         ));
         User::create(array(
@@ -102,19 +93,19 @@ class UsersTableSeeder extends Seeder
             'email'    => 'arafat@comet-me.org',
             'password' => Hash::make('Arafat@2023'),
             'gender' => "male",
-            'image' => "hh",
+            'image' => "12.png",
             'phone' => "0587727566",
-            'type' => 1,
+            'user_type_id' => 6,
             'is_admin' => 0
-        ));
+        )); 
         User::create(array(
             'name'     => 'Musab Shrouf',
             'email'    => 'musab@comet-me.org',
             'password' => Hash::make('Musab@2023'),
             'gender' => "male",
-            'image' => "hh",
+            'image' => "14.png",
             'phone' => "0587374732",
-            'type' => 1,
+            'user_type_id' => 3,
             'is_admin' => 0
         ));
         User::create(array(
@@ -122,9 +113,9 @@ class UsersTableSeeder extends Seeder
             'email'    => 'sujood@comet-me.org',
             'password' => Hash::make('Sujood@2023'),
             'gender' => "female",
-            'image' => "hh",
+            'image' => "18.png",
             'phone' => "0598795616",
-            'type' => 1,
+            'user_type_id' => 9,
             'is_admin' => 0
         ));
         User::create(array(
@@ -132,9 +123,29 @@ class UsersTableSeeder extends Seeder
             'email'    => 'almutasm@comet-me.org',
             'password' => Hash::make('Moatasem@2023'),
             'gender' => "male",
-            'image' => "hh",
+            'image' => "17.png",
             'phone' => "0524459676",
-            'type' => 1,
+            'user_type_id' => 11,
+            'is_admin' => 0
+        ));
+        User::create(array(
+            'name'     => 'Ibrahim Makhamreh',
+            'email'    => 'ibrahim@comet-me.org',
+            'password' => Hash::make('Ibrahim@2023'),
+            'gender' => "male",
+            'phone' => "0567271774",
+            'image' => "17.png",
+            'user_type_id' => 7,
+            'is_admin' => 0
+        ));
+        User::create(array(
+            'name'     => 'Mamoun',
+            'email'    => 'mamoun@comet-me.org',
+            'password' => Hash::make('Mamoun@2023'),
+            'gender' => "male",
+            'image' => "17.png",
+            'phone' => "0524459676",
+            'user_type_id' => 12,
             'is_admin' => 0
         ));
     }

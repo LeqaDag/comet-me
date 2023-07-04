@@ -11,259 +11,135 @@
   Welcome {{Auth::guard('user')->user()->name}}  
 </h1> 
 
-<div class="col-lg-12 col-md-12">
-  <div class="row">
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h2 class="mb-1">{{$regionNumbers}}</h2>
-          <span class="text-muted">Regions</span>
-          <div class="primary">
-            <a href="{{'sub-region'}}" type="button">
-              <i class="bx bx-map me-1 bx-lg text-warning"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h2 class="mb-1">{{$communityNumbers}}</h2>
-          <span class="text-muted">Communitites</span>
+<div class="card mb-4">
+  <div class="card-body">
+    <h5>Served Communities Energy</h5>
+    <div class="col-lg-12 col-md-12">
+      <div class="row">
+        <div class="col-sm-3 col-3 mb-4">
           <div class="">
-            <a href="{{'community'}}" type="button">
-              <i class="bx bx-home me-1 bx-lg text-success"></i>
-            </a>
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$regionNumbers}}</h2>
+              <span class="text-muted">Regions</span>
+              <div class="primary">
+                <a href="{{'sub-region'}}" type="button">
+                  <i class="bx bx-map me-1 bx-lg text-warning"></i>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h2 class="mb-1">{{$numberOfPeople->number_of_people}}</h2>
-          <span class="text-muted">People</span>
-          <div class="primary">
-            <a href="{{'sub-region'}}" type="button">
-              <i class="bx bx-group me-1 bx-lg text-dark"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h2 class="mb-1">{{$householdNumbers}}</h2>
-          <span class="text-muted">Households</span>
-          <div class="primary">
-            <a href="{{'household'}}" type="button">
-              <i class="bx bx-user me-1 bx-lg bx-primary"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h2 class="mb-1">{{$systemHoldersNumber}}</h2>
-          <span class="text-muted">System Holders</span>
+        <div class="col-sm-3 col-3 mb-4">
           <div class="">
-            <a href="{{'household'}}" type="button">
-              <i class="bx bx-smile me-1 bx-lg text-danger"></i>
-            </a>
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$communityNumbers}}</h2>
+              <span class="text-muted">Communitites</span>
+              <div class="">
+                <a href="{{'community'}}" type="button">
+                  <i class="bx bx-home me-1 bx-lg text-success"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3 col-3 mb-4">
+          <div class="">
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$numberOfPeople->number_of_people}}</h2>
+              <span class="text-muted">People</span>
+              <div class="primary">
+                <a href="{{'sub-region'}}" type="button">
+                  <i class="bx bx-group me-1 bx-lg text-dark"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3 col-3 mb-4">
+          <div class="">
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$householdNumbers}}</h2>
+              <span class="text-muted">Households</span>
+              <div class="primary">
+                <a href="{{'household'}}" type="button">
+                  <i class="bx bx-user me-1 bx-lg bx-primary"></i>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div> -->
-  </div>
-</div>
+    </div>
 
-<div class="col-lg-12 col-md-12">
-  <div class="row">
-    
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h2 class="mb-1">{{$numberOfMale->number_of_male}}</h2>
-          <span class="text-muted">Male</span>
+    <div class="col-lg-12 col-md-12">
+      <div class="row">
+        <div class="col-sm-3 col-3 mb-4">
           <div class="">
-            <a href="{{'community'}}" type="button">
-              <i class="bx bx-male me-1 bx-lg text-secondary"></i>
-            </a>
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$numberOfMale->number_of_male}}</h2>
+              <span class="text-muted">Male</span>
+              <div class="">
+                <a href="{{'community'}}" type="button">
+                  <i class="bx bx-male me-1 bx-lg text-secondary"></i>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h2 class="mb-1">{{$numberOfFemale->number_of_female}}</h2>
-          <span class="text-muted">Female</span>
-          <div class="primary">
-            <a href="{{'household'}}" type="button">
-              <i class="bx bx-female me-1 bx-lg text-light"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h2 class="mb-1">{{$numberOfAdults->number_of_adults}}</h2>
-          <span class="text-muted">Adults</span>
-          <div class="primary">
-            <a href="{{'sub-region'}}" type="button">
-              <i class="bx bx-male bx-lg text-danger"></i>
-              <i class="bx bx-female me-1 bx-lg text-danger"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h2 class="mb-1">{{$numberOfChildren->number_of_children}}</h2>
-          <span class="text-muted">Children</span>
+        <div class="col-sm-3 col-3 mb-4">
           <div class="">
-            <a href="{{'household'}}" type="button">
-              <i class="bx bx-face me-1 bx-lg text-info"></i>
-            </a>
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$numberOfFemale->number_of_female}}</h2>
+              <span class="text-muted">Female</span>
+              <div class="primary">
+                <a href="{{'household'}}" type="button">
+                  <i class="bx bx-female me-1 bx-lg text-light"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3 col-3 mb-4">
+          <div class="">
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$numberOfAdults->number_of_adults}}</h2>
+              <span class="text-muted">Adults</span>
+              <div class="primary">
+                <a href="{{'sub-region'}}" type="button">
+                  <i class="bx bx-male bx-lg text-danger"></i>
+                  <i class="bx bx-female me-1 bx-lg text-danger"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3 col-3 mb-4">
+          <div class="">
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$numberOfChildren->number_of_children}}</h2>
+              <span class="text-muted">Children</span>
+              <div class="">
+                <a href="{{'household'}}" type="button">
+                  <i class="bx bx-face me-1 bx-lg text-info"></i>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-
-<!-- <div class="col-lg-12 col-md-12">
-  <div class="row">
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-         
-         
-          <span class="text-muted">Energy Users</span>
-          <div class="">
-            <a href="" type="button">
-              <i class="bx bx-bulb me-1 bx-lg text-success"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          
-   
-          <span class="text-muted">H2O Users</span>
-          <div class="primary">
-            <a href="{{'household'}}" type="button">
-              <i class="bx bx-droplet me-1 bx-lg text-primary"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-         
-       
-          <span class="text-muted">Grid Users</span>
-          <div class="primary">
-            <a href="{{'sub-region'}}" type="button">
-              <i class="bx bx-water me-1 bx-lg text-info"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-3 col-3 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-         
-       
-          <span class="text-muted">Internet Users</span>
-          <div class="">
-            <a href="{{'household'}}" type="button">
-              <i class="bx bx-wifi me-1 bx-lg text-warning"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> -->
-
-
-<!-- Cumulative Sum Energy -->
-<div class="row mb-4">
-  <div class="col-md-12 col-lg-12">
-    <div class="card">
-        <div class="card-header">
-            <h5>Number of communities vs. Initial Service year (energy)</h5>
-        </div>
-        <div class="card-body">
-            <div id="energyCumulativeSum"></div>
-        </div>
-    </div>
-  </div>
-</div>
-<!-- <div class="row mb-4">
-  <div class="col-md-12 col-lg-12">
-    <div class="card">
-        <div class="card-header">
-            <h5>Number of communities vs. Initial Service year (energy)</h5>
-        </div>
-        <div class="card-body">
-            <div id="initialCommunityChart"></div>
-        </div>
-    </div>
-  </div>
-</div> -->
-<div class="row mb-4">
-  <div class="col-md-12 col-lg-12">
-    <div class="card">
-        <div class="card-header">
-            <h5>Number of communities vs. Initial Service year (water)</h5>
-        </div>
-        <div class="card-body">
-            <div id="initialYearCommunityChartWater"></div>
-        </div>
-    </div>
-  </div>
-</div>
-<div class="row mb-4">
-  <div class="col-md-12 col-lg-12">
-    <div class="card">
-        <div class="card-header">
-            <h5>Number of communities vs. Initial Service year (internet)</h5>
-        </div>
-        <div class="card-body">
-            <div id="initialYearCommunityChartInternet"></div>
-        </div>
-    </div>
-  </div>
-</div>
-
-
 
   <!-- H2O Users -->
   <div class="row mb-4">
     <div class="col-lg-12 col-xl-12 col-md-12 mb-4">
-      <div class="card">
+      <div class="card"> 
         <div class="card-header">
           <h5 class="card-title mb-0">Water Users</h5>
         </div>
         <div class="card-body pb-2">
-          <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-4">
+          <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
             <ul class="p-0 m-0">
               <li class="d-flex mb-4 pb-2">
                 <div class="avatar avatar-sm flex-shrink-0 me-3">
@@ -292,7 +168,7 @@
             </ul>
           </div>
 
-          <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-4">
+          <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
             <div class="d-flex justify-content-between align-items-center gap-3 w-100">
               <div class="d-flex align-content-center">
                 <div class="avatar avatar-sm flex-shrink-0 me-3">
@@ -313,7 +189,7 @@
                 </div>
                 <div class="chart-info">
                   <h5 class="mb-0">{{$gridLarge->sum}}</h5>
-                  <small class="text-muted">Grid Large System</small>
+                  <small class="text-muted">Grid Integration Large</small>
                 </div>
               </div>
               <div class="d-flex align-content-center">
@@ -324,16 +200,182 @@
                 </div>
                 <div class="chart-info">
                   <h5 class="mb-0">{{$gridSmall->sum}}</h5>
-                  <small class="text-muted">Grid Small System</small>
+                  <small class="text-muted">Grid Integration Small</small>
+                </div>
+              </div>
+              <div class="d-flex align-content-center">
+                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded-circle bg-label-primary">
+                    <i class='bx bx-droplet'></i>
+                  </span>
+                </div>
+                <div class="chart-info">
+                  <h5 class="mb-0">{{$waterNetworkUsers}}</h5>
+                  <small class="text-muted">Water Network</small>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
       </div>
     </div>
   </div>
+  
+    <!-- Internet Users -->
+  <div class="row mb-4">
+    <div class="col-lg-12 col-xl-12 col-md-12 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Internet Users</h5>
+        </div>
+        <div class="card-body pb-2">
+          <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
+            <ul class="p-0 m-0">
+              <li class="d-flex mb-4 pb-2">
+                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded-circle bg-label-success">
+                    <i class='bx bx-wifi'></i></span>
+                </div>
+                <div class="d-flex flex-column w-100">
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Internet Users</span>
+                    <span class="text-muted">
+                      {{$internetPercentage}} %
+                    </span>
+                  </div>
+                  <div class="progress" style="height:6px;">
+                    <div class="progress-bar bg-success" style="width: {{$internetPercentage}}%" 
+                    role="progressbar" aria-valuenow="{{$internetPercentage}}" 
+                    aria-valuemin="0" 
+                    aria-valuemax="{{$allInternetPeople}}"></div>
+                  </div>
+                </div>
+              </li>
+            
+            </ul>
+          </div>
+
+          <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
+            <div class="d-flex justify-content-between align-items-center gap-3 w-100">
+              <div class="d-flex align-content-center">
+                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded-circle bg-label-success">
+                    <i class='bx bx-home'></i>
+                  </span>
+                </div>
+                <div class="chart-info">
+                  <h5 class="mb-0">{{$activeInternetCommuntiiesCount}}</h5>
+                  <small class="text-muted">Active Communities</small>
+                </div>
+              </div>
+              <div class="d-flex align-content-center">
+                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded-circle bg-label-success">
+                    <i class='bx bx-book-content bx-large'></i>
+                  </span>
+                </div>
+                <div class="chart-info"> 
+                  <h5 class="mb-0">{{$allInternetUsersCounts}}</h5>
+                  <small class="text-muted">Contract Holders</small>
+                </div>
+              </div>
+              <div class="d-flex align-content-center">
+                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded-circle bg-label-success">
+                    <i class='bx bx-happy bx-large'></i>
+                  </span>
+                </div>
+                <div class="chart-info"> 
+                  <h5 class="mb-0">{{$youngInternetHolders}}</h5>
+                  <small class="text-muted">Young Holders</small>
+                </div>
+              </div>
+              <div class="d-flex align-content-center">
+                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded-circle bg-label-success">
+                    <i class='bx bx-user'></i>
+                  </span>
+                </div>
+                <div class="chart-info">
+                  <h5 class="mb-0">{{$allInternetPeople}}</h5>
+                  <small class="text-muted">Active Users</small>
+                </div>
+              </div>
+              <div class="d-flex align-content-center">
+                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded-circle bg-label-success">
+                    <i class='bx bx-buildings'></i>
+                  </span>
+                </div>
+                <div class="chart-info">
+                  <h5 class="mb-0">{{$InternetPublicCount}}</h5>
+                  <small class="text-muted">Active Public Structures</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Cumulative Sum Energy -->
+<div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="menu-icon tf-icons bx bx-lg bx-bulb text-warning"></i>
+              Total Number of Communities by Year (energy)</h5>
+        </div>
+        <div class="card-body">
+            <div id="energyCumulativeSum"></div>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- <div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5>Number of communities vs. Initial Service year (energy)</h5>
+        </div>
+        <div class="card-body">
+            <div id="initialCommunityChart"></div>
+        </div>
+    </div>
+  </div>
+</div> -->
+<div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+        
+          <h5> <i class="menu-icon tf-icons bx bx-lg bx-droplet text-info"></i>
+            Total Number of Communities by Year (water)</h5>
+        </div>
+        <div class="card-body">
+            <div id="initialYearCommunityChartWater"></div>
+        </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="menu-icon tf-icons bx bx-lg bx-wifi text-success"></i>
+              Total Number of Communities by Year (internet)</h5>
+        </div>
+        <div class="card-body">
+            <div id="initialYearCommunityChartInternet"></div>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+
+
 
   <!-- Masafer Yatta-->
 <div class="card mb-4">
@@ -455,6 +497,7 @@
    
     var water = <?php echo $cumulativeSumWaterData; ?>;
     var internet = <?php echo $cumulativeSumInternetData; ?>;
+    var cumulativeSum = <?php echo $cumulativeSum; ?>;
 
     google.charts.load('current', {'packages':['bar']});
     google.charts.setOnLoadCallback(drawChart);
@@ -463,6 +506,7 @@
   
       var waterData = google.visualization.arrayToDataTable(water);
       var internetData = google.visualization.arrayToDataTable(internet);
+      var cumulativeSumEnergyData = google.visualization.arrayToDataTable(cumulativeSum);
 
       var chartWater = new google.charts.Bar
         (document.getElementById('initialYearCommunityChartWater'));
@@ -475,6 +519,17 @@
       chartInternet.draw(
         internetData
       );
+
+      
+
+      // var chartEnergy = new google.charts.Bar
+      //   (document.getElementById('energyCumulativeSum'));
+      //   chartEnergy.draw(
+      //     cumulativeSumEnergyData, options
+      // );
+
+
+
     }
   });
 </script>
@@ -486,13 +541,20 @@
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(drawChart);
       
+    var options = {
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        vAxis: {format: '0000'},
+        hAxis: {format: '0000'}
+      };
+
     function drawChart() {
         var cumulativeSumEnergyData = google.visualization.arrayToDataTable(cumulativeSum);
 
         var chartCumulativeSumEnergy = new google.visualization.LineChart
           (document.getElementById('energyCumulativeSum'));
           chartCumulativeSumEnergy.draw(
-          cumulativeSumEnergyData
+          cumulativeSumEnergyData, options
         );
     }
   });

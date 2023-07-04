@@ -93,6 +93,7 @@
                 <thead>
                     <tr>
                         <th class="text-center">User Name</th>
+                        <th class="text-center">Main User</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Meter Number</th>
                         <th class="text-center">Meter Active</th>
@@ -143,6 +144,7 @@
             },
             columns: [
                 {data: 'household_name', name: 'household_name'},
+                {data: 'icon'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'meter_number', name: 'meter_number'},
                 {data: 'meter_case_name_english', name: 'meter_case_name_english'},

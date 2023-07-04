@@ -28,21 +28,29 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
-            <div>
+            <div> 
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2  )
                 <button type="button" class="btn btn-success" 
                     data-bs-toggle="modal" data-bs-target="#createSubSubRegionModal">
                     Create New Sub-Sub-Region	
                 </button>
                 @include('regions.sub_sub_regions.create')
+            @endif
             </div>
             <table id="subSubRegionTable" class="table table-striped data-table-sub-regions my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">English Name</th>
-                        <th class="text-center">Arabic Name</th>
-                        <th class="text-center">Region</th>
-                        <th class="text-center">Sub Region</th>
-                        <th class="text-center">Options</th>
+                        <th>English Name</th>
+                        <th>Arabic Name</th>
+                        <th>Region</th>
+                        <th>Sub Region</th>
+                        @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                            Auth::guard('user')->user()->user_type_id == 2)
+                            <th>Options</th>
+                        @else
+                            <th></th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>

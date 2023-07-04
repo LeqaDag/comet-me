@@ -85,13 +85,18 @@
             </form>
         </div>
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createFbsIncident">
-                    Add FBS Incident
-                </button>
-                @include('incidents.fbs.create')
-            </div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||  
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 ||
+                Auth::guard('user')->user()->user_type_id == 4)
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createFbsIncident">
+                        Add FBS Incident
+                    </button>
+                    @include('incidents.fbs.create')
+                </div>
+            @endif
             <table id="fbsIncidentsTable" class="table table-striped data-table-fbs-incidents my-2">
                 <thead>
                     <tr>
@@ -124,7 +129,7 @@
         function drawChart() {
             var data = google.visualization.arrayToDataTable(analytics);
             var options  ={
-                title:'Status of FBS Incidents (total '+ number +')',
+                title:'Status of FBS Seizures (total '+ number +')',
                 is3D:true,
             };
 
@@ -134,7 +139,7 @@
                 data, options
             );
 
-            google.visualization.events.addListener(chart,'select',function() {
+            google.visualization.events.addListener(chart,'select', function() {
                 
                 var row = chart.getSelection()[0].row;
                 var selected_data = data.getValue(row,0);
@@ -229,6 +234,15 @@
                     $('#incidentNotes').html(response['fbsIncident'].notes);
                 }
             });
+        });
+
+        // View record photos
+        $('#fbsIncidentsTable').on('click', '.updateFbsIncident',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+           
+            url = url +'/'+ id +'/edit';
+            window.open(url, "_self"); 
         });
 
         // Delete record

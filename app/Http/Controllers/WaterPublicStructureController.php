@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Models\AllWaterHolder;
 use App\Models\User;
 use App\Models\BsfStatus;
 use App\Models\Community;
@@ -16,8 +17,10 @@ use App\Models\H2oSharedUser;
 use App\Models\GridPublicStructure;
 use App\Models\H2oStatus;
 use App\Models\H2oPublicStructure;
+use App\Models\H2oSharedPublicStructure;
 use App\Models\H2oUserDonor;
 use App\Models\Household;
+use App\Models\PublicStructure;
 use App\Models\WaterUser;
 use App\Models\EnergyPublicStructure;
 use Auth;
@@ -36,28 +39,37 @@ class WaterPublicStructureController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
-            if ($request->ajax()) {
+            if ($request->ajax()) { 
 
-                $data = DB::table('h2o_public_structures')
-                    ->join('h2o_statuses', 'h2o_public_structures.h2o_status_id', 'h2o_statuses.id')
-                    ->join('public_structures', 'h2o_public_structures.public_structure_id', 'public_structures.id')
-                    ->join('communities', 'public_structures.community_id', 'communities.id')
-                    ->select('h2o_public_structures.id as id',  
-                        'communities.english_name as community_name',
-                        'h2o_public_structures.created_at as created_at', 
-                        'public_structures.english_name', 'public_structures.arabic_name',
-                        'h2o_public_structures.updated_at as updated_at', 
-                        'h2o_statuses.status', 'h2o_public_structures.installation_year')
+                $data =  DB::table('h2o_shared_public_structures')
+                    ->join('h2o_public_structures', 'h2o_shared_public_structures.h2o_public_structure_id', 
+                        'h2o_public_structures.id')
+                    ->join('public_structures', 'h2o_public_structures.public_structure_id', 
+                        'public_structures.id')
+                    ->join('communities', 'h2o_public_structures.community_id', 'communities.id')
+                    ->select('h2o_shared_public_structures.id as id', 'public_structures.english_name', 
+                        'communities.english_name as community_name', 
+                        'h2o_shared_public_structures.public_structure_name as shared',
+                        'h2o_shared_public_structures.created_at as created_at', 
+                        'public_structures.arabic_name',
+                        'h2o_shared_public_structures.updated_at as updated_at', )
                     ->latest();
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
-    
-                        $updateButton = "<a type='button' class='updateWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateWaterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                        $deleteButton = "<a type='button' class='deleteWaterUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                        $viewButton = "<a type='button' class='viewWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-    
-                        return $updateButton." ".$deleteButton. " ". $viewButton;
+                        $empty = "";
+                        //$updateButton = "<a type='button' class='updateWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateWaterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteSharedPublic' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        //$viewButton = "<a type='button' class='viewWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 5 ||
+                            Auth::guard('user')->user()->user_type_id == 11) 
+                        {
+                                
+                            return $deleteButton;
+                        } else return $empty;
                     }) 
                    
                     ->filter(function ($instance) use ($request) {
@@ -68,8 +80,7 @@ class WaterPublicStructureController extends Controller
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
                                 ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('h2o_public_structures.installation_year', 'LIKE', "%$search%")
-                                ->orWhere('h2o_statuses.status', 'LIKE', "%$search%");
+                                ->orWhere('h2o_shared_public_structures.public_structure_name', 'LIKE', "%$search%");
                             });
                         }
                     })
@@ -78,7 +89,7 @@ class WaterPublicStructureController extends Controller
             }
     
             $communities = Community::all();
-            $bsfStatus = BsfStatus::all();
+            $bsfStatus = BsfStatus::all(); 
             $households = Household::all();
             $h2oStatus = H2oStatus::all();
     
@@ -98,33 +109,23 @@ class WaterPublicStructureController extends Controller
      */
     public function store(Request $request)
     {
-        $h2oPublicStructure = new H2oPublicStructure();
-        $h2oPublicStructure->community_id = $request->community_id;
-        $h2oPublicStructure->public_structure_id = $request->public_structure_id;
-        $h2oPublicStructure->h2o_status_id = $request->h2o_status_id;
-        $h2oPublicStructure->bsf_status_id = $request->bsf_status_id;
-        $h2oPublicStructure->number_of_bsf = $request->number_of_bsf;
-        $h2oPublicStructure->number_of_h20 = $request->number_of_h20; 
-        $h2oPublicStructure->h2o_request_date = $request->h2o_request_date; 
-        $h2oPublicStructure->installation_year = $request->installation_year;
-        $h2oPublicStructure->save();
+        $publicStructure = PublicStructure::findOrFail($request->public_structure_id);
 
-        $gridPublicStructure = new GridPublicStructure();
-        $gridPublicStructure->community_id = $request->community_id;
-        $gridPublicStructure->public_structure_id = $request->public_structure_id;
-        $gridPublicStructure->request_date = $request->request_date;
-        $gridPublicStructure->grid_access = $request->grid_access;
-        $gridPublicStructure->grid_integration_large = $request->grid_integration_large;
-        $gridPublicStructure->large_date = $request->large_date;
-        $gridPublicStructure->grid_integration_small = $request->grid_integration_small;
-        $gridPublicStructure->small_date = $request->small_date;
-        $gridPublicStructure->is_delivery = $request->is_delivery;
-        $gridPublicStructure->is_paid = $request->is_paid;
-        $gridPublicStructure->is_complete = $request->is_complete;
-        $gridPublicStructure->notes = $request->notes;
-        $gridPublicStructure->save();
+        $h2oSharedPublicStructure = new H2oSharedPublicStructure();
+        $h2oSharedPublicStructure->public_structure_name = $publicStructure->english_name;
+        $h2oSharedPublicStructure->h2o_public_structure_id = $request->h2o_public_structure_id;
+        $h2oSharedPublicStructure->public_structure_id = $request->public_structure_id;
+        $h2oSharedPublicStructure->save();
 
-        return redirect()->back()->with('message', 'New Public Structure Added Successfully!');
+        $allWaterHolder = new AllWaterHolder();
+        $allWaterHolder->is_main = "No";
+        $allWaterHolder->public_structure_id = $request->public_structure_id;
+        $allWaterHolder->community_id = $request->community_id[0];
+        $allWaterHolder->water_system_id = 1;
+        $allWaterHolder->save();
+
+
+        return redirect()->back()->with('message', 'New Shared Public Structure Added Successfully!');
     }
 
     /**
@@ -145,7 +146,68 @@ class WaterPublicStructureController extends Controller
             $response['meter_number'] = $publicMeter->meter_number;
         }
         
-
         return response()->json($response);
+    }
+
+    /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getH2oPublicByCommunity(Request $request)
+    {
+        $h2oPublics = DB::table('h2o_public_structures')
+            ->join('communities', 'h2o_public_structures.community_id', 'communities.id')
+            ->join('public_structures', 'h2o_public_structures.public_structure_id', 'public_structures.id')
+            ->where('h2o_public_structures.community_id', $request->community_id)
+            ->select('h2o_public_structures.id as id', 'public_structures.english_name')
+            ->get();
+
+        if (!$request->community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option selected>Choose One...</option>';
+            $h2oPublics = DB::table('h2o_public_structures')
+                ->join('communities', 'h2o_public_structures.community_id', 'communities.id')
+                ->join('public_structures', 'h2o_public_structures.public_structure_id', 'public_structures.id')
+                ->where('h2o_public_structures.community_id', $request->community_id)
+                ->select('h2o_public_structures.id as id', 'public_structures.english_name')
+                ->get();
+            foreach ($h2oPublics as $h2oPublic) {
+                $html .= '<option value="'.$h2oPublic->id.'">'.$h2oPublic->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteSharedPublic(Request $request)
+    {
+        $id = $request->id;
+        $h2oSharedPublic = H2oSharedPublicStructure::findOrFail($id);
+        $allWaterHolder = AllWaterHolder::where("public_structure_id", $h2oSharedPublic->public_structure_id)->first();
+  
+        if($h2oSharedPublic->delete()) {
+
+            if($allWaterHolder) $allWaterHolder->delete();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Shared Public Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 }

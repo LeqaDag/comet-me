@@ -77,7 +77,7 @@
 </div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Electricity Public Structures
+  <span class="text-muted fw-light">All </span> Public Structures Meters
 </h4>
 
 @if(session()->has('message'))
@@ -93,13 +93,19 @@
 <div class="container mb-4">
     <div class="card my-2">
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createMeterPublic">
-                    Create New Public Structure	
-                </button>
-                @include('users.energy.public.create')
-            </div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 ||
+                Auth::guard('user')->user()->user_type_id == 4 ||
+                Auth::guard('user')->user()->user_type_id == 12)
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createMeterPublic">
+                        Create New Public Structure	Meter
+                    </button>
+                    @include('users.energy.public.create')
+                </div>
+            @endif
             <table id="energyPublicStructuresTable" 
                 class="table table-striped data-table-energy-public-structures my-2">
                 <thead>

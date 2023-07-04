@@ -29,9 +29,9 @@ label, table {
                                 <select name="misc" 
                                     class="form-control" required>
                                     <option disabled selected>Choose one...</option>
-                                    <option value="1">MISC FBS/MG extension</option> 
                                     <option value="0">New Community</option>
-                                    <option value="2">Maintenance</option>
+                                    <option value="1">MISC FBS</option>
+                                    <option value="2">MG extension</option>
                                 </select>
                             </fieldset>
                         </div>

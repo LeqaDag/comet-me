@@ -47,16 +47,23 @@ class AllEnergyController extends Controller
      */
     public function index(Request $request)
     {
-        // $energyMeters = AllEnergyMeter::where("community_id", 1)
-        //     ->get();
+        // $subUsers = AllEnergyMeter::where("is_main", "No")->get();
 
-        // foreach($energyMeters as $energyMeter) {
+        // foreach($subUsers as $subUser) {
 
-        //     $energyMeter->meter_active = "Yes";
-        //     $energyMeter->installation_date = "2022-11-30";
-        //     $energyMeter->meter_case_id = 1;
-        //     $energyMeter->save();
+           
+        //     $mainUser = HouseholdMeter::where('household_id', $subUser->household_id)->first();
+        //     $exist = AllEnergyMeterDonor::where('all_energy_meter_id', $subUser->id)->get();
+        //     $energyUser = AllEnergyMeter::where('id', $mainUser->energy_user_id)->first();
+            
+            
+        //         $subUser->misc = $energyUser->misc;
+        //         $subUser->save();
+            
+            
         // }
+
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
@@ -74,7 +81,8 @@ class AllEnergyController extends Controller
                         'households.english_name as household_name',
                         'energy_systems.name as energy_name', 
                         'energy_system_types.name as energy_type_name',
-                        'meter_cases.meter_case_name_english')
+                        'meter_cases.meter_case_name_english',
+                        'all_energy_meters.is_main')
                     ->latest(); 
     
                 return Datatables::of($data)
@@ -84,14 +92,32 @@ class AllEnergyController extends Controller
                         $updateButton = "<a type='button' class='updateAllEnergyUser' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteAllEnergyUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $viewButton." ". $updateButton." ".$deleteButton;
-       
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 3 ||
+                            Auth::guard('user')->user()->user_type_id == 4 ||
+                            Auth::guard('user')->user()->user_type_id == 12) 
+                        {
+                                
+                            return $viewButton." ". $updateButton." ".$deleteButton;
+                        } else return $viewButton;
+
+                    })
+                    ->addColumn('icon', function($row) {
+
+                        $icon = "<i class='fa-solid fa-check text-success'></i>";
+
+                        if($row->is_main == "Yes") $icon = "<i class='fa-solid fa-check text-success'></i>";
+                        else if($row->is_main == "No") $icon = "<i class='fa-solid fa-close text-danger'></i>";
+
+                        return $icon;
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request) {
                                 $search = $request->get('search');
                                 $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('all_energy_meters.is_main', 'LIKE', "%$search%")
                                 ->orWhere('households.english_name', 'LIKE', "%$search%")
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
@@ -103,7 +129,7 @@ class AllEnergyController extends Controller
                             });
                         }
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'icon'])
                     ->make(true);
             }
             
@@ -267,7 +293,7 @@ class AllEnergyController extends Controller
         return response()->json($energyDonors);
     }
 
-    /**
+    /** 
      * View Edit page.
      *
      * @param  int $id
@@ -314,6 +340,7 @@ class AllEnergyController extends Controller
                 $household = Household::findOrFail($energyUser->household_id);
                 $household->household_status_id = 4;
                 $household->energy_service = "Yes";
+                $household->energy_system_status = "Served";
                 $household->energy_meter = "Yes";
                 $household->save();
             }
@@ -332,12 +359,29 @@ class AllEnergyController extends Controller
 
                     $household = Household::findOrFail($householdMeter->household_id);
                     $household->household_status_id = 4;
+                    $household->energy_system_status = "Served";
                     $household->save();
                 }
             } 
         }
 
         if($request->donors) {
+
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)->get();
+            
+            foreach($householdMeters as $householdMeter) {
+
+                $allEnergyMeter = AllEnergyMeter::where('household_id', $householdMeter->household_id)->first();
+                for($i=0; $i < count($request->donors); $i++) {
+
+                    $energyMeterDonor = new AllEnergyMeterDonor();
+                    $energyMeterDonor->donor_id = $request->donors[$i];
+                    $energyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                    $energyMeterDonor->community_id = $energyUser->community_id;
+                    $energyMeterDonor->save();
+                }
+            }
+
             for($i=0; $i < count($request->donors); $i++) {
 
                 $energyMeterDonor = new AllEnergyMeterDonor();
@@ -349,6 +393,21 @@ class AllEnergyController extends Controller
         }
 
         if($request->new_donors) {
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)->get();
+            
+            foreach($householdMeters as $householdMeter) {
+
+                $allEnergyMeter = AllEnergyMeter::where('household_id', $householdMeter->household_id)->first();
+                for($i=0; $i < count($request->donors); $i++) {
+
+                    $energyMeterDonor = new AllEnergyMeterDonor();
+                    $energyMeterDonor->donor_id = $request->donors[$i];
+                    $energyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                    $energyMeterDonor->community_id = $energyUser->community_id;
+                    $energyMeterDonor->save();
+                }
+            }
+
             for($i=0; $i < count($request->new_donors); $i++) {
 
                 $energyMeterDonor = new AllEnergyMeterDonor();
@@ -385,6 +444,45 @@ class AllEnergyController extends Controller
 
             $response['success'] = 1;
             $response['msg'] = 'Energy User Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+     /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergyDonor(Request $request)
+    {
+        $id = $request->id;
+        $mainEnergyDonor = AllEnergyMeterDonor::findOrFail($id);
+
+        $user = AllEnergyMeterDonor::find($id);
+        $sharedMeters = HouseholdMeter::where("energy_user_id", $user->all_energy_meter_id)->get();
+        
+        if($user->delete()) {
+
+            if($sharedMeters) {
+                foreach($sharedMeters as $sharedMeter) {
+
+                    $sharedEnergyMeter = AllEnergyMeter::where("household_id", $sharedMeter->household_id)->first();
+                    $sharedDonor = AllEnergyMeterDonor::where("all_energy_meter_id", $sharedEnergyMeter->id)
+                        ->where('donor_id', $mainEnergyDonor->donor_id)
+                        ->first();
+        
+                    $sharedDonor->delete(); 
+                }
+            }
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Energy Donor Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

@@ -33,12 +33,17 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createWaterSystem">
-                    Create New Water System	
-                </button>
-            </div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 || 
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 5 ||
+                Auth::guard('user')->user()->user_type_id == 11)
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createWaterSystem">
+                        Create New Water System	
+                    </button>
+                </div>
+            @endif
             <table id="systemWaterTable" class="table table-striped data-table-water-system my-2">
                 <thead>
                     <tr>

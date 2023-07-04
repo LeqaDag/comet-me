@@ -1,12 +1,8 @@
-@php
-  $pricingModal = true;
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'community representatives')
 
-@include('layouts.all')
+@include('layouts.all') 
 
 @section('content')
 
@@ -32,6 +28,8 @@
                
             </div>
 
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2  )
             <div>
                 <button type="button" class="btn btn-success" 
                     data-bs-toggle="modal" data-bs-target="#createCommunityRepresentative">
@@ -39,14 +37,15 @@
                 </button>
                 @include('admin.community.representatives.create')
             </div>
+            @endif
             <table id="communityRepresentativesTable" 
                 class="table table-striped data-table-community-representatives my-2">
                 <thead>
                     <tr>
+                        <th class="text-center">Representative</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Status</th>
                         <th class="text-center">Region</th>
-                        <th class="text-center">Representative</th>
                         <th class="text-center">Role</th>
                         <th class="text-center">Options</th>
                     </tr>
@@ -71,10 +70,10 @@
                 }
             },
             columns: [
+                {data: 'household', name: 'household'},
                 {data: 'english_name', name: 'english_name'},
                 {data: 'status_name', name: 'status_name'},
                 {data: 'name', name: 'name'},
-                {data: 'household', name: 'household'},
                 {data: 'role', name: 'role'},
                 {data: 'action'}
             ]

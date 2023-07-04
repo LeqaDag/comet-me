@@ -84,8 +84,16 @@ class EnergyMaintenanceCallController extends Controller
 
                     $deleteButton = "<a type='button' class='deleteEnergyMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                     $viewButton = "<a type='button' class='viewEnergyMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                    $updateButton = "<a type='button' class='updateEnergyMaintenance' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
 
-                    return $deleteButton. " ". $viewButton;
+                    if(Auth::guard('user')->user()->user_type_id == 1 || 
+                        Auth::guard('user')->user()->user_type_id == 2 ||
+                        Auth::guard('user')->user()->user_type_id == 4 ||
+                        Auth::guard('user')->user()->user_type_id == 7) 
+                    {
+                            
+                        return $viewButton. " ". $updateButton . " ".$deleteButton ;
+                    } else return $viewButton;
                 })
                
                 ->filter(function ($instance) use ($request) {
@@ -132,12 +140,20 @@ class EnergyMaintenanceCallController extends Controller
      */
     public function store(Request $request)
     {
-        //dd($request->all());
+        $this->validate($request, [
+            'community_id' => 'required',
+            'maintenance_status_id' => 'required',
+            'maintenance_type_id' => 'required',
+            'maintenance_electricity_action_id' => 'required',
+            'user_id' => 'required'
+        ]);
+
         $maintenance = new ElectricityMaintenanceCall();
         if($request->household_id) {
 
             $energyUserId = AllEnergyMeter::where('household_id', $request->household_id[0])
-                ->select('id')->get();
+                ->select('id')
+                ->get();
             $maintenance->household_id = $request->household_id[0];
             $maintenance->energy_user_id = $energyUserId[0]->id;
         }
@@ -164,6 +180,60 @@ class EnergyMaintenanceCallController extends Controller
 
         return redirect()->back()
             ->with('message', 'New Maintenance Added Successfully!');
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $energyMaintenance = ElectricityMaintenanceCall::findOrFail($id);
+        $actions = "";
+
+        if($energyMaintenance->household_id || $energyMaintenance->public_structure_id) {
+
+            $actions = MaintenanceElectricityAction::where("system_user", 1)
+                ->orWhere("system_user", 3)
+                ->get();
+        } else if($energyMaintenance->energy_system_id) {
+            $actions = MaintenanceElectricityAction::where("system_user", 2)
+                ->orWhere("system_user", 3)
+                ->get();
+        } 
+
+
+        $maintenanceTypes = MaintenanceType::all();
+        $maintenanceStatuses = MaintenanceStatus::all();
+        $maintenanceEnergyActions = MaintenanceElectricityAction::all();
+        $users = User::all();
+
+        return view('users.energy.maintenance.edit', compact('energyMaintenance', 'maintenanceTypes', 
+            'maintenanceStatuses', 'maintenanceEnergyActions', 'users', 'actions'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $energyMaintenance = ElectricityMaintenanceCall::findOrFail($id);
+
+        $energyMaintenance->date_of_call = $request->date_of_call;
+        $energyMaintenance->date_completed = $request->date_completed;
+        $energyMaintenance->maintenance_status_id = $request->maintenance_status_id;
+        $energyMaintenance->user_id = $request->user_id;
+        $energyMaintenance->maintenance_electricity_action_id = $request->maintenance_electricity_action_id;
+        $energyMaintenance->maintenance_type_id = $request->maintenance_type_id;
+        $energyMaintenance->notes = $request->notes;
+        $energyMaintenance->save();
+
+        return redirect('/energy-maintenance')->with('message', 'Energy Maintenance Updated Successfully!');
     }
 
     /**

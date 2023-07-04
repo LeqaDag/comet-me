@@ -335,7 +335,7 @@ class EnergyUserController extends Controller
             ->where('all_energy_meter_donors.all_energy_meter_id', $id)
             ->join('donors', 'all_energy_meter_donors.donor_id', '=', 'donors.id')
             ->select('donors.donor_name', 'all_energy_meter_donors.all_energy_meter_id')
-            ->get();
+            ->get(); 
 
         $community = Community::where('id', $energyMeter->community_id)->first();
 

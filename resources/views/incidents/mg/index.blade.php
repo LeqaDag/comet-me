@@ -85,13 +85,18 @@
             </form>
         </div>
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createMgIncident">
-                    Add MG Incident
-                </button>
-                @include('incidents.mg.create')
-            </div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||  
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 ||
+                Auth::guard('user')->user()->user_type_id == 4)
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createMgIncident">
+                        Add MG Incident
+                    </button>
+                    @include('incidents.mg.create')
+                </div>
+            @endif
             <table id="mgIncidentsTable" class="table table-striped data-table-mg-incidents my-2">
                 <thead>
                     <tr>
@@ -110,7 +115,7 @@
     </div>
 </div>
 
-
+ 
 <script type="text/javascript">
 
     $(function () {
@@ -229,6 +234,15 @@
                     $('#incidentNotes').html(response['mgIncident'].notes);
                 }
             });
+        });
+
+        // View record photos
+        $('#mgIncidentsTable').on('click', '.updateMgIncident',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+           
+            url = url +'/'+ id +'/edit';
+            window.open(url, "_self"); 
         });
 
         // Delete record

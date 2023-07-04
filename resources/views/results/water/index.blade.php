@@ -10,7 +10,6 @@
 
 @section('content')
 
-
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span>Water Quality Results
 </h4>
@@ -78,18 +77,37 @@
                     </div>
                 </div>
             </form>
-
-
-
         </div>
         <div class="card-body">
-
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createWaterResult">
-                    Add Water Result
-                </button>
-                @include('results.water.create')
+            <div class="row">
+                @if(Auth::guard('user')->user()->user_type_id == 1 || 
+                    Auth::guard('user')->user()->user_type_id == 5 ||
+                    Auth::guard('user')->user()->user_type_id == 9 )
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <button type="button" class="btn btn-success" 
+                                data-bs-toggle="modal" data-bs-target="#createWaterResult">
+                                Add Water Result
+                            </button>
+                            @include('results.water.create')
+                        </fieldset>
+                    </div> 
+                    <div class="col-xl-9 col-lg-9 col-md-9">
+                        <form action="{{route('quality-result.import')}}" method="POST" 
+                            enctype="multipart/form-data">
+                            @csrf
+                            <div class="col-xl-5 col-lg-5 col-md-5">
+                                <fieldset class="form-group">
+                                    <input name="file" type="file"
+                                        class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <button class="btn btn-success" type="submit">Import File</button>
+                            </div>
+                        </form>
+                    </div>
+                @endif
             </div>
             <table id="waterResultTable" 
                 class="table table-striped data-table-water-result my-2">
@@ -199,6 +217,9 @@
 
                     $('#phResult').html(" ");
                     $('#phResult').html(response['result'].ph);
+
+                    $('#notesResult').html(" ");
+                    $('#notesResult').html(response['result'].notes);
                 }
             });
         });
@@ -213,7 +234,6 @@
                 showDenyButton: true,
                 confirmButtonText: 'Confirm'
             }).then((result) => {
-
                 if(result.isConfirmed) {
                     $.ajax({
                         url: "{{ route('deleteQualityResult') }}",

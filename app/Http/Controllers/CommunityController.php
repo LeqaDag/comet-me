@@ -59,6 +59,8 @@ class CommunityController extends Controller
                     ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
                     ->join('community_statuses', 'communities.community_status_id', 
                         '=', 'community_statuses.id')
+                    ->leftJoin('second_name_communities', 'communities.id',
+                        '=', 'second_name_communities.community_id')
                     ->where('communities.is_archived', 0)
                     ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
                         'communities.id as id', 'communities.created_at as created_at', 
@@ -74,14 +76,20 @@ class CommunityController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
+
                         $detailsButton = "<a type='button' class='detailsCommunityButton' data-bs-toggle='modal' data-bs-target='#communityDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
                         $mapButton = "<a type='button' class='mapCommunityButton' data-id='".$row->id."'><i class='fa-solid fa-map text-warning'></i></a>";
                         $imageButton = "<a type='button' class='imageCommunity' data-id='".$row->id."' ><i class='fa-solid fa-image text-info'></i></a>";
                         $updateButton = "<a type='button' class='updateCommunity' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateCommunityModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteCommunity' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
     
-                        return $detailsButton. " ". $mapButton. " ". $imageButton. " ". $updateButton." ".$deleteButton;
-       
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ) 
+                        {
+                                
+                            return  $detailsButton. " ". $mapButton. " ". $imageButton. " ". $updateButton." ".$deleteButton;
+                        } else return $detailsButton. " ". $mapButton. " ". $imageButton; 
+
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -92,7 +100,9 @@ class CommunityController extends Controller
                                 ->orWhere('regions.english_name', 'LIKE', "%$search%")
                                 ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
-                                ->orWhere('community_statuses.name', 'LIKE', "%$search%");
+                                ->orWhere('community_statuses.name', 'LIKE', "%$search%")
+                                ->orWhere('second_name_communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('second_name_communities.arabic_name', 'LIKE', "%$search%");
                             });
                         }
                     })
@@ -723,16 +733,18 @@ class CommunityController extends Controller
         $community->save();
 
         $secondNameCommunity = SecondNameCommunity::where('community_id', $id)->first();
-        if($request->second_name_english) {
+        if($secondNameCommunity) {
+            if($request->second_name_english) {
 
-            $secondNameCommunity->english_name = $request->second_name_english; 
+                $secondNameCommunity->english_name = $request->second_name_english; 
+            }
+            if($request->second_name_english) {
+    
+                $secondNameCommunity->arabic_name = $request->second_name_arabic;
+            }
+            $secondNameCommunity->community_id = $id;
+            $secondNameCommunity->save();
         }
-        if($request->second_name_english) {
-
-            $secondNameCommunity->arabic_name = $request->second_name_arabic;
-        }
-        $secondNameCommunity->community_id = $id;
-        $secondNameCommunity->save();
 
         return redirect('/community')->with('message', 'Community Updated Successfully!');
     }

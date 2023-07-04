@@ -37,12 +37,18 @@
     <div class="card my-2">
         <div class="card-body">
             <div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 ||
+                Auth::guard('user')->user()->user_type_id == 4 ||
+                Auth::guard('user')->user()->user_type_id == 12)
                 <div>
                     <a type="button" class="btn btn-success" 
                         href="{{url('ac-household', 'create')}}" >
                         Create New Elc.
                     </a>
                 </div>
+            @endif
             </div>
             <table id="acHouseholdsTable" 
                 class="table table-striped data-table-ac-households my-2">

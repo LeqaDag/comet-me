@@ -45,6 +45,7 @@ use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
+use App\Models\IncidentStatusSmallInfrastructure;
 use App\Models\FbsSystem;
 use App\Models\Town;
 use Carbon\Carbon;
@@ -83,7 +84,13 @@ class EnergySystemController extends Controller
                         $updateButton = "<a type='button' class='updateEnergySystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteEnergySystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $viewButton." ". $updateButton." ".$deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 4) 
+                        {
+                                
+                            return $viewButton." ". $updateButton." ".$deleteButton;
+                        } else return $viewButton;
                     })
                    
                     ->filter(function ($instance) use ($request) {
@@ -247,5 +254,37 @@ class EnergySystemController extends Controller
         $energySystem->save();
 
         return redirect('/energy-system')->with('message', 'Energy System Updated Successfully!');
+    }
+
+     /**
+     * Change resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function incidentFbsDetails(Request $request)
+    {
+        $incidentStatus = $request->selected_data;
+
+        $statusFbs = IncidentStatusSmallInfrastructure::where("name", $incidentStatus)->first();
+        $status_id = $statusFbs->id;
+
+        $dataIncidents = DB::table('fbs_user_incidents')
+            ->join('energy_users', 'fbs_user_incidents.energy_user_id', '=', 'energy_users.id')
+            ->join('households', 'energy_users.household_id', '=', 'households.id')
+            ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
+            ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
+            ->join('incident_status_small_infrastructures', 
+                'fbs_user_incidents.incident_status_small_infrastructure_id', 
+                '=', 'incident_status_small_infrastructures.id')
+            ->where("fbs_user_incidents.incident_status_small_infrastructure_id", $status_id)
+            ->select("communities.english_name as community", "fbs_user_incidents.date",
+                "incidents.english_name as incident", "households.english_name as household",
+                "fbs_user_incidents.equipment")
+            ->get();
+
+        $response = $dataIncidents; 
+      
+        return response()->json($response); 
     }
 }

@@ -42,6 +42,8 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
+            @if(Auth::guard('user')->user()->user_type_id != 7 ||
+                Auth::guard('user')->user()->user_type_id != 11  )
             <div>
                 <p class="card-text">
                     <div>
@@ -52,6 +54,7 @@
                     </div>
                 </p>
             </div>
+            @endif
             <table id="initialHouseholdsTable" 
                 class="table table-striped data-table-initial-households my-2">
                 <thead>
@@ -60,7 +63,6 @@
                         <th class="text-center">Arabic Name</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Region</th>
-                        <th class="text-center">Options</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -102,8 +104,7 @@
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'name', name: 'name'},
-                {data: 'region_name', name: 'region_name'},
-                {data: 'action'}
+                {data: 'region_name', name: 'region_name'}
             ]
         });
 

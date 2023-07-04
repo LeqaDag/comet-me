@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers; 
 
 use Illuminate\Http\Request;
 
@@ -22,7 +22,7 @@ use App\Models\WaterQualityResult;
 use App\Models\WaterUser;
 use App\Exports\WaterUserExport;
 use App\Models\EnergySystemType;
-use App\Exports\WaterQualityResultExport;
+use App\Exports\WaterQualitySummaryExport;
 use Auth;
 use DB;
 use Route;
@@ -46,7 +46,7 @@ class WaterQualitySummaryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index() 
     {	
         if (Auth::guard('user')->user() != null) {
 
@@ -57,10 +57,10 @@ class WaterQualitySummaryController extends Controller
                     'water_quality_results.date', 'water_quality_results.year',
                     'water_quality_results.created_at','water_quality_results.id',
                     'water_quality_results.cfu','water_quality_results.community_id',)
-                ->selectRaw('COUNT("water_quality_results.community_id") as samples')
+                ->selectRaw('COUNT("water_quality_results.household_id") as samples')
                 ->get();
+           // die($results);
 
-            //  die($results);
             $communities = Community::where("water_service", "Yes")->get();
             $households = Household::where("water_system_status", "Served")->get();
 
@@ -73,19 +73,51 @@ class WaterQualitySummaryController extends Controller
     }
 
     /**
-     * Show the specified resource from storage.
+     * Change resource.
      *
-     * @param  int $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function cfuMax($id, $year)
+    public function chartWaterResult(Request $request)
     {
-        $result = WaterQualityResult::where("year", $year)
-            ->where("community_id", $id)
-            ->where("cfu", "<", 10)
-            ->count("cfu");
+        $dataResultCfu = DB::table('water_quality_results')
+            ->join('communities', 'water_quality_results.community_id', '=', 'communities.id')
+            ->select(
+                DB::raw('water_quality_results.cfu as cfu'),
+                DB::raw('count(*) as number'),
+                DB::raw('water_quality_results.year'),
+                DB::raw('water_quality_results.date'))
+            ->groupBy('water_quality_results.cfu', 'water_quality_results.year');
 
+        if($request->year != 0) {
 
-        return response()->json($result);
+            $dataResultCfu->where('water_quality_results.year', $request->year);
+        }
+
+        if($request->month != 0) {
+
+            $dataResultCfu->whereMonth('water_quality_results.date', $request->month);
+        } 
+
+        $dataResultCfu = $dataResultCfu->get();
+
+        $arrayResultCfu[] = ['Value', 'Number'];
+        
+        foreach($dataResultCfu as $key => $value) {
+
+            $arrayResultCfu[++$key] = [$value->cfu, $value->number];
+        }
+        
+        return response()->json($arrayResultCfu); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request)
+    {     
+        return Excel::download(new WaterQualitySummaryExport($request), 
+            'water_quality_summary_results.xlsx');
     }
 }

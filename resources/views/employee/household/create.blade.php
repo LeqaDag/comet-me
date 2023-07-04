@@ -5,46 +5,29 @@
 @extends('layouts/layoutMaster')
 
 @section('title', 'households')
-@section('vendor-style')
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}">
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/formvalidation/dist/css/formValidation.min.css')}}" />
-@endsection
 
-@section('vendor-script')
-<script src="{{asset('assets/vendor/libs/datatables/jquery.dataTables.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive/datatables.responsive.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.js')}}"></script>
-<!-- Flat Picker -->
-<script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/cleavejs/cleave.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/cleavejs/cleave-phone.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/FormValidation.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js')}}"></script>
-@endsection
+@include('layouts.all')
 
-@section('page-script')
-<script src="{{asset('assets/js/tables-datatables-advanced.js')}}"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-<script type="text/javascript" 
-src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js" async defer></script>
-@endsection
 <style>
     label, input {
-    display: block;
-}
+        display: block;
+    }
 
-label {
-    margin-top: 20px;
-}
+    label, table {
+        margin-top: 20px;
+    }
+
+    .dropdown-toggle{
+        height: 40px;
+        
+    }
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">Add </span> New Household
@@ -107,7 +90,8 @@ label {
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Community</label>
-                            <select name="community_id" id="selectedCommunity" class="form-control" >
+                            <select name="community_id" id="selectedCommunity" class="selectpicker form-control"
+                                    data-live-search="true" >
                                 <option disabled selected>Choose one...</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->id}}">
@@ -270,6 +254,9 @@ label {
 @endsection
 
 <script src="{{ asset('js/jquery.min.js') }}"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
 <script>
 
 

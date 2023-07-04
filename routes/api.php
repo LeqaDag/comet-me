@@ -15,3 +15,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::resource('household', App\Http\Controllers\Api\HouseholdController::class);
+Route::resource('internet-holder', App\Http\Controllers\Api\InternetHolderController::class);

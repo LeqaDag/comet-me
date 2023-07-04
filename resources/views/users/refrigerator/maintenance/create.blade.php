@@ -43,6 +43,9 @@ label, table {
                                     </option>
                                     @endforeach
                                 </select>
+                                @if ($errors->has('community_id'))
+                                    <span class="error">{{ $errors->first('community_id') }}</span>
+                                @endif
                             </fieldset>
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -72,7 +75,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Call</label>
-                                <input type="date" name="date_of_call" class="form-control">
+                                <input type="date" name="date_of_call" class="form-control" required>
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -95,6 +98,9 @@ label, table {
                                     </option>
                                     @endforeach
                                 </select>
+                                    @if ($errors->has('maintenance_type_id'))
+                                        <span class="error">{{ $errors->first('maintenance_type_id') }}</span>
+                                    @endif
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -108,6 +114,9 @@ label, table {
                                     </option>
                                     @endforeach
                                 </select>
+                                    @if ($errors->has('maintenance_status_id'))
+                                        <span class="error">{{ $errors->first('maintenance_status_id') }}</span>
+                                    @endif
                             </fieldset>
                         </div>
                     </div>
@@ -124,6 +133,9 @@ label, table {
                                     </option>
                                     @endforeach
                                 </select>
+                                    @if ($errors->has('user_id'))
+                                        <span class="error">{{ $errors->first('user_id') }}</span>
+                                    @endif
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -136,6 +148,9 @@ label, table {
                                         {{$maintenanceRefrigeratorAction->maintenance_action_refrigerator}}
                                     </option>
                                     @endforeach
+                                    @if ($errors->has('maintenance_status_id'))
+                                        <span class="error">{{ $errors->first('maintenance_status_id') }}</span>
+                                    @endif
                                 </select>
                             </fieldset>
                         </div>

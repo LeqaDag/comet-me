@@ -61,11 +61,19 @@ class RefrigeratorMaintenanceCallController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
     
-                       // $updateButton = "<a type='button' class='updateRefrigeratorMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateRefrigeratorMaintenanceModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $updateButton = "<a type='button' class='updateRefrigeratorMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateRefrigeratorMaintenanceModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteRefrigeratorMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         $viewButton = "<a type='button' class='viewRefrigeratorMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewRefrigeratorMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
     
-                        return $deleteButton. " ". $viewButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 3 ||
+                            Auth::guard('user')->user()->user_type_id == 4 ||
+                            Auth::guard('user')->user()->user_type_id == 7) 
+                        {
+                                
+                            return $viewButton. " ".$updateButton. " ". $deleteButton ;
+                        } else return $viewButton;
                     })
                    
                     ->filter(function ($instance) use ($request) {
@@ -122,6 +130,14 @@ class RefrigeratorMaintenanceCallController extends Controller
      */
     public function store(Request $request)
     {       
+        $this->validate($request, [
+            'community_id' => 'required',
+            'maintenance_status_id' => 'required',
+            'maintenance_type_id' => 'required',
+            'maintenance_refrigerator_action_id' => 'required',
+            'user_id' => 'required'
+        ]);
+
         $maintenance = new RefrigeratorMaintenanceCall();
         if($request->household_id) {
 
@@ -145,6 +161,49 @@ class RefrigeratorMaintenanceCallController extends Controller
 
         return redirect()->back()
         ->with('message', 'New Maintenance Added Successfully!');
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $refrigeratorMaintenance = RefrigeratorMaintenanceCall::findOrFail($id);
+        $actions = "";
+
+        $maintenanceTypes = MaintenanceType::all();
+        $maintenanceStatuses = MaintenanceStatus::all();
+        $maintenanceRefrigeratorActions = MaintenanceRefrigeratorAction::all();
+
+        $users = User::all();
+
+        return view('users.refrigerator.maintenance.edit', compact('refrigeratorMaintenance', 'users',
+            'maintenanceTypes',  'maintenanceStatuses', 'maintenanceRefrigeratorActions'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $maintenance = RefrigeratorMaintenanceCall::findOrFail($id);
+
+        $maintenance->date_of_call = $request->date_of_call;
+        $maintenance->date_completed = $request->date_completed;
+        $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        $maintenance->user_id = $request->user_id;
+        $maintenance->maintenance_refrigerator_action_id = $request->maintenance_refrigerator_action_id ;
+        $maintenance->maintenance_type_id = $request->maintenance_type_id;
+        $maintenance->notes = $request->notes;
+        $maintenance->save();
+
+        return redirect('/refrigerator-maintenance')->with('message', 'Refrigerator Maintenance Updated Successfully!');
     }
 
     /**

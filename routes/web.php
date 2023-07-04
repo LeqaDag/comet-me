@@ -23,26 +23,11 @@ Route::get('/delete-user', [App\Http\Controllers\UserController::class, 'deleteU
 Route::get('user/{id}/editpage', [App\Http\Controllers\UserController::class, 'editPage']);
 
 /**
- * Logout Routes
+ * Logout Routes 
  */
 Route::get('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
-Route::group(['namespace' => 'App\Http\Controllers'], function()
-{ 
-    /**
-     * Home Routes
-     */
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
-
-    Route::middleware(['auth'])->group(function () {
-  
-    });
-
-    Route::resource('quality-result', WaterQualityResultController::class);
-
-});
-
-
+Route::resource('quality-result', App\Http\Controllers\WaterQualityResultController::class);
 Route::resource('community', App\Http\Controllers\CommunityController::class);
 Route::get('community/destory/{id}', App\Http\Controllers\CommunityController::class.'@destroy');
 Route::resource('household', App\Http\Controllers\HouseholdController::class);
@@ -86,6 +71,7 @@ Route::resource('sub-community', App\Http\Controllers\SubCommunityController::cl
 Route::resource('sub-community-household', App\Http\Controllers\SubCommunityHouseholdController::class);
 Route::get('/delete-sub-community-household', [App\Http\Controllers\SubCommunityHouseholdController::class, 'deleteSubCommunityHousehold'])->name('deleteSubCommunityHousehold');
 Route::post('sub-community-household-export', [App\Http\Controllers\SubCommunityHouseholdController::class, 'export'])->name('sub-community-household.export');
+Route::get('sub-community/get_by_community/{community_id}', [App\Http\Controllers\SubCommunityHouseholdController::class, 'getByCommunity']);
 
 Route::get('household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::resource('donor', App\Http\Controllers\DonorController::class);
@@ -95,7 +81,7 @@ Route::get('/delete-community-donor', [App\Http\Controllers\CommunityDonorContro
 
 Route::get('region/get_region/{region_id}', [App\Http\Controllers\RegionController::class, 'getByRegion']);
 Route::get('region/get_sub_region/{region_id}/{sub_region_id}', [App\Http\Controllers\RegionController::class, 'getBySubRegion']);
-Route::get('region/edit_region/{id}', [App\Http\Controllers\RegionController::class, 'updateRegion']); 
+Route::get('region/edit_region/{id}', [App\Http\Controllers\RegionController::class, 'updateRegion']);  
 Route::get('energy_user/get_by_household/{household_id}', [App\Http\Controllers\EnergyUserController::class, 'getByHousehold']);
 Route::get('energy_public/get_by_public/{public_id}', [App\Http\Controllers\WaterPublicStructureController::class, 'getByPublic']);
 Route::get('energy_user/get_by_community/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergyUserByCommunity']);
@@ -133,12 +119,14 @@ Route::resource('water-system', App\Http\Controllers\WaterSystemController::clas
 Route::get('water_user/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getWaterUserByCommunity']);
 Route::get('water_public/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getPublicByCommunity']);
 Route::get('water-system/{id}/editpage', [App\Http\Controllers\WaterSystemController::class, 'editPage']);
+Route::get('/delete-shared-public', [App\Http\Controllers\WaterPublicStructureController::class, 'deleteSharedPublic'])->name('deleteSharedPublic');
 
 Route::get('/details/incident', [App\Http\Controllers\HomeController::class, 'incidentDetails'])->name('incidentDetails');
 Route::get('/water/chart/', [App\Http\Controllers\WaterUserController::class, 'chartWater'])->name('chartWater');
 Route::get('/details/chart', [App\Http\Controllers\WaterUserController::class, 'waterChartDetails'])->name('waterChartDetails');
 Route::get('/delete-household', [App\Http\Controllers\HouseholdController::class, 'deleteHousehold'])->name('deleteHousehold');
 Route::get('household/{id}/editpage', [App\Http\Controllers\HouseholdController::class, 'editPage']);
+Route::get('public/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getAllPublic']);
 
 Route::resource('all-meter', App\Http\Controllers\AllEnergyController::class);
 Route::get('/allMeter/{id}', [App\Http\Controllers\AllEnergyController::class, 'getEnergyUserData'])->name('getEnergyUserData');
@@ -146,6 +134,7 @@ Route::get('/allMeter/info/{id}', [App\Http\Controllers\AllEnergyController::cla
 Route::get('/all-meter/{id}/donor', [App\Http\Controllers\AllEnergyController::class, 'getEnergyUserDonors'])->name('getEnergyUserDonors');
 Route::get('/allMeter/donor/{id}', [App\Http\Controllers\AllEnergyController::class, 'editDonor'])->name('editDonor');
 Route::get('/delete-energyUser', [App\Http\Controllers\AllEnergyController::class, 'deleteEnergyUser'])->name('deleteEnergyUser');
+Route::get('/delete-energyDonor', [App\Http\Controllers\AllEnergyController::class, 'deleteEnergyDonor'])->name('deleteEnergyDonor');
 
 Route::resource('energy-public', App\Http\Controllers\EnergyPublicStructureController::class);
 Route::resource('comet-meter', App\Http\Controllers\EnergyCometMeterController::class);
@@ -153,6 +142,7 @@ Route::get('energy-public/get_by_community/{community_id}', [App\Http\Controller
 Route::get('/delete-public', [App\Http\Controllers\EnergyPublicStructureController::class, 'deleteEnergyPublic'])->name('deleteEnergyPublic');
 Route::get('/delete-comet-meter', [App\Http\Controllers\EnergyCometMeterController::class, 'deleteCometMeter'])->name('deleteCometMeter');
 Route::get('energy_public/{id}/editpage', [App\Http\Controllers\EnergyPublicStructureController::class, 'editPage']);
+Route::get('/delete-publicDonor', [App\Http\Controllers\EnergyPublicStructureController::class, 'deleteEnergyPublicDonor'])->name('deleteEnergyPublicDonor');
 
 Route::resource('internet-user', App\Http\Controllers\InternetUserController::class);
 Route::get('/details/fbs/incident', [App\Http\Controllers\EnergySystemController::class, 'incidentFbsDetails'])->name('incidentFbsDetails');
@@ -164,18 +154,20 @@ Route::get('/delete-household-meter', [App\Http\Controllers\HouseholdMeterContro
 
 Route::resource('all-water', App\Http\Controllers\AllWaterController::class);
 Route::resource('shared-h2o', App\Http\Controllers\SharedWaterController::class);
-Route::resource('water-public', App\Http\Controllers\WaterPublicStructureController::class);
+Route::resource('water-public', App\Http\Controllers\WaterPublicStructureController::class); 
 Route::get('all-water/{id}/editpage', [App\Http\Controllers\AllWaterController::class, 'editPage']);
 Route::get('shared-h2o/get_by_community/{community_id}', [App\Http\Controllers\SharedWaterController::class, 'getH2oUsersByCommunity']);
 Route::get('/delete-shared-h2o', [App\Http\Controllers\SharedWaterController::class, 'deleteSharedWaterUser'])->name('deleteSharedWaterUser');
-Route::get('water-public/get_by_community/{community_id}', [App\Http\Controllers\WaterPublicStructureController::class, 'getPublicByCommunity']);
+Route::get('water-public/get_by_community/{community_id}', [App\Http\Controllers\WaterPublicStructureController::class, 'getH2oPublicByCommunity']);
 Route::get('allMeter/{id}/editpage', [App\Http\Controllers\AllEnergyController::class, 'editPage']);
+Route::get('/delete-waterDonor', [App\Http\Controllers\AllWaterController::class, 'deleteWaterDonor'])->name('deleteWaterDonor');
 
 Route::resource('water-maintenance', App\Http\Controllers\H2oMaintenanceCallController::class);
 Route::post('water-maintenance-export', [App\Http\Controllers\H2oMaintenanceCallController::class, 'export'])->name('water-maintenance.export');
 
 Route::resource('internet-system', App\Http\Controllers\InternetSystemController::class);
 Route::get('internet-system/{id}/showPage', [App\Http\Controllers\InternetSystemController::class, 'showPage']);
+Route::get('/delete-internet-system', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystem'])->name('deleteInternetSystem');
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'showMainPage']);
 Route::get('downloadPdf', [App\Http\Controllers\HomeController::class, 'downloadPdf']);
@@ -187,7 +179,7 @@ Route::get('/details/h2o/incident', [App\Http\Controllers\WaterSystemController:
 Route::get('household-fbs', [App\Http\Controllers\ExportController::class, 'index']);
 Route::post('household-import', [App\Http\Controllers\ExportController::class, 'import'])->name('household.import');
 
-Route::resource('chart', App\Http\Controllers\ChartController::class);
+Route::resource('chart', App\Http\Controllers\ChartController::class); 
 Route::get('chart/service/{service_id}/{region_id}', [App\Http\Controllers\ChartController::class, 'getByService']);
 Route::resource('energy-maintenance', App\Http\Controllers\EnergyMaintenanceCallController::class);
 Route::get('/delete-energy-maintenance', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deleteMaintenanceEnergy'])->name('deleteMaintenanceEnergy');
@@ -225,11 +217,19 @@ Route::get('water_holder/get_by_community/{community_id}/{flag}', [App\Http\Cont
 Route::get('/delete-quality-result', [App\Http\Controllers\WaterQualityResultController::class, 'deleteQualityResult'])->name('deleteQualityResult');
 Route::get('quality-result/{id}/editpage', [App\Http\Controllers\WaterQualityResultController::class, 'editPage']);
 Route::get('quality-result/summary/{year}', [App\Http\Controllers\WaterQualityResultController::class, 'summary']);
+Route::post('quality-result-import', [App\Http\Controllers\WaterQualityResultController::class, 'import'])->name('quality-result.import');
 
 Route::resource('water-summary',  App\Http\Controllers\WaterQualitySummaryController::class);
 Route::get('quality-result/cfu/max/{id}/{year}', [App\Http\Controllers\WaterQualitySummaryController::class, 'cfuMax']);
+Route::post('water-summary-export', [App\Http\Controllers\WaterQualitySummaryController::class, 'export'])->name('water-summary.export');
+Route::get('/water-summary-result/chart', [App\Http\Controllers\WaterQualitySummaryController::class, 'chartWaterResult'])->name('chartWaterResult');
 
 Route::resource('region', App\Http\Controllers\RegionController::class); 
-Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::resource('setting', App\Http\Controllers\SettingController::class); 
+Route::get('setting/edit_setting/{id}', [App\Http\Controllers\SettingController::class, 'updateSetting']);
+
+Route::resource('all-active', App\Http\Controllers\AllActiveUserController::class); 
+Route::post('all-active-export', [App\Http\Controllers\AllActiveUserController::class, 'export'])->name('all-active.export');

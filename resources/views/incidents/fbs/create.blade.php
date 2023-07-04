@@ -33,9 +33,8 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
-                                <select class="selectpicker form-control" 
-                                    multiple data-live-search="true" 
-                                    name="community_id[]" required>
+                                <select class="selectpicker form-control" id="fbsSelectedCommuntiy"
+                                    data-live-search="true" name="community_id" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -48,14 +47,9 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy User</label>
-                                <select name="energy_user_id[]" class="selectpicker form-control" 
-                                    multiple data-live-search="true" required >
+                                <select name="energy_user_id" class="form-control" 
+                                    id="energyUserSelectedFbs" disabled>
                                     <option disabled selected>Choose one...</option>
-                                    @foreach($energyUsers as $energyUser)
-                                    <option value="{{$energyUser->id}}">
-                                        {{$energyUser->english_name}}
-                                    </option>
-                                    @endforeach
                                 </select>
                             </fieldset>
                         </div>
@@ -127,3 +121,20 @@ label, table {
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+<script>
+
+    $(document).on('change', '#fbsSelectedCommuntiy', function () {
+
+        community_id = $(this).val();
+        $.ajax({
+            url: "energy_user/get_by_community/" +  community_id,
+            method: 'GET',
+            success: function(data) {
+                $('#energyUserSelectedFbs').prop('disabled', false);
+                $('#energyUserSelectedFbs').html(data.html);
+            }
+        });
+    });
+
+</script>

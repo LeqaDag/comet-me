@@ -68,10 +68,19 @@ class EnergyCometMeterController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function($row) {
 
+                    $viewButton = "<a type='button' class='viewCometMeterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewHCometMeterModal' ><i class='fa-solid fa-eye text-info'></i></a>";
                     $updateButton = "<a type='button' class='updateEnergyComet' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateEnergyUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                     $deleteButton = "<a type='button' class='deleteEnergyComet' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                     
-                    return $updateButton." ".$deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 3 ||
+                            Auth::guard('user')->user()->user_type_id == 4 ||
+                            Auth::guard('user')->user()->user_type_id == 12) 
+                        {
+                                
+                            return $viewButton." ". $updateButton." ".$deleteButton;
+                        } else return $viewButton;
    
                 })
                 ->filter(function ($instance) use ($request) {

@@ -72,7 +72,7 @@
                 <div class="row align-items-end">
                     <div class="col-6">
                         <h4 class=" text-primary mb-2 pt-4 pb-1" id="energyUsersNumber"></h4>
-                        <span class="d-block mb-4 text-nowrap">Energy Users</span>
+                        <span class="d-block mb-4 text-nowrap">Energy Holders</span>
                     </div>
                     <div class="col-6">
                         <i class="bx bx-user-check me-1 bx-lg text-danger"></i>
@@ -111,7 +111,7 @@
                 <div class="row align-items-end">
                     <div class="col-6">
                         <h4 class=" text-primary mb-2 pt-4 pb-1" id="h2oUsersNumber"></h4>
-                        <span class="d-block mb-4 text-nowrap">H2O Users</span>
+                        <span class="d-block mb-4 text-nowrap">H2O Holders</span>
                     </div>
                     <div class="col-6">
                         <i class="bx bx-droplet me-1 bx-lg text-info"></i>
@@ -150,19 +150,28 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
-            <div>
+            <div> 
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2  )
                 <button type="button" class="btn btn-success" 
                     data-bs-toggle="modal" data-bs-target="#createRegionModal">
                     Create New Region	
                 </button>
                 @include('regions.create')
+            @endif
             </div>
             <table id="regionsTable" class="table table-striped data-table-regions my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">English Name</th>
-                        <th class="text-center">Arabic Name</th>
-                        <th class="text-center">Options</th>
+                        <th>English Name</th>
+                        <th>Arabic Name</th>
+                        @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                                Auth::guard('user')->user()->user_type_id == 2  )
+                               
+                            <th>Options</th>
+                        @else
+                            <th></th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>

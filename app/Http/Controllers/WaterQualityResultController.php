@@ -10,7 +10,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityWaterSource;
-use App\Models\GridUser;
+use App\Models\GridUser; 
 use App\Models\H2oSharedUser;
 use App\Models\H2oStatus;
 use App\Models\H2oUser;
@@ -23,6 +23,7 @@ use App\Models\WaterUser;
 use App\Exports\WaterUserExport;
 use App\Models\EnergySystemType;
 use App\Exports\WaterQualityResultExport;
+use App\Imports\ImportWaterQualityResult;
 use Auth;
 use DB;
 use Route; 
@@ -109,7 +110,15 @@ class WaterQualityResultController extends Controller
                         $viewButton = "<a type='button' class='viewWaterResult' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterResultModal' ><i class='fa-solid fa-eye text-info'></i></a>";
                         $deleteButton = "<a type='button' class='deleteWaterResult' data-id='".$row->id."'  ><i class='fa-solid fa-trash text-danger'></i></a>";
     
-                        return $updateButton." ". $viewButton." ". $deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 5 ||
+                            Auth::guard('user')->user()->user_type_id == 9) 
+                        {
+                                
+                            return $updateButton." ". $viewButton." ". $deleteButton;
+                        } else return $viewButton;
+                        
                     })
                    
                     ->filter(function ($instance) use ($request) {
@@ -172,9 +181,8 @@ class WaterQualityResultController extends Controller
 
         if($flag == "user") {
 
-            $households = DB::table('h2o_users')
-                ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
-                ->join('households', 'h2o_users.household_id', 'households.id')
+            $households = DB::table('all_water_holders')
+                ->join('households', 'all_water_holders.household_id', 'households.id')
                 ->where("households.community_id", $community_id)
                 ->select('households.id as id', 'households.english_name')
                 ->get();
@@ -214,7 +222,7 @@ class WaterQualityResultController extends Controller
         $waterResult = new WaterQualityResult();
         $waterResult->community_id = $request->community_id;
 
-        if($request->public_user == "user") {
+        if($request->public_user == "user") { 
 
             $waterResult->household_id = $request->household_id;
             $h2o_user_id = H2oUser::where('household_id', $request->household_id)->select('id')->get();
@@ -243,6 +251,7 @@ class WaterQualityResultController extends Controller
         $waterResult->fci = $request->fci;
         $waterResult->ec = $request->ec;
         $waterResult->ph = $request->ph;
+        $waterResult->notes = $request->notes;
         $waterResult->save();
 
         return redirect()->back()->with('message', 'New Water Result Added Successfully!');
@@ -328,6 +337,7 @@ class WaterQualityResultController extends Controller
         $waterResult->ec = $request->ec;
         $waterResult->fci = $request->fci;
         $waterResult->cfu = $request->cfu;
+        $waterResult->notes = $request->notes;
 
         $waterResult->save(); 
         
@@ -345,6 +355,17 @@ class WaterQualityResultController extends Controller
     }
 
     /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function import(Request $request)
+    {
+        Excel::import(new ImportWaterQualityResult, $request->file('file')); 
+            
+        return back()->with('success', 'Excel Data Imported successfully.');
+    }
+
+    /** 
      * Show the specified resource from storage.
      *
      * @param  int $id

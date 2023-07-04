@@ -59,10 +59,18 @@ class SubSubRegionController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
 
+                        $empty = "";
                         $updateButton = "<a type='button' class='updateSubSubRegion' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateSubSubRegionModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteSubSubRegion' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $updateButton." ".$deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ) 
+                        {
+                                
+                            return $updateButton." ".$deleteButton;
+                        }
+
+                        return $empty;
                     })
                 
                     ->filter(function ($instance) use ($request) {

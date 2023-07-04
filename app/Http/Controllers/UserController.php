@@ -202,6 +202,7 @@ class UserController extends Controller
         if($request->name) $user->name = $request->name;
         if($request->phone) $user->phone = $request->phone;
         if($request->email) $user->email = $request->email;
+        if($request->user_type_id) $user->user_type_id = $request->user_type_id;
         $user->update($input);
         $extra_name = "";
 

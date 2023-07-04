@@ -71,14 +71,18 @@
                 </form>
 
 
-                <div style="margin-top:18px">
-                    <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createMaintenanceLogElectricity">
-                        Create New Maintenance Call	
-                    </button>
-                    @include('users.energy.maintenance.create')
-                </div>
-
+                @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                    Auth::guard('user')->user()->user_type_id == 2 ||
+                    Auth::guard('user')->user()->user_type_id == 4 ||
+                    Auth::guard('user')->user()->user_type_id == 7 )
+                    <div style="margin-top:18px">
+                        <button type="button" class="btn btn-success" 
+                            data-bs-toggle="modal" data-bs-target="#createMaintenanceLogElectricity">
+                            Create New Maintenance Call	
+                        </button>
+                        @include('users.energy.maintenance.create')
+                    </div>
+                @endif
             </div>
             <table id="maintenanceEnergyTable" class="table table-striped data-table-energy-maintenance my-2">
                 <thead>
@@ -156,6 +160,15 @@
                 {data: 'action'},
             ]
         });
+    });
+
+    // View update
+    $('#maintenanceEnergyTable').on('click', '.updateEnergyMaintenance',function() {
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        
+        url = url +'/'+ id +'/edit';
+        window.open(url, "_self"); 
     });
 
     // Delete record

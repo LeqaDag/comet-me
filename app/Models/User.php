@@ -26,8 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
-        'type',
-        'user_type'
+        'user_type_id'
     ];
 
     public function UserType()

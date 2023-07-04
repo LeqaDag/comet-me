@@ -68,9 +68,18 @@ class RefrigeratorHolderController extends Controller
                     ->addColumn('action', function($row) {
     
                         $viewButton = "<a type='button' class='viewRefrigeratorHolder' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewRefrigeratorHolderModal'><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateRefrigeratorHolder' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteRefrigeratorHolder' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $viewButton." ".$deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 3 ||
+                            Auth::guard('user')->user()->user_type_id == 4 ||
+                            Auth::guard('user')->user()->user_type_id == 7) 
+                        {
+                                
+                            return $viewButton." ". $updateButton." ".$deleteButton;
+                        } else return $viewButton;
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -111,6 +120,10 @@ class RefrigeratorHolderController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'community_id' => 'required',
+        ]);
+
         $refrigeratorHolder = new RefrigeratorHolder();
         if($request->is_household == "no") {
 
@@ -131,6 +144,42 @@ class RefrigeratorHolderController extends Controller
         $refrigeratorHolder->save();
 
         return redirect()->back()->with('message', 'New Refrigerator Holder Added Successfully!');
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $refrigeratorHolder = RefrigeratorHolder::findOrFail($id);
+
+        return view('users.refrigerator.edit', compact('refrigeratorHolder'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $refrigeratorHolder = RefrigeratorHolder::findOrFail($id);
+
+        $refrigeratorHolder->refrigerator_type_id = $request->refrigerator_type_id;
+        $refrigeratorHolder->number_of_fridge = $request->number_of_fridge;
+        $refrigeratorHolder->date = $request->date;
+        $refrigeratorHolder->year = $request->year;
+        $refrigeratorHolder->is_paid = $request->is_paid;
+        $refrigeratorHolder->payment = $request->payment;
+        $refrigeratorHolder->receive_number = $request->receive_number;
+        $refrigeratorHolder->notes = $request->notes;
+        $refrigeratorHolder->save();
+
+        return redirect('/refrigerator-user')->with('message', 'Refrigerator Holder Updated Successfully!');
     }
 
     /**

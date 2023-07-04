@@ -52,11 +52,11 @@ class InitialHouseholdController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
     
-                        $acButton = "<a title='From Initial to AC Survey' type='button' class='initialToAcHousehold' data-id='".$row->id."'><i class='fa-solid fa-check-square text-info'></i></a>";
-                        $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateHouseholdModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                        $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        // $acButton = "<a title='From Initial to AC Survey' type='button' class='initialToAcHousehold' data-id='".$row->id."'><i class='fa-solid fa-check-square text-info'></i></a>";
+                        // $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateHouseholdModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        // $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $acButton. " ".$updateButton." ".$deleteButton ;
+                        // return $acButton. " ".$updateButton." ".$deleteButton ;
        
                     })
                    
@@ -73,7 +73,6 @@ class InitialHouseholdController extends Controller
                             });
                         }
                     })
-                    ->rawColumns(['action'])
                     ->make(true);
             }
     

@@ -7,21 +7,29 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
+use App\Models\AllWaterHolder;
+use App\Models\AllWaterHolderDonor;
 use App\Models\BsfStatus;
 use App\Models\Donor;
 use App\Models\Community;
 use App\Models\CommunityWaterSource;
 use App\Models\GridUser;
 use App\Models\GridUserDonor;
+use App\Models\GridPublicStructure;
 use App\Models\H2oSharedUser;
 use App\Models\H2oStatus;
 use App\Models\H2oUser;
 use App\Models\H2oSystemIncident;
+use App\Models\H2oPublicStructure;
+use App\Models\H2oSharedPublicStructure;
 use App\Models\H2oUserDonor;
-use App\Models\Household;
+use App\Models\Household; 
 use App\Models\WaterUser;
+use App\Models\PublicStructure;
 use App\Exports\WaterUserExport;
 use App\Models\EnergySystemType;
+use App\Models\WaterNetworkUser;
+use App\Models\WaterSystem;
 use Auth;
 use DB;
 use Route;
@@ -114,21 +122,21 @@ class WaterUserController extends Controller
                 if($key == 2) $arrayGrid[$key] = ["Grid Small", $gridSmall->sumSmall];
             }
     
-            $totalWaterHouseholds = Household::where("water_service", "Yes")
+            $totalWaterHouseholds = Household::where("water_system_status", "Served")
                 ->selectRaw('SUM(number_of_people) AS number_of_people')
                 ->first();
-            $totalWaterMale = Household::where("water_service", "Yes")
+            $totalWaterMale = Household::where("water_system_status", "Served")
                 ->selectRaw('SUM(number_of_male) AS number_of_male')
                 ->first(); 
-            $totalWaterFemale = Household::where("water_service", "Yes")
+            $totalWaterFemale = Household::where("water_system_status", "Served")
                 ->selectRaw('SUM(number_of_female) AS number_of_female')
                 ->first(); 
-            $totalWaterAdults = Household::where("water_service", "Yes")
+            $totalWaterAdults = Household::where("water_system_status", "Served")
                 ->selectRaw('SUM(number_of_adults) AS number_of_adults')
                 ->first();
-            $totalWaterChildren = Household::where("water_service", "Yes")
+            $totalWaterChildren = Household::where("water_system_status", "Served")
                 ->selectRaw('SUM(number_of_children) AS number_of_children')
-                ->first();
+                ->first(); 
     
             $donors = Donor::all();
             $energySystemTypes = EnergySystemType::all();
@@ -162,20 +170,62 @@ class WaterUserController extends Controller
      */
     public function show($id)
     {
-        $h2oUser = H2oUser::findOrFail($id);
-        $householdId = $h2oUser->household_id;
-        $gridUser = GridUser::where('household_id', $householdId)->first();
-        $community = Community::where('id', $h2oUser->community_id)->first();
-        $household = Household::where('id', $h2oUser->household_id)->first();
-        $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
-        $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
+        $allWaterHolder = AllWaterHolder::findOrFail($id);
+        $allWaterHolderDonors = DB::table('all_water_holder_donors')
+            ->where('all_water_holder_donors.all_water_holder_id', $id)
+            ->join('donors', 'all_water_holder_donors.donor_id', '=', 'donors.id')
+            ->select('donors.donor_name', 'all_water_holder_donors.all_water_holder_id')
+            ->get();
 
+        $h2oUser = null;
+        $h2oStatus = null;
+        $bsfStatus = null;
+        $h2oPublic = null;
+        $public = null;
+        $gridUser = null;
+
+        if($allWaterHolder->household_id && $allWaterHolder->is_main == "Yes") {
+
+            $h2oUser = H2oUser::where('household_id', $allWaterHolder->household_id)->first();
+            $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
+            $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
+            $gridUser = GridUser::where('household_id', $allWaterHolder->household_id)->first();
+        } 
+
+        if($allWaterHolder->household_id && $allWaterHolder->is_main == "No") {
+            
+            $household = Household::where('id', $allWaterHolder->household_id)->first();
+        } 
+
+        if($allWaterHolder->public_structure_id && $allWaterHolder->is_main == "Yes") {
+
+            $h2oUser = H2oPublicStructure::where('public_structure_id', $allWaterHolder->public_structure_id)->first();
+            $public = PublicStructure::where('id', $allWaterHolder->public_structure_id)->first();
+            $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
+            $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
+        }
+
+        if($allWaterHolder->public_structure_id && $allWaterHolder->is_main == "No") {
+
+            $h2oPublic = null;
+            $public = PublicStructure::where('id', $allWaterHolder->public_structure_id)->first();
+        }
+
+        $community = Community::where('id', $allWaterHolder->community_id)->first();
+        $household = Household::where('id', $allWaterHolder->household_id)->first();
+        $networkUser = WaterNetworkUser::where('household_id', $allWaterHolder->household_id)->first();
+
+        $response['allWaterHolder'] = $allWaterHolder;
+        $response['allWaterHolderDonors'] = $allWaterHolderDonors;
         $response['h2oUser'] = $h2oUser;
         $response['h2oStatus'] = $h2oStatus;
         $response['bsfStatus'] = $bsfStatus;
         $response['gridUser'] = $gridUser;
         $response['community'] = $community;
         $response['household'] = $household;
+        $response['h2oPublic'] = $h2oPublic;
+        $response['public'] = $public;
+        $response['networkUser'] = $networkUser;
 
         return response()->json($response);
     }
@@ -188,53 +238,218 @@ class WaterUserController extends Controller
      */
     public function store(Request $request)
     {
-        $h2oUser = new H2oUser();
-        $h2oUser->community_id = $request->community_id;
-        $h2oUser->household_id = $request->household_id;
-        $h2oUser->h2o_status_id = $request->h2o_status_id;
-        $h2oUser->bsf_status_id = $request->bsf_status_id;
-        $h2oUser->number_of_bsf = $request->number_of_bsf;
-        $h2oUser->number_of_h20 = $request->number_of_h20; 
-        $h2oUser->h2o_request_date = $request->h2o_request_date; 
-        $h2oUser->installation_year = $request->installation_year;
-        $h2oUser->h2o_installation_date = $request->h2o_installation_date;
-        $h2oUser->save();
+        $exist = AllWaterHolder::where("household_id", $request->household_id)->first();
 
-        $gridUser = new GridUser();
-        $gridUser->community_id = $request->community_id;
-        $gridUser->household_id = $request->household_id;
-        $gridUser->request_date = $request->request_date;
-        $gridUser->grid_access = $request->grid_access;
-        $gridUser->grid_integration_large = $request->grid_integration_large;
-        $gridUser->large_date = $request->large_date;
-        $gridUser->grid_integration_small = $request->grid_integration_small;
-        $gridUser->small_date = $request->small_date;
-        $gridUser->is_delivery = $request->is_delivery;
-        $gridUser->is_paid = $request->is_paid;
-        $gridUser->is_complete = $request->is_complete;
-        $gridUser->save();
+        if($request->public_user == "user") {
 
-        $household = Household::findOrFail($request->household_id);
-        $household->water_service = "Yes";
-        $household->water_system_status = "Served";
-        $household->save();
+            if($request->number_of_h20) {
 
-        return redirect()->back()->with('message', 'New User Added Successfully!');
-    }
+                $existH2oUser = H2oUser::where("household_id", $request->household_id)->first();
+
+                if($existH2oUser) {
+
+                    $existH2oUser->h2o_status_id = $request->h2o_status_id;
+                    $existH2oUser->bsf_status_id = $request->bsf_status_id;
+                    $existH2oUser->number_of_bsf = $request->number_of_bsf;
+                    $existH2oUser->number_of_h20 = $request->number_of_h20; 
+                    $existH2oUser->h2o_request_date = $request->h2o_request_date; 
+                    $existH2oUser->installation_year = $request->installation_year;
+                    $existH2oUser->h2o_installation_date = $request->h2o_installation_date;
+                    $existH2oUser->save();
+                } else {
+
+                    $h2oUser = new H2oUser();
+                    $h2oUser->community_id = $request->community_id[0];
+                    $h2oUser->household_id = $request->household_id;
+                    $h2oUser->h2o_status_id = $request->h2o_status_id;
+                    $h2oUser->bsf_status_id = $request->bsf_status_id;
+                    $h2oUser->number_of_bsf = $request->number_of_bsf;
+                    $h2oUser->number_of_h20 = $request->number_of_h20; 
+                    $h2oUser->h2o_request_date = $request->h2o_request_date; 
+                    $h2oUser->installation_year = $request->installation_year;
+                    $h2oUser->h2o_installation_date = $request->h2o_installation_date;
+                    $h2oUser->save();
+                }
+            }
+          
+            $existGridUser = GridUser::where("household_id", $request->household_id)->first();
+
+            if($existGridUser) {
+
+            } else {
+
+                $gridUser = new GridUser();
+                $gridUser->community_id = $request->community_id[0];
+                $gridUser->household_id = $request->household_id;
+                $gridUser->request_date = $request->request_date;
+                $gridUser->grid_integration_large = $request->grid_integration_large;
+                $gridUser->large_date = $request->large_date;
+                $gridUser->grid_integration_small = $request->grid_integration_small;
+                $gridUser->small_date = $request->small_date;
+                $gridUser->grid_access = $request->grid_access;
+                $gridUser->is_delivery = $request->is_delivery;
+                $gridUser->is_paid = $request->is_paid;
+                $gridUser->is_complete = $request->is_complete;
+                $gridUser->save();
+            }
+            
+            if($request->request_date) {
+     
+                if($request->grid_integration_large) {
+
+                    if($existGridUser) {
+
+                        $existGridUser->grid_integration_large = $request->grid_integration_large;
+                        $existGridUser->large_date = $request->large_date;
+                        $existGridUser->request_date = $request->request_date;
+                        $existGridUser->grid_access = $request->grid_access;
+                        $existGridUser->is_delivery = $request->is_delivery;
+                        $existGridUser->is_paid = $request->is_paid;
+                        $existGridUser->is_complete = $request->is_complete;
+                        $existGridUser->save();
+                    }
+                } 
+
+                if($request->grid_integration_small) {
+
+                    if($existGridUser) {
+
+                        $existGridUser->grid_integration_small = $request->grid_integration_small;
+                        $existGridUser->small_date = $request->small_date;
+                        $existGridUser->request_date = $request->request_date;
+                        $existGridUser->grid_access = $request->grid_access;
+                        $existGridUser->is_delivery = $request->is_delivery;
+                        $existGridUser->is_paid = $request->is_paid;
+                        $existGridUser->is_complete = $request->is_complete;
+                        $existGridUser->save();
+                    }
+                } 
+            }
     
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $community = Community::findOrFail($id);
-        $community->is_archived = 1;
-        $community->save();
+            if($exist) {
+ 
+            } else {
 
-        return redirect()->back();
+                $allWaterHolder = new AllWaterHolder();
+                $allWaterHolder->is_main = "Yes";
+                $allWaterHolder->household_id = $request->household_id;
+                $allWaterHolder->community_id = $request->community_id[0];
+                $allWaterHolder->save();
+            }
+
+            $household = Household::findOrFail($request->household_id);
+            $household->water_service = "Yes";
+            $household->water_system_status = "Served";
+            $household->save();
+
+        }  else if($request->public_user == "public") {
+
+            $allWaterHolder = new AllWaterHolder();
+            $allWaterHolder->is_main = "Yes";
+            $allWaterHolder->public_structure_id = $request->household_id;
+            $allWaterHolder->community_id = $request->community_id[0];
+            $allWaterHolder->save();
+
+            if($request->number_of_h20) {
+      
+                $h2oPublicStructure = new H2oPublicStructure();
+                $h2oPublicStructure->community_id = $request->community_id[0];
+                $h2oPublicStructure->public_structure_id = $request->household_id;
+                $h2oPublicStructure->h2o_status_id = $request->h2o_status_id;
+                $h2oPublicStructure->bsf_status_id = $request->bsf_status_id;
+                $h2oPublicStructure->number_of_bsf = $request->number_of_bsf;
+                $h2oPublicStructure->number_of_h20 = $request->number_of_h20; 
+                $h2oPublicStructure->h2o_request_date = $request->h2o_request_date; 
+                $h2oPublicStructure->installation_year = $request->h2o_installation_date;
+                $h2oPublicStructure->save();
+    
+                $exist = AllWaterHolder::where("public_structure_id", $request->household_id)->first();
+    
+                if($exist) {
+    
+                    $exist->water_system_id = 1;
+                    $exist->request_date = $request->h2o_request_date; 
+                    $exist->installation_year = $request->installation_year;
+                    $exist->installation_date = $request->h2o_installation_date;
+                    $exist->save();
+                } else {
+    
+                    $allWaterHolder = new AllWaterHolder();
+                    $allWaterHolder->is_main = "Yes";
+                    $allWaterHolder->public_structure_id = $request->household_id;
+                    $allWaterHolder->community_id = $request->community_id[0];
+                    $allWaterHolder->water_system_id = 1;
+                    $allWaterHolder->request_date = $request->h2o_request_date; 
+                    $allWaterHolder->installation_year = $request->installation_year;
+                    $allWaterHolder->installation_date = $request->h2o_installation_date;
+                    $allWaterHolder->save();
+                }
+            }
+
+            $gridPublicStructure = new GridPublicStructure();
+            $gridPublicStructure->community_id = $request->community_id[0];
+            $gridPublicStructure->public_structure_id = $request->household_id;
+            $gridPublicStructure->request_date = $request->request_date;
+            $gridPublicStructure->grid_access = $request->grid_access;
+
+    
+            if($request->grid_integration_large) {
+    
+                $gridPublicStructure->grid_integration_large = $request->grid_integration_large;
+                $gridPublicStructure->large_date = $request->large_date;
+    
+                $exist = AllWaterHolder::where("public_structure_id", $request->household_id)->first();
+    
+                if($exist) {
+    
+                    $exist->water_system_id1 = 2;
+                    $exist->save();
+                } else {
+    
+                    $allWaterHolder = new AllWaterHolder();
+                    $allWaterHolder->is_main = "Yes";
+                    $allWaterHolder->public_structure_id = $request->household_id;
+                    $allWaterHolder->community_id = $request->community_id[0];
+                    $allWaterHolder->water_system_id1 = 2;
+                    $allWaterHolder->request_date = $request->request_date; 
+                    $allWaterHolder->installation_date = $request->large_date;
+                    $allWaterHolder->save();
+                }
+    
+                $gridPublicStructure->save();
+            }
+    
+            if($request->grid_integration_small) {
+    
+                $gridPublicStructure->grid_integration_small = $request->grid_integration_small;
+                $gridPublicStructure->small_date = $request->small_date;
+    
+                $exist = AllWaterHolder::where("public_structure_id", $request->household_id)->first();
+    
+                if($exist) {
+    
+                    $exist->water_system_id2 = 3;
+                    $exist->save();
+                } else {
+    
+                    $allWaterHolder = new AllWaterHolder();
+                    $allWaterHolder->is_main = "Yes";
+                    $allWaterHolder->public_structure_id = $request->household_id;
+                    $allWaterHolder->community_id = $request->community_id[0];
+                    $allWaterHolder->water_system_id2 = 3;
+                    $allWaterHolder->request_date = $request->request_date; 
+                    $allWaterHolder->installation_date = $request->large_date;
+                    $allWaterHolder->save();
+                }
+            }
+            
+            $gridPublicStructure->is_delivery = $request->is_delivery;
+            $gridPublicStructure->is_paid = $request->is_paid;
+            $gridPublicStructure->is_complete = $request->is_complete;
+            $gridPublicStructure->save();
+        }
+        
+        return redirect()->back()->with('message', 'New User Added Successfully!');
     }
 
     /**
@@ -353,17 +568,28 @@ class WaterUserController extends Controller
     public function deleteWaterUser(Request $request)
     {
         $id = $request->id;
+        $allWaterHolder = AllWaterHolder::findOrFail($id);
+        $h2oUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
+        $gridUser = GridUser::where('household_id', $allWaterHolder->household_id)->first();
+        $h2oPublic = H2oPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
+        $gridPublic = GridPublicStructure::where('public_structure_id', $allWaterHolder->public_structure_id)->first();
+        $networkUser = WaterNetworkUser::where('household_id', $allWaterHolder->household_id)->first();
 
-        $h2oUser = H2oUser::find($id);
-        $gridUser = GridUser::where('household_id', $h2oUser->household_id)->first();
+        $h2oSharedPublic = H2oSharedPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
+        $h2oSharedUser = H2oSharedUser::where("household_id", $allWaterHolder->household_id)->first();;
+        
+        if($allWaterHolder->delete()) {
 
-        if($gridUser) $gridUser->delete();
-
-        if($h2oUser->delete()) {
-
+            if($h2oUser) $h2oUser->delete();
+            if($gridUser) $gridUser->delete();
+            if($h2oPublic) $h2oPublic->delete();
+            if($gridPublic) $gridPublic->delete();
+            if($networkUser) $networkUser->delete();
+            if($h2oSharedUser) $h2oSharedUser->delete();
+            if($h2oSharedPublic) $h2oSharedPublic->delete();
 
             $response['success'] = 1;
-            $response['msg'] = 'User Deleted successfully'; 
+            $response['msg'] = 'Water Holder Deleted successfully'; 
         } else {
 
             $response['success'] = 0;
@@ -409,6 +635,39 @@ class WaterUserController extends Controller
         return response()->json(['html' => $html]);
     }
 
+     /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getAllPublic($community_id)
+    {
+        $publics = DB::table('public_structures')
+            ->where("public_structures.community_id", $community_id)
+            ->select('public_structures.id', 'public_structures.english_name')
+            ->get();
+      
+        if (!$community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option value="">Select...</option>';
+            $publics = DB::table('public_structures')
+                ->where("public_structures.community_id", $community_id)
+                ->select('public_structures.id', 'public_structures.english_name')
+                ->get();
+
+            foreach ($publics as $public) {
+                $html .= '<option value="'.$public->id.'">'.$public->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+
     /**
      * Get resources from storage.
      *
@@ -450,6 +709,6 @@ class WaterUserController extends Controller
     public function export(Request $request) 
     {
                 
-        return Excel::download(new WaterUserExport($request), 'used_water_users.xlsx');
+        return Excel::download(new WaterUserExport($request), 'water_users.xlsx');
     }
 }

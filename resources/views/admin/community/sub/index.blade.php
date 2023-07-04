@@ -5,7 +5,7 @@
 @include('layouts.all')
 
 @section('content')
-
+ 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> sub communities
 </h4>
@@ -74,6 +74,8 @@
                 </form>
             </div>
 
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2  )
             <div class="row">
                 <div class="col-xl-4 col-lg-4 col-md-4">
                     <button type="button" class="btn btn-success" 
@@ -90,16 +92,22 @@
                     @include('admin.community.sub.create')
                 </div>
             </div>
-
+            @endif
+            
             <table id="subCommunityTable" class="table table-striped data-table-sub-communities my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">English Name</th>
-                        <th class="text-center">Arabic Name</th>
-                        <th class="text-center">Community</th>
-                        <th class="text-center">Region</th>
-                        <th class="text-center">Household</th>
-                        <th class="text-center">Options</th>
+                        <th >Household</th>
+                        <th >Community</th>
+                        <th >Region</th>
+                        <th >Sub-community English Name</th>
+                        <th >Sub-community Arabic Name</th>
+                        @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                            Auth::guard('user')->user()->user_type_id == 2  )
+                            <th >Options</th>
+                        @else
+                            <th></th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -122,11 +130,11 @@
                 }
             },
             columns: [
-                {data: 'english_name', name: 'english_name'},
-                {data: 'arabic_name', name: 'arabic_name'},
+                {data: 'household', name: 'household'},
                 {data: 'community_english_name', name: 'community_english_name'},
                 {data: 'name', name: 'name'},
-                {data: 'household', name: 'household'},
+                {data: 'english_name', name: 'english_name'},
+                {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'action'}
             ]
         });

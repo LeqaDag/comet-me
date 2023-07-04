@@ -13,6 +13,11 @@ label, table {
 }
 </style>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 <div id="createWaterUser" class="modal fade" tabindex="-1" aria-hidden="true" 
     aria-labelledby="exampleModalWaterUser">
     <div class="modal-dialog modal-lg">
@@ -33,12 +38,25 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
-                                <select name="community_id" id="communityChanges" 
-                                    class="form-control">
+                                <select name="community_id[]" id="communityChanges" 
+                                    class="selectpicker form-control" 
+                                    data-live-search="true" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">{{$community->english_name}}</option>
                                     @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>User/Public Structure</label>
+                                <select name="public_user" id="userPublicSelected" 
+                                    class="form-control" disabled required>
+                                    <option disabled selected>Choose one...</option>
+                                    <option value="user">Water User</option> 
+                                    <option value="public">Public Structure</option>
                                 </select>
                             </fieldset>
                         </div>
@@ -237,12 +255,20 @@ label, table {
     </div>
 </div>
 
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
 <script src="{{ asset('js/jquery.min.js') }}"></script>
+
 <script>
     
     $(document).on('change', '#communityChanges', function () {
         community_id = $(this).val();
    
+        $('#userPublicSelected').prop('disabled', false);
+
+        UserOrPublic(community_id);
+
         $.ajax({
             url: "water-user/get_water_source/" + community_id,
             method: 'GET',
@@ -258,17 +284,38 @@ label, table {
                 
             }
         });
+    });
 
-        $.ajax({
-            url: "household/get_by_community/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedHousehold').prop('disabled', false);
-                $('#selectedHousehold').html(data.html);
+    function UserOrPublic(community_id) {
+        $(document).on('change', '#userPublicSelected', function () {
+            publicUser = $('#userPublicSelected').val();
+            
+            if(publicUser == "user") {
+            
+                $.ajax({
+                    url: "household/get_by_community/" + community_id,
+                    method: 'GET',
+                    success: function(data) {
+                        $('#selectedHousehold').prop('disabled', false);
+                        $('#selectedHousehold').html(data.html);
+                    }
+                });
+                
+            } else if(publicUser == "public") {
+
+                $('#selectedWaterHolder').prop('disabled', true);
+                $.ajax({
+                    url: "public/get_by_community/" + community_id,
+                    method: 'GET',
+                    success: function(data) {
+                        $('#selectedHousehold').prop('disabled', false);
+                        $('#selectedHousehold').html(data.html);
+                    }
+                });
             }
         });
+    }
 
-    });
 
     $(document).on('change', '#selectedHousehold', function () {
         household_id = $(this).val();

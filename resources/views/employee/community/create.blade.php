@@ -278,7 +278,7 @@ label, table {
                                 <label class='col-md-12 control-label'>Second Name in Arabic</label>
                                 <input name="second_name_arabic" type="text" class="form-control">
                             </fieldset>
-                        </div>
+                        </div> 
                     </div> 
                     <hr>
                     <div class="row" style="margin-top:12px">

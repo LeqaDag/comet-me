@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
 use Route;
+use App\Models\AllWaterHolder;
 use App\Models\GridUser;
 use App\Models\Donor;
 use App\Models\IncidentStatus;
@@ -34,14 +35,16 @@ class WaterIncidentController extends Controller
      */
     public function index(Request $request)
     { 
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
 
                 $data = DB::table('h2o_system_incidents')
                     ->join('communities', 'h2o_system_incidents.community_id', '=', 'communities.id')
-                    ->join('h2o_users', 'h2o_system_incidents.h2o_user_id', '=', 'h2o_users.id')
-                    ->join('households', 'h2o_users.household_id', '=', 'households.id')
+                    ->join('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
+                        '=', 'all_water_holders.id')
+                    ->join('households', 'all_water_holders.household_id', '=', 'households.id')
                     ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
                     ->join('incident_statuses', 
                         'h2o_system_incidents.incident_status_id', 
@@ -61,9 +64,16 @@ class WaterIncidentController extends Controller
                     ->addColumn('action', function($row) {
     
                         $viewButton = "<a type='button' class='viewWaterIncident' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterIncidentModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateWaterIncident' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteWaterIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $viewButton." ".$deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 5) 
+                        {
+
+                            return $viewButton." ". $updateButton." ". $deleteButton;
+                        } else return $viewButton;
        
                     })
                     ->filter(function ($instance) use ($request) {
@@ -85,9 +95,9 @@ class WaterIncidentController extends Controller
             }
     
             $communities = Community::all();
-            $h2oUsers = DB::table('h2o_users')
-                ->join('households', 'h2o_users.household_id', '=', 'households.id')
-                ->select('households.english_name', 'h2o_users.id')
+            $h2oUsers = DB::table('all_water_holders')
+                ->join('households', 'all_water_holders.household_id', '=', 'households.id')
+                ->select('households.english_name', 'all_water_holders.id')
                 ->get();
     
             $incidents = Incident::all();
@@ -133,6 +143,7 @@ class WaterIncidentController extends Controller
      */
     public function store(Request $request)
     {      
+        $allWaterHolder = AllWaterHolder::where("household_id", $request->all_water_holder_id)->first();
         $waterIncident = new H2oSystemIncident();
 
         if($request->date) {
@@ -143,7 +154,7 @@ class WaterIncidentController extends Controller
         }
 
         $waterIncident->community_id = $request->community_id[0];
-        $waterIncident->h2o_user_id = $request->h2o_user_id[0];
+        $waterIncident->all_water_holder_id = $allWaterHolder->id;
         $waterIncident->incident_id = $request->incident_id;
         $waterIncident->incident_status_id = $request->incident_status_id;
         $waterIncident->equipment = $request->equipment;
@@ -155,6 +166,49 @@ class WaterIncidentController extends Controller
     }
 
     /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $waterIncident = H2oSystemIncident::findOrFail($id);
+        $communities = Community::where('is_archived', 0)->get();
+        $incidents = Incident::all();
+        $statuses = IncidentStatus::all();
+
+        return view('incidents.water.edit', compact('waterIncident', 'communities', 
+            'incidents', 'statuses'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $waterIncident = H2oSystemIncident::findOrFail($id);
+
+        if($request->date) {
+
+            $waterIncident->date = $request->date;
+            $year = explode('-', $request->date);
+            $waterIncident->year = $year[0];
+        }
+
+        $waterIncident->incident_id = $request->incident_id;
+        $waterIncident->incident_status_id = $request->incident_status_id;
+        $waterIncident->equipment = $request->equipment;
+        $waterIncident->notes = $request->notes;
+        $waterIncident->save();
+
+        return redirect('/water-incident')->with('message', 'Water Incident Updated Successfully!');
+    }
+
+    /**
      * Show the specified resource from storage.
      *
      * @param  int $id
@@ -163,7 +217,7 @@ class WaterIncidentController extends Controller
     public function show($id)
     {
         $waterIncident = H2oSystemIncident::findOrFail($id);
-        $householdId = H2oUser::where('id', $waterIncident->h2o_user_id)->first();
+        $householdId = AllWaterHolder::where('id', $waterIncident->all_water_holder_id)->first();
 
         $h2oUser = Household::findOrFail($householdId->household_id);
         $community = Community::where('id', $waterIncident->community_id)->first();

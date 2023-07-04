@@ -71,15 +71,18 @@
                     </div>
                 </form>
 
-
-                <div style="margin-top:18px">
-                    <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createMaintenanceLogWater">
-                        Create New Maintenancne Call	
-                    </button>
-                    @include('users.water.maintenance.create')
-                </div>
-
+                @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                    Auth::guard('user')->user()->user_type_id == 2 ||
+                    Auth::guard('user')->user()->user_type_id == 5 ||
+                    Auth::guard('user')->user()->user_type_id == 11 )
+                    <div style="margin-top:18px">
+                        <button type="button" class="btn btn-success" 
+                            data-bs-toggle="modal" data-bs-target="#createMaintenanceLogWater">
+                            Create New Maintenancne Call	
+                        </button>
+                        @include('users.water.maintenance.create')
+                    </div>
+                @endif
             </div>
 
             <table id="maintenanceWaterTable" class="table table-striped data-table-water-maintenance my-2">
@@ -164,6 +167,15 @@
                 Swal.fire('Changes are not saved', '', 'info')
             }
         });
+    });
+
+    // View update
+    $('#maintenanceWaterTable').on('click', '.updateWaterMaintenance',function() {
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        
+        url = url +'/'+ id +'/edit';
+        window.open(url, "_self"); 
     });
 
     // View record details

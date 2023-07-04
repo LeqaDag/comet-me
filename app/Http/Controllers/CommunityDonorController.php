@@ -15,6 +15,8 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\Donor;
+use App\Models\InternetUser;
+use App\Models\InternetUserDonor;
 use App\Models\ServiceType;
 use Carbon\Carbon;
 use Image;
@@ -68,12 +70,27 @@ class CommunityDonorController extends Controller
             }
         }
 
+        // Add donors for water users
         if($request->service_id == 2) {
 
         }
 
-        if($request->service_id ==3) {
+        $internetUsers = InternetUser::where("community_id", $request->community_id)->get();
 
+        // Add donors for internet users
+        if($request->service_id == 3) {
+
+            foreach($internetUsers as $internetUser) {
+    
+                for($i=0; $i < count($request->donor_id); $i++) {
+    
+                    $internetUserDonor = new InternetUserDonor();
+                    $internetUserDonor->internet_user_id = $internetUser->id;
+                    $internetUserDonor->community_id = $internetUser->community_id;
+                    $internetUserDonor->donor_id = $request->donor_id[$i];
+                    $internetUserDonor->save();
+                }
+            }
         }
 
         return redirect()->back()->with('message', 'Community Donors Updated Successfully!');
@@ -93,11 +110,29 @@ class CommunityDonorController extends Controller
         $allEnergyMeterDonors = AllEnergyMeterDonor::where("donor_id", $donor->donor_id)
             ->where("community_id", $donor->community_id)
             ->get();
+        $internetUserDonors = InternetUserDonor::where("donor_id", $donor->donor_id)
+            ->where("community_id", $donor->community_id)
+            ->get();
 
 
-        if($allEnergyMeterDonors) {
-            foreach($allEnergyMeterDonors as $allEnergyMeterDonor) {
-                $allEnergyMeterDonor->delete();
+        if($donor->service_id == 1) {
+            if($allEnergyMeterDonors) {
+                foreach($allEnergyMeterDonors as $allEnergyMeterDonor) {
+                    $allEnergyMeterDonor->delete();
+                }
+            }
+        }
+
+        // Delete water users donors while delteing donor
+        if($donor->service_id == 2) {
+        }
+
+        // Delete internet users donors while delteing donor
+        if($donor->service_id == 3) {
+            if($internetUserDonors) {
+                foreach($internetUserDonors as $internetUserDonor) {
+                    $internetUserDonor->delete();
+                }
             }
         }
 

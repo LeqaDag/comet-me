@@ -4,10 +4,14 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class HouseholdMeters implements FromCollection, WithHeadings, WithTitle
+class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
+    WithStyles
 {
     protected $request;
 
@@ -27,12 +31,20 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->join('households', 'household_meters.household_id', '=', 'households.id')
+            ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id', '=',
+                'all_energy_meter_donors.all_energy_meter_id')
+            ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
+                'donors.id')
+            // ->where('all_energy_meter_donors.donor_id', 1)
+            // ->where('all_energy_meters.meter_case_id', 1)
             ->select('households.english_name as english_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'households.number_of_male', 'households.number_of_female', 
-                'households.number_of_adults', 'households.number_of_children', 'households.phone_number');
+                'households.number_of_adults', 'households.number_of_children', 
+                'households.phone_number', 'donors.donor_name');
 
+        //dd($query->count());
         if($this->request->misc) {
 
             if($this->request->misc == "misc") {
@@ -66,11 +78,27 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return ["Shared User", "Community", "Region", "Sub Region", "Number of male", 
-            "Number of Female", "Number of adults", "Number of children", "Phone number"];
+            "Number of Female", "Number of adults", "Number of children", "Phone number",
+            "Donor"];
     }
 
     public function title(): string
     {
         return 'Household Meters';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:J1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 14]],
+        ];
     }
 }

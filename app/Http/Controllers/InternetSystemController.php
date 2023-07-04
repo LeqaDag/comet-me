@@ -58,7 +58,7 @@ class InternetSystemController extends Controller
                         '=', 'internet_systems.id')
                     ->join('internet_system_types', 'internet_systems.internet_system_type_id', 
                         '=', 'internet_system_types.id')
-                    ->select('internet_system_types.name', 'internet_system_types.start_year', 
+                    ->select('internet_system_types.name', 'internet_systems.start_year', 
                         'internet_system_types.upgrade_year', 'internet_systems.system_name',
                         'internet_systems.id as id',
                         'internet_system_communities.created_at as created_at', 
@@ -70,8 +70,17 @@ class InternetSystemController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
                         $viewButton = "<a type='button' class='viewInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteInternetSystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $viewButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 6) 
+                        {
+                                
+                            return $viewButton." ". $updateButton." ".$deleteButton;
+                        } else return $viewButton;
+                        
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -89,12 +98,154 @@ class InternetSystemController extends Controller
                     ->rawColumns(['action'])
                     ->make(true);
             }
-    
+
             return view('system.internet.index');
         } else {
 
             return view('errors.not-found');
         }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $aps = InternetAp::all();
+        $communities = Community::where("is_archived", 0)->get();
+        $controllers = InternetController::all();
+        $internetSystemTypes = InternetSystemType::all();
+        $routers = Router::all();
+        $switches = Switche::all();
+        $ptps = InternetPtp::all();
+        $uisps = InternetUisp::all();
+
+        return view('system.internet.create', compact('aps', 'communities', 'controllers',
+            'internetSystemTypes', 'routers', 'switches', 'ptps', 'uisps'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {       
+        //dd($request->all());
+
+        $internetSystem = new InternetSystem();
+        $internetSystem->internet_system_type_id = $request->internet_system_type_id;
+        $internetSystem->system_name = $request->system_name;
+        $internetSystem->start_year = $request->start_year;
+        $internetSystem->notes = $request->notes;
+        $internetSystem->save();
+
+        $internetSystemCommunity = new InternetSystemCommunity();
+        $internetSystemCommunity->community_id = $request->community_id;
+        $internetSystemCommunity->internet_system_id = $internetSystem->id;
+        $internetSystemCommunity->save();
+
+        // $community = Community::findOrFail($request->community_id);
+        // $community->internet_service = "Yes";
+        // if($community->internet_service_beginning_year == Null) {
+        //     $community->internet_service_beginning_year = $request->start_year;
+        // }
+        // $community->save();
+
+
+        // Router
+        if($request->router_id) {
+            for($i=0; $i < count($request->router_id); $i++) {
+
+                $routerInternetSystem = new RouterInternetSystem();
+                $routerInternetSystem->router_id = $request->router_id[$i];
+                $routerInternetSystem->router_units = $request->router_units[$i]["subject"];
+                $routerInternetSystem->internet_system_id = $internetSystem->id;
+                $routerInternetSystem->save();
+            }
+        }
+
+        // Switch
+        if($request->switch_id) {
+            for($i=0; $i < count($request->switch_id); $i++) {
+
+                $switchInternetSystem = new SwitchInternetSystem();
+                $switchInternetSystem->switch_id = $request->switch_id[$i];
+                $switchInternetSystem->switch_units = $request->switch_units[$i]["subject"];
+                $switchInternetSystem->internet_system_id = $internetSystem->id;
+                $switchInternetSystem->save();
+            }
+        }
+
+        // Controller
+        if($request->controller_id) {
+            for($i=0; $i < count($request->controller_id); $i++) {
+
+                $switchInternetSystem = new ControllerInternetSystem();
+                $switchInternetSystem->internet_controller_id = $request->controller_id[$i];
+                $switchInternetSystem->controller_units = $request->controller_units[$i]["subject"];
+                $switchInternetSystem->internet_system_id = $internetSystem->id;
+                $switchInternetSystem->save();
+            }
+        }
+
+        // AP
+        if($request->ap_units) {
+            if($request->ap_id) {
+                for($i=0; $i < count($request->ap_id); $i++) {
+    
+                    $switchInternetSystem = new ApInternetSystem();
+                    $switchInternetSystem->internet_ap_id = $request->ap_id[$i];
+                    $switchInternetSystem->ap_units = $request->ap_units[$i]["subject"];
+                    $switchInternetSystem->internet_system_id = $internetSystem->id;
+                    $switchInternetSystem->save();
+                }
+            }
+        }
+
+        // AP Lite
+        if($request->ap_lite_units) {
+            if($request->ap_lite_id) {
+                for($i=0; $i < count($request->ap_lite_id); $i++) {
+
+                    $switchInternetSystem = new ApLiteInternetSystem();
+                    $switchInternetSystem->internet_ap_id = $request->ap_lite_id[$i];
+                    $switchInternetSystem->ap_lite_units = $request->ap_lite_units[$i]["subject"];
+                    $switchInternetSystem->internet_system_id = $internetSystem->id;
+                    $switchInternetSystem->save();
+                }
+            }
+        }
+
+        // PTP
+        if($request->ptp_id) {
+            for($i=0; $i < count($request->ptp_id); $i++) {
+
+                $ptpInternetSystem = new PtpInternetSystem();
+                $ptpInternetSystem->internet_ptp_id = $request->ptp_id[$i];
+                $ptpInternetSystem->ptp_units = $request->ptp_units[$i]["subject"];
+                $ptpInternetSystem->internet_system_id = $internetSystem->id;
+                $ptpInternetSystem->save();
+            }
+        }
+
+        // UISP
+        if($request->uisp_id) {
+            for($i=0; $i < count($request->uisp_id); $i++) {
+
+                $uispInternetSystem = new UispInternetSystem();
+                $uispInternetSystem->internet_uisp_id = $request->uisp_id[$i];
+                $uispInternetSystem->uisp_units = $request->uisp_units[$i]["subject"];
+                $uispInternetSystem->internet_system_id = $internetSystem->id;
+                $uispInternetSystem->save();
+            }
+        }
+
+        return redirect('/internet-system')
+            ->with('message', 'New Internet System Added Successfully!');
     }
 
     /**
@@ -211,5 +362,32 @@ class InternetSystemController extends Controller
         return view('system.internet.show', compact('routers', 'switches', 'controllers',
             'ptps', 'aps', 'apLites', 'uisps', 'internetSystem', 'internetSystemType', 
             'lineOfSightMainCommunities', 'lineOfSightSubCommunities'));
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystem(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystem = InternetSystem::find($id);
+       // $internetSystemCommunity = InternetSystemCommunity::where("", $id)->first();
+
+        if($internetSystem->delete()) {
+
+           // if($internetSystemCommunity) $internetSystemCommunity->delete();
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 }

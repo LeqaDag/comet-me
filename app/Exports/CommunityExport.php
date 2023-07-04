@@ -4,10 +4,14 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use App\Models\CommunityDonor;
 use DB;
 
-class CommunityExport implements FromCollection, WithHeadings
+class CommunityExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
 {
     protected $request;
 
@@ -38,6 +42,9 @@ class CommunityExport implements FromCollection, WithHeadings
             ->leftJoin('sub_sub_regions', 'communities.sub_sub_region_id', '=', 'sub_sub_regions.id')
             ->join('community_statuses', 'communities.community_status_id', 
                 '=', 'community_statuses.id')
+            ->leftJoin('community_donors', 'communities.id', 'community_donors.community_id')
+            ->join('donors', 'community_donors.donor_id', 'donors.id')
+            ->leftJoin('service_types', 'community_donors.service_id', 'service_types.id')
             ->where('communities.is_archived', 0)
             ->select('communities.english_name as english_name', 
                 'communities.arabic_name as arabic_name',
@@ -48,7 +55,11 @@ class CommunityExport implements FromCollection, WithHeadings
                 'communities.energy_service', 'communities.energy_service_beginning_year',
                 'communities.water_service', 'communities.water_service_beginning_year',
                 'communities.internet_service', 'communities.internet_service_beginning_year', 
-            );
+                DB::raw('group_concat(donors.donor_name) as donors'),
+                DB::raw('group_concat(service_types.service_name) as services')
+            )
+            ->groupBy('communities.id');
+
 
         if($this->request->region) {
             $data->where("communities.region_id", $this->request->region);
@@ -63,26 +74,16 @@ class CommunityExport implements FromCollection, WithHeadings
         }
         if($this->request->system_type) {
 
-            $data->leftJoin('energy_users', function ($join) {
-                    $join->on('energy_users.id', '=', 
-                    DB::raw('(SELECT id FROM energy_users WHERE energy_users.community_id = communities.id LIMIT 1)'));
-                })
-                ->leftJoin('energy_system_types', 'energy_users.energy_system_type_id', 
-                    '=', 'energy_system_types.id')
-                ->where("energy_users.energy_system_type_id", $this->request->system_type);
+            // $data->leftJoin('energy_users', function ($join) {
+            //         $join->on('energy_users.id', '=', 
+            //         DB::raw('(SELECT id FROM energy_users WHERE energy_users.community_id = communities.id LIMIT 1)'));
+            //     })
+            //     ->leftJoin('energy_system_types', 'energy_users.energy_system_type_id', 
+            //         '=', 'energy_system_types.id')
+            //     ->where("energy_users.energy_system_type_id", $this->request->system_type);
         }
         if($this->request->donor) {
-            // ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
-            // ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
-            // ->leftJoin('service_types', 'community_donors.service_id', 'service_types.id')
-            
-            // ->leftJoin('community_donors', function ($join) {
-            //     $join->on('community_donors.community_id', '=', 
-            //     DB::raw('(SELECT donor_id FROM community_donors WHERE community_donors.community_id = communities.id)'));
-            // })
-           // ->leftJoin('community_donors', 'communities.id', 'community_donors.community_id')
-            //->join('donors', 'community_donors.donor_id', 'donors.id')
-            // ->join('service_types', 'community_donors.service_id', 'service_types.id')
+
             $data->where("community_donors.donor_id", $this->request->donor);
         }
 
@@ -98,8 +99,31 @@ class CommunityExport implements FromCollection, WithHeadings
     {
         return ["English Name", "Arabic Name", "Region", "Sub Region", "Sub Sub Region",
             "Number of Households", "Number of People",  "Number of Compounds", 
-            "Status", "Energy Service", "Energy Service Year", "Energy System Type", "Water Service", 
+            "Status", "Energy Service", "Energy Service Year", 
+          //  "Energy System Type", 
+            "Water Service", 
             "Water Service Year", "Internet Service", "Internet Service Year",
-            "Donor", "Service"];
+            "Donors", "Services"];
+    }
+
+
+    public function title(): string
+    {
+        return 'All Communities';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:R1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

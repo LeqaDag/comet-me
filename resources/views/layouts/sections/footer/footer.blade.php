@@ -12,7 +12,7 @@
       </a>
     </div>
     <div>
-      <a href="{{ config('variables.instagramUrl') ? config('variables.instagramUrl') : '#' }}" 
+      <a href="" 
         class="footer-link me-4" target="_blank">Instagram
       </a>
       <a href="{{ config('variables.websiteUrl') ? config('variables.websiteUrl') : '#' }}" 

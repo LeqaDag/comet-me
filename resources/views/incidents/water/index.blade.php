@@ -85,13 +85,17 @@
             </form>
         </div>
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createWaterIncident">
-                    Add Water Incident
-                </button>
-                @include('incidents.water.create')
-            </div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||  
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 5)
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createWaterIncident">
+                        Add Water Incident
+                    </button>
+                    @include('incidents.water.create')
+                </div>
+            @endif
             <table id="waterIncidentsTable" class="table table-striped data-table-water-incidents my-2">
                 <thead>
                     <tr>
@@ -215,7 +219,7 @@
                     $('#communityName').html('');
                     $('#communityName').html(response['community'].english_name);
                     $('#incidentDate').html('');
-                    $('#incidentDate').html(response['incident'].date);
+                    $('#incidentDate').html(response['waterIncident'].date);
                     $('#waterIncidentStatus').html('')
                     $('#waterIncidentStatus').html(response['waterStatus'].name);
                     $('#incidentYear').html('');
@@ -228,6 +232,15 @@
                     $('#incidentNotes').html(response['waterIncident'].notes);
                 }
             });
+        });
+
+        // View record photos
+        $('#waterIncidentsTable').on('click', '.updateWaterIncident',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+           
+            url = url +'/'+ id +'/edit';
+            window.open(url, "_self"); 
         });
 
         // Delete record

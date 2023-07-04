@@ -65,7 +65,7 @@ class InitialCommunityController extends Controller
                     ->latest(); 
     
                 return Datatables::of($data)
-                    ->addIndexColumn()
+                    ->addIndexColumn() 
                     ->addColumn('action', function($row) {
                         $detailsButton = "<a type='button' class='detailsCommunityButton' data-bs-toggle='modal' data-bs-target='#communityDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
     

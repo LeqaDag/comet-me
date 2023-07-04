@@ -71,11 +71,18 @@ class H2oMaintenanceCallController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
-    
+                        $updateButton = "<a type='button' class='updateWaterMaintenance' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteWaterMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         $viewButton = "<a type='button' class='viewWaterMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
     
-                        return $deleteButton. " ". $viewButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 5 ||
+                            Auth::guard('user')->user()->user_type_id == 11) 
+                        {
+                                
+                            return $viewButton. " ". $updateButton . " ". $deleteButton;
+                        } else return $viewButton;
                     })
                    
                     ->filter(function ($instance) use ($request) {
@@ -131,6 +138,14 @@ class H2oMaintenanceCallController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'community_id' => 'required',
+            'maintenance_status_id' => 'required',
+            'maintenance_type_id' => 'required',
+            'maintenance_h2o_action_id' => 'required',
+            'user_id' => 'required'
+        ]);
+
         $maintenance = new H2oMaintenanceCall();
         if($request->household_id) {
 
@@ -154,6 +169,48 @@ class H2oMaintenanceCallController extends Controller
 
         return redirect()->back()
         ->with('message', 'New Maintenance Added Successfully!');
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $waterMaintenance = H2oMaintenanceCall::findOrFail($id);
+
+        $maintenanceTypes = MaintenanceType::all();
+        $maintenanceStatuses = MaintenanceStatus::all();
+        $maintenanceWaterActions = MaintenanceH2oAction::all();
+
+        $users = User::all();
+
+        return view('users.water.maintenance.edit', compact('waterMaintenance', 'users',
+            'maintenanceTypes',  'maintenanceStatuses', 'maintenanceWaterActions'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $maintenance = H2oMaintenanceCall::findOrFail($id);
+
+        $maintenance->date_of_call = $request->date_of_call;
+        $maintenance->date_completed = $request->date_completed;
+        $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        $maintenance->user_id = $request->user_id;
+        $maintenance->maintenance_h2o_action_id = $request->maintenance_h2o_action_id;
+        $maintenance->maintenance_type_id = $request->maintenance_type_id;
+        $maintenance->notes = $request->notes;
+        $maintenance->save();
+
+        return redirect('/water-maintenance')->with('message', 'Water Maintenance Updated Successfully!');
     }
 
     /**

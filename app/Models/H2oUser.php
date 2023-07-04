@@ -20,7 +20,7 @@ class H2oUser extends Model
     public function Household()
     {
         return $this->belongsTo(Household::class, 'household_id', 'id');
-    }
+    } 
 
     public function H2oStatus()
     {

@@ -11,7 +11,7 @@
 @section('content')
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span>Water Public Facilities
+  <span class="text-muted fw-light">All </span>Shared H2O Public Facilities
 </h4>
 
 @if(session()->has('message'))
@@ -25,23 +25,34 @@
 <div class="container"> 
     <div class="card my-2">
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createWaterPublic">
-                    Create New Water Public Facility	
-                </button>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 5 ||
+                Auth::guard('user')->user()->user_type_id == 11)
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createWaterSharedPublic">
+                        Create New Shared H2O Public Facility	
+                    </button>
 
-                @include('users.water.public.create')
-            </div>
+                    @include('users.water.public.create_share')
+                </div>
+            @endif
             <table id="waterPublicTable" 
                 class="table table-striped data-table-water-public my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">Public Structure</th>
-                        <th class="text-center">Community</th>
-                        <th class="text-center">Installation Year</th>
-                        <th class="text-center">H2O Status</th>
-                        <th class="text-center">Options</th>
+                        <th>Sub Public Structure</th>
+                        <th>H2O Public Structure</th>
+                        <th>Community</th>
+                        @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 5 ||
+                            Auth::guard('user')->user()->user_type_id == 11)
+                            <th>Options</th>
+                        @else
+                            <th></th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -66,56 +77,26 @@
                 }
             },
             columns: [
+                {data: 'shared', name: 'shared'},
                 {data: 'english_name', name: 'english_name'},
                 {data: 'community_name', name: 'community_name'},
-                {data: 'installation_year', name: 'installation_year'},
-                {data: 'status', name: 'status'},
                 {data: 'action'}
             ],
         });
 
-        // View record details
-        $('#waterAllSharedUsersTable').on('click','.viewWaterUser',function() {
-            var id = $(this).data('id');
-        
-            // AJAX request
-            $.ajax({
-                url: 'water-user/' + id,
-                type: 'get',
-                dataType: 'json',
-                success: function(response) {
-                    $('#WaterUserModalTitle').html(response['household'].english_name);
-                    $('#englishNameUser').html(response['household'].english_name);
-                    $('#communityUser').html(response['community'].english_name);
-                    $('#numberH2oUser').html(response['h2oUser'].number_of_h20);
-                    $('#statusH2oUser').html(response['h2oStatus'].status);
-                    $('#numberBsfUser').html(response['h2oUser'].number_of_bsf);
-                    $('#statusBsfUser').html(response['bsfStatus'].name);
-
-                    $('#gridLargeNumber').html(response['gridUser'].grid_integration_large);
-                    $('#gridLargeDateNumber').html(response['gridUser'].large_date);
-                    $('#gridSmallNumber').html(response['gridUser'].grid_integration_small);
-                    $('#gridSmallDateNumber').html(response['gridUser'].small_date);
-                    $('#gridDelivery').html(response['gridUser'].is_delivery);
-                    $('#gridPaid').html(response['gridUser'].is_paid);
-                    $('#gridComplete').html(response['gridUser'].is_complete);
-                }
-            });
-        });
-
         // Delete record
-        $('#waterAllSharedUsersTable').on('click', '.deleteWaterUser',function() {
+        $('#waterPublicTable').on('click', '.deleteSharedPublic',function() {
             var id = $(this).data('id');
 
-            Swal.fire({
+            Swal.fire({ 
                 icon: 'warning',
-                title: 'Are you sure you want to delete this user?',
+                title: 'Are you sure you want to delete this shared public?',
                 showDenyButton: true,
                 confirmButtonText: 'Confirm'
             }).then((result) => {
                 if(result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('deleteWaterUser') }}",
+                        url: "{{ route('deleteSharedPublic') }}",
                         type: 'get',
                         data: {id: id},
                         success: function(response) {
@@ -128,7 +109,7 @@
                                     showCancelButton: false,
                                     confirmButtonText: 'Okay!'
                                 }).then((result) => {
-                                    $('#waterAllSharedUsersTable').DataTable().draw();
+                                    $('#waterPublicTable').DataTable().draw();
                                 });
                             } else {
 

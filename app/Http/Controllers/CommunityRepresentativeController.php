@@ -83,7 +83,13 @@ class CommunityRepresentativeController extends Controller
                        // $updateButton = "<a type='button' class='updateRepresentative' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateRepresentativeModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteRepresentative' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
     
-                        return $detailsButton. " ". $deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ) 
+                        {
+                                
+                            return  $detailsButton. " ". $deleteButton;
+                        } else return $detailsButton; 
+
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {

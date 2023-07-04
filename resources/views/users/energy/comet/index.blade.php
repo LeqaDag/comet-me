@@ -21,13 +21,19 @@
 <div class="container mb-4">
     <div class="card my-2">
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createMeterPublic">
-                    Create New Comet Meter	
-                </button>
-                @include('users.energy.comet.create')
-            </div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 ||
+                Auth::guard('user')->user()->user_type_id == 4 ||
+                Auth::guard('user')->user()->user_type_id == 12)
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createMeterPublic">
+                        Create New Comet Meter	
+                    </button>
+                    @include('users.energy.comet.create')
+                </div>
+            @endif
             <table id="energyCometMeterTable" 
                 class="table table-striped data-table-energy-comet-meters my-2">
                 <thead>

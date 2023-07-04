@@ -4,10 +4,13 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class SubCommunityHouseholdExport implements FromCollection, WithHeadings, WithTitle
+class SubCommunityHouseholdExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
 {
 
     protected $request;
@@ -83,5 +86,20 @@ class SubCommunityHouseholdExport implements FromCollection, WithHeadings, WithT
     public function title(): string
     {
         return 'Households - Sub Communities';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:O1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

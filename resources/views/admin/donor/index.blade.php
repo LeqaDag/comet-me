@@ -87,6 +87,7 @@
     <div class="card my-2">
         <div class="card-body">
             <p class="card-text">
+            @if(Auth::guard('user')->user()->user_type_id == 1)
                 <div>
                     <button type="button" class="btn btn-success" 
                         data-bs-toggle="modal" data-bs-target="#createDonor">
@@ -101,14 +102,19 @@
                     @include('admin.donor.community.create')
 
                 </div>
+            @endif
             </p>
             <table id="donorTable" class="table table-striped data-table-donors my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">Name</th>
-                        <th class="text-center">Community</th>
-                        <th class="text-center">Service</th>
-                        <th class="text-center">Options</th>
+                        <th>Name</th>
+                        <th>Community</th>
+                        <th>Service</th>
+                        @if(Auth::guard('user')->user()->user_type_id == 1)
+                            <th>Options</th>
+                        @else 
+                            <th></th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>

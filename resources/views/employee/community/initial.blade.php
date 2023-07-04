@@ -23,6 +23,8 @@
     <div class="card my-2">
         <div class="card-body">
             <p class="card-text">
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2  )
                 <div>
                     <button type="button" class="btn btn-success" 
                         data-bs-toggle="modal" data-bs-target="#createCommunity">
@@ -30,6 +32,7 @@
                     </button>
                     @include('employee.community.create')
                 </div>
+            @endif
             </p>
             <table id="communityInitialTable" 
                 class="table table-striped data-table-initial-communities my-2">

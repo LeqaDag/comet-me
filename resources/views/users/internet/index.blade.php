@@ -6,8 +6,6 @@
 
 @section('content')
 
-
-
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Internet Contract Holders
 </h4>
@@ -66,20 +64,36 @@
                         </button>
                     </div>
                 </div> 
-                <div class="row">
-                    
-                </div>
             </form>
+
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 6 )
+                <div style="margin-top:30px">
+                    <button type="button" class="btn btn-success" 
+                        id="getInternetHolders">
+                        Get Latest Internet Holders
+                    </button>
+                </div>
+            @endif
         </div>
+       
         <div class="card-body">
             <table id="internetAllUsersTable" class="table table-striped data-table-internet-users my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">User Name</th>
-                        <th class="text-center">Community</th>
-                        <th class="text-center">Date</th>
-                        <th class="text-center"># of Contracts</th>
-                        <th class="text-center">Options</th>
+                        <th>User Name</th>
+                        <th>Public Structure</th>
+                        <th>Community</th>
+                        <th>Date</th>
+                        <th># of Contracts</th>
+                        @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 6 )
+                            <th>Options</th>
+                        @else
+                            <th></th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -91,8 +105,8 @@
 
 
 <script type="text/javascript">
-    $(function () {
 
+    $(function () {
         var table = $('.data-table-internet-users').DataTable({
             processing: true,
             serverSide: true,
@@ -104,6 +118,7 @@
             },
             columns: [
                 {data: 'household_name', name: 'household_name'},
+                {data: 'public_name', name: 'public_name'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'start_date', name: 'start_date'},
                 {data: 'number_of_contract', name: 'number_of_contract'},
@@ -111,5 +126,30 @@
             ]
         });
     });
+
+    // View record details
+    $('#getInternetHolders').on('click', function() {
+
+        // AJAX request
+        $.ajax({
+            url: 'api/internet-holder',
+            type: 'get',
+            dataType: 'json',
+            success: function(response) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Internet Contract Holders Gotten Successfully!',
+                    showDenyButton: false,
+                    showCancelButton: false,
+                    confirmButtonText: 'Okay!'
+                }).then((result) => {
+
+                    $('#internetAllUsersTable').DataTable().draw();
+                });
+            }
+        });
+    });
+
 </script>
 @endsection

@@ -1,24 +1,19 @@
 <style>
     label, input {
-    display: block;
-}
+        display: block;
+    }
 
-label, table {
-    margin-top: 20px;
-}
+    label, table {
+        margin-top: 20px;
+    }
 
-.headingLabel {
-    font-size:18px;
-    font-weight: bold;
-}
+    .headingLabel {
+        font-size:18px;
+        font-weight: bold;
+    }
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-
-<div id="createCommunityRepresentative" class="modal fade" tabindex="-1" aria-hidden="true">
+<div id="createCommunityRepresentative" class="modal fade" >
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -36,12 +31,14 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
-                                <select name="community_id" id="communityChanges" 
+                                <select name="community_id" id="communityChangesRep" 
                                     class="selectpicker form-control"
                                     data-live-search="true" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
-                                    <option value="{{$community->id}}">{{$community->english_name}}</option>
+                                    <option value="{{$community->id}}">
+                                        {{$community->english_name}}
+                                    </option>
                                     @endforeach
                                 </select>
                             </fieldset>
@@ -50,7 +47,7 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Household</label>
-                                <select name="household_id" id="selectedHousehold" 
+                                <select name="household_id" id="selectedHouseholdRep" 
                                     class="form-control" disabled>
                                     <option disabled selected>Choose one...</option>
                                 </select>
@@ -65,7 +62,6 @@ label, table {
                             </fieldset>
                         </div>
                     </div>
-
                
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
@@ -90,12 +86,10 @@ label, table {
     </div>
 </div>
 
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script>
     
-    $(document).on('change', '#communityChanges', function () {
+    $(document).on('change', '#communityChangesRep', function () {
         community_id = $(this).val();
    
         $.ajax({
@@ -103,13 +97,13 @@ label, table {
             method: 'GET',
             success: function(data) {
                 
-                $('#selectedHousehold').prop('disabled', false);
-                $('#selectedHousehold').html(data.html);
+                $('#selectedHouseholdRep').prop('disabled', false);
+                $('#selectedHouseholdRep').html(data.html);
             }
         });
     });
 
-    $(document).on('change', '#selectedHousehold', function () {
+    $(document).on('change', '#selectedHouseholdRep', function () {
         household_id = $(this).val();
    
         $.ajax({

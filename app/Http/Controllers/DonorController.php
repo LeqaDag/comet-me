@@ -13,6 +13,8 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\Donor;
+use App\Models\InternetUser;
+use App\Models\InternetUserDonor;
 use App\Models\EnergyDonor;
 use App\Models\ServiceType;
 use Carbon\Carbon;
@@ -50,9 +52,14 @@ class DonorController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
 
+                        $empty = "";
                         $deleteButton = "<a type='button' class='deleteDonor' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></s>";
                         
-                        return $deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 ) 
+                        {
+                                
+                            return $deleteButton;
+                        } else return $empty; 
                     })
                 
                     ->filter(function ($instance) use ($request) {

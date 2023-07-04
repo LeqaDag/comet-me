@@ -190,7 +190,7 @@
 
 <div class="container mb-4">
     <div class="row">
-        <div class="col-xl-6 col-lg-6 col-md-6">
+        <div class="col-xl-12 col-lg-12 col-md-12">
             <div class="panel panel-primary">
                 <div class="panel-body" >
                     <div id="pie_chart_regional_community" style="height:450px;">
@@ -198,14 +198,14 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-6 col-lg-6 col-md-6">
+        <!-- <div class="col-xl-6 col-lg-6 col-md-6">
             <div class="panel panel-primary">
                 <div class="panel-body" >
                     <div id="pie_chart_sub_regional_community" style="height:450px;">
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 
@@ -291,28 +291,31 @@
                 </form>
             </div>
 
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createCommunity">
-                    Create New Community	
-                </button>
-                @include('employee.community.create')
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2  )
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createCommunity">
+                        Create New Community	
+                    </button>
+                    @include('employee.community.create')
 
-                <a href="{{url('community', 'create')}}" 
-					class="btn btn-primary">Calculate Number of Households
-                </a>
-            </div>
+                    <a href="{{url('community', 'create')}}" 
+                        class="btn btn-primary">Calculate Number of Households
+                    </a>
+                </div>
+            @endif
             <table id="communityTable" class="table table-striped data-table-communities my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">English Name</th>
-                        <th class="text-center">Arabic Name</th>
-                        <th class="text-center"># of Families</th>
-                        <th class="text-center"># of People</th>
-                        <th class="text-center">Region</th>
-                        <th class="text-center">Sub Region</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-center">Options</th>
+                        <th>English Name</th>
+                        <th>Arabic Name</th>
+                        <th># of Families</th>
+                        <th># of People</th>
+                        <th>Region</th>
+                        <th>Sub Region</th>
+                        <th>Status</th>
+                        <th>Options</th>
                     </tr>
                 </thead>
                 <input type="hidden" name="txtCommunityId" id="txtCommunityId" value="0">
@@ -416,6 +419,9 @@
                     $('#internetServiceCommunity').html(response['community'].internet_service);
                     $('#internetServiceYearCommunity').html(response['community'].internet_service_beginning_year);
                     
+                    $("#secondNameDiv").css("visibility", "hidden");
+                    $("#secondNameDiv").css('display', 'none');
+
                     if(response['secondName']) {
 
                         $("#secondNameDiv").css("visibility", "visible");

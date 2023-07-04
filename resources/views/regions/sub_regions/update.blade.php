@@ -25,13 +25,13 @@
                     </div>
                 </div>
                 <br>
-                <input type="text" id="selectedRegionValue" hidden>
+                <!-- <input type="text" id="selectedRegionValue" hidden>
                 <fieldset class="form-group">
                     <label class='col-md-12 control-label' for="region_id">Region</label>
                     <select id='updateRegionId' class="updateRegionId form-control">
                         <option id="selectedRegion" selected></option>
                     </select> 
-                </fieldset> 
+                </fieldset>  -->
             </div>
             <div class="modal-footer">
                 <button type="submit" class="btn btn-success btn-sm" 

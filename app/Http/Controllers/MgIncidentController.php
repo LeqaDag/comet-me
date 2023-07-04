@@ -60,9 +60,17 @@ class MgIncidentController extends Controller
                     ->addColumn('action', function($row) {
     
                         $viewButton = "<a type='button' class='viewMgIncident' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewMgIncidentModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateMgIncident' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteMgIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        return $viewButton." ".$deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 3 ||
+                            Auth::guard('user')->user()->user_type_id == 4) 
+                        {
+
+                            return $viewButton." ". $updateButton." ". $deleteButton;
+                        } else return $viewButton;
        
                     })
                     ->filter(function ($instance) use ($request) {
@@ -95,9 +103,10 @@ class MgIncidentController extends Controller
                 ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
                 ->join('incident_status_mg_systems', 'mg_incidents.incident_status_mg_system_id', 
                     '=', 'incident_status_mg_systems.id')
+                ->where('incident_status_mg_systems.incident_id', "=",  4)
                 ->select(
-                        DB::raw('incident_status_mg_systems.name as name'),
-                        DB::raw('count(*) as number'))
+                    DB::raw('incident_status_mg_systems.name as name'),
+                    DB::raw('count(*) as number'))
                 ->groupBy('incident_status_mg_systems.name')
                 ->get();
                 
@@ -167,6 +176,64 @@ class MgIncidentController extends Controller
         $response['mgStatus'] = $mgStatus;
 
         return response()->json($response);
+    }
+
+    /**
+     * View Edit page. 
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $mgIncident = MgIncident::findOrFail($id);
+
+        return response()->json($mgIncident);
+    }
+
+        /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $mgIncident = MgIncident::findOrFail($id);
+        $communities = Community::where('is_archived', 0)->get();
+        $energySystems = EnergySystem::all();
+        $incidents = Incident::all();
+        $mgIncidents = IncidentStatusMgSystem::all();
+
+        return view('incidents.mg.edit', compact('mgIncident', 'communities', 'energySystems', 
+            'incidents', 'mgIncidents'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $mgIncident = MgIncident::findOrFail($id);
+
+        if($request->date) {
+
+            $mgIncident->date = $request->date;
+            $year = explode('-', $request->date);
+            $mgIncident->year = $year[0];
+        }
+
+        $mgIncident->community_id = $request->community_id;
+        $mgIncident->energy_system_id = $request->energy_system_id;
+        $mgIncident->incident_id = $request->incident_id;
+        $mgIncident->incident_status_mg_system_id = $request->incident_status_mg_system_id;
+        $mgIncident->notes = $request->notes;
+        $mgIncident->save();
+
+        return redirect('/mg-incident')->with('message', 'MG Incident Updated Successfully!');
     }
 
     /**

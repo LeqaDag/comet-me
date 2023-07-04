@@ -4,9 +4,10 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class InternetUserExport implements FromCollection, WithHeadings
+class InternetUserExport implements FromCollection, WithHeadings, ShouldAutoSize
 {
 
     protected $request;

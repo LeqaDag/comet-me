@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Models\AllWaterHolder;
 use App\Models\User;
 use App\Models\BsfStatus;
 use App\Models\Donor;
@@ -47,12 +48,18 @@ class SharedWaterController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
-    
+                        $empty = "";
                        // $updateButton = "<a type='button' class='updateWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateWaterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteWaterUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         //$viewButton = "<a type='button' class='viewWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-    
-                        return $deleteButton;
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 5 ||
+                            Auth::guard('user')->user()->user_type_id == 11) 
+                        {
+                                
+                            return $deleteButton;
+                        } else return $empty;
                     })
                    
                     ->filter(function ($instance) use ($request) {
@@ -138,6 +145,13 @@ class SharedWaterController extends Controller
         $sharedUser->user_arabic_name = $household->arabic_name;
         $sharedUser->save();
 
+        $allWaterHolder =  new AllWaterHolder();
+        $allWaterHolder->is_main = "No";
+        $allWaterHolder->household_id = $request->household_id;
+        $allWaterHolder->community_id = $request->community_id[0];
+        $allWaterHolder->water_system_id = 1;
+        $allWaterHolder->save();
+
         return redirect()->back()->with('message', 'New Shared User Added Successfully!');
     }
 
@@ -152,9 +166,11 @@ class SharedWaterController extends Controller
         $id = $request->id;
 
         $sharedUser = H2oSharedUser::find($id);
+        $allWaterHolder = AllWaterHolder::where("household_id", $sharedUser->household_id)->first();
 
         if($sharedUser->delete()) {
 
+            if($allWaterHolder) $allWaterHolder->delete();
             $response['success'] = 1;
             $response['msg'] = 'Shared H2O User Deleted successfully'; 
         } else {

@@ -40,12 +40,16 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
-            <div>
-                <button type="button" class="btn btn-success" 
-                    data-bs-toggle="modal" data-bs-target="#createWaterSystem">
-                    Create New Energy System	
-                </button>
-            </div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 || 
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 4 )
+                <div>
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createWaterSystem">
+                        Create New Energy System	
+                    </button>
+                </div>
+            @endif
             <table id="systemEnergyTable" class="table table-striped data-table-energy-system my-2">
                 <thead>
                     <tr>

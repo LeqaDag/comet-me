@@ -80,6 +80,16 @@
                         </fieldset>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Notes</label>
+                            <textarea name="notes" style="resize:none" class="form-control">
+                                {{$waterResult->notes}}
+                            </textarea>
+                        </fieldset>
+                    </div>  
+                </div>
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
