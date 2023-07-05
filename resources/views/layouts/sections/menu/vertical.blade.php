@@ -109,6 +109,12 @@
             </a>
             </li>
             <li class="menu-item">
+                <a href="{{url('progress-household')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>In Progress</div>
+                </a>
+            </li>
+            <li class="menu-item">
             <a href="{{url('served-household')}}" class="menu-link" >
                 <i class=""></i>
                 <div>Served</div>
@@ -117,6 +123,7 @@
         </ul>
     </li>
    
+    
     <li class="menu-item">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-tachometer"></i>
@@ -125,6 +132,45 @@
         <ul class="menu-sub">
             <li class="menu-item">
                 <a class="menu-link menu-toggle">
+                    <div>Energy </div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{{url('all-meter')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Meter Holders</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{url('household-meter')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Shared Users</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{url('energy-public')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Public Structures Meters</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{url('comet-meter')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Comet Meters</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{url('refrigerator-user')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Refrigerator Holders</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item">
+                <a class="menu-link menu-toggle">
+                
                     <div>Water </div>
                 </a>
                 <ul class="menu-sub">
@@ -148,8 +194,49 @@
                     </li>
                 </ul>
             </li>
+            
+            <li class="menu-item">
+                <a class="menu-link menu-toggle">
+                <!--  <i class="menu-icon tf-icons bx bx-wifi"></i>-->
+                    <div>Internet </div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{{url('internet-user')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>All Contract Holders</div>
+                        </a>
+                    </li>
+                </ul>
+            </li> 
         </ul>
     </li>
+
+    <!-- 
+
+    
+    <li class="menu-item">
+        <a class="menu-link menu-toggle">
+            <i class="menu-icon tf-icons bx bx-receipt"></i>
+            <div>Water Quality Results</div>
+        </a>
+        <ul class="menu-sub">
+            <li class="menu-item">
+            <a href="{{url('water-summary')}}" class="menu-link" >
+                <i class=""></i>
+                <div>Summary</div>
+            </a>
+            </li>
+            <li class="menu-item">
+            <a href="{{url('quality-result')}}" class="menu-link" >
+                <i class=""></i>
+                <div>All Results</div>
+            </a>
+            </li>
+        </ul>
+    </li> -->
+<!-- 
+   -->
  
     <li class="menu-item">
         <a class="menu-link menu-toggle">
@@ -157,6 +244,18 @@
             <div>Maintenance and Monitoring</div>
         </a>
         <ul class="menu-sub">
+            <li class="menu-item">
+                <a href="{{url('energy-maintenance')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Electricity Maintenance</div>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{url('refrigerator-maintenance')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Refrigerator Maintenance</div>
+                </a>
+            </li>
             <li class="menu-item">
                 <a href="{{url('water-maintenance')}}" class="menu-link" >
                     <i class=""></i>
@@ -192,13 +291,26 @@
         </a>
         <ul class="menu-sub">
             <li class="menu-item">
+                <a href="{{url('energy-system')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Energy System</div>
+                </a>
+            </li>
+            <li class="menu-item">
                 <a href="{{url('water-system')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Water System</div>
                 </a>
             </li>
+            <li class="menu-item">
+                <a href="{{url('internet-system')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Internet System</div>
+                </a>
+            </li>
         </ul>
     </li>
+
 
     <li class="menu-item">
         <a class="menu-link menu-toggle">
@@ -206,6 +318,18 @@
             <div>Incidents</div>
         </a>
         <ul class="menu-sub">
+            <li class="menu-item">
+                <a href="{{url('mg-incident')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>MG System</div>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{url('fbs-incident')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>FBS Users</div>
+                </a>
+            </li>
             <li class="menu-item">
                 <a href="{{url('water-incident')}}" class="menu-link" >
                     <i class=""></i>
@@ -215,11 +339,31 @@
         </ul>
     </li>
 
+    @if(Auth::guard('user')->user()->user_type_id == 1 ||
+        Auth::guard('user')->user()->user_type_id == 2)
     <li class="menu-item">
         <a href="{{url('donor')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-money"></i>
             <div>Donors</div>
         </a>
     </li>
-
+    <li class="menu-item">
+        <a href="{{url('chart')}}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-chart"></i>
+            <div>Charts</div>
+        </a>
+    </li>
+    <li class="menu-item">
+        <a href="{{url('user')}}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-group"></i>
+            <div>Users</div>
+        </a>
+    </li>
+    <li class="menu-item">
+        <a href="{{url('setting')}}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-cog"></i>
+            <div>Settings</div>
+        </a>
+    </li>
+    @endif
 </ul>

@@ -202,6 +202,13 @@ class HouseholdController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'community_id' => 'required',
+            'english_name' => 'required',
+            'arabic_name' => 'required',
+            'profession_id' => 'required'
+        ]);
+
        // dd($request->all());
         $household = new Household();
         $household->english_name = $request->english_name;

@@ -33,6 +33,14 @@
 
 @include('employee.household.sub_household')
 
+@if(session()->has('message'))
+    <div class="row">
+        <div class="alert alert-success">
+            {{ session()->get('message') }}
+        </div>
+    </div>
+@endif
+
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
@@ -45,7 +53,7 @@
                 <div>
                     <a type="button" class="btn btn-success" 
                         href="{{url('ac-household', 'create')}}" >
-                        Create New Elc.
+                        Create New AC-Survey Household
                     </a>
                 </div>
             @endif
@@ -54,11 +62,11 @@
                 class="table table-striped data-table-ac-households my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">English Name</th>
-                        <th class="text-center">Arabic Name</th>
-                        <th class="text-center">Community</th>
-                        <th class="text-center">Region</th>
-                        <th class="text-center">Main Household?</th>
+                        <th>English Name</th>
+                        <th>Arabic Name</th>
+                        <th>Community</th>
+                        <th>Region</th>
+                        <th>Options</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -105,90 +113,20 @@
             ]
         });
 
-        // Change status 
-        $('#acHouseholdsTable').on('change', '.sharedHousehold',function() {
+        // View record details
+        $('#acHouseholdsTable').on('click', '.updateAcHousehold',function() {
             var id = $(this).data('id');
-            var isShared = $(this).val();
- 
-            if(isShared == "No" ){
-                $.ajax({
-                    url: "{{ route('acSubHousehold') }}",
-                    type: 'get',
-                    data: {
-                        id: id,
-                        isShared: isShared
-                    },
-                    success: function(response) {
-                        $('#subHouseholdModal').modal('toggle');
-                        $(".mainHousehold").html("");
-                        response.forEach(el => {
-                            $(".mainHousehold").append(`<option value='${el.id}'> ${el.english_name}</option>`)
-                        }); 
-
-                        $('#btn_save').click(function (e) {
-                            e.preventDefault();
-                            var user_id = $('#mainHousehold').val();
-                        
-                            $.ajax({
-                                url: "{{ route('acSubHouseholdSave') }}",
-                                type: 'get',
-                                data: {
-                                    id: id,
-                                    user_id: user_id,
-                                },
-                                success: function (data) {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: "Household Meter Updated Successfully!",
-                                        showDenyButton: false,
-                                        showCancelButton: false,
-                                        confirmButtonText: 'Okay!'
-                                    }).then((result) => {
-                                        $('#acHouseholdsTable').DataTable().draw();
-                                    });
-
-                                    $('#subHouseholdModal').modal('hide');
-                                    table.draw();
-                                },
-                                error: function (data) {
-                                    console.log('Error:', data);
-                                    $('#btn_save').html('Save Changes');
-                                }
-                            });
-                        });
-                    }
-                });
-            } else if(isShared == "Yes") {
-                $.ajax({
-                    url: "{{ route('acMainHousehold') }}",
-                    type: 'get',
-                    data: {
-                        id: id
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: "Energy User Updated Successfuly!",
-                            showDenyButton: false,
-                            showCancelButton: false,
-                            confirmButtonText: 'Okay!'
-                        }).then((result) => {
-                            $('#acHouseholdsTable').DataTable().draw();
-                        });
-                    }
-                });
-            }
-           
-
-            // Swal.fire({
-            //     icon: 'warning',
-            //     title: 'Are you sure you want to change the status for this household to Served?',
-            //     showDenyButton: false,
-            //     showCancelButton: true,
-            //     confirmButtonText: 'Confirm'
-            // }).then((result) => {
-               
-            // });
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            // AJAX request
+            $.ajax({
+                url: 'household/' + id + '/editpage',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    window.open(url, '_self'); 
+                }
+            });
         });
     
     });

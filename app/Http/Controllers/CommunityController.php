@@ -266,7 +266,7 @@ class CommunityController extends Controller
         //     $subCommunity->household_id = $household->id;
         //     $subCommunity->save();
         // }
-
+ 
         
         $data = DB::table('households')
             ->join('communities', 'communities.id', '=', 'households.community_id')

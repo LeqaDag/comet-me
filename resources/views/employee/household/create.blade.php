@@ -43,21 +43,27 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Father/Husband Name</label>
                             <input type="text" name="english_name" 
-                            placeholder="Write in English"
-                            class="form-control">
+                            placeholder="Write in English" value="{{old('english_name')}}"
+                            class="form-control" required>
+                            @if ($errors->has('english_name'))
+                                <span class="error">{{ $errors->first('english_name') }}</span>
+                            @endif
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Father/Husband Name</label>
                             <input type="text" name="arabic_name" placeholder="Write in Arabic"
-                            class="form-control">
+                            class="form-control" value="{{old('arabic_name')}}" required>
+                            @if ($errors->has('arabic_name'))
+                                <span class="error">{{ $errors->first('arabic_name') }}</span>
+                            @endif
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Wife/Mother Name</label>
-                            <input type="text" name="women_name_arabic" 
+                            <input type="text" value="{{old('women_name_arabic')}}" name="women_name_arabic" 
                             class="form-control">
                         </fieldset>
                     </div>
@@ -68,7 +74,8 @@
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Profession</label>
-                            <select name="profession_id" id="selectedProfession" class="form-control" >
+                            <select name="profession_id" id="selectedProfession" 
+                                class="form-control" required>
                                 <option disabled selected>Choose one...</option>
                                 @foreach($professions as $profession)
                                 <option value="{{$profession->id}}">
@@ -77,21 +84,25 @@
                                 @endforeach
                                 <option value="other" id="selectedOtherProfession" style="color:red">Other</option>
                             </select>
+                            @if ($errors->has('profession_id'))
+                                <span class="error">{{ $errors->first('profession_id') }}</span>
+                            @endif
                         </fieldset>
                         @include('employee.household.profession')
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Phone Number</label>
-                            <input type="text" name="phone_number" 
+                            <input type="text" name="phone_number" value="{{old('phone_number')}}"
                             class="form-control">
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Community</label>
-                            <select name="community_id" id="selectedCommunity" class="selectpicker form-control"
-                                    data-live-search="true" >
+                            <select name="community_id" id="selectedCommunity" 
+                                class="selectpicker form-control"
+                                    data-live-search="true" required>
                                 <option disabled selected>Choose one...</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->id}}">
@@ -100,6 +111,9 @@
                                 @endforeach
                                 <option value="other" id="selectedOtherCommunity" style="color:red">Other</option>
                             </select>
+                            @if ($errors->has('community_id'))
+                                <span class="error">{{ $errors->first('community_id') }}</span>
+                            @endif
                         </fieldset>
                     </div>
                 </div>
@@ -108,21 +122,21 @@
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many male?</label>
-                            <input type="number" name="number_of_male" 
+                            <input type="number" name="number_of_male" value="{{old('number_of_male')}}"
                             class="form-control">
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many female?</label>
-                            <input type="number" name="number_of_female" 
+                            <input type="number" name="number_of_female" value="{{old('number_of_female')}}"
                             class="form-control">
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many adults?</label>
-                            <input type="number" name="number_of_adults" 
+                            <input type="number" name="number_of_adults" value="{{old('number_of_adults')}}"
                             class="form-control">
                         </fieldset>
                     </div>
@@ -133,7 +147,7 @@
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many children under 16?</label>
-                            <input type="number" name="number_of_children" 
+                            <input type="number" name="number_of_children" value="{{old('number_of_children')}}"
                             class="form-control">
                         </fieldset>
                     </div>
@@ -141,7 +155,7 @@
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many children in school?</label>
-                            <input type="number" name="school_students" 
+                            <input type="number" name="school_students" value="{{old('school_students')}}"
                             class="form-control">
                         </fieldset>
                     </div>
@@ -150,7 +164,7 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many household members in university?</label>
                             <input type="number" name="university_students" 
-                            class="form-control">
+                            value="{{old('university_students')}}" class="form-control">
                         </fieldset>
                     </div>
                 </div>

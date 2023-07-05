@@ -12,6 +12,7 @@ use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\CommunityHousehold;
 use App\Models\Cistern;
 use App\Models\EnergyUser;
 use App\Models\EnergySystem;
@@ -44,7 +45,8 @@ class AcHouseholdController extends Controller
             if ($request->ajax()) {
             
                 $data = DB::table('households')
-                    ->where('households.household_status_id', 2)
+                    ->where('households.household_status_id', 1)
+                    ->orWhere('households.household_status_id', 2)
                     ->where('internet_holder_young', 0)
                     ->join('communities', 'households.community_id', '=', 'communities.id')
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
@@ -63,14 +65,15 @@ class AcHouseholdController extends Controller
                     ->addColumn('action', function($row) {
     
                         $empty = "";
-                        $acButton = "<select id='sharedHouseholdsSelect' class='sharedHousehold form-control' data-id='".$row->id."'><option selected>'". $row->energy_meter ."'</option><option value='No'>No</option><option value='Yes'>Yes</option></select>";
+                        $updateButton = "<a type='button' class='updateAcHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 || 
                             Auth::guard('user')->user()->user_type_id == 3 || 
                             Auth::guard('user')->user()->user_type_id == 4 || 
                             Auth::guard('user')->user()->user_type_id == 12 ) 
                         {
-                            return $acButton;
+                            return $updateButton;
                         }
                         else  return $empty;
                     })
@@ -93,7 +96,8 @@ class AcHouseholdController extends Controller
             }
     
             $dataHouseholdsByCommunity = DB::table('households')
-                ->where('households.household_status_id', 2)
+                ->where('households.household_status_id', 1)
+                ->orWhere('households.household_status_id', 2)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->select(
                         DB::raw('communities.english_name as english_name'),
@@ -151,7 +155,6 @@ class AcHouseholdController extends Controller
      */
     public function acSubHouseholdSave(Request $request)
     {
-       
         $energyUserHouseholdMeter = AllEnergyMeter::where("household_id", $request->id)->first();
         
         $mainHousehold = Household::findOrFail($request->user_id);
@@ -230,7 +233,7 @@ class AcHouseholdController extends Controller
         $households = Household::all();
         $professions  = Profession::all();
 
-        return view('employee.household.elc_create', compact('communities', 'energySystemTypes', 
+        return view('employee.household.create_ac', compact('communities', 'energySystemTypes', 
             'households', 'professions'));
     }
 
@@ -242,29 +245,174 @@ class AcHouseholdController extends Controller
      */
     public function store(Request $request)
     {
+
+        $this->validate($request, [
+            'community_id' => 'required',
+            'english_name' => 'required',
+            'arabic_name' => 'required',
+            'profession_id' => 'required'
+        ]);
+
        // dd($request->all());
-        if($request->household_id) {
-            //for($i=0; $i < count($request->household_id); $i++) {
+        $household = new Household();
+        $household->english_name = $request->english_name;
+        $household->arabic_name = $request->arabic_name;
+        $household->household_status_id = 2;
+        $household->women_name_arabic = $request->women_name_arabic;
+        $household->profession_id = $request->profession_id;
+        $household->phone_number = $request->phone_number;
+        $household->community_id = $request->community_id;
+        $household->number_of_children = $request->number_of_children;
+        $household->number_of_adults = $request->number_of_adults;
+        $household->university_students = $request->university_students;
+        $household->school_students = $request->school_students;
+        $household->number_of_male = $request->number_of_male;
+        $household->number_of_female = $request->number_of_female;
+        $household->demolition_order = $request->demolition_order;
+        $household->notes = $request->notes;
+        $household->size_of_herd = $request->size_of_herd;
+        $household->electricity_source = $request->electricity_source;
+        $household->electricity_source_shared = $request->electricity_source_shared;
+        $household->save();
+        $id = $household->id;
 
-                //$household = Household::findOrFail($request->household_id[$i]);
-                $household = Household::findOrFail($request->household_id);
-                $household->household_status_id = 2;
-                $household->save();
+        $cistern = new Cistern();
+        $cistern->number_of_cisterns = $request->number_of_cisterns;
+        $cistern->household_id = $id;
+        $cistern->save();
 
-                $energyUser = new AllEnergyMeter();
-                $energyUser->misc = $request->misc;
-                $energyUser->household_id = $request->household_id;
-                $energyUser->community_id = $request->community_id;
-                $energyUser->energy_system_type_id = $request->energy_system_type_id;
-                $energyUser->energy_system_id = $request->energy_system_id;
-                $energyUser->meter_number = 0;
-                $energyUser->meter_case_id = 12;
-                $energyUser->save();
-
-           // }
-        }
+        $cistern = new Structure();
+        $cistern->number_of_structures = $request->number_of_structures;
+        $cistern->number_of_kitchens = $request->number_of_kitchens;
+        $cistern->household_id = $id;
+        $cistern->save();
      
         return redirect('/ac-household')
-            ->with('message', 'New Elc. Added Successfully!');
+            ->with('message', 'New AC Household Added Successfully!');
+    }
+
+     /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $household = Household::findOrFail($id);
+
+        return response()->json($household);
+    } 
+
+    /** 
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $communities = Community::where('is_archived', 0)->get();
+        $regions = Region::all();
+        $professions = Profession::all();
+        $household = Household::findOrFail($id);
+        $structure = Structure::where("household_id", $id)->first();
+        $cistern = Cistern::where("household_id", $id)->first();
+        $communityHousehold = CommunityHousehold::where('household_id', $id)->first();
+
+        return view('employee.household.edit_ac', compact('household', 'regions', 'communities',
+            'professions', 'structure', 'cistern', 'communityHousehold'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $household = Household::findOrFail($id);
+        $household->english_name = $request->english_name;
+        $household->arabic_name = $request->arabic_name;
+        $household->women_name_arabic = $request->women_name_arabic;
+        $household->profession_id = $request->profession_id;
+        $household->phone_number = $request->phone_number;
+        if($request->community_id) $household->community_id = $request->community_id;
+        $household->number_of_children = $request->number_of_children;
+        $household->number_of_adults = $request->number_of_adults;
+        $household->university_students = $request->university_students;
+        $household->school_students = $request->school_students;
+        $household->number_of_male = $request->number_of_male;
+        $household->number_of_female = $request->number_of_female;
+        $household->demolition_order = $request->demolition_order;
+        $household->notes = $request->notes;
+        $household->size_of_herd = $request->size_of_herd;
+        $household->electricity_source = $request->electricity_source;
+        $household->electricity_source_shared = $request->electricity_source_shared;
+        $household->save();
+
+        $cistern = Cistern::where('household_id', $id)->first();
+        if($cistern == null) {
+
+            $newCistern = new Cistern();
+            $newCistern->number_of_cisterns = $request->number_of_cisterns;
+            $newCistern->volume_of_cisterns = $request->volume_of_cisterns;
+            $newCistern->shared_cisterns = $request->shared_cisterns;
+            $newCistern->distance_from_house = $request->distance_from_house;
+            $newCistern->depth_of_cisterns = $request->depth_of_cisterns;
+            $newCistern->household_id = $id;
+            $newCistern->save();
+        } else {
+            
+            $cistern->number_of_cisterns = $request->number_of_cisterns;
+            $cistern->volume_of_cisterns = $request->volume_of_cisterns;
+            $cistern->shared_cisterns = $request->shared_cisterns;
+            $cistern->distance_from_house = $request->distance_from_house;
+            $cistern->depth_of_cisterns = $request->depth_of_cisterns;
+            $cistern->household_id = $id;
+            $cistern->save();
+        }
+        
+        $structure = Structure::where('household_id', $id)->first();
+        if($structure == null) {
+
+            $newStructure = new Structure();
+            $newStructure->number_of_structures = $request->number_of_structures;
+            $newStructure->number_of_kitchens = $request->number_of_kitchens;
+            $newStructure->number_of_animal_shelters = $request->number_of_animal_shelters;
+            $newStructure->household_id = $id;
+            $newStructure->save();
+        } else {
+            
+            $structure->number_of_structures = $request->number_of_structures;
+            $structure->number_of_kitchens = $request->number_of_kitchens;
+            $structure->number_of_animal_shelters = $request->number_of_animal_shelters;
+            $structure->household_id = $id;
+            $structure->save();
+        }
+        
+        $communityHousehold = CommunityHousehold::where('household_id', $id)->first();
+        if($communityHousehold == null) {
+
+            $newCommunityHousehold = new CommunityHousehold();
+            $newCommunityHousehold->is_there_house_in_town = $request->is_there_house_in_town;
+            $newCommunityHousehold->is_there_izbih = $request->is_there_izbih;
+            $newCommunityHousehold->how_long = $request->how_long;
+            $newCommunityHousehold->length_of_stay = $request->length_of_stay;
+            $newCommunityHousehold->household_id = $id;
+            $newCommunityHousehold->save();
+        } else {
+            
+            $communityHousehold->is_there_house_in_town = $request->is_there_house_in_town;
+            $communityHousehold->is_there_izbih = $request->is_there_izbih;
+            $communityHousehold->length_of_stay = $request->length_of_stay;
+            $communityHousehold->how_long = $request->how_long;
+            $communityHousehold->household_id = $id;
+            $communityHousehold->save();
+        }
+
+        return redirect('/ac-household')
+            ->with('message', 'AC Household Updated Successfully!');
     }
 }

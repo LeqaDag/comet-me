@@ -4,134 +4,251 @@
 
 @extends('layouts/layoutMaster')
 
-@section('title', 'Ac')
+@section('title', 'AC households')
+
+@include('layouts.all')
+
 <style>
-    label, input{
-    display: block;
-}
-.dropdown-toggle{
-        height: 40px;
-        width: 370px !important;
+    label, input {
+        display: block;
     }
-label {
-    margin-top: 20px;
-}
+
+    label, table {
+        margin-top: 20px;
+    }
+
+    .dropdown-toggle{
+        height: 40px;
+        
+    }
 </style>
-@section('vendor-style')
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
-@endsection
-
-
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">Add </span> New Elc.
+  <span class="text-muted fw-light">Add </span>New AC-Survey Household
 </h4>
 
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" enctype='multipart/form-data' action="{{url('ac-household')}}">
+            <form method="POST" action="{{url('ac-household')}}" enctype="multipart/form-data" >
                 @csrf
                 <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>New/Old Community</label>
-                            <select name="misc" id="selectedUserMisc" 
+                            <label class='col-md-12 control-label'>Father/Husband Name</label>
+                            <input type="text" name="english_name" 
+                            placeholder="Write in English" value="{{old('english_name')}}"
+                            class="form-control" required>
+                            @if ($errors->has('english_name'))
+                                <span class="error">{{ $errors->first('english_name') }}</span>
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Father/Husband Name</label>
+                            <input type="text" name="arabic_name" placeholder="Write in Arabic"
+                            class="form-control" value="{{old('arabic_name')}}" required>
+                            @if ($errors->has('arabic_name'))
+                                <span class="error">{{ $errors->first('arabic_name') }}</span>
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Wife/Mother Name</label>
+                            <input type="text" value="{{old('women_name_arabic')}}" name="women_name_arabic" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Profession</label>
+                            <select name="profession_id" id="selectedProfession" 
                                 class="form-control" required>
                                 <option disabled selected>Choose one...</option>
-                                <option value="1">MISC FBS/MG extension</option> 
-                                <option value="0">New Community</option>
+                                @foreach($professions as $profession)
+                                <option value="{{$profession->id}}">
+                                    {{$profession->profession_name}}
+                                </option>
+                                @endforeach
+                                <option value="other" id="selectedOtherProfession" style="color:red">Other</option>
                             </select>
+                            @if ($errors->has('profession_id'))
+                                <span class="error">{{ $errors->first('profession_id') }}</span>
+                            @endif
+                        </fieldset>
+                        @include('employee.household.profession')
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Phone Number</label>
+                            <input type="text" name="phone_number" value="{{old('phone_number')}}"
+                            class="form-control">
                         </fieldset>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Community</label>
-                            <select class="selectpicker form-control" 
-                                 data-live-search="true" 
-                                name="community_id" id="selectedUserCommunity"
-                                required>
-                                @foreach($communities as $community)
-                                    <option value="{{$community->id}}">
-                                        {{$community->english_name}}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Users</label>
-                            <!-- <select name="household_id" id="selectedUserHousehold" 
-                            class="form-control" disabled required>
+                            <select name="community_id" id="selectedCommunity" 
+                                class="selectpicker form-control"
+                                    data-live-search="true" required>
                                 <option disabled selected>Choose one...</option>
-                            </select> -->
-                            <select class="selectpicker form-control" 
-                                multiple data-live-search="true" 
-                                name="household_id[]" id="selectedHouseholdMeter"
-                                required>
-                                @foreach($households as $household)
-                                    <option value="{{$household->id}}">
-                                        {{$household->english_name}}
-                                    </option>
+                                @foreach($communities as $community)
+                                <option value="{{$community->id}}">
+                                    {{$community->english_name}}
+                                </option>
                                 @endforeach
+                                <option value="other" id="selectedOtherCommunity" style="color:red">Other</option>
                             </select>
+                            @if ($errors->has('community_id'))
+                                <span class="error">{{ $errors->first('community_id') }}</span>
+                            @endif
                         </fieldset>
                     </div>
                 </div>
 
-                <!-- <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Shared Household?</label>
-                            <select name="shared_household-meter" 
-                                class="form-control" id="selectedSharedMeter" disabled>
-                                <option disabled selected>Choose one...</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
+                            <label class='col-md-12 control-label'>How many male?</label>
+                            <input type="number" name="number_of_male" value="{{old('number_of_male')}}"
+                            class="form-control">
                         </fieldset>
                     </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Household</label>
-                            <select class="selectpicker form-control" 
-                                multiple data-live-search="true" 
-                                name="household_meter_id[]" id="selectedHouseholdMeter"
-                                required>
-                            </select>
+                            <label class='col-md-12 control-label'>How many female?</label>
+                            <input type="number" name="number_of_female" value="{{old('number_of_female')}}"
+                            class="form-control">
                         </fieldset>
                     </div>
-                </div> -->
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many adults?</label>
+                            <input type="number" name="number_of_adults" value="{{old('number_of_adults')}}"
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+                   
 
                 <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Energy System Type</label>
-                            <select name="energy_system_type_id" 
-                                class="form-control" id="selectedEnergySystemType">
-                                <option disabled selected>Choose one...</option>
-                                @foreach($energySystemTypes as $energySystemType)
-                                    <option value="{{$energySystemType->id}}">
-                                        {{$energySystemType->name}}
-                                    </option>
-                                @endforeach
+                            <label class='col-md-12 control-label'>How many children under 16?</label>
+                            <input type="number" name="number_of_children" value="{{old('number_of_children')}}"
+                            class="form-control">
+                        </fieldset>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many children in school?</label>
+                            <input type="number" name="school_students" value="{{old('school_students')}}"
+                            class="form-control">
+                        </fieldset>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many household members in university?</label>
+                            <input type="number" name="university_students" 
+                            value="{{old('university_students')}}" class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Demolition order in house?</label>
+                            <select name="demolition_order" class="form-control">
+                                <option selected disabled>Choose One...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
                             </select>
                         </fieldset>
                     </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6">
+
+                    <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Energy System</label>
-                            <select name="energy_system_id" id="selectedEnergySystem" 
-                                class="form-control" disabled required>
-                                <option disabled selected>Choose one...</option>
+                            <label class='col-md-12 control-label'>Notes</label>
+                            <input type="text" name="notes" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+
+                <label for=""></label>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>
+                                <h4>Door to door Survey Questions</h4> 
+                            </label>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many structures?</label>
+                            <input type="number" name="number_of_structures" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Size of herd</label>
+                            <input type="number" name="size_of_herd" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many kitchens?</label>
+                            <input type="number" name="number_of_kitchens" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many cisterns?</label>
+                            <input type="number" name="number_of_cisterns" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Electricity source</label>
+                            <select name="electricity_source" id="electricitySource" class="form-control">
+                                <option selected disabled>Choose One...</option>
+                                <option value="Old solar system">Old solar system</option>
+                                <option value="Grid">Grid</option>
+                                <option value="Generator">Generator</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Shared?</label>
+                            <select name="electricity_source_shared" id="electricitySourceShared"
+                                class="form-control" disabled>
+                                <option selected disabled>Choose One...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
                             </select>
                         </fieldset>
                     </div>
@@ -148,122 +265,59 @@ label {
     </div>
 </div>
 
+@endsection
 
+<script src="{{ asset('js/jquery.min.js') }}"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
-
 <script>
 
-    // $(document).on('change', '#selectedUserMisc', function () {
-    //     misc = $(this).val();
+
+    $(document).on('change', '#selectedProfession', function () {
         
-    //     $.ajax({
-    //         url: "energy-user/get_misc/" + misc,
-    //         method: 'GET',
-    //         success: function(data) {
-    //             $('#selectedUserCommunity').prop('disabled', false);
-    //             $('#selectedUserCommunity').html(data.html);
-                
-    //             $('#selectedSharedMeter').prop('disabled', false);
+        selectedValue = $(this).val();
 
-    //             $(document).on('change', '#selectedUserCommunity', function () {
-    //                 community_id = $(this).val();
-            
-    //                 $.ajax({
-    //                     url: "energy-user/get_by_community/" + community_id + "/" + misc,
-    //                     method: 'GET',
-    //                     success: function(data) {
-    //                         $('#selectedUserHousehold').prop('disabled', false);
-    //                         $('#selectedUserHousehold').html(data.html);
-                            
-    //                         $('#selectedSharedMeter').prop('disabled', false);
-    //                         $(document).on('change', '#selectedSharedMeter', function () {
+        if(selectedValue == "other") {
+            $("#createProfession").modal('show');
 
-    //                             user_id = $("#selectedUserHousehold").val();
-
-    //                             $.ajax({
-    //                                 url: "energy-user/shared_household/" + community_id + "/" + user_id,
-    //                                 method: 'GET',
-    //                                 success: function(data) {
-    //                                     var options = '';
-
-    //                                     // for (var i = 0; i < data.html.length; i++) {
-    //                                     // options += '<option value="' + data.html[i].id + '">' + data.html[i].english_name + '</option>';
-    //                                     // }
-    //                                     //$('#selectedHouseholdMeter').prop('disabled', false);
-                                        
-    //                                     $("#selectedHouseholdMeter").selectpicker('refresh');
-    //                                    $("#selectedHouseholdMeter").append(data.html);
-    //                                    // $("#selectedHouseholdMeter").selectpicker("refresh");
-
-    //                                     //
-    //                                     //$('#selectedHouseholdMeter').append(data.html);
-    //                                     //$("#selectedHouseholdMeter").html(options).multiselect('refresh');
-    //                                 }
-    //                             });
-    //                         });
-    //                     }
-    //                 });
-    //             });
-
-    //             // $(document).on('change', '#selectedSharedMeter', function () {
-
-    //             //     user_id = $("#selectedUserHousehold").val();
-
-    //             //     $.ajax({
-    //             //         url: "energy-user/shared_household/" + community_id + "/" + user_id,
-    //             //         method: 'GET',
-    //             //         success: function(data) {
-                         
-    //             //             $('#selectedHouseholdMeter').prop('disabled', false);
-    //             //             $('#selectedHouseholdMeter').append(data.html);
-    //             //             $('.selectpicker').selectpicker('refresh');
-    //             //         }
-    //             //     });
-    //             // });
-    //         }
-    //     });
-    // });
-
-
-    $(document).on('change', '#selectedUserCommunity', function () {
-
-        community_id = $(this).val();
-        energy_type_id= $("#selectedEnergySystemType").val();
-
-        
-        changeEnergySystemType(energy_type_id, community_id);
-    });
-    
-    $(document).on('change', '#selectedEnergySystemType', function () {
-
-        energy_type_id = $(this).val();
-
-        if(energy_type_id == 1 || energy_type_id == 3) {
-
-            community_id = $("#selectedUserCommunity").val();
-        } else {
-
-            community_id = 0;
+            $(document).on('click', '#professionNameButton', function () {
+                name = $("#professionName").val();
+                $.ajax({
+                    url: "household/" + name,
+                    method: 'GET',
+                    success: function(data) {
+                        $("#createProfession").modal('hide');
+                        $("#selectedProfession").append('<option value='+data.id+' selected="selected">'+data.name+'</option>');
+                    }
+                });
+            });
         }
-
-        changeEnergySystemType(energy_type_id, community_id);
     });
 
-    function changeEnergySystemType(energy_type_id, community_id) {
-        $.ajax({
-            url: "energy-user/get_by_energy_type/" + energy_type_id + "/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedEnergySystem').prop('disabled', false);
-                $('#selectedEnergySystem').html(data.html);
-            }
-        });
-    }
+    $(document).on('change', '#selectedCommunity', function () {
+        
+        selectedValue = $(this).val();
 
+        if(selectedValue == "other") {
+            $("#createCommunity").modal('show');
+
+            $(document).on('click', '#professionNameButton', function () {
+                name = $("#professionName").val();
+                $.ajax({
+                    url: "household/" + name,
+                    method: 'GET',
+                    success: function(data) {
+                        $("#createCommunity").modal('hide');
+                        $("#selectedCommunity").append('<option value='+data.id+' selected="selected">'+data.name+'</option>');
+                    }
+                });
+            });
+        }
+    });
+
+    $(document).on('change', '#electricitySource', function () {
+
+        $('#electricitySourceShared').prop('disabled', false);
+    });
 </script>
-
-@endsection
-
-

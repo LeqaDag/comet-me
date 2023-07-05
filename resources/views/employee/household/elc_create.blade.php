@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Ac')
+@section('title', 'Elc')
 <style>
     label, input{
     display: block;
@@ -31,7 +31,7 @@ label {
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" enctype='multipart/form-data' action="{{url('ac-household')}}">
+            <form method="POST" enctype='multipart/form-data' action="{{url('progress-household')}}">
                 @csrf
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
@@ -273,7 +273,7 @@ label {
         community_id = $(this).val();
         $.ajax({
             url: "household/get_by_community/" +  community_id,
-            method: 'GET',
+            method: 'GET',  
             success: function(data) {
                 $('#selectedUserHousehold').prop('disabled', false);
                 $('#selectedUserHousehold').html(data.html);

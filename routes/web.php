@@ -57,6 +57,8 @@ Route::get('/ac/sub/household', [App\Http\Controllers\AcHouseholdController::cla
 Route::get('/ac/shared/household', [App\Http\Controllers\AcHouseholdController::class, 'acSubHouseholdSave'])->name('acSubHouseholdSave');
 Route::get('/ac/main/household', [App\Http\Controllers\AcHouseholdController::class, 'acMainHousehold'])->name('acMainHousehold');
 
+Route::resource('progress-household', App\Http\Controllers\InProgressHouseholdController::class);
+
 Route::resource('served-household', App\Http\Controllers\ServedHouseholdController::class);
 
 Route::resource('photo', App\Http\Controllers\PhotoController::class);
@@ -105,11 +107,11 @@ Route::get('/delete-region', [App\Http\Controllers\RegionController::class, 'del
 
 Route::resource('energy-user', App\Http\Controllers\EnergyUserController::class);
 Route::get('ac-household/energy-user/get_by_community/{community_id}/{misc}', [App\Http\Controllers\EnergyUserController::class, 'getHouseholdByCommunity']);
-Route::get('ac-household/energy-user/get_by_energy_type/{energy_type_id}/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergySystemByType']);
+Route::get('progress-household/energy-user/get_by_energy_type/{energy_type_id}/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergySystemByType']);
 Route::get('ac-household/energy-user/shared_household/{community_id}/{user_id}', [App\Http\Controllers\EnergyUserController::class, 'getSharedHousehold']);
 Route::get('ac-household/energy-user/get_misc/{misc}', [App\Http\Controllers\EnergyUserController::class, 'getMiscCommunity']);
 Route::post('energy-user-export', [App\Http\Controllers\EnergyUserController::class, 'export'])->name('energy-user.export');
-Route::get('ac-household/household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
+Route::get('progress-household/household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::post('all-meter-export', [App\Http\Controllers\AllEnergyController::class, 'export'])->name('energy-meter.export');
 
 Route::resource('energy-system', App\Http\Controllers\EnergySystemController::class);

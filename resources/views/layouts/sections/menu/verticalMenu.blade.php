@@ -26,49 +26,9 @@ $configData = Helper::appClasses();
     <div class="menu-divider mt-0 ">
     </div>
   @endif
-
+ 
   <div class="menu-inner-shadow"></div>
 
-  @if(Auth::guard('user')->user()->user_type_id == 1)
+  @include('layouts.sections.menu.vertical')
 
-    @include('layouts.sections.menu.admin.super_Admin')
-  @else @if(Auth::guard('user')->user()->user_type_id == 2)
-
-    @include('layouts.sections.menu.admin.admin')
-  @else @if(Auth::guard('user')->user()->user_type_id == 3)
-
-    @include('layouts.sections.menu.managers.energy')
-  @else @if(Auth::guard('user')->user()->user_type_id == 4)
-
-    @include('layouts.sections.menu.managers.energy')
-  @else @if(Auth::guard('user')->user()->user_type_id == 5)
-
-    @include('layouts.sections.menu.managers.water')
-  @else @if(Auth::guard('user')->user()->user_type_id == 6)
-
-    @include('layouts.sections.menu.managers.internet')
-  @else @if(Auth::guard('user')->user()->user_type_id == 7)
-
-    @include('layouts.sections.menu.managers.energy')
-  @else @if(Auth::guard('user')->user()->user_type_id == 9)
-
-    @include('layouts.sections.menu.managers.water')
-
-  @else @if(Auth::guard('user')->user()->user_type_id == 11)
-
-    @include('layouts.sections.menu.managers.water')
-  @else @if(Auth::guard('user')->user()->user_type_id == 12)
- 
-    @include('layouts.sections.menu.managers.energy')
-    
-  @endif
-  @endif
-  @endif
-  @endif
-  @endif
-  @endif
-  @endif
-  @endif
-  @endif
-  @endif
 </aside>
