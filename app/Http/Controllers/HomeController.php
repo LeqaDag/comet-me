@@ -69,47 +69,47 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        $mgIncidentsYear = DB::table('mg_incidents')
-            ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
-            ->select('incidents.english_name as name', 'mg_incidents.year')
-            ->selectRaw('count(*) as number')
-            ->groupBy('incidents.english_name', 'mg_incidents.year')
-            ->get();
-
-        $fbsIncidentsYear = DB::table('fbs_user_incidents')
-            ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
-            ->select('incidents.english_name as name', 'fbs_user_incidents.year')
-            ->selectRaw('count(*) as number')
-            ->groupBy('incidents.english_name', 'fbs_user_incidents.year')
-            ->get();
-
-        $h2oIncidentsYear = DB::table('h2o_system_incidents')
-            ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
-            ->select('incidents.english_name as name', 'h2o_system_incidents.year')
-            ->selectRaw('count(*) as number')
-            ->groupBy('incidents.english_name', 'h2o_system_incidents.year')
-            ->get();
-
-        $allIncidents = DB::table('mg_incidents')
-            ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
-            ->leftJoin('fbs_user_incidents', 'mg_incidents.incident_id', '=', 
-                'fbs_user_incidents.incident_id')
-            ->leftJoin('h2o_system_incidents', 'mg_incidents.incident_id', '=', 
-                'h2o_system_incidents.incident_id')
-            ->select('incidents.english_name as name', 'mg_incidents.year as mg_year',
-                'fbs_user_incidents.year as fbs_year', 'h2o_system_incidents.year as h2o_year')
-            ->get();
-            
-       
-        $meterLists = MeterList::where("energy_user_id", 0)->get();
-        $meterListCount = MeterList::where("energy_user_id", 0)
-            ->count();
-
-        $energyMeter = AllEnergyMeter::all();
-        $energyUserCount = AllEnergyMeter::count();
-
         if (Auth::guard('user')->user() != null) {
             
+            $mgIncidentsYear = DB::table('mg_incidents')
+                ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
+                ->select('incidents.english_name as name', 'mg_incidents.year')
+                ->selectRaw('count(*) as number')
+                ->groupBy('incidents.english_name', 'mg_incidents.year')
+                ->get();
+
+            $fbsIncidentsYear = DB::table('fbs_user_incidents')
+                ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
+                ->select('incidents.english_name as name', 'fbs_user_incidents.year')
+                ->selectRaw('count(*) as number')
+                ->groupBy('incidents.english_name', 'fbs_user_incidents.year')
+                ->get();
+
+            $h2oIncidentsYear = DB::table('h2o_system_incidents')
+                ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
+                ->select('incidents.english_name as name', 'h2o_system_incidents.year')
+                ->selectRaw('count(*) as number')
+                ->groupBy('incidents.english_name', 'h2o_system_incidents.year')
+                ->get();
+
+            $allIncidents = DB::table('mg_incidents')
+                ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
+                ->leftJoin('fbs_user_incidents', 'mg_incidents.incident_id', '=', 
+                    'fbs_user_incidents.incident_id')
+                ->leftJoin('h2o_system_incidents', 'mg_incidents.incident_id', '=', 
+                    'h2o_system_incidents.incident_id')
+                ->select('incidents.english_name as name', 'mg_incidents.year as mg_year',
+                    'fbs_user_incidents.year as fbs_year', 'h2o_system_incidents.year as h2o_year')
+                ->get();
+                
+        
+            $meterLists = MeterList::where("energy_user_id", 0)->get();
+            $meterListCount = MeterList::where("energy_user_id", 0)
+                ->count();
+
+            $energyMeter = AllEnergyMeter::all();
+            $energyUserCount = AllEnergyMeter::count();
+
             $communityNumbers = Community::where("is_archived", 0)
                 ->where("community_status_id", 3)
                 ->count();

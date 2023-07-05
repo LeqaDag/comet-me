@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Models\AllWaterHolder;
 use App\Models\User;
 use App\Models\BsfStatus;
 use App\Models\Community;
@@ -29,6 +30,7 @@ use App\Models\WaterSystemTank;
 use App\Models\WaterTank;
 use App\Models\WaterUser;
 use App\Models\WaterSystem;
+use App\Models\WaterSystemType;
 use App\Models\H2oSystemIncident;
 use App\Models\Incident;
 use App\Models\IncidentStatus;
@@ -50,7 +52,15 @@ class WaterSystemController extends Controller
 
             if ($request->ajax()) { 
 
-                $data = DB::table('water_systems')->latest();
+                $data = DB::table('water_systems')
+                    ->join('water_system_types', 'water_systems.water_system_type_id', 
+                        'water_system_types.id')
+                    ->select('water_systems.id as id', 'water_systems.name as name',
+                        'water_systems.description', 'water_systems.year', 'water_system_types.type',
+                        'water_systems.created_at as created_at',
+                        'water_systems.updated_at as updated_at',)
+                    ->latest();
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -73,8 +83,9 @@ class WaterSystemController extends Controller
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request){
                                 $search = $request->get('search');
-                                $w->orWhere('water_systems.type', 'LIKE', "%$search%")
+                                $w->orWhere('water_systems.name', 'LIKE', "%$search%")
                                 ->orWhere('water_systems.description', 'LIKE', "%$search%")
+                                ->orWhere('water_system_types.type', 'LIKE', "%$search%")
                                 ->orWhere('water_systems.year', 'LIKE', "%$search%");
                             });
                         }
@@ -131,7 +142,69 @@ class WaterSystemController extends Controller
         }
     }
 
-     /**
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $waterSystemTypes = WaterSystemType::all();
+        $communities = Community::where("is_archived", 0)->get();
+
+        return view('system.water.create', compact('waterSystemTypes', 'communities'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {       
+        $waterSystem = new WaterSystem();
+        $waterSystem->water_system_type_id = $request->water_system_type_id;
+        $waterSystem->name = $request->name;
+        $waterSystem->description = $request->description;
+        $waterSystem->year = $request->year;
+        $waterSystem->notes = $request->notes;
+        $waterSystem->save();
+
+        if($request->community_id && $request->water_system_type_id == 4) {
+
+            $waterSystem->community_id = $request->community_id;
+            $waterSystem->save();
+
+            $households = Household::where("community_id", $request->community_id)->get();
+
+            foreach($households as $household) {
+
+                $household->water_service = "Yes";
+                $household->water_system_status = "Served";
+                $household->save();
+
+                $exist = AllWaterHolder::where("household_id", $household->id)->first();
+                if($exist) {
+
+                } else {
+
+                    $allWaterHolder = new AllWaterHolder();
+                    $allWaterHolder->is_main = "Yes";
+                    $allWaterHolder->household_id = $household->id;
+                    $allWaterHolder->community_id = $request->community_id;
+                    $allWaterHolder->water_system_id = $waterSystem->id;
+                    $allWaterHolder->save();
+                }
+            }
+        }
+
+        
+        return redirect('/water-system')
+            ->with('message', 'New Water System Added Successfully!');
+    }
+
+    /**
      * View Edit page.
      *
      * @param  int $id
@@ -200,6 +273,31 @@ class WaterSystemController extends Controller
 
         $response = $dataIncidents; 
       
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteWaterSystem (Request $request)
+    {
+        $id = $request->id;
+
+        $waterSystem = WaterSystem::find($id);
+
+        if($waterSystem->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water System Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
         return response()->json($response); 
     }
 }

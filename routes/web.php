@@ -122,6 +122,7 @@ Route::get('water_user/get_by_community/{community_id}', [App\Http\Controllers\W
 Route::get('water_public/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getPublicByCommunity']);
 Route::get('water-system/{id}/editpage', [App\Http\Controllers\WaterSystemController::class, 'editPage']);
 Route::get('/delete-shared-public', [App\Http\Controllers\WaterPublicStructureController::class, 'deleteSharedPublic'])->name('deleteSharedPublic');
+Route::get('/delete-waterSystem', [App\Http\Controllers\WaterSystemController::class, 'deleteWaterSystem'])->name('deleteWaterSystem');
 
 Route::get('/details/incident', [App\Http\Controllers\HomeController::class, 'incidentDetails'])->name('incidentDetails');
 Route::get('/water/chart/', [App\Http\Controllers\WaterUserController::class, 'chartWater'])->name('chartWater');
