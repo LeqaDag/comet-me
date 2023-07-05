@@ -40,7 +40,8 @@
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 || 
                 Auth::guard('user')->user()->user_type_id == 2 ||
-                Auth::guard('user')->user()->user_type_id == 6)
+                Auth::guard('user')->user()->user_type_id == 6 ||
+                Auth::guard('user')->user()->user_type_id == 10)
                 <div>
                     <a type="button" class="btn btn-success" 
                         href="{{url('internet-system', 'create')}}">
