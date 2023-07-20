@@ -32,7 +32,7 @@ class SubCommunityExport implements FromCollection, WithHeadings, WithTitle, Sho
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->join('community_statuses', 'communities.community_status_id', 
                 '=', 'community_statuses.id')
-            ->where('communities.is_archived', 0)
+            ->where('sub_communities.is_archived', 0)
             ->select('sub_communities.english_name as english_name', 
                 'sub_communities.arabic_name as arabic_name', 
                 'communities.english_name as community_english_name',

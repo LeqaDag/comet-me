@@ -4,10 +4,14 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class RefrigeratorExport implements FromCollection, WithHeadings, ShouldAutoSize
+class RefrigeratorExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+    WithStyles
 {
     protected $request;
 
@@ -28,6 +32,7 @@ class RefrigeratorExport implements FromCollection, WithHeadings, ShouldAutoSize
             ->leftJoin('households', 'refrigerator_holders.household_id', '=', 'households.id')
             ->leftJoin('public_structures', 'refrigerator_holders.public_structure_id', 
                 '=', 'public_structures.id')
+            ->where('refrigerator_holders.is_archived', 0)
             ->select('households.english_name as household_name',
                 'public_structures.english_name as public_name',
                 'communities.english_name as community_name', 
@@ -62,5 +67,25 @@ class RefrigeratorExport implements FromCollection, WithHeadings, ShouldAutoSize
     {
         return ["Household", "Public Structure", "Community", "Region", "Sub Region", 
             "Year", "Date", "Is Paid", "Payment", "Receive Number", "Status"];
+    }
+
+    public function title(): string
+    {
+        return 'Refrigerator Holders';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:K1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

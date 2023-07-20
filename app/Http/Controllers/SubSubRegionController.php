@@ -29,6 +29,7 @@ class SubSubRegionController extends Controller
         if (Auth::guard('user')->user() != null) {
 
             $data = DB::table('communities')
+                ->where('communities.is_archived', 0)
                 ->join('sub_sub_regions', 'communities.sub_sub_region_id', '=', 'sub_sub_regions.id')
                 ->select(
                         DB::raw('sub_sub_regions.english_name as english_name'),
@@ -42,9 +43,13 @@ class SubSubRegionController extends Controller
                 $array[++$key] = [$value->english_name, $value->number];
             }
 
-            $regions = Region::all(); 
+            $regions = Region::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get(); 
+                
             if ($request->ajax()) {
                 $data = DB::table('sub_sub_regions')
+                    ->where('sub_sub_regions.is_archived', 0)
                     ->join('regions', 'sub_sub_regions.region_id', '=', 'regions.id')
                     ->join('sub_regions', 'sub_sub_regions.sub_region_id', '=', 'sub_regions.id')
                     ->select('sub_sub_regions.english_name as english_name', 
@@ -149,7 +154,7 @@ class SubSubRegionController extends Controller
      */
     public function getAllSubSubRegion()
     {
-        $subRegions = SubRegion::all();
+        $subRegions = SubRegion::where('is_archived', 0)->get();
         $response = array();
 
         if(!empty($subRegions)) {
@@ -207,8 +212,10 @@ class SubSubRegionController extends Controller
 
         $subRegion = SubSubRegion::find($id);
 
-        if($subRegion->delete()) {
+        if($subRegion) {
 
+            $subRegion->is_archived = 1;
+            $subRegion->save();
             $response['success'] = 1;
             $response['msg'] = 'Sub Sub Region Deleted successfully'; 
         } else {

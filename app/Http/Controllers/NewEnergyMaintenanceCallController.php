@@ -98,7 +98,9 @@ class NewEnergyMaintenanceCallController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $households = DB::table('all_energy_meters')
                 ->join('households', 'all_energy_meters.household_id', 'households.id')
                 ->select('households.id as id', 'households.english_name')

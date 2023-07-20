@@ -9,6 +9,8 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\RefrigeratorMaintenanceCall;
+use App\Models\RefrigeratorMaintenanceCallAction;
+use App\Models\RefrigeratorMaintenanceCallUser;
 use App\Models\Household;
 use App\Models\MaintenanceActionType;
 use App\Models\MaintenanceRefrigeratorAction;
@@ -42,19 +44,16 @@ class RefrigeratorMaintenanceCallController extends Controller
                     ->join('communities', 'refrigerator_maintenance_calls.community_id', 'communities.id')
                     ->join('maintenance_types', 'refrigerator_maintenance_calls.maintenance_type_id', 
                         '=', 'maintenance_types.id')
-                    ->join('maintenance_refrigerator_actions', 'refrigerator_maintenance_calls.maintenance_refrigerator_action_id', 
-                        '=', 'maintenance_refrigerator_actions.id')
                     ->join('maintenance_statuses', 'refrigerator_maintenance_calls.maintenance_status_id', 
                         '=', 'maintenance_statuses.id')
                     ->join('users', 'refrigerator_maintenance_calls.user_id', '=', 'users.id')
+                    ->where('refrigerator_maintenance_calls.is_archived', 0)
                     ->select('refrigerator_maintenance_calls.id as id', 'households.english_name', 
                         'date_of_call', 'date_completed', 'refrigerator_maintenance_calls.notes',
                         'maintenance_types.type', 'maintenance_statuses.name', 
                         'communities.english_name as community_name',
                         'refrigerator_maintenance_calls.created_at as created_at',
                         'refrigerator_maintenance_calls.updated_at as updated_at',
-                        'maintenance_refrigerator_actions.maintenance_action_refrigerator',
-                        'maintenance_refrigerator_actions.maintenance_action_refrigerator_english',
                         'users.name as user_name', 'public_structures.english_name as public_name')
                     ->latest();
                 return Datatables::of($data)
@@ -97,21 +96,26 @@ class RefrigeratorMaintenanceCallController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $households = DB::table('refrigerator_holders')
+                ->where('refrigerator_holders.is_archived', 0)
                 ->join('households', 'refrigerator_holders.household_id', 'households.id')
+                ->orderBy('households.english_name', 'ASC')
                 ->select('households.id as id', 'households.english_name')
                 ->get();
     
-            $maintenanceTypes = MaintenanceType::all();
-            $maintenanceStatuses = MaintenanceStatus::all();
-            $maintenanceRefrigeratorActions = MaintenanceRefrigeratorAction::all();
+            $maintenanceTypes = MaintenanceType::where('is_archived', 0)->get();
+            $maintenanceStatuses = MaintenanceStatus::where('is_archived', 0)->get();
+            $maintenanceRefrigeratorActions = MaintenanceRefrigeratorAction::where('is_archived', 0)->get();
             $publics = DB::table('refrigerator_holders')
+                ->where('refrigerator_holders.is_archived', 0)
                 ->join('public_structures', 'refrigerator_holders.public_structure_id', 'public_structures.id')
                 ->select('public_structures.id as id', 'public_structures.english_name')
                 ->get();
-            $users = User::all();
-            $publicCategories = PublicStructureCategory::all();
+            $users = User::where('is_archived', 0)->get();
+            $publicCategories = PublicStructureCategory::where('is_archived', 0)->get();
     
             return view('users.refrigerator.maintenance.index', compact('maintenanceTypes', 
                 'maintenanceStatuses', 'maintenanceRefrigeratorActions', 'users', 'communities', 
@@ -154,10 +158,31 @@ class RefrigeratorMaintenanceCallController extends Controller
         $maintenance->date_completed = $request->date_completed;
         $maintenance->maintenance_status_id = $request->maintenance_status_id;
         $maintenance->user_id = $request->user_id;
-        $maintenance->maintenance_refrigerator_action_id = $request->maintenance_refrigerator_action_id ;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->notes = $request->notes;
         $maintenance->save();
+
+        $maintenanceId = $maintenance->id;
+
+        if($request->maintenance_refrigerator_action_id) {
+            for($i=0; $i < count($request->maintenance_refrigerator_action_id); $i++) {
+
+                $h2oMaintenanceCallAction = new RefrigeratorMaintenanceCallAction();
+                $h2oMaintenanceCallAction->maintenance_refrigerator_action_id = $request->maintenance_refrigerator_action_id[$i];
+                $h2oMaintenanceCallAction->refrigerator_maintenance_call_id = $maintenanceId;
+                $h2oMaintenanceCallAction->save();
+            }
+        }
+
+        if($request->performed_by) {
+            for($i=0; $i < count($request->performed_by); $i++) {
+
+                $h2oMaintenanceCallUser = new RefrigeratorMaintenanceCallUser();
+                $h2oMaintenanceCallUser->user_id = $request->performed_by[$i];
+                $h2oMaintenanceCallUser->refrigerator_maintenance_call_id = $maintenanceId;
+                $h2oMaintenanceCallUser->save();
+            }
+        }
 
         return redirect()->back()
         ->with('message', 'New Maintenance Added Successfully!');
@@ -174,14 +199,34 @@ class RefrigeratorMaintenanceCallController extends Controller
         $refrigeratorMaintenance = RefrigeratorMaintenanceCall::findOrFail($id);
         $actions = "";
 
-        $maintenanceTypes = MaintenanceType::all();
-        $maintenanceStatuses = MaintenanceStatus::all();
-        $maintenanceRefrigeratorActions = MaintenanceRefrigeratorAction::all();
+        $maintenanceTypes = MaintenanceType::where('is_archived', 0)->get();
+        $maintenanceStatuses = MaintenanceStatus::where('is_archived', 0)->get();
+        $maintenanceRefrigeratorActions = MaintenanceRefrigeratorAction::where('is_archived', 0)->get();
 
-        $users = User::all();
+        $refrigeratorActions = DB::table('refrigerator_maintenance_call_actions')
+            ->join('refrigerator_maintenance_calls', 'refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id', 
+                'refrigerator_maintenance_calls.id')
+            ->join('maintenance_refrigerator_actions', 'refrigerator_maintenance_call_actions.maintenance_refrigerator_action_id', 
+                'maintenance_refrigerator_actions.id')
+            ->where('refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id', $refrigeratorMaintenance->id)
+            ->where('refrigerator_maintenance_call_actions.is_archived', 0)
+            ->select('refrigerator_maintenance_call_actions.id', 'maintenance_refrigerator_actions.maintenance_action_refrigerator')
+            ->get();
 
-        return view('users.refrigerator.maintenance.edit', compact('refrigeratorMaintenance', 'users',
-            'maintenanceTypes',  'maintenanceStatuses', 'maintenanceRefrigeratorActions'));
+        $performedUsers = DB::table('refrigerator_maintenance_call_users')
+            ->join('refrigerator_maintenance_calls', 'refrigerator_maintenance_call_users.refrigerator_maintenance_call_id', 
+                'refrigerator_maintenance_calls.id')
+            ->join('users', 'refrigerator_maintenance_call_users.user_id', 'users.id')
+            ->where('refrigerator_maintenance_call_users.refrigerator_maintenance_call_id', $refrigeratorMaintenance->id)
+            ->where('refrigerator_maintenance_call_users.is_archived', 0)
+            ->select('refrigerator_maintenance_call_users.id', 'users.name')
+            ->get();
+
+        $users = User::where('is_archived', 0)->get();
+
+        return view('users.refrigerator.maintenance.edit', compact('refrigeratorMaintenance',
+            'maintenanceTypes',  'maintenanceStatuses', 'maintenanceRefrigeratorActions', 
+            'refrigeratorActions', 'performedUsers', 'users'));
     }
 
     /**
@@ -198,11 +243,54 @@ class RefrigeratorMaintenanceCallController extends Controller
         $maintenance->date_completed = $request->date_completed;
         $maintenance->maintenance_status_id = $request->maintenance_status_id;
         $maintenance->user_id = $request->user_id;
-        $maintenance->maintenance_refrigerator_action_id = $request->maintenance_refrigerator_action_id ;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->notes = $request->notes;
         $maintenance->save();
 
+
+        if($request->actions) {
+            for($i=0; $i < count($request->actions); $i++) {
+
+                $h2oMaintenanceCallAction = new RefrigeratorMaintenanceCallAction();
+                $h2oMaintenanceCallAction->maintenance_refrigerator_action_id = $request->actions[$i];
+                $h2oMaintenanceCallAction->refrigerator_maintenance_call_id = $id;
+                $h2oMaintenanceCallAction->save();
+            }
+        }
+
+        if($request->new_actions) {
+            for($i=0; $i < count($request->new_actions); $i++) {
+
+                $h2oMaintenanceCallAction = new RefrigeratorMaintenanceCallAction();
+                $h2oMaintenanceCallAction->maintenance_refrigerator_action_id = $request->new_actions[$i];
+                $h2oMaintenanceCallAction->refrigerator_maintenance_call_id = $id;
+                $h2oMaintenanceCallAction->save();
+            }
+        }
+
+        if($request->users) {
+            if($request->users) {
+                for($i=0; $i < count($request->users); $i++) {
+    
+                    $refrigeratorMaintenanceCallUser = new RefrigeratorMaintenanceCallUser();
+                    $refrigeratorMaintenanceCallUser->user_id = $request->users[$i];
+                    $refrigeratorMaintenanceCallUser->refrigerator_maintenance_call_id = $id;
+                    $refrigeratorMaintenanceCallUser->save();
+                }
+            }
+        }
+
+        if($request->new_users) {
+            if($request->new_users) {
+                for($i=0; $i < count($request->new_users); $i++) {
+    
+                    $refrigeratorMaintenanceCallUser = new RefrigeratorMaintenanceCallUser();
+                    $refrigeratorMaintenanceCallUser->user_id = $request->new_users[$i];
+                    $refrigeratorMaintenanceCallUser->refrigerator_maintenance_call_id = $id;
+                    $refrigeratorMaintenanceCallUser->save();
+                }
+            }
+        }
         return redirect('/refrigerator-maintenance')->with('message', 'Refrigerator Maintenance Updated Successfully!');
     }
 
@@ -217,11 +305,71 @@ class RefrigeratorMaintenanceCallController extends Controller
         $id = $request->id;
 
         $maintenance = RefrigeratorMaintenanceCall::find($id);
+        $maintenanceActions = RefrigeratorMaintenanceCallAction::where('', $householdId)->get();
 
-        if($maintenance->delete()) {
+        if($maintenance) {
+
+            $maintenance->is_archived = 1;
+            $maintenance->save();
 
             $response['success'] = 1;
             $response['msg'] = 'Refrigerator Maintenance Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteRefrigeratorAction(Request $request)
+    {
+        $id = $request->id;
+
+        $refrigeratorMaintenance = RefrigeratorMaintenanceCallAction::find($id);
+
+        if($refrigeratorMaintenance) {
+
+            $refrigeratorMaintenance->is_archived = 1;
+            $refrigeratorMaintenance->save();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Refrigerator Maintenance Action Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deletePerformedRefrigeratorUsers(Request $request)
+    {
+        $id = $request->id;
+
+        $refrigeratorPerformedBy = RefrigeratorMaintenanceCallUser::find($id);
+
+        if($refrigeratorPerformedBy) {
+
+            $refrigeratorPerformedBy->is_archived = 1;
+            $refrigeratorPerformedBy->save();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Refrigerator Maintenance User Deleted successfully'; 
         } else {
 
             $response['success'] = 0;
@@ -264,12 +412,33 @@ class RefrigeratorMaintenanceCallController extends Controller
             ->first();
         $user = User::where('id', $refrigeratorMaintenance->user_id)->first();
 
+        $refrigeratorActions = DB::table('refrigerator_maintenance_call_actions')
+            ->join('refrigerator_maintenance_calls', 'refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id', 
+                'refrigerator_maintenance_calls.id')
+            ->join('maintenance_refrigerator_actions', 'refrigerator_maintenance_call_actions.maintenance_refrigerator_action_id', 
+                'maintenance_refrigerator_actions.id')
+            ->where('refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id', $refrigeratorMaintenance->id)
+            ->where('refrigerator_maintenance_call_actions.is_archived', 0)
+            ->select('refrigerator_maintenance_call_actions.id', 'maintenance_refrigerator_actions.maintenance_action_refrigerator')
+            ->get();
+
+        $performedUsers = DB::table('refrigerator_maintenance_call_users')
+            ->join('refrigerator_maintenance_calls', 'refrigerator_maintenance_call_users.refrigerator_maintenance_call_id', 
+                'refrigerator_maintenance_calls.id')
+            ->join('users', 'refrigerator_maintenance_call_users.user_id', 'users.id')
+            ->where('refrigerator_maintenance_call_users.refrigerator_maintenance_call_id', $refrigeratorMaintenance->id)
+            ->where('refrigerator_maintenance_call_users.is_archived', 0)
+            ->select('refrigerator_maintenance_call_users.id', 'users.name')
+            ->get();
+
         $response['community'] = $community;
         $response['refrigeratorMaintenance'] = $refrigeratorMaintenance;
         $response['refrigeratorAction'] = $refrigeratorAction;
         $response['status'] = $status;
         $response['type'] = $type;
         $response['user'] = $user;
+        $response['refrigeratorActions'] = $refrigeratorActions;
+        $response['performedUsers'] = $performedUsers;
 
         return response()->json($response);
     }

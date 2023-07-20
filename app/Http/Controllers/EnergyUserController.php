@@ -23,6 +23,7 @@ use App\Models\EnergyHolder;
 use App\Models\EnergyPublicStructure;
 use App\Models\Household;
 use App\Models\HouseholdMeter;
+use App\Models\InstallationType;
 use App\Models\MeterCase;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
@@ -118,8 +119,12 @@ class EnergyUserController extends Controller
                     ->make(true);
             }
 
-            $communities = Community::where('is_archived', 0)->get();
-            $households = Household::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $households = Household::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $energySystems = EnergySystem::all();
             $energySystemTypes = EnergySystemType::all();
             $meters = MeterCase::all();
@@ -243,7 +248,7 @@ class EnergyUserController extends Controller
 
             $html = '<option value="">Choose One...</option>';
         } else {
-
+ 
             $html = '';
             if($community_id == 0) {
 
@@ -305,10 +310,13 @@ class EnergyUserController extends Controller
         $html = '<option disabled selected>Choose One ...</option>';
         if($misc == 1) {
 
-            $communities = Community::where('is_archived', 0)->get();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
         } else if($misc == 0) {
 
             $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
                 ->where('community_status_id', 1)
                 ->get();
         }
@@ -346,6 +354,7 @@ class EnergyUserController extends Controller
         $system = EnergySystem::where('id', $energyMeter->energy_system_id)->first();
         $householdMeters = HouseholdMeter::where("energy_user_id", $id)->get();
         $vendor = VendorUserName::where('id', $energyMeter->vendor_username_id)->first();
+        $installationType = InstallationType::where('id', $energyMeter->installation_type_id)->first();
 
         $response['energy'] = $energyMeter;
         $response['energyMeterDonors'] = $energyMeterDonors;
@@ -357,6 +366,7 @@ class EnergyUserController extends Controller
         $response['householdMeters'] = $householdMeters;
         $response['public'] = $public;
         $response['vendor'] = $vendor;
+        $response['installationType'] = $installationType;
 
         return response()->json($response);
     }

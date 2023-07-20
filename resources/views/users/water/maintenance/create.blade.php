@@ -22,7 +22,7 @@ label, table {
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
-                </button>
+                </button> 
             </div>
             <div class="modal-body">
                 <form method="POST" enctype='multipart/form-data' 
@@ -69,6 +69,22 @@ label, table {
                                 </select>
                             </fieldset>
                         </div> 
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Maintenance Type</label>
+                                <select name="maintenance_type_id" class="form-control" required>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($maintenanceTypes as $maintenanceType)
+                                    <option value="{{$maintenanceType->id}}">
+                                        {{$maintenanceType->type}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @if ($errors->has('maintenance_type_id'))
+                                    <span class="error">{{ $errors->first('maintenance_type_id') }}</span>
+                                @endif
+                            </fieldset>
+                        </div>
                     </div>
                     
                     <div class="row">
@@ -89,22 +105,6 @@ label, table {
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Maintenance Type</label>
-                                <select name="maintenance_type_id" class="form-control" required>
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($maintenanceTypes as $maintenanceType)
-                                    <option value="{{$maintenanceType->id}}">
-                                        {{$maintenanceType->type}}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                @if ($errors->has('maintenance_type_id'))
-                                    <span class="error">{{ $errors->first('maintenance_type_id') }}</span>
-                                @endif
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Status</label>
                                 <select name="maintenance_status_id" class="form-control" >
                                     <option disabled selected>Choose one...</option>
@@ -118,6 +118,24 @@ label, table {
                                     <span class="error">{{ $errors->first('maintenance_status_id') }}</span>
                                 @endif
                             </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Maintenance H2O Action</label>
+                                <select name="maintenance_h2o_action_id[]" 
+                                    class="selectpicker form-control" multiple
+                                    data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($maintenanceH2oActions as $maintenanceH2oAction)
+                                    <option value="{{$maintenanceH2oAction->id}}">
+                                        {{$maintenanceH2oAction->maintenance_action_h2o}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                            @if ($errors->has('maintenance_h2o_action_id'))
+                                <span class="error">{{ $errors->first('maintenance_h2o_action_id') }}</span>
+                            @endif
                         </div>
                     </div>
 
@@ -138,21 +156,22 @@ label, table {
                                 @endif
                             </fieldset>
                         </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6">
+                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Maintenance H2O Action</label>
-                                <select name="maintenance_h2o_action_id" class="form-control">
+                                <label class='col-md-12 control-label'>Performed By</label>
+                                <select name="performed_by[]" class="selectpicker form-control" 
+                                    data-live-search="true" multiple>
                                     <option disabled selected>Choose one...</option>
-                                    @foreach($maintenanceH2oActions as $maintenanceH2oAction)
-                                    <option value="{{$maintenanceH2oAction->id}}">
-                                        {{$maintenanceH2oAction->maintenance_action_h2o}}
+                                    @foreach($users as $user)
+                                    <option value="{{$user->id}}">
+                                        {{$user->name}}
                                     </option>
                                     @endforeach
                                 </select>
+                                @if ($errors->has('user_id'))
+                                    <span class="error">{{ $errors->first('user_id') }}</span>
+                                @endif
                             </fieldset>
-                            @if ($errors->has('maintenance_h2o_action_id'))
-                                <span class="error">{{ $errors->first('maintenance_h2o_action_id') }}</span>
-                            @endif
                         </div>
                     </div>
                   
@@ -173,7 +192,7 @@ label, table {
             </div>
         </div>
     </div>
-</div> 
+</div>  
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
@@ -201,7 +220,7 @@ label, table {
                 $('#selectedWaterUser').html(data.html);
             }
         });
-    }
+    } 
 
     function getPublicByCommunity(community_id) {
         

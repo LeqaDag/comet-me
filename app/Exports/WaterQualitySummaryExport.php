@@ -39,6 +39,7 @@ class WaterQualitySummaryExport implements FromCollection, WithHeadings, WithSty
             ->leftJoin('households', 'water_quality_results.household_id', 'households.id')
             ->leftJoin('public_structures', 'water_quality_results.public_structure_id', 
                 '=', 'public_structures.id')
+            ->where('water_quality_results.is_archived', 0)
             ->select('water_quality_results.date', 
                 'communities.english_name as community_name',
                 'households.english_name as english_name', 

@@ -11,6 +11,7 @@ use DB;
 use Route;
 use App\Models\Region;
 use App\Models\SubRegion;
+use App\Models\SubSubRegion;
 use App\Models\Settlement;
 use Carbon\Carbon;
 use Image;
@@ -27,9 +28,13 @@ class SubRegionController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
-            $regions = Region::all(); 
+            $regions = Region::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get(); 
+
             if ($request->ajax()) {
                 $data = DB::table('sub_regions')
+                    ->where('sub_regions.is_archived', 0)
                     ->join('regions', 'sub_regions.region_id', '=', 'regions.id')
                     ->select('sub_regions.english_name as english_name', 
                         'sub_regions.arabic_name as arabic_name',
@@ -154,7 +159,7 @@ class SubRegionController extends Controller
      */
     public function getAllSubRegion()
     {
-        $regions = Region::all();
+        $regions = Region::where('is_archived', 0)->get();
         $response = array();
 
         if(!empty($regions)) {
@@ -208,8 +213,19 @@ class SubRegionController extends Controller
         $id = $request->id;
 
         $subRegion = SubRegion::find($id);
+        $subSubRegions = SubSubRegion::where("sub_region_id", $id)->get();
 
-        if($subRegion->delete()) {
+        if($subRegion) {
+
+            $subRegion->is_archived = 1;
+            $subRegion->save();
+
+            if($subSubRegions) {
+                foreach($subSubRegions as $subSubRegion) {
+                    $subSubRegion->is_archived = 1;
+                    $subSubRegion->save();
+                }
+            }
 
             $response['success'] = 1;
             $response['msg'] = 'Sub Region Delete successfully'; 

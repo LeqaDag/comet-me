@@ -6,7 +6,6 @@
 
 @section('content')
 
-
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Refrigerator Holders
 </h4>
@@ -31,7 +30,7 @@
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <fieldset class="form-group">
                             <select name="community"
-                                class="form-control">
+                                class="selectpicker form-control" data-live-search="true">
                                 <option disabled selected>Search Community</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->english_name}}">
@@ -43,7 +42,7 @@
                     </div>
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <fieldset class="form-group">
-                            <select name="public" class="form-control">
+                            <select name="public" class="selectpicker form-control" data-live-search="true">
                                 <option disabled selected>Search Public Structure</option>
                                 @foreach($publicCategories as $publicCategory)
                                 <option value="{{$publicCategory->id}}">
@@ -93,7 +92,6 @@
         </div>
     </div>
 </div>
-
 
 <script type="text/javascript">
     $(function () {

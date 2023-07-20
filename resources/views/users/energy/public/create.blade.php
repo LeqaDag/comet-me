@@ -7,6 +7,7 @@ label, table {
     margin-top: 20px;
 }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
 <div id="createMeterPublic" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -26,12 +27,14 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>New/Old Community</label>
-                                <select name="misc" 
+                                <select name="installation_type_id" 
                                     class="form-control" required>
                                     <option disabled selected>Choose one...</option>
-                                    <option value="0">New Community</option>
-                                    <option value="1">MISC FBS</option>
-                                    <option value="2">MG extension</option>
+                                    @foreach($installationTypes as $installationType)
+                                        <option value="{{$installationType->id}}">
+                                            {{$installationType->type}}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </fieldset>
                         </div>
@@ -39,7 +42,8 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select name="community_id" id="selectedPublicCommunity" 
-                                    class="form-control" required>
+                                    class="selectpicker form-control" 
+                                    data-live-search="true" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -92,7 +96,8 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Meter Case</label>
-                                <select name="meter_case_id"  class="form-control">
+                                <select name="meter_case_id" 
+                                    class="selectpicker form-control"  data-live-search="true" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($meters as $meter)
                                         <option value="{{$meter->id}}">
@@ -143,6 +148,10 @@ label, table {
     </div>
 </div>
 
+<script src="{{ asset('js/jquery.min.js') }}"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
 <script>
 
     $(document).on('change', '#selectedPublicCommunity', function () {
@@ -173,21 +182,36 @@ label, table {
                 });
             }
         });
+
+        energy_type_id= $("#selectedEnergySystemType").val();
+
+        changeEnergySystemType(energy_type_id, community_id);
     });
  
     $(document).on('change', '#selectedEnergySystemType', function () {
         energy_type_id = $(this).val();
-        community_id = $("#selectedPublicCommunity").val();
-        $('#selectedEnergySystemPublic').prop('disabled', false);
-        // $.ajax({
-        //     url: "energy_public/get_by_energy_type/" + community_id+ "/"+ energy_type_id,
-        //     method: 'GET',
-        //     success: function(data) {
-               
-        //         $('#selectedEnergySystemPublic').prop('disabled', false);
-        //         $('#selectedEnergySystemPublic').html(data.html);
-        //     }
-        // });
+
+        if(energy_type_id == 1 || energy_type_id == 3) {
+
+            community_id = $("#selectedPublicCommunity").val();
+        } else {
+
+            community_id = 0;
+        }
+
+        changeEnergySystemType(energy_type_id, community_id);
     });
+
+    function changeEnergySystemType(energy_type_id, community_id) {
+
+        $.ajax({
+            url: "energy_public/get_by_energy_type/" + community_id + "/" + energy_type_id,
+            method: 'GET',
+            success: function(data) {
+                $('#selectedEnergySystemPublic').prop('disabled', false);
+                $('#selectedEnergySystemPublic').html(data.html);
+            }
+        });
+    }
 
 </script>

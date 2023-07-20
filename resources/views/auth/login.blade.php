@@ -36,7 +36,7 @@ $customizerHidden = 'customizer-hide';
         <img src="{{asset('assets/img/pages/comet-'.$configData['style'].'.gif')}}" alt="Auth Cover Bg color" width="520" class="img-fluid authentication-cover-img" 
         data-app-light-img="pages/comet-light.gif" data-app-dark-img="pages/login-dark.png">
         <div class="mx-auto">
-          <h3>Discover The Powerful of Our System🥳</h3>
+          <h3>Discover The Power of Our System🥳</h3>
           <p>
            
           </p>

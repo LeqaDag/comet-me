@@ -46,7 +46,7 @@
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <fieldset class="form-group">
                             <select name="community"
-                                class="form-control">
+                                class="selectpicker form-control" data-live-search="true">
                                 <option disabled selected>Search Community</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->english_name}}">
@@ -59,7 +59,7 @@
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <fieldset class="form-group">
                             <select name="donor"
-                                class="form-control">
+                                class="selectpicker form-control" data-live-search="true">
                                 <option disabled selected>Search Donor</option>
                                 @foreach($donors as $donor)
                                 <option value="{{$donor->id}}">

@@ -48,6 +48,7 @@ class FbsIncidentController extends Controller
                     ->join('incident_status_small_infrastructures', 
                         'fbs_user_incidents.incident_status_small_infrastructure_id', 
                         '=', 'incident_status_small_infrastructures.id')
+                    ->where('fbs_user_incidents.is_archived', 0)
                     ->select('fbs_user_incidents.date', 'fbs_user_incidents.year',
                         'fbs_user_incidents.id as id', 'fbs_user_incidents.created_at as created_at', 
                         'fbs_user_incidents.updated_at as updated_at', 
@@ -94,17 +95,25 @@ class FbsIncidentController extends Controller
                     ->make(true);
             }
     
-            $communities = Community::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $energyUsers = DB::table('all_energy_meters')
                 ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
                 ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.is_archived', 0)
+                ->orderBy('households.english_name', 'ASC')
                 ->select('households.english_name', 'all_energy_meters.id')
                 ->get();
     
-            $incidents = Incident::all();
-            $fbsIncidents = IncidentStatusSmallInfrastructure::all();
-            $fbsIncidentsNumber = FbsUserIncident::where('energy_user_id', '!=', '0')->count();
-            $donors = Donor::all();
+            $incidents = Incident::where('is_archived', 0)->get();
+            $fbsIncidents = IncidentStatusSmallInfrastructure::where('is_archived', 0)->get();
+            $fbsIncidentsNumber = FbsUserIncident::where('energy_user_id', '!=', '0')
+                ->where('is_archived', 0)
+                ->count();
+            $donors = Donor::where('is_archived', 0)
+                ->orderBy('donor_name', 'ASC')
+                ->get();
     
             $dataFbsIncidents = DB::table('fbs_user_incidents')
                 ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
@@ -115,6 +124,7 @@ class FbsIncidentController extends Controller
                     'fbs_user_incidents.incident_status_small_infrastructure_id', 
                     '=', 'incident_status_small_infrastructures.id')
                 ->where('incident_status_small_infrastructures.incident_id', 3)
+                ->where('fbs_user_incidents.is_archived', 0)
                 ->select(
                     DB::raw('incident_status_small_infrastructures.name as name'),
                     DB::raw('count(*) as number'))
@@ -203,10 +213,14 @@ class FbsIncidentController extends Controller
     public function edit($id) 
     {
         $fbsIncident = FbsUserIncident::findOrFail($id);
-        $communities = Community::where('is_archived', 0)->get();
-        $energyUsers = AllEnergyMeter::where('household_id', '!=', 0)->get();
-        $incidents = Incident::all();
-        $fbsStatuses = IncidentStatusSmallInfrastructure::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $energyUsers = AllEnergyMeter::where('household_id', '!=', 0)
+            ->where('is_archived', 0)
+            ->get();
+        $incidents = Incident::where('is_archived', 0)->get();
+        $fbsStatuses = IncidentStatusSmallInfrastructure::where('is_archived', 0)->get();
 
         return view('incidents.fbs.edit', compact('fbsIncident', 'communities', 'energyUsers', 
             'incidents', 'fbsStatuses'));
@@ -250,8 +264,11 @@ class FbsIncidentController extends Controller
 
         $fbsIncident = FbsUserIncident::find($id);
 
-        if($fbsIncident->delete()) {
+        if($fbsIncident) {
 
+            $fbsIncident->is_archived = 1;
+            $fbsIncident->save();
+            
             $response['success'] = 1;
             $response['msg'] = 'FBS Incident Deleted successfully'; 
         } else {

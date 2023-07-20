@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use DB;
+use DB; 
 
 class WaterUserExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
     WithStyles
@@ -40,6 +40,7 @@ class WaterUserExport implements FromCollection, WithHeadings, WithTitle, Should
             ->LeftJoin('all_water_holder_donors', 'all_water_holders.id', 
                 '=', 'all_water_holder_donors.all_water_holder_id')
             ->LeftJoin('donors', 'all_water_holder_donors.donor_id', '=', 'donors.id')
+            ->where('all_water_holders.is_archived', 0)
             ->select([
                 'households.english_name as english_name', 
                 'public_structures.english_name as public',

@@ -69,11 +69,11 @@
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Maintenance Status: 
-                            <span class="spanDetails" id="maintenanceStatus">
-                              
+                            Performed By: 
+                            <span class="spanDetails" id="maintenancePerformedBy">
+                                
                             </span>
-                        </h6>
+                        </h6> 
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
@@ -84,7 +84,24 @@
                         </h6>
                     </div>
                 </div>
-
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Maintenance Status: 
+                            <span class="spanDetails" id="maintenanceStatus">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                            Notes: 
+                            <span class="spanDetails" id="maintenanceNotes">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
                 <div class="modal-footer">
                     <button id="closeDetailsModel" type="button" 
                         class="closeDetailsModel btn btn-secondary" 

@@ -49,6 +49,7 @@ class WaterIncidentController extends Controller
                     ->join('incident_statuses', 
                         'h2o_system_incidents.incident_status_id', 
                         '=', 'incident_statuses.id')
+                    ->where('h2o_system_incidents.is_archived', 0)
                     ->select('h2o_system_incidents.date', 'h2o_system_incidents.year',
                         'h2o_system_incidents.id as id', 'h2o_system_incidents.created_at as created_at', 
                         'h2o_system_incidents.updated_at as updated_at', 
@@ -94,16 +95,22 @@ class WaterIncidentController extends Controller
                     ->make(true);
             }
     
-            $communities = Community::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $h2oUsers = DB::table('all_water_holders')
                 ->join('households', 'all_water_holders.household_id', '=', 'households.id')
+                ->where('all_water_holders.is_archived', 0)
+                ->orderBy('households.english_name', 'ASC')
                 ->select('households.english_name', 'all_water_holders.id')
                 ->get();
     
-            $incidents = Incident::all();
-            $incidentStatuses = IncidentStatus::all();
-            $h2oIncidentsNumber = H2oSystemIncident::count();
-            $donors = Donor::all();
+            $incidents = Incident::where('is_archived', 0)->get();
+            $incidentStatuses = IncidentStatus::where('is_archived', 0)->get();
+            $h2oIncidentsNumber = H2oSystemIncident::where('is_archived', 0)->count();
+            $donors = Donor::where('is_archived', 0)
+                ->orderBy('donor_name', 'ASC')
+                ->get();
     
             // H2O incidents
             $dataIncidents = DB::table('h2o_system_incidents')
@@ -112,6 +119,7 @@ class WaterIncidentController extends Controller
                 ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
                 ->join('incident_statuses', 'h2o_system_incidents.incident_status_id', 
                     '=', 'incident_statuses.id')
+                ->where('h2o_system_incidents.is_archived', 0)
                 ->select(
                     DB::raw('incident_statuses.name as name'),
                     DB::raw('count(*) as number'))
@@ -174,9 +182,11 @@ class WaterIncidentController extends Controller
     public function edit($id) 
     {
         $waterIncident = H2oSystemIncident::findOrFail($id);
-        $communities = Community::where('is_archived', 0)->get();
-        $incidents = Incident::all();
-        $statuses = IncidentStatus::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $incidents = Incident::where('is_archived', 0)->get();
+        $statuses = IncidentStatus::where('is_archived', 0)->get();
 
         return view('incidents.water.edit', compact('waterIncident', 'communities', 
             'incidents', 'statuses'));
@@ -245,8 +255,11 @@ class WaterIncidentController extends Controller
 
         $waterIncident = H2oSystemIncident::find($id);
 
-        if($waterIncident->delete()) {
+        if($waterIncident) {
 
+            $waterIncident->is_archived = 1;
+            $waterIncident->save();
+            
             $response['success'] = 1;
             $response['msg'] = 'Water Incident Deleted successfully'; 
         } else {

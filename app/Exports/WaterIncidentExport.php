@@ -4,10 +4,14 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class WaterIncidentExport implements FromCollection, WithHeadings, ShouldAutoSize
+class WaterIncidentExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+    WithStyles
 {
     protected $request;
 
@@ -31,15 +35,20 @@ class WaterIncidentExport implements FromCollection, WithHeadings, ShouldAutoSiz
             ->join('incident_statuses', 
                 'h2o_system_incidents.incident_status_id', 
                 '=', 'incident_statuses.id')
-            ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
-            ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
-            ->where('community_donors.service_id', 2)
-            ->select('households.english_name as household_name',
+            ->join('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
+                '=', 'all_water_holders.id')
+            ->LeftJoin('all_water_holder_donors', 'all_water_holders.id', 
+                '=', 'all_water_holder_donors.all_water_holder_id')
+            ->leftJoin('donors', 'all_water_holder_donors.donor_id', 'donors.id')
+            ->where('h2o_system_incidents.is_archived', 0) 
+            ->select(['households.english_name as household_name',
                 'communities.english_name as community_name', 
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'incidents.english_name as incident', 'h2o_system_incidents.year',
                 'h2o_system_incidents.date', 'incident_statuses.name as incident_status', 
-                'donors.donor_name');
+                DB::raw('group_concat(donors.donor_name) as donors')
+            ])
+            ->groupBy('h2o_system_incidents.id');
 
         if($this->request->community) {
 
@@ -66,5 +75,25 @@ class WaterIncidentExport implements FromCollection, WithHeadings, ShouldAutoSiz
     {
         return ["H2O User", "Community", "Region", "Sub Region", 
             "Incident", "Incident Year", "Incident Date", "Status", "Donor"];
+    }
+
+    public function title(): string
+    {
+        return 'Water Incidents';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:I1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

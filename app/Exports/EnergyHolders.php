@@ -10,7 +10,8 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
+class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+    WithStyles
 {
     protected $request; 
 
@@ -27,6 +28,8 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+            ->join('installation_types', 'all_energy_meters.installation_type_id', '=', 
+                'installation_types.id')
             ->LeftJoin('public_structures', 'all_energy_meters.public_structure_id', 
                 'public_structures.id')
             ->leftJoin('households', 'all_energy_meters.household_id', '=', 'households.id')
@@ -38,10 +41,13 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             'all_energy_meter_donors.all_energy_meter_id')
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
                 'donors.id')
+            ->where('all_energy_meters.is_archived', 0)
+            ->where('all_energy_meters.meter_case_id', 1)
             ->select([
                 'households.english_name as english_name', 
                 'public_structures.english_name as public',
                 'all_energy_meters.is_main',
+                'installation_types.type',
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region', 
                 'meter_cases.meter_case_name_english', 
@@ -50,9 +56,9 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
                 'households.number_of_adults', 'households.number_of_children', 
                 'households.phone_number', 'all_energy_meters.meter_number', 
                 'all_energy_meters.daily_limit', 'all_energy_meters.installation_date',
-                DB::raw('group_concat(donors.donor_name) as donors'),
-            ])
-            ->groupBy('all_energy_meters.id');
+                    DB::raw('group_concat(donors.donor_name) as donors'),
+                ])
+                ->groupBy('all_energy_meters.id');
 
 
         if($this->request->misc) {
@@ -91,10 +97,10 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
      */
     public function headings(): array
     {
-        return ["Energy User", "Public Structure", "Main Holder", "Community", "Region", "Sub Region", 
-            "Meter Case", "Energy System", "Energy System Type", "Number of male", "Number of Female", 
-            "Number of adults", "Number of children", "Phone number", "Meter Number", 
-            "Daily Limit",  "Installation Date", "Donors"];
+        return ["Energy User", "Public Structure", "Main Holder", "Installation Type", "Community", 
+            "Region", "Sub Region", "Meter Case", "Energy System", "Energy System Type", 
+            "Number of male", "Number of Female", "Number of adults", "Number of children", 
+            "Phone number", "Meter Number", "Daily Limit", "Installation Date", "Donors"];
     }
 
     public function title(): string

@@ -47,6 +47,7 @@ class WaterPublicStructureController extends Controller
                     ->join('public_structures', 'h2o_public_structures.public_structure_id', 
                         'public_structures.id')
                     ->join('communities', 'h2o_public_structures.community_id', 'communities.id')
+                    ->where('h2o_shared_public_structures.is_archived', 0)
                     ->select('h2o_shared_public_structures.id as id', 'public_structures.english_name', 
                         'communities.english_name as community_name', 
                         'h2o_shared_public_structures.public_structure_name as shared',
@@ -88,10 +89,14 @@ class WaterPublicStructureController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::all();
-            $bsfStatus = BsfStatus::all(); 
-            $households = Household::all();
-            $h2oStatus = H2oStatus::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $bsfStatus = BsfStatus::where('is_archived', 0)->get(); 
+            $households = Household::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $h2oStatus = H2oStatus::where('is_archived', 0)->get();
     
             return view('users.water.public.index', compact('communities', 'bsfStatus', 'households', 
                 'h2oStatus'));
@@ -161,6 +166,7 @@ class WaterPublicStructureController extends Controller
             ->join('communities', 'h2o_public_structures.community_id', 'communities.id')
             ->join('public_structures', 'h2o_public_structures.public_structure_id', 'public_structures.id')
             ->where('h2o_public_structures.community_id', $request->community_id)
+            ->where('h2o_public_structures.is_archived', 0)
             ->select('h2o_public_structures.id as id', 'public_structures.english_name')
             ->get();
 
@@ -174,6 +180,7 @@ class WaterPublicStructureController extends Controller
                 ->join('communities', 'h2o_public_structures.community_id', 'communities.id')
                 ->join('public_structures', 'h2o_public_structures.public_structure_id', 'public_structures.id')
                 ->where('h2o_public_structures.community_id', $request->community_id)
+                ->where('h2o_public_structures.is_archived', 0)
                 ->select('h2o_public_structures.id as id', 'public_structures.english_name')
                 ->get();
             foreach ($h2oPublics as $h2oPublic) {
@@ -196,9 +203,16 @@ class WaterPublicStructureController extends Controller
         $h2oSharedPublic = H2oSharedPublicStructure::findOrFail($id);
         $allWaterHolder = AllWaterHolder::where("public_structure_id", $h2oSharedPublic->public_structure_id)->first();
   
-        if($h2oSharedPublic->delete()) {
+        if($h2oSharedPublic) {
 
-            if($allWaterHolder) $allWaterHolder->delete();
+            $h2oSharedPublic->is_archived = 1;
+            $h2oSharedPublic->save();
+
+            if($allWaterHolder) {
+
+                $allWaterHolder->is_archived = 1;
+                $allWaterHolder->save();
+            }
 
             $response['success'] = 1;
             $response['msg'] = 'Shared Public Deleted successfully'; 

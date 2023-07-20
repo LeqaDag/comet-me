@@ -85,12 +85,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script>
-    
+     
     $(document).on('change', '#communityChanges', function () {
         community_id = $(this).val();
    
         $.ajax({
-            url: "ac-household/household/get_by_community/" + community_id,
+            url: "progress-household/household/get_by_community/" + community_id,
             method: 'GET',
             success: function(data) {
                 

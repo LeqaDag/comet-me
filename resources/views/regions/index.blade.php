@@ -187,7 +187,7 @@
         $(document).on('change', '#selectedRegion', function () {
             region_id = $(this).val(); 
     
-            $.ajax({
+            $.ajax({ 
                 url: "region/get_region/" + region_id,
                 method: 'GET',
                 success: function(data) {

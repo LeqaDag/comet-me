@@ -45,91 +45,98 @@ class EnergyMaintenanceCallController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
+            if ($request->ajax()) {
+                
+                $data = DB::table('electricity_maintenance_calls')
+                    ->leftJoin('energy_systems', 'electricity_maintenance_calls.energy_system_id', 
+                        'energy_systems.id')
+                    ->leftJoin('households', 'electricity_maintenance_calls.household_id', 
+                        'households.id')
+                    ->leftJoin('public_structures', 'electricity_maintenance_calls.public_structure_id', 
+                        'public_structures.id')
+                    ->join('communities', 'electricity_maintenance_calls.community_id', 'communities.id')
+                    ->join('maintenance_types', 'electricity_maintenance_calls.maintenance_type_id', 
+                        '=', 'maintenance_types.id')
+                    ->join('maintenance_electricity_actions', 'electricity_maintenance_calls.maintenance_electricity_action_id', 
+                        '=', 'maintenance_electricity_actions.id')
+                    ->join('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
+                        '=', 'maintenance_statuses.id')
+                    ->join('users', 'electricity_maintenance_calls.user_id', '=', 'users.id')
+                    ->where('electricity_maintenance_calls.is_archived', 0)
+                    ->select('electricity_maintenance_calls.id as id', 
+                        'households.english_name as english_name', 
+                        'date_of_call', 'date_completed', 'electricity_maintenance_calls.notes',
+                        'maintenance_types.type', 'maintenance_statuses.name', 
+                        'communities.english_name as community_name',
+                        'electricity_maintenance_calls.created_at as created_at',
+                        'electricity_maintenance_calls.updated_at as updated_at',
+                        'maintenance_electricity_actions.maintenance_action_electricity',
+                        'maintenance_electricity_actions.maintenance_action_electricity_english',
+                        'users.name as user_name', 'public_structures.english_name as public_name',
+                        'energy_systems.name as energy_name')
+                    ->latest();
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $deleteButton = "<a type='button' class='deleteEnergyMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        $viewButton = "<a type='button' class='viewEnergyMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateEnergyMaintenance' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+    
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 4 ||
+                            Auth::guard('user')->user()->user_type_id == 7) 
+                        {
+                                
+                            return $viewButton. " ". $updateButton . " ".$deleteButton ;
+                        } else return $viewButton;
+                    })
+                   
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request){
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
+                                ->orWhere('users.name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                ->rawColumns(['action'])
+                ->make(true);
+            }
+    
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $households = DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
+                ->join('households', 'all_energy_meters.household_id', 'households.id')
+                ->orderBy('households.english_name', 'ASC')
+                ->select('households.id as id', 'households.english_name')
+                ->get();
+            $publics = PublicStructure::where('is_archived', 0)->get();
+            $maintenanceTypes = MaintenanceType::where('is_archived', 0)->get();
+            $maintenanceStatuses = MaintenanceStatus::where('is_archived', 0)->get();
+            $maintenanceEnergyActions = MaintenanceElectricityAction::where('is_archived', 0)->get();
+            $users = User::where('is_archived', 0)->get();
+            $mgSystems = EnergySystem::where('energy_system_type_id', 1)
+                ->where('is_archived', 0)
+                ->get();
+            $publicCategories = PublicStructureCategory::where('is_archived', 0)->get();
+    
+            return view('users.energy.maintenance.index', compact('maintenanceTypes', 
+                'maintenanceStatuses', 'maintenanceEnergyActions', 'users', 'communities', 
+                'households', 'publics', 'mgSystems', 'publicCategories'));
         } else {
 
             return view('errors.not-found');
         }
-        
-        if ($request->ajax()) {
-            $data = DB::table('electricity_maintenance_calls')
-                ->leftJoin('energy_systems', 'electricity_maintenance_calls.energy_system_id', 
-                    'energy_systems.id')
-                ->leftJoin('households', 'electricity_maintenance_calls.household_id', 
-                    'households.id')
-                ->leftJoin('public_structures', 'electricity_maintenance_calls.public_structure_id', 
-                    'public_structures.id')
-                ->join('communities', 'electricity_maintenance_calls.community_id', 'communities.id')
-                ->join('maintenance_types', 'electricity_maintenance_calls.maintenance_type_id', 
-                    '=', 'maintenance_types.id')
-                ->join('maintenance_electricity_actions', 'electricity_maintenance_calls.maintenance_electricity_action_id', 
-                    '=', 'maintenance_electricity_actions.id')
-                ->join('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
-                    '=', 'maintenance_statuses.id')
-                ->join('users', 'electricity_maintenance_calls.user_id', '=', 'users.id')
-                ->select('electricity_maintenance_calls.id as id', 
-                    'households.english_name as english_name', 
-                    'date_of_call', 'date_completed', 'electricity_maintenance_calls.notes',
-                    'maintenance_types.type', 'maintenance_statuses.name', 
-                    'communities.english_name as community_name',
-                    'electricity_maintenance_calls.created_at as created_at',
-                    'electricity_maintenance_calls.updated_at as updated_at',
-                    'maintenance_electricity_actions.maintenance_action_electricity',
-                    'maintenance_electricity_actions.maintenance_action_electricity_english',
-                    'users.name as user_name', 'public_structures.english_name as public_name',
-                    'energy_systems.name as energy_name')
-                ->latest();
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-
-                    $deleteButton = "<a type='button' class='deleteEnergyMaintenance' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                    $viewButton = "<a type='button' class='viewEnergyMaintenance' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyMaintenanceModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    $updateButton = "<a type='button' class='updateEnergyMaintenance' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-
-                    if(Auth::guard('user')->user()->user_type_id == 1 || 
-                        Auth::guard('user')->user()->user_type_id == 2 ||
-                        Auth::guard('user')->user()->user_type_id == 4 ||
-                        Auth::guard('user')->user()->user_type_id == 7) 
-                    {
-                            
-                        return $viewButton. " ". $updateButton . " ".$deleteButton ;
-                    } else return $viewButton;
-                })
-               
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request){
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('households.english_name', 'LIKE', "%$search%")
-                            ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
-                            ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
-                            ->orWhere('users.name', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-            ->rawColumns(['action'])
-            ->make(true);
-        }
-
-        $communities = Community::where('communities.is_archived', 0)->get();
-        $households = DB::table('all_energy_meters')
-            ->join('households', 'all_energy_meters.household_id', 'households.id')
-            ->select('households.id as id', 'households.english_name')
-            ->get();
-        $publics = PublicStructure::all();
-        $maintenanceTypes = MaintenanceType::all();
-        $maintenanceStatuses = MaintenanceStatus::all();
-        $maintenanceEnergyActions = MaintenanceElectricityAction::all();
-        $users = User::all();
-        $mgSystems = EnergySystem::where('energy_system_type_id', 1)->get();
-        $publicCategories = PublicStructureCategory::all();
-
-		return view('users.energy.maintenance.index', compact('maintenanceTypes', 
-            'maintenanceStatuses', 'maintenanceEnergyActions', 'users', 'communities', 
-            'households', 'publics', 'mgSystems', 'publicCategories'));
     }
 
     /**
@@ -195,20 +202,21 @@ class EnergyMaintenanceCallController extends Controller
 
         if($energyMaintenance->household_id || $energyMaintenance->public_structure_id) {
 
-            $actions = MaintenanceElectricityAction::where("system_user", 1)
+            $actions = MaintenanceElectricityAction::where('is_archived', 0)
+                ->where("system_user", 1)
                 ->orWhere("system_user", 3)
                 ->get();
         } else if($energyMaintenance->energy_system_id) {
-            $actions = MaintenanceElectricityAction::where("system_user", 2)
+            $actions = MaintenanceElectricityAction::where('is_archived', 0)
+                ->where("system_user", 2)
                 ->orWhere("system_user", 3)
                 ->get();
         } 
 
-
-        $maintenanceTypes = MaintenanceType::all();
-        $maintenanceStatuses = MaintenanceStatus::all();
-        $maintenanceEnergyActions = MaintenanceElectricityAction::all();
-        $users = User::all();
+        $maintenanceTypes = MaintenanceType::where('is_archived', 0)->get();
+        $maintenanceStatuses = MaintenanceStatus::where('is_archived', 0)->get();
+        $maintenanceEnergyActions = MaintenanceElectricityAction::where('is_archived', 0)->get();
+        $users = User::where('is_archived', 0)->get();
 
         return view('users.energy.maintenance.edit', compact('energyMaintenance', 'maintenanceTypes', 
             'maintenanceStatuses', 'maintenanceEnergyActions', 'users', 'actions'));
@@ -248,7 +256,10 @@ class EnergyMaintenanceCallController extends Controller
 
         $energyMaintenance = ElectricityMaintenanceCall::find($id);
 
-        if($energyMaintenance->delete()) {
+        if($energyMaintenance) {
+
+            $energyMaintenance->is_archived = 1;
+            $energyMaintenance->save();
 
             $response['success'] = 1;
             $response['msg'] = 'Electricity Maintenance Deleted successfully'; 
@@ -328,12 +339,14 @@ class EnergyMaintenanceCallController extends Controller
     {
         if($system == 1) {
 
-            $actions = MaintenanceElectricityAction::where("system_user", 2)
+            $actions = MaintenanceElectricityAction::where('is_archived', 0)
+                ->where("system_user", 2)
                 ->orWhere("system_user", 3)
                 ->get();
         } else if($system == 2) {
 
-            $actions = MaintenanceElectricityAction::where("system_user", 1)
+            $actions = MaintenanceElectricityAction::where('is_archived', 0)
+                ->where("system_user", 1)
                 ->orWhere("system_user", 3)
                 ->get();
         }
@@ -347,12 +360,14 @@ class EnergyMaintenanceCallController extends Controller
             $html = '<option disabled selected>Select ...</option>';
             if($system == 1) {
 
-                $actions = MaintenanceElectricityAction::where("system_user", 2)
+                $actions = MaintenanceElectricityAction::where('is_archived', 0)
+                    ->where("system_user", 2)
                     ->orWhere("system_user", 3)
                     ->get();
             } else if($system == 2) {
     
-                $actions = MaintenanceElectricityAction::where("system_user", 1)
+                $actions = MaintenanceElectricityAction::where('is_archived', 0)
+                    ->where("system_user", 1)
                     ->orWhere("system_user", 3)
                     ->get();
             }

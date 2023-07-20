@@ -22,6 +22,7 @@ use App\Models\Region;
 use App\Models\Structure;
 use App\Models\SubRegion;
 use App\Models\Profession;
+use App\Models\InstallationType;
 use App\Models\EnergySystemType;
 use App\Models\EnergyHolder;
 use App\Models\EnergyPublicStructure;
@@ -46,6 +47,7 @@ class InProgressHouseholdController extends Controller
                 $data = DB::table('households')
                     ->where('households.household_status_id', 3)
                     ->where('internet_holder_young', 0)
+                    ->where('households.is_archived', 0)
                     ->join('communities', 'households.community_id', '=', 'communities.id')
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
                     ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
@@ -94,6 +96,7 @@ class InProgressHouseholdController extends Controller
     
             $dataHouseholdsByCommunity = DB::table('households')
                 ->where('households.household_status_id', 3)
+                ->where('households.is_archived', 0)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->select(
                         DB::raw('communities.english_name as english_name'),
@@ -107,12 +110,16 @@ class InProgressHouseholdController extends Controller
                 $arrayAcHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
             }
     
-            $communities = Community::where('is_archived', 0)->get();
-            $households = Household::all();
-            $energySystems = EnergySystem::all();
-            $energySystemTypes = EnergySystemType::all();
-            $meters = MeterCase::all();
-            $professions  = Profession::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $households = Household::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $energySystems = EnergySystem::where('is_archived', 0)->get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $meters = MeterCase::where('is_archived', 0)->get();
+            $professions  = Profession::where('is_archived', 0)->get();
     
             return view('employee.household.progress', compact('communities', 'households', 
                 'energySystems', 'energySystemTypes', 'meters', 'professions'))
@@ -130,13 +137,19 @@ class InProgressHouseholdController extends Controller
      */
     public function create()
     {
-        $communities = Community::where('is_archived', 0)->get();
-        $energySystemTypes = EnergySystemType::all();
-        $households = Household::all();
-        $professions  = Profession::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $installationTypes = InstallationType::where('is_archived', 0)->get();
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+        $households = Household::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $professions  = Profession::where('is_archived', 0)->get();
+
 
         return view('employee.household.elc_create', compact('communities', 'energySystemTypes', 
-            'households', 'professions'));
+            'households', 'professions', 'installationTypes'));
     }
 
      /**
@@ -157,7 +170,7 @@ class InProgressHouseholdController extends Controller
                 $household->save(); 
 
                 $energyUser = new AllEnergyMeter();
-                $energyUser->misc = $request->misc;
+                $energyUser->installation_type_id = $request->misc;
                 $energyUser->household_id = $request->household_id;
                 $energyUser->community_id = $request->community_id;
                 $energyUser->energy_system_type_id = $request->energy_system_type_id;

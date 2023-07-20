@@ -6,7 +6,7 @@
 
 @section('title', 'water summary')
 
-@include('layouts.all')
+@include('layouts.all') 
 
 @section('content')
 
@@ -181,7 +181,7 @@
         
                     $("#cfuWaterResult").css("visibility", "visible");
                     $("#cfuWaterResult").css('display', 'block');
-                    $("#cfuWaterResultTitle").html("Grid Integration System");
+                    //$("#cfuWaterResultTitle").html("Grid Integration System");
                     var analytics = data;
 
                     google.charts.load('current', {'packages':['corechart']});

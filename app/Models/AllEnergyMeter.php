@@ -9,7 +9,7 @@ class AllEnergyMeter extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['household_id', 'meter_case_id', 'energy_system_id'];
+    protected $fillable = ['household_id', 'meter_case_id', 'energy_system_id', 'installation_type_id'];
 
     public function Household()
     {
@@ -30,5 +30,11 @@ class AllEnergyMeter extends Model
     {
         
         return $this->belongsTo(PublicStructure::class, 'public_structure_id', 'id');
+    }
+
+    public function InstallationType()
+    {
+        
+        return $this->belongsTo(InstallationType::class, 'installation_type_id', 'id');
     }
 }

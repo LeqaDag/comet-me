@@ -5,10 +5,14 @@ namespace App\Exports;
 use App\Models\EnergyUser;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class EnergyMaintenanceExport implements FromCollection, WithHeadings, ShouldAutoSize
+class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+    WithStyles
 {
 
     protected $request;
@@ -38,6 +42,7 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, ShouldAut
             ->join('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
                 '=', 'maintenance_statuses.id')
             ->join('users', 'electricity_maintenance_calls.user_id', '=', 'users.id')
+            ->where('electricity_maintenance_calls.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
@@ -46,7 +51,7 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, ShouldAut
                 'maintenance_electricity_actions.maintenance_action_electricity', 
                 'maintenance_electricity_actions.maintenance_action_electricity_english',
                 'maintenance_statuses.name', 'maintenance_types.type',
-                'date_of_call', 'date_completed');
+                'date_of_call', 'date_completed', 'electricity_maintenance_calls.notes');
 
         if($this->request->public) {
             $data->where("public_structures.public_structure_category_id1", $this->request->public)
@@ -72,6 +77,26 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, ShouldAut
     {
         return ["Household Name", "Public Structure", "Community", "Region", "Sub Region", 
             "Recipient", "Action in English", "Action in Arabic", "Status", "Type", "Call Date",
-            "Completed Date"];
+            "Completed Date", "Notes"];
+    }
+
+    public function title(): string
+    {
+        return 'Energy Maintenance Logs';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:M1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

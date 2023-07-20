@@ -11,6 +11,8 @@ use DB;
 use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\AllEnergyMeterDonor;
+use App\Models\AllWaterHolder;
+use App\Models\AllWaterHolderDonor;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
@@ -70,9 +72,22 @@ class CommunityDonorController extends Controller
             }
         }
 
+        $allWaterHolders = AllWaterHolder::where("community_id", $request->community_id)->get();
+
         // Add donors for water users
         if($request->service_id == 2) {
 
+            foreach($allWaterHolders as $allWaterHolder) {
+    
+                for($i=0; $i < count($request->donor_id); $i++) {
+    
+                    $allWaterHolderDonor = new AllWaterHolderDonor();
+                    $allWaterHolderDonor->all_water_holder_id = $allWaterHolder->id;
+                    $allWaterHolderDonor->community_id = $allWaterHolder->community_id;
+                    $allWaterHolderDonor->donor_id = $request->donor_id[$i];
+                    $allWaterHolderDonor->save();
+                }
+            }
         }
 
         $internetUsers = InternetUser::where("community_id", $request->community_id)->get();
@@ -109,34 +124,51 @@ class CommunityDonorController extends Controller
         $donor = CommunityDonor::find($id);
         $allEnergyMeterDonors = AllEnergyMeterDonor::where("donor_id", $donor->donor_id)
             ->where("community_id", $donor->community_id)
+            ->where('is_archived', 0)
+            ->get();
+
+        $allWaterDonors = AllWaterHolderDonor::where("donor_id", $donor->donor_id)
+            ->where("community_id", $donor->community_id)
+            ->where('is_archived', 0)
             ->get();
         $internetUserDonors = InternetUserDonor::where("donor_id", $donor->donor_id)
             ->where("community_id", $donor->community_id)
+            ->where('is_archived', 0)
             ->get();
-
 
         if($donor->service_id == 1) {
             if($allEnergyMeterDonors) {
                 foreach($allEnergyMeterDonors as $allEnergyMeterDonor) {
-                    $allEnergyMeterDonor->delete();
+                    $allEnergyMeterDonor->is_archived = 1;
+                    $allEnergyMeterDonor->save();
                 }
             }
         }
 
         // Delete water users donors while delteing donor
         if($donor->service_id == 2) {
+            if($allWaterDonors) {
+                foreach($allWaterDonors as $allWaterDonor) {
+                    $allWaterDonor->is_archived = 1;
+                    $allWaterDonor->save();
+                }
+            }
         }
 
         // Delete internet users donors while delteing donor
         if($donor->service_id == 3) {
             if($internetUserDonors) {
                 foreach($internetUserDonors as $internetUserDonor) {
-                    $internetUserDonor->delete();
+                    $internetUserDonor->is_archived = 1;
+                    $internetUserDonor->save();
                 }
             }
         }
 
-        if($donor->delete()) {
+        if($donor) {
+
+            $donor->is_archived = 1;
+            $donor->save();
 
             $response['success'] = 1;
             $response['msg'] = 'Community Donor Deleted successfully'; 

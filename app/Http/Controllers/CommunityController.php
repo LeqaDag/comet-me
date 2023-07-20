@@ -35,6 +35,7 @@ use App\Exports\CommunityExport;
 use App\Models\NearbySettlement;
 use App\Models\NearbyTown;
 use App\Models\Town;
+use App\Models\RecommendedCommunityEnergySystem;
 use App\Models\WaterSource;
 use Carbon\Carbon;
 use Image;
@@ -118,8 +119,12 @@ class CommunityController extends Controller
             $communityInternet = Community::where("internet_service", "yes")
                 ->where('is_archived', 0)
                 ->count();
-            $regions = Region::all();
-            $subregions = SubRegion::all();
+            $regions = Region::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get(); 
+            $subregions = SubRegion::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $communitiesWater = Community::where("water_service", "yes")
                 ->where('is_archived', 0)
                 ->get();
@@ -132,8 +137,8 @@ class CommunityController extends Controller
             $communityAC = Community::where("community_status_id", 2)
                 ->where('is_archived', 0)
                 ->count();
-            $products = ProductType::all();
-            $energyTypes = EnergySystemType::all();
+            $products = ProductType::where('is_archived', 0)->get();
+            $energyTypes = EnergySystemType::where('is_archived', 0)->get();
     
             $communitiesInitial = Community::where("community_status_id", 1)
                 ->where('is_archived', 0)
@@ -149,10 +154,12 @@ class CommunityController extends Controller
                 ->where('is_archived', 0)
                 ->count();
     
-            $settlements = Settlement::all();
-            $towns = Town::all();
-            $publicCategories = PublicStructureCategory::all();
-            $publicStructures = PublicStructure::all();
+            $settlements = Settlement::where('is_archived', 0)->get();
+            $towns = Town::where('is_archived', 0)->get();
+            $publicCategories = PublicStructureCategory::where('is_archived', 0)
+                ->orderBy('name', 'ASC')
+                ->get();
+            $publicStructures = PublicStructure::where('is_archived', 0)->get();
     
             $data = DB::table('communities')
                 ->where('communities.is_archived', 0)
@@ -184,9 +191,11 @@ class CommunityController extends Controller
                 $arraySubRegions[++$key] = [$value->english_name, $value->number];
             }
     
-            $energySystemTypes = EnergySystemType::all();
-            $donors = Donor::all();
-            $waterSources = WaterSource::all();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $donors = Donor::where('is_archived', 0)
+                ->orderBy('donor_name', 'ASC')
+                ->get();
+            $waterSources = WaterSource::where('is_archived', 0)->get();
             
             return view('employee.community.index', compact('communities', 'regions', 
                 'communityRecords', 'communityWater', 'communityInternet', 'subregions',
@@ -269,6 +278,7 @@ class CommunityController extends Controller
  
         
         $data = DB::table('households')
+            ->where('households.is_archived', 0)
             ->join('communities', 'communities.id', '=', 'households.community_id')
             ->select(
                 'households.community_id AS id',
@@ -285,6 +295,7 @@ class CommunityController extends Controller
         }
 
         $households = DB::table('households')
+            ->where('households.is_archived', 0)
             ->join('communities', 'communities.id', '=', 'households.community_id')
             ->select(
                 'households.community_id AS id',
@@ -318,16 +329,16 @@ class CommunityController extends Controller
         $community->location_gis = $request->location_gis;
         $community->number_of_compound = $request->number_of_compound;
         $community->number_of_people = $request->number_of_people;
-       // $community->number_of_households = $request->number_of_households;
+        $community->number_of_household = $request->number_of_household;
         $community->is_fallah = $request->is_fallah;
         $community->is_bedouin = $request->is_bedouin;
         $community->demolition = $request->demolition;
         $community->land_status = $request->land_status;
         $community->lawyer = $request->lawyer;
+        $community->energy_source = $request->energy_source; 
         $community->notes = $request->notes;
         if($request->product_type_id) $community->product_type_id = $request->product_type_id;
         if($request->reception) $community->reception = $request->reception;
-        if($request->recommended_energy_system_id) $community->recommended_energy_system_id = $request->recommended_energy_system_id;
         
         $community->save();
 
@@ -373,6 +384,16 @@ class CommunityController extends Controller
                 $town->town_id = $request->towns[$i];
                 $town->community_id = $id;
                 $town->save();
+            }
+        }
+
+        if($request->recommended_energy_system_id) {
+            for($i=0; $i < count($request->recommended_energy_system_id); $i++) {
+
+                $recommendedEnergy = new RecommendedCommunityEnergySystem();
+                $recommendedEnergy->energy_type_id = $request->recommended_energy_system_id[$i];
+                $recommendedEnergy->community_id = $id;
+                $recommendedEnergy->save();
             }
         }
 
@@ -504,13 +525,17 @@ class CommunityController extends Controller
      */
     public function getByRegion(Request $request)
     {
-        $regions = SubRegion::where('region_id', $request->region_id)->get();
+        $regions = SubRegion::where('region_id', $request->region_id)
+            ->where('is_archived', 0)
+            ->get();
  
         if (!$request->region_id) {
             $html = '<option value="">Choose One...</option>';
         } else {
             $html = '<option value="">Choose One...</option>';
-            $regions = SubRegion::where('region_id', $request->region_id)->get();
+            $regions = SubRegion::where('region_id', $request->region_id)
+                ->where('is_archived', 0)
+                ->get();
             foreach ($regions as $region) {
                 $html .= '<option value="'.$region->id.'">'.$region->english_name.'</option>';
             }
@@ -541,30 +566,35 @@ class CommunityController extends Controller
 
         if($communityWaterSources) {
             foreach($communityWaterSources as $communityWaterSource) {
-                $communityWaterSource->delete();
+                $communityWaterSource->is_archived = 1;
+                $communityWaterSource->save();
             }
         }
 
         if($compounds) {
             foreach($compounds as $compound) {
-                $compound->delete();
+                $compound->is_archived = 1;
+                $compound->save();
             }
         }
 
         if($nearbyTowns) {
             foreach($nearbyTowns as $nearbyTown) {
-                $nearbyTown->delete();
+                $nearbyTown->is_archived = 1;
+                $nearbyTown->save();
             }
         }
 
         if($nearbySettlements) {
             foreach($nearbySettlements as $nearbySettlement) {
-                $nearbySettlement->delete();
+                $nearbySettlement->is_archived = 1;
+                $nearbySettlement->save();
             }
         }
 
         if($secondName) {
-            $secondName->delete();
+            $secondName->is_archived = 1;
+            $secondName->save();
         }
 
         $response['success'] = 1;
@@ -587,12 +617,14 @@ class CommunityController extends Controller
         $status = CommunityStatus::where('id', $community->community_status_id)->first();
         $publicStructures = PublicStructure::where('community_id', $community->id)->get();
         $nearbySettlement = DB::table('nearby_settlements')
+            ->where('nearby_settlements.is_archived', 0)
             ->join('communities', 'nearby_settlements.community_id', '=', 'communities.id')
             ->join('settlements', 'nearby_settlements.settlement_id', '=', 'settlements.id')
             ->where('community_id', $community->id)
             ->select('settlements.english_name')
             ->get();
         $nearbyTown = DB::table('nearby_towns')
+            ->where('nearby_towns.is_archived', 0)
             ->join('communities', 'nearby_towns.community_id', '=', 'communities.id')
             ->join('towns', 'nearby_towns.town_id', '=', 'towns.id')
             ->where('community_id', $community->id)
@@ -600,13 +632,24 @@ class CommunityController extends Controller
             ->get();
         $compounds = Compound::where('community_id', $community->id)->get();
         $communityWaterSources = DB::table('community_water_sources')
+            ->where('community_water_sources.is_archived', 0)
             ->join('communities', 'community_water_sources.community_id', '=', 'communities.id')
             ->join('water_sources', 'community_water_sources.water_source_id', '=', 'water_sources.id')
             ->where('community_id', $community->id)
             ->select('water_sources.name')
             ->get();
+        $communityRecommendedEnergy = DB::table('recommended_community_energy_systems')
+            ->where('recommended_community_energy_systems.is_archived', 0)
+            ->join('communities', 'recommended_community_energy_systems.community_id', 
+                '=', 'communities.id')
+            ->join('energy_system_types', 'recommended_community_energy_systems.energy_system_type_id', 
+                '=', 'energy_system_types.id')
+            ->where('community_id', $community->id)
+            ->select('energy_system_types.name')
+            ->get();  
             
         $communityRepresentative = DB::table('community_representatives')
+            ->where('community_representatives.is_archived', 0)
             ->join('communities', 'community_representatives.community_id', '=', 'communities.id')
             ->join('households', 'community_representatives.household_id', '=', 'households.id')
             ->join('community_roles', 'community_representatives.community_role_id', '=', 'community_roles.id')
@@ -625,6 +668,7 @@ class CommunityController extends Controller
         $response['nearbyTown'] = $nearbyTown;
         $response['compounds'] = $compounds;
         $response['communityWaterSources'] = $communityWaterSources;
+        $response['communityRecommendedEnergy'] = $communityRecommendedEnergy;
         $response['communityRepresentative'] = $communityRepresentative;
         $response['secondName'] = $secondName;
 
@@ -690,11 +734,15 @@ class CommunityController extends Controller
     public function edit($id) 
     {
         $community = Community::findOrFail($id);
-        $communityStatuses = CommunityStatus::all();
-        $products = ProductType::all();
-        $regions = Region::all();
-        $subRegions = SubRegion::all();
-        $secondName = SecondNameCommunity::where('community_id', $id)->first();
+        $communityStatuses = CommunityStatus::where('is_archived', 0)->get();
+        $products = ProductType::where('is_archived', 0)->get();
+        $regions = Region::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $subRegions = SubRegion::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $secondName = SecondNameCommunity::where('community_id', $id)->where('is_archived', 0)->first();
 
         return view('employee.community.edit', compact('community', 'products', 
             'communityStatuses', 'regions', 'subRegions', 'secondName'));

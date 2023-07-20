@@ -6,13 +6,23 @@
 
 <style>
     label, input {
-    display: block;
-}
+        display: block;
+    }
 
-label {
-    margin-top: 20px;
-}
+    .dropdown-toggle {
+        height: 40px;
+    }
+
+    label {
+        margin-top: 20px;
+    } 
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> 
@@ -120,28 +130,8 @@ label {
                         </fieldset>
                     </div>
                 </div>
-
+ 
                 <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
-                            <select name="maintenance_refrigerator_action_id" class="form-control">
-                            @if($refrigeratorMaintenance->maintenance_refrigerator_action_id)
-                                <option value="{{$refrigeratorMaintenance->maintenance_refrigerator_action_id}}">
-                                    {{$refrigeratorMaintenance->MaintenanceRefrigeratorAction->maintenance_action_refrigerator}}
-                                </option>
-                            @endif 
-                            @foreach($maintenanceRefrigeratorActions as $action)
-                                <option value="{{$action->id}}">
-                                    {{$action->maintenance_action_refrigerator}}
-                                </option>
-                            @endforeach
-                            </select>
-                            @if ($errors->has('maintenance_refrigerator_action_id'))
-                                <span class="error">{{ $errors->first('maintenance_refrigerator_action_id') }}</span>
-                            @endif
-                        </fieldset>
-                    </div>
                     <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Recipient</label>
@@ -167,7 +157,138 @@ label {
                         </fieldset>
                     </div>
                 </div>
-  
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Notes</label>
+                            <textarea name="notes" class="form-control" 
+                                style="resize:none" cols="20" rows="3">
+                                {{$refrigeratorMaintenance->notes}}
+                            </textarea>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <label class='col-md-12 control-label'>Maintenance Refrigerator Actions</label>
+                    </div>
+                </div>
+                @if(count($refrigeratorActions) > 0)
+                    <table id="refrigeratorActionsTable" 
+                        class="table table-striped data-h2o-actions-donors my-2">  
+                        <tbody>
+                            @foreach($refrigeratorActions as $refrigeratorAction)
+                            <tr id="refrigeratorActionRow">
+                                <td class="text-center">
+                                    {{$refrigeratorAction->maintenance_action_refrigerator}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteRefrigeratorAction" 
+                                        id="deleteRefrigeratorAction" data-id="{{$refrigeratorAction->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add more actions</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="actions[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($maintenanceRefrigeratorActions as $maintenanceRefrigeratorAction)
+                                        <option value="{{$maintenanceRefrigeratorAction->id}}">
+                                            {{$maintenanceRefrigeratorAction->maintenance_action_refrigerator}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Actions</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_actions[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($maintenanceRefrigeratorActions as $maintenanceRefrigeratorAction)
+                                        <option value="{{$maintenanceRefrigeratorAction->id}}">
+                                            {{$maintenanceRefrigeratorAction->maintenance_action_refrigerator}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
+
+                <hr>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <label class='col-md-12 control-label'>Performed By:</label>
+                    </div>
+                </div>
+                @if(count($performedUsers) > 0)
+                    <table id="performedUsersRefrigeratorTable" 
+                        class="table table-striped data-h2o-actions-donors my-2">  
+                        <tbody>
+                            @foreach($performedUsers as $performedUser)
+                            <tr id="performedUserRow">
+                                <td class="text-center">
+                                    {{$performedUser->name}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deletePerformedRefrigeratorUsers" 
+                                        id="deletePerformedRefrigeratorUsers" data-id="{{$performedUser->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add more performed users</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="users[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($users as $user)
+                                        <option value="{{$user->id}}">
+                                            {{$user->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add performed users</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_users[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($users as $user)
+                                        <option value="{{$user->id}}">
+                                            {{$user->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -179,5 +300,89 @@ label {
         </div>
     </div>
 </div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+
+        // delete water action
+        $('#refrigeratorActionsTable').on('click', '.deleteRefrigeratorAction',function() {
+            var id = $(this).data('id');
+            var $ele = $(this).parent().parent();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this action?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteRefrigeratorAction') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $ele.fadeOut(1000, function () {
+                                        $ele.remove();
+                                    });
+                                });
+                            } 
+                        }
+                    });
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+
+        // delete performed user
+        $('#performedUsersRefrigeratorTable').on('click', '.deletePerformedRefrigeratorUsers',function() {
+            var id = $(this).data('id');
+            var $ele = $(this).parent().parent();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this user?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deletePerformedRefrigeratorUsers') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $ele.fadeOut(1000, function () {
+                                        $ele.remove();
+                                    });
+                                });
+                            } 
+                        }
+                    });
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+    });
+</script>
 
 @endsection

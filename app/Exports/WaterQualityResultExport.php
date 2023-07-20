@@ -4,10 +4,14 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class WaterQualityResultExport implements FromCollection, WithHeadings, ShouldAutoSize
+class WaterQualityResultExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+    WithStyles
 {
     protected $request;
 
@@ -28,6 +32,7 @@ class WaterQualityResultExport implements FromCollection, WithHeadings, ShouldAu
             ->leftJoin('households', 'water_quality_results.household_id', 'households.id')
             ->leftJoin('public_structures', 'water_quality_results.public_structure_id', 
                 '=', 'public_structures.id')
+            ->where('water_quality_results.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
@@ -62,5 +67,25 @@ class WaterQualityResultExport implements FromCollection, WithHeadings, ShouldAu
     {
         return ["Water Holder", "Public Name", "Community", "Region", "Sub Region",
             "Date", "Year", "CFU",  "FCI", "EC", "PH"];
+    }
+
+    public function title(): string
+    {
+        return 'Water Quality Results';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:K1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

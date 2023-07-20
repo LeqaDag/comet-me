@@ -6,6 +6,17 @@
 
 @section('content')
 
+<style>
+    label, input {
+    display: block;
+}
+
+label, table {
+    margin-top: 20px;
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Internet Contract Holders
 </h4>
@@ -28,7 +39,7 @@
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <fieldset class="form-group">
                             <select name="community"
-                                class="form-control">
+                                class="selectpicker form-control" data-live-search="true">
                                 <option disabled selected>Search Community</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->english_name}}">
@@ -41,7 +52,7 @@
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <fieldset class="form-group">
                             <select name="donor"
-                                class="form-control">
+                                class="selectpicker form-control" data-live-search="true">
                                 <option disabled selected>Search Donor</option>
                                 @foreach($donors as $donor)
                                 <option value="{{$donor->id}}">
@@ -87,7 +98,6 @@
                         <th>Public Structure</th>
                         <th>Community</th>
                         <th>Date</th>
-                        <th># of Contracts</th>
                         @if(Auth::guard('user')->user()->user_type_id == 1 ||
                             Auth::guard('user')->user()->user_type_id == 2 ||
                             Auth::guard('user')->user()->user_type_id == 6 ||
@@ -104,6 +114,10 @@
         </div>
     </div>
 </div>
+
+<script src="{{ asset('js/jquery.min.js') }}"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 
 <script type="text/javascript">
@@ -123,9 +137,24 @@
                 {data: 'public_name', name: 'public_name'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'start_date', name: 'start_date'},
-                {data: 'number_of_contract', name: 'number_of_contract'},
                 {data: 'action'}
             ]
+        });
+    });
+
+    // Update record
+    $('#internetAllUsersTable').on('click', '.updateInternetUser',function() {
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        url = url +'/'+ id +'/edit';
+        // AJAX request
+        $.ajax({
+            url: 'internet-user/' + id + '/editpage',
+            type: 'get',
+            dataType: 'json',
+            success: function(response) {
+                window.open(url, "_self");
+            }
         });
     });
 

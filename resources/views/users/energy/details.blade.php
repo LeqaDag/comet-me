@@ -91,17 +91,17 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Vendor: 
-                            <span class="spanDetails" id="vendorDateUser">
+                            Installation Type: 
+                            <span class="spanDetails" id="installationTypeUser">
                                
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Notes: 
-                            <span class="spanDetails" id="systemNotesUser">
-                              
+                            Vendor: 
+                            <span class="spanDetails" id="vendorDateUser">
+                               
                             </span>
                         </h6>
                     </div>
@@ -125,6 +125,14 @@
                             <div class="spanDetails" id="donorsDetails">
                               
                             </div>
+                        </h6>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Notes: 
+                            <span class="spanDetails" id="systemNotesUser">
+                              
+                            </span>
                         </h6>
                     </div>
                 </div> 

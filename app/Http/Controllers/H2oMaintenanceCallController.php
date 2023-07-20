@@ -18,6 +18,8 @@ use App\Models\H2oStatus;
 use App\Models\H2oUser;
 use App\Models\H2oUserDonor;
 use App\Models\H2oMaintenanceCall;
+use App\Models\H2oMaintenanceCallAction;
+use App\Models\H2oMaintenanceCallUser;
 use App\Models\Household;
 use App\Models\WaterUser;
 use App\Models\MaintenanceActionType;
@@ -53,21 +55,19 @@ class H2oMaintenanceCallController extends Controller
                     ->join('communities', 'h2o_maintenance_calls.community_id', 'communities.id')
                     ->join('maintenance_types', 'h2o_maintenance_calls.maintenance_type_id', 
                         '=', 'maintenance_types.id')
-                    ->join('maintenance_h2o_actions', 'h2o_maintenance_calls.maintenance_h2o_action_id', 
-                        '=', 'maintenance_h2o_actions.id')
                     ->join('maintenance_statuses', 'h2o_maintenance_calls.maintenance_status_id', 
                         '=', 'maintenance_statuses.id')
                     ->join('users', 'h2o_maintenance_calls.user_id', '=', 'users.id')
+                    ->where('h2o_maintenance_calls.is_archived', 0)
                     ->select('h2o_maintenance_calls.id as id', 'households.english_name', 
                         'date_of_call', 'date_completed', 'h2o_maintenance_calls.notes',
                         'maintenance_types.type', 'maintenance_statuses.name', 
                         'communities.english_name as community_name',
                         'h2o_maintenance_calls.created_at as created_at',
                         'h2o_maintenance_calls.updated_at as updated_at',
-                        'maintenance_h2o_actions.maintenance_action_h2o',
-                        'maintenance_h2o_actions.maintenance_action_h2o_english',
-                        'users.name as user_name', 'public_structures.english_name as public_name')
-                    ->latest();
+                        'users.name as user_name', 
+                        'public_structures.english_name as public_name')
+                    ->orderBy('h2o_maintenance_calls.date_of_call', 'DESC');
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -106,19 +106,23 @@ class H2oMaintenanceCallController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $households = DB::table('h2o_users')
                 ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
                 ->join('households', 'h2o_users.household_id', 'households.id')
+                ->where('h2o_users.is_archived', 0)
+                ->orderBy('households.english_name', 'ASC')
                 ->select('households.id as id', 'households.english_name')
                 ->get();
     
-            $maintenanceTypes = MaintenanceType::all();
-            $maintenanceStatuses = MaintenanceStatus::all();
-            $maintenanceH2oActions = MaintenanceH2oAction::all();
-            $publics = PublicStructure::all();
-            $users = User::all();
-            $publicCategories = PublicStructureCategory::all();
+            $maintenanceTypes = MaintenanceType::where('is_archived', 0)->get();
+            $maintenanceStatuses = MaintenanceStatus::where('is_archived', 0)->get();
+            $maintenanceH2oActions = MaintenanceH2oAction::where('is_archived', 0)->get();
+            $publics = PublicStructure::where('is_archived', 0)->get();
+            $users = User::where('is_archived', 0)->get();
+            $publicCategories = PublicStructureCategory::where('is_archived', 0)->get();
     
             return view('users.water.maintenance.index', compact('maintenanceTypes', 'maintenanceStatuses',
                 'maintenanceH2oActions', 'users', 'communities', 'households', 'publics',
@@ -162,10 +166,31 @@ class H2oMaintenanceCallController extends Controller
         $maintenance->date_completed = $request->date_completed;
         $maintenance->maintenance_status_id = $request->maintenance_status_id;
         $maintenance->user_id = $request->user_id;
-        $maintenance->maintenance_h2o_action_id = $request->maintenance_h2o_action_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->notes = $request->notes;
         $maintenance->save();
+
+        $maintenanceId = $maintenance->id;
+
+        if($request->maintenance_h2o_action_id) {
+            for($i=0; $i < count($request->maintenance_h2o_action_id); $i++) {
+
+                $h2oMaintenanceCallAction = new H2oMaintenanceCallAction();
+                $h2oMaintenanceCallAction->maintenance_h2o_action_id = $request->maintenance_h2o_action_id[$i];
+                $h2oMaintenanceCallAction->h2o_maintenance_call_id = $maintenanceId;
+                $h2oMaintenanceCallAction->save();
+            }
+        }
+
+        if($request->performed_by) {
+            for($i=0; $i < count($request->performed_by); $i++) {
+
+                $h2oMaintenanceCallUser = new H2oMaintenanceCallUser();
+                $h2oMaintenanceCallUser->user_id = $request->performed_by[$i];
+                $h2oMaintenanceCallUser->h2o_maintenance_call_id = $maintenanceId;
+                $h2oMaintenanceCallUser->save();
+            }
+        }
 
         return redirect()->back()
         ->with('message', 'New Maintenance Added Successfully!');
@@ -173,7 +198,7 @@ class H2oMaintenanceCallController extends Controller
 
     /**
      * View Edit page.
-     *
+     *  
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
@@ -181,14 +206,31 @@ class H2oMaintenanceCallController extends Controller
     {
         $waterMaintenance = H2oMaintenanceCall::findOrFail($id);
 
-        $maintenanceTypes = MaintenanceType::all();
-        $maintenanceStatuses = MaintenanceStatus::all();
-        $maintenanceWaterActions = MaintenanceH2oAction::all();
-
-        $users = User::all();
+        $maintenanceTypes = MaintenanceType::where('is_archived', 0)->get();
+        $maintenanceStatuses = MaintenanceStatus::where('is_archived', 0)->get();
+        $maintenanceWaterActions = MaintenanceH2oAction::where('is_archived', 0)->get();
+        $h2oActions = DB::table('h2o_maintenance_call_actions')
+            ->join('h2o_maintenance_calls', 'h2o_maintenance_call_actions.h2o_maintenance_call_id', 
+                'h2o_maintenance_calls.id')
+            ->join('maintenance_h2o_actions', 'h2o_maintenance_call_actions.maintenance_h2o_action_id', 
+                'maintenance_h2o_actions.id')
+            ->where('h2o_maintenance_call_actions.h2o_maintenance_call_id', $waterMaintenance->id)
+            ->where('h2o_maintenance_call_actions.is_archived', 0)
+            ->select('h2o_maintenance_call_actions.id', 'maintenance_h2o_actions.maintenance_action_h2o')
+            ->get();
+        $users = User::where('is_archived', 0)->get(); 
+        $performedUsers = DB::table('h2o_maintenance_call_users')
+            ->join('h2o_maintenance_calls', 'h2o_maintenance_call_users.h2o_maintenance_call_id', 
+                'h2o_maintenance_calls.id')
+            ->join('users', 'h2o_maintenance_call_users.user_id', 'users.id')
+            ->where('h2o_maintenance_call_users.h2o_maintenance_call_id', $waterMaintenance->id)
+            ->where('h2o_maintenance_call_users.is_archived', 0)
+            ->select('h2o_maintenance_call_users.id', 'users.name')
+            ->get();
 
         return view('users.water.maintenance.edit', compact('waterMaintenance', 'users',
-            'maintenanceTypes',  'maintenanceStatuses', 'maintenanceWaterActions'));
+            'maintenanceTypes',  'maintenanceStatuses', 'maintenanceWaterActions', 'h2oActions',
+            'performedUsers'));
     }
 
     /**
@@ -205,11 +247,59 @@ class H2oMaintenanceCallController extends Controller
         $maintenance->date_completed = $request->date_completed;
         $maintenance->maintenance_status_id = $request->maintenance_status_id;
         $maintenance->user_id = $request->user_id;
-        $maintenance->maintenance_h2o_action_id = $request->maintenance_h2o_action_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->notes = $request->notes;
         $maintenance->save();
 
+        $maintenanceId = $maintenance->id;
+
+        if($request->actions) {
+            if($request->actions) {
+                for($i=0; $i < count($request->actions); $i++) {
+    
+                    $h2oMaintenanceCallAction = new H2oMaintenanceCallAction();
+                    $h2oMaintenanceCallAction->maintenance_h2o_action_id = $request->actions[$i];
+                    $h2oMaintenanceCallAction->h2o_maintenance_call_id = $maintenanceId;
+                    $h2oMaintenanceCallAction->save();
+                }
+            }
+        }
+        
+        if($request->new_actions) {
+            if($request->new_actions) {
+                for($i=0; $i < count($request->new_actions); $i++) {
+    
+                    $h2oMaintenanceCallAction = new H2oMaintenanceCallAction();
+                    $h2oMaintenanceCallAction->maintenance_h2o_action_id = $request->new_actions[$i];
+                    $h2oMaintenanceCallAction->h2o_maintenance_call_id = $maintenanceId;
+                    $h2oMaintenanceCallAction->save();
+                }
+            }
+        }
+
+        if($request->users) {
+            if($request->users) {
+                for($i=0; $i < count($request->users); $i++) {
+    
+                    $h2oMaintenanceCallUser = new H2oMaintenanceCallUser();
+                    $h2oMaintenanceCallUser->user_id = $request->users[$i];
+                    $h2oMaintenanceCallUser->h2o_maintenance_call_id = $maintenanceId;
+                    $h2oMaintenanceCallUser->save();
+                }
+            }
+        }
+
+        if($request->new_users) {
+            if($request->new_users) {
+                for($i=0; $i < count($request->new_users); $i++) {
+    
+                    $h2oMaintenanceCallUser = new H2oMaintenanceCallUser();
+                    $h2oMaintenanceCallUser->user_id = $request->new_users[$i];
+                    $h2oMaintenanceCallUser->h2o_maintenance_call_id = $maintenanceId;
+                    $h2oMaintenanceCallUser->save();
+                }
+            }
+        }
         return redirect('/water-maintenance')->with('message', 'Water Maintenance Updated Successfully!');
     }
 
@@ -224,11 +314,78 @@ class H2oMaintenanceCallController extends Controller
         $id = $request->id;
 
         $h2oMaintenance = H2oMaintenanceCall::find($id);
+        $h2oMaintenanceActions = H2oMaintenanceCallAction::where('h2o_maintenance_call_id', $h2oMaintenance->id)->get();
 
-        if($h2oMaintenance->delete()) {
+        if($h2oMaintenance) {
 
+            if($h2oMaintenanceActions) {
+                foreach($h2oMaintenanceActions as $h2oMaintenanceAction) {
+                    $h2oMaintenanceAction->is_archived = 1;
+                    $h2oMaintenanceAction->save();
+                }
+            }
+
+            $h2oMaintenance->is_archived = 1;
+            $h2oMaintenance->save();
+            
             $response['success'] = 1;
             $response['msg'] = 'H2O Maintenance Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteH2oAction(Request $request)
+    {
+        $id = $request->id;
+
+        $h2oMaintenance = H2oMaintenanceCallAction::find($id);
+
+        if($h2oMaintenance) {
+
+            $h2oMaintenance->is_archived = 1;
+            $h2oMaintenance->save();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'H2O Maintenance Action Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deletePerformedUsers(Request $request)
+    {
+        $id = $request->id;
+
+        $h2oPerformedBy = H2oMaintenanceCallUser::find($id);
+
+        if($h2oPerformedBy) {
+
+            $h2oPerformedBy->is_archived = 1;
+            $h2oPerformedBy->save();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'H2O Maintenance User Deleted successfully'; 
         } else {
 
             $response['success'] = 0;
@@ -263,10 +420,25 @@ class H2oMaintenanceCallController extends Controller
         }
        
         $community = Community::where('id', $h2oMaintenance->community_id)->first();
-        $h2oAction = MaintenanceH2oAction::where('id', $h2oMaintenance->maintenance_h2o_action_id)->first();
+        $h2oAction = DB::table('h2o_maintenance_call_actions')
+            ->join('h2o_maintenance_calls', 'h2o_maintenance_call_actions.h2o_maintenance_call_id', 
+                'h2o_maintenance_calls.id')
+            ->join('maintenance_h2o_actions', 'h2o_maintenance_call_actions.maintenance_h2o_action_id', 
+                'maintenance_h2o_actions.id')
+            ->where('h2o_maintenance_call_actions.h2o_maintenance_call_id', $h2oMaintenance->id)
+            ->where('h2o_maintenance_call_actions.is_archived', 0)
+            ->get();
         $status = MaintenanceStatus::where('id', $h2oMaintenance->maintenance_status_id)->first();
         $type = MaintenanceType::where('id', $h2oMaintenance->maintenance_type_id)->first();
         $user = User::where('id', $h2oMaintenance->user_id)->first();
+        $performedUsers = DB::table('h2o_maintenance_call_users')
+            ->join('h2o_maintenance_calls', 'h2o_maintenance_call_users.h2o_maintenance_call_id', 
+                'h2o_maintenance_calls.id')
+            ->join('users', 'h2o_maintenance_call_users.user_id', 'users.id')
+            ->where('h2o_maintenance_call_users.h2o_maintenance_call_id', $h2oMaintenance->id)
+            ->where('h2o_maintenance_call_users.is_archived', 0)
+            ->select('h2o_maintenance_call_users.id', 'users.name')
+            ->get();
 
         $response['community'] = $community;
         $response['h2oMaintenance'] = $h2oMaintenance;
@@ -274,6 +446,7 @@ class H2oMaintenanceCallController extends Controller
         $response['status'] = $status;
         $response['type'] = $type;
         $response['user'] = $user;
+        $response['performedUsers'] = $performedUsers;
 
         return response()->json($response);
     }

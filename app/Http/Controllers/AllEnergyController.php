@@ -25,6 +25,7 @@ use App\Models\EnergyPublicStructure;
 use App\Models\EnergyPublicStructureDonor;
 use App\Models\Household;
 use App\Models\HouseholdMeter;
+use App\Models\InstallationType;
 use App\Models\MeterCase;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
@@ -63,7 +64,6 @@ class AllEnergyController extends Controller
             
         // }
 
-
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
@@ -74,6 +74,7 @@ class AllEnergyController extends Controller
                     ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                     ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
                     ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+                    ->where('all_energy_meters.is_archived', 0)
                     ->select('all_energy_meters.meter_number', 'all_energy_meters.meter_active',
                         'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
                         'all_energy_meters.updated_at as updated_at', 
@@ -137,6 +138,7 @@ class AllEnergyController extends Controller
                 ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
                 ->where('meter_cases.meter_case_name_english', '!=', "Used")
                 ->where('household_id', '!=', 0)
+                ->where('all_energy_meters.is_archived', 0)
                 ->select(
                         DB::raw('meter_cases.meter_case_name_english as name'),
                         DB::raw('count(*) as number'))
@@ -151,12 +153,15 @@ class AllEnergyController extends Controller
                 $array[++$key] = [$value->name, $value->number];
             }
     
-            $communities = Community::where('is_archived', 0)->get();
-            $meterCases = MeterCase::get();
-            $energySystemTypes = EnergySystemType::all();
-    
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $meterCases = MeterCase::where('is_archived', 0)->get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $installationTypes = InstallationType::where('is_archived', 0)->get();
+
             return view('users.energy.not_active.index', compact('communities', 'energySystemTypes', 
-                'meterCases'))
+                'meterCases', 'installationTypes'))
                 ->with('energy_users', json_encode($array)
             );
         } else {
@@ -220,24 +225,28 @@ class AllEnergyController extends Controller
         $energyUser = AllEnergyMeter::findOrFail($id);
         $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)->get();
         $community_id = Community::findOrFail($energyUser->community_id);
-        $communities = Community::where('is_archived', 0)->get();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
         $communityVendors = DB::table('community_vendors')
             ->where('community_id', $community_id->id)
+            ->where('community_vendors.is_archived', 0)
             ->join('vendor_usernames', 'community_vendors.vendor_username_id', 
                 '=', 'vendor_usernames.id')
             ->select('vendor_usernames.name', 'community_vendors.id as id',
                 'vendor_usernames.id as vendor_username_id')
             ->get();
         
-        $energySystems = EnergySystem::all();
+        $energySystems = EnergySystem::where('is_archived', 0)->get();
         $household = Household::findOrFail($energyUser->household_id);
-        $meterCases = MeterCase::all();
+        $meterCases = MeterCase::where('is_archived', 0)->get();
         $vendor = VendorUsername::where('id', $energyUser->vendor_username_id)->first();
-        $donors = Donor::all();
+        $donors = Donor::where('is_archived', 0)->get();
+        $installationTypes = InstallationType::where('is_archived', 0)->get();
 
         return view('users.energy.not_active.edit_energy', compact('household', 'communities',
             'meterCases', 'energyUser', 'communityVendors', 'vendor', 'energySystems',
-            'energyDonors', 'donors'));
+            'energyDonors', 'donors', 'installationTypes'));
     }
 
     /**
@@ -319,7 +328,7 @@ class AllEnergyController extends Controller
         $energyUser->meter_number = $request->meter_number;
         $energyUser->daily_limit = $request->daily_limit;
         $energyUser->installation_date = $request->installation_date;
-        if($request->misc) $energyUser->misc = $request->misc;
+        if($request->installation_type_id) $energyUser->installation_type_id = $request->installation_type_id;
       
         if($request->meter_active) $energyUser->meter_active = $request->meter_active;
 
@@ -352,7 +361,9 @@ class AllEnergyController extends Controller
         
         if($energyUser->meter_active == "Yes" || $energyUser->meter_case_id == 1) {
 
-            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)->get();
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->where('is_archived', 0)
+                ->get();
 
             if($householdMeters != []) {
                 foreach($householdMeters as $householdMeter) {
@@ -367,7 +378,9 @@ class AllEnergyController extends Controller
 
         if($request->donors) {
 
-            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)->get();
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->where('is_archived', 0)
+                ->get();
             
             foreach($householdMeters as $householdMeter) {
 
@@ -393,7 +406,9 @@ class AllEnergyController extends Controller
         }
 
         if($request->new_donors) {
-            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)->get();
+            $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                ->where('is_archived', 0)
+                ->get();
             
             foreach($householdMeters as $householdMeter) {
 
@@ -436,11 +451,15 @@ class AllEnergyController extends Controller
 
         if($sharedMeters) {
             foreach($sharedMeters as $sharedMeter) {
-                $sharedMeter->delete();
+                $sharedMeter->is_archived = 1;
+                $sharedMeter->save();
             }
         }
 
-        if($user->delete()) {
+        if($user) {
+
+            $user->is_archived = 1;
+            $user->save();
 
             $response['success'] = 1;
             $response['msg'] = 'Energy User Deleted successfully'; 
@@ -467,7 +486,10 @@ class AllEnergyController extends Controller
         $user = AllEnergyMeterDonor::find($id);
         $sharedMeters = HouseholdMeter::where("energy_user_id", $user->all_energy_meter_id)->get();
         
-        if($user->delete()) {
+        if($user) {
+
+            $user->is_archived = 1;
+            $user->save();
 
             if($sharedMeters) {
                 foreach($sharedMeters as $sharedMeter) {
@@ -477,7 +499,8 @@ class AllEnergyController extends Controller
                         ->where('donor_id', $mainEnergyDonor->donor_id)
                         ->first();
         
-                    $sharedDonor->delete(); 
+                    $sharedDonor->is_archived = 1;
+                    $sharedDonor->save();
                 }
             }
             

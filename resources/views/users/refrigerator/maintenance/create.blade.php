@@ -69,6 +69,22 @@ label, table {
                                 </select>
                             </fieldset>
                         </div> 
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Maintenance Type</label>
+                                <select name="maintenance_type_id" class="form-control" required>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($maintenanceTypes as $maintenanceType)
+                                    <option value="{{$maintenanceType->id}}">
+                                        {{$maintenanceType->type}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                    @if ($errors->has('maintenance_type_id'))
+                                        <span class="error">{{ $errors->first('maintenance_type_id') }}</span>
+                                    @endif
+                            </fieldset>
+                        </div>
                     </div>
                     
                     <div class="row">
@@ -89,22 +105,6 @@ label, table {
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Maintenance Type</label>
-                                <select name="maintenance_type_id" class="form-control" required>
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($maintenanceTypes as $maintenanceType)
-                                    <option value="{{$maintenanceType->id}}">
-                                        {{$maintenanceType->type}}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                    @if ($errors->has('maintenance_type_id'))
-                                        <span class="error">{{ $errors->first('maintenance_type_id') }}</span>
-                                    @endif
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Status</label>
                                 <select name="maintenance_status_id" class="form-control" >
                                     <option disabled selected>Choose one...</option>
@@ -119,29 +119,11 @@ label, table {
                                     @endif
                             </fieldset>
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Recipient</label>
-                                <select name="user_id" class="form-control">
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($users as $user)
-                                    <option value="{{$user->id}}">
-                                        {{$user->name}}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                    @if ($errors->has('user_id'))
-                                        <span class="error">{{ $errors->first('user_id') }}</span>
-                                    @endif
-                            </fieldset>
-                        </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Refrigerator Action</label>
-                                <select name="maintenance_refrigerator_action_id" class="form-control">
+                                <select name="maintenance_refrigerator_action_id[]" multiple
+                                    class="selectpicker form-control" data-live-search="true" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($maintenanceRefrigeratorActions as $maintenanceRefrigeratorAction)
                                     <option value="{{$maintenanceRefrigeratorAction->id}}">
@@ -156,6 +138,42 @@ label, table {
                         </div>
                     </div>
                   
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Recipient</label>
+                                <select name="user_id" class="form-control">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($users as $user)
+                                    <option value="{{$user->id}}">
+                                        {{$user->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @if ($errors->has('user_id'))
+                                    <span class="error">{{ $errors->first('user_id') }}</span>
+                                @endif
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Performed By</label>
+                                <select name="performed_by[]" class="selectpicker form-control" 
+                                    data-live-search="true" multiple>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($users as $user)
+                                    <option value="{{$user->id}}">
+                                        {{$user->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @if ($errors->has('user_id'))
+                                    <span class="error">{{ $errors->first('user_id') }}</span>
+                                @endif
+                            </fieldset>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">

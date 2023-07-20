@@ -32,6 +32,7 @@ class EnergyUserExport implements FromCollection, WithHeadings, ShouldAutoSize
             ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
             ->leftJoin('vendors', 'all_energy_meters.vendor_username_id', '=', 'vendors.id')
             ->where('all_energy_meters.meter_active', 'Yes')
+            ->where('all_energy_meters.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',

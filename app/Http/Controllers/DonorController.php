@@ -32,15 +32,18 @@ class DonorController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
-            $communities = Community::where('communities.is_archived', 0)->get();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $donors = Donor::paginate();
-            $services = ServiceType::all();
+            $services = ServiceType::where('is_archived', 0)->get();
         
             if ($request->ajax()) {
                 $data = DB::table('community_donors')
                     ->join('communities', 'community_donors.community_id', '=', 'communities.id')
                     ->join('donors', 'community_donors.donor_id', '=', 'donors.id')
                     ->join('service_types', 'community_donors.service_id', '=', 'service_types.id')
+                    ->where('community_donors.is_archived', 0)
                     ->select('communities.english_name as english_name', 
                         'communities.arabic_name as arabic_name',
                         'community_donors.id as id', 'community_donors.created_at as created_at', 
@@ -77,9 +80,10 @@ class DonorController extends Controller
                     ->make(true);
             }
 
-            $householdDonors = DB::table('energy_donors')
-                ->join('communities', 'energy_donors.community_id', '=', 'communities.id')
-                ->join('donors', 'energy_donors.donor_id', '=', 'donors.id')
+            $householdDonors = DB::table('all_energy_meter_donors')
+                ->join('communities', 'all_energy_meter_donors.community_id', '=', 'communities.id')
+                ->join('donors', 'all_energy_meter_donors.donor_id', '=', 'donors.id')
+                ->where('all_energy_meter_donors.is_archived', 0)
                 ->where('donors.id', 1)
                 ->orWhere('donors.id', 2)
                 ->orWhere('donors.id', 3)
@@ -93,9 +97,10 @@ class DonorController extends Controller
                 ->get();
             $householdDonorsArray[] = ['Donor Name', 'Number'];
             
-            $otherDonors = DB::table('energy_donors')
-                ->join('communities', 'energy_donors.community_id', '=', 'communities.id')
-                ->join('donors', 'energy_donors.donor_id', '=', 'donors.id')
+            $otherDonors = DB::table('all_energy_meter_donors')
+                ->join('communities', 'all_energy_meter_donors.community_id', '=', 'communities.id')
+                ->join('donors', 'all_energy_meter_donors.donor_id', '=', 'donors.id')
+                ->where('all_energy_meter_donors.is_archived', 0)
                 ->where('donors.id', '!=', 1)
                 ->orWhere('donors.id', '!=', 2)
                 ->orWhere('donors.id', '!=', 3)
@@ -138,6 +143,7 @@ class DonorController extends Controller
                 ->join('donors', 'community_donors.donor_id', '=', 'donors.id')
                 ->join('service_types', 'community_donors.service_id', '=', 'service_types.id')
                 ->where('service_types.service_name', 'Water')
+                ->where('community_donors.is_archived', 0)
                 ->select(
                         DB::raw('donors.donor_name as donor_name'),
                         DB::raw('count(*) as number'))
@@ -155,6 +161,7 @@ class DonorController extends Controller
                 ->join('donors', 'community_donors.donor_id', '=', 'donors.id')
                 ->join('service_types', 'community_donors.service_id', '=', 'service_types.id')
                 ->where('service_types.service_name', 'Internet')
+                ->where('community_donors.is_archived', 0)
                 ->select(
                         DB::raw('donors.donor_name as donor_name'),
                         DB::raw('count(*) as number'))
@@ -167,11 +174,17 @@ class DonorController extends Controller
                 $arrayInternet[++$key] = [$value->donor_name, $value->number];
             }
 
-            $dataUserDonors= DB::table('h2o_user_donors')
-                ->join('donors', 'h2o_user_donors.donor_id', '=', 'donors.id')
+            $dataUserDonors= DB::table('all_water_holder_donors')
+                ->join('donors', 'all_water_holder_donors.donor_id', '=', 'donors.id')
+                ->join('all_water_holders', 'all_water_holder_donors.all_water_holder_id', 
+                    '=', 'all_water_holders.id')
+                ->join('h2o_users', 'all_water_holders.household_id', '=', 
+                    'h2o_users.household_id')
+                ->where('all_water_holder_donors.is_archived', 0)
+                ->whereNotNull('h2o_users.number_of_h20')
                 ->select(
-                        DB::raw('donors.donor_name as donor_name'),
-                        DB::raw('count(*) as number'))
+                    DB::raw('donors.donor_name as donor_name'),
+                    DB::raw('count(*) as number'))
                 ->groupBy('donors.donor_name')
                 ->get();
 
@@ -182,11 +195,16 @@ class DonorController extends Controller
                 $arrayUserDonors[++$key] = [$value->donor_name, $value->number];
             }
 
-            $dataGridDonors= DB::table('grid_user_donors')
-                ->join('donors', 'grid_user_donors.donor_id', '=', 'donors.id')
+            $dataGridDonors= DB::table('all_water_holder_donors')
+                ->join('donors', 'all_water_holder_donors.donor_id', '=', 'donors.id')
+                ->join('all_water_holders', 'all_water_holder_donors.all_water_holder_id', 
+                    '=', 'all_water_holders.id')
+                ->join('grid_users', 'all_water_holders.household_id', '=', 
+                    'grid_users.household_id')
+                ->where('all_water_holder_donors.is_archived', 0)
                 ->select(
-                        DB::raw('donors.donor_name as donor_name'),
-                        DB::raw('count(*) as number'))
+                    DB::raw('donors.donor_name as donor_name'),
+                    DB::raw('count(*) as number'))
                 ->groupBy('donors.donor_name')
                 ->get();
 

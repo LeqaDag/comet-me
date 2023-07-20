@@ -50,14 +50,9 @@ label, table {
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Products type</label>
-                                <select name="product_type_id" id="product_type_id" 
-                                    class="form-control" required>
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($products as $product)
-                                        <option value="{{$product->id}}">{{$product->name}}</option>
-                                    @endforeach
-                                </select>
+                                <label class='col-md-12 control-label'># of Families</label>
+                                <input type="number" name="number_of_household" class="form-control"
+                                    required>
                             </fieldset>
                         </div>
                     </div>
@@ -67,7 +62,7 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Region</label>
                                 <select name="region_id" id="selectedRegion" 
-                                    class="form-control" required>
+                                    class="selectpicker form-control" data-live-search="true"  required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($regions as $region)
                                     <option value="{{$region->id}}">
@@ -81,11 +76,27 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Sub Region</label>
                                 <select name="sub_region_id" id="selectedSubRegions" 
-                                class="form-control" disabled required>
+                                class="form-control"  disabled required>
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
                         </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Products type</label>
+                                <select name="product_type_id" id="product_type_id" 
+                                    class="selectpicker form-control" data-live-search="true"  
+                                    multiple >
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($products as $product)
+                                        <option value="{{$product->id}}">{{$product->name}}</option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Fallah</label>
@@ -96,9 +107,6 @@ label, table {
                                 </select>
                             </fieldset> 
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Bedouin</label>
@@ -120,7 +128,19 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
+                    </div>
 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Energy Sources</label>
+                                <select class="form-control" name="energy_source">
+                                    <option disabled selected>Choose one...</option>
+                                    <option value="Grid">Grid</option>
+                                    <option value="Old Solar System">Old Solar System</option>
+                                </select>
+                            </fieldset>
+                        </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Water Sources</label>
@@ -134,9 +154,6 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Demolition orders/demolitions </label>
@@ -246,7 +263,8 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Recommended system type</label>
-                                <select name="recommended_energy_system_id" class="form-control">
+                                <select name="recommended_energy_system_id[]" 
+                                    class="selectpicker form-control" multiple data-live-search="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($energyTypes as $energyType)
                                     <option value="{{$energyType->id}}">{{$energyType->name}}</option>

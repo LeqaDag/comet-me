@@ -70,7 +70,6 @@ class InitialCommunityController extends Controller
                         $detailsButton = "<a type='button' class='detailsCommunityButton' data-bs-toggle='modal' data-bs-target='#communityDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
     
                         return $detailsButton;
-       
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -90,14 +89,14 @@ class InitialCommunityController extends Controller
             }
     
             $communityRecords = Community::where("community_status_id", "1")->count();
-            $regions = Region::all();
-            $subregions = SubRegion::all();
-            $products = ProductType::all();
-            $energyTypes = EnergySystemType::all();
-            $settlements = Settlement::all();
-            $towns = Town::all();
-            $publicCategories = PublicStructureCategory::all();
-            $waterSources = WaterSource::all();
+            $regions = Region::where('is_archived', 0)->get();
+            $subregions = SubRegion::where('is_archived', 0)->get();
+            $products = ProductType::where('is_archived', 0)->get();
+            $energyTypes = EnergySystemType::where('is_archived', 0)->get();
+            $settlements = Settlement::where('is_archived', 0)->get();
+            $towns = Town::where('is_archived', 0)->get();
+            $publicCategories = PublicStructureCategory::where('is_archived', 0)->get();
+            $waterSources = WaterSource::where('is_archived', 0)->get();
     
             return view('employee.community.initial', compact('regions', 
                 'communityRecords', 'subregions', 'products', 'energyTypes',

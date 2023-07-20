@@ -4,10 +4,14 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class WaterMaintenanceExport implements FromCollection, WithHeadings, ShouldAutoSize
+class WaterMaintenanceExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+    WithStyles
 {
     protected $request;
 
@@ -28,22 +32,29 @@ class WaterMaintenanceExport implements FromCollection, WithHeadings, ShouldAuto
             ->join('communities', 'h2o_maintenance_calls.community_id', 'communities.id')
             ->join('maintenance_types', 'h2o_maintenance_calls.maintenance_type_id', 
                 '=', 'maintenance_types.id')
-            ->join('maintenance_h2o_actions', 'h2o_maintenance_calls.maintenance_h2o_action_id', 
-                '=', 'maintenance_h2o_actions.id')
+            ->join('h2o_maintenance_call_actions', 'h2o_maintenance_calls.id', 
+                'h2o_maintenance_call_actions.h2o_maintenance_call_id')
+            ->join('maintenance_h2o_actions', 'h2o_maintenance_call_actions.maintenance_h2o_action_id', 
+                'maintenance_h2o_actions.id')
             ->join('maintenance_statuses', 'h2o_maintenance_calls.maintenance_status_id', 
                 '=', 'maintenance_statuses.id')
             ->join('users', 'h2o_maintenance_calls.user_id', '=', 'users.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->select('households.english_name as english_name', 
+            ->where('h2o_maintenance_calls.is_archived', 0)
+            ->where('h2o_maintenance_call_actions.is_archived', 0)
+            ->select([
+                'households.english_name as english_name', 
                 'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'users.name as user_name', 
-                'maintenance_h2o_actions.maintenance_action_h2o',
-                'maintenance_h2o_actions.maintenance_action_h2o_english',
+                DB::raw('group_concat(maintenance_h2o_actions.maintenance_action_h2o_english)'),
+                DB::raw('group_concat(maintenance_h2o_actions.maintenance_action_h2o)'),
                 'maintenance_statuses.name', 'maintenance_types.type', 
-                'date_of_call', 'date_completed');
+                'date_of_call', 'date_completed', 'h2o_maintenance_calls.notes'
+            ])
+            ->groupBy('h2o_maintenance_calls.id');
 
         if($this->request->public) {
             $data->where("public_structures.public_structure_category_id1", $this->request->public)
@@ -69,6 +80,26 @@ class WaterMaintenanceExport implements FromCollection, WithHeadings, ShouldAuto
     {
         return ["Household Name", "Public Structure", "Community", "Region", "Sub Region", 
             "Recipient", "Action in English", "Action in Arabic", "Status", "Type", "Call Date",
-            "Completed Date"];
+            "Completed Date", "Notes"];
+    }
+
+    public function title(): string
+    {
+        return 'Water Maintenance Logs';
+    } 
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:M1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

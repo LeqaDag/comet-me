@@ -80,9 +80,13 @@ class AllWaterHolderController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $bsfStatus = BsfStatus::all();
-            $households = Household::all();
+            $households = Household::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $h2oStatus = H2oStatus::all();
     
             $data = DB::table('h2o_users')
@@ -102,9 +106,11 @@ class AllWaterHolderController extends Controller
                 $array[++$key] = [$value->name, $value->number];
             }
     
-            $gridLarge = GridUser::selectRaw('SUM(grid_integration_large) AS sumLarge')
+            $gridLarge = GridUser::where('grid_integration_large', '!=', 0)
+                ->selectRaw('SUM(grid_integration_large) AS sumLarge')
                 ->first();
-            $gridSmall = GridUser::selectRaw('SUM(grid_integration_small) AS sumSmall')
+            $gridSmall = GridUser::where('grid_integration_small', '!=', 0)
+                ->selectRaw('SUM(grid_integration_small) AS sumSmall')
                 ->first();
             
             $arrayGrid[] = ['Grid Integration', 'Total']; 

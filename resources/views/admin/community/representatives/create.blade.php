@@ -92,8 +92,8 @@
     $(document).on('change', '#communityChangesRep', function () {
         community_id = $(this).val();
    
-        $.ajax({
-            url: "ac-household/household/get_by_community/" + community_id,
+        $.ajax({ 
+            url: "household/get_by_community/" + community_id,
             method: 'GET',
             success: function(data) {
                 

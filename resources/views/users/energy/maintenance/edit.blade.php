@@ -178,6 +178,18 @@ label {
                         </fieldset>
                     </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Notes</label>
+                            <textarea name="notes" class="form-control" 
+                                style="resize:none" cols="20" rows="3">
+                                {{$energyMaintenance->notes}}
+                            </textarea>
+                        </fieldset>
+                    </div>
+                </div>
   
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">

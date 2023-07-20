@@ -88,7 +88,9 @@ class WaterUserController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $bsfStatus = BsfStatus::all();
             $households = Household::all();
             $h2oStatus = H2oStatus::all();
@@ -110,9 +112,11 @@ class WaterUserController extends Controller
                 $array[++$key] = [$value->name, $value->number];
             }
     
-            $gridLarge = GridUser::selectRaw('SUM(grid_integration_large) AS sumLarge')
+            $gridLarge = GridUser::where('grid_integration_large', '!=', 0)
+                ->selectRaw('SUM(grid_integration_large) AS sumLarge')
                 ->first();
-            $gridSmall = GridUser::selectRaw('SUM(grid_integration_small) AS sumSmall')
+            $gridSmall = GridUser::where('grid_integration_small', '!=', 0)
+                ->selectRaw('SUM(grid_integration_small) AS sumSmall')
                 ->first();
             
             $arrayGrid[] = ['Grid Integration', 'Total']; 
@@ -172,6 +176,7 @@ class WaterUserController extends Controller
     {
         $allWaterHolder = AllWaterHolder::findOrFail($id);
         $allWaterHolderDonors = DB::table('all_water_holder_donors')
+            ->where('all_water_holder_donors.is_archived', 0)
             ->where('all_water_holder_donors.all_water_holder_id', $id)
             ->join('donors', 'all_water_holder_donors.donor_id', '=', 'donors.id')
             ->select('donors.donor_name', 'all_water_holder_donors.all_water_holder_id')
@@ -204,7 +209,7 @@ class WaterUserController extends Controller
             $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
             $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
         }
-
+ 
         if($allWaterHolder->public_structure_id && $allWaterHolder->is_main == "No") {
 
             $h2oPublic = null;
@@ -606,10 +611,9 @@ class WaterUserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function getWaterUserByCommunity($community_id)
-    {
-        $households = DB::table('h2o_users')
-            ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
-            ->join('households', 'h2o_users.household_id', 'households.id')
+    { 
+        $households = DB::table('all_water_holders')
+            ->join('households', 'all_water_holders.household_id', 'households.id')
             ->where("households.community_id", $community_id)
             ->select('households.id as id', 'households.english_name')
             ->get();
@@ -620,9 +624,8 @@ class WaterUserController extends Controller
         } else {
 
             $html = '<option value="">Select...</option>';
-            $households = DB::table('h2o_users')
-                ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
-                ->join('households', 'h2o_users.household_id', 'households.id')
+            $households = DB::table('all_water_holders')
+                ->join('households', 'all_water_holders.household_id', 'households.id')
                 ->where("households.community_id", $community_id)
                 ->select('households.id as id', 'households.english_name')
                 ->get();
@@ -676,9 +679,9 @@ class WaterUserController extends Controller
      */
     public function getPublicByCommunity($community_id)
     {
-        $publics = DB::table('h2o_public_structures')
-            ->join('public_structures', 'h2o_public_structures.public_structure_id', '=', 'public_structures.id')
-            ->where("h2o_public_structures.community_id", $community_id)
+        $publics = DB::table('all_water_holders')
+            ->join('public_structures', 'all_water_holders.public_structure_id', '=', 'public_structures.id')
+            ->where("all_water_holders.community_id", $community_id)
             ->select('public_structures.id', 'public_structures.english_name')
             ->get();
       
@@ -688,9 +691,9 @@ class WaterUserController extends Controller
         } else {
 
             $html = '<option value="">Select...</option>';
-            $publics = DB::table('h2o_public_structures')
-                ->join('public_structures', 'h2o_public_structures.public_structure_id', '=', 'public_structures.id')
-                ->where("h2o_public_structures.community_id", $community_id)
+            $publics = DB::table('all_water_holders')
+                ->join('public_structures', 'all_water_holders.public_structure_id', '=', 'public_structures.id')
+                ->where("all_water_holders.community_id", $community_id)
                 ->select('public_structures.id', 'public_structures.english_name')
                 ->get();
 

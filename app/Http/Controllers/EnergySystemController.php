@@ -108,7 +108,9 @@ class EnergySystemController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $donors = Donor::paginate();
             $services = ServiceType::all();
     

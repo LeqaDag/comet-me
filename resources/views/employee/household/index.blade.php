@@ -1,7 +1,3 @@
-@php
-  $pricingModal = true;
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'households')
@@ -235,8 +231,9 @@ All<span class="text-muted fw-light"> Households</span>
                     @csrf
                     <div class="row">
                         <div class="col-xl-3 col-lg-3 col-md-3">
-                            <fieldset class="form-group">
-                                <select name="region" class="form-control">
+                            <fieldset class="form-group"> 
+                                <select name="region" class="selectpicker form-control" 
+                                    data-live-search="true">
                                     <option disabled selected>Search Region</option>
                                     @foreach($regions as $region)
                                     <option value="{{$region->id}}">
@@ -248,7 +245,8 @@ All<span class="text-muted fw-light"> Households</span>
                         </div>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="community" class="form-control">
+                                <select name="community" class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search Community</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -260,7 +258,8 @@ All<span class="text-muted fw-light"> Households</span>
                         </div>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="status" class="form-control">
+                                <select name="status" class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search Household Status</option>
                                     @foreach($householdStatuses as $householdStatus)
                                         <option value="{{$householdStatus->id}}">
@@ -273,7 +272,8 @@ All<span class="text-muted fw-light"> Households</span>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
                                 <select name="system_type"
-                                    class="form-control">
+                                    class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search System Type</option>
                                     @foreach($energySystemTypes as $energySystemType)
                                         <option value="{{$energySystemType->id}}">
@@ -328,6 +328,7 @@ All<span class="text-muted fw-light"> Households</span>
                         <th class="text-center">English Name</th>
                         <th class="text-center">Arabic Name</th>
                         <th class="text-center">Community</th>
+                        <th class="text-center">Refrigerator</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -338,6 +339,7 @@ All<span class="text-muted fw-light"> Households</span>
         </div>
     </div>
 </div>
+
 
 <script type="text/javascript">
     $(function () {
@@ -384,6 +386,7 @@ All<span class="text-muted fw-light"> Households</span>
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'name', name: 'name'},
+                { data: 'icon' },
                 { data: 'action' }
             ]
         });
@@ -446,14 +449,25 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#numberOfkitchens').html(response['structure'].number_of_kitchens);
                     $('#numberOfShelters').html(" ");
                     $('#numberOfShelters').html(response['structure'].number_of_animal_shelters);
-                    $('#izbih').html(" ");
-                    $('#izbih').html(response['communityHousehold'].is_there_izbih);
-                    $('#houseInTown').html(" ");
-                    $('#houseInTown').html(response['communityHousehold'].is_there_house_in_town);
-                    $('#howLong').html(" ");
-                    $('#howLong').html(response['communityHousehold'].how_long);
-                    $('#lengthOfStay').html(" ");
-                    $('#lengthOfStay').html(response['communityHousehold'].length_of_stay);
+                    
+                    if(response['communityHousehold']) {
+
+                        $('#izbih').html(" ");
+                        $('#izbih').html(response['communityHousehold'].is_there_izbih);
+                        $('#houseInTown').html(" ");
+                        $('#houseInTown').html(response['communityHousehold'].is_there_house_in_town);
+                        $('#howLong').html(" ");
+                        $('#howLong').html(response['communityHousehold'].how_long);
+                        $('#lengthOfStay').html(" ");
+                        $('#lengthOfStay').html(response['communityHousehold'].length_of_stay);
+                    }
+                    
+                    $('#energySourceHousehold').html(" ");
+                    $('#energySourceHousehold').html(response['household'].electricity_source);
+                    $('#energySourceSharedHousehold').html(" ");
+                    $('#energySourceSharedHousehold').html(response['household'].electricity_source_shared);
+                    $('#notesHousehold').html(" ");
+                    $('#notesHousehold').html(response['household'].notes);
                 }
             });
         });

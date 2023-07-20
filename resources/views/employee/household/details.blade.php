@@ -132,6 +132,22 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Energy Source: 
+                            <span class="spanDetails" id="energySourceHousehold">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <h6>
+                            Shared Energy Source: 
+                            <span class="spanDetails" id="energySourceSharedHousehold">
+                                
+                            </span>
+                        </h6>
+                    </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Water Service: 
@@ -147,6 +163,20 @@
                             Internet Service: 
                             <span class="spanDetails" id="internetServiceHousehold">
                                 
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <h5>Household Notes</h5>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                            Notes: 
+                            <span class="spanDetails" id="notesHousehold">
+                              
                             </span>
                         </h6>
                     </div>

@@ -37,6 +37,7 @@ class PublicMeters implements FromCollection, WithHeadings, WithTitle, ShouldAut
                 'all_energy_meter_donors.all_energy_meter_id')
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
                 'donors.id')
+            ->where('all_energy_meters.is_archived', 0)
             ->select('public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',

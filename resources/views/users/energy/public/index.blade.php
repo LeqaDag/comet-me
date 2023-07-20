@@ -219,6 +219,8 @@
                     $('#systemDatePublic').html(response['energyPublic'].installation_date);
                     $('#systemNotesPublic').html(response['energyPublic'].notes);
                     if(response['vendor']) $('#vendorDatePublic').html(response['vendor'].name);
+                    $('#installationTypePublic').html(" ");
+                    if(response['installationType']) $('#installationTypePublic').html(response['installationType'].type);
 
                     $('#donorsDetails').html(" ");
                     if(response['energyMeterDonors'] != []) {

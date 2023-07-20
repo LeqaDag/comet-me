@@ -62,7 +62,7 @@ class CommunityRepresentativeController extends Controller
                         '=', 'community_statuses.id')
                     ->join('community_roles', 'community_representatives.community_role_id', 
                         '=', 'community_roles.id')
-                    ->where('communities.is_archived', 0)
+                    ->where('community_representatives.is_archived', 0)
                     ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
                         'community_representatives.id as id', 'community_representatives.created_at as created_at', 
                         'community_representatives.updated_at as updated_at',
@@ -111,8 +111,10 @@ class CommunityRepresentativeController extends Controller
             }
 
     
-            $communities = Community::all();
-            $communityRoles = CommunityRole::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $communityRoles = CommunityRole::where('is_archived', 0)->get();
             
             return view('admin.community.representatives.index', compact('communities', 
                 'communityRoles'));
@@ -161,7 +163,6 @@ class CommunityRepresentativeController extends Controller
         $region = Region::where('id', $community->region_id)->first();
         $status = CommunityStatus::where('id', $community->community_status_id)->first();
         $role = CommunityRole::where('id', $representative->community_role_id)->first();
-
     
         $response['community'] = $community;
         $response['region'] = $region;
@@ -171,7 +172,10 @@ class CommunityRepresentativeController extends Controller
 
         
         $html = '<option disabled selected>Choose one...</option>';
-        $households = Household::where('community_id', $representative->community_id)->get();
+        $households = Household::where('community_id', $representative->community_id)
+            ->where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
         foreach ($households as $household) {
 
             $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
@@ -194,8 +198,10 @@ class CommunityRepresentativeController extends Controller
 
         $communityRepresentative = CommunityRepresentative::find($id);
 
-        if($communityRepresentative->delete()) {
+        if($communityRepresentative) {
 
+            $communityRepresentative->is_archived = 1;
+            $communityRepresentative->save();
             $response['success'] = 1;
             $response['msg'] = 'Community Representative Deleted successfully'; 
         } else {

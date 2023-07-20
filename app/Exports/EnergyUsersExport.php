@@ -29,6 +29,7 @@ class EnergyUsersExport implements FromCollection, WithHeadings, ShouldAutoSize
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->join('donors', 'energy_donors.donor_id', '=', 'donors.id')
+            ->where('all_energy_meters.is_archived', 0)
             ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
                 'communities.english_name as name', 'regions.english_name as region',
                 'sub_regions.english_name as sub_region',

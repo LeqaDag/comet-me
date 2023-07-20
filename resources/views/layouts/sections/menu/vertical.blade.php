@@ -1,7 +1,9 @@
-<ul class="menu-inner py-1">
+
+
+<ul class="menu-inner py-1" id="menu">
 
     <li class="menu-item">
-        <a href="{{url('home')}}" class="menu-link">
+        <a href="{{url('home')}}" class="dashboard menu-link">
             <i class="menu-icon tf-icons bx bx-tachometer"></i>
             <div>Dashboards</div>
         </a>
@@ -123,7 +125,13 @@
         </ul>
     </li>
    
-    
+    <li class="menu-item">
+        <a href="{{url('public')}}" class="dashboard menu-link">
+            <i class="menu-icon tf-icons bx bx-buildings"></i>
+            <div>Public Structures</div>
+        </a>
+    </li>
+
     <li class="menu-item">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-tachometer"></i>
@@ -367,3 +375,31 @@
     </li>
     @endif
 </ul>
+
+<script>
+
+    // $("#menu li").not($('#menu li menu-sub li a')).click(function (e) {
+    //     $('ul.menu-sub').not( $(this).children() ).slideDown();
+    //     $(this).children("ul.menu-sub").slideToggle();
+    //     e.stopPropagation()
+    // });
+
+    // var url = window.location.href; 
+    // parts = url.split("/"),
+    // last_part = parts[parts.length-1];
+
+    // if(last_part == "home") {
+    //     event.stopPropagation();
+    // }
+
+    // $(".menu-sub").on("click", function (event) {
+       
+
+        
+    //     //$('.menu-sub .menu-link').slideUp();
+    //     $(".menu-sub .menu-item").on("click", function (event) {
+    //         alert(5);
+            
+    //     });
+    // });
+</script>

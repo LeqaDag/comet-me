@@ -39,9 +39,11 @@
                                     <select name="misc" id="selectedWaterSystemType" 
                                         class="form-control" required>
                                         <option disabled selected>Choose one...</option>
-                                        <option value="new">New Community</option>
-                                        <option value="misc">MISC</option>
-                                        <option value="maintenance">Grid extension</option>
+                                        @foreach($installationTypes as $installationType)
+                                            <option value="{{$installationType->id}}">
+                                                {{$installationType->type}}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </fieldset>
                             </div>
@@ -203,6 +205,9 @@
                     $('#vendorDateUser').html(" ");
                     if(response['vendor']) $('#vendorDateUser').html(response['vendor'].name);
                     
+                    $('#installationTypeUser').html(" ");
+                    if(response['installationType']) $('#installationTypeUser').html(response['installationType'].type);
+
                     $('#donorsDetails').html(" ");
                     if(response['energyMeterDonors'] != []) {
                         for (var i = 0; i < response['energyMeterDonors'].length; i++) {

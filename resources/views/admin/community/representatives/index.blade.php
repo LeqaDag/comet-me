@@ -22,10 +22,10 @@
 @include('admin.community.representatives.edit')
 
 <div class="container">
-    <div class="card my-2">
+    <div class="card my-2 mx-auto" >
         <div class="card-body">
             <div class="card-header">
-               
+            
             </div>
 
             @if(Auth::guard('user')->user()->user_type_id == 1 ||

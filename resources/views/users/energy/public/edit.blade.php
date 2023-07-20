@@ -119,18 +119,15 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New/Old Community</label> 
-                            <select name='misc' class="form-control">
-                                @if($energyPublic->misc == 1)
-                                    <option selected disabled>MISC FBS</option>
-                                @else @if($energyPublic->misc == 0)
-                                    <option selected disabled>New Community</option>
-                                @else 
-                                    <option selected disabled>MG extension</option>
-                                @endif
-                                @endif
-                                <option value="0">New Community</option>
-                                <option value="1">MISC FBS</option>
-                                <option value="2">MG extension</option>
+                            <select name='installation_type_id' class="form-control">
+                                <option selected disabled>
+                                    {{$energyPublic->InstallationType->type}}
+                                </option>
+                                @foreach($installationTypes as $installationType)
+                                    <option value="{{$installationType->id}}">
+                                        {{$installationType->type}}
+                                    </option>
+                                @endforeach
                             </select> 
                         </fieldset> 
                     </div>
@@ -161,7 +158,7 @@
                         </fieldset> 
                     </div>
                 </div><hr>
-
+ 
                 <div class="row">
                     <h5>Donors</h5>
                 </div>

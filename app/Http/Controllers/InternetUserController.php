@@ -51,7 +51,7 @@ class InternetUserController extends Controller
                         'households.english_name as household_name',
                         'internet_statuses.name')
                     ->latest(); 
-    
+     
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -90,8 +90,12 @@ class InternetUserController extends Controller
                     ->make(true);
             }
     
-            $communities = Community::all();
-            $donors = Donor::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $donors = Donor::where('is_archived', 0)
+                ->orderBy('donor_name', 'ASC')
+                ->get();
     
             return view('users.internet.index', compact('communities', 'donors'));
             
@@ -99,6 +103,100 @@ class InternetUserController extends Controller
 
             return view('errors.not-found');
         }
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $allInternetHolder = InternetUser::findOrFail($id);
+
+        return response()->json($allInternetHolder);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $allInternetHolder = InternetUser::findOrFail($id);
+        $allInternetHolderDonors = InternetUserDonor::where("internet_user_id", $id)
+            ->where('is_archived', 0)->get();
+        $donors = Donor::where('is_archived', 0)->get();
+
+        return view('users.internet.all.edit', compact('allInternetHolder', 
+            'allInternetHolderDonors', 'donors'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $internetUser = InternetUser::findOrFail($id);
+
+        if($request->donors) {
+
+            for($i=0; $i < count($request->donors); $i++) {
+
+                $internetHolderDonor = new InternetUserDonor();
+                $internetHolderDonor->donor_id = $request->donors[$i];
+                $internetHolderDonor->internet_user_id = $id;
+                $internetHolderDonor->community_id = $internetUser->community_id;
+                $internetHolderDonor->save();
+            }
+        }
+
+        if($request->new_donors) {
+
+            for($i=0; $i < count($request->new_donors); $i++) {
+
+                $internetHolderDonor = new InternetUserDonor();
+                $internetHolderDonor->donor_id = $request->new_donors[$i];
+                $internetHolderDonor->internet_user_id = $id;
+                $internetHolderDonor->community_id = $internetUser->community_id;
+                $internetHolderDonor->save();
+            }
+        }
+
+        return redirect('/internet-user')->with('message', 'Internet User Updated Successfully!');
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetDonor(Request $request)
+    {
+        $id = $request->id;
+        $internetHolderDonor = InternetUserDonor::findOrFail($id);
+
+        if($internetHolderDonor) {
+
+            $internetHolderDonor->is_archived = 1;
+            $internetHolderDonor->save();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet Donor Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 
     /**

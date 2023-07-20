@@ -11,13 +11,14 @@
   Welcome {{Auth::guard('user')->user()->name}}  
 </h1> 
 
+
 <div class="card mb-4">
   <div class="card-body">
     <h5>Served Communities Energy</h5>
-    <div class="col-lg-12 col-md-12">
+    <div class="col-lg-12 col-md-12 col-sm-12">
       <div class="row">
-        <div class="col-sm-3 col-3 mb-4">
-          <div class="">
+        <div class="col-lg-3 col-sm-3 col-md-3 mb-4">
+          <div class="col">
             <div class="card-body text-center">
               <h2 class="mb-1">{{$regionNumbers}}</h2>
               <span class="text-muted">Regions</span>
@@ -29,8 +30,8 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-3 col-3 mb-4">
-          <div class="">
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
             <div class="card-body text-center">
               <h2 class="mb-1">{{$communityNumbers}}</h2>
               <span class="text-muted">Communitites</span>
@@ -42,8 +43,8 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-3 col-3 mb-4">
-          <div class="">
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
             <div class="card-body text-center">
               <h2 class="mb-1">{{$numberOfPeople->number_of_people}}</h2>
               <span class="text-muted">People</span>
@@ -55,8 +56,8 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-3 col-3 mb-4">
-          <div class="">
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
             <div class="card-body text-center">
               <h2 class="mb-1">{{$householdNumbers}}</h2>
               <span class="text-muted">Households</span>
@@ -73,8 +74,8 @@
 
     <div class="col-lg-12 col-md-12">
       <div class="row">
-        <div class="col-sm-3 col-3 mb-4">
-          <div class="">
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
             <div class="card-body text-center">
               <h2 class="mb-1">{{$numberOfMale->number_of_male}}</h2>
               <span class="text-muted">Male</span>
@@ -86,8 +87,8 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-3 col-3 mb-4">
-          <div class="">
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
             <div class="card-body text-center">
               <h2 class="mb-1">{{$numberOfFemale->number_of_female}}</h2>
               <span class="text-muted">Female</span>
@@ -99,8 +100,8 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-3 col-3 mb-4">
-          <div class="">
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
             <div class="card-body text-center">
               <h2 class="mb-1">{{$numberOfAdults->number_of_adults}}</h2>
               <span class="text-muted">Adults</span>
@@ -113,8 +114,8 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-3 col-3 mb-4">
-          <div class="">
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
             <div class="card-body text-center">
               <h2 class="mb-1">{{$numberOfChildren->number_of_children}}</h2>
               <span class="text-muted">Children</span>
@@ -126,6 +127,35 @@
             </div>
           </div>
         </div>
+
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$totalMgSystem->count()}}</h2>
+              <span class="text-muted">MG Systems</span>
+              <div class="">
+                <a type="button">
+                  <i class="bx bx-grid me-1 bx-lg text-success"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$totalFbsSystem->count()}}</h2>
+              <span class="text-muted">FBS Systems</span>
+              <div class="">
+                <a type="button">
+                  <i class="bx bx-sun me-1 bx-lg text-warning"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

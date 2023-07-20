@@ -40,9 +40,11 @@ label {
                             <select name="misc" id="selectedUserMisc" 
                                 class="form-control" required>
                                 <option disabled selected>Choose one...</option>
-                                <option value="0">New Community</option>
-                                <option value="1">MISC FBS</option> 
-                                <option value="2">MG extension</option>
+                                @foreach($installationTypes as $installationType)
+                                    <option value="{{$installationType->id}}">
+                                        {{$installationType->type}}
+                                    </option>
+                                @endforeach
                             </select>
                         </fieldset>
                     </div>
@@ -278,7 +280,7 @@ label {
                 $('#selectedUserHousehold').prop('disabled', false);
                 $('#selectedUserHousehold').html(data.html);
             }
-        });
+        }); 
 
         energy_type_id= $("#selectedEnergySystemType").val();
 

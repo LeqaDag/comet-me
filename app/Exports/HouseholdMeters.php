@@ -37,7 +37,9 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
                 'donors.id')
             // ->where('all_energy_meter_donors.donor_id', 1)
             // ->where('all_energy_meters.meter_case_id', 1)
-            ->select('households.english_name as english_name', 
+            ->where('household_meters.is_archived', 0)
+            ->select('households.english_name as english_name',
+                'household_meters.user_name',
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'households.number_of_male', 'households.number_of_female', 
@@ -77,7 +79,7 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function headings(): array
     {
-        return ["Shared User", "Community", "Region", "Sub Region", "Number of male", 
+        return ["Shared User", "Main User", "Community", "Region", "Sub Region", "Number of male", 
             "Number of Female", "Number of adults", "Number of children", "Phone number",
             "Donor"];
     }

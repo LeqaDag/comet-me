@@ -73,6 +73,7 @@ class AllWaterController extends Controller
                     ->leftJoin('water_network_users', 'households.id', 
                         '=', 'water_network_users.household_id')
                     ->LeftJoin('h2o_statuses', 'h2o_users.h2o_status_id', '=', 'h2o_statuses.id')
+                    ->where('all_water_holders.is_archived', 0)
                     ->select('all_water_holders.id as id', 'households.english_name', 
                         'h2o_users.number_of_h20', 'grid_users.grid_integration_large', 
                         'grid_users.large_date', 'grid_users.grid_integration_small', 
@@ -122,8 +123,8 @@ class AllWaterController extends Controller
                                 ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
                                 ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('h2o_statuses.status', 'LIKE', "%$search%")
-                                ->orWhere('grid_integration_large', 'LIKE', "%$search%")
-                                ->orWhere('grid_integration_small', 'LIKE', "%$search%");
+                                ->orWhere('grid_users.grid_integration_large', 'LIKE', "%$search%")
+                                ->orWhere('grid_users.grid_integration_small', 'LIKE', "%$search%");
                             });
                         }
                     })
@@ -131,14 +132,18 @@ class AllWaterController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::where('is_archived', 0)->get();
-            $bsfStatus = BsfStatus::all();
-            $households = Household::all();
-            $h2oStatus = H2oStatus::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $bsfStatus = BsfStatus::where('is_archived', 0)->get();
+            $households = Household::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $h2oStatus = H2oStatus::where('is_archived', 0)->get();
     
             $data = DB::table('h2o_users')
                 ->join('h2o_statuses', 'h2o_users.h2o_status_id', '=', 'h2o_statuses.id')
-                //->where('h2o_statuses.status', '!=', "Used")
+                ->where('h2o_users.is_archived', 0)
                 ->select(
                         DB::raw('h2o_statuses.status as name'),
                         DB::raw('count(*) as number'))
@@ -152,9 +157,13 @@ class AllWaterController extends Controller
                 $array[++$key] = [$value->name, $value->number];
             }
     
-            $gridLarge = GridUser::selectRaw('SUM(grid_integration_large) AS sumLarge')
+            $gridLarge = GridUser::where('grid_integration_large', '!=', 0)
+                ->where('is_archived', 0)
+                ->selectRaw('SUM(grid_integration_large) AS sumLarge')
                 ->first();
-            $gridSmall = GridUser::selectRaw('SUM(grid_integration_small) AS sumSmall')
+            $gridSmall = GridUser::where('grid_integration_small', '!=', 0)
+                ->where('is_archived', 0)
+                ->selectRaw('SUM(grid_integration_small) AS sumSmall')
                 ->first();
             
             $arrayGrid[] = ['Grid Integration', 'Total']; 
@@ -165,28 +174,36 @@ class AllWaterController extends Controller
             }
 
             $totalWaterHouseholds = Household::where("water_system_status", "Served")
+                ->where('is_archived', 0)
                 ->selectRaw('SUM(number_of_people) AS number_of_people')
                 ->first();
             $totalWaterMale = Household::where("water_system_status", "Served")
+                ->where('is_archived', 0)
                 ->selectRaw('SUM(number_of_male) AS number_of_male')
                 ->first(); 
             $totalWaterFemale = Household::where("water_system_status", "Served")
+                ->where('is_archived', 0)
                 ->selectRaw('SUM(number_of_female) AS number_of_female')
                 ->first(); 
             $totalWaterAdults = Household::where("water_system_status", "Served")
+                ->where('is_archived', 0)
                 ->selectRaw('SUM(number_of_adults) AS number_of_adults')
                 ->first();
             $totalWaterChildren = Household::where("water_system_status", "Served")
+                ->where('is_archived', 0)
                 ->selectRaw('SUM(number_of_children) AS number_of_children')
                 ->first();
     
-            $donors = Donor::all();
-            $energySystemTypes = EnergySystemType::all();
+            $donors = Donor::where('is_archived', 0)->get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
 
-            $h2oUsers = H2oUser::count();
-            $h2oSharedUsers = H2oSharedUser::count();
-            $gridUsers = GridUser::count();
-            $networkUsers = WaterNetworkUser::count();
+            $h2oUsers = H2oUser::where('is_archived', 0)->count();
+            $h2oSharedUsers = H2oSharedUser::where('is_archived', 0)->count();
+            $gridUsers = GridUser::where('grid_integration_large', '!=', 0)
+                ->orWhere('grid_integration_small', '!=', 0)
+                ->where('is_archived', 0)
+                ->count();
+            $networkUsers = WaterNetworkUser::where('is_archived', 0)->count();
 
             return view('users.water.all.index', compact('communities', 'bsfStatus', 'households', 
                 'h2oStatus', 'totalWaterHouseholds', 'totalWaterMale', 'totalWaterFemale',
@@ -222,7 +239,8 @@ class AllWaterController extends Controller
     public function edit($id)
     {
         $allWaterHolder = AllWaterHolder::findOrFail($id);
-        $allWaterHolderDonors = AllWaterHolderDonor::where("all_water_holder_id", $id)->get();
+        $allWaterHolderDonors = AllWaterHolderDonor::where("all_water_holder_id", $id)
+            ->where('is_archived', 0)->get();
    
         $h2oUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
         $gridUser = GridUser::where('household_id', $allWaterHolder->household_id)->first();
@@ -232,11 +250,15 @@ class AllWaterController extends Controller
         $h2oSharedPublic = H2oSharedPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
         $h2oSharedUser = H2oSharedUser::where("household_id", $allWaterHolder->household_id)->first();;
         
-        $communities = Community::where('is_archived', 0)->get();
-        $h2oStatuses = H2oStatus::all();
-        $bsfStatuses = BsfStatus::all();
-        $households = Household::where('community_id', $allWaterHolder->community_id)->get();
-        $donors = Donor::get();
+        $communities =  Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $h2oStatuses = H2oStatus::where('is_archived', 0)->get();
+        $bsfStatuses = BsfStatus::where('is_archived', 0)->get();
+        $households = Household::where('community_id', $allWaterHolder->community_id)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $donors = Donor::where('is_archived', 0)->get();
 
         return view('users.water.all.edit', compact('allWaterHolder', 'allWaterHolderDonors',
             'h2oPublic', 'gridPublic', 'households', 'h2oStatuses', 'communities', 'h2oUser',
@@ -359,74 +381,150 @@ class AllWaterController extends Controller
             $gridPublic->save();
         }
 
-
         if($request->donors) {
 
-            $h2oMainUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
-            if($h2oMainUser) {
+            if($allWaterHolder->public_structure_id) {
 
-                $sharedWaterUsers = H2oSharedUser::where('h2o_user_id', $h2oMainUser->id)->get();
+                $h2oMainPublic = H2oPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
 
-                if($sharedWaterUsers) {
+                if($h2oMainPublic) {
 
-                    foreach($sharedWaterUsers as $sharedWaterUser) {
+                    $sharedWaterPublics = H2oSharedPublicStructure::where('h2o_public_structure_id', $h2oMainPublic->id)
+                        ->where('is_archived', 0)->get();
 
-                        $allWaterHolder = AllWaterHolder::where('household_id', $sharedWaterUser->household_id)->first();
-                        for($i=0; $i < count($request->donors); $i++) {
-        
-                            $waterHolderDonor = new AllWaterHolderDonor();
-                            $waterHolderDonor->donor_id = $request->donors[$i];
-                            $waterHolderDonor->all_water_holder_id = $allWaterHolder->id;
-                            $waterHolderDonor->community_id = $allWaterHolder->community_id;
-                            $waterHolderDonor->save();
+                    if($sharedWaterPublics) {
+                        foreach($sharedWaterPublics as $sharedWaterPublic) {
+
+                            $sharedWaterHolder = AllWaterHolder::where('public_structure_id', $sharedWaterPublic->public_structure_id)->first();
+                            for($i=0; $i < count($request->donors); $i++) {
+            
+                                $waterHolderDonor = new AllWaterHolderDonor();
+                                $waterHolderDonor->donor_id = $request->donors[$i];
+                                $waterHolderDonor->all_water_holder_id = $sharedWaterHolder->id;
+                                $waterHolderDonor->community_id = $sharedWaterHolder->community_id;
+                                $waterHolderDonor->save();
+                            }
                         }
                     }
                 }
-            }
+
+                for($i=0; $i < count($request->donors); $i++) {
+        
+                    $waterHolderDonor = new AllWaterHolderDonor();
+                    $waterHolderDonor->donor_id = $request->donors[$i];
+                    $waterHolderDonor->all_water_holder_id = $allWaterHolder->id;
+                    $waterHolderDonor->community_id = $allWaterHolder->community_id;
+                    $waterHolderDonor->save();
+                } 
+            }   
             
+            if($allWaterHolder->household_id) {
 
-            for($i=0; $i < count($request->donors); $i++) {
+                $h2oMainUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
+                if($h2oMainUser) {
 
-                $waterHolderDonor = new AllWaterHolderDonor();
-                $waterHolderDonor->donor_id = $request->donors[$i];
-                $waterHolderDonor->all_water_holder_id = $id;
-                $waterHolderDonor->community_id = $allWaterHolder->community_id;
-                $waterHolderDonor->save();
+                    $sharedWaterUsers = H2oSharedUser::where('h2o_user_id', $h2oMainUser->id)
+                        ->where('is_archived', 0)->get();
+                    
+                    if($sharedWaterUsers) {
+
+                        foreach($sharedWaterUsers as $sharedWaterUser) {
+
+                            $sharedWaterHolder = AllWaterHolder::where('household_id', $sharedWaterUser->household_id)->first();
+                            for($i=0; $i < count($request->donors); $i++) {
+            
+                                $waterHolderDonor = new AllWaterHolderDonor();
+                                $waterHolderDonor->donor_id = $request->donors[$i];
+                                $waterHolderDonor->all_water_holder_id = $sharedWaterHolder->id;
+                                $waterHolderDonor->community_id = $sharedWaterHolder->community_id;
+                                $waterHolderDonor->save();
+                            }
+                        }
+                    }
+                }
+                
+                for($i=0; $i < count($request->donors); $i++) {
+
+                    $waterHolderDonor = new AllWaterHolderDonor();
+                    $waterHolderDonor->donor_id = $request->donors[$i];
+                    $waterHolderDonor->all_water_holder_id = $id;
+                    $waterHolderDonor->community_id = $allWaterHolder->community_id;
+                    $waterHolderDonor->save();
+                }
             }
         }
 
         if($request->new_donors) {
             
-            $h2oMainUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
-            if($h2oMainUser) {
+            if($allWaterHolder->public_structure_id) {
 
-                $sharedWaterUsers = H2oSharedUser::where('h2o_user_id', $h2oMainUser->id)->get();
+                $h2oMainPublic = H2oPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
 
-                if($sharedWaterUsers) {
+                if($h2oMainPublic) {
 
-                    foreach($sharedWaterUsers as $sharedWaterUser) {
+                    $sharedWaterPublics = H2oSharedPublicStructure::where('h2o_public_structure_id', $h2oMainPublic->id)
+                        ->where('is_archived', 0)->get();
 
-                        $allWaterHolder = AllWaterHolder::where('household_id', $sharedWaterUser->household_id)->first();
-                        for($i=0; $i < count($request->donors); $i++) {
-        
-                            $waterHolderDonor = new AllWaterHolderDonor();
-                            $waterHolderDonor->donor_id = $request->donors[$i];
-                            $waterHolderDonor->all_water_holder_id = $allWaterHolder->id;
-                            $waterHolderDonor->community_id = $allWaterHolder->community_id;
-                            $waterHolderDonor->save();
+                    if($sharedWaterPublics) {
+                        foreach($sharedWaterPublics as $sharedWaterPublic) {
+
+                            $sharedWaterHolder = AllWaterHolder::where('public_structure_id', $sharedWaterPublic->public_structure_id)->first();
+                            for($i=0; $i < count($request->new_donors); $i++) {
+            
+                                $waterHolderDonor = new AllWaterHolderDonor();
+                                $waterHolderDonor->donor_id = $request->new_donors[$i];
+                                $waterHolderDonor->all_water_holder_id = $sharedWaterHolder->id;
+                                $waterHolderDonor->community_id = $sharedWaterHolder->community_id;
+                                $waterHolderDonor->save();
+                            }
                         }
                     }
                 }
-            }
 
-            for($i=0; $i < count($request->new_donors); $i++) {
-
-                $waterHolderDonor = new AllWaterHolderDonor();
-                $waterHolderDonor->donor_id = $request->donors[$i];
-                $waterHolderDonor->all_water_holder_id = $id;
-                $waterHolderDonor->community_id = $allWaterHolder->community_id;
-                $waterHolderDonor->save();
+                for($i=0; $i < count($request->new_donors); $i++) {
+        
+                    $waterHolderDonor = new AllWaterHolderDonor();
+                    $waterHolderDonor->donor_id = $request->new_donors[$i];
+                    $waterHolderDonor->all_water_holder_id = $allWaterHolder->id;
+                    $waterHolderDonor->community_id = $allWaterHolder->community_id;
+                    $waterHolderDonor->save();
+                } 
+            }   
+            
+            if($allWaterHolder->household_id) {
+                $h2oMainUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
+                if($h2oMainUser) {
+    
+                    $sharedWaterUsers = H2oSharedUser::where('h2o_user_id', $h2oMainUser->id)
+                        ->where('is_archived', 0)->get();
+    
+                    if($sharedWaterUsers) {
+    
+                        foreach($sharedWaterUsers as $sharedWaterUser) {
+    
+                            $sharedWaterHolder = AllWaterHolder::where('household_id', $sharedWaterUser->household_id)->first();
+                            for($i=0; $i < count($request->new_donors); $i++) {
+            
+                                $waterHolderDonor = new AllWaterHolderDonor();
+                                $waterHolderDonor->donor_id = $request->new_donors[$i];
+                                $waterHolderDonor->all_water_holder_id = $sharedWaterHolder->id;
+                                $waterHolderDonor->community_id = $sharedWaterHolder->community_id;
+                                $waterHolderDonor->save();
+                            }
+                        }
+                    }
+                } 
+    
+                for($i=0; $i < count($request->new_donors); $i++) {
+    
+                    $waterHolderDonor = new AllWaterHolderDonor();
+                    $waterHolderDonor->donor_id = $request->new_donors[$i];
+                    $waterHolderDonor->all_water_holder_id = $id;
+                    $waterHolderDonor->community_id = $allWaterHolder->community_id;
+                    $waterHolderDonor->save();
+                }
             }
+            
         }
 
         return redirect('/all-water')->with('message', 'User Updated Successfully!');
@@ -446,11 +544,15 @@ class AllWaterController extends Controller
 
         $h2oMainUser = H2oUser::where("household_id", $mainWaterHolder->household_id)->first();
         
-        if($mainWaterDonor->delete()) {
+        if($mainWaterDonor) {
+
+            $mainWaterDonor->is_archived = 1;
+            $mainWaterDonor->save();
 
             if($h2oMainUser) {
 
-                $sharedWaterUsers = H2oSharedUser::where('h2o_user_id', $h2oMainUser->id)->get();
+                $sharedWaterUsers = H2oSharedUser::where('h2o_user_id', $h2oMainUser->id)
+                    ->where('is_archived', 0)->get();
     
                 if($sharedWaterUsers) {
     
@@ -460,7 +562,10 @@ class AllWaterController extends Controller
                         $sharedDonor = AllWaterHolderDonor::where("all_water_holder_id", $allWaterHolder->id)
                             ->where('donor_id', $mainWaterDonor->donor_id)
                             ->first();
-                        $sharedDonor->delete();
+                        if($sharedDonor) {
+                            $sharedDonor->is_archived = 1;
+                            $sharedDonor->save();
+                        }
                     }
                 }
             }

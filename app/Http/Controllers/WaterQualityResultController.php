@@ -96,6 +96,7 @@ class WaterQualityResultController extends Controller
                     ->leftJoin('households', 'water_quality_results.household_id', 'households.id')
                     ->leftJoin('public_structures', 'water_quality_results.public_structure_id', 
                         '=', 'public_structures.id')
+                    ->where('water_quality_results.is_archived', 0)
                     ->select('water_quality_results.id as id', 'households.english_name as household', 
                         'communities.english_name as community_name',
                         'water_quality_results.created_at as created_at',
@@ -137,8 +138,14 @@ class WaterQualityResultController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::where("water_service", "Yes")->get();
-            $households = Household::where("water_system_status", "Served")->get();
+            $communities = Community::where("water_service", "Yes")
+                ->where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $households = Household::where("water_system_status", "Served")
+                ->where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
     
             return view('results.water.index', compact('communities', 'households'));
             
@@ -183,14 +190,18 @@ class WaterQualityResultController extends Controller
 
             $households = DB::table('all_water_holders')
                 ->join('households', 'all_water_holders.household_id', 'households.id')
+                ->where('all_water_holders.is_archived', 0)
                 ->where("households.community_id", $community_id)
+                ->orderBy('households.english_name', 'ASC')
                 ->select('households.id as id', 'households.english_name')
                 ->get();
         } else if($flag == "shared") {
 
             $households = DB::table('h2o_shared_users')
                 ->join('households', 'h2o_shared_users.household_id', 'households.id')
+                ->where('h2o_shared_users.is_archived', 0)
                 ->where("households.community_id", $community_id)
+                ->orderBy('households.english_name', 'ASC')
                 ->select('households.id as id', 'households.english_name')
                 ->get();
 
@@ -198,6 +209,7 @@ class WaterQualityResultController extends Controller
 
             $households = DB::table('h2o_public_structures')
                 ->join('public_structures', 'h2o_public_structures.public_structure_id', 'public_structures.id')
+                ->where('h2o_public_structures.is_archived', 0)
                 ->where("h2o_public_structures.community_id", $community_id)
                 ->select('public_structures.id as id', 'public_structures.english_name')
                 ->get();
@@ -269,7 +281,10 @@ class WaterQualityResultController extends Controller
 
         $waterResult = WaterQualityResult::findOrFail($id);
 
-        if($waterResult->delete()) {
+        if($waterResult) {
+
+            $waterResult->is_archived = 1;
+            $waterResult->save();
 
             $response['success'] = 1;
             $response['msg'] = 'Water Result Deleted successfully'; 
@@ -374,7 +389,7 @@ class WaterQualityResultController extends Controller
     public function summary($year)
     {
         $results = WaterQualityResult::where("year", $year)->get();
-        die($results);
+       // die($results);
 
         $response['result'] = $result;
         $response['community'] = $community;

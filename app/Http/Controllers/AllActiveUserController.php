@@ -56,6 +56,7 @@ class AllActiveUserController extends Controller
             if ($request->ajax()) {
 
                 $data = DB::table('households')
+                    ->where('households.is_archived', 0)
                     ->join('communities', 'households.community_id', '=', 'communities.id')
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
                     ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
@@ -89,9 +90,11 @@ class AllActiveUserController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::where('is_archived', 0)->get();
-            $energySystemTypes = EnergySystemType::all();
-            $regions = Region::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $regions = Region::where('is_archived', 0)->get();
 
             return view('users.all.index', compact('communities', 'energySystemTypes', 'regions'));
         } else {

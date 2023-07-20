@@ -37,6 +37,7 @@ class ServedHouseholdController extends Controller
             
                 $data = DB::table('households')
                     ->where('households.household_status_id', 4)
+                    ->where('households.is_archived', 0)
                     ->join('communities', 'households.community_id', '=', 'communities.id')
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
                     ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
@@ -69,6 +70,7 @@ class ServedHouseholdController extends Controller
     
             $dataHouseholdsByCommunity = DB::table('households')
                 ->where('households.household_status_id', 4)
+                ->where('households.is_archived', 0)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
                 ->select(

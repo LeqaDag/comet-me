@@ -127,17 +127,14 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New/Old Community</label> 
                             <select name='misc' class="form-control">
-                                @if($energyUser->misc == 1)
-                                    <option selected disabled>MISC FBS</option>
-                                @else @if($energyUser->misc == 2)
-                                    <option selected disabled>MG extension</option>
-                                @else 
-                                    <option selected disabled>New Community</option>
-                                @endif
-                                @endif
-                                <option value="0">New Community</option>
-                                <option value="1">MISC FBS</option>
-                                <option value="2">MG extension</option>
+                                <option value="">
+                                    {{$energyUser->InstallationType->type}}
+                                </option>
+                                @foreach($installationTypes as $installationType)
+                                    <option value="{{$installationType->id}}">
+                                        {{$installationType->type}}
+                                    </option>
+                                @endforeach
                             </select> 
                         </fieldset> 
                     </div>

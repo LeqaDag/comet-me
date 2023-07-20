@@ -72,6 +72,7 @@ class HomeController extends Controller
         if (Auth::guard('user')->user() != null) {
             
             $mgIncidentsYear = DB::table('mg_incidents')
+                ->where('mg_incidents.is_archived', 0)
                 ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
                 ->select('incidents.english_name as name', 'mg_incidents.year')
                 ->selectRaw('count(*) as number')
@@ -79,6 +80,7 @@ class HomeController extends Controller
                 ->get();
 
             $fbsIncidentsYear = DB::table('fbs_user_incidents')
+                ->where('fbs_user_incidents.is_archived', 0)
                 ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
                 ->select('incidents.english_name as name', 'fbs_user_incidents.year')
                 ->selectRaw('count(*) as number')
@@ -86,6 +88,7 @@ class HomeController extends Controller
                 ->get();
 
             $h2oIncidentsYear = DB::table('h2o_system_incidents')
+                ->where('h2o_system_incidents.is_archived', 0)
                 ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
                 ->select('incidents.english_name as name', 'h2o_system_incidents.year')
                 ->selectRaw('count(*) as number')
@@ -93,6 +96,7 @@ class HomeController extends Controller
                 ->get();
 
             $allIncidents = DB::table('mg_incidents')
+                ->where('mg_incidents.is_archived', 0)
                 ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
                 ->leftJoin('fbs_user_incidents', 'mg_incidents.incident_id', '=', 
                     'fbs_user_incidents.incident_id')
@@ -102,10 +106,6 @@ class HomeController extends Controller
                     'fbs_user_incidents.year as fbs_year', 'h2o_system_incidents.year as h2o_year')
                 ->get();
                 
-        
-            $meterLists = MeterList::where("energy_user_id", 0)->get();
-            $meterListCount = MeterList::where("energy_user_id", 0)
-                ->count();
 
             $energyMeter = AllEnergyMeter::all();
             $energyUserCount = AllEnergyMeter::count();
@@ -114,51 +114,64 @@ class HomeController extends Controller
                 ->where("community_status_id", 3)
                 ->count();
             $householdNumbers = Household::where('internet_holder_young', 0)
+                ->where('is_archived', 0)
                 ->where('energy_system_status', 'Served')
                 ->count();
-            $regionNumbers = Region::count();
-
-            $h2oUsersNumbers = H2oUser::count();
-            $h2oSharedNumbers = H2oSharedUser::count();
-            $gridUsersNumber = GridUser::count();
+            $regionNumbers = Region::where('is_archived', 0)->count();
+ 
+            $h2oUsersNumbers = H2oUser::where('is_archived', 0)->count();
+            $h2oSharedNumbers = H2oSharedUser::where('is_archived', 0)->count();
+            $gridUsersNumber = GridUser::where('is_archived', 0)->count();
     
             $totalH2oUsers = $h2oUsersNumbers + $h2oSharedNumbers;
 
-            $gridLarge = GridUser::selectRaw('SUM(grid_integration_large) AS sum')
+            $gridLarge = GridUser::where('is_archived', 0)
+                ->where('grid_integration_large', '!=', 0)
+                ->selectRaw('SUM(grid_integration_large) AS sum')
                 ->first();
-            $gridSmall = GridUser::selectRaw('SUM(grid_integration_small) AS sum')
+            $gridSmall = GridUser::where('is_archived', 0)
+                ->where('grid_integration_small', '!=', 0)
+                ->selectRaw('SUM(grid_integration_small) AS sum')
                 ->first();
-            $h2oNumber = H2oUser::selectRaw('SUM(number_of_h20) AS sum')
+            $h2oNumber = H2oUser::where('is_archived', 0)
+                ->selectRaw('SUM(number_of_h20) AS sum')
                 ->first();
 
             $numberOfPeople = Household::where('energy_system_status', 'Served')
                 ->where('internet_holder_young', 0)
+                ->where('is_archived', 0)
                 ->selectRaw('SUM(number_of_people) AS number_of_people')
                 ->first();
             $numberOfMale = Household::selectRaw('SUM(number_of_male) AS number_of_male')
-                 ->where('energy_system_status', 'Served')
+                ->where('energy_system_status', 'Served')
+                ->where('is_archived', 0)
                 ->where('internet_holder_young', 0)
                 ->first();
             $numberOfFemale = Household::selectRaw('SUM(number_of_female) AS number_of_female')
-                 ->where('energy_system_status', 'Served')
+                ->where('energy_system_status', 'Served')
+                ->where('is_archived', 0)
                 ->where('internet_holder_young', 0)
                 ->first();
             $numberOfAdults = Household::selectRaw('SUM(number_of_adults) AS number_of_adults')
-                 ->where('energy_system_status', 'Served')
+                ->where('energy_system_status', 'Served')
+                ->where('is_archived', 0)
                 ->where('internet_holder_young', 0)
                 ->first();
             $numberOfChildren = Household::selectRaw('SUM(number_of_children) AS number_of_children')
-                 ->where('energy_system_status', 'Served')
+                ->where('energy_system_status', 'Served')
+                ->where('is_archived', 0)
                 ->where('internet_holder_young', 0)
                 ->first();
             $systemHoldersNumber = Household::where("energy_service", "Yes")
-                 ->where('energy_system_status', 'Served')
+                ->where('energy_system_status', 'Served')
+                ->where('is_archived', 0)
                 ->orWhere("water_service", "Yes")
                 ->count();
 
-            $mgIncidentsNumber = MgIncident::count();
+            $mgIncidentsNumber = MgIncident::where('is_archived', 0)->count();
 
             $initialYearEnergy = DB::table('communities')
+                ->where('communities.is_archived', 0)
                 ->whereNotNull("communities.energy_service_beginning_year")
                 ->select(
                     DB::raw('communities.energy_service_beginning_year as energy_service_beginning_year'),
@@ -174,6 +187,7 @@ class HomeController extends Controller
             }
 
             $initialYearWater = DB::table('communities')
+                ->where('communities.is_archived', 0)
                 ->whereNotNull("communities.water_service_beginning_year")
                 ->select(
                         DB::raw('communities.water_service_beginning_year as water_service_beginning_year'),
@@ -189,6 +203,7 @@ class HomeController extends Controller
             }
 
             $initialYearInternet = DB::table('communities')
+                ->where('communities.is_archived', 0)
                 ->whereNotNull("communities.internet_service_beginning_year")
                 ->select(
                         DB::raw('communities.internet_service_beginning_year as internet_service_beginning_year'),
@@ -204,9 +219,11 @@ class HomeController extends Controller
             }
 
             $communitiesMasafers = Community::where("sub_sub_region_id", 1)
+                ->where('is_archived', 0)
                 ->where("community_status_id", 3)
                 ->get();
             $communitiesMasafersCount = Community::where("sub_sub_region_id", 1)
+                ->where('is_archived', 0)
                 ->where("community_status_id", 3)
                 ->count();
             $countHouseholds = 0;
@@ -219,6 +236,7 @@ class HomeController extends Controller
 
             foreach($communitiesMasafers as $communitiesMasafer) {
                 $householdsCount = H2oUser::where('community_id', $communitiesMasafer->id)
+                    ->where('is_archived', 0)
                     ->count();
 
                 $countH2oUsers+=$householdsCount;
@@ -226,6 +244,7 @@ class HomeController extends Controller
 
             foreach($communitiesMasafers as $communitiesMasafer) {
                 $householdsCount = GridUser::where('community_id', $communitiesMasafer->id)
+                    ->where('is_archived', 0)
                     ->count();
 
                 $countGridUsers+=$householdsCount;
@@ -233,6 +252,7 @@ class HomeController extends Controller
 
             foreach($communitiesMasafers as $communitiesMasafer) {
                 $householdsCount = Household::where('community_id', $communitiesMasafer->id)
+                    ->where('is_archived', 0)
                     ->count();
 
                 $countHouseholds+=$householdsCount;
@@ -240,6 +260,7 @@ class HomeController extends Controller
 
             foreach($communitiesMasafers as $communitiesMasafer) {
                 $energyUsers = AllEnergyMeter::where('community_id', $communitiesMasafer->id)
+                    ->where('is_archived', 0)
                     ->count();
 
                 $countEnergyUsers+=$energyUsers;
@@ -247,12 +268,14 @@ class HomeController extends Controller
 
             foreach($communitiesMasafers as $community) {
                 $InternetCount = InternetUser::where('community_id', $community->id)
+                    ->where('is_archived', 0)
                     ->count();
 
                 $countInternetUsers+= $InternetCount;
             }
 
             $countMgSystem =  DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
                 ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
                 ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
@@ -265,6 +288,7 @@ class HomeController extends Controller
                 ->get();
 
             $countFbsSystem =  DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
                 ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
                 ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
@@ -273,6 +297,7 @@ class HomeController extends Controller
                 ->get();
 
             $dataIncidents = DB::table('mg_incidents')
+                ->where('mg_incidents.is_archived', 0)
                 ->join('communities', 'mg_incidents.community_id', '=', 'communities.id')
                 ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
                 ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
@@ -291,8 +316,29 @@ class HomeController extends Controller
                 $arrayIncidents[++$key] = [$value->name, $value->number];
             }
 
+            $totalMgSystem =  DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
+                ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
+                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
+                ->where('all_energy_meters.energy_system_type_id', 1)
+                ->select(
+                    DB::raw('energy_systems.name as name'),
+                    DB::raw('count(*) as number'))
+                ->groupBy('energy_systems.name')
+                ->get();
+
+            $totalFbsSystem =  DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
+                ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
+                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->get();
+
             // Cumulative sum
             $totals = DB::table('communities')
+                ->where('communities.is_archived', 0)
                 ->whereNotNull("communities.energy_service_beginning_year")
                 ->select(
                     DB::raw('communities.energy_service_beginning_year as energy_service_beginning_year'),
@@ -312,6 +358,7 @@ class HomeController extends Controller
 
             // Cumulative sum water
             $totalWater = DB::table('communities')
+                ->where('communities.is_archived', 0)
                 ->whereNotNull("communities.water_service_beginning_year")
                 ->select(
                     DB::raw('communities.water_service_beginning_year as water_service_beginning_year'),
@@ -331,6 +378,7 @@ class HomeController extends Controller
 
             // Cumulative sum Internet
             $totalInternet = DB::table('communities')
+                ->where('communities.is_archived', 0)
                 ->whereNotNull("communities.internet_service_beginning_year")
                 ->select(
                     DB::raw('communities.internet_service_beginning_year as internet_service_beginning_year'),
@@ -348,27 +396,34 @@ class HomeController extends Controller
                 [$value->internet_service_beginning_year, $sumInternet];
             }
 
-            $energyUsers = AllEnergyMeter::where("meter_case_id", 1)->count();
-            $sharedEnergy = HouseholdMeter::count();
-            $InternetUsers = InternetUser::count() * 5;
+            $energyUsers = AllEnergyMeter::where("meter_case_id", 1)
+                ->where('is_archived', 0)
+                ->count();
+            $sharedEnergy = HouseholdMeter::where('is_archived', 0)->count();
+            $InternetUsers = InternetUser::where('is_archived', 0)->count() * 5;
 
             $energyUsers += $sharedEnergy;
             // total of served households energyUsers/servedHouseholds
-            $servedHouseholdCount = Household::where('household_status_id', 4)->count();
+            $servedHouseholdCount = Household::where('household_status_id', 4)
+                ->where('is_archived', 0)
+                ->count();
 
-            $waterNetworkUsers = WaterNetworkUser::count();
+            $waterNetworkUsers = WaterNetworkUser::where('is_archived', 0)->count();
     
-            $activeInternetCommuntiies = Community::where('internet_service', 'Yes');
+            $activeInternetCommuntiies = Community::where('internet_service', 'Yes')
+                ->where('is_archived', 0);
 
             $activeInternetCommuntiiesCount = $activeInternetCommuntiies->count();
 
             $InternetUsersCounts = DB::table('internet_users')
+                ->where('internet_users.is_archived', 0)
                 ->join('households', 'internet_users.household_id', 'households.id')
                 ->join('communities', 'internet_users.community_id', 'communities.id')
                 ->where('communities.internet_service', 'Yes')
                 ->whereNotNull('internet_users.household_id');
 
             $InternetPublicCount = DB::table('internet_users')
+                ->where('internet_users.is_archived', 0)
                 ->join('communities', 'internet_users.community_id', 'communities.id')
                 ->where('communities.internet_service', 'Yes')
                 ->whereNull('internet_users.household_id')
@@ -378,7 +433,9 @@ class HomeController extends Controller
          
             foreach($activeInternetCommuntiies->get() as $activeInternetCommuntiy) 
             {
-                $allInternetPeople+= Household::where('community_id', $activeInternetCommuntiy->id)->count();
+                $allInternetPeople+= Household::where('community_id', $activeInternetCommuntiy->id)
+                    ->where('is_archived', 0)
+                    ->count();
             }
 
             // percentage of how many internet contract holders we have out of 
@@ -390,6 +447,7 @@ class HomeController extends Controller
                 ->count();
 
             $youngInternetHolders = DB::table('internet_users')
+                ->where('internet_users.is_archived', 0)
                 ->join('households', 'internet_users.household_id', 'households.id')
                 ->join('communities', 'internet_users.community_id', 'communities.id')
                 ->where('communities.internet_service', 'Yes')
@@ -406,7 +464,8 @@ class HomeController extends Controller
                 'countInternetUsers', 'energyUsers', 'InternetUsers', 'totalH2oUsers',
                 'servedHouseholdCount', 'waterNetworkUsers', 'internetPercentage', 
                 'activeInternetCommuntiies', 'allInternetPeople', 'allInternetUsersCounts',
-                'InternetPublicCount', 'activeInternetCommuntiiesCount', 'youngInternetHolders'))
+                'InternetPublicCount', 'activeInternetCommuntiiesCount', 'youngInternetHolders',
+                'totalMgSystem', 'totalFbsSystem'))
                 ->with(
                     'initialYearEnergyData', json_encode($arrayYearEnergy))
                 ->with(
@@ -465,6 +524,7 @@ class HomeController extends Controller
         $status_id = $statusMg->id;
 
         $dataIncidents = DB::table('mg_incidents')
+            ->where('mg_incidents.is_archived', 0)
             ->join('communities', 'mg_incidents.community_id', '=', 'communities.id')
             ->join('energy_systems', 'mg_incidents.energy_system_id', '=', 'energy_systems.id')
             ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')

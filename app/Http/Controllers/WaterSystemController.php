@@ -150,7 +150,9 @@ class WaterSystemController extends Controller
     public function create()
     {
         $waterSystemTypes = WaterSystemType::all();
-        $communities = Community::where("is_archived", 0)->get();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
 
         return view('system.water.create', compact('waterSystemTypes', 'communities'));
     }
@@ -176,7 +178,9 @@ class WaterSystemController extends Controller
             $waterSystem->community_id = $request->community_id;
             $waterSystem->save();
 
-            $households = Household::where("community_id", $request->community_id)->get();
+            $households = Household::where("community_id", $request->community_id)
+                ->orderBy('english_name', 'ASC')
+                ->get();
 
             foreach($households as $household) {
 

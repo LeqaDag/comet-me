@@ -4,11 +4,14 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class ActiveInternetUsers implements FromCollection, WithHeadings, ShouldAutoSize, WithTitle
+class ActiveInternetUsers implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+    WithStyles
 {
 
     protected $request;
@@ -32,6 +35,7 @@ class ActiveInternetUsers implements FromCollection, WithHeadings, ShouldAutoSiz
             ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
             ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('households.internet_system_status', "Served")
+            ->where('internet_users.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'households.arabic_name as arabic_name', 
                 'communities.english_name as community_name',
@@ -71,5 +75,20 @@ class ActiveInternetUsers implements FromCollection, WithHeadings, ShouldAutoSiz
     public function title(): string
     {
         return 'Internet Users';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:H1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

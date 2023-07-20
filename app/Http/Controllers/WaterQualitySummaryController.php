@@ -53,6 +53,7 @@ class WaterQualitySummaryController extends Controller
             $results = DB::table('water_quality_results')
                 ->join('communities', 'water_quality_results.community_id', 'communities.id')
                 ->groupBy('water_quality_results.year', 'communities.english_name')
+                ->where('water_quality_results.is_archived', 0)
                 ->select('communities.english_name as community_name',
                     'water_quality_results.date', 'water_quality_results.year',
                     'water_quality_results.created_at','water_quality_results.id',
@@ -61,8 +62,14 @@ class WaterQualitySummaryController extends Controller
                 ->get();
            // die($results);
 
-            $communities = Community::where("water_service", "Yes")->get();
-            $households = Household::where("water_system_status", "Served")->get();
+            $communities = Community::where("water_service", "Yes")
+                ->orderBy('english_name', 'ASC')
+                ->where('is_archived', 0)
+                ->get();
+            $households = Household::where("water_system_status", "Served")
+                ->where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
 
             return view('results.summary.index', compact('results', 'communities', 'households'));
 
@@ -82,6 +89,7 @@ class WaterQualitySummaryController extends Controller
     {
         $dataResultCfu = DB::table('water_quality_results')
             ->join('communities', 'water_quality_results.community_id', '=', 'communities.id')
+            ->where('water_quality_results.is_archived', 0)
             ->select(
                 DB::raw('water_quality_results.cfu as cfu'),
                 DB::raw('count(*) as number'),

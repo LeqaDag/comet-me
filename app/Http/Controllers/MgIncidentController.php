@@ -45,6 +45,7 @@ class MgIncidentController extends Controller
                     ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
                     ->join('incident_status_mg_systems', 'mg_incidents.incident_status_mg_system_id', 
                         '=', 'incident_status_mg_systems.id')
+                    ->where('mg_incidents.is_archived', 0)
                     ->select('mg_incidents.date', 'mg_incidents.year',
                         'mg_incidents.id as id', 'mg_incidents.created_at as created_at', 
                         'mg_incidents.updated_at as updated_at', 
@@ -90,12 +91,18 @@ class MgIncidentController extends Controller
                     ->make(true);
             }
     
-            $communities = Community::all();
-            $energySystems = EnergySystem::where('energy_system_type_id',1)->get();
-            $incidents = Incident::all();
-            $mgIncidents = IncidentStatusMgSystem::all();
-            $mgIncidentsNumber = MgIncident::count();
-            $donors = Donor::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $energySystems = EnergySystem::where('energy_system_type_id',1)
+                ->where('is_archived', 0)
+                ->get();
+            $incidents = Incident::where('is_archived', 0)->get();
+            $mgIncidents = IncidentStatusMgSystem::where('is_archived', 0)->get();
+            $mgIncidentsNumber = MgIncident::where('is_archived', 0)->count();
+            $donors = Donor::where('is_archived', 0)
+                ->orderBy('donor_name', 'ASC')
+                ->get();
     
             $dataIncidents = DB::table('mg_incidents')
                 ->join('communities', 'mg_incidents.community_id', '=', 'communities.id')
@@ -104,6 +111,7 @@ class MgIncidentController extends Controller
                 ->join('incident_status_mg_systems', 'mg_incidents.incident_status_mg_system_id', 
                     '=', 'incident_status_mg_systems.id')
                 ->where('incident_status_mg_systems.incident_id', "=",  4)
+                ->where('mg_incidents.is_archived', 0)
                 ->select(
                     DB::raw('incident_status_mg_systems.name as name'),
                     DB::raw('count(*) as number'))
@@ -200,10 +208,12 @@ class MgIncidentController extends Controller
     public function edit($id) 
     {
         $mgIncident = MgIncident::findOrFail($id);
-        $communities = Community::where('is_archived', 0)->get();
-        $energySystems = EnergySystem::all();
-        $incidents = Incident::all();
-        $mgIncidents = IncidentStatusMgSystem::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $energySystems = EnergySystem::where('is_archived', 0)->get();
+        $incidents = Incident::where('is_archived', 0)->get();
+        $mgIncidents = IncidentStatusMgSystem::where('is_archived', 0)->get();
 
         return view('incidents.mg.edit', compact('mgIncident', 'communities', 'energySystems', 
             'incidents', 'mgIncidents'));
@@ -248,8 +258,11 @@ class MgIncidentController extends Controller
 
         $mgIncident = MgIncident::find($id);
 
-        if($mgIncident->delete()) {
+        if($mgIncident) {
 
+            $mgIncident->is_archived = 1;
+            $mgIncident->save();
+            
             $response['success'] = 1;
             $response['msg'] = 'MG Incident Deleted successfully'; 
         } else {

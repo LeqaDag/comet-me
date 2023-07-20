@@ -49,7 +49,7 @@ class HouseholdMeterController extends Controller
                     ->join('all_energy_meters', 'household_meters.energy_user_id', '=', 'all_energy_meters.id')
                     ->join('households', 'household_meters.household_id', '=', 'households.id')
                     ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
-                   // ->where('all_energy_meters.meter_active', 'Yes')
+                    ->where('household_meters.is_archived', 0)
                     ->select('communities.english_name as community_name',
                         'household_meters.id as id', 'household_meters.created_at',
                         'household_meters.updated_at',
@@ -93,9 +93,12 @@ class HouseholdMeterController extends Controller
                     ->make(true);
             }
     
-            $communities = Community::all();
-            $households = DB::table('energy_users')
-                ->join('households', 'energy_users.household_id', '=', 'households.id')
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $households = DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
+                ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
                 ->get();
     
             return view('users.energy.shared.index', compact('communities', 'households'));
@@ -129,6 +132,39 @@ class HouseholdMeterController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
+    public function getUsers($id)
+    {
+        $community = Community::findOrFail($id);
+
+        if (!$id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option selected>Choose One...</option>';
+            $users = DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meters.community_id', $community->id)
+                ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
+                ->orderBy('households.english_name', 'ASC')
+                ->select('all_energy_meters.id', 'households.english_name')
+                ->get();
+
+            foreach ($users as $user) {
+                $html .= '<option value="'.$user->id.'">'.$user->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+
+    /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
     public function getHouseholds($id)
     {
         $energyUser = AllEnergyMeter::findOrFail($id);
@@ -141,6 +177,8 @@ class HouseholdMeterController extends Controller
             $html = '<option selected>Choose One...</option>';
             $households = Household::where('community_id', $energyUser->community_id)
                 ->where('id', '!=', $energyUser->household_id)
+                ->where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
                 ->get();
             foreach ($households as $household) {
                 $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
@@ -158,9 +196,9 @@ class HouseholdMeterController extends Controller
      */
     public function store(Request $request)
     {
-        $energyUser = AllEnergyMeter::where('household_id', $request->energy_user_id)->first();
+        $energyUser = AllEnergyMeter::where('id', $request->energy_user_id)->first();
         $household = Household::findOrFail($energyUser->household_id);
-     
+        
         $householdMeter = new HouseholdMeter();
         $householdMeter->user_name = $household->english_name;
         $householdMeter->user_name_arabic = $household->arabic_name;
@@ -183,8 +221,11 @@ class HouseholdMeterController extends Controller
 
         $householdMeter = HouseholdMeter::find($id);
 
-        if($householdMeter->delete()) {
+        if($householdMeter) {
 
+            $householdMeter->is_archived = 1;
+            $householdMeter->save();
+            
             $response['success'] = 1;
             $response['msg'] = 'Household Meter Deleted successfully'; 
         } else {

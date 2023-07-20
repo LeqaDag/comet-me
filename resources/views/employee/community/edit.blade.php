@@ -4,19 +4,27 @@
 
 @extends('layouts/layoutMaster')
 
-@section('title', 'edit household')
+@section('title', 'edit community')
 
 @include('layouts.all')
 
 <style>
-    label, input {
+    label, input{
     display: block;
 }
-
+.dropdown-toggle{
+        height: 40px;
+        
+    }
 label {
     margin-top: 20px;
 }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> {{$community->english_name}}
@@ -49,7 +57,7 @@ label {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Region</label>
                                 <select name="region_id" id="selectedRegion" 
-                                    class="form-control" required>
+                                    class="selectpicker form-control" data-live-search="true"required>
                                     <option disabled selected>{{$community->Region->english_name}}</option>
                                     @foreach($regions as $region)
                                     <option value="{{$region->id}}">
@@ -66,7 +74,7 @@ label {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Sub Region</label>
                                 <select name="sub_region_id" id="selectedSubRegions" 
-                                class="form-control" required>
+                                class="selectpicker form-control" data-live-search="true" required>
                                     <option disabled selected>{{$community->SubRegion->english_name}}</option>
                                     @foreach($subRegions as $region)
                                     <option value="{{$region->id}}">
@@ -301,4 +309,8 @@ label {
         </div>
     </div>
 </div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
 @endsection

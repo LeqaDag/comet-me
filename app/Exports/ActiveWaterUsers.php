@@ -31,6 +31,7 @@ class ActiveWaterUsers implements FromCollection, WithHeadings, WithTitle, Shoul
             ->leftJoin('water_network_users', 'households.id', 'water_network_users.household_id')
             ->leftJoin('h2o_user_donors', 'h2o_users.id', 'h2o_user_donors.h2o_user_id')
             ->where('households.water_system_status', 'Served')
+            ->where('households.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'households.english_name as arabic_name', 
                 'communities.english_name as community_name',

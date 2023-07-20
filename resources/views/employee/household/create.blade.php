@@ -66,7 +66,7 @@
                             <input type="text" value="{{old('women_name_arabic')}}" name="women_name_arabic" 
                             class="form-control">
                         </fieldset>
-                    </div>
+                    </div> 
                     
                 </div>
 
@@ -233,11 +233,8 @@
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Electricity source</label>
-                            <select name="electricity_source" id="electricitySource" class="form-control">
-                                <option selected disabled>Choose One...</option>
-                                <option value="Old solar system">Old solar system</option>
-                                <option value="Grid">Grid</option>
-                                <option value="Generator">Generator</option>
+                            <select name="electricity_source" id="energySourceHousehold" 
+                                class="form-control">
                             </select>
                         </fieldset>
                     </div>
@@ -245,7 +242,7 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Shared?</label>
                             <select name="electricity_source_shared" id="electricitySourceShared"
-                                class="form-control" disabled>
+                                class="form-control">
                                 <option selected disabled>Choose One...</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
@@ -299,6 +296,15 @@
         
         selectedValue = $(this).val();
 
+        $.ajax({
+            url: "community/energy-source/" + selectedValue,
+            method: 'GET',
+            success: function(data) {
+
+                $("#energySourceHousehold").html(data.html);
+            }
+        });
+
         if(selectedValue == "other") {
             $("#createCommunity").modal('show');
 
@@ -316,7 +322,7 @@
         }
     });
 
-    $(document).on('change', '#electricitySource', function () {
+    $(document).on('change', '#energySourceHousehold', function () {
 
         $('#electricitySourceShared').prop('disabled', false);
     });

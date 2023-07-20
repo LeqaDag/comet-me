@@ -34,6 +34,7 @@ class UserController extends Controller
                 
                 $data = DB::table('users')
                     ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+                    ->where('users.is_archived', 0)
                     ->select('users.name as user_name', 'user_types.name as user_type',
                         'users.id as id', 'users.created_at as created_at', 
                         'users.updated_at as updated_at',
@@ -69,7 +70,7 @@ class UserController extends Controller
             }
 
 
-            $userTypes = UserType::all();
+            $userTypes = UserType::where('is_archived', 0)->get();
 
             return view('admin.users.index', compact('userTypes'));
 
@@ -232,7 +233,10 @@ class UserController extends Controller
     {
         $user = User::find($request->id);
 
-        if($user->delete()) {
+        if($user) {
+
+            $user->is_archived = 1;
+            $user->save();
 
             $response['success'] = 1;
             $response['msg'] = 'User Deleted successfully'; 

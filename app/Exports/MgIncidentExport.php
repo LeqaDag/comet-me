@@ -4,10 +4,14 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class MgIncidentExport implements FromCollection, WithHeadings, ShouldAutoSize
+class MgIncidentExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+    WithStyles
 {
     protected $request;
 
@@ -33,12 +37,17 @@ class MgIncidentExport implements FromCollection, WithHeadings, ShouldAutoSize
             ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('energy_systems.energy_system_type_id', 1)
             ->where('community_donors.service_id', 1)
-            ->select('energy_systems.name as energy_name', 
+            ->where('mg_incidents.is_archived', 0)
+            ->select([
+                'energy_systems.name as energy_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'incidents.english_name as incident',
                 'mg_incidents.year', 'mg_incidents.date',
-                'incident_status_mg_systems.name as mg_status', 'donors.donor_name');
+                'incident_status_mg_systems.name as mg_status', 
+                DB::raw('group_concat(donors.donor_name) as donors')
+            ])
+            ->groupBy('mg_incidents.id');
 
         if($this->request->community) {
 
@@ -65,5 +74,25 @@ class MgIncidentExport implements FromCollection, WithHeadings, ShouldAutoSize
     {
         return ["MG System", "Community", "Region", "Sub Region", 
             "Incident", "Incident Year", "Incident Date", "Status", "Donor"];
+    }
+
+    public function title(): string
+    {
+        return 'MG Incidents';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:I1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

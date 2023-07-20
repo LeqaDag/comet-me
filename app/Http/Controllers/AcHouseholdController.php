@@ -48,6 +48,7 @@ class AcHouseholdController extends Controller
                     ->where('households.household_status_id', 1)
                     ->orWhere('households.household_status_id', 2)
                     ->where('internet_holder_young', 0)
+                    ->where('households.is_archived', 0)
                     ->join('communities', 'households.community_id', '=', 'communities.id')
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
                     ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
@@ -96,6 +97,7 @@ class AcHouseholdController extends Controller
             }
     
             $dataHouseholdsByCommunity = DB::table('households')
+                ->where('households.is_archived', 0)
                 ->where('households.household_status_id', 1)
                 ->orWhere('households.household_status_id', 2)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
@@ -111,12 +113,16 @@ class AcHouseholdController extends Controller
                 $arrayAcHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
             }
     
-            $communities = Community::where('is_archived', 0)->get();
-            $households = Household::all();
-            $energySystems = EnergySystem::all();
-            $energySystemTypes = EnergySystemType::all();
-            $meters = MeterCase::all();
-            $professions  = Profession::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $households = Household::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $energySystems = EnergySystem::where('is_archived', 0)->get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $meters = MeterCase::where('is_archived', 0)->get();
+            $professions  = Profession::where('is_archived', 0)->get();
     
             return view('employee.household.ac', compact('communities', 'households', 
                 'energySystems', 'energySystemTypes', 'meters', 'professions'))
@@ -138,6 +144,8 @@ class AcHouseholdController extends Controller
         $id = $request->id;
         $household = Household::find($id);
         $households = Household::where("community_id", $household->community_id)
+            ->where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
             ->where("id", "!=", $household->id)
             ->select("english_name", "id")
             ->get();
@@ -228,10 +236,14 @@ class AcHouseholdController extends Controller
      */
     public function create()
     {
-        $communities = Community::where('is_archived', 0)->get();
-        $energySystemTypes = EnergySystemType::all();
-        $households = Household::all();
-        $professions  = Profession::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+        $households = Household::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $professions  = Profession::where('is_archived', 0)->get();
 
         return view('employee.household.create_ac', compact('communities', 'energySystemTypes', 
             'households', 'professions'));
@@ -312,9 +324,11 @@ class AcHouseholdController extends Controller
      */
     public function edit($id)
     {
-        $communities = Community::where('is_archived', 0)->get();
-        $regions = Region::all();
-        $professions = Profession::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $regions = Region::where('is_archived', 0)->get();
+        $professions = Profession::where('is_archived', 0)->get();
         $household = Household::findOrFail($id);
         $structure = Structure::where("household_id", $id)->first();
         $cistern = Cistern::where("household_id", $id)->first();
@@ -348,8 +362,8 @@ class AcHouseholdController extends Controller
         $household->demolition_order = $request->demolition_order;
         $household->notes = $request->notes;
         $household->size_of_herd = $request->size_of_herd;
-        $household->electricity_source = $request->electricity_source;
-        $household->electricity_source_shared = $request->electricity_source_shared;
+        if($request->electricity_source) $household->electricity_source = $request->electricity_source;
+        if($request->electricity_source_shared) $household->electricity_source_shared = $request->electricity_source_shared;
         $household->save();
 
         $cistern = Cistern::where('household_id', $id)->first();

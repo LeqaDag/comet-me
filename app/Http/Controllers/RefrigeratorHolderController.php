@@ -99,9 +99,13 @@ class RefrigeratorHolderController extends Controller
                     ->make(true);
             }
     
-            $communities = Community::all();
-            $households = Household::all();
-            $publicCategories = PublicStructureCategory::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $households = Household::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $publicCategories = PublicStructureCategory::orderBy('name', 'ASC')->get();
     
             return view('users.refrigerator.index', compact('communities', 'households',
                 'publicCategories'));
@@ -239,6 +243,7 @@ class RefrigeratorHolderController extends Controller
         $households = DB::table('refrigerator_holders')
             ->join('households', 'refrigerator_holders.household_id', '=', 'households.id')
             ->where("refrigerator_holders.community_id", $community_id)
+            ->orderBy('households.english_name', 'ASC')
             ->select('households.id', 'households.english_name')
             ->get();
  
@@ -251,6 +256,7 @@ class RefrigeratorHolderController extends Controller
             $households = DB::table('refrigerator_holders')
                 ->join('households', 'refrigerator_holders.household_id', '=', 'households.id')
                 ->where("refrigerator_holders.community_id", $community_id)
+                ->orderBy('households.english_name', 'ASC')
                 ->select('households.id', 'households.english_name')
                 ->get();
 

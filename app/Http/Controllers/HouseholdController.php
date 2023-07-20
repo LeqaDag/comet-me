@@ -17,6 +17,7 @@ use App\Models\Community;
 use App\Models\CommunityHousehold;
 use App\Models\Cistern;
 use App\Models\Household;
+use App\Models\HouseholdMeter;
 use App\Models\HouseholdStatus;
 use App\Models\Region;
 use App\Models\Structure;
@@ -59,24 +60,40 @@ class HouseholdController extends Controller
         
         if (Auth::guard('user')->user() != null) {
 
-            $communities = Community::where("is_archived", 0)->get();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $households = Household::paginate();
-            $regions = Region::all();
-            $subregions = SubRegion::all();
+            $regions = Region::where('is_archived', 0)->get();
+            $subregions = SubRegion::where('is_archived', 0)->get();
 
             
-            $householdRecords = Household::count();
-            $householdsInitial = Household::where("household_status_id", 1)->get();
-            $householdInitial = Household::where("household_status_id", 1)->count();
-            $householdsAC = Community::where("community_status_id", 2)->get();
-            $householdAC = Community::where("community_status_id", 2)->count();
-            $householdsServed = Household::where("household_status_id", 4)->get();
-            $householdServed = Household::where("household_status_id", 4)->count();
+            $householdRecords = Household::where('is_archived', 0)->count();
+            $householdsInitial = Household::where("household_status_id", 1)
+                ->where('is_archived', 0)
+                ->get();
+            $householdInitial = Household::where("household_status_id", 1)
+                ->where('is_archived', 0)
+                ->count();
+            $householdsAC = Community::where("community_status_id", 2)
+                ->where('is_archived', 0)
+                ->get();
+            $householdAC = Community::where("community_status_id", 2)
+                ->where('is_archived', 0)
+                ->count();
+            $householdsServed = Household::where("household_status_id", 4)
+                ->where('is_archived', 0)
+                ->get();
+            $householdServed = Household::where("household_status_id", 4)
+                ->where('is_archived', 0)
+                ->count();
 
             $householdWater =  Household::where("water_service", "Yes")
+                ->where('is_archived', 0)
                 ->selectRaw('SUM(number_of_people) AS number_of_people')
                 ->count();
             $householdInternet = Household::where("internet_system_status", "Served")
+                ->where('is_archived', 0)
                 ->count(); 
 
             if ($request->ajax()) {
@@ -85,14 +102,17 @@ class HouseholdController extends Controller
                     ->join('communities', 'households.community_id', '=', 'communities.id')
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
                     ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+                    ->leftJoin('refrigerator_holders', 'households.id', '=', 'refrigerator_holders.household_id')
                     ->where('internet_holder_young', 0)
+                    ->where('households.is_archived', 0)
                     ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
                         'households.id as id', 'households.created_at as created_at', 
                         'households.updated_at as updated_at',
                         'communities.english_name as name',
-                        'communities.arabic_name as aname',)
+                        'communities.arabic_name as aname', 
+                        'refrigerator_holders.receive_number')
                     ->latest(); 
-
+ 
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -108,7 +128,15 @@ class HouseholdController extends Controller
                         } else return $detailsButton; 
 
                     })
-                
+                    ->addColumn('icon', function($row) {
+
+                        $icon = "<i class='fa-solid fa-check text-success'></i>";
+
+                        if($row->receive_number != NULL) $icon = "<i class='fa-solid fa-check text-success'></i>";
+                        else $icon = "<i class='fa-solid fa-close text-danger'></i>";
+
+                        return $icon;
+                    })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request) {
@@ -123,13 +151,14 @@ class HouseholdController extends Controller
                             });
                         }
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'icon'])
                     ->make(true);
             }
 
             $dataHouseholdsByRegion = DB::table('households')
                 ->where('households.household_status_id', 4)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
+                ->where('households.is_archived', 0)
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
                 ->select(
                         DB::raw('regions.english_name as english_name'),
@@ -145,6 +174,7 @@ class HouseholdController extends Controller
 
             $dataHouseholdsBySubRegion = DB::table('households')
                 ->where('households.household_status_id', 4)
+                ->where('households.is_archived', 0)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->join('regions', 'communities.region_id', '=', 'regions.id')
                 ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
@@ -160,10 +190,10 @@ class HouseholdController extends Controller
                 $arrayHouseholdsBySubRegion[++$key] = [$value->english_name, $value->number];
             }
             
-            $energySystemTypes = EnergySystemType::all();
-            $donors = Donor::all();
-            $publicCategories = PublicStructureCategory::all();
-            $householdStatuses = HouseholdStatus::all();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $donors = Donor::where('is_archived', 0)->get();
+            $publicCategories = PublicStructureCategory::where('is_archived', 0)->get();
+            $householdStatuses = HouseholdStatus::where('is_archived', 0)->get();
 
             return view('employee.household.index', compact('communities', 'regions', 
                 'households', 'subregions', 'householdsInitial', 'householdInitial', 
@@ -186,9 +216,11 @@ class HouseholdController extends Controller
      */
     public function create()
     {
-        $communities = Community::where('is_archived', 0)->get();
-        $regions = Region::all();
-        $professions = Profession::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $regions = Region::where('is_archived', 0)->get();
+        $professions = Profession::where('is_archived', 0)->get();
 
         return view('employee.household.create', compact('communities', 'regions', 
             'professions'));
@@ -252,6 +284,37 @@ class HouseholdController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function getCommunityEnergySource(int $community_id)
+    {
+        $community = Community::findOrFail($community_id);
+ 
+        $html = '';
+        $community = Community::findOrFail($community_id);
+
+        if($community->energy_source == "Grid") {
+
+            $html .= '<option selected value="Grid">'.$community->energy_source.' </option><option value="Old Solar System">Old Solar System</option> <option value="Generator">Generator</option>';
+        } else if($community->energy_source == "Old Solar System") {
+
+            $html .= '<option selected value="Old Solar System">'.$community->energy_source.'</option><option value="Grid">Grid</option><option value="Generator">Generator</option>';
+        } else if($community->energy_source == "Generator") {
+
+            $html .= '<option selected value="Generator">'.$community->energy_source.' </option><option value="Grid">Grid</option> <option value="Old Solar System">Old Solar System</option>';
+        } else {
+
+            $html = '<option disabled selected>Choose One...</option><option value="Grid">Grid</option><option value="Old Solar System">Old Solar System</option><option value="Generator">Generator</option>';
+        }
+        
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function newHousehold(Request $request)
     {
         //dd($request->all());
@@ -299,13 +362,17 @@ class HouseholdController extends Controller
      */
     public function newCommunity(Request $request)
     {
-        $regions = SubRegion::where('region_id', $request->region_id)->get();
+        $regions = SubRegion::where('region_id', $request->region_id)
+            ->where('is_archived', 0)
+            ->get();
  
         if (!$request->region_id) {
             $html = '<option value="">Choose One...</option>';
         } else {
             $html = '';
-            $regions = SubRegion::where('region_id', $request->region_id)->get();
+            $regions = SubRegion::where('region_id', $request->region_id)
+                ->where('is_archived', 0)
+                ->get();
             foreach ($regions as $region) {
                 $html .= '<option value="'.$region->id.'">'.$region->english_name.'</option>';
             }
@@ -322,7 +389,10 @@ class HouseholdController extends Controller
      */
     public function getByCommunity(Request $request)
     {
-        $households = Household::where('community_id', $request->community_id)->get();
+        $households = Household::where('community_id', $request->community_id)
+            ->where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
 
         if (!$request->community_id) {
 
@@ -330,7 +400,10 @@ class HouseholdController extends Controller
         } else {
 
             $html = '<option selected>Choose One...</option>';
-            $households = Household::where('community_id', $request->community_id)->get();
+            $households = Household::where('community_id', $request->community_id)
+                ->orderBy('english_name', 'ASC')
+                ->where('is_archived', 0)
+                ->get();
             foreach ($households as $household) {
                 $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
             }
@@ -395,7 +468,10 @@ class HouseholdController extends Controller
 
         $household = Household::find($id);
 
-        if($household->delete()) {
+        if($household) {
+
+            $household->is_archived = 1;
+            $household->save();
 
             $response['success'] = 1;
             $response['msg'] = 'Household Deleted successfully'; 
@@ -429,9 +505,11 @@ class HouseholdController extends Controller
      */
     public function edit($id)
     {
-        $communities = Community::where('is_archived', 0)->get();
-        $regions = Region::all();
-        $professions = Profession::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $regions = Region::where('is_archived', 0)->get();
+        $professions = Profession::where('is_archived', 0)->get();
         $household = Household::findOrFail($id);
         $structure = Structure::where("household_id", $id)->first();
         $cistern = Cistern::where("household_id", $id)->first();
@@ -449,7 +527,10 @@ class HouseholdController extends Controller
      */
     public function update(Request $request, $id)
     {
+        
         $household = Household::findOrFail($id);
+        $householdMeter = HouseholdMeter::where('user_name', $household->english_name)->first();
+
         $household->english_name = $request->english_name;
         $household->arabic_name = $request->arabic_name;
         $household->women_name_arabic = $request->women_name_arabic;
@@ -465,9 +546,13 @@ class HouseholdController extends Controller
         $household->demolition_order = $request->demolition_order;
         $household->notes = $request->notes;
         $household->size_of_herd = $request->size_of_herd;
-        $household->electricity_source = $request->electricity_source;
-        $household->electricity_source_shared = $request->electricity_source_shared;
+        if($request->electricity_source) $household->electricity_source = $request->electricity_source;
+        if($request->electricity_source_shared) $household->electricity_source_shared = $request->electricity_source_shared;
         $household->save();
+
+        if($request->english_name) $householdMeter->user_name = $request->english_name;
+        if($request->arabic_name) $householdMeter->user_name_arabic = $request->arabic_name;
+        $householdMeter->save();
 
         $cistern = Cistern::where('household_id', $id)->first();
         if($cistern == null) {

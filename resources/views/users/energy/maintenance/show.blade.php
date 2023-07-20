@@ -85,6 +85,17 @@
                     </div>
                 </div>
 
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                            Notes: 
+                            <span class="spanDetails" id="maintenanceNotes">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+
                 <div class="modal-footer">
                     <button id="closeDetailsModel" type="button" 
                         class="closeDetailsModel btn btn-secondary" 

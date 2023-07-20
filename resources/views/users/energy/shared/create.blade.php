@@ -6,13 +6,24 @@
 label, table {
     margin-top: 20px;
 }
+
+.headingLabel {
+    font-size:18px;
+    font-weight: bold;
+}
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 <div id="createHouseholdMeter" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
-                    Create New Meter User
+                    Create New Shared Meter User
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
@@ -24,9 +35,23 @@ label, table {
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Energy User</label>
+                                <label class='col-md-12 control-label'>Community</label>
+                                <select class="selectpicker form-control" name="community_id" 
+                                    data-live-search="true" id="communitySharedUser" required>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($communities as $community)
+                                    <option value="{{$community->id}}">
+                                        {{$community->english_name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Energy Meter</label>
                                 <select name="energy_user_id" id="selectedEnergyUser" 
-                                    class="form-control" required>
+                                    class="form-control" disabled required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($households as $household)
                                     <option value="{{$household->id}}">
@@ -38,7 +63,7 @@ label, table {
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Household</label>
+                                <label class='col-md-12 control-label'>Household "Shared"</label>
                                 <select name="household_id" id="selectedAllHousehold" 
                                 class="form-control" disabled required>
                                     <option disabled selected>Choose one...</option>
@@ -56,19 +81,37 @@ label, table {
     </div>
 </div>
 
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+<script src="{{ asset('js/jquery.min.js') }}"></script>
 <script>
 
-    $(document).on('change', '#selectedEnergyUser', function () {
-        user_id = $(this).val();
+    $(document).on('change', '#communitySharedUser', function () {
+        community_id = $(this).val();
    
         $.ajax({
-            url: "household-meter/get_households/" + user_id,
+            url: "household-meter/get_users/" + community_id,
             method: 'GET',
-            success: function(data) {
+            success: function(data) { 
 
-                $('#selectedAllHousehold').prop('disabled', false);
-                $('#selectedAllHousehold').html(data.html);
+                $('#selectedEnergyUser').prop('disabled', false);
+                $('#selectedEnergyUser').html(data.html);
             }
+        });
+
+        $(document).on('change', '#selectedEnergyUser', function () {
+            user_id = $(this).val();
+    
+            $.ajax({
+                url: "household-meter/get_households/" + user_id,
+                method: 'GET',
+                success: function(data) { 
+
+                    $('#selectedAllHousehold').prop('disabled', false);
+                    $('#selectedAllHousehold').html(data.html);
+                }
+            });
         });
     });
 

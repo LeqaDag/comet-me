@@ -9,7 +9,8 @@
 @include('layouts.all')
 
 @section('content')
- 
+
+
 <div class="container mb-4">
     <div class="col-lg-12 col-12">
         <div class="row">
@@ -37,7 +38,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3 col-lg-3 mb-4">
+            <div class="col-6 col-md-3 col-lg-3 mb-4"> 
                 <div class="card h-100">
                     <div class="card-body text-center">
                         <div class="avatar mx-auto mb-2">
@@ -195,8 +196,8 @@
                 <div class="row">
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <fieldset class="form-group">
-                            <select name="community"
-                                class="form-control">
+                            <select name="community" class="selectpicker form-control" 
+                                    data-live-search="true">
                                 <option disabled selected>Search Community</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->english_name}}">
@@ -437,7 +438,7 @@
                         $('#yearH2oUser').html(response['h2oUser'].installation_year);
                         $('#statusH2oUser').html(response['h2oStatus'].status);
                         $('#numberBsfUser').html(response['h2oUser'].number_of_bsf);
-                        $('#statusBsfUser').html(response['bsfStatus'].name); 
+                        if(response['bsfStatus']) $('#statusBsfUser').html(response['bsfStatus'].name); 
                     }
                     
                     if(response['gridUser'] != null) {

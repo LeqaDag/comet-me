@@ -33,7 +33,7 @@
                             Number of Compounds: 
                             <span class="spanDetails" id="numberOfCompoundsCommunity">
                                
-                            </span>
+                            </span> 
                         </h6> 
                     </div>
                 </div>
@@ -49,7 +49,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Number of Households: 
-                            <span class="spanDetails" id="numberOfPeopleCommunity">
+                            <span class="spanDetails" id="numberOfHouseholdCommunity">
                              
                             </span>
                         </h6>
@@ -67,7 +67,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Number of People: 
-                            <span class="spanDetails" id="numberOfHouseholdCommunity">
+                            <span class="spanDetails" id="numberOfPeopleCommunity">
                                
                             </span>
                         </h6>
@@ -124,6 +124,24 @@
                         <h6>
                             Energy Service Beginning Year: 
                             <span class="spanDetails" id="energyServiceYearCommunity">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Energy Recommended System: 
+                            <span class="spanDetails" id="energySourcesCommunity">
+                             
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Energy Source: 
+                            <span class="spanDetails" id="energySource">
                                 
                             </span>
                         </h6>

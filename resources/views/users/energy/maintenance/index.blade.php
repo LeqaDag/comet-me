@@ -31,7 +31,7 @@
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
                                 <select name="community_id"
-                                    class="form-control">
+                                    class="selectpicker form-control" data-live-search="true">
                                     <option disabled selected>Search Community</option>
                                     @foreach($communities as $community)
                                         <option value="{{$community->id}}">
@@ -43,7 +43,7 @@
                         </div>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="public" class="form-control">
+                                <select name="public" class="selectpicker form-control" data-live-search="true">
                                     <option disabled selected>Search Public Structure</option>
                                     @foreach($publicCategories as $publicCategory)
                                     <option value="{{$publicCategory->id}}">
@@ -256,6 +256,9 @@
 
                 $('#maintenanceStatus').html('');
                 $('#maintenanceStatus').html(response['status'].name);
+
+                $('#maintenanceNotes').html('');
+                $('#maintenanceNotes').html(response['energyMaintenance'].notes);
             }
         });
     });

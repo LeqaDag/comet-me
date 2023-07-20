@@ -40,7 +40,7 @@ class SubCommunityHouseholdExport implements FromCollection, WithHeadings, WithT
                 '=', 'household_statuses.id')
             ->leftJoin('professions', 'households.profession_id', 
                 '=', 'professions.id')
-            ->where('communities.is_archived', 0)
+            ->where('sub_community_households.is_archived', 0)
             ->select('households.english_name as household',
                 'communities.english_name as community_english_name',
                 'sub_communities.english_name as english_name', 

@@ -40,6 +40,7 @@ class SharedWaterController extends Controller
                 $data = DB::table('h2o_shared_users')
                     ->join('households', 'h2o_shared_users.household_id', 'households.id')
                     ->join('communities', 'households.community_id', 'communities.id')
+                    ->where('h2o_shared_users.is_archived', 0)
                     ->select('h2o_shared_users.id as id', 'households.english_name', 
                         'communities.english_name as community_name', 'h2o_shared_users.user_english_name',
                         'h2o_shared_users.created_at as created_at', 'h2o_shared_users.user_arabic_name',
@@ -79,10 +80,14 @@ class SharedWaterController extends Controller
                 ->make(true);
             }
     
-            $communities = Community::all();
-            $bsfStatus = BsfStatus::all();
-            $households = Household::all();
-            $h2oStatus = H2oStatus::all();
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $bsfStatus = BsfStatus::where('is_archived', 0)->get();
+            $households = Household::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $h2oStatus = H2oStatus::where('is_archived', 0)->get();
     
             return view('users.water.shared.index', compact('communities', 'bsfStatus', 'households', 
                 'h2oStatus'));
@@ -105,6 +110,8 @@ class SharedWaterController extends Controller
             ->join('communities', 'h2o_users.community_id', 'communities.id')
             ->join('households', 'h2o_users.household_id', 'households.id')
             ->where('h2o_users.community_id', $request->community_id)
+            ->where('h2o_users.is_archived', 0)
+            ->orderBy('households.english_name', 'ASC')
             ->select('h2o_users.id as id', 'households.english_name')
             ->get();
 
@@ -118,6 +125,8 @@ class SharedWaterController extends Controller
                 ->join('communities', 'h2o_users.community_id', 'communities.id')
                 ->join('households', 'h2o_users.household_id', 'households.id')
                 ->where('h2o_users.community_id', $request->community_id)
+                ->where('h2o_users.is_archived', 0)
+                ->orderBy('households.english_name', 'ASC')
                 ->select('h2o_users.id as id', 'households.english_name')
                 ->get();
             foreach ($h2oUsers as $household) {
@@ -168,9 +177,17 @@ class SharedWaterController extends Controller
         $sharedUser = H2oSharedUser::find($id);
         $allWaterHolder = AllWaterHolder::where("household_id", $sharedUser->household_id)->first();
 
-        if($sharedUser->delete()) {
+        if($sharedUser) {
 
-            if($allWaterHolder) $allWaterHolder->delete();
+            $sharedUser->is_archived = 1;
+            $sharedUser->save();
+
+            if($allWaterHolder) 
+            {
+                $allWaterHolder->is_archived = 1;
+                $allWaterHolder->save();
+            }
+            
             $response['success'] = 1;
             $response['msg'] = 'Shared H2O User Deleted successfully'; 
         } else {

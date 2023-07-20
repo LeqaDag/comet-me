@@ -55,6 +55,7 @@ class EnergyCometMeterController extends Controller
                 ->join('energy_systems', 'comet_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'comet_meters.energy_system_type_id', '=', 'energy_system_types.id')
                 ->join('meter_cases', 'comet_meters.meter_case_id', '=', 'meter_cases.id')
+                ->where('comet_meters.is_archived', 0)
                 ->select('comet_meters.meter_number', 'comet_meters.name',
                     'comet_meters.id as id', 'comet_meters.created_at as created_at', 
                     'comet_meters.updated_at as updated_at', 
@@ -100,11 +101,15 @@ class EnergyCometMeterController extends Controller
                 ->make(true);
         }
 
-        $communities = Community::where('communities.is_archived', 0)->get();
-        $households = Household::all();
-        $energySystems = EnergySystem::all();
-        $energySystemTypes = EnergySystemType::all();
-        $meters = MeterCase::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $households = Household::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $energySystems = EnergySystem::where('is_archived', 0)->get();
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+        $meters = MeterCase::where('is_archived', 0)->get();
         
         return view('users.energy.comet.index', compact('communities', 'households',
             'energySystems', 'energySystemTypes', 'meters'));
@@ -145,8 +150,11 @@ class EnergyCometMeterController extends Controller
 
         $cometMeter = CometMeter::find($id);
 
-        if($cometMeter->delete()) {
+        if($cometMeter) {
 
+            $cometMeter->is_archived = 1;
+            $cometMeter->save();
+            
             $response['success'] = 1;
             $response['msg'] = 'Comet Meter Delete successfully'; 
         } else {

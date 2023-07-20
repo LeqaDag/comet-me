@@ -7,5 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class InternetUserDonor extends Model
 {
-    use HasFactory;
+    use HasFactory; 
+
+    public function Donor()
+    {
+        
+        return $this->belongsTo(Donor::class, 'donor_id', 'id');
+    }
 }

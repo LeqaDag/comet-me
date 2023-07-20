@@ -26,6 +26,7 @@ use App\Models\Household;
 use App\Models\HouseholdMeter;
 use App\Models\MeterCase;
 use App\Models\ServiceType;
+use App\Models\InstallationType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
@@ -58,6 +59,7 @@ class EnergyPublicStructureController extends Controller
                 ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
                 ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+                ->where('all_energy_meters.is_archived', 0)
                 ->select('all_energy_meters.meter_number', 
                     'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
                     'all_energy_meters.updated_at as updated_at', 
@@ -105,17 +107,23 @@ class EnergyPublicStructureController extends Controller
                 ->make(true);
         }
 
-        $communities = Community::where('is_archived', 0)->get();
-        $households = Household::all();
-        $energySystems = EnergySystem::all();
-        $energySystemTypes = EnergySystemType::all();
-        $meters = MeterCase::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $households = Household::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $energySystems = EnergySystem::where('is_archived', 0)->get();
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+        $meters = MeterCase::where('is_archived', 0)->get();
+        $installationTypes = InstallationType::where('is_archived', 0)->get();
 
         $schools = DB::table('all_energy_meters')
             ->join('public_structures', 'all_energy_meters.public_structure_id', 
                 '=', 'public_structures.id')
             ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
                 '=', 'public_structure_categories.id')
+            ->where('all_energy_meters.is_archived', 0)
             ->where('public_structures.public_structure_category_id1', 1)
             ->orWhere('public_structures.public_structure_category_id2', 1)
             ->orWhere('public_structures.public_structure_category_id3', 1)
@@ -126,6 +134,7 @@ class EnergyPublicStructureController extends Controller
                 '=', 'public_structures.id')
             ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
                 '=', 'public_structure_categories.id')
+            ->where('all_energy_meters.is_archived', 0)
             ->where('public_structures.public_structure_category_id1', 3)
             ->orWhere('public_structures.public_structure_category_id2', 3)
             ->orWhere('public_structures.public_structure_category_id3', 3)
@@ -136,6 +145,7 @@ class EnergyPublicStructureController extends Controller
                 '=', 'public_structures.id')
             ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
                 '=', 'public_structure_categories.id')
+            ->where('all_energy_meters.is_archived', 0)
             ->where('public_structures.public_structure_category_id1', 2)
             ->orWhere('public_structures.public_structure_category_id2', 2)
             ->orWhere('public_structures.public_structure_category_id3', 2)
@@ -146,6 +156,7 @@ class EnergyPublicStructureController extends Controller
                 '=', 'public_structures.id')
             ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
                 '=', 'public_structure_categories.id')
+            ->where('all_energy_meters.is_archived', 0)
             ->where('public_structures.public_structure_category_id1', 7)
             ->orWhere('public_structures.public_structure_category_id2', 7)
             ->orWhere('public_structures.public_structure_category_id3', 7)
@@ -156,6 +167,7 @@ class EnergyPublicStructureController extends Controller
                 '=', 'public_structures.id')
             ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
                 '=', 'public_structure_categories.id')
+            ->where('all_energy_meters.is_archived', 0)
             ->where('public_structures.public_structure_category_id1', 5)
             ->orWhere('public_structures.public_structure_category_id2', 5)
             ->orWhere('public_structures.public_structure_category_id3', 5)
@@ -166,6 +178,7 @@ class EnergyPublicStructureController extends Controller
                 '=', 'public_structures.id')
             ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
                 '=', 'public_structure_categories.id')
+            ->where('all_energy_meters.is_archived', 0)
             ->where('public_structures.public_structure_category_id1', 6)
             ->orWhere('public_structures.public_structure_category_id2', 6)
             ->orWhere('public_structures.public_structure_category_id3', 6)
@@ -173,6 +186,7 @@ class EnergyPublicStructureController extends Controller
 
         $dataPublicStructures = DB::table('all_energy_meters')
             ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+            ->where('all_energy_meters.is_archived', 0)
             ->where('meter_cases.meter_case_name_english', '!=', "Not Activated")
             ->select(
                     DB::raw('meter_cases.meter_case_name_english as name'),
@@ -190,7 +204,7 @@ class EnergyPublicStructureController extends Controller
         
         return view('users.energy.public.index', compact('communities', 'households', 'madafah',
             'energySystems', 'energySystemTypes', 'meters', 'schools', 'clinics', 'mosques',
-            'kindergarten', 'center'))
+            'kindergarten', 'center', 'installationTypes'))
             ->with('energy_public_structures', json_encode($arrayPublicStructures)
         );
     }
@@ -206,6 +220,7 @@ class EnergyPublicStructureController extends Controller
         $html = '<option disabled selected>Choose One ...</option>';
 
         $publics = PublicStructure::where('community_id', $community_id)
+            ->where('is_archived', 0)
             ->get();
         
 
@@ -225,7 +240,7 @@ class EnergyPublicStructureController extends Controller
     public function store(Request $request)
     {
         $publicEnergy = new AllEnergyMeter();
-        $publicEnergy->misc = $request->misc;
+        $publicEnergy->installation_type_id = $request->installation_type_id;
         $publicEnergy->community_id = $request->community_id;
         $publicEnergy->meter_number = $request->meter_number;
         $publicEnergy->public_structure_id = $request->public_structure_id;
@@ -252,7 +267,10 @@ class EnergyPublicStructureController extends Controller
 
         $energyPublic = AllEnergyMeter::find($id);
 
-        if($energyPublic->delete()) {
+        if($energyPublic) {
+
+            $energyPublic->is_archived = 1;
+            $energyPublic->save();
 
             $response['success'] = 1;
             $response['msg'] = 'Energy Public Structure Delete successfully'; 
@@ -275,10 +293,13 @@ class EnergyPublicStructureController extends Controller
     {
         if($community_id == 0) {
 
-            $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)->get();
+            $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
+                ->where('is_archived', 0)
+                ->get();
         } else {
 
             $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
+                ->where('is_archived', 0)
                 ->where('community_id', $community_id)
                 ->get();
         }
@@ -292,10 +313,13 @@ class EnergyPublicStructureController extends Controller
             $html = '';
             if($community_id == 0) {
 
-                $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)->get();
+                $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
+                    ->where('is_archived', 0)
+                    ->get();
             } else {
                 
                 $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
+                    ->where('is_archived', 0)
                     ->where('community_id', $community_id)
                     ->get();
             }
@@ -314,14 +338,18 @@ class EnergyPublicStructureController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getEnergySystemByCommunity($energy_type_id, $community_id)
+    public function getEnergySystemByCommunity($community_id, $energy_type_id)
     {
+        //dd($energy_type_id);
         if($community_id == 0) {
 
-            $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)->get();
+            $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
+                ->where('is_archived', 0)
+                ->get();
         } else {
 
             $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
+                ->where('is_archived', 0)
                 ->where('community_id', $community_id)
                 ->get();
         }
@@ -334,11 +362,14 @@ class EnergyPublicStructureController extends Controller
             $html = '';
             if($community_id == 0) {
 
-                $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)->get();
+                $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
+                    ->where('is_archived', 0)
+                    ->get();
             } else {
                 
                 $energySystems = EnergySystem::where('energy_system_type_id', $energy_type_id)
                     ->where('community_id', $community_id)
+                    ->where('is_archived', 0)
                     ->get();
             }
 
@@ -360,6 +391,7 @@ class EnergyPublicStructureController extends Controller
     {
         $energyPublic = AllEnergyMeter::findOrFail($id);
         $energyMeterDonors = DB::table('all_energy_meter_donors')
+            ->where('all_energy_meter_donors.is_archived', 0)
             ->where('all_energy_meter_donors.all_energy_meter_id', $id)
             ->join('donors', 'all_energy_meter_donors.donor_id', '=', 'donors.id')
             ->select('donors.donor_name', 'all_energy_meter_donors.all_energy_meter_id')
@@ -370,6 +402,7 @@ class EnergyPublicStructureController extends Controller
         $meter = MeterCase::where('id', $energyPublic->meter_case_id)->first();
         $systemType = EnergySystemType::where('id', $energyPublic->energy_system_type_id)->first();
         $system = EnergySystem::where('id', $energyPublic->energy_system_id)->first();
+        $installationType = InstallationType::where('id', $energyPublic->installation_type_id)->first();
 
         $response['energyPublic'] = $energyPublic;
         $response['energyMeterDonors'] = $energyMeterDonors;
@@ -378,6 +411,7 @@ class EnergyPublicStructureController extends Controller
         $response['meter'] = $meter;
         $response['type'] = $systemType;
         $response['system'] = $system;
+        $response['installationType'] = $installationType;
 
         return response()->json($response);
     }
@@ -406,9 +440,12 @@ class EnergyPublicStructureController extends Controller
         $energyPublic = AllEnergyMeter::findOrFail($id);
         $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)->get();
         $community_id = Community::findOrFail($energyPublic->community_id);
-        $communities = Community::all();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
         $communityVendors = DB::table('community_vendors')
             ->where('community_id', $community_id->id)
+            ->where('community_vendors.is_archived', 0)
             ->join('vendor_usernames', 'community_vendors.vendor_username_id', 
                 '=', 'vendor_usernames.id')
             ->select('vendor_usernames.name', 'community_vendors.id as id',
@@ -416,15 +453,17 @@ class EnergyPublicStructureController extends Controller
             ->get();
 
         $publicStructures = PublicStructure::findOrFail($energyPublic->public_structure_id);
-        $meterCases = MeterCase::all();
+        $meterCases = MeterCase::where('is_archived', 0)->get();
         $vendor = VendorUsername::where('id', $energyPublic->vendor_username_id)->first();
 
-        $energySystems = EnergySystem::all();
-        $donors = Donor::all();
+        $energySystems = EnergySystem::where('is_archived', 0)->get();
+        $donors = Donor::where('is_archived', 0)->get();
+
+        $installationTypes = InstallationType::where('is_archived', 0)->get();
 
         return view('users.energy.public.edit', compact('publicStructures', 'communities',
             'meterCases', 'energyPublic', 'communityVendors', 'vendor', 'energySystems',
-            'energyDonors', 'donors'));
+            'energyDonors', 'donors', 'installationTypes'));
     }
 
     /**
@@ -441,7 +480,7 @@ class EnergyPublicStructureController extends Controller
         $energyPublic->meter_number = $request->meter_number;
         $energyPublic->daily_limit = $request->daily_limit;
         $energyPublic->installation_date = $request->installation_date;
-        if($request->misc) $energyPublic->misc = $request->misc;
+        if($request->installation_type_id) $energyPublic->installation_type_id = $request->installation_type_id;
 
         if($request->meter_active) $energyPublic->meter_active = $request->meter_active;
 
@@ -511,7 +550,10 @@ class EnergyPublicStructureController extends Controller
 
         $user = AllEnergyMeterDonor::find($id);
         
-        if($user->delete()) {
+        if($user) {
+
+            $user->is_archived = 1;
+            $user->save();
 
             $response['success'] = 1;
             $response['msg'] = 'Energy Public Donor Deleted successfully'; 

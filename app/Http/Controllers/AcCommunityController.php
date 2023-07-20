@@ -48,7 +48,7 @@ class AcCommunityController extends Controller
                     ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
                     ->join('community_statuses', 'communities.community_status_id', '=', 'community_statuses.id')
                     ->where('community_status_id', 2)
-                    ->where('is_archived', 0)
+                    ->where('communities.is_archived', 0)
                     ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
                         'communities.id as id', 'communities.created_at as created_at', 
                         'communities.updated_at as updated_at',
@@ -87,10 +87,10 @@ class AcCommunityController extends Controller
             $communityRecords = Community::where("community_status_id", "2")
                 ->where('is_archived', 0)
                 ->count();
-            $regions = Region::all();
-            $subregions = SubRegion::all();
-            $products = ProductType::all();
-            $energyTypes = EnergySystemType::all();
+            $regions = Region::where('is_archived', 0)->get();
+            $subregions = SubRegion::where('is_archived', 0)->get();
+            $products = ProductType::where('is_archived', 0)->get();
+            $energyTypes = EnergySystemType::where('is_archived', 0)->get();
     
             return view('employee.community.ac', compact('regions', 
                 'communityRecords', 'subregions', 'products', 'energyTypes'));

@@ -29,6 +29,7 @@ use App\Models\MgIncident;
 use App\Models\Photo;
 use App\Models\Region;
 use App\Models\SubRegion;
+use App\Models\SubSubRegion;
 use App\Models\SubCommunity;
 use App\Models\Settlement;
 use App\Models\ServiceType;
@@ -72,12 +73,13 @@ class RegionController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
-            $regions = Region::all(); 
-            $subRegions = SubRegion::all(); 
+            $regions = Region::where('is_archived', 0)->get(); 
+            $subRegions = SubRegion::where('is_archived', 0)->get(); 
 
             if ($request->ajax()) {
 
                 $data = DB::table('regions')
+                    ->where('regions.is_archived', 0)
                     ->select('regions.english_name as english_name', 
                     'regions.arabic_name as arabic_name',
                     'regions.id as id', 'regions.created_at as created_at', 
@@ -162,13 +164,17 @@ class RegionController extends Controller
      */
     public function getByRegion(Request $request)
     {
-        $regions = SubRegion::where('region_id', $request->region_id)->get();
+        $regions = SubRegion::where('is_archived', 0)
+            ->where('region_id', $request->region_id)
+            ->get();
  
         if (!$request->region_id) {
             $html = '<option value="">Choose One...</option>';
         } else {
             $html = '<option selected>Choose One...</option><option value="0">All Sub Regions</option>';
-            $regions = SubRegion::where('region_id', $request->region_id)->get();
+            $regions = SubRegion::where('is_archived', 0)
+                ->where('region_id', $request->region_id)
+                ->get();
 
             foreach ($regions as $region) {
                 $html .= '<option value="'.$region->id.'">'.$region->english_name.'</option>';
@@ -197,10 +203,15 @@ class RegionController extends Controller
 
         if($request->sub_region_id == 0) {
 
-            $communities = Community::where("region_id", $request->region_id)->get();
-            $countCommunities = Community::where("region_id", $request->region_id)->count();
+            $communities = Community::where("region_id", $request->region_id)
+                ->where('is_archived', 0)
+                ->get();
+            $countCommunities = Community::where("region_id", $request->region_id)
+                ->where('is_archived', 0)
+                ->count();
 
             $countMgSystem =  DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
                 ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
                 ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
@@ -213,6 +224,7 @@ class RegionController extends Controller
                 ->count();
 
             $countFbsSystem =  DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
                 ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
                 ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
@@ -227,13 +239,16 @@ class RegionController extends Controller
         } else {
 
             $communities = Community::where("region_id", $request->region_id)
+                ->where('is_archived', 0)
                 ->where("sub_region_id", $request->sub_region_id)
                 ->get();
             $countCommunities = Community::where("region_id", $request->region_id)
+                ->where('is_archived', 0)
                 ->where("sub_region_id", $request->sub_region_id)
                 ->count();
 
             $countMgSystem =  DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
                 ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
                 ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
@@ -247,6 +262,7 @@ class RegionController extends Controller
                 ->count();
 
             $countFbsSystem =  DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
                 ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
                 ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
@@ -262,6 +278,7 @@ class RegionController extends Controller
 
         foreach($communities as $community) {
             $energyUsers = AllEnergyMeter::where('community_id', $community->id)
+                ->where('is_archived', 0)
                 ->get();
 
             $countEnergyUsers+= $energyUsers->count();
@@ -269,6 +286,7 @@ class RegionController extends Controller
 
         foreach($communities as $community) {
             $h2oUserCount = AllWaterHolder::where('community_id', $community->id)
+                ->where('is_archived', 0)
                 ->count();
 
             $countH2oUsers+= $h2oUserCount;
@@ -276,6 +294,7 @@ class RegionController extends Controller
 
         foreach($communities as $community) {
             $householdsCount = Household::where('community_id', $community->id)
+                ->where('is_archived', 0)
                 ->count();
 
             $countHouseholds+= $householdsCount;
@@ -283,6 +302,7 @@ class RegionController extends Controller
 
         foreach($communities as $community) {
             $InternetCount = InternetUser::where('community_id', $community->id)
+                ->where('is_archived', 0)
                 ->count();
 
             $countInternetUsers+= $InternetCount;
@@ -324,9 +344,28 @@ class RegionController extends Controller
         $id = $request->id;
 
         $region = Region::find($id);
+        $subRegions = SubRegion::where("region_id", $id)->get();
+        $subSubRegions = SubSubRegion::where("region_id", $id)->get();
 
-        if($region->delete()) {
+        if($region) {
 
+            $region->is_archived = 1;
+            $region->save();
+
+            if($subRegions) {
+                foreach($subRegions as $subRegion) {
+                    $subRegion->is_archived = 1;
+                    $subRegion->save();
+                }
+            }
+
+            if($subSubRegions) {
+                foreach($subSubRegions as $subSubRegion) {
+                    $subSubRegion->is_archived = 1;
+                    $subSubRegion->save();
+                }
+            }
+            
             $response['success'] = 1;
             $response['msg'] = 'Region Delete successfully'; 
         } else {

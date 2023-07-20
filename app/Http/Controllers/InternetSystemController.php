@@ -52,6 +52,7 @@ class InternetSystemController extends Controller
             if ($request->ajax()) {
 
                 $data = DB::table('internet_system_communities')
+                    ->where('internet_system_communities.is_archived', 0)
                     ->join('communities', 'internet_system_communities.community_id', 
                         '=', 'communities.id')
                     ->join('internet_systems', 'internet_system_communities.internet_system_id', 
@@ -69,9 +70,9 @@ class InternetSystemController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
-                        $viewButton = "<a type='button' class='viewInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
-                        $updateButton = "<a type='button' class='updateInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                        $deleteButton = "<a type='button' class='deleteInternetSystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        $viewButton = "<a type='button' class='viewInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-eye fa-lg text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square fa-lg text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteInternetSystem' data-id='".$row->id."'><i class='fa-solid fa-trash fa-lg text-danger'></i></a>";
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 ||
@@ -115,7 +116,9 @@ class InternetSystemController extends Controller
     public function create()
     {
         $aps = InternetAp::all();
-        $communities = Community::where("is_archived", 0)->get();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
         $controllers = InternetController::all();
         $internetSystemTypes = InternetSystemType::all();
         $routers = Router::all();

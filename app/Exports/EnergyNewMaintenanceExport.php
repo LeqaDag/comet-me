@@ -30,6 +30,7 @@ class EnergyNewMaintenanceExport implements FromCollection, WithHeadings, Should
             ->join('users', 'new_electricity_maintenance_calls.user_id', '=', 'users.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+            ->where('new_electricity_maintenance_calls.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',

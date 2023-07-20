@@ -4,10 +4,14 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class InternetUserExport implements FromCollection, WithHeadings, ShouldAutoSize
+class InternetUserExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+WithStyles
 {
 
     protected $request;
@@ -31,6 +35,7 @@ class InternetUserExport implements FromCollection, WithHeadings, ShouldAutoSize
             ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
             ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('community_donors.service_id', 3)
+            ->where('internet_users.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'households.arabic_name as arabic_name', 
                 'communities.english_name as community_name',
@@ -63,5 +68,25 @@ class InternetUserExport implements FromCollection, WithHeadings, ShouldAutoSize
     {
         return ["Internet Holder", "Arabic Name", "Community", "Region", "Sub Region", 
             "Start Date", "Internet Status", "Number of Contracts"];
+    }
+
+    public function title(): string
+    {
+        return 'Internet Users';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:H1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
     }
 }

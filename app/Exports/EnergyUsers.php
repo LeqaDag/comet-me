@@ -68,6 +68,7 @@ class EnergyUsers implements FromCollection, WithHeadings, WithTitle, ShouldAuto
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
                 'donors.id')
             ->where('all_energy_meters.meter_case_id', 1)
+            ->where('all_energy_meters.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',

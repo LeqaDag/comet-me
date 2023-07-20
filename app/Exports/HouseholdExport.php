@@ -33,6 +33,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 '=', 'household_statuses.id')
             ->leftJoin('professions', 'households.profession_id', 
                 '=', 'professions.id')
+            ->where('households.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'households.arabic_name as arabic_name', 
                 'communities.english_name as community_name',

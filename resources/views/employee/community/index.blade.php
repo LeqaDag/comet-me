@@ -232,7 +232,8 @@
                     <div class="row">
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="region" class="form-control">
+                                <select name="region" class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search Region</option>
                                     @foreach($regions as $region)
                                     <option value="{{$region->id}}">
@@ -244,7 +245,8 @@
                         </div>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="public" class="form-control">
+                                <select name="public" class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search Public Structure</option>
                                     @foreach($publicCategories as $publicCategory)
                                     <option value="{{$publicCategory->id}}">
@@ -257,7 +259,8 @@
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
                                 <select name="system_type"
-                                    class="form-control">
+                                    class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search System Type</option>
                                     @foreach($energySystemTypes as $energySystemType)
                                         <option value="{{$energySystemType->id}}">
@@ -269,7 +272,8 @@
                         </div>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="donor" class="form-control">
+                                <select name="donor" class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search Donor</option>
                                     @foreach($donors as $donor)
                                         <option value="{{$donor->id}}">
@@ -402,14 +406,14 @@
                     $('#waterServiceYearCommunity').html(" ");
                     $('#internetServiceCommunity').html(" ");
                     $('#internetServiceYearCommunity').html(" ");
-
+ 
                     $('#communityModalTitle').html(response['community'].english_name);
                     $('#englishNameCommunity').html(response['community'].english_name);
                     $('#arabicNameCommunity').html(response['community'].arabic_name);
                     $('#numberOfCompoundsCommunity').html(response['community'].number_of_compound);
                     $('#numberOfPeopleCommunity').html(response['community'].number_of_people);
                     $('#englishNameRegion').html(response['region'].english_name);
-                    $('#numberOfHouseholdCommunity').html(response['community'].number_of_households);
+                    $('#numberOfHouseholdCommunity').html(response['community'].number_of_household);
                     $('#englishNameSubRegion').html(response['sub-region'].english_name);
                     $('#statusCommunity').html(response['status'].name);
                     $('#energyServiceCommunity').html(response['community'].energy_service);
@@ -418,7 +422,9 @@
                     $('#waterServiceYearCommunity').html(response['community'].water_service_beginning_year);
                     $('#internetServiceCommunity').html(response['community'].internet_service);
                     $('#internetServiceYearCommunity').html(response['community'].internet_service_beginning_year);
-                    
+                    $('#energySource').html(" ");
+                    $('#energySource').html(response['community'].energy_source);
+
                     $("#secondNameDiv").css("visibility", "hidden");
                     $("#secondNameDiv").css('display', 'none');
 
@@ -471,9 +477,15 @@
                         $("#waterSourcesCommunity").append(
                             '<ul><li>'+ response['communityWaterSources'][i].name +'</li> </ul>');
                     }
+
+                    $("#energySourcesCommunity").html(" ");
+                    for (var i = 0; i < response['communityRecommendedEnergy'].length; i++) {
+                        $("#energySourcesCommunity").append(
+                            '<ul><li>'+ response['communityRecommendedEnergy'][i].name +'</li> </ul>');
+                    }
                 }
             });
-        });
+        }); 
         
         // View record photos
         $('#communityTable').on('click', '.imageCommunity',function() {
@@ -536,7 +548,7 @@
                                     $('#communityTable').DataTable().draw();
                                 });
                             } else {
-
+ 
                                 alert("Invalid ID.");
                             }
                         }

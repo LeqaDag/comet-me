@@ -402,12 +402,19 @@ label {
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Electricity source</label>
                             <select name="electricity_source" id="electricitySource" class="form-control">
-                                <option selected disabled>
-                                    {{$household->electricity_source}}
-                                </option>
-                                <option value="Old solar system">Old solar system</option>
-                                <option value="Grid">Grid</option>
-                                <option value="Generator">Generator</option>
+                                @if($household->electricity_source)
+                                    <option disabled selected value="{{$household->electricity_source}}">
+                                        {{$household->electricity_source}}
+                                    </option>
+                                    <option value="Grid">Grid</option>
+                                    <option value="Old Solar System">Old Solar System</option>
+                                    <option value="Generator">Generator</option>
+                                @else
+                                    <option selected disabled>Choose one...</option>
+                                    <option value="Grid">Grid</option>
+                                    <option value="Old Solar System">Old Solar System</option>
+                                    <option value="Generator">Generator</option>
+                                @endif
                             </select>
                         </fieldset>
                     </div>
@@ -416,7 +423,7 @@ label {
                             <label class='col-md-12 control-label'>Shared?</label>
                             <select name="electricity_source_shared" id="electricitySourceShared"
                                 class="form-control" >
-                                <option selected disabled>
+                                <option selected disabled value="{{$household->electricity_source_shared}}">
                                     {{$household->electricity_source_shared}}
                                 </option>
                                 <option value="yes">Yes</option>

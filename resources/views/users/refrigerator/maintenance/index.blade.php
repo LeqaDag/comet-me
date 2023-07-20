@@ -30,8 +30,8 @@
                     <div class="row">
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="community_id"
-                                    class="form-control">
+                                <select name="community_id" class="selectpicker form-control"
+                                    data-live-search="true">
                                     <option disabled selected>Search Community</option>
                                     @foreach($communities as $community)
                                         <option value="{{$community->id}}">
@@ -43,7 +43,8 @@
                         </div>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="public" class="form-control">
+                                <select name="public" class="selectpicker form-control" 
+                                    data-live-search="true">
                                     <option disabled selected>Search Public Structure</option>
                                     @foreach($publicCategories as $publicCategory)
                                     <option value="{{$publicCategory->id}}">
@@ -98,7 +99,6 @@
                         <th class="text-center">Public Structure</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Recipient</th>
-                        <th class="text-center">Action</th>
                         <th class="text-center">Status</th>
                         <th class="text-center">Options</th>
                     </tr>
@@ -127,7 +127,6 @@
                 {data: 'public_name', name: 'public_name'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'user_name', name: 'user_name'},
-                {data: 'maintenance_action_refrigerator', name: 'maintenance_action_refrigerator'},
                 {data: 'name', name: 'name'},
                 {data: 'action'},
             ]
@@ -219,11 +218,24 @@
                 $('#userReceipent').html(response['user'].name);
                 $('#maintenanceType').html('');
                 $('#maintenanceType').html(response['type'].type);
-                $('#maintenanceAction').html('');
-                $('#maintenanceAction').html(response['refrigeratorAction'].maintenance_action_refrigerator);
 
                 $('#maintenanceStatus').html('');
                 $('#maintenanceStatus').html(response['status'].name);
+
+                $('#maintenanceNotes').html('');
+                $('#maintenanceNotes').html(response['refrigeratorMaintenance'].notes);
+
+                $("#maintenanceAction").html(" ");
+                for (var i = 0; i < response['refrigeratorActions'].length; i++) {
+                    $("#maintenanceAction").append(
+                        '<ul><li>'+ response['refrigeratorActions'][i].maintenance_action_refrigerator +'</li> </ul>');
+                } 
+                
+                $("#maintenancePerformedBy").html(" ");
+                for (var i = 0; i < response['performedUsers'].length; i++) {
+                    $("#maintenancePerformedBy").append(
+                        '<ul><li>'+ response['performedUsers'][i].name +'</li> </ul>');
+                } 
 
             }
         });

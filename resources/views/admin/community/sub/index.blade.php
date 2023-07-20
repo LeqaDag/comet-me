@@ -28,7 +28,8 @@
                     <div class="row">
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="community" class="form-control">
+                                <select name="community" class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search Community</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -40,7 +41,8 @@
                         </div>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="region" class="form-control">
+                                <select name="region" class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search Region</option>
                                     @foreach($regions as $region)
                                     <option value="{{$region->id}}">
@@ -52,7 +54,8 @@
                         </div>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
-                                <select name="system_type"  class="form-control">
+                                <select name="system_type"  class="selectpicker form-control" 
+                                data-live-search="true">
                                     <option disabled selected>Search System Type</option>
                                     @foreach($energySystemTypes as $energySystemType)
                                         <option value="{{$energySystemType->id}}">
