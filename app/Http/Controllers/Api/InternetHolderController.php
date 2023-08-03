@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
-use DB;
+use DB; 
 use Route;
 
 class InternetHolderController extends Controller
@@ -23,15 +23,14 @@ class InternetHolderController extends Controller
         $url = "http://185.190.140.86/api/users/";
         $responses = Http::get($url);
       
-       // dd($responses->body());
+        $responses = $responses->getBody()->getContents();
 
-        foreach($responses->body() as $response) {
-            //dd($response);
-           // var_dump($response->id);
-           dd($response["id"]);
+        $j = json_decode($responses, true);
+        die($j); 
+
+        foreach($responses as $response) {
+
+            die($response);
         }
-
-
-        
     }
 }

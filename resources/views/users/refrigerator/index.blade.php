@@ -22,7 +22,7 @@
 
 <div class="container">
     <div class="card my-2">
-    <div class="card-header">
+        <div class="card-header">
             <form method="POST" enctype='multipart/form-data' 
                 action="{{ route('refrigerator.export') }}">
                 @csrf
@@ -34,7 +34,7 @@
                                 <option disabled selected>Search Community</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->english_name}}">
-                                    {{$community->english_name}}
+                                    {{$community->arabic_name}}
                                 </option>
                                 @endforeach
                             </select> 
@@ -54,10 +54,16 @@
                     </div>
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <fieldset class="form-group">
-                            <input type="date" name="date" 
+                            <input type="date" name="date_from" 
                             class="form-control" title="Data from"> 
                         </fieldset>
                     </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <input type="date" name="date_to" 
+                            class="form-control" title="Data to"> 
+                        </fieldset>
+                    </div> <br> <br>
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <button class="btn btn-info" type="submit">
                             <i class='fa-solid fa-file-excel'></i>
@@ -67,14 +73,30 @@
                 </div> 
             </form>
         </div>
+        
         <div class="card-body">
-            <div>
+           <div>
                 <button type="button" class="btn btn-success" 
                     data-bs-toggle="modal" data-bs-target="#createRefrigeratorHolder">
                     Create New Refrigerator Holder
                 </button>
                 @include('users.refrigerator.create')
             </div>
+            <div>
+                <form action="{{route('refrigerator.import')}}" method="POST" 
+                    enctype="multipart/form-data">
+                    @csrf
+                    <div class="col-xl-5 col-lg-5 col-md-5">
+                        <fieldset class="form-group">
+                            <input name="file" type="file"
+                                class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <button class="btn btn-success" type="submit">Import File</button>
+                    </div>
+                </form>
+            <div>
             <table id="refrigeratorTable" class="table table-striped data-table-refrigerators my-2">
                 <thead>
                     <tr>

@@ -33,6 +33,7 @@ use App\Models\PtpInternetSystem;
 use App\Models\InternetPtp;
 use App\Models\InternetUisp;
 use App\Models\UispInternetSystem;
+use App\Models\InternetSystemCommunityType;
 use App\Models\LineOfSight;
 use Carbon\Carbon;
 use Image;
@@ -50,15 +51,18 @@ class InternetSystemController extends Controller
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
-
+ 
                 $data = DB::table('internet_system_communities')
                     ->where('internet_system_communities.is_archived', 0)
                     ->join('communities', 'internet_system_communities.community_id', 
                         '=', 'communities.id')
                     ->join('internet_systems', 'internet_system_communities.internet_system_id', 
                         '=', 'internet_systems.id')
-                    ->join('internet_system_types', 'internet_systems.internet_system_type_id', 
+                    ->join('internet_system_community_types', 'internet_system_community_types.internet_system_id', 
+                        '=', 'internet_systems.id')
+                    ->join('internet_system_types', 'internet_system_community_types.internet_system_type_id', 
                         '=', 'internet_system_types.id')
+                    ->where('internet_system_community_types.is_archived', 0)
                     ->select('internet_system_types.name', 'internet_systems.start_year', 
                         'internet_system_types.upgrade_year', 'internet_systems.system_name',
                         'internet_systems.id as id',
@@ -139,26 +143,33 @@ class InternetSystemController extends Controller
     public function store(Request $request)
     {       
         //dd($request->all());
-
         $internetSystem = new InternetSystem();
-        $internetSystem->internet_system_type_id = $request->internet_system_type_id;
         $internetSystem->system_name = $request->system_name;
         $internetSystem->start_year = $request->start_year;
         $internetSystem->notes = $request->notes;
         $internetSystem->save();
+
+        if($request->internet_system_type_id) {
+            for($i=0; $i < count($request->internet_system_type_id); $i++) {
+
+                $internetSystemType = new InternetSystemCommunityType();
+                $internetSystemType->internet_system_type_id = $request->internet_system_type_id[$i];
+                $internetSystemType->internet_system_id = $internetSystem->id;
+                $internetSystemType->save();
+            }
+        }
 
         $internetSystemCommunity = new InternetSystemCommunity();
         $internetSystemCommunity->community_id = $request->community_id;
         $internetSystemCommunity->internet_system_id = $internetSystem->id;
         $internetSystemCommunity->save();
 
-        // $community = Community::findOrFail($request->community_id);
-        // $community->internet_service = "Yes";
-        // if($community->internet_service_beginning_year == Null) {
-        //     $community->internet_service_beginning_year = $request->start_year;
-        // }
-        // $community->save();
-
+        $community = Community::findOrFail($request->community_id);
+        $community->internet_service = "Yes";
+        if($community->internet_service_beginning_year == Null) {
+            $community->internet_service_beginning_year = $request->start_year;
+        }
+        $community->save();
 
         // Router
         if($request->router_id) {
@@ -253,6 +264,249 @@ class InternetSystemController extends Controller
     }
 
     /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $internetSystem = InternetSystem::findOrFail($id);
+
+        return response()->json($internetSystem);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $internetSystem = InternetSystem::findOrFail($id);
+        $internetSystemTypes = InternetSystemCommunityType::where('internet_system_id', $id)
+            ->where("is_archived", 0)
+            ->get();
+        $internetCommunities = InternetSystemCommunity::where('internet_system_id', $id)->get();
+     
+        $internetTypes = InternetSystemType::all();
+
+        // Router
+        $routerSystems = DB::table('router_internet_systems')
+            ->join('internet_systems', 'router_internet_systems.internet_system_id', 
+                '=', 'internet_systems.id')
+            ->join('routers', 'router_internet_systems.router_id', 
+                '=', 'routers.id')
+            ->where('router_internet_systems.internet_system_id', '=', $id)
+            ->select('router_internet_systems.router_units', 'routers.model', 
+                'routers.brand_name', 'internet_systems.system_name', 
+                'router_internet_systems.id')
+            ->get(); 
+
+        // Switch
+        $switcheSystems = DB::table('switch_internet_systems')
+            ->join('internet_systems', 'switch_internet_systems.internet_system_id', 
+                '=', 'internet_systems.id')
+            ->join('switches', 'switch_internet_systems.switch_id', 
+                '=', 'switches.id')
+            ->where('switch_internet_systems.internet_system_id', '=', $id)
+            ->select('switch_internet_systems.switch_units', 'switches.model', 
+                'switches.brand_name', 'internet_systems.system_name',
+                'switch_internet_systems.id')
+            ->get(); 
+
+        // Controller
+        $controllerSystems = DB::table('controller_internet_systems')
+            ->join('internet_systems', 'controller_internet_systems.internet_system_id', 
+                '=', 'internet_systems.id')
+            ->join('internet_controllers', 'controller_internet_systems.internet_controller_id', 
+                '=', 'internet_controllers.id')
+            ->where('controller_internet_systems.internet_system_id', '=', $id)
+            ->select('controller_internet_systems.controller_units', 'internet_controllers.model', 
+                'internet_controllers.brand', 'internet_systems.system_name',
+                'controller_internet_systems.id')
+            ->get();
+
+        // PTP 
+        $ptpSystems = DB::table('ptp_internet_systems')
+            ->join('internet_systems', 'ptp_internet_systems.internet_system_id', 
+                '=', 'internet_systems.id')
+            ->join('internet_ptps', 'ptp_internet_systems.internet_ptp_id', 
+                '=', 'internet_ptps.id')
+            ->where('ptp_internet_systems.internet_system_id', '=', $id)
+            ->select('ptp_internet_systems.ptp_units', 'internet_ptps.model', 
+                'internet_ptps.brand', 'internet_systems.system_name',
+                'ptp_internet_systems.id')
+            ->get();
+
+        // AP
+        $apSystems = DB::table('ap_internet_systems')
+            ->join('internet_systems', 'ap_internet_systems.internet_system_id', 
+                '=', 'internet_systems.id')
+            ->join('internet_aps', 'ap_internet_systems.internet_ap_id', 
+                '=', 'internet_aps.id')
+            ->where('ap_internet_systems.internet_system_id', '=', $id)
+            ->select('ap_internet_systems.ap_units', 'internet_aps.model', 
+                'internet_aps.brand', 'internet_systems.system_name',
+                'ap_internet_systems.id')
+            ->get();
+
+        // AP Lite
+        $apLiteSystems = DB::table('ap_lite_internet_systems')
+            ->join('internet_systems', 'ap_lite_internet_systems.internet_system_id', 
+                '=', 'internet_systems.id')
+            ->join('internet_aps', 'ap_lite_internet_systems.internet_ap_id', 
+                '=', 'internet_aps.id')
+            ->where('ap_lite_internet_systems.internet_system_id', '=', $id)
+            ->select('ap_lite_internet_systems.ap_lite_units', 'internet_aps.model', 
+                'internet_aps.brand', 'internet_systems.system_name',
+                'ap_lite_internet_systems.id')
+            ->get();
+
+        // UISP
+        $uispSystems = DB::table('uisp_internet_systems')
+            ->join('internet_systems', 'uisp_internet_systems.internet_system_id', 
+                '=', 'internet_systems.id')
+            ->join('internet_uisps', 'uisp_internet_systems.internet_uisp_id', 
+                '=', 'internet_uisps.id')
+            ->where('uisp_internet_systems.internet_system_id', '=', $id)
+            ->select('uisp_internet_systems.uisp_units', 'internet_uisps.model', 
+                'internet_uisps.brand', 'internet_systems.system_name',
+                'uisp_internet_systems.id')
+            ->get();
+
+
+        $aps = InternetAp::all();
+        $controllers = InternetController::all();
+        $routers = Router::all();
+        $switches = Switche::all();
+        $ptps = InternetPtp::all();
+        $uisps = InternetUisp::all();
+
+        return view('system.internet.edit', compact('routers', 'switches', 'controllers',
+            'ptps', 'uisps', 'internetSystem', 'internetSystemTypes', 'aps',
+            'internetTypes', 'routerSystems', 'ptpSystems', 'controllerSystems', 
+            'switcheSystems', 'apSystems', 'apLiteSystems', 'uispSystems'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $internetSystem = InternetSystem::findOrFail($id);
+
+        $internetSystem->system_name = $request->system_name;
+        $internetSystem->start_year = $request->start_year;
+        $internetSystem->notes = $request->notes;
+        $internetSystem->save();
+
+        if($request->new_internet_types) {
+            for($i=0; $i < count($request->new_internet_types); $i++) {
+
+                $internetSystemType = new InternetSystemCommunityType();
+                $internetSystemType->internet_system_type_id = $request->new_internet_types[$i];
+                $internetSystemType->internet_system_id = $internetSystem->id;
+                $internetSystemType->save();
+            }
+        }
+
+        // Router
+        if($request->router_id) {
+            for($i=0; $i < count($request->router_id); $i++) {
+
+                $routerInternetSystem = new RouterInternetSystem();
+                $routerInternetSystem->router_id = $request->router_id[$i];
+                $routerInternetSystem->router_units = $request->router_units[$i]["subject"];
+                $routerInternetSystem->internet_system_id = $internetSystem->id;
+                $routerInternetSystem->save();
+            }
+        }
+
+        // Switch
+        if($request->switch_id) {
+            for($i=0; $i < count($request->switch_id); $i++) {
+
+                $switchInternetSystem = new SwitchInternetSystem();
+                $switchInternetSystem->switch_id = $request->switch_id[$i];
+                $switchInternetSystem->switch_units = $request->switch_units[$i]["subject"];
+                $switchInternetSystem->internet_system_id = $internetSystem->id;
+                $switchInternetSystem->save();
+            }
+        }
+
+        // Controller
+        if($request->controller_id) {
+            for($i=0; $i < count($request->controller_id); $i++) {
+
+                $switchInternetSystem = new ControllerInternetSystem();
+                $switchInternetSystem->internet_controller_id = $request->controller_id[$i];
+                $switchInternetSystem->controller_units = $request->controller_units[$i]["subject"];
+                $switchInternetSystem->internet_system_id = $internetSystem->id;
+                $switchInternetSystem->save();
+            }
+        }
+
+        // AP
+        if($request->ap_units) {
+            if($request->ap_id) {
+                for($i=0; $i < count($request->ap_id); $i++) {
+    
+                    $switchInternetSystem = new ApInternetSystem();
+                    $switchInternetSystem->internet_ap_id = $request->ap_id[$i];
+                    $switchInternetSystem->ap_units = $request->ap_units[$i]["subject"];
+                    $switchInternetSystem->internet_system_id = $internetSystem->id;
+                    $switchInternetSystem->save();
+                }
+            }
+        }
+
+        // AP Lite
+        if($request->ap_lite_units) {
+            if($request->ap_lite_id) {
+                for($i=0; $i < count($request->ap_lite_id); $i++) {
+
+                    $switchInternetSystem = new ApLiteInternetSystem();
+                    $switchInternetSystem->internet_ap_id = $request->ap_lite_id[$i];
+                    $switchInternetSystem->ap_lite_units = $request->ap_lite_units[$i]["subject"];
+                    $switchInternetSystem->internet_system_id = $internetSystem->id;
+                    $switchInternetSystem->save();
+                }
+            }
+        }
+
+        // PTP
+        if($request->ptp_id) {
+            for($i=0; $i < count($request->ptp_id); $i++) {
+
+                $ptpInternetSystem = new PtpInternetSystem();
+                $ptpInternetSystem->internet_ptp_id = $request->ptp_id[$i];
+                $ptpInternetSystem->ptp_units = $request->ptp_units[$i]["subject"];
+                $ptpInternetSystem->internet_system_id = $internetSystem->id;
+                $ptpInternetSystem->save();
+            }
+        }
+
+        // UISP
+        if($request->uisp_id) {
+            for($i=0; $i < count($request->uisp_id); $i++) {
+
+                $uispInternetSystem = new UispInternetSystem();
+                $uispInternetSystem->internet_uisp_id = $request->uisp_id[$i];
+                $uispInternetSystem->uisp_units = $request->uisp_units[$i]["subject"];
+                $uispInternetSystem->internet_system_id = $internetSystem->id;
+                $uispInternetSystem->save();
+            }
+        }
+
+        return redirect('/internet-system')->with('message', 'Internet System Updated Successfully!');
+    }
+
+    /**
      * Show the specified resource from storage.
      *
      * @param  int $id
@@ -263,8 +517,8 @@ class InternetSystemController extends Controller
         $internetSystem = InternetSystem::findOrFail($id);
 
         return response()->json($internetSystem);
-
     }
+    
     /**
      * Show the specified resource from storage.
      *
@@ -274,11 +528,12 @@ class InternetSystemController extends Controller
     public function show($id)
     {
         $internetSystem = InternetSystem::findOrFail($id);
-        $internetSystemType = InternetSystemType::where('id', 
-            $internetSystem->internet_system_type_id)
-            ->first();
-
-        $internetCommunities = InternetSystemCommunity::where('internet_system_id', $id)->get();
+        $internetSystemTypes = InternetSystemCommunityType::where('internet_system_id', $id)
+            ->where('is_archived', 0)
+            ->get();
+        $internetCommunities = InternetSystemCommunity::where('internet_system_id', $id)
+            ->where('is_archived', 0)
+            ->get();
      
         foreach($internetCommunities as $internetCommunity) {
             
@@ -364,7 +619,7 @@ class InternetSystemController extends Controller
             ->get();
 
         return view('system.internet.show', compact('routers', 'switches', 'controllers',
-            'ptps', 'aps', 'apLites', 'uisps', 'internetSystem', 'internetSystemType', 
+            'ptps', 'aps', 'apLites', 'uisps', 'internetSystem', 'internetSystemTypes', 
             'lineOfSightMainCommunities', 'lineOfSightSubCommunities'));
     }
 
@@ -386,6 +641,209 @@ class InternetSystemController extends Controller
            // if($internetSystemCommunity) $internetSystemCommunity->delete();
             $response['success'] = 1;
             $response['msg'] = 'Internet System Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemType(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemType = InternetSystemCommunityType::findOrFail($id);
+
+        if($internetSystemType) {
+
+            $internetSystemType->is_archived = 1;
+            $internetSystemType->save();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Type Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete internet system router.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemRouter(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemRouter = RouterInternetSystem::find($id);
+
+        if($internetSystemRouter->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Router Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete internet system switch.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemSwitch(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemSwitch = SwitchInternetSystem::find($id);
+
+        if($internetSystemSwitch->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Switch Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+     /**
+     * Delete internet system controller.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemController(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemController = ControllerInternetSystem::find($id);
+
+        if($internetSystemController->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Controller Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+     /**
+     * Delete internet system ap.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemAp(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemAp = ApInternetSystem::find($id);
+
+        if($internetSystemAp->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Ap Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+     /**
+     * Delete internet system ap lite.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemApLite(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemApLite = ApLiteInternetSystem::find($id);
+
+        if($internetSystemApLite->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Ap Lite Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete internet system ptp.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemPtp(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemPtp = PtpInternetSystem::find($id);
+
+        if($internetSystemPtp->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System PTP Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete internet system UISP.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemUisp(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemUisp = UispInternetSystem::find($id);
+
+        if($internetSystemUisp->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System UISP Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

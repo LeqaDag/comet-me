@@ -5,6 +5,18 @@
 @include('layouts.all')
 
 @section('content')
+
+<style>
+    label, input {
+    display: block;
+}
+
+label, table {
+    margin-top: 20px;
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
 <div class="container">
     <div class="row g-4 mb-4">
         <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-3 mb-4">
@@ -218,7 +230,7 @@ All<span class="text-muted fw-light"> Households</span>
             {{ session()->get('message') }}
         </div>
     </div>
-@endif
+@endif 
 
 @include('employee.household.details')
 
@@ -246,7 +258,7 @@ All<span class="text-muted fw-light"> Households</span>
                         <div class="col-xl-3 col-lg-3 col-md-3">
                             <fieldset class="form-group">
                                 <select name="community" class="selectpicker form-control" 
-                                data-live-search="true">
+                                    data-live-search="true">
                                     <option disabled selected>Search Community</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -340,6 +352,9 @@ All<span class="text-muted fw-light"> Households</span>
     </div>
 </div>
 
+<script src="{{ asset('js/jquery.min.js') }}"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script type="text/javascript">
     $(function () {

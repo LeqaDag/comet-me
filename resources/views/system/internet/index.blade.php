@@ -34,18 +34,22 @@
 @endif
 
 @include('system.internet.details')
-
+ 
 <div class="container">
     <div class="card my-2">
-        <div class="card-body">
+        <div class="card-body"> 
             @if(Auth::guard('user')->user()->user_type_id == 1 || 
                 Auth::guard('user')->user()->user_type_id == 2 ||
                 Auth::guard('user')->user()->user_type_id == 6 ||
                 Auth::guard('user')->user()->user_type_id == 10)
-                <div>
+                <div> 
                     <a type="button" class="btn btn-success" 
                         href="{{url('internet-system', 'create')}}">
                         Create New Internet System	
+                    </a>
+                    <a type="button" class="btn btn-success" 
+                        href="{{url('internet-component', 'create')}}">
+                        Create New Internet Components	
                     </a>
                 </div>
             @endif
@@ -86,6 +90,22 @@
                 {data: 'start_year', name: 'start_year'},
                 {data: 'action'}
             ]
+        });
+    });
+
+    // View record edit page
+    $('#internetAllSystemsTable').on('click', '.updateInternetSystem',function() {
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        url = url +'/'+ id +'/edit';
+        // AJAX request
+        $.ajax({
+            url: 'internet-system/' + id + '/editpage',
+            type: 'get',
+            dataType: 'json',
+            success: function(response) {
+                window.open(url, "_self"); 
+            }
         });
     });
 

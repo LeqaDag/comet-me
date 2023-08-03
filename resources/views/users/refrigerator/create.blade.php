@@ -41,7 +41,7 @@ label, table {
                                     id="communityChanges" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
-                                    <option value="{{$community->id}}">{{$community->english_name}}</option>
+                                    <option value="{{$community->id}}">{{$community->arabic_name}}</option>
                                     @endforeach
                                 </select>
                                 @if ($errors->has('community_id'))

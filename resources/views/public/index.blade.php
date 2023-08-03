@@ -32,6 +32,8 @@ label, table {
     </div>
 @endif
 
+@include('public.show')
+
 <div class="container">
     <div class="card my-2">
         <div class="card-header">
@@ -121,7 +123,7 @@ label, table {
         var table = $('.data-table-public-structure').DataTable({
             
             processing: true,
-            serverSide: true,
+            serverSide: true, 
             ajax: {
                 url: "{{ route('public.index') }}",
                 data: function (d) {
@@ -138,37 +140,32 @@ label, table {
         });
 
         // View record details
-        $('#publicStructureTable').on('click', '.viewMgIncident', function() {
+        $('#publicStructureTable').on('click', '.viewPublicStructure', function() {
             var id = $(this).data('id');
         
             // AJAX request
             $.ajax({
-                url: 'mg-incident/' + id,
+                url: 'public/' + id,
                 type: 'get',
                 dataType: 'json', 
                 success: function(response) {
-                    $('#mgIncidentModalTitle').html('');
-                    $('#mgIncidentModalTitle').html(response['energySystem'].name);
-                    $('#mgSystem').html('');
-                    $('#mgSystem').html(response['energySystem'].name);
+
+                    $('#publicStructureModalTitle').html('');
+                    $('#publicStructureModalTitle').html(response['publicStructure'].english_name);
+                    $('#englishNamePublic').html('');
+                    $('#englishNamePublic').html(response['publicStructure'].english_name);
+                    $('#arabicNamePublic').html('');
+                    $('#arabicNamePublic').html(response['publicStructure'].english_name);
                     $('#communityName').html('');
                     $('#communityName').html(response['community'].english_name);
-                    $('#incidentDate').html('');
-                    $('#incidentDate').html(response['mgIncident'].date);
-                    $('#mgIncidentStatus').html('')
-                    $('#mgIncidentStatus').html(response['mgStatus'].name);
-                    $('#incidentYear').html('');
-                    $('#incidentYear').html(response['mgIncident'].year);
-                    $('#incidentType').html('');
-                    $('#incidentType').html(response['incident'].english_name);
-                    $('#incidentNotes').html('');
-                    $('#incidentNotes').html(response['mgIncident'].notes);
+                    $('#publicNotes').html('');
+                    $('#publicNotes').html(response['publicStructure'].notes);
                 }
             });
         });
 
-        // View record photos
-        $('#publicStructureTable').on('click', '.updateMgIncident',function() {
+        // View edit page
+        $('#publicStructureTable').on('click', '.updatePublicStructure',function() {
             var id = $(this).data('id');
             var url = window.location.href; 
            
@@ -177,19 +174,19 @@ label, table {
         });
 
         // Delete record
-        $('#publicStructureTable').on('click', '.deleteMgIncident',function() {
+        $('#publicStructureTable').on('click', '.deletePublicStructure',function() {
             var id = $(this).data('id');
 
             Swal.fire({
                 icon: 'warning',
-                title: 'Are you sure you want to delete this Incident?',
+                title: 'Are you sure you want to delete this public?',
                 showDenyButton: true,
                 confirmButtonText: 'Confirm'
             }).then((result) => {
 
                 if(result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('deleteMgIncident') }}",
+                        url: "{{ route('deletePublicStructure') }}",
                         type: 'get',
                         data: {id: id},
                         success: function(response) {
@@ -202,7 +199,7 @@ label, table {
                                     showCancelButton: false,
                                     confirmButtonText: 'Okay!'
                                 }).then((result) => {
-                                    $('#mgIncidentsTable').DataTable().draw();
+                                    $('#publicStructureTable').DataTable().draw();
                                 });
                             } else {
 

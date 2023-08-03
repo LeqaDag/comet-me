@@ -101,7 +101,7 @@ class MgIncidentController extends Controller
             $mgIncidents = IncidentStatusMgSystem::where('is_archived', 0)->get();
             $mgIncidentsNumber = MgIncident::where('is_archived', 0)->count();
             $donors = Donor::where('is_archived', 0)
-                ->orderBy('donor_name', 'ASC')
+                ->orderBy('donor_name', 'ASC') 
                 ->get();
     
             $dataIncidents = DB::table('mg_incidents')

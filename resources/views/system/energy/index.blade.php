@@ -44,10 +44,14 @@
                 Auth::guard('user')->user()->user_type_id == 2 ||
                 Auth::guard('user')->user()->user_type_id == 4 )
                 <div>
-                    <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createWaterSystem">
+                    <a type="button" class="btn btn-success" 
+                        href="{{url('energy-system', 'create')}}">
                         Create New Energy System	
-                    </button>
+                    </a>
+                    <a type="button" class="btn btn-success" 
+                        href="{{url('energy-component', 'create')}}">
+                        Create New Energy Components	
+                    </a>
                 </div>
             @endif
             <table id="systemEnergyTable" class="table table-striped data-table-energy-system my-2">
@@ -117,6 +121,24 @@
             type: 'get',
             dataType: 'json',
             success: function(response) {
+                window.open(url, "_self"); 
+            }
+        });
+    });
+
+    // View record details
+    $('#systemEnergyTable').on('click', '.viewEnergySystem',function() {
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        url = url +'/'+ id;
+
+        // AJAX request
+        $.ajax({
+            url: 'energy-system/' + id + '/showPage',
+            type: 'get',
+            dataType: 'json',
+            success: function(response) {
+
                 window.open(url, "_self"); 
             }
         });

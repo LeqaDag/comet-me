@@ -300,6 +300,7 @@ class H2oMaintenanceCallController extends Controller
                 }
             }
         }
+        
         return redirect('/water-maintenance')->with('message', 'Water Maintenance Updated Successfully!');
     }
 

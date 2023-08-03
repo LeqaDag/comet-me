@@ -91,17 +91,24 @@ label, table {
                                 <input type="date" name="date" class="form-control">
                             </fieldset>
                         </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Equipment Damaged</label>
+                                <select name="incident_equipment_id[]" multiple
+                                    class="selectpicker form-control" data-live-search="true" >
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($incidentEquipments as $incidentEquipment)
+                                    <option value="{{$incidentEquipment->id}}">
+                                        {{$incidentEquipment->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Equipments</label>
-                                <textarea name="equipment" class="form-control" 
-                                   style="resize:none" cols="20" rows="3"></textarea>
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Notes</label>
                                 <textarea name="notes" class="form-control" 

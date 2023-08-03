@@ -41,6 +41,8 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
                 '=', 'maintenance_electricity_actions.id')
             ->join('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
                 '=', 'maintenance_statuses.id')
+            // ->join('electricity_maintenance_call_users', 'electricity_maintenance_calls.id', 
+            //     'electricity_maintenance_call_users.electricity_maintenance_call_id')
             ->join('users', 'electricity_maintenance_calls.user_id', '=', 'users.id')
             ->where('electricity_maintenance_calls.is_archived', 0)
             ->select('households.english_name as english_name', 
@@ -76,7 +78,7 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return ["Household Name", "Public Structure", "Community", "Region", "Sub Region", 
-            "Recipient", "Action in English", "Action in Arabic", "Status", "Type", "Call Date",
+            "Recipient", "Action in Arabic", "Action in English", "Status", "Type", "Call Date",
             "Completed Date", "Notes"];
     }
 

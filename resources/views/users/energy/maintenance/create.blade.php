@@ -6,7 +6,7 @@
 label, table {
     margin-top: 20px;
 }
-</style>
+</style> 
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
@@ -56,6 +56,7 @@ label, table {
                                     id="mgSystemOrFbsUser" disabled>
                                     <option selected>Choose one...</option>
                                     <option value="system">MG System</option>
+                                    <option value="fbs_system">FBS System</option>
                                     <option value="user">FBS User</option>
                                 </select>
                             </fieldset>
@@ -77,11 +78,11 @@ label, table {
                                 <label class='col-md-12 control-label'>Energy System</label>
                                 <select name="energy_system_id" class="form-control" 
                                     id="selectedEnergySystem" disabled>
-                                    <option disabled selected>Choose one...</option>
+                                    <option disabled selected>Choose One...</option>
                                     @foreach($mgSystems as $mgSystem)
-                                    <option value="{{$mgSystem->id}}">
-                                        {{$mgSystem->name}}
-                                    </option>
+                                        <option value="{{$mgSystem->id}}">
+                                            {{$mgSystem->name}}
+                                        </option>
                                     @endforeach
                                 </select>
                             </fieldset>
@@ -101,8 +102,8 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
-                                <select name="maintenance_electricity_action_id" class="form-control"
-                                    id="maintenanceElectricityAction" disabled required>
+                                <select name="maintenance_electricity_action_id" 
+                                    class="form-control" id="maintenanceElectricityAction" disabled required>
                                     <option disabled selected>Choose one...</option>
                                 </select>
                                 @if ($errors->has('maintenance_electricity_action_id'))
@@ -176,7 +177,24 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                    </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Performed By</label>
+                                <select name="performed_by[]" class="selectpicker form-control" 
+                                    data-live-search="true" multiple>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($users as $user)
+                                    <option value="{{$user->id}}">
+                                        {{$user->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @if ($errors->has('user_id'))
+                                    <span class="error">{{ $errors->first('user_id') }}</span>
+                                @endif
+                            </fieldset>
+                        </div>
+                    </div> 
                   
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
@@ -216,6 +234,8 @@ label, table {
             $('#selectedUserHousehold').prop('disabled', true);
             $('#selectedPublic').prop('disabled', true);
 
+            //getEnergySystem(community_id);
+
             getAction(1);
                 
         } else if(systemUser == "user") {
@@ -223,7 +243,16 @@ label, table {
             getEnergyUserByCommunity(community_id);
             getPublicByCommunity(community_id);
             getAction(2);
-        }
+
+        }  else if(systemUser == "fbs_system") {
+
+            $('#selectedEnergySystem').prop('disabled', false);
+            $('#selectedUserHousehold').prop('disabled', true);
+            $('#selectedPublic').prop('disabled', true);
+
+            //getEnergySystem(0);
+            getAction(1);
+        } 
 
         $(document).on('change', '#mgSystemOrFbsUser', function () {
             systemUser = $('#mgSystemOrFbsUser').val();
@@ -244,12 +273,6 @@ label, table {
         });
     });
 
-    $(document).on('change', '#selectedEnergySystemType', function () {
-        energy_type_id = $(this).val();
-   
-        getEnergyUser(energy_type_id);
-    });
-
     function getAction(system) {
         $.ajax({
             url: "energy-maintenance/get_system/" + system,
@@ -258,6 +281,17 @@ label, table {
 
                 $('#maintenanceElectricityAction').prop('disabled', false);
                 $('#maintenanceElectricityAction').html(data.html);
+            }
+        });
+    }
+
+    function getEnergySystem(community_id) {
+        $.ajax({
+            url: "energy-maintenance/get_energy/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                $('#selectedEnergySystem').prop('disabled', false);
+                $('#selectedEnergySystem').html(data.html);
             }
         });
     }
@@ -289,17 +323,4 @@ label, table {
             }
         });
     } 
-
-    function getEnergyUser(energy_type_id) {
-
-        $.ajax({
-            url: "energy-user/get_by_energy_type/" + energy_type_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedEnergySystem').prop('disabled', false);
-                $('#selectedEnergySystem').html(data.html);
-            }
-        });
-    } 
-
 </script>

@@ -228,10 +228,17 @@
                     $('#incidentYear').html(response['fbsIncident'].year);
                     $('#incidentType').html('');
                     $('#incidentType').html(response['incident'].english_name);
-                    $('#incidentEquipment').html('');
-                    $('#incidentEquipment').html(response['fbsIncident'].equipment);
                     $('#incidentNotes').html('');
                     $('#incidentNotes').html(response['fbsIncident'].notes);
+
+                    $('#incidentEquipment').html(" ");
+                    if(response['fbsIncidentEquipments'] != []) {
+                        for (var i = 0; i < response['fbsIncidentEquipments'].length; i++) {
+                            $("#incidentEquipment").append(
+                            '<ul><li>'+ response['fbsIncidentEquipments'][i].name +'</li></ul>');
+                               
+                        }
+                    }
                 }
             });
         });

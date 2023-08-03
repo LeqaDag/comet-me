@@ -12,6 +12,12 @@ class EnergySystem extends Model
     protected $fillable = ['name', 'energy_system_type_id', 'installation_year'];
 
 
+    public function Community()
+    {
+        
+        return $this->belongsTo(Community::class, 'community_id', 'id');
+    }
+
     public function EnergySystemType()
     {
         

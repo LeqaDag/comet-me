@@ -415,6 +415,7 @@ class EnergyUserController extends Controller
             ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
             ->where("households.community_id", $community_id)
             ->select('households.id', 'households.english_name')
+            ->orderBy('households.english_name', 'ASC') 
             ->get();
  
         if (!$community_id) {
@@ -427,6 +428,7 @@ class EnergyUserController extends Controller
                 ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
                 ->where("households.community_id", $community_id)
                 ->select('households.id', 'households.english_name')
+                ->orderBy('households.english_name', 'ASC') 
                 ->get();
             foreach ($households as $household) {
                 $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';

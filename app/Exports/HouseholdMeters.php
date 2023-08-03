@@ -24,7 +24,7 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
     */
     public function collection() 
     {
-        $query = DB::table('household_meters')
+        $query = DB::table('household_meters') 
             ->join('all_energy_meters', 'all_energy_meters.id', 
                 '=', 'household_meters.energy_user_id')
             ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')

@@ -49,10 +49,14 @@ class RefrigeratorExport implements FromCollection, WithHeadings, WithTitle, Sho
             $query->where("public_structures.public_structure_category_id1", $this->request->public)
                 ->orWhere("public_structures.public_structure_category_id2", $this->request->public)
                 ->orWhere("public_structures.public_structure_category_id3", $this->request->public);
-        }
-        if($this->request->date) {
+        } 
+        if($this->request->date_from) {
 
-            $query->where("refrigerator_holders.date", ">=", $this->request->date);
+            $query->where("refrigerator_holders.date", ">=", $this->request->date_from);
+        }
+        if($this->request->date_to) {
+
+            $query->where("refrigerator_holders.date", "<=", $this->request->date_to);
         }
 
         return $query->get();

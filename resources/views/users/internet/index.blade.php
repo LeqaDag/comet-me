@@ -157,7 +157,7 @@ label, table {
             }
         });
     });
-
+ 
     // View record details
     $('#getInternetHolders').on('click', function() {
 

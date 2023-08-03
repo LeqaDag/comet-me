@@ -284,7 +284,7 @@ class AllWaterController extends Controller
         $h2oPublic = H2oPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
         $gridPublic = GridPublicStructure::where('public_structure_id', $allWaterHolder->public_structure_id)->first();
 
-
+ 
         if($h2oUser) {
 
             if($request->h2o_status_id) {

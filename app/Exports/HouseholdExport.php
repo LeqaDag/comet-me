@@ -8,7 +8,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use DB;
+use DB; 
 
 class HouseholdExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
 {

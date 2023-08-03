@@ -54,7 +54,9 @@ class PublicStructureController extends Controller
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 ||
                             Auth::guard('user')->user()->user_type_id == 3 ||
-                            Auth::guard('user')->user()->user_type_id == 4) 
+                            Auth::guard('user')->user()->user_type_id == 4 ||
+                            Auth::guard('user')->user()->user_type_id == 5 ||
+                            Auth::guard('user')->user()->user_type_id == 6) 
                         {
 
                             return $viewButton." ". $updateButton." ". $deleteButton;
@@ -113,5 +115,98 @@ class PublicStructureController extends Controller
         
         return redirect('/public')
             ->with('message', 'New Public Structure Added Successfully!');
+    }
+
+    /**
+     * View Edit page. 
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $publicStructure = PublicStructure::findOrFail($id);
+
+        return response()->json($publicStructure);
+    }
+
+        /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $publicStructure = PublicStructure::findOrFail($id);
+        $publicCategories = PublicStructureCategory::all();
+
+        return view('public.edit', compact('publicStructure', 'publicCategories'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $publicStructure = PublicStructure::findOrFail($id);
+
+        $publicStructure->english_name = $request->english_name;
+        $publicStructure->arabic_name = $request->arabic_name;
+        $publicStructure->notes = $request->notes;
+        $publicStructure->public_structure_category_id1 = $request->public_structure_category_id1;
+        $publicStructure->public_structure_category_id2 = $request->public_structure_category_id2;
+        $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
+        $publicStructure->save();
+
+        return redirect('/public')->with('message', 'Public Structure Updated Successfully!');
+    }
+
+    /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $publicStructure = PublicStructure::findOrFail($id);
+        $community = Community::where('id', $publicStructure->community_id)->first();
+
+        $response['publicStructure'] = $publicStructure;
+        $response['community'] = $community;
+
+        return response()->json($response);
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deletePublicStructure(Request $request)
+    {
+        $id = $request->id;
+
+        $public = PublicStructure::find($id);
+
+        if($public) {
+
+            $public->is_archived = 1;
+            $public->save();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Public Structure Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 }

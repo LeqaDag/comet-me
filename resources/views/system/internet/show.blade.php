@@ -6,7 +6,7 @@
 @include('layouts.all')
 
 @section('content')
-
+ 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light"> {{$internetSystem->system_name}}</span> Details
 </h4>
@@ -35,10 +35,12 @@
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <h6>
-                        System Type: 
-                        <span class="spanDetails">
-                            {{$internetSystemType->name}}
-                        </span>
+                        System Types: 
+                        @foreach($internetSystemTypes as $internetSystemType)
+                            <span class="spanDetails">
+                                {{$internetSystemType->InternetSystemType->name}},
+                            </span>
+                        @endforeach 
                     </h6>
                 </div>
             </div>

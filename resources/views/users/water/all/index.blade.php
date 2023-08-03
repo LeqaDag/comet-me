@@ -10,7 +10,6 @@
 
 @section('content')
 
-
 <div class="container mb-4">
     <div class="col-lg-12 col-12">
         <div class="row">

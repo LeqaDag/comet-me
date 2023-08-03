@@ -6,13 +6,27 @@
 
 <style>
     label, input {
-    display: block;
-}
 
-label {
-    margin-top: 20px;
-}
+        display: block;
+    }
+
+    .dropdown-toggle {
+
+        height: 40px;
+    }
+
+    label {
+
+        margin-top: 20px;
+    }
+
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> {{$fbsIncident->AllEnergyMeter->Household->english_name}}
@@ -120,15 +134,6 @@ label {
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Equipments</label>
-                            <textarea name="equipment" class="form-control" 
-                                style="resize:none" cols="20" rows="3">
-                            {{$fbsIncident->equipment}}
-                            </textarea>
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
-                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label>
                             <textarea name="notes" class="form-control" 
                                 style="resize:none" cols="20" rows="3">
@@ -137,7 +142,67 @@ label {
                         </fieldset>
                     </div>
                 </div>
-                    
+                    <hr>
+
+                <div class="row">
+                    <h5>Equipment Damaged</h5>
+                </div>
+                @if(count($fbsIncidentEquipments) > 0)
+
+                    <table id="fbsIncidentEquipmentsTable" 
+                        class="table table-striped data-table-fbs-equipments my-2">
+                        
+                        <tbody>
+                            @foreach($fbsIncidentEquipments as $fbsIncidentEquipment)
+                            <tr id="fbsIncidentEquipmentRow">
+                                <td class="text-center">
+                                    {{$fbsIncidentEquipment->IncidentEquipment->name}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteIncidentEquipment" id="deleteIncidentEquipment" 
+                                        data-id="{{$fbsIncidentEquipment->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add More Equipment Damaged</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="more_equipment[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($incidentEquipments as $incidentEquipment)
+                                        <option value="{{$incidentEquipment->id}}">
+                                            {{$incidentEquipment->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Equipment Damaged</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_equipment[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($incidentEquipments as $incidentEquipment)
+                                        <option value="{{$incidentEquipment->id}}">
+                                            {{$incidentEquipment->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -150,6 +215,9 @@ label {
     </div>
 </div>
 
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
 <script>
 
     $(document).on('change', '#fbsSelectedCommuntiy', function () {
@@ -161,6 +229,44 @@ label {
             success: function(data) {
                 $('#energyUserSelectedFbs').prop('disabled', false);
                 $('#energyUserSelectedFbs').html(data.html);
+            }
+        });
+    });
+
+    // delete damaged equipment
+    $('#fbsIncidentEquipmentsTable').on('click', '.deleteIncidentEquipment',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this equipment?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteIncidentEquipment') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
             }
         });
     });

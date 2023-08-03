@@ -13,6 +13,6 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+ 
 Route::resource('household', App\Http\Controllers\Api\HouseholdController::class);
 Route::resource('internet-holder', App\Http\Controllers\Api\InternetHolderController::class);

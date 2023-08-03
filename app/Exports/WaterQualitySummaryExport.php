@@ -192,14 +192,14 @@ class WaterQualitySummaryExport implements FromCollection, WithHeadings, WithSty
      */
     public function headings(): array
     {
-        return ["Date", "Community", "Water Holder", "bacterial contamination result  (cfu)", 
+        return ["Date", "Community", "Facility User", "bacterial contamination result  (cfu)", 
             "Free Chlorine (mg/l)", "pH", "Electrical Conductivity (ms/cm)"];
     }
 
 
     public function startCell(): string
     {
-        return 'B6';
+        return 'B7';
     }
 
     /**
@@ -230,34 +230,35 @@ class WaterQualitySummaryExport implements FromCollection, WithHeadings, WithSty
         $sheet->mergeCells('B2:E2');
         $sheet->mergeCells('B3:E3');
         $sheet->mergeCells('B4:E4');
+        $sheet->mergeCells('B5:E5');
 
         $sheet->setCellValue('A1', 'COMET - ME Water Quality Programe ');
-        $sheet->setCellValue('B2', 'Average');
-        $sheet->setCellValue('B3', 'Max');
-        $sheet->setCellValue('B4', 'Min');
-        $sheet->setCellValue('F2', $this->phAverage);
-        $sheet->setCellValue('G2', $this->fciAverage);
-        $sheet->setCellValue('H2', $this->ecAverage);
-        $sheet->setCellValue('G3', $this->phMax);
-        $sheet->setCellValue('G4', $this->phMin);
-        $sheet->setCellValue('F3', $this->fciMax);
-        $sheet->setCellValue('F4', $this->fciMin);
-        $sheet->setCellValue('H3', $this->ecMax);
-        $sheet->setCellValue('H4', $this->ecMin);
+        $sheet->setCellValue('B3', 'Average');
+        $sheet->setCellValue('B4', 'Max');
+        $sheet->setCellValue('B5', 'Min');
+        $sheet->setCellValue('F3', $this->phAverage);
+        $sheet->setCellValue('G3', $this->fciAverage);
+        $sheet->setCellValue('H3', $this->ecAverage);
+        $sheet->setCellValue('G4', $this->phMax);
+        $sheet->setCellValue('G5', $this->phMin);
+        $sheet->setCellValue('F4', $this->fciMax);
+        $sheet->setCellValue('F5', $this->fciMin);
+        $sheet->setCellValue('H4', $this->ecMax);
+        $sheet->setCellValue('H5', $this->ecMin);
 
         $sheet->setAutoFilter('B6:H6');
         $sheet->getStyle('B6:G6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
         $sheet->getStyle('B6:G6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $sheet->getStyle('B2:H2')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('B2:H2')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('B2:H2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('B3:H3')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $sheet->getStyle('B3:H3')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
         $sheet->getStyle('B3:H3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('B4:H4')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $sheet->getStyle('B4:H4')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
         $sheet->getStyle('B4:H4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('B5:H5')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('B5:H5')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('B5:H5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         return [
             // Style the first row as bold text.

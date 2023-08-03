@@ -9,7 +9,7 @@
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Refrigerator Maintenance 
 </h4>
-
+ 
 @if(session()->has('message'))
     <div class="row">
         <div class="alert alert-success">

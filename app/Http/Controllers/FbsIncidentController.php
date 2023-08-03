@@ -17,6 +17,8 @@ use App\Models\EnergyUser;
 use App\Models\EnergySystem;
 use App\Models\HouseholdMeter;
 use App\Models\FbsUserIncident;
+use App\Models\FbsIncidentEquipment;
+use App\Models\IncidentEquipment;
 use App\Models\Incident;
 use App\Models\Household;
 use App\Models\IncidentStatusSmallInfrastructure;
@@ -57,6 +59,7 @@ class FbsIncidentController extends Controller
                         'incidents.english_name as incident', 
                         'incident_status_small_infrastructures.name as fbs_status',
                         'fbs_user_incidents.notes')
+                    ->orderBy('households.english_name', 'ASC')
                     ->latest(); 
     
                 return Datatables::of($data)
@@ -107,10 +110,13 @@ class FbsIncidentController extends Controller
                 ->get();
     
             $incidents = Incident::where('is_archived', 0)->get();
+            $incidentEquipments = IncidentEquipment::where('is_archived', 0)
+                ->orderBy('name', 'ASC')
+                ->get(); 
             $fbsIncidents = IncidentStatusSmallInfrastructure::where('is_archived', 0)->get();
             $fbsIncidentsNumber = FbsUserIncident::where('energy_user_id', '!=', '0')
                 ->where('is_archived', 0)
-                ->count();
+                ->count(); 
             $donors = Donor::where('is_archived', 0)
                 ->orderBy('donor_name', 'ASC')
                 ->get();
@@ -139,7 +145,7 @@ class FbsIncidentController extends Controller
             }
     
             return view('incidents.fbs.index', compact('communities', 'energyUsers',
-                'incidents', 'fbsIncidents', 'fbsIncidentsNumber', 'donors'))
+                'incidents', 'fbsIncidents', 'fbsIncidentsNumber', 'donors', 'incidentEquipments'))
                 ->with('incidentsFbsData', json_encode($arrayFbsIncidents));
                 
         } else {
@@ -170,9 +176,19 @@ class FbsIncidentController extends Controller
         $fbsIncident->energy_user_id = $energyUser->id;
         $fbsIncident->incident_id = $request->incident_id;
         $fbsIncident->incident_status_small_infrastructure_id = $request->incident_status_small_infrastructure_id;
-        $fbsIncident->equipment = $request->equipment;
         $fbsIncident->notes = $request->notes;
         $fbsIncident->save();
+        $id = $fbsIncident->id;
+
+        if($request->incident_equipment_id) {
+            for($i=0; $i < count($request->incident_equipment_id); $i++) {
+
+                $fbsEquipment = new FbsIncidentEquipment();
+                $fbsEquipment->incident_equipment_id = $request->incident_equipment_id[$i];
+                $fbsEquipment->fbs_user_incident_id = $id;
+                $fbsEquipment->save();
+            }
+        }
 
         return redirect()->back()
         ->with('message', 'New FBS Incident Added Successfully!');
@@ -195,11 +211,21 @@ class FbsIncidentController extends Controller
         $fbsStatus = IncidentStatusSmallInfrastructure::where('id', 
             $fbsIncident->incident_status_small_infrastructure_id)->first();
 
+        $fbsIncidentEquipments = DB::table('fbs_incident_equipment')
+            ->join('incident_equipment', 'fbs_incident_equipment.incident_equipment_id', 
+                '=', 'incident_equipment.id')
+            ->join('fbs_user_incidents', 'fbs_incident_equipment.fbs_user_incident_id', 
+                '=', 'fbs_user_incidents.id')
+            ->where('fbs_incident_equipment.fbs_user_incident_id', $id)
+            ->where('fbs_incident_equipment.is_archived', 0)
+            ->get();
+
         $response['fbsIncident'] = $fbsIncident;
         $response['energyUser'] = $energyUser;
         $response['community'] = $community;
         $response['incident'] = $incident;
         $response['fbsStatus'] = $fbsStatus;
+        $response['fbsIncidentEquipments'] = $fbsIncidentEquipments;
 
         return response()->json($response);
     }
@@ -221,9 +247,15 @@ class FbsIncidentController extends Controller
             ->get();
         $incidents = Incident::where('is_archived', 0)->get();
         $fbsStatuses = IncidentStatusSmallInfrastructure::where('is_archived', 0)->get();
+        $fbsIncidentEquipments = FbsIncidentEquipment::where('fbs_user_incident_id', $id)
+            ->where('is_archived', 0)
+            ->get();
+        $incidentEquipments = IncidentEquipment::where('is_archived', 0)
+            ->orderBy('name', 'ASC')
+            ->get(); 
 
         return view('incidents.fbs.edit', compact('fbsIncident', 'communities', 'energyUsers', 
-            'incidents', 'fbsStatuses'));
+            'incidents', 'fbsStatuses', 'fbsIncidentEquipments', 'incidentEquipments'));
     }
 
     /**
@@ -245,9 +277,30 @@ class FbsIncidentController extends Controller
 
         $fbsIncident->incident_id = $request->incident_id;
         $fbsIncident->incident_status_small_infrastructure_id = $request->incident_status_small_infrastructure_id;
-        $fbsIncident->equipment = $request->equipment;
         $fbsIncident->notes = $request->notes;
         $fbsIncident->save();
+
+        if($request->new_equipment) {
+
+            for($i=0; $i < count($request->new_equipment); $i++) {
+
+                $fbsEquipment = new FbsIncidentEquipment();
+                $fbsEquipment->incident_equipment_id = $request->new_equipment[$i];
+                $fbsEquipment->fbs_user_incident_id = $fbsIncident->id;
+                $fbsEquipment->save();
+            }
+        }
+
+        if($request->more_equipment) {
+
+            for($i=0; $i < count($request->more_equipment); $i++) {
+
+                $fbsEquipment = new FbsIncidentEquipment();
+                $fbsEquipment->incident_equipment_id = $request->more_equipment[$i];
+                $fbsEquipment->fbs_user_incident_id = $fbsIncident->id;
+                $fbsEquipment->save();
+            }
+        }
 
         return redirect('/fbs-incident')->with('message', 'FBS Incident Updated Successfully!');
     }
@@ -271,6 +324,34 @@ class FbsIncidentController extends Controller
             
             $response['success'] = 1;
             $response['msg'] = 'FBS Incident Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+     /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteIncidentEquipment(Request $request)
+    {
+        $id = $request->id;
+
+        $fbsEquipment = FbsIncidentEquipment::find($id);
+
+        if($fbsEquipment) {
+
+            $fbsEquipment->is_archived = 1;
+            $fbsEquipment->save();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Equipment Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

@@ -17,6 +17,7 @@ use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\RefrigeratorHolder;
 use App\Exports\RefrigeratorExport;
+use App\Imports\ImportRefrigerator;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -31,15 +32,15 @@ class RefrigeratorHolderController extends Controller
      */
     public function index(Request $request)
     {
-        // $holders = RefrigeratorHolder::all();
- 
+        // $holders = RefrigeratorHolder::where("community_id", NULL)->get();
+        
         // foreach($holders as $holder) {
-        //     // $community = Community::where('english_name', $holder->community_name)->first();
-
-        //     // $holder->community_id = $community->id;
+        //     $community = Community::where('english_name', $holder->community_name)->first();
+      
+        //     $holder->community_id = $community->id;
  
-        //     $household = Household::where('english_name', $holder->household_name)->first();
-        //     $holder->household_id = $household->id;
+        //     // $household = Household::where('english_name', $holder->household_name)->first();
+        //     // $holder->household_id = $household->id;
         //     $holder->save();
         // }
 
@@ -52,6 +53,7 @@ class RefrigeratorHolderController extends Controller
                     ->leftJoin('households', 'refrigerator_holders.household_id', '=', 'households.id')
                     ->leftJoin('public_structures', 'refrigerator_holders.public_structure_id', 
                         '=', 'public_structures.id')
+                    ->where('refrigerator_holders.is_archived', 0)
                     ->select('refrigerator_holders.refrigerator_type_id', 'refrigerator_holders.date',
                         'refrigerator_holders.id as id', 'refrigerator_holders.created_at as created_at', 
                         'refrigerator_holders.updated_at as updated_at', 
@@ -126,7 +128,7 @@ class RefrigeratorHolderController extends Controller
     {
         $this->validate($request, [
             'community_id' => 'required',
-        ]);
+        ]); 
 
         $refrigeratorHolder = new RefrigeratorHolder();
         if($request->is_household == "no") {
@@ -219,7 +221,10 @@ class RefrigeratorHolderController extends Controller
 
         $refrigeratorHolder = RefrigeratorHolder::find($id);
 
-        if($refrigeratorHolder->delete()) {
+        if($refrigeratorHolder) {
+
+            $refrigeratorHolder->is_archived = 1;
+            $refrigeratorHolder->save();
 
             $response['success'] = 1;
             $response['msg'] = 'Refrigerator Holder Deleted successfully'; 
@@ -313,5 +318,16 @@ class RefrigeratorHolderController extends Controller
     {
                 
         return Excel::download(new RefrigeratorExport($request), 'rfrigerators.xlsx');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function import(Request $request)
+    {
+        Excel::import(new ImportRefrigerator, $request->file('file')); 
+            
+        return back()->with('success', 'Excel Data Imported successfully.');
     }
 }

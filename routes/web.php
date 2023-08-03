@@ -118,6 +118,23 @@ Route::post('all-meter-export', [App\Http\Controllers\AllEnergyController::class
 
 Route::resource('energy-system', App\Http\Controllers\EnergySystemController::class);
 Route::get('energy-system/{id}/editpage', [App\Http\Controllers\EnergySystemController::class, 'editPage']);
+Route::resource('energy-component', App\Http\Controllers\EnergyComponentController::class);
+Route::get('energy-system/{id}/showPage', [App\Http\Controllers\EnergySystemController::class, 'showPage']);
+
+Route::get('/delete-energy-system-battery', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBattery'])->name('deleteEnergySystemBattery');
+Route::get('/delete-energy-system-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemPv'])->name('deleteEnergySystemPv');
+Route::get('/delete-energy-system-controller', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemController'])->name('deleteEnergySystemController');
+Route::get('/delete-energy-system-mcb-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbPv'])->name('deleteEnergySystemMcbPv');
+Route::get('/delete-energy-system-bsp', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBsp'])->name('deleteEnergySystemBsp');
+Route::get('/delete-energy-system-monitoring', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMonitoring'])->name('deleteEnergySystemMonitoring');
+Route::get('/delete-energy-system-load-relay', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemLoadRelay'])->name('deleteEnergySystemLoadRelay');
+Route::get('/delete-energy-system-inventer', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemInverter'])->name('deleteEnergySystemInverter');
+Route::get('/delete-energy-system-generator', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemGenerator'])->name('deleteEnergySystemGenerator');
+Route::get('/delete-energy-system-relay-driver', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemRelayDriver'])->name('deleteEnergySystemRelayDriver');
+Route::get('/delete-energy-system-turbine', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemTurbine'])->name('deleteEnergySystemTurbine');
+Route::get('/delete-energy-system-rcc', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemRcc'])->name('deleteEnergySystemRcc');
+Route::get('/delete-energy-system-mcb-controller', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbController'])->name('deleteEnergySystemMcbController');
+Route::get('/delete-energy-system-mcb-inventer', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbInverter'])->name('deleteEnergySystemMcbInverter');
 
 Route::resource('water-system', App\Http\Controllers\WaterSystemController::class);
 Route::get('water_user/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getWaterUserByCommunity']);
@@ -178,6 +195,18 @@ Route::get('/delete-h2o-user', [App\Http\Controllers\H2oMaintenanceCallControlle
 Route::resource('internet-system', App\Http\Controllers\InternetSystemController::class);
 Route::get('internet-system/{id}/showPage', [App\Http\Controllers\InternetSystemController::class, 'showPage']);
 Route::get('/delete-internet-system', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystem'])->name('deleteInternetSystem');
+Route::get('internet-system/{id}/editpage', [App\Http\Controllers\InternetSystemController::class, 'editPage']);
+Route::get('/delete-internet-system-type', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemType'])->name('deleteInternetSystemType');
+
+Route::get('/delete-internet-system-router', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemRouter'])->name('deleteInternetSystemRouter');
+Route::get('/delete-internet-system-switch', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemSwitch'])->name('deleteInternetSystemSwitch');
+Route::get('/delete-internet-system-controller', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemController'])->name('deleteInternetSystemController');
+Route::get('/delete-internet-system-ap', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemAp'])->name('deleteInternetSystemAp');
+Route::get('/delete-internet-system-aplite', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemApLite'])->name('deleteInternetSystemApLite');
+Route::get('/delete-internet-system-uisp', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemUisp'])->name('deleteInternetSystemUisp');
+Route::get('/delete-internet-system-ptp', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemPtp'])->name('deleteInternetSystemPtp');
+
+Route::resource('internet-component', App\Http\Controllers\InternetComponentController::class);
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'showMainPage']);
 Route::get('downloadPdf', [App\Http\Controllers\HomeController::class, 'downloadPdf']);
@@ -195,6 +224,9 @@ Route::resource('energy-maintenance', App\Http\Controllers\EnergyMaintenanceCall
 Route::get('/delete-energy-maintenance', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deleteMaintenanceEnergy'])->name('deleteMaintenanceEnergy');
 Route::post('energy-maintenance-export', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'export'])->name('energy-maintenance.export');
 Route::get('energy-maintenance/get_system/{system}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getMaintenanceAction']);
+Route::get('/delete-energy-performed', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deletePerformedEnergyUsers'])->name('deletePerformedEnergyUsers');
+Route::get('energy-maintenance/get_energy/{community_id}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getEnergySystem'])->name('getEnergySystem');
+Route::post('energy-maintenance-import', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'import'])->name('energy-maintenance.import');
 
 Route::resource('new-energy-maintenance', App\Http\Controllers\NewEnergyMaintenanceCallController::class);
 Route::get('/delete-new-energy-maintenance', [App\Http\Controllers\NewEnergyMaintenanceCallController::class, 'deleteNewMaintenanceEnergy'])->name('deleteNewMaintenanceEnergy');
@@ -203,6 +235,7 @@ Route::post('new-energy-maintenance-export', [App\Http\Controllers\NewEnergyMain
 Route::resource('refrigerator-user', App\Http\Controllers\RefrigeratorHolderController::class);
 Route::get('/delete-refrigerator', [App\Http\Controllers\RefrigeratorHolderController::class, 'deleteRefrigeratorHolder'])->name('deleteRefrigeratorHolder');
 Route::post('refrigerator-export', [App\Http\Controllers\RefrigeratorHolderController::class, 'export'])->name('refrigerator.export');
+Route::post('refrigerator-import', [App\Http\Controllers\RefrigeratorHolderController::class, 'import'])->name('refrigerator.import');
 
 Route::resource('refrigerator-maintenance', App\Http\Controllers\RefrigeratorMaintenanceCallController::class);
 Route::get('/delete-refrigerator-maintenance', [App\Http\Controllers\RefrigeratorMaintenanceCallController::class, 'deleteRefrigerator'])->name('deleteRefrigerator');
@@ -219,6 +252,7 @@ Route::post('mg-incident-export', [App\Http\Controllers\MgIncidentController::cl
 Route::resource('fbs-incident', App\Http\Controllers\FbsIncidentController::class);
 Route::get('/delete-fbs-incident', [App\Http\Controllers\FbsIncidentController::class, 'deleteFbsIncident'])->name('deleteFbsIncident');
 Route::post('fbs-incident-export', [App\Http\Controllers\FbsIncidentController::class, 'export'])->name('fbs-incident.export');
+Route::get('/delete-fbs-equipment', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentEquipment'])->name('deleteIncidentEquipment');
 
 Route::resource('water-incident', App\Http\Controllers\WaterIncidentController::class);
 Route::get('/delete-water-incident', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncident'])->name('deleteWaterIncident');
@@ -248,3 +282,5 @@ Route::post('all-active-export', [App\Http\Controllers\AllActiveUserController::
 
 Route::resource('public', App\Http\Controllers\PublicStructureController::class);
 Route::post('public-export', [App\Http\Controllers\PublicStructureController::class, 'export'])->name('public.export');
+Route::get('/delete-public-structure', [App\Http\Controllers\PublicStructureController::class, 'deletePublicStructure'])->name('deletePublicStructure');
+Route::get('public/{id}/editpage', [App\Http\Controllers\PublicStructureController::class, 'editPage']);

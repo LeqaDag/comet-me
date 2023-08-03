@@ -15,7 +15,7 @@
 
     label, table {
         margin-top: 20px;
-    }
+    } 
 
     .dropdown-toggle{
         height: 40px;
@@ -38,7 +38,6 @@
         <div class="card-body">
             <form method="POST" action="{{url('internet-system')}}" enctype="multipart/form-data" >
                 @csrf
-
                 <div class="row">
                     <h6>General Details</h6> 
                 </div>
@@ -62,7 +61,8 @@
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Internet System Type</label>
-                            <select name="internet_system_type_id" class="form-control">
+                            <select name="internet_system_type_id[]" class="selectpicker form-control"
+                                data-live-search="true" multiple>
                                 <option disabled selected>Choose one...</option>
                                 @foreach($internetSystemTypes as $internetSystemType)
                                     <option value="{{$internetSystemType->id}}">

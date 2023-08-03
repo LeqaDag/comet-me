@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
-use App\Models\Community;
+use App\Models\Community; 
 use App\Models\CommunityDonor;
 use App\Models\CommunityStatus;
 use App\Models\CommunityRepresentative;
@@ -26,6 +26,7 @@ use App\Models\EnergyLoadRelay;
 use App\Models\EnergyMcbAc;
 use App\Models\EnergyMcbPv;
 use App\Models\EnergyMonitoring;
+use App\Models\EnergyWindTurbine;
 use App\Models\EnergyMcbChargeController;
 use App\Models\EnergyMcbInverter;
 use App\Models\EnergyRelayDriver;
@@ -33,7 +34,19 @@ use App\Models\EnergyRemoteControlCenter;
 use App\Models\EnergySystemType;
 use App\Models\EnergySystemRelayDriver;
 use App\Models\EnergySystemBattery;
+use App\Models\EnergySystemMonitoring;
 use App\Models\EnergySystemPv;
+use App\Models\EnergySystemChargeController;
+use App\Models\EnergySystemWindTurbine;
+use App\Models\EnergySystemGenerator;
+use App\Models\EnergySystemBatteryStatusProcessor;
+use App\Models\EnergySystemBatteryTemperatureSensor;
+use App\Models\EnergySystemInverter;
+use App\Models\EnergySystemLoadRelay;
+use App\Models\EnergySystemMcbPv;
+use App\Models\EnergySystemMcbChargeController;
+use App\Models\EnergySystemRemoteControlCenter;
+use App\Models\EnergySystemMcbInverter;
 use App\Models\Household;
 use App\Models\Photo;
 use App\Models\Region;
@@ -141,6 +154,256 @@ class EnergySystemController extends Controller
         }
     }
 
+     /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $batteries = EnergyBattery::where('is_archived', 0)
+            ->orderBy('battery_model', 'ASC')
+            ->get();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $pvs = EnergyPv::where('is_archived', 0)
+            ->orderBy('pv_model', 'ASC')
+            ->get();
+        $controllers = EnergyChargeController::where('is_archived', 0)
+            ->orderBy('charge_controller_model', 'ASC')
+            ->get();
+        $rccs = EnergyRemoteControlCenter::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
+        $bsps = EnergyBatteryStatusProcessor::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
+        $inverters = EnergyInverter::where('is_archived', 0)
+            ->orderBy('inverter_model', 'ASC')
+            ->get();
+        $relayDrivers = EnergyRelayDriver::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
+        $loadRelaies = EnergyLoadRelay::where('is_archived', 0)
+            ->orderBy('load_relay_model', 'ASC')
+            ->get();
+        $loggers = EnergyMonitoring::where('is_archived', 0)
+            ->orderBy('monitoring_model', 'ASC')
+            ->get();
+        $generators = EnergyGenerator::where('is_archived', 0)
+            ->orderBy('generator_model', 'ASC')
+            ->get();
+        $turbines = EnergyWindTurbine::where('is_archived', 0)
+            ->orderBy('wind_turbine_model', 'ASC')
+            ->get();
+        $mcbControllers = EnergyMcbChargeController::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
+        $mcbInventors = EnergyMcbInverter::where('is_archived', 0)
+            ->orderBy('inverter_MCB_model', 'ASC')
+            ->get();
+        $mcbPvs = EnergyMcbPv::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
+
+        $energyTypes = EnergySystemType::where('is_archived', 0)->get();
+
+        return view('system.energy.create', compact('batteries', 'communities', 'controllers',
+            'pvs', 'mcbPvs', 'mcbInventors', 'mcbControllers', 'turbines', 'generators',
+            'loggers', 'loadRelaies', 'relayDrivers', 'inverters', 'bsps', 'rccs',
+            'energyTypes'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {       
+        $energySystem = new EnergySystem();
+ 
+        if($request->community_id) $energySystem->community_id = $request->community_id;
+        $energySystem->name = $request->name;
+        $energySystem->installation_year = $request->installation_year;
+        $energySystem->energy_system_type_id = $request->energy_system_type_id;
+        $energySystem->notes = $request->notes;
+        $energySystem->save();
+
+        // Battery
+        if($request->battery_id) {
+            for($i=0; $i < count($request->battery_id); $i++) {
+
+                $batterySystem = new EnergySystemBattery();
+                $batterySystem->battery_type_id = $request->battery_id[$i];
+                $batterySystem->battery_units = $request->battery_units[$i]["subject"];
+                $batterySystem->energy_system_id = $energySystem->id;
+                $batterySystem->save();
+            }
+        }
+
+        // Solar Panel
+        if($request->pv_id) {
+            for($i=0; $i < count($request->pv_id); $i++) {
+
+                $pvSystem = new EnergySystemPv();
+                $pvSystem->pv_type_id = $request->pv_id[$i];
+                $pvSystem->pv_units = $request->pv_units[$i]["subject"];
+                $pvSystem->energy_system_id = $energySystem->id;
+                $pvSystem->save();
+            }
+        }
+
+        // Controller
+        if($request->controller_id) {
+            for($i=0; $i < count($request->controller_id); $i++) {
+
+                $controllerSystem = new EnergySystemChargeController();
+                $controllerSystem->energy_charge_controller_id = $request->controller_id[$i];
+                $controllerSystem->controller_units = $request->controller_units[$i]["subject"];
+                $controllerSystem->energy_system_id = $energySystem->id;
+                $controllerSystem->save();
+            }
+        }
+
+        // Logger
+        if($request->logger_id) {
+            for($i=0; $i < count($request->logger_id); $i++) {
+
+                $loggerSystem = new EnergySystemMonitoring();
+                $loggerSystem->energy_monitoring_id = $request->logger_id[$i];
+                $loggerSystem->monitoring_units = $request->logger_units[$i]["subject"];
+                $loggerSystem->energy_system_id = $energySystem->id;
+                $loggerSystem->save();
+            }
+        }
+
+        // Inverter
+        if($request->inverter_id) {
+            for($i=0; $i < count($request->inverter_id); $i++) {
+
+                $inverterSystem = new EnergySystemInverter();
+                $inverterSystem->energy_inverter_id = $request->inverter_id[$i];
+                $inverterSystem->inverter_units = $request->inverter_units[$i]["subject"];
+                $inverterSystem->energy_system_id = $energySystem->id;
+                $inverterSystem->save();
+            }
+        }
+
+        // Relay Driver
+        if($request->relay_driver_id) {
+            for($i=0; $i < count($request->relay_driver_id); $i++) {
+
+                $relayDriverSystem = new EnergySystemRelayDriver();
+                $relayDriverSystem->relay_driver_type_id = $request->relay_driver_id[$i];
+                $relayDriverSystem->relay_driver_units = $request->relay_driver_units[$i]["subject"];
+                $relayDriverSystem->energy_system_id = $energySystem->id;
+                $relayDriverSystem->save();
+            }
+        }
+
+        // Load Relay
+        if($request->load_relay_id) {
+            for($i=0; $i < count($request->load_relay_id); $i++) {
+
+                $loadRelaySystem = new EnergySystemLoadRelay();
+                $loadRelaySystem->energy_load_relay_id = $request->load_relay_id[$i];
+                $loadRelaySystem->load_relay_units = $request->load_relay_units[$i]["subject"];
+                $loadRelaySystem->energy_system_id = $energySystem->id;
+                $loadRelaySystem->save();
+            }
+        }
+
+        // Battery Status Processor
+        if($request->bsp_id) {
+            for($i=0; $i < count($request->bsp_id); $i++) {
+
+                $bspSystem = new EnergySystemBatteryStatusProcessor();
+                $bspSystem->energy_battery_status_processor_id = $request->bsp_id[$i];
+                $bspSystem->bsp_units = $request->bsp_units[$i]["subject"];
+                $bspSystem->energy_system_id = $energySystem->id;
+                $bspSystem->save();
+            }
+        }
+
+        // Remote Control Center
+        if($request->rcc_id) {
+            for($i=0; $i < count($request->rcc_id); $i++) {
+
+                $rccSystem = new EnergySystemRemoteControlCenter();
+                $rccSystem->energy_remote_control_center_id = $request->rcc_id[$i];
+                $rccSystem->rcc_units = $request->rcc_units[$i]["subject"];
+                $rccSystem->energy_system_id = $energySystem->id;
+                $rccSystem->save();
+            }
+        }
+
+        // Generator
+        if($request->generator_id) {
+            for($i=0; $i < count($request->generator_id); $i++) {
+
+                $generatorSystem = new EnergySystemGenerator();
+                $generatorSystem->energy_generator_id = $request->generator_id[$i];
+                $generatorSystem->generator_units = $request->generator_units[$i]["subject"];
+                $generatorSystem->energy_system_id = $energySystem->id;
+                $generatorSystem->save();
+            }
+        }
+
+        // Wind Turbine
+        if($request->turbine_id) {
+            for($i=0; $i < count($request->turbine_id); $i++) {
+
+                $turbineSystem = new EnergySystemWindTurbine();
+                $turbineSystem->energy_wind_turbine_id = $request->turbine_id[$i];
+                $turbineSystem->turbine_units = $request->turbine_units[$i]["subject"];
+                $turbineSystem->energy_system_id = $energySystem->id;
+                $turbineSystem->save();
+            }
+        }
+
+        // Solar Panel MCB
+        if($request->pv_mcb_id) {
+            for($i=0; $i < count($request->pv_mcb_id); $i++) {
+
+                $pvMcbSystem = new EnergySystemMcbPv();
+                $pvMcbSystem->energy_mcb_pv_id = $request->pv_mcb_id[$i];
+                $pvMcbSystem->mcb_pv_units = $request->pv_mcb_units[$i]["subject"];
+                $pvMcbSystem->energy_system_id = $energySystem->id;
+                $pvMcbSystem->save();
+            }
+        }
+
+        // Charge Controllers MCB
+        if($request->controller_mcb_id) {
+            for($i=0; $i < count($request->controller_mcb_id); $i++) {
+
+                $controllerMcbSystem = new EnergySystemMcbChargeController();
+                $controllerMcbSystem->energy_mcb_charge_controller_id = $request->controller_mcb_id[$i];
+                $controllerMcbSystem->mcb_controller_units = $request->controller_mcb_units[$i]["subject"];
+                $controllerMcbSystem->energy_system_id = $energySystem->id;
+                $controllerMcbSystem->save();
+            }
+        }
+
+        // Inverter MCB
+        if($request->inventer_mcb_id) {
+            for($i=0; $i < count($request->inventer_mcb_id); $i++) {
+
+                $inventerMcbSystem = new EnergySystemMcbInverter();
+                $inventerMcbSystem->energy_mcb_inverter_id = $request->inventer_mcb_id[$i];
+                $inventerMcbSystem->mcb_inverter_units = $request->inventer_mcb_units[$i]["subject"];
+                $inventerMcbSystem->energy_system_id = $energySystem->id;
+                $inventerMcbSystem->save();
+            }
+        }
+
+        return redirect('/energy-system')
+            ->with('message', 'New Energy System Added Successfully!');
+    }
+
     /**
      * View Edit page.
      *
@@ -157,39 +420,230 @@ class EnergySystemController extends Controller
     /**
      * View Edit page.
      *
-     * @param  int $id
+     * @param  int $id 
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        $batteries = EnergyBattery::all();
-        $chargeControllers = EnergyChargeController::all();
-        $mcbChargeControllers = EnergyMcbChargeController::all();
         $energySystem = EnergySystem::findOrFail($id);
-        $solarPanles = EnergyPv::all();
-        $inventers = EnergyInverter::all();
-        $relayDrivers = EnergyRelayDriver::all();
-        $loadRelaies = EnergyLoadRelay::all();
-        $bsps = EnergyBatteryStatusProcessor::all();
-        $mcbInventers = EnergyMcbInverter::all();
-        $loggers = EnergyMonitoring::all();
-        $mcbPvs = EnergyMcbPv::all();
-        $fbsSystem = 0;
+        $batteries = EnergyBattery::where('is_archived', 0)
+            ->orderBy('battery_model', 'ASC')
+            ->get();
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $pvs = EnergyPv::where('is_archived', 0)
+            ->orderBy('pv_model', 'ASC')
+            ->get();
+        $controllers = EnergyChargeController::where('is_archived', 0)
+            ->orderBy('charge_controller_model', 'ASC')
+            ->get();
+        $rccs = EnergyRemoteControlCenter::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
+        $bsps = EnergyBatteryStatusProcessor::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
+        $inverters = EnergyInverter::where('is_archived', 0)
+            ->orderBy('inverter_model', 'ASC')
+            ->get();
+        $relayDrivers = EnergyRelayDriver::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
+        $loadRelaies = EnergyLoadRelay::where('is_archived', 0)
+            ->orderBy('load_relay_model', 'ASC')
+            ->get();
+        $loggers = EnergyMonitoring::where('is_archived', 0)
+            ->orderBy('monitoring_model', 'ASC')
+            ->get();
+        $generators = EnergyGenerator::where('is_archived', 0)
+            ->orderBy('generator_model', 'ASC')
+            ->get();
+        $turbines = EnergyWindTurbine::where('is_archived', 0)
+            ->orderBy('wind_turbine_model', 'ASC')
+            ->get();
+        $mcbControllers = EnergyMcbChargeController::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
+        $mcbInventors = EnergyMcbInverter::where('is_archived', 0)
+            ->orderBy('inverter_MCB_model', 'ASC')
+            ->get();
+        $mcbPvs = EnergyMcbPv::where('is_archived', 0)
+            ->orderBy('model', 'ASC')
+            ->get();
 
-        if($energySystem->energy_system_type_id == 2) {
+        $energyTypes = EnergySystemType::where('is_archived', 0)->get();
 
-            $fbsSystem = FbsSystem::where('energy_system_id', $id)->get();
-            $fbsSystem = $fbsSystem[0];
-        }
+        $battarySystems = DB::table('energy_system_batteries')
+            ->join('energy_systems', 'energy_system_batteries.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_batteries', 'energy_system_batteries.battery_type_id', 
+                '=', 'energy_batteries.id')
+            ->where('energy_system_batteries.energy_system_id', '=', $id)
+            ->select('energy_system_batteries.battery_units', 'energy_batteries.battery_model', 
+                'energy_batteries.battery_brand', 'energy_systems.name', 
+                'energy_system_batteries.id')
+            ->get(); 
 
-        $energySystemBatteries = EnergySystemBattery::where('energy_system_id', $id)->get();
-        $energySystemRelayDrivers = EnergySystemRelayDriver::where('energy_system_id', $id)->get();
-        $energySystemPvs = EnergySystemPv::where('energy_system_id', $id)->get();
+        $pvSystems = DB::table('energy_system_pvs')
+            ->join('energy_systems', 'energy_system_pvs.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_pvs', 'energy_system_pvs.pv_type_id', 
+                '=', 'energy_pvs.id')
+            ->where('energy_system_pvs.energy_system_id', '=', $id)
+            ->select('energy_system_pvs.pv_units', 'energy_pvs.pv_model', 
+                'energy_pvs.pv_brand', 'energy_systems.name', 
+                'energy_system_pvs.id')
+            ->get(); 
 
-        return view('system.energy.edit', compact('batteries', 'chargeControllers', 'energySystem',
-            'solarPanles', 'inventers', 'relayDrivers', 'mcbChargeControllers', 'loadRelaies', 
-            'bsps', 'mcbInventers', 'loggers', 'mcbPvs', 'fbsSystem', 'energySystemBatteries',
-            'energySystemRelayDrivers', 'energySystemPvs'));
+        $controllerSystems = DB::table('energy_system_charge_controllers')
+            ->join('energy_systems', 'energy_system_charge_controllers.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_charge_controllers', 'energy_system_charge_controllers.energy_charge_controller_id', 
+                '=', 'energy_charge_controllers.id')
+            ->where('energy_system_charge_controllers.energy_system_id', '=', $id)
+            ->select('energy_system_charge_controllers.controller_units', 
+                'energy_charge_controllers.charge_controller_model', 
+                'energy_charge_controllers.charge_controller_brand', 'energy_systems.name', 
+                'energy_system_charge_controllers.id')
+            ->get(); 
+
+        $inverterSystems = DB::table('energy_system_inverters')
+            ->join('energy_systems', 'energy_system_inverters.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_inverters', 'energy_system_inverters.energy_inverter_id', 
+                '=', 'energy_inverters.id')
+            ->where('energy_system_inverters.energy_system_id', '=', $id)
+            ->select('energy_system_inverters.inverter_units', 'energy_inverters.inverter_model', 
+                'energy_inverters.inverter_brand', 'energy_systems.name', 
+                'energy_system_inverters.id')
+            ->get(); 
+
+        $relayDriverSystems = DB::table('energy_system_relay_drivers')
+            ->join('energy_systems', 'energy_system_relay_drivers.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_relay_drivers', 'energy_system_relay_drivers.relay_driver_type_id', 
+                '=', 'energy_relay_drivers.id')
+            ->where('energy_system_relay_drivers.energy_system_id', '=', $id)
+            ->select('energy_system_relay_drivers.relay_driver_units', 'energy_relay_drivers.model', 
+                'energy_relay_drivers.brand', 'energy_systems.name', 
+                'energy_system_relay_drivers.id')
+            ->get(); 
+
+        $loadRelaySystems = DB::table('energy_system_load_relays')
+            ->join('energy_systems', 'energy_system_load_relays.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_load_relays', 'energy_system_load_relays.energy_load_relay_id', 
+                '=', 'energy_load_relays.id')
+            ->where('energy_system_load_relays.energy_system_id', '=', $id)
+            ->select('energy_system_load_relays.load_relay_units', 'energy_load_relays.load_relay_model', 
+                'energy_load_relays.load_relay_brand', 'energy_systems.name', 
+                'energy_system_load_relays.id')
+            ->get();
+
+        $bspSystems = DB::table('energy_system_battery_status_processors')
+            ->join('energy_systems', 'energy_system_battery_status_processors.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_battery_status_processors', 'energy_system_battery_status_processors.energy_battery_status_processor_id', 
+                '=', 'energy_battery_status_processors.id')
+            ->where('energy_system_battery_status_processors.energy_system_id', '=', $id)
+            ->select('energy_system_battery_status_processors.bsp_units', 'energy_systems.name', 
+                'energy_battery_status_processors.model', 'energy_battery_status_processors.brand', 
+                'energy_system_battery_status_processors.id')
+            ->get();
+
+        $rccSystems = DB::table('energy_system_remote_control_centers')
+            ->join('energy_systems', 'energy_system_remote_control_centers.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_remote_control_centers', 'energy_system_remote_control_centers.energy_remote_control_center_id', 
+                '=', 'energy_remote_control_centers.id')
+            ->where('energy_system_remote_control_centers.energy_system_id', '=', $id)
+            ->select('energy_system_remote_control_centers.rcc_units', 
+                'energy_remote_control_centers.model', 
+                'energy_remote_control_centers.brand', 'energy_systems.name', 
+                'energy_system_remote_control_centers.id')
+            ->get();
+
+        $loggerSystems = DB::table('energy_system_monitorings')
+            ->join('energy_systems', 'energy_system_monitorings.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_monitorings', 'energy_system_monitorings.energy_monitoring_id', 
+                '=', 'energy_monitorings.id')
+            ->where('energy_system_monitorings.energy_system_id', '=', $id)
+            ->select('energy_system_monitorings.monitoring_units', 
+                'energy_monitorings.monitoring_model', 
+                'energy_monitorings.monitoring_brand', 'energy_systems.name', 
+                'energy_system_monitorings.id')
+            ->get();
+
+        $generatorSystems = DB::table('energy_system_generators')
+            ->join('energy_systems', 'energy_system_generators.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_generators', 'energy_system_generators.energy_generator_id', 
+                '=', 'energy_generators.id')
+            ->where('energy_system_generators.energy_system_id', '=', $id)
+            ->select('energy_system_generators.generator_units', 
+                'energy_generators.generator_model', 
+                'energy_generators.generator_brand', 'energy_systems.name', 
+                'energy_system_generators.id')
+            ->get();
+
+        $turbineSystems = DB::table('energy_system_wind_turbines')
+            ->join('energy_systems', 'energy_system_wind_turbines.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_wind_turbines', 'energy_system_wind_turbines.energy_wind_turbine_id', 
+                '=', 'energy_wind_turbines.id')
+            ->where('energy_system_wind_turbines.energy_system_id', '=', $id)
+            ->select('energy_system_wind_turbines.turbine_units', 
+                'energy_wind_turbines.wind_turbine_model', 
+                'energy_wind_turbines.wind_turbine_brand', 'energy_systems.name', 
+                'energy_system_wind_turbines.id')
+            ->get();
+
+        $pvMcbSystems = DB::table('energy_system_mcb_pvs')
+            ->join('energy_systems', 'energy_system_mcb_pvs.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_mcb_pvs', 'energy_system_mcb_pvs.energy_mcb_pv_id', 
+                '=', 'energy_mcb_pvs.id')
+            ->where('energy_system_mcb_pvs.energy_system_id', '=', $id)
+            ->select('energy_system_mcb_pvs.mcb_pv_units', 
+                'energy_mcb_pvs.model', 
+                'energy_mcb_pvs.brand', 'energy_systems.name', 
+                'energy_system_mcb_pvs.id')
+            ->get();
+
+        $controllerMcbSystems = DB::table('energy_system_mcb_charge_controllers')
+            ->join('energy_systems', 'energy_system_mcb_charge_controllers.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_mcb_charge_controllers', 
+                'energy_system_mcb_charge_controllers.energy_mcb_charge_controller_id', 
+                '=', 'energy_mcb_charge_controllers.id')
+            ->where('energy_system_mcb_charge_controllers.energy_system_id', '=', $id)
+            ->select('energy_system_mcb_charge_controllers.mcb_controller_units', 
+                'energy_mcb_charge_controllers.model', 
+                'energy_mcb_charge_controllers.brand', 'energy_systems.name', 
+                'energy_system_mcb_charge_controllers.id')
+            ->get();
+
+        $inventerMcbSystems = DB::table('energy_system_mcb_inverters')
+            ->join('energy_systems', 'energy_system_mcb_inverters.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_mcb_inverters', 'energy_system_mcb_inverters.energy_mcb_inverter_id', 
+                '=', 'energy_mcb_inverters.id')
+            ->where('energy_system_mcb_inverters.energy_system_id', '=', $id)
+            ->select('energy_system_mcb_inverters.mcb_inverter_units', 
+                'energy_mcb_inverters.inverter_MCB_model', 
+                'energy_mcb_inverters.inverter_MCB_brand', 'energy_systems.name', 
+                'energy_system_mcb_inverters.id')
+            ->get();
+
+        return view('system.energy.edit', compact('batteries', 'communities', 'controllers',
+            'pvs', 'mcbPvs', 'mcbInventors', 'mcbControllers', 'turbines', 'generators',
+            'loggers', 'loadRelaies', 'relayDrivers', 'inverters', 'bsps', 'rccs',
+            'energyTypes', 'energySystem', 'battarySystems', 'pvSystems', 'controllerSystems',
+            'inverterSystems', 'relayDriverSystems', 'loadRelaySystems', 'bspSystems',
+            'rccSystems', 'loggerSystems', 'generatorSystems', 'turbineSystems', 'pvMcbSystems',
+            'controllerMcbSystems', 'inventerMcbSystems'));
     }
 
     /**
@@ -201,64 +655,380 @@ class EnergySystemController extends Controller
     public function update(Request $request, $id)
     {
         //dd($request->all());
-        $energySystem = FbsSystem::where('energy_system_id', $id)->get();
-        $energySystem = FbsSystem::findOrFail($energySystem[0]->id);
-        $energySystemType = EnergySystem::findOrFail($id);
+        $energySystem = EnergySystem::findOrFail($id);
+ 
+        if($request->name) $energySystem->name = $request->name;
+        if($request->installation_year) $energySystem->installation_year = $request->installation_year;
+        if($request->upgrade_year1) $energySystem->upgrade_year1 = $request->upgrade_year1;
+        if($request->upgrade_year2) $energySystem->upgrade_year2 = $request->upgrade_year2;
+        if($request->energy_system_type_id) $energySystem->energy_system_type_id = $request->energy_system_type_id;
+        $energySystem->notes = $request->notes;
+        $energySystem->save();
 
-        if($energySystemType->energy_system_type_id == 2) {
+        // Battery
+        if($request->battery_id) {
+            for($i=0; $i < count($request->battery_id); $i++) {
 
-            if($request->battery_type_id)
-                $energySystem->battery_type_id = $request->battery_type_id;
-            if($request->battery_units)
-                $energySystem->battery_units = $request->battery_units;
-            if($request->solar_panel_type_id)
-                $energySystem->solar_panel_type_id = $request->solar_panel_type_id;
-            if($request->solar_panel_units)
-                $energySystem->solar_panel_units = $request->solar_panel_units;
-            if($request->charge_controller_type_id)
-                $energySystem->charge_controller_type_id = $request->charge_controller_type_id;
-            if($request->charge_controller_units)
-                $energySystem->charge_controller_units = $request->charge_controller_units;
-            if($request->charge_controller_mcb_type_id)
-                $energySystem->charge_controller_mcb_type_id = $request->charge_controller_mcb_type_id;
-            if($request->charge_controller_mcb_units)
-                $energySystem->charge_controller_mcb_units = $request->charge_controller_mcb_units;
-            if($request->relay_driver_type_id)
-                $energySystem->relay_driver_type_id = $request->relay_driver_type_id;
-            if($request->relay_driver_units)
-                $energySystem->relay_driver_units = $request->relay_driver_units;
-            if($request->pv_mcb_type_id)
-                $energySystem->pv_mcb_type_id = $request->pv_mcb_type_id;
-            if($request->pv_mcb_units)
-                $energySystem->pv_mcb_units = $request->pv_mcb_units;
-            if($request->invertor_type_id)    
-                $energySystem->invertor_type_id = $request->invertor_type_id;
-            if($request->invertor_units)
-                $energySystem->invertor_units = $request->invertor_units;
-            if($request->invertor_mcb_type_id)
-                $energySystem->invertor_mcb_type_id = $request->invertor_mcb_type_id;
-            if($request->invertor_mcb_units)
-                $energySystem->invertor_mcb_units = $request->invertor_mcb_units;
-            if($request->bsp_type_id)
-                $energySystem->bsp_type_id = $request->bsp_type_id;
-            if($request->bsp_type_units)
-                $energySystem->bsp_type_units = $request->bsp_type_units;
-            if($request->load_relay_id)
-                $energySystem->load_relay_id = $request->load_relay_id;
-            if($request->load_relay_units)
-                $energySystem->load_relay_units = $request->load_relay_units;
-            if($request->logger_type_id)
-                $energySystem->logger_type_id = $request->logger_type_id;
-            if($request->logger_type_units)
-                $energySystem->logger_type_units = $request->logger_type_units;
+                $batterySystem = new EnergySystemBattery();
+                $batterySystem->battery_type_id = $request->battery_id[$i];
+                $batterySystem->battery_units = $request->battery_units[$i]["subject"];
+                $batterySystem->energy_system_id = $energySystem->id;
+                $batterySystem->save();
+            }
         }
 
-        $energySystem->save();
+        // Solar Panel
+        if($request->pv_id) {
+            for($i=0; $i < count($request->pv_id); $i++) {
+
+                $pvSystem = new EnergySystemPv();
+                $pvSystem->pv_type_id = $request->pv_id[$i];
+                $pvSystem->pv_units = $request->pv_units[$i]["subject"];
+                $pvSystem->energy_system_id = $energySystem->id;
+                $pvSystem->save();
+            }
+        }
+
+        // Controller
+        if($request->controller_id) {
+            for($i=0; $i < count($request->controller_id); $i++) {
+
+                $controllerSystem = new EnergySystemChargeController();
+                $controllerSystem->energy_charge_controller_id = $request->controller_id[$i];
+                $controllerSystem->controller_units = $request->controller_units[$i]["subject"];
+                $controllerSystem->energy_system_id = $energySystem->id;
+                $controllerSystem->save();
+            }
+        }
+
+        // Logger
+        if($request->logger_id) {
+            for($i=0; $i < count($request->logger_id); $i++) {
+
+                $loggerSystem = new EnergySystemMonitoring();
+                $loggerSystem->energy_monitoring_id = $request->logger_id[$i];
+                $loggerSystem->monitoring_units = $request->logger_units[$i]["subject"];
+                $loggerSystem->energy_system_id = $energySystem->id;
+                $loggerSystem->save();
+            }
+        }
+
+        // Inverter
+        if($request->inverter_id) {
+            for($i=0; $i < count($request->inverter_id); $i++) {
+
+                $inverterSystem = new EnergySystemInverter();
+                $inverterSystem->energy_inverter_id = $request->inverter_id[$i];
+                $inverterSystem->inverter_units = $request->inverter_units[$i]["subject"];
+                $inverterSystem->energy_system_id = $energySystem->id;
+                $inverterSystem->save();
+            }
+        }
+
+        // Relay Driver
+        if($request->relay_driver_id) {
+            for($i=0; $i < count($request->relay_driver_id); $i++) {
+
+                $relayDriverSystem = new EnergySystemRelayDriver();
+                $relayDriverSystem->relay_driver_type_id = $request->relay_driver_id[$i];
+                $relayDriverSystem->relay_driver_units = $request->relay_driver_units[$i]["subject"];
+                $relayDriverSystem->energy_system_id = $energySystem->id;
+                $relayDriverSystem->save();
+            }
+        }
+
+        // Load Relay
+        if($request->load_relay_id) {
+            for($i=0; $i < count($request->load_relay_id); $i++) {
+
+                $loadRelaySystem = new EnergySystemLoadRelay();
+                $loadRelaySystem->energy_load_relay_id = $request->load_relay_id[$i];
+                $loadRelaySystem->load_relay_units = $request->load_relay_units[$i]["subject"];
+                $loadRelaySystem->energy_system_id = $energySystem->id;
+                $loadRelaySystem->save();
+            }
+        }
+
+        // Battery Status Processor
+        if($request->bsp_id) {
+            for($i=0; $i < count($request->bsp_id); $i++) {
+
+                $bspSystem = new EnergySystemBatteryStatusProcessor();
+                $bspSystem->energy_battery_status_processor_id = $request->bsp_id[$i];
+                $bspSystem->bsp_units = $request->bsp_units[$i]["subject"];
+                $bspSystem->energy_system_id = $energySystem->id;
+                $bspSystem->save();
+            }
+        }
+
+        // Remote Control Center
+        if($request->rcc_id) {
+            for($i=0; $i < count($request->rcc_id); $i++) {
+
+                $rccSystem = new EnergySystemRemoteControlCenter();
+                $rccSystem->energy_remote_control_center_id = $request->rcc_id[$i];
+                $rccSystem->rcc_units = $request->rcc_units[$i]["subject"];
+                $rccSystem->energy_system_id = $energySystem->id;
+                $rccSystem->save();
+            }
+        }
+
+        // Generator
+        if($request->generator_id) {
+            for($i=0; $i < count($request->generator_id); $i++) {
+
+                $generatorSystem = new EnergySystemGenerator();
+                $generatorSystem->energy_generator_id = $request->generator_id[$i];
+                $generatorSystem->generator_units = $request->generator_units[$i]["subject"];
+                $generatorSystem->energy_system_id = $energySystem->id;
+                $generatorSystem->save();
+            }
+        }
+
+        // Wind Turbine
+        if($request->turbine_id) {
+            for($i=0; $i < count($request->turbine_id); $i++) {
+
+                $turbineSystem = new EnergySystemWindTurbine();
+                $turbineSystem->energy_wind_turbine_id = $request->turbine_id[$i];
+                $turbineSystem->turbine_units = $request->turbine_units[$i]["subject"];
+                $turbineSystem->energy_system_id = $energySystem->id;
+                $turbineSystem->save();
+            }
+        }
+
+        // Solar Panel MCB
+        if($request->pv_mcb_id) {
+            for($i=0; $i < count($request->pv_mcb_id); $i++) {
+
+                $pvMcbSystem = new EnergySystemMcbPv();
+                $pvMcbSystem->energy_mcb_pv_id = $request->pv_mcb_id[$i];
+                $pvMcbSystem->mcb_pv_units = $request->pv_mcb_units[$i]["subject"];
+                $pvMcbSystem->energy_system_id = $energySystem->id;
+                $pvMcbSystem->save();
+            }
+        }
+
+        // Charge Controllers MCB
+        if($request->controller_mcb_id) {
+            for($i=0; $i < count($request->controller_mcb_id); $i++) {
+
+                $controllerMcbSystem = new EnergySystemMcbChargeController();
+                $controllerMcbSystem->energy_mcb_charge_controller_id = $request->controller_mcb_id[$i];
+                $controllerMcbSystem->mcb_controller_units = $request->controller_mcb_units[$i]["subject"];
+                $controllerMcbSystem->energy_system_id = $energySystem->id;
+                $controllerMcbSystem->save();
+            }
+        }
+
+        // Inverter MCB
+        if($request->inventer_mcb_id) {
+            for($i=0; $i < count($request->inventer_mcb_id); $i++) {
+
+                $inventerMcbSystem = new EnergySystemMcbInverter();
+                $inventerMcbSystem->energy_mcb_inverter_id = $request->inventer_mcb_id[$i];
+                $inventerMcbSystem->mcb_inverter_units = $request->inventer_mcb_units[$i]["subject"];
+                $inventerMcbSystem->energy_system_id = $energySystem->id;
+                $inventerMcbSystem->save();
+            }
+        }
 
         return redirect('/energy-system')->with('message', 'Energy System Updated Successfully!');
     }
 
-     /**
+    /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showPage($id)
+    {
+        $energySystem = EnergySystem::findOrFail($id);
+
+        return response()->json($energySystem);
+    }
+
+    /**
+     * View show page.
+     *
+     * @param  int $id 
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $energySystem = EnergySystem::findOrFail($id);
+
+        $battarySystems = DB::table('energy_system_batteries')
+            ->join('energy_systems', 'energy_system_batteries.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_batteries', 'energy_system_batteries.battery_type_id', 
+                '=', 'energy_batteries.id')
+            ->where('energy_system_batteries.energy_system_id', '=', $id)
+            ->select('energy_system_batteries.battery_units', 'energy_batteries.battery_model', 
+                'energy_batteries.battery_brand', 'energy_systems.name', 
+                'energy_system_batteries.id')
+            ->get(); 
+
+        $pvSystems = DB::table('energy_system_pvs')
+            ->join('energy_systems', 'energy_system_pvs.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_pvs', 'energy_system_pvs.pv_type_id', 
+                '=', 'energy_pvs.id')
+            ->where('energy_system_pvs.energy_system_id', '=', $id)
+            ->select('energy_system_pvs.pv_units', 'energy_pvs.pv_model', 
+                'energy_pvs.pv_brand', 'energy_systems.name', 
+                'energy_system_pvs.id')
+            ->get(); 
+
+        $controllerSystems = DB::table('energy_system_charge_controllers')
+            ->join('energy_systems', 'energy_system_charge_controllers.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_charge_controllers', 'energy_system_charge_controllers.energy_charge_controller_id', 
+                '=', 'energy_charge_controllers.id')
+            ->where('energy_system_charge_controllers.energy_system_id', '=', $id)
+            ->select('energy_system_charge_controllers.controller_units', 
+                'energy_charge_controllers.charge_controller_model', 
+                'energy_charge_controllers.charge_controller_brand', 'energy_systems.name', 
+                'energy_system_charge_controllers.id')
+            ->get(); 
+
+        $inverterSystems = DB::table('energy_system_inverters')
+            ->join('energy_systems', 'energy_system_inverters.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_inverters', 'energy_system_inverters.energy_inverter_id', 
+                '=', 'energy_inverters.id')
+            ->where('energy_system_inverters.energy_system_id', '=', $id)
+            ->select('energy_system_inverters.inverter_units', 'energy_inverters.inverter_model', 
+                'energy_inverters.inverter_brand', 'energy_systems.name', 
+                'energy_system_inverters.id')
+            ->get(); 
+
+        $relayDriverSystems = DB::table('energy_system_relay_drivers')
+            ->join('energy_systems', 'energy_system_relay_drivers.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_relay_drivers', 'energy_system_relay_drivers.relay_driver_type_id', 
+                '=', 'energy_relay_drivers.id')
+            ->where('energy_system_relay_drivers.energy_system_id', '=', $id)
+            ->select('energy_system_relay_drivers.relay_driver_units', 'energy_relay_drivers.model', 
+                'energy_relay_drivers.brand', 'energy_systems.name', 
+                'energy_system_relay_drivers.id')
+            ->get(); 
+
+        $loadRelaySystems = DB::table('energy_system_load_relays')
+            ->join('energy_systems', 'energy_system_load_relays.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_load_relays', 'energy_system_load_relays.energy_load_relay_id', 
+                '=', 'energy_load_relays.id')
+            ->where('energy_system_load_relays.energy_system_id', '=', $id)
+            ->select('energy_system_load_relays.load_relay_units', 'energy_load_relays.load_relay_model', 
+                'energy_load_relays.load_relay_brand', 'energy_systems.name', 
+                'energy_system_load_relays.id')
+            ->get();
+
+        $bspSystems = DB::table('energy_system_battery_status_processors')
+            ->join('energy_systems', 'energy_system_battery_status_processors.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_battery_status_processors', 'energy_system_battery_status_processors.energy_battery_status_processor_id', 
+                '=', 'energy_battery_status_processors.id')
+            ->where('energy_system_battery_status_processors.energy_system_id', '=', $id)
+            ->select('energy_system_battery_status_processors.bsp_units', 'energy_systems.name', 
+                'energy_battery_status_processors.model', 'energy_battery_status_processors.brand', 
+                'energy_system_battery_status_processors.id')
+            ->get();
+
+        $rccSystems = DB::table('energy_system_remote_control_centers')
+            ->join('energy_systems', 'energy_system_remote_control_centers.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_remote_control_centers', 'energy_system_remote_control_centers.energy_remote_control_center_id', 
+                '=', 'energy_remote_control_centers.id')
+            ->where('energy_system_remote_control_centers.energy_system_id', '=', $id)
+            ->select('energy_system_remote_control_centers.rcc_units', 
+                'energy_remote_control_centers.model', 
+                'energy_remote_control_centers.brand', 'energy_systems.name', 
+                'energy_system_remote_control_centers.id')
+            ->get();
+
+        $loggerSystems = DB::table('energy_system_monitorings')
+            ->join('energy_systems', 'energy_system_monitorings.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_monitorings', 'energy_system_monitorings.energy_monitoring_id', 
+                '=', 'energy_monitorings.id')
+            ->where('energy_system_monitorings.energy_system_id', '=', $id)
+            ->select('energy_system_monitorings.monitoring_units', 
+                'energy_monitorings.monitoring_model', 
+                'energy_monitorings.monitoring_brand', 'energy_systems.name', 
+                'energy_system_monitorings.id')
+            ->get();
+
+        $generatorSystems = DB::table('energy_system_generators')
+            ->join('energy_systems', 'energy_system_generators.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_generators', 'energy_system_generators.energy_generator_id', 
+                '=', 'energy_generators.id')
+            ->where('energy_system_generators.energy_system_id', '=', $id)
+            ->select('energy_system_generators.generator_units', 
+                'energy_generators.generator_model', 
+                'energy_generators.generator_brand', 'energy_systems.name', 
+                'energy_system_generators.id')
+            ->get();
+
+        $turbineSystems = DB::table('energy_system_wind_turbines')
+            ->join('energy_systems', 'energy_system_wind_turbines.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_wind_turbines', 'energy_system_wind_turbines.energy_wind_turbine_id', 
+                '=', 'energy_wind_turbines.id')
+            ->where('energy_system_wind_turbines.energy_system_id', '=', $id)
+            ->select('energy_system_wind_turbines.turbine_units', 
+                'energy_wind_turbines.wind_turbine_model', 
+                'energy_wind_turbines.wind_turbine_brand', 'energy_systems.name', 
+                'energy_system_wind_turbines.id')
+            ->get();
+
+        $pvMcbSystems = DB::table('energy_system_mcb_pvs')
+            ->join('energy_systems', 'energy_system_mcb_pvs.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_mcb_pvs', 'energy_system_mcb_pvs.energy_mcb_pv_id', 
+                '=', 'energy_mcb_pvs.id')
+            ->where('energy_system_mcb_pvs.energy_system_id', '=', $id)
+            ->select('energy_system_mcb_pvs.mcb_pv_units', 
+                'energy_mcb_pvs.model', 
+                'energy_mcb_pvs.brand', 'energy_systems.name', 
+                'energy_system_mcb_pvs.id')
+            ->get();
+
+        $controllerMcbSystems = DB::table('energy_system_mcb_charge_controllers')
+            ->join('energy_systems', 'energy_system_mcb_charge_controllers.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_mcb_charge_controllers', 
+                'energy_system_mcb_charge_controllers.energy_mcb_charge_controller_id', 
+                '=', 'energy_mcb_charge_controllers.id')
+            ->where('energy_system_mcb_charge_controllers.energy_system_id', '=', $id)
+            ->select('energy_system_mcb_charge_controllers.mcb_controller_units', 
+                'energy_mcb_charge_controllers.model', 
+                'energy_mcb_charge_controllers.brand', 'energy_systems.name', 
+                'energy_system_mcb_charge_controllers.id')
+            ->get();
+
+        $inventerMcbSystems = DB::table('energy_system_mcb_inverters')
+            ->join('energy_systems', 'energy_system_mcb_inverters.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_mcb_inverters', 'energy_system_mcb_inverters.energy_mcb_inverter_id', 
+                '=', 'energy_mcb_inverters.id')
+            ->where('energy_system_mcb_inverters.energy_system_id', '=', $id)
+            ->select('energy_system_mcb_inverters.mcb_inverter_units', 
+                'energy_mcb_inverters.inverter_MCB_model', 
+                'energy_mcb_inverters.inverter_MCB_brand', 'energy_systems.name', 
+                'energy_system_mcb_inverters.id')
+            ->get();
+
+        return view('system.energy.show', compact('energySystem', 'battarySystems', 'pvSystems', 
+            'controllerSystems', 'inverterSystems', 'relayDriverSystems', 'loadRelaySystems', 
+            'bspSystems', 'rccSystems', 'loggerSystems', 'generatorSystems', 'turbineSystems', 
+            'pvMcbSystems', 'controllerMcbSystems', 'inventerMcbSystems'));
+    }
+
+    /**
      * Change resource.
      *
      * @param  \Illuminate\Http\Request  $request

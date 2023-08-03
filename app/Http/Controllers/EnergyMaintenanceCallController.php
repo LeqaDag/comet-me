@@ -19,6 +19,7 @@ use App\Models\EnergyUser;
 use App\Models\H2oUser;
 use App\Models\EnergySystem;
 use App\Models\ElectricityMaintenanceCall;
+use App\Models\ElectricityMaintenanceCallUser;
 use App\Models\Household;
 use App\Models\WaterUser;
 use App\Models\MaintenanceActionType;
@@ -28,6 +29,7 @@ use App\Models\MaintenanceType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Exports\EnergyMaintenanceExport;
+use App\Imports\ImportEnergyMaintenance;
 use Auth;
 use DB;
 use Route;
@@ -125,8 +127,7 @@ class EnergyMaintenanceCallController extends Controller
             $maintenanceStatuses = MaintenanceStatus::where('is_archived', 0)->get();
             $maintenanceEnergyActions = MaintenanceElectricityAction::where('is_archived', 0)->get();
             $users = User::where('is_archived', 0)->get();
-            $mgSystems = EnergySystem::where('energy_system_type_id', 1)
-                ->where('is_archived', 0)
+            $mgSystems = EnergySystem::where('is_archived', 0)
                 ->get();
             $publicCategories = PublicStructureCategory::where('is_archived', 0)->get();
     
@@ -158,13 +159,14 @@ class EnergyMaintenanceCallController extends Controller
         $maintenance = new ElectricityMaintenanceCall();
         if($request->household_id) {
 
-            $energyUserId = AllEnergyMeter::where('household_id', $request->household_id[0])
+            $energyUserId = AllEnergyMeter::where('household_id', $request->household_id)
                 ->select('id')
                 ->get();
-            $maintenance->household_id = $request->household_id[0];
+        
+            $maintenance->household_id = $request->household_id;
             $maintenance->energy_user_id = $energyUserId[0]->id;
         }
-        
+    
         if($request->public_structure_id) {
 
             $maintenance->public_structure_id = $request->public_structure_id;
@@ -184,6 +186,18 @@ class EnergyMaintenanceCallController extends Controller
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->notes = $request->notes;
         $maintenance->save();
+
+        $maintenanceId = $maintenance->id;
+
+        if($request->performed_by) {
+            for($i=0; $i < count($request->performed_by); $i++) {
+
+                $h2oMaintenanceCallUser = new ElectricityMaintenanceCallUser();
+                $h2oMaintenanceCallUser->user_id = $request->performed_by[$i];
+                $h2oMaintenanceCallUser->electricity_maintenance_call_id = $maintenanceId;
+                $h2oMaintenanceCallUser->save();
+            }
+        }
 
         return redirect()->back()
             ->with('message', 'New Maintenance Added Successfully!');
@@ -217,9 +231,18 @@ class EnergyMaintenanceCallController extends Controller
         $maintenanceStatuses = MaintenanceStatus::where('is_archived', 0)->get();
         $maintenanceEnergyActions = MaintenanceElectricityAction::where('is_archived', 0)->get();
         $users = User::where('is_archived', 0)->get();
+        $performedUsers = DB::table('electricity_maintenance_call_users')
+            ->join('electricity_maintenance_calls', 'electricity_maintenance_call_users.electricity_maintenance_call_id', 
+                'electricity_maintenance_calls.id')
+            ->join('users', 'electricity_maintenance_call_users.user_id', 'users.id')
+            ->where('electricity_maintenance_call_users.electricity_maintenance_call_id', $energyMaintenance->id)
+            ->where('electricity_maintenance_call_users.is_archived', 0)
+            ->select('electricity_maintenance_call_users.id', 'users.name')
+            ->get();
 
-        return view('users.energy.maintenance.edit', compact('energyMaintenance', 'maintenanceTypes', 
-            'maintenanceStatuses', 'maintenanceEnergyActions', 'users', 'actions'));
+        return view('users.energy.maintenance.edit', compact('energyMaintenance', 
+            'maintenanceTypes', 'maintenanceStatuses', 'maintenanceEnergyActions', 
+            'users', 'actions', 'performedUsers'));
     }
 
     /**
@@ -240,6 +263,31 @@ class EnergyMaintenanceCallController extends Controller
         $energyMaintenance->maintenance_type_id = $request->maintenance_type_id;
         $energyMaintenance->notes = $request->notes;
         $energyMaintenance->save();
+        $maintenanceId = $energyMaintenance->id;
+
+        if($request->users) {
+            if($request->users) {
+                for($i=0; $i < count($request->users); $i++) {
+    
+                    $energyMaintenanceCallUser = new ElectricityMaintenanceCallUser();
+                    $energyMaintenanceCallUser->user_id = $request->users[$i];
+                    $energyMaintenanceCallUser->electricity_maintenance_call_id = $maintenanceId;
+                    $energyMaintenanceCallUser->save();
+                }
+            }
+        }
+
+        if($request->new_users) {
+            if($request->new_users) {
+                for($i=0; $i < count($request->new_users); $i++) {
+    
+                    $energyMaintenanceCallUser = new ElectricityMaintenanceCallUser();
+                    $energyMaintenanceCallUser->user_id = $request->new_users[$i];
+                    $energyMaintenanceCallUser->electricity_maintenance_call_id = $maintenanceId;
+                    $energyMaintenanceCallUser->save();
+                }
+            }
+        }
 
         return redirect('/energy-maintenance')->with('message', 'Energy Maintenance Updated Successfully!');
     }
@@ -270,6 +318,72 @@ class EnergyMaintenanceCallController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deletePerformedEnergyUsers(Request $request)
+    {
+        $id = $request->id;
+
+        $energyPerformedBy = ElectricityMaintenanceCallUser::find($id);
+
+        if($energyPerformedBy) {
+
+            $energyPerformedBy->is_archived = 1;
+            $energyPerformedBy->save();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Energy Maintenance User Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEnergySystem($community_id)
+    {
+        if($community_id == 0) {
+
+            $energySystems = EnergySystem::where('energy_system_type_id', 2)->get();
+        } else {
+
+            $energySystems = EnergySystem::where('community_id', $community_id)->get();
+        }
+
+        if (!$community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+ 
+            $html = '';
+            if($community_id == 0) {
+
+                $energySystems = EnergySystem::where('energy_system_type_id', 2)->get();
+            } else {
+                
+                $energySystems = EnergySystem::where('community_id', $community_id)->get();
+            }
+
+            foreach ($energySystems as $energyType) {
+                $html .= '<option value="'.$energyType->id.'">'.$energyType->name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
     }
 
     /**
@@ -308,6 +422,14 @@ class EnergyMaintenanceCallController extends Controller
         $status = MaintenanceStatus::where('id', $energyMaintenance->maintenance_status_id)->first();
         $type = MaintenanceType::where('id', $energyMaintenance->maintenance_type_id)->first();
         $user = User::where('id', $energyMaintenance->user_id)->first();
+        $performedUsers = DB::table('electricity_maintenance_call_users')
+            ->join('electricity_maintenance_calls', 'electricity_maintenance_call_users.electricity_maintenance_call_id', 
+                'electricity_maintenance_calls.id')
+            ->join('users', 'electricity_maintenance_call_users.user_id', 'users.id')
+            ->where('electricity_maintenance_call_users.electricity_maintenance_call_id', $energyMaintenance->id)
+            ->where('electricity_maintenance_call_users.is_archived', 0)
+            ->select('electricity_maintenance_call_users.id', 'users.name')
+            ->get();
 
         $response['community'] = $community;
         $response['energyMaintenance'] = $energyMaintenance;
@@ -315,6 +437,7 @@ class EnergyMaintenanceCallController extends Controller
         $response['status'] = $status;
         $response['type'] = $type;
         $response['user'] = $user;
+        $response['performedUsers'] = $performedUsers;
 
         return response()->json($response);
     }
@@ -329,7 +452,18 @@ class EnergyMaintenanceCallController extends Controller
         return Excel::download(new EnergyMaintenanceExport($request), 'energy_maintenance.xlsx');
     }
 
-     /**
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function import(Request $request)
+    {
+        Excel::import(new ImportEnergyMaintenance, $request->file('file')); 
+            
+        return back()->with('success', 'Excel Data Imported successfully.');
+    }
+
+    /**
      * Get resources from storage.
      *
      * @param  \Illuminate\Http\Request  $request

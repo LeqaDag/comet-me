@@ -70,7 +70,6 @@
                     </div>
                 </form>
 
-
                 @if(Auth::guard('user')->user()->user_type_id == 1 ||
                     Auth::guard('user')->user()->user_type_id == 2 ||
                     Auth::guard('user')->user()->user_type_id == 4 ||
@@ -82,12 +81,28 @@
                         </button>
                         @include('users.energy.maintenance.create')
                     </div>
+
+                    <div>
+                        <form action="{{route('energy-maintenance.import')}}" method="POST" 
+                            enctype="multipart/form-data">
+                            @csrf
+                            <div class="col-xl-5 col-lg-5 col-md-5">
+                                <fieldset class="form-group">
+                                    <input name="file" type="file"
+                                        class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <button class="btn btn-success" type="submit">Import File</button>
+                            </div>
+                        </form>
+                    <div>
                 @endif
             </div>
             <table id="maintenanceEnergyTable" class="table table-striped data-table-energy-maintenance my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">MG System</th>
+                        <th class="text-center">Energy System</th>
                         <th class="text-center">Household</th>
                         <th class="text-center">Public Structure</th>
                         <th class="text-center">Community</th>
@@ -259,6 +274,12 @@
 
                 $('#maintenanceNotes').html('');
                 $('#maintenanceNotes').html(response['energyMaintenance'].notes);
+
+                $("#maintenancePerformedBy").html(" ");
+                for (var i = 0; i < response['performedUsers'].length; i++) {
+                    $("#maintenancePerformedBy").append(
+                        '<ul><li>'+ response['performedUsers'][i].name +'</li> </ul>');
+                }
             }
         });
     });
