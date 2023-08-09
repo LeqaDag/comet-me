@@ -18,6 +18,8 @@
     </div>
 @endif
 
+@include('users.energy.comet.details')
+
 <div class="container mb-4">
     <div class="card my-2">
         <div class="card-body">
@@ -68,7 +70,7 @@
                 }
             },
             columns: [
-                {data: 'name', name: 'name'},
+                {data: 'public_name', name: 'public_name'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'meter_number', name: 'meter_number'},
                 {data: 'energy_name', name: 'energy_name'},
@@ -114,6 +116,73 @@
                 } else if(result.isDenied) {
 
                     Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+
+        // View record update page
+        $('#energyCometMeterTable').on('click', '.updateEnergyComet',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            
+            // AJAX request
+            $.ajax({
+                url: 'comet-meter/' + id + '/editpage',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    window.open(url, "_self"); 
+                }
+            });
+        });
+
+        // View record details
+        $('#energyCometMeterTable').on('click', '.viewCometMeterUser',function() {
+            var id = $(this).data('id');
+        
+            // AJAX request
+            $.ajax({
+                url: 'energy-public/' + id,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+
+                    $('#energyCometModalTitle').html(" ");
+                    $('#englishNameComet').html(" ");
+                    $('#communityComet').html(" ");
+                    $('#meterActiveComet').html(" ");
+                    $('#meterCaseComet').html(" ");
+                    $('#systemNameComet').html(" ");
+                    $('#systemTypeComet').html(" ");
+                    $('#systemLimitComet').html(" ");
+                    $('#systemDateComet').html(" ");
+                    $('#systemNotesComet').html(" ");
+
+                    $('#energyCometModalTitle').html(response['public'].english_name);
+                    $('#englishNameComet').html(response['public'].english_name);
+                    $('#communityComet').html(response['community'].english_name);
+                    $('#meterActiveComet').html(response['energyPublic'].meter_active);
+                    $('#meterCaseComet').html(response['meter'].meter_case_name_english);
+                    $('#systemNameComet').html(response['system'].name);
+                    $('#systemTypeComet').html(response['type'].name);
+                    $('#systemLimitComet').html(response['energyPublic'].daily_limit);
+                    $('#systemDateComet').html(response['energyPublic'].installation_date);
+                    $('#systemNotesComet').html(response['energyPublic'].notes);
+                    if(response['vendor']) $('#vendorDatePublic').html(response['vendor'].name);
+                    $('#installationTypeComet').html(" ");
+                    if(response['installationType']) $('#installationTypePublic').html(response['installationType'].type);
+
+                    $('#donorsDetails').html(" ");
+                    if(response['energyMeterDonors'] != []) {
+                        for (var i = 0; i < response['energyMeterDonors'].length; i++) {
+                            if(response['energyMeterDonors'][i].donor_name == "0")  {
+                                response['energyMeterDonors'][i].donor_name = "Not yet attributed";
+                            }
+                            $("#donorsDetails").append(
+                            '<ul><li>'+ response['energyMeterDonors'][i].donor_name +'</li></ul>');  
+                        }
+                    }
                 }
             });
         });

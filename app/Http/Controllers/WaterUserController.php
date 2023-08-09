@@ -339,6 +339,7 @@ class WaterUserController extends Controller
                 $allWaterHolder->is_main = "Yes";
                 $allWaterHolder->household_id = $request->household_id;
                 $allWaterHolder->community_id = $request->community_id[0];
+                $allWaterHolder->notes = $request->notes;
                 $allWaterHolder->save();
             }
 
@@ -353,6 +354,7 @@ class WaterUserController extends Controller
             $allWaterHolder->is_main = "Yes";
             $allWaterHolder->public_structure_id = $request->household_id;
             $allWaterHolder->community_id = $request->community_id[0];
+            $allWaterHolder->notes = $request->notes;
             $allWaterHolder->save();
 
             if($request->number_of_h20) {
@@ -387,6 +389,7 @@ class WaterUserController extends Controller
                     $allWaterHolder->request_date = $request->h2o_request_date; 
                     $allWaterHolder->installation_year = $request->installation_year;
                     $allWaterHolder->installation_date = $request->h2o_installation_date;
+                    $allWaterHolder->notes = $request->notes;
                     $allWaterHolder->save();
                 }
             }
@@ -418,6 +421,7 @@ class WaterUserController extends Controller
                     $allWaterHolder->water_system_id1 = 2;
                     $allWaterHolder->request_date = $request->request_date; 
                     $allWaterHolder->installation_date = $request->large_date;
+                    $allWaterHolder->notes = $request->notes;
                     $allWaterHolder->save();
                 }
     
@@ -444,6 +448,7 @@ class WaterUserController extends Controller
                     $allWaterHolder->water_system_id2 = 3;
                     $allWaterHolder->request_date = $request->request_date; 
                     $allWaterHolder->installation_date = $request->large_date;
+                    $allWaterHolder->notes = $request->notes;
                     $allWaterHolder->save();
                 }
             }
@@ -452,7 +457,7 @@ class WaterUserController extends Controller
             $gridPublicStructure->is_paid = $request->is_paid;
             $gridPublicStructure->is_complete = $request->is_complete;
             $gridPublicStructure->save();
-        }
+        } 
         
         return redirect()->back()->with('message', 'New User Added Successfully!');
     }

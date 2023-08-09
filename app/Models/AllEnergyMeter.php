@@ -11,6 +11,11 @@ class AllEnergyMeter extends Model
 
     protected $fillable = ['household_id', 'meter_case_id', 'energy_system_id', 'installation_type_id'];
 
+    public function Community()
+    {
+        return $this->belongsTo(Community::class, 'community_id', 'id');
+    }
+
     public function Household()
     {
         return $this->belongsTo(Household::class, 'household_id', 'id');

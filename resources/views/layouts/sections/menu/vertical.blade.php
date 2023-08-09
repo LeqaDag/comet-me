@@ -93,16 +93,24 @@
         </a>
         <ul class="menu-sub">
             <li class="menu-item">
-            <a href="{{url('household')}}" class="menu-link" >
-                <i class=""></i>
-                <div>All</div>
-            </a>
+                <a href="{{url('household')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>All</div>
+                </a>
             </li>
+            @if(Auth::guard('user')->user()->user_type_id == 1)
+                <li class="menu-item">
+                    <a href="{{url('requested-household')}}" class="menu-link" >
+                        <i class=""></i>
+                        <div>Requested</div>
+                    </a>
+                </li>
+            @endif
             <li class="menu-item">
-            <a href="{{url('initial-household')}}" class="menu-link" >
-                <i class=""></i>
-                <div>Initial Survey</div>
-            </a>
+                <a href="{{url('initial-household')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Initial Survey</div>
+                </a>
             </li>
             <li class="menu-item">
             <a href="{{url('ac-household')}}" class="menu-link" >
@@ -126,12 +134,20 @@
     </li>
    
     <li class="menu-item">
-        <a href="{{url('public')}}" class="dashboard menu-link">
+        <a href="{{url('public-structure')}}" class="dashboard menu-link">
             <i class="menu-icon tf-icons bx bx-buildings"></i>
             <div>Public Structures</div>
         </a>
     </li>
 
+    @if(Auth::guard('user')->user()->user_type_id == 1)
+    <li class="menu-item">
+        <a href="{{url('energy-request')}}" class="menu-link" >
+            <i class="menu-icon tf-icons bx bx-check-square"></i>
+            <div>Requested Systems</div>
+        </a>
+    </li>
+    @endif
     <li class="menu-item">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-tachometer"></i>
@@ -268,6 +284,12 @@
                 <a href="{{url('water-maintenance')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Water Maintenance</div>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{url('energy-safety')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Meters Safety Check</div>
                 </a>
             </li>
             <li class="menu-item">

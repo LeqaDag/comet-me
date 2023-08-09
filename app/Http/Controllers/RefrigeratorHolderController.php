@@ -76,7 +76,6 @@ class RefrigeratorHolderController extends Controller
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 ||
                             Auth::guard('user')->user()->user_type_id == 3 ||
-                            Auth::guard('user')->user()->user_type_id == 4 ||
                             Auth::guard('user')->user()->user_type_id == 7) 
                         {
                                 

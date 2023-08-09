@@ -48,21 +48,55 @@ class AllEnergyController extends Controller
      */
     public function index(Request $request)
     {
-        // $subUsers = AllEnergyMeter::where("is_main", "No")->get();
+        // $allUsers = AllEnergyMeter::where("installation_type_id", 2)->get();
+        
 
+        // foreach($allUsers as $allUser) {
+
+        //     $sharedUser = HouseholdMeter::where('household_id', $allUser->household_id)->first();
+            
+        //     if($sharedUser) {
+
+        //         $sharedEnergy = AllEnergyMeter::where("household_id", $sharedUser)->first();
+        //         $sharedEnergy->installation_type_id = 2;
+        //         $sharedEnergy->save();
+        //     }
+        // }
+
+
+        // $subUsers = AllEnergyMeter::where("is_main", "No")->get();
+        
         // foreach($subUsers as $subUser) {
 
-           
         //     $mainUser = HouseholdMeter::where('household_id', $subUser->household_id)->first();
-        //     $exist = AllEnergyMeterDonor::where('all_energy_meter_id', $subUser->id)->get();
+            
         //     $energyUser = AllEnergyMeter::where('id', $mainUser->energy_user_id)->first();
             
-            
-        //         $subUser->misc = $energyUser->misc;
-        //         $subUser->save();
-            
-            
+        //     $subUser->installation_type_id = $energyUser->installation_type_id;
+        //     $subUser->save();
         // }
+
+        // $energyUsers = AllEnergyMeter::where("energy_system_type_id", 2)->get();
+
+        // foreach($energyUsers as $energyUser) {
+
+        //     $energyUser->ground_connected = "No";
+        //     $energyUser->save();
+        // }
+
+        // $energyUsers = AllEnergyMeter::where("energy_system_type_id", 1)
+        //     ->orWhere("energy_system_type_id", 3)
+        //     ->orWhere("energy_system_type_id", 4)
+        //     ->get();
+
+        // foreach($energyUsers as $energyUser) {
+
+        //     $energyUser->ground_connected = "Yes";
+        //     $energyUser->save();
+        // }
+
+        
+        
 
         if (Auth::guard('user')->user() != null) {
 
@@ -329,6 +363,8 @@ class AllEnergyController extends Controller
         $energyUser->daily_limit = $request->daily_limit;
         $energyUser->installation_date = $request->installation_date;
         if($request->installation_type_id) $energyUser->installation_type_id = $request->installation_type_id;
+        
+        if($request->ground_connected) $energyUser->ground_connected = $request->ground_connected;
       
         if($request->meter_active) $energyUser->meter_active = $request->meter_active;
 

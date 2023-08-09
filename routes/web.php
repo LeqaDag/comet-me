@@ -17,6 +17,14 @@ use App\Http\Controllers\laravel_example\UserManagement;
 
 Auth::routes();
 
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('2fa');
+  
+Route::get('2fa', [App\Http\Controllers\TwoFAController::class, 'index'])->name('2fa.index');
+Route::post('2fa', [App\Http\Controllers\TwoFAController::class, 'store'])->name('2fa.post');
+Route::get('2fa/reset', [App\Http\Controllers\TwoFAController::class, 'resend'])->name('2fa.resend');
+
+Route::get('mail-send', [App\Http\Controllers\SendMailController::class, 'index']);
+
 Route::get('/profile-user/{id}', [App\Http\Controllers\Auth\LoginController::class, 'profile'])->name('profile');
 Route::resource('user', App\Http\Controllers\UserController::class);
 Route::get('/delete-user', [App\Http\Controllers\UserController::class, 'deleteUser'])->name('deleteUser');
@@ -91,6 +99,7 @@ Route::get('energy_public/get_by_public/{public_id}', [App\Http\Controllers\Wate
 Route::get('energy_user/get_by_community/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergyUserByCommunity']);
 Route::get('energy_public/get_by_community/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getPublicByCommunity']);
 Route::get('energy_public/get_by_energy_type/{community_id}/{energy_type_id}', [App\Http\Controllers\EnergyPublicStructureController::class, 'getEnergySystemByCommunity']);
+Route::get('energy_user/get_meter/{holder_id}', [App\Http\Controllers\EnergyUserController::class, 'getMeterNumber']);
 
 Route::resource('sub-region', App\Http\Controllers\SubRegionController::class);
 Route::resource('sub-sub-region', App\Http\Controllers\SubSubRegionController::class);
@@ -160,11 +169,12 @@ Route::get('/delete-energyDonor', [App\Http\Controllers\AllEnergyController::cla
 
 Route::resource('energy-public', App\Http\Controllers\EnergyPublicStructureController::class);
 Route::resource('comet-meter', App\Http\Controllers\EnergyCometMeterController::class);
-Route::get('energy-public/get_by_community/{community_id}', [App\Http\Controllers\EnergyPublicStructureController::class, 'getByCommunity']);
+Route::get('energy-public/get_by_community/{community_id}/{comet_meter}', [App\Http\Controllers\EnergyPublicStructureController::class, 'getByCommunity']);
 Route::get('/delete-public', [App\Http\Controllers\EnergyPublicStructureController::class, 'deleteEnergyPublic'])->name('deleteEnergyPublic');
 Route::get('/delete-comet-meter', [App\Http\Controllers\EnergyCometMeterController::class, 'deleteCometMeter'])->name('deleteCometMeter');
 Route::get('energy_public/{id}/editpage', [App\Http\Controllers\EnergyPublicStructureController::class, 'editPage']);
 Route::get('/delete-publicDonor', [App\Http\Controllers\EnergyPublicStructureController::class, 'deleteEnergyPublicDonor'])->name('deleteEnergyPublicDonor');
+Route::get('comet-meter/{id}/editpage', [App\Http\Controllers\EnergyCometMeterController::class, 'editPage']);
 
 Route::resource('internet-user', App\Http\Controllers\InternetUserController::class);
 Route::get('/details/fbs/incident', [App\Http\Controllers\EnergySystemController::class, 'incidentFbsDetails'])->name('incidentFbsDetails');
@@ -176,6 +186,7 @@ Route::resource('household-meter', App\Http\Controllers\HouseholdMeterController
 Route::get('household-meter/get_households/{id}', [App\Http\Controllers\HouseholdMeterController::class, 'getHouseholds'])->name('getHouseholds');
 Route::get('/delete-household-meter', [App\Http\Controllers\HouseholdMeterController::class, 'deleteHouseholdMeter'])->name('deleteHouseholdMeter');
 Route::get('household-meter/get_users/{community_id}', [App\Http\Controllers\HouseholdMeterController::class, 'getUsers'])->name('getUsers');
+Route::post('household-meter-export', [App\Http\Controllers\HouseholdMeterController::class, 'export'])->name('household-meter.export');
 
 Route::resource('all-water', App\Http\Controllers\AllWaterController::class);
 Route::resource('shared-h2o', App\Http\Controllers\SharedWaterController::class);
@@ -223,10 +234,16 @@ Route::get('chart/service/{service_id}/{region_id}', [App\Http\Controllers\Chart
 Route::resource('energy-maintenance', App\Http\Controllers\EnergyMaintenanceCallController::class);
 Route::get('/delete-energy-maintenance', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deleteMaintenanceEnergy'])->name('deleteMaintenanceEnergy');
 Route::post('energy-maintenance-export', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'export'])->name('energy-maintenance.export');
-Route::get('energy-maintenance/get_system/{system}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getMaintenanceAction']);
+Route::get('energy-maintenance/get_system/{system}/{mg}/{community_id}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getMaintenanceAction']);
 Route::get('/delete-energy-performed', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deletePerformedEnergyUsers'])->name('deletePerformedEnergyUsers');
 Route::get('energy-maintenance/get_energy/{community_id}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getEnergySystem'])->name('getEnergySystem');
 Route::post('energy-maintenance-import', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'import'])->name('energy-maintenance.import');
+Route::get('/delete-maintenance-action', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deleteEnergyAction'])->name('deleteEnergyAction');
+
+Route::resource('energy-safety', App\Http\Controllers\EnergySafetyController::class);
+Route::get('/delete-energy-safety', [App\Http\Controllers\EnergySafetyController::class, 'deleteEnergySafety'])->name('deleteEnergySafety');
+Route::get('energy-safety/{id}/editpage', [App\Http\Controllers\EnergySafetyController::class, 'editPage']);
+Route::post('energy-safety-export', [App\Http\Controllers\EnergySafetyController::class, 'export'])->name('energy-safety.export');
 
 Route::resource('new-energy-maintenance', App\Http\Controllers\NewEnergyMaintenanceCallController::class);
 Route::get('/delete-new-energy-maintenance', [App\Http\Controllers\NewEnergyMaintenanceCallController::class, 'deleteNewMaintenanceEnergy'])->name('deleteNewMaintenanceEnergy');
@@ -280,7 +297,12 @@ Route::get('setting/edit_setting/{id}', [App\Http\Controllers\SettingController:
 Route::resource('all-active', App\Http\Controllers\AllActiveUserController::class); 
 Route::post('all-active-export', [App\Http\Controllers\AllActiveUserController::class, 'export'])->name('all-active.export');
 
-Route::resource('public', App\Http\Controllers\PublicStructureController::class);
-Route::post('public-export', [App\Http\Controllers\PublicStructureController::class, 'export'])->name('public.export');
+Route::resource('public-structure', App\Http\Controllers\PublicStructureController::class);
+Route::post('public-structure-export', [App\Http\Controllers\PublicStructureController::class, 'export'])->name('public-structure.export');
 Route::get('/delete-public-structure', [App\Http\Controllers\PublicStructureController::class, 'deletePublicStructure'])->name('deletePublicStructure');
 Route::get('public/{id}/editpage', [App\Http\Controllers\PublicStructureController::class, 'editPage']);
+
+Route::resource('energy-request', App\Http\Controllers\EnergyRequestSystemController::class);
+Route::post('energy-request-export', [App\Http\Controllers\EnergyRequestSystemController::class, 'export'])->name('energy-request.export');
+
+Route::resource('requested-household', App\Http\Controllers\RequestedHouseholdController::class);

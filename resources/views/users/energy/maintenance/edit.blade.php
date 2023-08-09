@@ -142,27 +142,6 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
-                            <select name="maintenance_electricity_action_id" class="form-control"
-                                id="maintenanceElectricityAction" >
-                            @if($energyMaintenance->maintenance_electricity_action_id)
-                                <option value="{{$energyMaintenance->maintenance_electricity_action_id}}">
-                                    {{$energyMaintenance->MaintenanceElectricityAction->maintenance_action_electricity}}
-                                </option>
-                            @endif 
-                            @foreach($actions as $action)
-                                <option value="{{$action->id}}">
-                                    {{$action->maintenance_action_electricity}}
-                                </option>
-                            @endforeach
-                            </select>
-                            @if ($errors->has('maintenance_electricity_action_id'))
-                                <span class="error">{{ $errors->first('maintenance_electricity_action_id') }}</span>
-                            @endif
-                        </fieldset>
-                    </div>
                     <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Recipient</label>
@@ -200,6 +179,68 @@
                         </fieldset>
                     </div>
                 </div>
+                <hr>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
+                    </div>
+                </div>
+                @if(count($energyActions) > 0)
+                    <table id="energyActionsTable" 
+                        class="table table-striped data-h2o-actions-donors my-2">  
+                        <tbody>
+                            @foreach($energyActions as $energyAction)
+                            <tr id="energyActionRow">
+                                <td class="text-center">
+                                    {{$energyAction->maintenance_action_electricity}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteEnergyAction" 
+                                        id="deleteEnergyAction" data-id="{{$energyAction->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add more actions</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="actions[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($maintenanceElectricityActions as $maintenanceElectricityAction)
+                                        <option value="{{$maintenanceElectricityAction->id}}">
+                                            {{$maintenanceElectricityAction->maintenance_action_electricity}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Actions</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_actions[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($maintenanceElectricityActions as $maintenanceElectricityAction)
+                                        <option value="{{$maintenanceElectricityAction->id}}">
+                                            {{$maintenanceElectricityAction->maintenance_action_electricity}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
+
                 <hr>
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
@@ -287,6 +328,44 @@
             success: function(data) {
                 $('#energyUserSelectedFbs').prop('disabled', false);
                 $('#energyUserSelectedFbs').html(data.html);
+            }
+        });
+    });
+
+    // delete action
+    $('#energyActionsTable').on('click', '.deleteEnergyAction',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this action?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergyAction') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
             }
         });
     });

@@ -28,7 +28,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->join('installation_types', 'all_energy_meters.installation_type_id', '=', 
+            ->LeftJoin('installation_types', 'all_energy_meters.installation_type_id', '=', 
                 'installation_types.id')
             ->LeftJoin('public_structures', 'all_energy_meters.public_structure_id', 
                 'public_structures.id')
@@ -42,7 +42,6 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
                 'donors.id')
             ->where('all_energy_meters.is_archived', 0)
-            ->where('all_energy_meters.meter_case_id', 1)
             ->select([
                 'households.english_name as english_name', 
                 'public_structures.english_name as public',
@@ -52,6 +51,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
                 'regions.english_name as region', 'sub_regions.english_name as sub_region', 
                 'meter_cases.meter_case_name_english', 
                 'energy_systems.name as energy_name', 'energy_system_types.name as energy_type_name',
+                'all_energy_meters.ground_connected',
                 'households.number_of_male', 'households.number_of_female', 
                 'households.number_of_adults', 'households.number_of_children', 
                 'households.phone_number', 'all_energy_meters.meter_number', 
@@ -60,29 +60,22 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
                 ])
                 ->groupBy('all_energy_meters.id');
 
+       // die($query->get());
 
-        if($this->request->misc) {
+        if($this->request->type) {
 
-            if($this->request->misc == "misc") {
-
-                $query->where("all_energy_meters.misc", 1);
-            } else if($this->request->misc == "new") {
-
-                $query->where("all_energy_meters.misc", 0);
-            } else if($this->request->misc == "maintenance") {
-
-                $query->where("all_energy_meters.misc", 2);
-            }
+            $query->where("all_energy_meters.installation_type_id", $this->request->type);
         }
-
         if($this->request->date_from) {
+
             $query->where("all_energy_meters.installation_date", ">=", $this->request->date_from);
         }
-
         if($this->request->date_to) {
+
             $query->where("all_energy_meters.installation_date", "<=", $this->request->date_to);
         }
 
+      //  die($query->get());
       //  $query
         // dd($query->count());
 
@@ -99,8 +92,9 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
     {
         return ["Energy User", "Public Structure", "Main Holder", "Installation Type", "Community", 
             "Region", "Sub Region", "Meter Case", "Energy System", "Energy System Type", 
-            "Number of male", "Number of Female", "Number of adults", "Number of children", 
-            "Phone number", "Meter Number", "Daily Limit", "Installation Date", "Donors"];
+            "Connected Ground", "Number of male", "Number of Female", "Number of adults", 
+            "Number of children", "Phone number", "Meter Number", "Daily Limit", 
+            "Installation Date", "Donors"];
     }
 
     public function title(): string

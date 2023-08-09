@@ -188,23 +188,20 @@ class WaterQualityResultController extends Controller
 
         if($flag == "user") {
 
-            $households = DB::table('all_water_holders')
-                ->join('households', 'all_water_holders.household_id', 'households.id')
-                ->where('all_water_holders.is_archived', 0)
+            $households = DB::table('households')
+                ->where('households.is_archived', 0)
                 ->where("households.community_id", $community_id)
                 ->orderBy('households.english_name', 'ASC')
                 ->select('households.id as id', 'households.english_name')
                 ->get();
         } else if($flag == "shared") {
 
-            $households = DB::table('h2o_shared_users')
-                ->join('households', 'h2o_shared_users.household_id', 'households.id')
-                ->where('h2o_shared_users.is_archived', 0)
+            $households = DB::table('households')
+                ->where('households.is_archived', 0)
                 ->where("households.community_id", $community_id)
                 ->orderBy('households.english_name', 'ASC')
                 ->select('households.id as id', 'households.english_name')
                 ->get();
-
         } else if($flag == "public") {
 
             $households = DB::table('h2o_public_structures')

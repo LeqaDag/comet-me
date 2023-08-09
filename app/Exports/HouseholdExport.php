@@ -39,8 +39,8 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'households.phone_number', 'professions.profession_name', 
-                'number_of_male', 'number_of_female', 'number_of_children', 'school_students',
-                'household_statuses.status', 'water_system_status', 'internet_system_status');
+                'number_of_male', 'number_of_female', 'number_of_children','number_of_adults', 'school_students',
+                'household_statuses.status', 'households.created_at', 'water_system_status', 'internet_system_status');
 
         if($this->request->region) {
 
@@ -80,8 +80,8 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
     public function headings(): array
     {
         return ["English Name", "Arabic Name", "Community", "Region", "Sub Region", 
-            "Phone Number", "Profession", "# of Male", "# of Female", "# of Children",
-            "# of School students", "Energy System Status", "Water System Status", 
+            "Phone Number", "Profession", "# of Male", "# of Female", "# of Children", "# of Adults",
+            "# of School students", "Energy System Status", "Requset Date", "Water System Status", 
             "Internet System Status"];
     }
 

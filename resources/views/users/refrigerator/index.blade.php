@@ -6,6 +6,69 @@
 
 @section('content')
 
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Export Filter</h5>
+                </div>
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('refrigerator.export') }}">
+                    @csrf
+                    <div class="card-body"> 
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <select name="community"
+                                        class="selectpicker form-control" data-live-search="true">
+                                        <option disabled selected>Search Community</option>
+                                        @foreach($communities as $community)
+                                        <option value="{{$community->english_name}}">
+                                            {{$community->arabic_name}}
+                                        </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <select name="public" class="selectpicker form-control" data-live-search="true">
+                                        <option disabled selected>Search Public Structure</option>
+                                        @foreach($publicCategories as $publicCategory)
+                                        <option value="{{$publicCategory->id}}">
+                                            {{$publicCategory->name}}
+                                        </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <input type="date" name="date_from" 
+                                    class="form-control" title="Data from"> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <input type="date" name="date_to" 
+                                    class="form-control" title="Data to"> 
+                                </fieldset>
+                            </div> <br> <br> <br>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <button class="btn btn-info" type="submit">
+                                    <i class='fa-solid fa-file-excel'></i>
+                                    Export Excel
+                                </button>
+                            </div>
+                        </div> 
+                    </div>
+                </form>
+            </div>  
+        </div>
+    </div> 
+</div> 
+
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Refrigerator Holders
 </h4>
@@ -22,59 +85,11 @@
 
 <div class="container">
     <div class="card my-2">
-        <div class="card-header">
-            <form method="POST" enctype='multipart/form-data' 
-                action="{{ route('refrigerator.export') }}">
-                @csrf
-                <div class="row">
-                    <div class="col-xl-3 col-lg-3 col-md-3">
-                        <fieldset class="form-group">
-                            <select name="community"
-                                class="selectpicker form-control" data-live-search="true">
-                                <option disabled selected>Search Community</option>
-                                @foreach($communities as $community)
-                                <option value="{{$community->english_name}}">
-                                    {{$community->arabic_name}}
-                                </option>
-                                @endforeach
-                            </select> 
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-3 col-lg-3 col-md-3">
-                        <fieldset class="form-group">
-                            <select name="public" class="selectpicker form-control" data-live-search="true">
-                                <option disabled selected>Search Public Structure</option>
-                                @foreach($publicCategories as $publicCategory)
-                                <option value="{{$publicCategory->id}}">
-                                    {{$publicCategory->name}}
-                                </option>
-                                @endforeach
-                            </select> 
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-3 col-lg-3 col-md-3">
-                        <fieldset class="form-group">
-                            <input type="date" name="date_from" 
-                            class="form-control" title="Data from"> 
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-3 col-lg-3 col-md-3">
-                        <fieldset class="form-group">
-                            <input type="date" name="date_to" 
-                            class="form-control" title="Data to"> 
-                        </fieldset>
-                    </div> <br> <br>
-                    <div class="col-xl-3 col-lg-3 col-md-3">
-                        <button class="btn btn-info" type="submit">
-                            <i class='fa-solid fa-file-excel'></i>
-                            Export Excel
-                        </button>
-                    </div>
-                </div> 
-            </form>
-        </div>
-        
         <div class="card-body">
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||  
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 ||
+                Auth::guard('user')->user()->user_type_id == 7 )
            <div>
                 <button type="button" class="btn btn-success" 
                     data-bs-toggle="modal" data-bs-target="#createRefrigeratorHolder">
@@ -82,6 +97,9 @@
                 </button>
                 @include('users.refrigerator.create')
             </div>
+            @endif
+
+            @if(Auth::guard('user')->user()->user_type_id == 1)
             <div>
                 <form action="{{route('refrigerator.import')}}" method="POST" 
                     enctype="multipart/form-data">
@@ -97,6 +115,7 @@
                     </div>
                 </form>
             <div>
+            @endif
             <table id="refrigeratorTable" class="table table-striped data-table-refrigerators my-2">
                 <thead>
                     <tr>

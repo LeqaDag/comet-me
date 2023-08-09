@@ -217,6 +217,7 @@ class EnergyUserController extends Controller
             $households = Household::where('community_id', $community_id)
                 ->where("household_status_id", 2)
                 ->get();
+
             foreach ($households as $household) {
                 $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
             }
@@ -390,6 +391,29 @@ class EnergyUserController extends Controller
         }
         
 
+        return response()->json($response);
+    }
+
+    /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getMeterNumber(Request $request)
+    {
+        $energyHolder = AllEnergyMeter::where('household_id', $request->holder_id)
+            ->orWhere('public_structure_id', $request->holder_id)
+            ->first();
+
+        if($energyHolder == null) {
+
+            $response['meter_number'] = "No";
+        } else {
+
+            $response['meter_number'] = $energyHolder->meter_number;
+        }
+        
         return response()->json($response);
     }
 

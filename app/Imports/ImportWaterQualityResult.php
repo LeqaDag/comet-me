@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use App\Models\Community;
 use App\Models\PublicStructure;
+use App\Models\AllWaterHolder;
 use App\Models\Household;
 use App\Models\H2oUser;
 use App\Models\H2oSharedUser;
@@ -38,18 +39,26 @@ class ImportWaterQualityResult implements ToModel, WithHeadingRow
         if($household) {
 
             $waterResult->household_id = $household->id;
-            $h2o_user_id = H2oUser::where('household_id', $household->id)->select('id')->get();
-            $waterResult->h2o_user_id = $h2o_user_id[0]->id;
+
+            $h2o_user_id = H2oUser::where('household_id', $household->id)->first();
+            if($h2o_user_id != null) {
+
+                $waterResult->h2o_user_id = $h2o_user_id->id;
+            } 
+
+            $h2oSharedUser = H2oSharedUser::where('household_id', $household->id)->first();
+            if($h2oSharedUser) {
+
+                $waterResult->h2o_shared_user_id = $h2oSharedUser->id;
+            }
+               
         } else if($public) {
 
             if($public) $waterResult->public_structure_id = $public->id;
-        } else {
-
-            $h2oSharedUser = H2oSharedUser::where('household_id', $household->id)->select('id')->get();
-            $waterResult->h2o_shared_user_id = $h2oSharedUser[0]->id;
         }
         
         if(date_timestamp_get($reg_date)) {
+
             $waterResult->date = date_timestamp_get($reg_date) ? $reg_date->format('Y-m-d') : null;
             $year = explode('-', date_timestamp_get($reg_date) ? $reg_date->format('Y-m-d') : null);
             $waterResult->year = $year[0];

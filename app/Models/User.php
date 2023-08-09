@@ -8,6 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Exception;
+use Mail;
+use App\Mail\SendMail;
 
 class User extends Authenticatable
 {
@@ -26,7 +29,8 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
-        'user_type_id'
+        'user_type_id',
+        'google2fa_secret'
     ];
 
     public function UserType()
@@ -53,14 +57,33 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-
-
-
-    public function authorizeRoles($roles)
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function generateCode()
     {
-        if ($this->hasAnyRole($roles)) {
-            return true;
-        }
-        abort(401, 'This action is unauthorized.');
+        $code = rand(1000, 9999);
+  
+            UserCode::updateOrCreate(
+                ['user_id' => auth()->guard('user')->user()->id],
+                ['code' => $code]
+            );
+        
+            try {
+                $details = [
+                    'title' => 'Your Two-Factor Authentication Code',
+                    'name' => auth()->guard('user')->user()->name,
+                    'body' => 'We hope this email finds you well. As part of our ongoing commitment to ensuring the security of your account, we have implemented Two-Factor Authentication (2FA) to provide an extra layer of protection for your account.',
+                    'code' => $code
+                ];
+                
+                Mail::to(auth()->guard('user')->user()->email)->send(new SendMail($details));
+                
+            } catch (Exception $e) {
+    
+                info("Error: ". $e->getMessage());
+            }
     }
 }

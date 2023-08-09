@@ -12,6 +12,7 @@ use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\AllEnergyMeterDonor;
 use App\Models\User;
+use App\Models\CometMeter;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\Donor;
@@ -44,169 +45,214 @@ class EnergyPublicStructureController extends Controller
      */
     public function index(Request $request)
     {
+       // $cometMeters = CometMeter::all();
+
+        // foreach($cometMeters as $cometMeter) {
+
+        //     $exist = PublicStructure::where("english_name", $cometMeter->name)->first();
+
+        //     if($exist) {
+
+        //     } else {
+
+        //         $publicStructure = new PublicStructure();
+        //         $publicStructure->english_name = $cometMeter->name;
+        //         $publicStructure->community_id = $cometMeter->community_id;
+        //         $publicStructure->comet_meter = 1;
+        //         $publicStructure->save();
+        //     }
+        // }
+
+        // foreach($cometMeters as $cometMeter) {
+
+        //     $exist = AllEnergyMeter::where("meter_number", $cometMeter->meter_number)->first();
+
+        //     if($exist) {
+
+        //     } else {
+
+        //         $publicStructure = PublicStructure::where("english_name", $cometMeter->name)->first();
+
+        //         $allEnergyMeter = new AllEnergyMeter();
+        //         $allEnergyMeter->public_structure_id = $publicStructure->id;
+        //         $allEnergyMeter->community_id = $cometMeter->community_id;
+        //         $allEnergyMeter->meter_number = $cometMeter->meter_number;
+        //         $allEnergyMeter->is_main = "Yes";
+        //         $allEnergyMeter->meter_case_id = $cometMeter->meter_case_id;
+        //         $allEnergyMeter->energy_system_type_id = $cometMeter->energy_system_type_id;
+        //         $allEnergyMeter->energy_system_id = $cometMeter->energy_system_id;
+        //         $allEnergyMeter->meter_active = $cometMeter->meter_active;
+        //         $allEnergyMeter->daily_limit = $cometMeter->daily_limit;
+        //         $allEnergyMeter->installation_date = $cometMeter->installation_date;
+        //         $allEnergyMeter->vendor_id = $cometMeter->vendor_id;
+        //         $allEnergyMeter->notes = $cometMeter->notes;
+        //         $allEnergyMeter->save();
+        //     }
+        // }
+
         if (Auth::guard('user')->user() != null) {
 
+            if ($request->ajax()) {
+
+                $dataPublic = DB::table('all_energy_meters')
+                    ->join('public_structures', 'all_energy_meters.public_structure_id', '=', 'public_structures.id')
+                    ->join('communities', 'public_structures.community_id', '=', 'communities.id')
+                    ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
+                    ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
+                    ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+                    ->where('all_energy_meters.is_archived', 0)
+                    ->where('public_structures.comet_meter', 0)
+                    ->select('all_energy_meters.meter_number', 
+                        'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
+                        'all_energy_meters.updated_at as updated_at', 
+                        'communities.english_name as community_name',
+                        'public_structures.english_name as public_name',
+                        'energy_systems.name as energy_name', 
+                        'energy_system_types.name as energy_type_name',)
+                    ->latest(); 
+    
+                 
+                return Datatables::of($dataPublic)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+    
+                        $viewButton = "<a type='button' class='viewEnergyPublic' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyPublicModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateEnergyPublic' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateEnergyUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteEnergyPublic' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+    
+                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                                Auth::guard('user')->user()->user_type_id == 2 ||
+                                Auth::guard('user')->user()->user_type_id == 3 ||
+                                Auth::guard('user')->user()->user_type_id == 4 ||
+                                Auth::guard('user')->user()->user_type_id == 12) 
+                            {
+                                    
+                                return $viewButton." ". $updateButton." ".$deleteButton;
+                            } else return $viewButton;
+       
+                    })
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                $search = $request->get('search');
+                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('energy_systems.name', 'LIKE', "%$search%")
+                                ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+    
+            $communities = Community::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $households = Household::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $energySystems = EnergySystem::where('is_archived', 0)->get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $meters = MeterCase::where('is_archived', 0)->get();
+            $installationTypes = InstallationType::where('is_archived', 0)->get();
+    
+            $schools = DB::table('all_energy_meters')
+                ->join('public_structures', 'all_energy_meters.public_structure_id', 
+                    '=', 'public_structures.id')
+                ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
+                    '=', 'public_structure_categories.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('public_structures.public_structure_category_id1', 1)
+                ->orWhere('public_structures.public_structure_category_id2', 1)
+                ->orWhere('public_structures.public_structure_category_id3', 1)
+                ->count();
+    
+            $clinics = DB::table('all_energy_meters')
+                ->join('public_structures', 'all_energy_meters.public_structure_id', 
+                    '=', 'public_structures.id')
+                ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
+                    '=', 'public_structure_categories.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('public_structures.public_structure_category_id1', 3)
+                ->orWhere('public_structures.public_structure_category_id2', 3)
+                ->orWhere('public_structures.public_structure_category_id3', 3)
+                ->count(); 
+    
+            $mosques = DB::table('all_energy_meters')
+                ->join('public_structures', 'all_energy_meters.public_structure_id', 
+                    '=', 'public_structures.id')
+                ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
+                    '=', 'public_structure_categories.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('public_structures.public_structure_category_id1', 2)
+                ->orWhere('public_structures.public_structure_category_id2', 2)
+                ->orWhere('public_structures.public_structure_category_id3', 2)
+                ->count(); 
+    
+            $madafah = DB::table('all_energy_meters')
+                ->join('public_structures', 'all_energy_meters.public_structure_id', 
+                    '=', 'public_structures.id')
+                ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
+                    '=', 'public_structure_categories.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('public_structures.public_structure_category_id1', 7)
+                ->orWhere('public_structures.public_structure_category_id2', 7)
+                ->orWhere('public_structures.public_structure_category_id3', 7)
+                ->count(); 
+    
+            $kindergarten = DB::table('all_energy_meters')
+                ->join('public_structures', 'all_energy_meters.public_structure_id', 
+                    '=', 'public_structures.id')
+                ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
+                    '=', 'public_structure_categories.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('public_structures.public_structure_category_id1', 5)
+                ->orWhere('public_structures.public_structure_category_id2', 5)
+                ->orWhere('public_structures.public_structure_category_id3', 5)
+                ->count();
+    
+            $center = DB::table('all_energy_meters')
+                ->join('public_structures', 'all_energy_meters.public_structure_id', 
+                    '=', 'public_structures.id')
+                ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
+                    '=', 'public_structure_categories.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('public_structures.public_structure_category_id1', 6)
+                ->orWhere('public_structures.public_structure_category_id2', 6)
+                ->orWhere('public_structures.public_structure_category_id3', 6)
+                ->count(); 
+    
+            $dataPublicStructures = DB::table('all_energy_meters')
+                ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('meter_cases.meter_case_name_english', '!=', "Not Activated")
+                ->select(
+                        DB::raw('meter_cases.meter_case_name_english as name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('meter_cases.meter_case_name_english')
+                ->get();
+    
+              
+            $arrayPublicStructures[] = ['Meter Case', 'Total'];
+            
+            foreach($dataPublicStructures as $key => $value) {
+    
+                $arrayPublicStructures[++$key] = [$value->name, $value->number];
+            }
+            
+            return view('users.energy.public.index', compact('communities', 'households', 'madafah',
+                'energySystems', 'energySystemTypes', 'meters', 'schools', 'clinics', 'mosques',
+                'kindergarten', 'center', 'installationTypes'))
+                ->with('energy_public_structures', json_encode($arrayPublicStructures)
+            );
         } else {
 
             return view('errors.not-found');
         }
-        
-        if ($request->ajax()) {
-
-            $dataPublic = DB::table('all_energy_meters')
-                ->join('public_structures', 'all_energy_meters.public_structure_id', '=', 'public_structures.id')
-                ->join('communities', 'public_structures.community_id', '=', 'communities.id')
-                ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
-                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
-                ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
-                ->where('all_energy_meters.is_archived', 0)
-                ->select('all_energy_meters.meter_number', 
-                    'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
-                    'all_energy_meters.updated_at as updated_at', 
-                    'communities.english_name as community_name',
-                    'public_structures.english_name as public_name',
-                    'energy_systems.name as energy_name', 
-                    'energy_system_types.name as energy_type_name',)
-                ->latest(); 
-
-             
-            return Datatables::of($dataPublic)
-                ->addIndexColumn()
-                ->addColumn('action', function($row) {
-
-                    $viewButton = "<a type='button' class='viewEnergyPublic' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyPublicModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                    $updateButton = "<a type='button' class='updateEnergyPublic' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateEnergyUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                    $deleteButton = "<a type='button' class='deleteEnergyPublic' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-
-                    if(Auth::guard('user')->user()->user_type_id == 1 || 
-                            Auth::guard('user')->user()->user_type_id == 2 ||
-                            Auth::guard('user')->user()->user_type_id == 3 ||
-                            Auth::guard('user')->user()->user_type_id == 4 ||
-                            Auth::guard('user')->user()->user_type_id == 12) 
-                        {
-                                
-                            return $viewButton." ". $updateButton." ".$deleteButton;
-                        } else return $viewButton;
-   
-                })
-                ->filter(function ($instance) use ($request) {
-                    if (!empty($request->get('search'))) {
-                            $instance->where(function($w) use($request) {
-                            $search = $request->get('search');
-                            $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                            ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('energy_systems.name', 'LIKE', "%$search%")
-                            ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
-                            ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
-                            ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
-                            ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%");
-                        });
-                    }
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
-
-        $communities = Community::where('is_archived', 0)
-            ->orderBy('english_name', 'ASC')
-            ->get();
-        $households = Household::where('is_archived', 0)
-            ->orderBy('english_name', 'ASC')
-            ->get();
-        $energySystems = EnergySystem::where('is_archived', 0)->get();
-        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
-        $meters = MeterCase::where('is_archived', 0)->get();
-        $installationTypes = InstallationType::where('is_archived', 0)->get();
-
-        $schools = DB::table('all_energy_meters')
-            ->join('public_structures', 'all_energy_meters.public_structure_id', 
-                '=', 'public_structures.id')
-            ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
-                '=', 'public_structure_categories.id')
-            ->where('all_energy_meters.is_archived', 0)
-            ->where('public_structures.public_structure_category_id1', 1)
-            ->orWhere('public_structures.public_structure_category_id2', 1)
-            ->orWhere('public_structures.public_structure_category_id3', 1)
-            ->count();
-
-        $clinics = DB::table('all_energy_meters')
-            ->join('public_structures', 'all_energy_meters.public_structure_id', 
-                '=', 'public_structures.id')
-            ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
-                '=', 'public_structure_categories.id')
-            ->where('all_energy_meters.is_archived', 0)
-            ->where('public_structures.public_structure_category_id1', 3)
-            ->orWhere('public_structures.public_structure_category_id2', 3)
-            ->orWhere('public_structures.public_structure_category_id3', 3)
-            ->count(); 
-
-        $mosques = DB::table('all_energy_meters')
-            ->join('public_structures', 'all_energy_meters.public_structure_id', 
-                '=', 'public_structures.id')
-            ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
-                '=', 'public_structure_categories.id')
-            ->where('all_energy_meters.is_archived', 0)
-            ->where('public_structures.public_structure_category_id1', 2)
-            ->orWhere('public_structures.public_structure_category_id2', 2)
-            ->orWhere('public_structures.public_structure_category_id3', 2)
-            ->count(); 
-
-        $madafah = DB::table('all_energy_meters')
-            ->join('public_structures', 'all_energy_meters.public_structure_id', 
-                '=', 'public_structures.id')
-            ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
-                '=', 'public_structure_categories.id')
-            ->where('all_energy_meters.is_archived', 0)
-            ->where('public_structures.public_structure_category_id1', 7)
-            ->orWhere('public_structures.public_structure_category_id2', 7)
-            ->orWhere('public_structures.public_structure_category_id3', 7)
-            ->count(); 
-
-        $kindergarten = DB::table('all_energy_meters')
-            ->join('public_structures', 'all_energy_meters.public_structure_id', 
-                '=', 'public_structures.id')
-            ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
-                '=', 'public_structure_categories.id')
-            ->where('all_energy_meters.is_archived', 0)
-            ->where('public_structures.public_structure_category_id1', 5)
-            ->orWhere('public_structures.public_structure_category_id2', 5)
-            ->orWhere('public_structures.public_structure_category_id3', 5)
-            ->count();
-
-        $center = DB::table('all_energy_meters')
-            ->join('public_structures', 'all_energy_meters.public_structure_id', 
-                '=', 'public_structures.id')
-            ->join('public_structure_categories', 'public_structures.public_structure_category_id1', 
-                '=', 'public_structure_categories.id')
-            ->where('all_energy_meters.is_archived', 0)
-            ->where('public_structures.public_structure_category_id1', 6)
-            ->orWhere('public_structures.public_structure_category_id2', 6)
-            ->orWhere('public_structures.public_structure_category_id3', 6)
-            ->count(); 
-
-        $dataPublicStructures = DB::table('all_energy_meters')
-            ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
-            ->where('all_energy_meters.is_archived', 0)
-            ->where('meter_cases.meter_case_name_english', '!=', "Not Activated")
-            ->select(
-                    DB::raw('meter_cases.meter_case_name_english as name'),
-                    DB::raw('count(*) as number'))
-            ->groupBy('meter_cases.meter_case_name_english')
-            ->get();
-
-          
-        $arrayPublicStructures[] = ['Meter Case', 'Total'];
-        
-        foreach($dataPublicStructures as $key => $value) {
-
-            $arrayPublicStructures[++$key] = [$value->name, $value->number];
-        }
-        
-        return view('users.energy.public.index', compact('communities', 'households', 'madafah',
-            'energySystems', 'energySystemTypes', 'meters', 'schools', 'clinics', 'mosques',
-            'kindergarten', 'center', 'installationTypes'))
-            ->with('energy_public_structures', json_encode($arrayPublicStructures)
-        );
     }
 
     /**
@@ -215,15 +261,24 @@ class EnergyPublicStructureController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getByCommunity($community_id)
+    public function getByCommunity($community_id, $comet_meter)
     {
         $html = '<option disabled selected>Choose One ...</option>';
 
-        $publics = PublicStructure::where('community_id', $community_id)
-            ->where('is_archived', 0)
-            ->get();
-        
+        if($comet_meter == 0) {
 
+            $publics = PublicStructure::where('community_id', $community_id)
+                ->where('is_archived', 0)
+                ->where('comet_meter', 0)
+                ->get();
+        } else if($comet_meter == 1) {
+
+            $publics = PublicStructure::where('community_id', $community_id)
+                ->where('is_archived', 0)
+                ->where('comet_meter', 1)
+                ->get();
+        }
+        
         foreach ($publics as $public) {
             $html .= '<option value="'.$public->id.'">'.$public->english_name.'</option>';
         }
@@ -353,7 +408,7 @@ class EnergyPublicStructureController extends Controller
                 ->where('community_id', $community_id)
                 ->get();
         }
- 
+  
         if (!$energy_type_id) {
 
             $html = '<option value="">Choose One...</option>';
@@ -538,7 +593,7 @@ class EnergyPublicStructureController extends Controller
         return redirect('/energy-public')->with('message', 'Energy Public Updated Successfully!');
     }
 
-     /**
+    /**
      * Delete a resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request

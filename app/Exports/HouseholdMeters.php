@@ -27,6 +27,9 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
         $query = DB::table('household_meters') 
             ->join('all_energy_meters', 'all_energy_meters.id', 
                 '=', 'household_meters.energy_user_id')
+            ->LeftJoin('installation_types', 'all_energy_meters.installation_type_id', '=', 
+                'installation_types.id')
+            ->leftJoin('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
             ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
@@ -35,32 +38,23 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
                 'all_energy_meter_donors.all_energy_meter_id')
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
                 'donors.id')
-            // ->where('all_energy_meter_donors.donor_id', 1)
-            // ->where('all_energy_meters.meter_case_id', 1)
             ->where('household_meters.is_archived', 0)
-            ->select('households.english_name as english_name',
-                'household_meters.user_name',
+            ->select([
+                'households.english_name as english_name',
+                'household_meters.user_name', 'installation_types.type',
+                'meter_cases.meter_case_name_english',  
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'households.number_of_male', 'households.number_of_female', 
                 'households.number_of_adults', 'households.number_of_children', 
-                'households.phone_number', 'donors.donor_name');
+                'households.phone_number',    
+                DB::raw('group_concat(donors.donor_name) as donors'),
+            ])->groupBy('household_meters.id');
 
-        //dd($query->count());
-        if($this->request->misc) {
+        if($this->request->type) {
 
-            if($this->request->misc == "misc") {
-
-                $query->where("all_energy_meters.misc", 1);
-            } else if($this->request->misc == "new") {
-
-                $query->where("all_energy_meters.misc", 0);
-            } else if($this->request->misc == "maintenance") {
-
-                $query->where("all_energy_meters.misc", 2);
-            }
+            $query->where("all_energy_meters.installation_type_id", $this->request->type);
         }
-
         if($this->request->date_from) {
             $query->where("all_energy_meters.installation_date", ">=", $this->request->date_from);
         }
@@ -79,9 +73,9 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function headings(): array
     {
-        return ["Shared User", "Main User", "Community", "Region", "Sub Region", "Number of male", 
-            "Number of Female", "Number of adults", "Number of children", "Phone number",
-            "Donor"];
+        return ["Shared User", "Main User", "Installation Type", "Meter Case",
+            "Community", "Region", "Sub Region", "Number of male", "Number of Female", 
+            "Number of adults", "Number of children", "Phone number", "Donors"];
     }
 
     public function title(): string

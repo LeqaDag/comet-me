@@ -73,12 +73,22 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
+                            Ground Connected: 
+                            <span class="spanDetails" id="systemGroundUser">
+                              
+                            </span>
+                        </h6> 
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
                             Daily Limit: 
                             <span class="spanDetails" id="systemLimitUser">
                               
                             </span>
                         </h6> 
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Installation Date: 
@@ -87,8 +97,6 @@
                             </span>
                         </h6>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Installation Type: 
@@ -97,6 +105,8 @@
                             </span>
                         </h6>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Vendor: 

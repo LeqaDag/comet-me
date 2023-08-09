@@ -203,7 +203,7 @@ label, table {
                                     class="form-control">
                             </fieldset>
                         </div>
-                    </div>
+                    </div> 
 
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
@@ -245,6 +245,16 @@ label, table {
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Notes</label>
+                                <textarea name="notes" class="form-control" 
+                                    style="resize:none" cols="20" rows="2">
+                                </textarea>
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -28,9 +28,12 @@ use App\Models\ServiceType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
+use App\Models\InstallationType;
+use App\Exports\HouseholdMeters;
 use Carbon\Carbon;
 use Image;
 use DataTables;
+use Excel;
 
 class HouseholdMeterController extends Controller
 {
@@ -101,7 +104,10 @@ class HouseholdMeterController extends Controller
                 ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
                 ->get();
     
-            return view('users.energy.shared.index', compact('communities', 'households'));
+            $installationTypes = InstallationType::where('is_archived', 0)->get();
+
+            return view('users.energy.shared.index', compact('communities', 'households', 
+                'installationTypes'));
             
         } else {
 
@@ -235,5 +241,15 @@ class HouseholdMeterController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+
+        return Excel::download(new HouseholdMeters($request), 'shared_users.xlsx');
     }
 }

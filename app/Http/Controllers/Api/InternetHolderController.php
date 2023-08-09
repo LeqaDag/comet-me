@@ -20,17 +20,12 @@ class InternetHolderController extends Controller
      */
     public function index()
     {	
-        $url = "http://185.190.140.86/api/users/";
-        $responses = Http::get($url);
-      
-        $responses = $responses->getBody()->getContents();
+        $data = Http::get('http://185.190.140.86/api/users/');
 
-        $j = json_decode($responses, true);
-        die($j); 
+        //$input = html_entity_decode($data);
 
-        foreach($responses as $response) {
-
-            die($response);
-        }
+        //$manage = json_decode(preg_replace('/\s+/', '', $data), true );
+        $type = gettype($data);
+        die($data->body().length());
     }
 }

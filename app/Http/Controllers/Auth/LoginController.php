@@ -44,7 +44,10 @@ use App\Models\MgIncident;
 use App\Models\IncidentStatusMgSystem;
 use App\Models\InternetUser;
 use App\Models\MeterList;
+use App\Models\UserCode;
 use DB;
+use Mail;
+use App\Mail\SendMail;
 
 class LoginController extends Controller
 {
@@ -104,17 +107,18 @@ class LoginController extends Controller
         ]);
         
         if (auth()->guard('user')->attempt(['email' => $request->email, 
-            'password' => $request->password]))
-        {
+            'password' => $request->password])) {
+
             if (auth()->guard('user')->user()->is_admin == 1 || 
                 auth()->guard('user')->user()->is_Admin == 0) 
             {
-                
-                return redirect()->route('home');
+                auth()->guard('user')->user()->generateCode();
+
+                return redirect()->route('2fa.index');
             }
-        } 
-      
-        return redirect()->back()->withInput($request->only('email', 'remember'));
+        }
+
+        return redirect("login")->withSuccess('Oppes! You have entered invalid credentials');
     }
 
     /**

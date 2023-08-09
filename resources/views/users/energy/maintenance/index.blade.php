@@ -6,8 +6,67 @@
 
 @section('content')
 
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Export Filter</h5>
+                </div>
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('energy-maintenance.export') }}">
+                    @csrf
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <select name="community_id"
+                                        class="selectpicker form-control" data-live-search="true">
+                                        <option disabled selected>Search Community</option>
+                                        @foreach($communities as $community)
+                                            <option value="{{$community->id}}">
+                                                {{$community->english_name}}
+                                            </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <select name="public" class="selectpicker form-control" data-live-search="true">
+                                        <option disabled selected>Search Public Structure</option>
+                                        @foreach($publicCategories as $publicCategory)
+                                        <option value="{{$publicCategory->id}}">
+                                            {{$publicCategory->name}}
+                                        </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <input type="date" name="date" 
+                                    class="form-control" title="Completed Data from"> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Excel
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>  
+        </div>
+    </div> 
+</div> 
+
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Electricity Maintenance 
+  <span class="text-muted fw-light">All </span> Electricity Maintenance
 </h4>
 
 @if(session()->has('message'))
@@ -22,70 +81,24 @@
 
 <div class="container">
     <div class="card my-2">
-        <div class="card-body"> 
-            <div class="card-header">
-                <form method="POST" enctype='multipart/form-data' 
-                    action="{{ route('energy-maintenance.export') }}">
-                    @csrf
-                    <div class="row">
-                        <div class="col-xl-3 col-lg-3 col-md-3">
-                            <fieldset class="form-group">
-                                <select name="community_id"
-                                    class="selectpicker form-control" data-live-search="true">
-                                    <option disabled selected>Search Community</option>
-                                    @foreach($communities as $community)
-                                        <option value="{{$community->id}}">
-                                            {{$community->english_name}}
-                                        </option>
-                                    @endforeach
-                                </select> 
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-3 col-lg-3 col-md-3">
-                            <fieldset class="form-group">
-                                <select name="public" class="selectpicker form-control" data-live-search="true">
-                                    <option disabled selected>Search Public Structure</option>
-                                    @foreach($publicCategories as $publicCategory)
-                                    <option value="{{$publicCategory->id}}">
-                                        {{$publicCategory->name}}
-                                    </option>
-                                    @endforeach
-                                </select> 
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-3 col-lg-3 col-md-3">
-                            <fieldset class="form-group">
-                                <input type="date" name="date" 
-                                class="form-control" title="Completed Data from"> 
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-3 col-lg-3 col-md-3">
-                            <fieldset class="form-group">
-                                <button class="btn btn-info" type="submit">
-                                    <i class='fa-solid fa-file-excel'></i>
-                                    Export Excel
-                                </button>
-                            </fieldset>
-                        </div>
-                    </div>
-                </form>
-
-                @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                    Auth::guard('user')->user()->user_type_id == 2 ||
-                    Auth::guard('user')->user()->user_type_id == 4 ||
-                    Auth::guard('user')->user()->user_type_id == 7 )
-                    <div style="margin-top:18px">
-                        <button type="button" class="btn btn-success" 
-                            data-bs-toggle="modal" data-bs-target="#createMaintenanceLogElectricity">
-                            Create New Maintenance Call	
-                        </button>
-                        @include('users.energy.maintenance.create')
-                    </div>
-
-                    <div>
-                        <form action="{{route('energy-maintenance.import')}}" method="POST" 
-                            enctype="multipart/form-data">
-                            @csrf
+        <div class="card-header">
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 4 ||
+                Auth::guard('user')->user()->user_type_id == 7 )
+                <div style="margin-top:18px">
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createMaintenanceLogElectricity">
+                        Create New Maintenance Call	
+                    </button>
+                    @include('users.energy.maintenance.create')
+                </div>
+                <hr>
+                <div>
+                    <form action="{{route('energy-maintenance.import')}}" method="POST" 
+                        enctype="multipart/form-data">
+                        @csrf
+                        <div class="row">
                             <div class="col-xl-5 col-lg-5 col-md-5">
                                 <fieldset class="form-group">
                                     <input name="file" type="file"
@@ -95,10 +108,13 @@
                             <div class="col-xl-4 col-lg-4 col-md-4">
                                 <button class="btn btn-success" type="submit">Import File</button>
                             </div>
-                        </form>
-                    <div>
-                @endif
-            </div>
+
+                        </div>
+                    </form>
+                <div>
+            @endif
+        </div>
+        <div class="card-body"> 
             <table id="maintenanceEnergyTable" class="table table-striped data-table-energy-maintenance my-2">
                 <thead>
                     <tr>
@@ -122,40 +138,12 @@
 <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js" type="text/javascript"></script>
 <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js" type="text/javascript"></script>
 <script src="https://cdn.datatables.net/buttons/1.6.5/js/dataTables.buttons.min.js" type="text/javascript"></script>
-<script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.flash.min.js" type="text/javascript"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js" type="text/javascript"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js" type="text/javascript"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js" type="text/javascript"></script>
-<script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.html5.min.js" type="text/javascript"></script>
-<script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.print.min.js" type="text/javascript"></script>
 
 <script type="text/javascript">
     $(function () {
 
         var table = $('.data-table-energy-maintenance').DataTable({
             dom: "Blfrtip",
-            buttons: [
-                {
-                    text: 'csv',
-                    extend: 'csvHtml5',
-                },
-                {
-                    text: 'excel',
-                    extend: 'excelHtml5',
-                },
-                {
-                    text: 'pdf',
-                    extend: 'pdfHtml5',
-                },
-                {
-                    text: 'print',
-                    extend: 'print',
-                },  
-            ],
-            columnDefs: [{
-                orderable: true,
-                targets: -1
-            }],
             processing: true,
             serverSide: true,
             ajax: {
@@ -190,7 +178,7 @@
     $('#maintenanceEnergyTable').on('click', '.deleteEnergyMaintenance',function() {
         var id = $(this).data('id');
 
-        Swal.fire({
+        Swal.fire({ 
             icon: 'warning',
             title: 'Are you sure you want to delete this Maintenance?',
             showDenyButton: true,
@@ -266,14 +254,18 @@
                 $('#userReceipent').html(response['user'].name);
                 $('#maintenanceType').html('');
                 $('#maintenanceType').html(response['type'].type);
-                $('#maintenanceAction').html('');
-                $('#maintenanceAction').html(response['energyAction'].maintenance_action_electricity);
-
+ 
                 $('#maintenanceStatus').html('');
                 $('#maintenanceStatus').html(response['status'].name);
 
                 $('#maintenanceNotes').html('');
                 $('#maintenanceNotes').html(response['energyMaintenance'].notes);
+
+                $("#maintenanceAction").html(" ");
+                for (var i = 0; i < response['energyActions'].length; i++) {
+                    $("#maintenanceAction").append(
+                        '<ul><li>'+ response['energyActions'][i].maintenance_action_electricity +'</li> </ul>');
+                }
 
                 $("#maintenancePerformedBy").html(" ");
                 for (var i = 0; i < response['performedUsers'].length; i++) {

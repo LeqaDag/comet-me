@@ -542,6 +542,18 @@
                 </div>
                 @endif
 
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Notes</label>
+                            <textarea name="notes" class="form-control" 
+                                style="resize:none" cols="20" rows="2">
+                                {{$allWaterHolder->notes}}
+                            </textarea>
+                        </fieldset>
+                    </div>
+                </div>
+
                 <hr>
                 <div class="row">
                     <h5>Donors</h5>

@@ -26,17 +26,17 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5></h5>
+                    <h5>Export Filter</h5>
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('energy-meter.export') }}">
                     @csrf
-                    <div class="card-body">
+                    <div class="card-body"> 
                         <div class="row">
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
-                                    <select name="misc" id="selectedWaterSystemType" 
+                                    <select name="type" id="selectedWaterSystemType" 
                                         class="form-control" required>
                                         <option disabled selected>Choose one...</option>
                                         @foreach($installationTypes as $installationType)
@@ -205,6 +205,16 @@
                     $('#vendorDateUser').html(" ");
                     if(response['vendor']) $('#vendorDateUser').html(response['vendor'].name);
                     
+                    $('#systemGroundUser').html(" ");
+                    $('#systemGroundUser').html(response['energy'].ground_connected);
+                    if(response['energy'].ground_connected == "Yes") {
+
+                        $('#systemGroundUser').css('color', 'green');
+                    } else if(response['energy'].ground_connected == "No") {
+
+                        $('#systemGroundUser').css('color', 'red');
+                    }
+
                     $('#installationTypeUser').html(" ");
                     if(response['installationType']) $('#installationTypeUser').html(response['installationType'].type);
 

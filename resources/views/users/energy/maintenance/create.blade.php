@@ -24,7 +24,7 @@ label, table {
                     aria-label="Close">
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body"> 
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{url('energy-maintenance')}}">
                     @csrf
@@ -51,13 +51,13 @@ label, table {
 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>MG system/ FBS user?</label>
+                                <label class='col-md-12 control-label'>MG system/ User?</label>
                                 <select name="system_user" class="form-control"
                                     id="mgSystemOrFbsUser" disabled>
                                     <option selected>Choose one...</option>
                                     <option value="system">MG System</option>
-                                    <option value="fbs_system">FBS System</option>
-                                    <option value="user">FBS User</option>
+                                    <option value="fbs_user">FBS User</option>
+                                    <option value="mg_user">MG User</option>
                                 </select>
                             </fieldset>
                         </div>
@@ -99,13 +99,55 @@ label, table {
                                 </select>
                             </fieldset>
                         </div> 
-                        <div class="col-xl-6 col-lg-6 col-md-6">
+                        <div class="col-xl-6 col-lg-6 col-md-6" id="maintenanceElectricityAction">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
-                                <select name="maintenance_electricity_action_id" 
-                                    class="form-control" id="maintenanceElectricityAction" disabled required>
+                                <select 
+                                    class="selectpicker form-control" data-live-search="true">
                                     <option disabled selected>Choose one...</option>
+                                    
                                 </select>
+
+                                @if ($errors->has('maintenance_electricity_action_id'))
+                                    <span class="error">{{ $errors->first('maintenance_electricity_action_id') }}</span>
+                                @endif
+                            </fieldset>
+                        </div>
+
+                        <div class="col-xl-6 col-lg-6 col-md-6" id="maintenanceElectricityActionSystem">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
+                                <select name="maintenance_electricity_action_id[]" 
+                                    class="selectpicker form-control" data-live-search="true"
+                                    id="actionSystemSelect" multiple>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($systemActions as $systemAction) 
+                                        <option value="{{$systemAction->id}}">
+                                            {{$systemAction->maintenance_action_electricity}}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                @if ($errors->has('maintenance_electricity_action_id'))
+                                    <span class="error">{{ $errors->first('maintenance_electricity_action_id') }}</span>
+                                @endif
+                            </fieldset>
+                        </div>
+                        
+                        <div class="col-xl-6 col-lg-6 col-md-6" id="maintenanceElectricityActionUser"
+                            style="display:none">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
+                                <select name="maintenance_electricity_action_id[]" multiple
+                                    class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($userActions as $userAction) 
+                                        <option value="{{$userAction->id}}">
+                                            {{$userAction->maintenance_action_electricity}}
+                                        </option>
+                                    @endforeach
+                                </select>
+
                                 @if ($errors->has('maintenance_electricity_action_id'))
                                     <span class="error">{{ $errors->first('maintenance_electricity_action_id') }}</span>
                                 @endif
@@ -234,92 +276,85 @@ label, table {
             $('#selectedUserHousehold').prop('disabled', true);
             $('#selectedPublic').prop('disabled', true);
 
-            //getEnergySystem(community_id);
+            getAction(1, 0, community_id);
+        } else if(systemUser == "fbs_user") {
 
-            getAction(1);
-                
-        } else if(systemUser == "user") {
+            $('#selectedEnergySystem').prop('disabled', true);
+            $('#selectedUserHousehold').prop('disabled', false);
+            $('#selectedPublic').prop('disabled', false);
 
-            getEnergyUserByCommunity(community_id);
-            getPublicByCommunity(community_id);
-            getAction(2);
+            getAction(2, 1, community_id); 
+        } else if(systemUser == "mg_user") {
+            
+            $('#selectedEnergySystem').prop('disabled', true);
+            $('#selectedUserHousehold').prop('disabled', false);
+            $('#selectedPublic').prop('disabled', false);
 
-        }  else if(systemUser == "fbs_system") {
-
-            $('#selectedEnergySystem').prop('disabled', false);
-            $('#selectedUserHousehold').prop('disabled', true);
-            $('#selectedPublic').prop('disabled', true);
-
-            //getEnergySystem(0);
-            getAction(1);
-        } 
+            getAction(2, 2, community_id); 
+        }
 
         $(document).on('change', '#mgSystemOrFbsUser', function () {
+
             systemUser = $('#mgSystemOrFbsUser').val();
+
             if(systemUser == "system") {
 
                 $('#selectedEnergySystem').prop('disabled', false);
                 $('#selectedUserHousehold').prop('disabled', true);
                 $('#selectedPublic').prop('disabled', true);
 
-                getAction(1);
+                getAction(1, 0, community_id);
 
-            } else if(systemUser == "user") {
+            } else if(systemUser == "fbs_user") {
 
-                getEnergyUserByCommunity(community_id);
-                getPublicByCommunity(community_id);
-                getAction(2);
+                $('#selectedEnergySystem').prop('disabled', true);
+                $('#selectedUserHousehold').prop('disabled', false);
+                $('#selectedPublic').prop('disabled', false);
+
+                getAction(2, 1, community_id); 
+    
+            } else if(systemUser == "mg_user") {
+
+                $('#selectedEnergySystem').prop('disabled', true);
+                $('#selectedUserHousehold').prop('disabled', false);
+                $('#selectedPublic').prop('disabled', false);
+
+                getAction(2, 2, community_id);  
             }
         });
     });
 
-    function getAction(system) {
+    function getAction(system, mg, community_id) {
+
         $.ajax({
-            url: "energy-maintenance/get_system/" + system,
+            url: "energy-maintenance/get_system/" + system + "/" + mg + "/" + community_id,
             method: 'GET',
             success: function(data) {
 
                 $('#maintenanceElectricityAction').prop('disabled', false);
-                $('#maintenanceElectricityAction').html(data.html);
-            }
-        });
-    }
+                $('#maintenanceElectricityAction').html(data.htmlActions);
 
-    function getEnergySystem(community_id) {
-        $.ajax({
-            url: "energy-maintenance/get_energy/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedEnergySystem').prop('disabled', false);
-                $('#selectedEnergySystem').html(data.html);
-            }
-        });
-    }
+                if(system != 1) {
 
-    function getEnergyUserByCommunity(community_id) {
+                    $('#selectedUserHousehold').prop('disabled', false);
+                    $('#selectedUserHousehold').html(data.htmlUsers);
 
-        $.ajax({
-            url: "energy_user/get_by_community/" + community_id,
-            method: 'GET',
-            success: function(data) {
-               // $('#selectedPublic').prop('disabled', true);
-                $('#selectedEnergySystem').prop('disabled', true);
-                $('#selectedUserHousehold').prop('disabled', false);
-                $('#selectedUserHousehold').html(data.html);
-            }
-        });
-    } 
+                    $('#selectedPublic').prop('disabled', false);
+                    $('#selectedPublic').html(data.htmlPublics);
 
-    function getPublicByCommunity(community_id) {
+                    $("#maintenanceElectricityAction").hide();
+                    $('#maintenanceElectricityActionUser').show();
+                    $('#maintenanceElectricityActionSystem').hide();
 
-        $.ajax({
-            url: "energy_public/get_by_community/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedEnergySystem').prop('disabled', true);
-               // $('#selectedUserHousehold').prop('disabled', true);
-                $('#selectedPublic').prop('disabled', false);
-                $('#selectedPublic').html(data.html);
+                } else if(system == 1) {
+
+                    $('#selectedEnergySystem').prop('disabled', false);
+                    $('#selectedEnergySystem').html(data.htmlEnergyType);
+
+                    $("#maintenanceElectricityAction").hide();
+                    $('#maintenanceElectricityActionUser').hide();
+                    $('#maintenanceElectricityActionSystem').show();
+                }
             }
         });
     } 

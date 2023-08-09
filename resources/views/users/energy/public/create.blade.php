@@ -35,7 +35,7 @@ label, table {
                                             {{$installationType->type}}
                                         </option>
                                     @endforeach
-                                </select>
+                                </select> 
                             </fieldset>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
@@ -158,7 +158,7 @@ label, table {
         community_id = $(this).val();
    
         $.ajax({
-            url: "energy-public/get_by_community/" + community_id,
+            url: "energy-public/get_by_community/" + community_id+ "/" + 0,
             method: 'GET',
             success: function(data) {
                 $('#selectedPublicStructure').prop('disabled', false);

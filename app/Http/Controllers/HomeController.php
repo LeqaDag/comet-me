@@ -49,7 +49,7 @@ use Route;
 use DB;
 use Excel;
 use PDF;
- 
+
 class HomeController extends Controller
 {
     /**

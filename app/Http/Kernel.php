@@ -5,7 +5,7 @@ namespace App\Http;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
-{
+{ 
   /**
    * The application's global HTTP middleware stack.
    *
@@ -87,5 +87,6 @@ class Kernel extends HttpKernel
     'admin' => \App\Http\Middleware\IsAdmin::class,
     'role' => \App\Http\Middleware\CheckRole::class,
     'user-access' => \App\Http\Middleware\UserAccess::class,
+    '2fa' => \App\Http\Middleware\Check2FA::class,
   ];
 }

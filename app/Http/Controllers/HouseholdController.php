@@ -550,9 +550,11 @@ class HouseholdController extends Controller
         if($request->electricity_source_shared) $household->electricity_source_shared = $request->electricity_source_shared;
         $household->save();
 
-        if($request->english_name) $householdMeter->user_name = $request->english_name;
-        if($request->arabic_name) $householdMeter->user_name_arabic = $request->arabic_name;
-        $householdMeter->save();
+        if($householdMeter) {
+            if($request->english_name) $householdMeter->user_name = $request->english_name;
+            if($request->arabic_name) $householdMeter->user_name_arabic = $request->arabic_name;
+            $householdMeter->save();
+        }
 
         $cistern = Cistern::where('household_id', $id)->first();
         if($cistern == null) {

@@ -156,13 +156,28 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Ground Connected</label> 
+                            <select name='ground_connected' class="form-control">
+                                <option selected disabled>
+                                    {{$energyUser->ground_connected}}
+                                </option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select> 
+                        </fieldset> 
+                    </div>
+                </div> 
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label> 
                             <textarea class="form-control" name="notes" style="resize: none;">
                                 {{$energyUser->notes}}
                             </textarea>
                         </fieldset> 
                     </div>
-                </div> <hr>
+                </div> 
+                <hr>
 
                 <div class="row">
                     <h5>Donors</h5>

@@ -304,6 +304,7 @@ class AllWaterController extends Controller
             $allWaterHolder->installation_year = $request->installation_year;
             $allWaterHolder->request_date = $request->h2o_request_date; 
             $allWaterHolder->installation_date = $request->h2o_installation_date;
+            $allWaterHolder->notes = $request->notes;
             $allWaterHolder->save();
         }
 
@@ -326,6 +327,7 @@ class AllWaterController extends Controller
             $allWaterHolder->installation_year = $request->installation_year;
             $allWaterHolder->request_date = $request->h2o_request_date; 
             $allWaterHolder->installation_date = $request->h2o_installation_date;
+            $allWaterHolder->notes = $request->notes;
             $allWaterHolder->save();
         }
 

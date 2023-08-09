@@ -6,6 +6,59 @@
 
 @section('content')
 
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Export Filter</h5>
+                </div>
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('household-meter.export') }}">
+                    @csrf
+                    <div class="card-body"> 
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
+                                    <select name="misc" id="selectedWaterSystemType" 
+                                        class="form-control" required>
+                                        <option disabled selected>Choose one...</option>
+                                        @foreach($installationTypes as $installationType)
+                                            <option value="{{$installationType->id}}">
+                                                {{$installationType->type}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Installation date from</label>
+                                    <input type="date" class="form-control" name="date_from">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Installation date to</label>
+                                    <input type="date" class="form-control" name="date_to">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <label class='col-md-12 control-label'>Download Excel</label>
+                                <button class="btn btn-info" type="submit">
+                                    <i class='fa-solid fa-file-excel'></i>
+                                    Export Excel
+                                </button>
+                            </div>
+                        </div> 
+                    </div>
+                </form>
+            </div>  
+        </div>
+    </div> 
+</div> 
+
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Shared Users
 </h4>

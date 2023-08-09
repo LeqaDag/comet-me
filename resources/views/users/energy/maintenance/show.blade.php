@@ -69,11 +69,11 @@
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Maintenance Status: 
-                            <span class="spanDetails" id="maintenanceStatus">
-                              
+                            Performed By: 
+                            <span class="spanDetails" id="maintenancePerformedBy">
+                                
                             </span>
-                        </h6>
+                        </h6> 
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
@@ -88,12 +88,14 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Performed By: 
-                            <span class="spanDetails" id="maintenancePerformedBy">
-                                
+                            Maintenance Status: 
+                            <span class="spanDetails" id="maintenanceStatus">
+                              
                             </span>
-                        </h6> 
+                        </h6>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Notes: 

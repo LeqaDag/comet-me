@@ -8,12 +8,14 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\Region;
 use Carbon\Carbon;
 use App\Models\Donor;
 use App\Models\Household;
 use App\Models\Photo;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
+use App\Exports\PublicStructureExport;
 use Auth;
 use Route;
 use DB;
@@ -29,7 +31,7 @@ class PublicStructureController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index(Request $request)
-    {
+    { 
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
@@ -41,7 +43,7 @@ class PublicStructureController extends Controller
                         'public_structures.id as id', 'public_structures.created_at as created_at', 
                         'public_structures.updated_at as updated_at', 
                         'communities.english_name as community_name')
-                    ->get(); 
+                    ->latest(); 
     
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -57,7 +59,7 @@ class PublicStructureController extends Controller
                             Auth::guard('user')->user()->user_type_id == 4 ||
                             Auth::guard('user')->user()->user_type_id == 5 ||
                             Auth::guard('user')->user()->user_type_id == 6) 
-                        {
+                        { 
 
                             return $viewButton." ". $updateButton." ". $deleteButton;
                         } else return $viewButton;
@@ -81,13 +83,16 @@ class PublicStructureController extends Controller
             $communities = Community::where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')
                 ->get();
+            $regions = Region::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $donors = Donor::where('is_archived', 0)
                 ->orderBy('donor_name', 'ASC')
                 ->get();
 
             $publicCategories = PublicStructureCategory::all();
 
-            return view('public.index', compact('communities', 'donors', 'publicCategories'));
+            return view('public.index', compact('communities', 'donors', 'publicCategories', 'regions'));
            
         } else {
 
@@ -208,5 +213,15 @@ class PublicStructureController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+                
+        return Excel::download(new PublicStructureExport($request), 'public_structures.xlsx');
     }
 }
