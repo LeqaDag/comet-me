@@ -58,6 +58,14 @@ $customizerHidden = 'customizer-hide';
         <h4 class="mb-2">Welcome to {{config('variables.templateName')}}! 👋</h4>
         <p class="mb-4">Please sign-in to your account and start the adventure</p>
 
+        @if(session()->has('message'))
+          <div class="row">
+            <div class="alert alert-danger">
+              {{ session()->get('message') }}
+            </div>
+          </div>
+        @endif
+
         <form id="formAuthentication" class="mb-3" method="POST" 
             action="{{ route('login') }}">
         @csrf

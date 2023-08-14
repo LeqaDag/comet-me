@@ -69,7 +69,7 @@
             <hr>
             @if(count($battarySystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No batteries Found.
+                    No batteries Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -111,7 +111,7 @@
             
             @if(count($pvSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No Solar Panel Found.
+                   No Solar Panel Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -153,7 +153,7 @@
    
             @if(count($controllerSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No Controllers Found.
+                    No Controllers Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -195,7 +195,7 @@
 
             @if(count($inverterSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No Inventer Found.
+                    No Inventer Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -238,7 +238,7 @@
 
             @if(count($relayDriverSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No Relay Driver Found.
+                    No Relay Driver Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -280,7 +280,7 @@
 
             @if(count($loadRelaySystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No Load Relay Found.
+                    No Load Relay Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -322,13 +322,13 @@
              
             @if(count($bspSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No BSP Found.
+                    No BSP Found.
                 </div>                                      
             @else
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12">
                         <h6>
-                        BSP:
+                        Battery Proccessor:
                         </h6>
                     </div>
                 </div>
@@ -364,7 +364,7 @@
 
             @if(count($rccSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No RCC Found.
+                    No RCC Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -406,7 +406,7 @@
             
             @if(count($loggerSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No Logger Found.
+                    No Logger Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -448,7 +448,7 @@
    
             @if(count($generatorSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No Generator Found.
+                    No Generator Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -490,7 +490,7 @@
 
             @if(count($turbineSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No Wind Turbine Found.
+                    No Wind Turbine Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -533,7 +533,7 @@
 
             @if(count($pvMcbSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No MCB PV Found.
+                    No MCB PV Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -575,7 +575,7 @@
 
             @if(count($controllerMcbSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No MCB Controller Found.
+                    No MCB Controller Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -617,7 +617,7 @@
              
             @if(count($inventerMcbSystems) < 1)
                 <div class="alert alert-warning">
-                    <strong>Sorry!</strong> No MCB Inventer Found.
+                    No MCB Inventer Found.
                 </div>                                      
             @else
                 <div class="row">
@@ -649,6 +649,48 @@
                                 <tr class="table-light">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$inventerMcbSystems->sum('mcb_inverter_units') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+            @if(count($airConditionerSystems) < 1)
+                <div class="alert alert-warning">
+                    No Air Conditioner Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Air Conditioner:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-dark">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                </tr>
+                            </thead>
+                            @foreach($airConditionerSystems as $airConditionerSystem)
+                                <tr>
+                                    <td>{{$airConditionerSystem->model}}</td>
+                                    <td>{{$airConditionerSystem->brand}}</td>
+                                    <td>{{$airConditionerSystem->energy_air_conditioner_units}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td colspan=2>Total Units</td>
+                                    <td>{{$airConditionerSystems->sum('energy_air_conditioner_units') }}</td>
                                 </tr>
                             </tfoot>
                          </table>

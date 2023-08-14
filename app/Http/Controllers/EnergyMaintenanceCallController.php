@@ -183,7 +183,7 @@ class EnergyMaintenanceCallController extends Controller
         if($request->energy_system_id) {
 
             $maintenance->energy_system_id = $request->energy_system_id;
-        }
+        } 
 
         $maintenance->community_id = $request->community_id[0];
         $maintenance->date_of_call = $request->date_of_call;

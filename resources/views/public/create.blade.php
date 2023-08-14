@@ -12,7 +12,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('public')}}">
+                <form method="POST" enctype='multipart/form-data' action="{{url('public-structure')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">

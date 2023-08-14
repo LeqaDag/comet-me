@@ -97,7 +97,7 @@ class RefrigeratorMaintenanceCallController extends Controller
             }
     
             $communities = Community::where('is_archived', 0)
-                ->orderBy('english_name', 'ASC')
+                ->orderBy('arabic_name', 'ASC')
                 ->get();
             $households = DB::table('refrigerator_holders')
                 ->where('refrigerator_holders.is_archived', 0)
@@ -146,6 +146,9 @@ class RefrigeratorMaintenanceCallController extends Controller
         if($request->household_id) {
 
             $maintenance->household_id = $request->household_id;
+            $household = Household::where("id", $request->household_id)->first();
+            $household->phone_number = $request->phone_number;
+            $household->save();
         }
         
         if($request->public_structure_id) {
@@ -247,6 +250,12 @@ class RefrigeratorMaintenanceCallController extends Controller
         $maintenance->notes = $request->notes;
         $maintenance->save();
 
+        if($maintenance->household_id) {
+
+            $household = Household::where("id", $maintenance->household_id)->first();
+            $household->phone_number = $request->phone_number;
+            $household->save();
+        }
 
         if($request->actions) {
             for($i=0; $i < count($request->actions); $i++) {
@@ -291,6 +300,7 @@ class RefrigeratorMaintenanceCallController extends Controller
                 }
             }
         }
+        
         return redirect('/refrigerator-maintenance')->with('message', 'Refrigerator Maintenance Updated Successfully!');
     }
 

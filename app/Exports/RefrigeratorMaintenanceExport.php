@@ -34,22 +34,28 @@ class RefrigeratorMaintenanceExport implements FromCollection, WithHeadings, Wit
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->join('maintenance_types', 'refrigerator_maintenance_calls.maintenance_type_id', 
-                '=', 'maintenance_types.id')
-            ->join('maintenance_refrigerator_actions', 'refrigerator_maintenance_calls.maintenance_refrigerator_action_id', 
+                '=', 'maintenance_types.id') 
+            ->join('refrigerator_maintenance_call_actions', 'refrigerator_maintenance_calls.id', 
+                'refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id')
+            ->join('maintenance_refrigerator_actions', 
+                'refrigerator_maintenance_call_actions.maintenance_refrigerator_action_id', 
                 '=', 'maintenance_refrigerator_actions.id')
             ->join('maintenance_statuses', 'refrigerator_maintenance_calls.maintenance_status_id', 
                 '=', 'maintenance_statuses.id')
             ->join('users', 'refrigerator_maintenance_calls.user_id', '=', 'users.id')
             ->where('refrigerator_maintenance_calls.is_archived', 0)
-            ->select('households.english_name as english_name', 
+            ->select([
+                'households.english_name as english_name', 
                 'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'users.name as user_name',
-                'maintenance_refrigerator_actions.maintenance_action_refrigerator',
-                'maintenance_refrigerator_actions.maintenance_action_refrigerator_english',
+                DB::raw('group_concat(maintenance_refrigerator_actions.maintenance_action_refrigerator_english)'),
+                DB::raw('group_concat(maintenance_refrigerator_actions.maintenance_action_refrigerator)'),
                 'maintenance_statuses.name', 'maintenance_types.type',
-                'date_of_call', 'date_completed', 'refrigerator_maintenance_calls.notes');
+                'date_of_call', 'date_completed', 'refrigerator_maintenance_calls.notes'
+            ])
+            ->groupBy('refrigerator_maintenance_calls.id');
 
         if($this->request->public) {
             $data->where("public_structures.public_structure_category_id1", $this->request->public)

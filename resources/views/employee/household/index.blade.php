@@ -225,7 +225,10 @@ label, table {
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Export Filter</h5>
+                    <h5>Export Household Report
+                        <i class='fa-solid fa-file-excel text-info'></i>
+                    </h5>
+
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('household.export') }}">

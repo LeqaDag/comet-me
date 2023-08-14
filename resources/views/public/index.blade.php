@@ -59,12 +59,6 @@ label, table {
                                 </fieldset>
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <input type="date" name="date" 
-                                    class="form-control" title="Data from"> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
                                 <button class="btn btn-info" type="submit">
                                     <i class='fa-solid fa-file-excel'></i>
                                     Export Excel
@@ -157,7 +151,7 @@ label, table {
         
             // AJAX request
             $.ajax({
-                url: 'public/' + id,
+                url: 'public-structure/' + id,
                 type: 'get',
                 dataType: 'json', 
                 success: function(response) {

@@ -6,7 +6,7 @@
 label, table {
     margin-top: 20px;
 }
-</style>
+</style> 
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
@@ -39,7 +39,7 @@ label, table {
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
-                                        {{$community->english_name}}
+                                        {{$community->arabic_name}}
                                     </option>
                                     @endforeach
                                 </select>
@@ -62,6 +62,13 @@ label, table {
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Phone Number</label>
+                                <input type="text" name="phone_number" id="householdPhoneNumber"
+                                class="form-control"> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Structure</label>
                                 <select class=" form-control" name="public_structure_id"
                                     id="selectedPublic" disabled>
@@ -69,6 +76,9 @@ label, table {
                                 </select>
                             </fieldset>
                         </div> 
+                    </div>
+                    
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Type</label>
@@ -85,24 +95,21 @@ label, table {
                                     @endif
                             </fieldset>
                         </div>
-                    </div>
-                    
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Call</label>
                                 <input type="date" name="date_of_call" class="form-control" required>
                             </fieldset>
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Completed Date</label>
                                 <input type="date" name="date_completed" class="form-control">
                             </fieldset>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Status</label>
@@ -119,6 +126,9 @@ label, table {
                                     @endif
                             </fieldset>
                         </div>
+                    </div>
+                  
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Refrigerator Action</label>
@@ -136,9 +146,6 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                    </div>
-                  
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Recipient</label>
@@ -155,6 +162,9 @@ label, table {
                                 @endif
                             </fieldset>
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Performed By</label>

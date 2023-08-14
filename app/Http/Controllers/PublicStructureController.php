@@ -116,9 +116,17 @@ class PublicStructureController extends Controller
         $publicStructure->public_structure_category_id1 = $request->public_structure_category_id1;
         $publicStructure->public_structure_category_id2 = $request->public_structure_category_id2;
         $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
+
+        if($request->public_structure_category_id1 ||
+            $request->public_structure_category_id2 || $request->public_structure_category_id3) 
+        {
+
+        } else {
+            $publicStructure->comet_meter = 1;
+        }
         $publicStructure->save();
         
-        return redirect('/public')
+        return redirect('/public-structure')
             ->with('message', 'New Public Structure Added Successfully!');
     }
 
@@ -167,7 +175,7 @@ class PublicStructureController extends Controller
         $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
         $publicStructure->save();
 
-        return redirect('/public')->with('message', 'Public Structure Updated Successfully!');
+        return redirect('/public-structure')->with('message', 'Public Structure Updated Successfully!');
     }
 
     /**

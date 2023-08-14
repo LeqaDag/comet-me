@@ -97,11 +97,18 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <input type="number" name="cycle_year" 
+                            class="form-control"value="{{$energySystem->cycle_year}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-8 col-lg-8 col-md-8 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label>
                             <textarea name="notes" class="form-control" 
-                                style="resize:none" cols="20" rows="2">
+                                style="resize:none" cols="20" rows="1">
                                 {{$energySystem->notes}}
                             </textarea>
                         </fieldset>
@@ -743,7 +750,7 @@
 
                 <hr style="margin-top:30px">
                 <div class="row">
-                    <h6>Battery Status Processor</h6>
+                    <h6>Battery Proccessor</h6>
                 </div>
                 @if(count($bspSystems) > 0)
 
@@ -769,13 +776,13 @@
                         </tbody>
                     </table>
                     <div class="row">
-                        <span>Add More Battery Status Processor</span>
+                        <span>Add More Battery Proccessor</span>
                     </div>
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <table class="table table-bordered" id="addRemoveBsp">
                                 <tr>
-                                    <th>Battery Status Processor Models</th>
+                                    <th>Battery Proccessor Models</th>
                                     <th>Units</th>
                                     <th>Options</th>
                                 </tr>
@@ -808,13 +815,13 @@
                     
                 @else
                     <div class="row">
-                        <h6>Add New Battery Status Processor</h6>
+                        <h6>Add New Battery Proccessor</h6>
                     </div>
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <table class="table table-bordered" id="addRemoveBsp">
                                 <tr>
-                                    <th>Battery Status Processor Models</th>
+                                    <th>Battery Proccessor Models</th>
                                     <th>Units</th>
                                     <th>Options</th>
                                 </tr>
@@ -849,7 +856,7 @@
 
                 <hr style="margin-top:30px">
                 <div class="row">
-                    <h6>Remote Control Center</h6>
+                    <h6>Control Center</h6>
                 </div>
                 @if(count($rccSystems) > 0)
 
@@ -875,13 +882,13 @@
                         </tbody>
                     </table>
                     <div class="row">
-                        <span>Add More Remote Control Center</span>
+                        <span>Add More Control Center</span>
                     </div>
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <table class="table table-bordered" id="addRemoveRcc">
                                 <tr>
-                                    <th>Remote Control Center Models</th>
+                                    <th>Control Center Models</th>
                                     <th>Units</th>
                                     <th>Options</th>
                                 </tr>
@@ -914,13 +921,13 @@
                     
                 @else
                     <div class="row">
-                        <h6>Add New Remote Control Center</h6>
+                        <h6>Add New Control Center</h6>
                     </div>
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <table class="table table-bordered" id="addRemoveRcc">
                                 <tr>
-                                    <th>Remote Control Center Models</th>
+                                    <th>Control Center Models</th>
                                     <th>Units</th>
                                     <th>Options</th>
                                 </tr>
@@ -1584,6 +1591,111 @@
                     </div>
                 @endif
 
+                <hr style="margin-top:30px">
+                <div class="row">
+                    <h6>Air Conditioner</h6>
+                </div>
+                @if(count($airConditionerSystems) > 0)
+
+                    <table id="energySystemAirConditionerTable" class="table table-striped my-2">
+                        <tbody>
+                            @foreach($airConditionerSystems as $airConditionerSystem)
+                            <tr id="airConditionerSystemsRow">
+                                <td class="text-center">
+                                    {{$airConditionerSystem->model}}
+                                </td>
+                                <td class="text-center">
+                                    {{$airConditionerSystem->energy_air_conditioner_units}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteEnergySystemAirConditioner" 
+                                        id="deleteEnergySystemAirConditioner"
+                                        data-id="{{$airConditionerSystem->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <span>Add More Air Conditioner</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                            <table class="table table-bordered" id="addRemoveAirConditioner">
+                                <tr>
+                                    <th>Air Conditioner Models</th>
+                                    <th>Units</th>
+                                    <th>Options</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="energy_air_conditioner_id[]" class="selectpicker form-control"
+                                            multiple data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($airConditioners as $airConditioner)
+                                                <option value="{{$airConditioner->id}}">
+                                                    {{$airConditioner->model}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="energy_air_conditioner_units[0][subject]" class="form-control"
+                                            data-id="0">
+                                    </td>
+                                    <td>
+                                        <button type="button" name="add" id="addRemoveAirConditionerButton" 
+                                            class="btn btn-outline-primary">
+                                            Add Air Conditioner Units
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                @else
+                    <div class="row">
+                        <h6>Add New Air Conditioner</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                            <table class="table table-bordered" id="addRemoveAirConditioner">
+                                <tr>
+                                    <th>Air Conditioner Models</th>
+                                    <th>Units</th>
+                                    <th>Options</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="energy_air_conditioner_id[]" class="selectpicker form-control"
+                                            multiple data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($airConditioners as $airConditioner)
+                                                <option value="{{$airConditioner->id}}">
+                                                    {{$airConditioner->model}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="energy_air_conditioner_units[0][subject]" class="form-control"
+                                            data-id="0">
+                                    </td>
+                                    <td>
+                                        <button type="button" name="add" id="addRemoveAirConditionerButton" 
+                                            class="btn btn-outline-primary">
+                                            Add Air Conditioner Units
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -2135,6 +2247,43 @@
         });
     });
 
+    // delete energy system Air Conditioner    
+    $('#energySystemAirConditionerTable').on('click', '.deleteEnergySystemAirConditioner',function() {    
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Air Conditioner?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemAirConditioner') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
 
     var battery_counter = 0;
     var pv_counter = 0;
@@ -2150,6 +2299,7 @@
     var inventer_mcb_counter = 0;
     var controller_mcb_counter = 0;
     var pv_mcb_counter = 0;
+    var air_counter = 0;
 
     // Battery
     $(document).on('click', '#addRemoveBatteryButton', function () {
@@ -2359,6 +2509,21 @@
         );
     });
     $(document).on('click', '.removeMcbInverter', function () {
+        $(this).parents('tr').remove();
+    });
+
+    // Air Conditioner
+    $(document).on('click', '#addRemoveAirConditionerButton', function () {
+
+        ++air_counter;
+        $("#addRemoveAirConditioner").append('<tr><td></td>' +
+            '<td><input class="form-control" data-id="'+ air_counter +'" name="energy_air_conditioner_units[][subject]"></td>' +
+            '<td><button type="button"' +
+            'class="btn btn-outline-danger removeAirConditioner">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.removeAirConditioner', function () {
         $(this).parents('tr').remove();
     });
 

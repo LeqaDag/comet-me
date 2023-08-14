@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
-use DB;
+use DB; 
 use Route;
 use App\Models\User;
 use App\Models\Community;
@@ -604,6 +604,30 @@ class CommunityController extends Controller
     }
 
     /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteCommunityCompound(Request $request)
+    {
+        $id = $request->id;
+
+        $compound = Compound::findOrFail($id);
+
+        if($compound) {
+
+            $compound->is_archived = 1;
+            $compound->save();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Compound Deleted successfully'; 
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
      * Show the specified resource from storage.
      *
      * @param  int $id
@@ -630,7 +654,9 @@ class CommunityController extends Controller
             ->where('community_id', $community->id)
             ->select('towns.english_name')
             ->get();
-        $compounds = Compound::where('community_id', $community->id)->get();
+        $compounds = Compound::where('community_id', $community->id)
+            ->where('is_archived', 0)
+            ->get();
         $communityWaterSources = DB::table('community_water_sources')
             ->where('community_water_sources.is_archived', 0)
             ->join('communities', 'community_water_sources.community_id', '=', 'communities.id')
@@ -744,8 +770,12 @@ class CommunityController extends Controller
             ->get();
         $secondName = SecondNameCommunity::where('community_id', $id)->where('is_archived', 0)->first();
 
+        $compounds = Compound::where('community_id', $community->id)
+            ->where('is_archived', 0)
+            ->get();
+
         return view('employee.community.edit', compact('community', 'products', 
-            'communityStatuses', 'regions', 'subRegions', 'secondName'));
+            'communityStatuses', 'regions', 'subRegions', 'secondName', 'compounds'));
     }
 
     /**
@@ -780,8 +810,20 @@ class CommunityController extends Controller
 
         $community->save();
 
+        if($request->addMoreInputFieldsCompoundName) {
+            foreach($request->addMoreInputFieldsCompoundName as $compoundName) {
+                if($compoundName["subject"] != NULL) {
+                    Compound::create([
+                        'english_name' => $compoundName["subject"],
+                        'community_id' => $community->id,
+                    ]);
+                }
+            }
+        }
+
         $secondNameCommunity = SecondNameCommunity::where('community_id', $id)->first();
         if($secondNameCommunity) {
+
             if($request->second_name_english) {
 
                 $secondNameCommunity->english_name = $request->second_name_english; 
@@ -792,6 +834,19 @@ class CommunityController extends Controller
             }
             $secondNameCommunity->community_id = $id;
             $secondNameCommunity->save();
+        } else {
+
+            $newSecondCommunity = new SecondNameCommunity();
+            if($request->second_name_english) {
+
+                $newSecondCommunity->english_name = $request->second_name_english; 
+            }
+            if($request->second_name_english) {
+    
+                $newSecondCommunity->arabic_name = $request->second_name_arabic;
+            }
+            $newSecondCommunity->community_id = $id;
+            $newSecondCommunity->save();
         }
 
         return redirect('/community')->with('message', 'Community Updated Successfully!');

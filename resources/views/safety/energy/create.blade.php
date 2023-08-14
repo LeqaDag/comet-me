@@ -78,8 +78,9 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Meter Case</label>
-                                <select name='meter_case_id' name="meter_case_id" class="form-control">
-                                    <option disabled selected>Choose one...</option>
+                                <select name='meter_case_id' id="meter_case_id" class="form-control">
+                                    <option disabled selected
+                                        id="meterCaseOption"></option>
                                     @foreach($meterCases as $meterCase)
                                         <option value="{{$meterCase->id}}">
                                             {{$meterCase->meter_case_name_english}}
@@ -96,7 +97,16 @@ label, table {
                             </fieldset>
                         </div>  
                     </div>
-
+                    <div class="row" id="groundConnectedDiv" style="display:none">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Ground Connected</label> 
+                                <select name='ground_connected' id="groundConnectedSelect"
+                                    class="form-control">
+                                </select> 
+                            </fieldset> 
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <label class='col-md-12 headingLabel'>Residual Current Device (RCD)</label>
@@ -206,6 +216,18 @@ label, table {
    
         $('#userPublicSelectedSaftey').prop('disabled', false);
 
+        publicUser = $('#userPublicSelectedSaftey').val();
+        if(publicUser == "user") {
+            
+            EnergyUser(community_id);
+            
+        } else if(publicUser == "public") {
+
+            $('#selectedWaterHolder').prop('disabled', true);
+
+            EnergyPublic(community_id);
+        }
+
         UserOrPublic(community_id);
     });
 
@@ -216,26 +238,13 @@ label, table {
             
             if(publicUser == "user") {
             
-                $.ajax({
-                    url: "energy_user/get_by_community/" + community_id,
-                    method: 'GET',
-                    success: function(data) {
-                        $('#selectedHolder').prop('disabled', false);
-                        $('#selectedHolder').html(data.html);
-                    }
-                });
+                EnergyUser(community_id);
                 
             } else if(publicUser == "public") {
 
                 $('#selectedWaterHolder').prop('disabled', true);
-                $.ajax({
-                    url: "energy_public/get_by_community/" + community_id,
-                    method: 'GET',
-                    success: function(data) {
-                        $('#selectedHolder').prop('disabled', false);
-                        $('#selectedHolder').html(data.html);
-                    }
-                });
+
+                EnergyPublic(community_id);
             }
         });
     }
@@ -243,18 +252,61 @@ label, table {
     $(document).on('change', '#selectedHolder', function () {
         holder_id = $(this).val();
 
-        MeterNumber(holder_id);
+        publicUser = $('#userPublicSelectedSaftey').val();
+       
+        GroundConnected(holder_id, publicUser);
     });
 
-    function MeterNumber(holder_id) {
+    function EnergyUser(community_id) {
+        
+        $.ajax({
+            url: "energy_user/get_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                $('#selectedHolder').prop('disabled', false);
+                $('#selectedHolder').html(data.html);
+            }
+        });
+    }
+
+    function EnergyPublic(community_id) {
+        
+        $.ajax({
+            url: "energy_public/get_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                $('#selectedHolder').prop('disabled', false);
+                $('#selectedHolder').html(data.html);
+            }
+        });
+    }
+
+    function GroundConnected(holder_id, publicUser) {
 
         $.ajax({
-            url: "energy_user/get_meter/" + holder_id,
+            url: "energy_safety/info/" + holder_id + "/" + publicUser,
             method: 'GET',
             success: function(data) {
 
                 $('#meter_holder').val(data.meter_number);
+                // $('#meterCaseOption').html(data.meter_case);
+                // $('#meterCaseOption').val(data.meter_case);
+
+                if(data.ground_connected == 0) $('#groundConnectedDiv').hide();
+                else {
+
+                    $('#groundConnectedDiv').show();
+
+                    if(data.ground_connected == "Yes") {
+
+                        $('#groundConnectedSelect').append('<option value="Yes"disabled selected>Yes</option><option value="No">No</option>');
+                    } else if(data.ground_connected == "No") {
+                        
+                        $('#groundConnectedSelect').append('<option value="No" disabled selected>No</option><option value="Yes">Yes</option>');
+                    }
+                }
             }
         });
     }
+
 </script>

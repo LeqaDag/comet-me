@@ -13,7 +13,6 @@ label, table {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
-
 <div id="createCommunity" class="modal fade" tabindex="-1" aria-hidden="true" 
     aria-labelledby="exampleModalLabel">
     <div class="modal-dialog modal-lg">

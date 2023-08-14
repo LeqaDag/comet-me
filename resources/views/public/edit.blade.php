@@ -22,7 +22,7 @@ label {
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" action="{{route('public.update', $publicStructure->id)}}"
+            <form method="POST" action="{{route('public-structure.update', $publicStructure->id)}}"
              enctype="multipart/form-data" >
                 @csrf
                 @method('PATCH')

@@ -204,7 +204,7 @@ label {
                             </fieldset>
                         </div>
                     </div>
-                    @if($secondName)
+                   
                     <hr>
                     <div class="row" style="margin-top:12px">
                         <h6>Second Name for community</h6>
@@ -214,19 +214,115 @@ label {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Second Name in English</label>
                                 
-                                <input name="second_name_english" type="text" 
-                                    value="{{$secondName->english_name}}" class="form-control">
+                                @if($secondName)
+
+                                    <input name="second_name_english" type="text" 
+                                        value="{{$secondName->english_name}}" class="form-control">
+                                @else
+
+                                    <input name="second_name_english" type="text" class="form-control">
+                                @endif
                             </fieldset>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Second Name in Arabic</label>
-                                <input name="second_name_arabic" type="text" 
-                                    value="{{$secondName->arabic_name}}" class="form-control">
+                                @if($secondName)
+
+                                    <input name="second_name_arabic" type="text" 
+                                        value="{{$secondName->arabic_name}}" class="form-control">
+                                @else
+
+                                    <input name="second_name_arabic" type="text" class="form-control">
+                                @endif
                             </fieldset>
                         </div>
                     </div> 
+
+                    <hr style="margin-top:30px">
+                    <div class="row">
+                        <h6>Compounds</h6>
+                    </div>
+                    @if(count($compounds) > 0)
+
+                        <table id="communityCompoundTable" class="table table-striped my-2">
+                            <tbody>
+                                @foreach($compounds as $compound)
+                                <tr id="compoundsRow">
+                                    <td class="text-center">
+                                        {{$compound->english_name}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{$compound->arabic_name}}
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn deleteCommunityCompound" 
+                                            id="deleteCommunityCompound"
+                                            data-id="{{$compound->id}}">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                    </td
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <span>Add More Compounds</span>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                                <table class="table table-bordered" id="dynamicAddRemoveCompoundName">
+                                    <tr>
+                                        <th>Compound Name</th>
+                                        <th>Options</th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="text" name="addMoreInputFieldsCompoundName[0][subject]" 
+                                            placeholder="Enter English Copmound Name" class="target_point form-control" 
+                                            data-id="0"/>
+                                        </td>
+                                        <td>
+                                            <button type="button" name="add" id="addCompoundNameButton" 
+                                            class="btn btn-outline-primary">
+                                                Add More
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                    @else
+                        <div class="row">
+                            <h6>Add New Compounds</h6>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                                <table class="table table-bordered" id="dynamicAddRemoveCompoundName">
+                                    <tr>
+                                        <th>Compound Name</th>
+                                        <th>Options</th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="text" name="addMoreInputFieldsCompoundName[0][subject]" 
+                                            placeholder="Enter English Copmound Name" class="target_point form-control" 
+                                            data-id="0"/>
+                                        </td>
+                                        <td>
+                                            <button type="button" name="add" id="addCompoundNameButton" 
+                                            class="btn btn-outline-primary">
+                                                Add More
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
                     @endif
+
+
                     <hr>
                     <div class="row">
                         <h5>System Details</h5>
@@ -313,4 +409,58 @@ label {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
+<script>
+
+    // delete community compound
+    $('#communityCompoundTable').on('click', '.deleteCommunityCompound',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Compound?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteCommunityCompound') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    var j = 0;
+    $("#addCompoundNameButton").click(function () {
+        ++j;
+        $("#dynamicAddRemoveCompoundName").append('<tr><td><input type="text"' +
+            'name="addMoreInputFieldsCompoundName[][subject]" placeholder="Enter Another one"' +
+            'class="target_point form-control" data-id="'+ j +'" /></td><td><button type="button"' +
+            'class="btn btn-outline-danger remove-input-field-target-points">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.remove-input-field-target-points', function () {
+        $(this).parents('tr').remove();
+    });
+</script>
 @endsection

@@ -19,6 +19,8 @@ use App\Models\Household;
 use App\Models\MeterCase;
 use App\Models\PublicStructure;
 use App\Exports\EnergySafetyExport;
+use App\Models\ElectricityMaintenanceCall;
+use App\Models\ElectricityMaintenanceCallAction;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -120,6 +122,7 @@ class EnergySafetyController extends Controller
     public function store(Request $request)
     {
         $energySafety = new AllEnergyMeterSafetyCheck();
+        $maintenance = new ElectricityMaintenanceCall();
 
         if($request->holder_id) {
 
@@ -127,10 +130,16 @@ class EnergySafetyController extends Controller
 
                 $allEnergyMeter = AllEnergyMeter::where("household_id", $request->holder_id)
                     ->first();
+           
+                $maintenance->energy_user_id = $allEnergyMeter->id;
+                $maintenance->household_id = $allEnergyMeter->household_id;
+                $maintenance->community_id = $allEnergyMeter->community_id;
             } else if($request->public_user == "public") {
                 
                 $allEnergyMeter = AllEnergyMeter::where("public_structure_id", $request->holder_id)
                     ->first();
+                $maintenance->public_structure_id = $allEnergyMeter->public_structure_id;
+                $maintenance->community_id = $allEnergyMeter->community_id;
             }
             
             $energySafety->all_energy_meter_id = $allEnergyMeter->id;
@@ -138,6 +147,12 @@ class EnergySafetyController extends Controller
             if($request->meter_case_id) {
 
                 $allEnergyMeter->meter_case_id = $request->meter_case_id;
+                $allEnergyMeter->save();
+            }
+
+            if($request->ground_connected) {
+
+                $allEnergyMeter->ground_connected = $request->ground_connected;
                 $allEnergyMeter->save();
             }
         } 
@@ -153,6 +168,23 @@ class EnergySafetyController extends Controller
         $energySafety->n_loop = $request->n_loop;
         $energySafety->notes = $request->notes;
         $energySafety->save();
+
+        if($request->ph_loop < 10 && $request->n_loop < 10) {
+
+            $maintenance->date_of_call = $request->visit_date;
+            $maintenance->maintenance_status_id = 1;
+            $maintenance->user_id = Auth::guard('user')->user()->id;
+            $maintenance->maintenance_type_id = 1;
+            $maintenance->notes = $request->notes;
+            $maintenance->save();
+
+            $maintenanceId = $maintenance->id;
+
+            $electricityMaintenanceCallAction = new ElectricityMaintenanceCallAction();
+            $electricityMaintenanceCallAction->maintenance_electricity_action_id = 75;
+            $electricityMaintenanceCallAction->electricity_maintenance_call_id = $maintenanceId;
+            $electricityMaintenanceCallAction->save();
+        }
 
         return redirect()->back()->with('message', 'New Meter Saftey Check Added Successfully!');
     }
@@ -259,7 +291,7 @@ class EnergySafetyController extends Controller
             $energyMeter->meter_case_id = $request->meter_case_id;
             $energyMeter->save();
         }
-
+ 
         if($request->ground_connected) {
 
             $energyMeter->ground_connected = $request->ground_connected;
@@ -278,6 +310,70 @@ class EnergySafetyController extends Controller
         $energySafety->notes = $request->notes;
         $energySafety->save();
 
+        
+        if($request->ph_loop < 10 && $request->n_loop < 10) {
+
+            $maintenance = new ElectricityMaintenanceCall();
+            $exist = [];
+            if($energyMeter->household_id) {
+
+                $exist = ElectricityMaintenanceCall::where('household_id', $energyMeter->household_id)
+                    ->where('date_of_call', $request->visit_date)
+                    ->first();
+
+                if($exist) {
+                } else {
+
+                    $maintenance->household_id = $energyMeter->household_id;
+                    $maintenance->energy_user_id = $energyMeter->id;
+                    $maintenance->community_id = $energyMeter->community_id;
+
+                    $maintenance->date_of_call = $request->visit_date;
+                    $maintenance->maintenance_status_id = 1;
+                    $maintenance->user_id = Auth::guard('user')->user()->id;
+                    $maintenance->maintenance_type_id = 1;
+                    $maintenance->notes = $request->notes;
+                    $maintenance->save();
+
+                    $maintenanceId = $maintenance->id;
+
+                    $electricityMaintenanceCallAction = new ElectricityMaintenanceCallAction();
+                    $electricityMaintenanceCallAction->maintenance_electricity_action_id = 75;
+                    $electricityMaintenanceCallAction->electricity_maintenance_call_id = $maintenanceId;
+                    $electricityMaintenanceCallAction->save();
+
+                }
+            } else if($energyMeter->public_structure_id) {
+
+                $exist = ElectricityMaintenanceCall::where('public_structure_id', $energyMeter->public_structure_id)
+                    ->where('date_of_call', $request->visit_date)
+                    ->first();
+
+                if($exist) {
+                } else {
+
+                    $maintenance->public_structure_id = $energyMeter->public_structure_id;
+                    $maintenance->community_id = $energyMeter->community_id;
+                    $maintenance->date_of_call = $request->visit_date;
+                    $maintenance->maintenance_status_id = 1;
+                    $maintenance->user_id = Auth::guard('user')->user()->id;
+                    $maintenance->maintenance_type_id = 1;
+                    $maintenance->notes = $request->notes;
+                    $maintenance->save();
+
+                    $maintenanceId = $maintenance->id;
+
+                    $electricityMaintenanceCallAction = new ElectricityMaintenanceCallAction();
+                    $electricityMaintenanceCallAction->maintenance_electricity_action_id = 75;
+                    $electricityMaintenanceCallAction->electricity_maintenance_call_id = $maintenanceId;
+                    $electricityMaintenanceCallAction->save();
+                }
+            }
+        }
+        
+        if($request->rcd_x1_phase0 && $request->rcd_x5_phase0 && $request->rcd_x5_phase1  < 30) {
+
+        }
 
         return redirect('/energy-safety')->with('message', 'Meter Safety Updated Successfully!');
     }
@@ -292,6 +388,24 @@ class EnergySafetyController extends Controller
         $id = $request->id;
 
         $energySafety = AllEnergyMeterSafetyCheck::find($id);
+        $allEnergyMeter = AllEnergyMeter::where("id", $energySafety->all_energy_meter_id)->first();
+        if($allEnergyMeter->household_id) {
+
+            $exist = ElectricityMaintenanceCall::where('household_id', $allEnergyMeter->household_id)
+                ->where('date_of_call', $energySafety->visit_date)
+                ->first();
+        } else if($allEnergyMeter->public_structure_id) {
+
+            $exist = ElectricityMaintenanceCall::where('public_structure_id', $allEnergyMeter->public_structure_id)
+                ->where('date_of_call', $energySafety->visit_date)
+                ->first();
+        }
+        
+        if($exist) {
+
+            $exist->is_archived = 1;
+            $exist->save();
+        }
 
         if($energySafety) {
 
@@ -307,6 +421,49 @@ class EnergySafetyController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getInfo(Request $request)
+    {
+        if($request->publicUser == "user") {
+
+            $energyHolder = AllEnergyMeter::where('household_id', $request->holder_id)->first();
+        } else if($request->publicUser == "public") {
+            
+            $energyHolder = AllEnergyMeter::where('public_structure_id', $request->holder_id)->first();
+        }
+
+        if($energyHolder == null) {
+
+            $response['meter_number'] = "No";
+           // $response['meter_case'] = null;
+            $response['ground_connected'] = null;
+        } else {
+
+            $response['meter_number'] = $energyHolder->meter_number;
+
+            // $meter = MeterCase::where('id', $energyHolder->meter_case_id)->first();
+            // die($energyHolder);
+            // $response['meter_case'] = $meter->meter_case_name_english;
+
+            if($energyHolder->energy_system_type_id == 2) {
+
+                $response['ground_connected'] = $energyHolder->ground_connected;
+
+            } else {
+
+                $response['ground_connected'] = 0;
+            }
+         
+        }
+        
+        return response()->json($response);
     }
 
     /**

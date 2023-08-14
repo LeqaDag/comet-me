@@ -9,7 +9,21 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
 use Route;
+use App\Models\AllEnergyMeter;
+use App\Models\AllEnergyMeterDonor;
+use App\Models\AllWaterHolder;
+use App\Models\AllWaterHolderDonor;
+use App\Models\CommunityRepresentative;
+use App\Models\ElectricityMaintenanceCall;
+use App\Models\FbsUserIncident;
+use App\Models\GridUser;
+use App\Models\H2oUser;
+use App\Models\H2oMaintenanceCall;
+use App\Models\InternetUser;
+use App\Models\RefrigeratorHolder;
+use App\Models\RefrigeratorMaintenanceCall;
 use App\Models\Donor;
+use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
 use App\Models\PublicStructureCategory;
 use App\Models\User;
@@ -23,6 +37,7 @@ use App\Models\Region;
 use App\Models\Structure;
 use App\Models\SubRegion;
 use App\Models\Profession;
+use App\Models\MovedHousehold;
 use App\Exports\HouseholdExport;
 use Carbon\Carbon;
 use DataTables;
@@ -208,7 +223,7 @@ class HouseholdController extends Controller
             return view('errors.not-found');
         }
     }
-
+ 
     /**
      * Show the form for creating a new resource.
      *
@@ -527,7 +542,6 @@ class HouseholdController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
         $household = Household::findOrFail($id);
         $householdMeter = HouseholdMeter::where('user_name', $household->english_name)->first();
 
@@ -536,8 +550,122 @@ class HouseholdController extends Controller
         $household->women_name_arabic = $request->women_name_arabic;
         $household->profession_id = $request->profession_id;
         $household->phone_number = $request->phone_number;
-        if($request->community_id) $household->community_id = $request->community_id;
+
+        if($request->community_id) {
+
+            $movedHousehold = new MovedHousehold();
+            $movedHousehold->household_id = $id;
+            $movedHousehold->old_community_id = $household->community_id;
+            $movedHousehold->new_community_id  = $request->community_id;
+            $movedHousehold->save();
+
+            $household->community_id = $request->community_id;
+
+            $allEnergyMeter = AllEnergyMeter::where("household_id", $id)->first();
+            if($allEnergyMeter) {
+
+                $allEnergyMeter->community_id = $request->community_id;
+                if($allEnergyMeter->energy_system_type != 2) {
+
+                    $energySystem = EnergySystem::where("community_id", $request->community_id)->first();
+                    if($energySystem) {
+                        $allEnergyMeter->energy_system_id = $energySystem->id;
+                    }
+                }
+                $allEnergyMeter->save();
+
+                $allEnergyMeterDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)->get();
+                if($allEnergyMeterDonors) {
+
+                    foreach($allEnergyMeterDonors as $allEnergyMeterDonor) {
+
+                        $allEnergyMeterDonor->community_id = $request->community_id;
+                        $allEnergyMeterDonor->save();
+                    }
+                }
+
+                $userIncidents = FbsUserIncident::where("energy_user_id", $allEnergyMeter->id)->get();
+                if($userIncidents) {
+
+                    foreach($userIncidents as $userIncident) {
+
+                        $userIncident->community_id = $request->community_id;
+                        $userIncident->save();
+                    }
+                }
+            }
+
+            $allWaterHolder = AllWaterHolder::where("household_id", $id)->first();
+            if($allWaterHolder) {
+
+                $allWaterHolder->community_id = $request->community_id;
+                $allWaterHolder->save();
+                $allWaterHolderDonors = AllWaterHolderDonor::where("all_water_holder_id", $id)->get();
+                if($allWaterHolderDonors) {
+
+                    foreach($allWaterHolderDonors as $allWaterHolderDonor) {
+
+                        $allWaterHolderDonor->community_id = $request->community_id;
+                        $allWaterHolderDonor->save();
+                    }
+                }
+
+                $gridUser = GridUser::where("household_id", $id)->first();
+                if($gridUser) {
+
+                    $gridUser->community_id = $request->community_id;
+                    $gridUser->save();
+                }
+
+                $h2oUser = H2oUser::where("household_id", $id)->first();
+                if($h2oUser) {
+
+                    $h2oUser->community_id = $request->community_id;
+                    $h2oUser->save();
+                }
+            }
+
+            $communityRepresentative = CommunityRepresentative::where("household_id", $id)->first();
+            if($communityRepresentative) {
+
+                $communityRepresentative->is_archived = 1;
+                $communityRepresentative->save();
+            }
+
+            // $energyMaintenance = ElectricityMaintenanceCall::where("household_id", $id)->first();
+            // if($energyMaintenance) {
+
+            //     $energyMaintenance->community_id = $request->community_id;
+            //     $energyMaintenance->save();   
+            // }
+
+            // $h2oMaintenance = H2oMaintenanceCall::where("household_id", $id)->first();
+            // if($h2oMaintenance) {
+
+            //     $h2oMaintenance->community_id = $request->community_id;
+            //     $h2oMaintenance->save();   
+            // }
+
+            $internetUser = InternetUser::where("household_id", $id)->first();
+            if($internetUser) {
+
+                $internetUser->community_id = $request->community_id;
+                $internetUser->save();   
+            }
+
+            $refrigeratorHolders = RefrigeratorHolder::where("household_id", $id)->get();
+            if($refrigeratorHolders) {
+
+                foreach($refrigeratorHolders as $refrigeratorHolder) {
+
+                    $refrigeratorHolder->community_id = $request->community_id;
+                    $refrigeratorHolder->save(); 
+                }  
+            }
+        }
+
         $household->number_of_children = $request->number_of_children;
+        $household->number_of_people = $request->number_of_people;
         $household->number_of_adults = $request->number_of_adults;
         $household->university_students = $request->university_students;
         $household->school_students = $request->school_students;

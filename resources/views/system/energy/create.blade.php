@@ -70,17 +70,24 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Name</label>
                             <input type="text" name="name" 
                             class="form-control">
                         </fieldset>
                     </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Installation Year</label>
                             <input type="number" name="installation_year" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <input type="number" name="cycle_year" 
                             class="form-control">
                         </fieldset>
                     </div>
@@ -335,14 +342,14 @@
                 <hr>
 
                 <div class="row">
-                    <h6>Battery Status Processor</h6> 
+                    <h6>Battery Proccessor</h6> 
                 </div>
               
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <table class="table table-bordered" id="addRemoveBsp">
                             <tr>
-                                <th>Battery Status Processor Models</th>
+                                <th>Battery Proccessor Models</th>
                                 <th>Units</th>
                                 <th>Options</th>
                             </tr>
@@ -375,14 +382,14 @@
                 <hr>
 
                 <div class="row">
-                    <h6>Remote Control Center</h6> 
+                    <h6>Control Center</h6> 
                 </div>
               
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <table class="table table-bordered" id="addRemoveRcc">
                             <tr>
-                                <th>Remote Control Center Models</th>
+                                <th>Control Center Models</th>
                                 <th>Units</th>
                                 <th>Options</th>
                             </tr>
@@ -652,6 +659,46 @@
                         </table>
                     </div>
                 </div>
+                <hr>
+
+                <div class="row">
+                    <h6>Air Conditioner</h6> 
+                </div>
+              
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <table class="table table-bordered" id="addRemoveAirConditioner">
+                            <tr>
+                                <th>Air Conditioner Models</th>
+                                <th>Units</th>
+                                <th>Options</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <select name="energy_air_conditioner_id[]" class="selectpicker form-control"
+                                        multiple data-live-search="true">
+                                        <option disabled selected>Choose one...</option>
+                                        @foreach($airConditioners as $airConditioner)
+                                            <option value="{{$airConditioner->id}}">
+                                                {{$airConditioner->model}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="energy_air_conditioner_units[0][subject]" class="form-control"
+                                        data-id="0">
+                                </td>
+                                <td>
+                                    <button type="button" name="add" id="addRemoveAirConditionerButton" 
+                                        class="btn btn-outline-primary">
+                                        Add Air Conditioner Units
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
 
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -687,6 +734,7 @@
     var inventer_mcb_counter = 0;
     var controller_mcb_counter = 0;
     var pv_mcb_counter = 0;
+    var air_counter = 0;
 
     // Battery
     $(document).on('click', '#addRemoveBatteryButton', function () {
@@ -898,5 +946,21 @@
     $(document).on('click', '.removeMcbInverter', function () {
         $(this).parents('tr').remove();
     });
+
+    // Air Conditioner
+    $(document).on('click', '#addRemoveAirConditionerButton', function () {
+
+        ++air_counter;
+        $("#addRemoveAirConditioner").append('<tr><td></td>' +
+            '<td><input class="form-control" data-id="'+ air_counter +'" name="energy_air_conditioner_units[][subject]"></td>' +
+            '<td><button type="button"' +
+            'class="btn btn-outline-danger removeAirConditioner">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.removeAirConditioner', function () {
+        $(this).parents('tr').remove();
+    });
+
 
 </script>

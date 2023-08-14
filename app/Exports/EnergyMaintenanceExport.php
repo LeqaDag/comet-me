@@ -37,23 +37,30 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->join('maintenance_types', 'electricity_maintenance_calls.maintenance_type_id', 
                 '=', 'maintenance_types.id')
-            ->join('maintenance_electricity_actions', 'electricity_maintenance_calls.maintenance_electricity_action_id', 
-                '=', 'maintenance_electricity_actions.id')
+            ->join('electricity_maintenance_call_actions', 'electricity_maintenance_calls.id', 
+                'electricity_maintenance_call_actions.electricity_maintenance_call_id')
+            ->join('maintenance_electricity_actions', 
+                'electricity_maintenance_call_actions.maintenance_electricity_action_id', 
+                'maintenance_electricity_actions.id')
+
             ->join('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
                 '=', 'maintenance_statuses.id')
             // ->join('electricity_maintenance_call_users', 'electricity_maintenance_calls.id', 
             //     'electricity_maintenance_call_users.electricity_maintenance_call_id')
             ->join('users', 'electricity_maintenance_calls.user_id', '=', 'users.id')
             ->where('electricity_maintenance_calls.is_archived', 0)
-            ->select('households.english_name as english_name', 
+            ->select([
+                'households.english_name as english_name', 
                 'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'users.name as user_name',
-                'maintenance_electricity_actions.maintenance_action_electricity', 
-                'maintenance_electricity_actions.maintenance_action_electricity_english',
+                DB::raw('group_concat(maintenance_electricity_actions.maintenance_action_electricity)'),
+                DB::raw('group_concat(maintenance_electricity_actions.maintenance_action_electricity_english)'),
                 'maintenance_statuses.name', 'maintenance_types.type',
-                'date_of_call', 'date_completed', 'electricity_maintenance_calls.notes');
+                'date_of_call', 'date_completed', 'electricity_maintenance_calls.notes'
+            ])
+            ->groupBy('electricity_maintenance_calls.id');
 
         if($this->request->public) {
             $data->where("public_structures.public_structure_category_id1", $this->request->public)

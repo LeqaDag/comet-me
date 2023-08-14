@@ -2,83 +2,83 @@
 
 <ul class="menu-inner py-1" id="menu">
 
-    <li class="menu-item">
-        <a href="{{url('home')}}" class="dashboard menu-link">
+    <li class="menu-item" id="home">
+        <a href="{{url('home')}}" class="dashboard menu-link" >
             <i class="menu-icon tf-icons bx bx-tachometer"></i>
             <div>Dashboards</div>
         </a>
     </li>
 
-    <li class="menu-item">
+    <li class="menu-item" id="all-active">
         <a href="{{url('all-active')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-show"></i>
             <div>Overview of Active Users</div>
         </a>
     </li>
 
-    <li class="menu-item">
+    <li class="menu-item" id="regions">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-map"></i>
             <div>Regions</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item">
-            <a href="{{url('region')}}" class="menu-link" >
-                <i class=""></i>
-                <div>All Regions</div>
-            </a>
+            <li class="menu-item" id="region">
+                <a href="{{url('region')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>All Regions</div>
+                </a>
             </li>
-            <li class="menu-item">
-            <a href="{{url('sub-region')}}" class="menu-link" >
-                <i class=""></i>
-                <div>Sub Regions</div>
-            </a>
+            <li class="menu-item" id="sub-region">
+                <a href="{{url('sub-region')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Sub Regions</div>
+                </a>
             </li>
-            <li class="menu-item">
-            <a href="{{url('sub-sub-region')}}" class="menu-link" >
-                <i class=""></i>
-                <div>Sub Sub Regions</div>
-            </a>
+            <li class="menu-item" id="sub-sub-region">
+                <a href="{{url('sub-sub-region')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Sub Sub Regions</div>
+                </a>
             </li>
         </ul>
     </li>
-    <li class="menu-item">
+    <li class="menu-item" id="communities">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-home"></i>
             <div>Communities</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item">
+            <li class="menu-item" id="all-community">
                 <a href="{{url('community')}}" class="menu-link" >
                     <i class=""></i>
                     <div>All</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="initial-community">
                 <a href="{{url('initial-community')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Initial Survey</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="ac-community">
                 <a href="{{url('ac-community')}}" class="menu-link" >
                     <i class=""></i>
                     <div>AC Survey</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="served-community">
                 <a href="{{url('served-community')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Served</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="representative">
                 <a href="{{url('representative')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Community Representatives</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="sub-community-household">
                 <a href="{{url('sub-community-household')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Sub Communities</div>
@@ -86,54 +86,54 @@
             </li>
         </ul>
     </li>
-    <li class="menu-item">
+    <li class="menu-item" id="households">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-user"></i>
             <div>Households</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item">
+            <li class="menu-item" id="household">
                 <a href="{{url('household')}}" class="menu-link" >
                     <i class=""></i>
                     <div>All</div>
                 </a>
             </li>
             @if(Auth::guard('user')->user()->user_type_id == 1)
-                <li class="menu-item">
+                <li class="menu-item" id="requested-household">
                     <a href="{{url('requested-household')}}" class="menu-link" >
                         <i class=""></i>
-                        <div>Requested</div>
+                        <div>Requested System/Meter</div>
                     </a>
                 </li>
             @endif
-            <li class="menu-item">
+            <li class="menu-item" id="initial-household">
                 <a href="{{url('initial-household')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Initial Survey</div>
                 </a>
             </li>
-            <li class="menu-item">
-            <a href="{{url('ac-household')}}" class="menu-link" >
-                <i class=""></i>
-                <div>AC Survey</div>
-            </a>
+            <li class="menu-item" id="ac-household">
+                <a href="{{url('ac-household')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>AC Survey</div>
+                </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="progress-household">
                 <a href="{{url('progress-household')}}" class="menu-link" >
                     <i class=""></i>
                     <div>In Progress</div>
                 </a>
             </li>
-            <li class="menu-item">
-            <a href="{{url('served-household')}}" class="menu-link" >
-                <i class=""></i>
-                <div>Served</div>
-            </a>
+            <li class="menu-item" id="served-household">
+                <a href="{{url('served-household')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Served</div>
+                </a>
             </li>
         </ul>
     </li>
    
-    <li class="menu-item">
+    <li class="menu-item" id="public-structure">
         <a href="{{url('public-structure')}}" class="dashboard menu-link">
             <i class="menu-icon tf-icons bx bx-buildings"></i>
             <div>Public Structures</div>
@@ -141,49 +141,49 @@
     </li>
 
     @if(Auth::guard('user')->user()->user_type_id == 1)
-    <li class="menu-item">
+    <li class="menu-item" id="energy-request">
         <a href="{{url('energy-request')}}" class="menu-link" >
             <i class="menu-icon tf-icons bx bx-check-square"></i>
             <div>Requested Systems</div>
         </a>
     </li>
     @endif
-    <li class="menu-item">
+    <li class="menu-item" id="services">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-tachometer"></i>
             <div>Services</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item">
+            <li class="menu-item" id="energy-service">
                 <a class="menu-link menu-toggle">
                     <div>Energy </div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item">
+                    <li class="menu-item" id="all-meter">
                         <a href="{{url('all-meter')}}" class="menu-link" >
                             <i class=""></i>
                             <div>Meter Holders</div>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item" id="household-meter">
                         <a href="{{url('household-meter')}}" class="menu-link" >
                             <i class=""></i>
                             <div>Shared Users</div>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item" id="energy-public">
                         <a href="{{url('energy-public')}}" class="menu-link" >
                             <i class=""></i>
                             <div>Public Structures Meters</div>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item" id="comet-meter">
                         <a href="{{url('comet-meter')}}" class="menu-link" >
                             <i class=""></i>
                             <div>Comet Meters</div>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item" id="refrigerator-user">
                         <a href="{{url('refrigerator-user')}}" class="menu-link" >
                             <i class=""></i>
                             <div>Refrigerator Holders</div>
@@ -192,25 +192,24 @@
                 </ul>
             </li>
 
-            <li class="menu-item">
+            <li class="menu-item" id="water-service">
                 <a class="menu-link menu-toggle">
-                
                     <div>Water </div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item">
+                    <li class="menu-item" id="all-water">
                         <a href="{{url('all-water')}}" class="menu-link" >
                             <i class=""></i>
                             <div>All Holders</div>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item" id="shared-h2o">
                         <a href="{{url('shared-h2o')}}" class="menu-link" >
                             <i class=""></i>
                             <div>Shared H2O Users</div>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item" id="water-public">
                         <a href="{{url('water-public')}}" class="menu-link" >
                             <i class=""></i>
                             <div>Shared H2O Public Structures</div>
@@ -219,13 +218,13 @@
                 </ul>
             </li>
             
-            <li class="menu-item">
+            <li class="menu-item" id="internet-service">
                 <a class="menu-link menu-toggle">
                 <!--  <i class="menu-icon tf-icons bx bx-wifi"></i>-->
                     <div>Internet </div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item">
+                    <li class="menu-item" id="internet-user">
                         <a href="{{url('internet-user')}}" class="menu-link" >
                             <i class=""></i>
                             <div>All Contract Holders</div>
@@ -262,49 +261,49 @@
 <!-- 
    -->
  
-    <li class="menu-item">
+    <li class="menu-item" id="maintenance">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-extension"></i>
             <div>Maintenance and Monitoring</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item">
+            <li class="menu-item" id="energy-maintenance">
                 <a href="{{url('energy-maintenance')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Electricity Maintenance</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="refrigerator-maintenance">
                 <a href="{{url('refrigerator-maintenance')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Refrigerator Maintenance</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="water-maintenance">
                 <a href="{{url('water-maintenance')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Water Maintenance</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="energy-safety">
                 <a href="{{url('energy-safety')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Meters Safety Check</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="results">
                 <a class="menu-link menu-toggle">
                     <!-- <i class="menu-icon tf-icons bx bx-receipt"></i> -->
                     <div>Water Quality Results</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item">
+                    <li class="menu-item" id="water-summary">
                         <a href="{{url('water-summary')}}" class="menu-link" >
                             <i class=""></i>
                             <div>Summary</div>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item" id="quality-result">
                         <a href="{{url('quality-result')}}" class="menu-link" >
                             <i class=""></i>
                             <div>All Results</div>
@@ -314,25 +313,25 @@
             </li>
         </ul>
     </li>
-    <li class="menu-item">
+    <li class="menu-item" id="systems">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-data"></i>
             <div>Systems</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item">
+            <li class="menu-item" id="energy-system">
                 <a href="{{url('energy-system')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Energy System</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="water-system">
                 <a href="{{url('water-system')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Water System</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="internet-system">
                 <a href="{{url('internet-system')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Internet System</div>
@@ -342,25 +341,25 @@
     </li>
 
 
-    <li class="menu-item">
+    <li class="menu-item" id="incidents">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-error-alt"></i>
             <div>Incidents</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item">
+            <li class="menu-item" id="mg-incident">
                 <a href="{{url('mg-incident')}}" class="menu-link" >
                     <i class=""></i>
                     <div>MG System</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="fbs-incident">
                 <a href="{{url('fbs-incident')}}" class="menu-link" >
                     <i class=""></i>
                     <div>FBS Users</div>
                 </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item" id="water-incident">
                 <a href="{{url('water-incident')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Water Users</div>
@@ -371,25 +370,25 @@
 
     @if(Auth::guard('user')->user()->user_type_id == 1 ||
         Auth::guard('user')->user()->user_type_id == 2)
-    <li class="menu-item">
+    <li class="menu-item" id="donor">
         <a href="{{url('donor')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-money"></i>
             <div>Donors</div>
         </a>
     </li>
-    <li class="menu-item">
+    <li class="menu-item" id="chart">
         <a href="{{url('chart')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-chart"></i>
             <div>Charts</div>
         </a>
     </li>
-    <li class="menu-item">
+    <li class="menu-item" id="user">
         <a href="{{url('user')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-group"></i>
             <div>Users</div>
         </a>
     </li>
-    <li class="menu-item">
+    <li class="menu-item" id="setting">
         <a href="{{url('setting')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-cog"></i>
             <div>Settings</div>
@@ -400,28 +399,197 @@
 
 <script>
 
-    // $("#menu li").not($('#menu li menu-sub li a')).click(function (e) {
-    //     $('ul.menu-sub').not( $(this).children() ).slideDown();
-    //     $(this).children("ul.menu-sub").slideToggle();
-    //     e.stopPropagation()
-    // });
+    $(".menu-inner li").on("click", function() {
+      $("li").removeClass("active");
+      $(this).addClass("active");
+    });
 
-    // var url = window.location.href; 
-    // parts = url.split("/"),
-    // last_part = parts[parts.length-1];
+    var activeClass = null;
+    var url = window.location.href; 
+    parts = url.split("/"),
+    last_part = parts[parts.length-1];
 
-    // if(last_part == "home") {
-    //     event.stopPropagation();
-    // }
+    if(last_part == "home") {
 
-    // $(".menu-sub").on("click", function (event) {
-       
+        $("#home").addClass("active");
 
-        
-    //     //$('.menu-sub .menu-link').slideUp();
-    //     $(".menu-sub .menu-item").on("click", function (event) {
-    //         alert(5);
-            
-    //     });
-    // });
+    } else if(last_part == "all-active") {
+
+        $("#all-active").addClass("active");
+
+    } else if(last_part == "region") {
+
+        $("#region").addClass("active");
+        $("#regions").addClass("open");
+    } else if(last_part == "sub-region") {
+
+        $("#sub-region").addClass("active");
+        $("#regions").addClass("open");
+    } else if(last_part == "sub-sub-region") {
+
+        $("#sub-sub-region").addClass("active");
+        $("#regions").addClass("open");
+    } else if(last_part == "community") {
+
+        $("#all-community").addClass("active");
+        $("#communities").addClass("open");
+    } else if(last_part == "initial-community") {
+
+        $("#initial-community").addClass("active");
+        $("#communities").addClass("open");
+    } else if(last_part == "ac-community") {
+
+        $("#ac-community").addClass("active");
+        $("#communities").addClass("open");
+
+    } else if(last_part == "served-community") {
+
+        $("#served-community").addClass("active");
+        $("#communities").addClass("open");
+    } else if(last_part == "representative") {
+
+        $("#representative").addClass("active");
+        $("#communities").addClass("open");
+    } else if(last_part == "sub-community-household") {
+
+        $("#sub-community-household").addClass("active");
+        $("#communities").addClass("open");
+    } else if(last_part == "household") {
+
+        $("#household").addClass("active");
+        $("#households").addClass("open");
+    } else if(last_part == "requested-household") {
+
+        $("#requested-household").addClass("active");
+        $("#households").addClass("open");
+    } else if(last_part == "initial-household") {
+
+        $("#initial-household").addClass("active");
+        $("#households").addClass("open");
+    } else if(last_part == "ac-household") {
+
+        $("#ac-household").addClass("active");
+        $("#households").addClass("open");
+    } else if(last_part == "progress-household") {
+
+        $("#progress-household").addClass("active");
+        $("#households").addClass("open");
+    } else if(last_part == "served-household") {
+
+        $("#served-household").addClass("active");
+        $("#households").addClass("open");
+    } else if(last_part == "public-structure") {
+
+        $("#public-structure").addClass("active");
+    } else if(last_part == "all-meter") {
+
+        $("#all-meter").addClass("active");
+        $("#energy-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "energy-request") {
+
+        $("#energy-request").addClass("active");
+    } else if(last_part == "household-meter") {
+
+        $("#household-meter").addClass("active");
+        $("#energy-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "energy-public") {
+
+        $("#energy-public").addClass("active");
+        $("#energy-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "comet-meter") {
+
+        $("#comet-meter").addClass("active");
+        $("#energy-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "refrigerator-user") {
+
+        $("#refrigerator-user").addClass("active");
+        $("#energy-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "all-water") {
+
+        $("#all-water").addClass("active");
+        $("#water-service").addClass("open");
+        $("#services").addClass("open");
+    }  else if(last_part == "shared-h2o") {
+
+        $("#shared-h2o").addClass("active");
+        $("#water-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "water-public") {
+
+        $("#water-public").addClass("active");
+        $("#water-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "internet-user") {
+
+        $("#internet-user").addClass("active");
+        $("#internet-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "energy-maintenance") {
+
+        $("#energy-maintenance").addClass("active");
+        $("#maintenance").addClass("open");
+    } else if(last_part == "refrigerator-maintenance") {
+
+        $("#refrigerator-maintenance").addClass("active");
+        $("#maintenance").addClass("open");
+    } else if(last_part == "water-maintenance") {
+
+        $("#water-maintenance").addClass("active");
+        $("#maintenance").addClass("open");
+    } else if(last_part == "energy-safety") {
+
+        $("#energy-safety").addClass("active");
+        $("#maintenance").addClass("open");
+    } else if(last_part == "water-summary") {
+
+        $("#water-summary").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#results").addClass("open");
+    } else if(last_part == "quality-result") {
+
+        $("#quality-result").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#results").addClass("open");
+    } else if(last_part == "energy-system") {
+
+        $("#energy-system").addClass("active");
+        $("#systems").addClass("open");
+    } else if(last_part == "water-system") {
+
+        $("#water-system").addClass("active");
+        $("#systems").addClass("open");
+    } else if(last_part == "internet-system") {
+
+        $("#internet-system").addClass("active");
+        $("#systems").addClass("open");
+    } else if(last_part == "mg-incident") {
+
+        $("#mg-incident").addClass("active");
+        $("#incidents").addClass("open");
+    } else if(last_part == "fbs-incident") {
+
+        $("#fbs-incident").addClass("active");
+        $("#incidents").addClass("open");
+    } else if(last_part == "water-incident") {
+
+        $("#water-incident").addClass("active");
+        $("#incidents").addClass("open");
+    } else if(last_part == "donor") {
+
+        $("#donor").addClass("active");
+    } else if(last_part == "user") {
+
+        $("#user").addClass("active");
+    } else if(last_part == "chart") {
+
+        $("#chart").addClass("active");
+    } else if(last_part == "setting") {
+
+        $("#setting").addClass("active");
+    }
 </script>

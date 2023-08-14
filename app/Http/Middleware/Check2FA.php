@@ -4,9 +4,10 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Session;
 
 class Check2FA
-{
+{ 
     /**
      * Handle an incoming request.
      *

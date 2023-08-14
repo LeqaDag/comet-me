@@ -25,7 +25,7 @@
                                         <option disabled selected>Search Community</option>
                                         @foreach($communities as $community)
                                             <option value="{{$community->id}}">
-                                                {{$community->english_name}}
+                                                {{$community->arabic_name}}
                                             </option>
                                         @endforeach
                                     </select> 

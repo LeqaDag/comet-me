@@ -47,6 +47,7 @@ use App\Models\EnergySystemMcbPv;
 use App\Models\EnergySystemMcbChargeController;
 use App\Models\EnergySystemMcbInverter;
 use App\Models\EnergyWindTurbine;
+use App\Models\EnergySystemAirConditioner;
 use App\Models\Household;
 use App\Models\Photo;
 use App\Models\Region;
@@ -592,6 +593,31 @@ class EnergyComponentController extends Controller
 
             $response['success'] = 1;
             $response['msg'] = 'Turbine System Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemAirConditioner(Request $request)
+    {
+        $id = $request->id;
+
+        $energyAir = EnergySystemAirConditioner::find($id);
+
+        if($energyAir->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Air Conditioner Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

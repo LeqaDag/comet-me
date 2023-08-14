@@ -17,6 +17,7 @@ use App\Models\Donor;
 use App\Models\EnergySystem;
 use App\Models\EnergyBattery;
 use App\Models\EnergyPv;
+use App\Models\EnergyAirConditioner;
 use App\Models\EnergyBatteryStatusProcessor;
 use App\Models\EnergyBatteryTemperatureSensor;
 use App\Models\EnergyChargeController;
@@ -47,6 +48,7 @@ use App\Models\EnergySystemMcbPv;
 use App\Models\EnergySystemMcbChargeController;
 use App\Models\EnergySystemRemoteControlCenter;
 use App\Models\EnergySystemMcbInverter;
+use App\Models\EnergySystemAirConditioner;
 use App\Models\Household;
 use App\Models\Photo;
 use App\Models\Region;
@@ -206,13 +208,15 @@ class EnergySystemController extends Controller
         $mcbPvs = EnergyMcbPv::where('is_archived', 0)
             ->orderBy('model', 'ASC')
             ->get();
-
+        $airConditioners =  EnergyAirConditioner::where('is_archived', 0)
+            ->orderBy('model', 'ASC') 
+            ->get();
         $energyTypes = EnergySystemType::where('is_archived', 0)->get();
 
         return view('system.energy.create', compact('batteries', 'communities', 'controllers',
             'pvs', 'mcbPvs', 'mcbInventors', 'mcbControllers', 'turbines', 'generators',
             'loggers', 'loadRelaies', 'relayDrivers', 'inverters', 'bsps', 'rccs',
-            'energyTypes'));
+            'energyTypes', 'airConditioners'));
     }
 
     /**
@@ -228,6 +232,7 @@ class EnergySystemController extends Controller
         if($request->community_id) $energySystem->community_id = $request->community_id;
         $energySystem->name = $request->name;
         $energySystem->installation_year = $request->installation_year;
+        $energySystem->cycle_year = $request->cycle_year;
         $energySystem->energy_system_type_id = $request->energy_system_type_id;
         $energySystem->notes = $request->notes;
         $energySystem->save();
@@ -400,6 +405,18 @@ class EnergySystemController extends Controller
             }
         }
 
+        // Air Conditioner
+        if($request->energy_air_conditioner_id) {
+            for($i=0; $i < count($request->energy_air_conditioner_id); $i++) {
+
+                $inventerMcbSystem = new EnergySystemAirConditioner();
+                $inventerMcbSystem->energy_air_conditioner_id = $request->energy_air_conditioner_id[$i];
+                $inventerMcbSystem->energy_air_conditioner_units = $request->energy_air_conditioner_units[$i]["subject"];
+                $inventerMcbSystem->energy_system_id = $energySystem->id;
+                $inventerMcbSystem->save();
+            }
+        }
+
         return redirect('/energy-system')
             ->with('message', 'New Energy System Added Successfully!');
     }
@@ -470,6 +487,9 @@ class EnergySystemController extends Controller
             ->get();
         $mcbPvs = EnergyMcbPv::where('is_archived', 0)
             ->orderBy('model', 'ASC')
+            ->get();
+        $airConditioners =  EnergyAirConditioner::where('is_archived', 0)
+            ->orderBy('model', 'ASC') 
             ->get();
 
         $energyTypes = EnergySystemType::where('is_archived', 0)->get();
@@ -637,13 +657,25 @@ class EnergySystemController extends Controller
                 'energy_system_mcb_inverters.id')
             ->get();
 
+        $airConditionerSystems = DB::table('energy_system_air_conditioners')
+            ->join('energy_systems', 'energy_system_air_conditioners.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_air_conditioners', 'energy_system_air_conditioners.energy_air_conditioner_id', 
+                '=', 'energy_air_conditioners.id')
+            ->where('energy_system_air_conditioners.energy_system_id', '=', $id)
+            ->select('energy_system_air_conditioners.energy_air_conditioner_units', 
+                'energy_air_conditioners.model', 
+                'energy_air_conditioners.brand', 'energy_systems.name', 
+                'energy_system_air_conditioners.id')
+            ->get();
+
         return view('system.energy.edit', compact('batteries', 'communities', 'controllers',
             'pvs', 'mcbPvs', 'mcbInventors', 'mcbControllers', 'turbines', 'generators',
             'loggers', 'loadRelaies', 'relayDrivers', 'inverters', 'bsps', 'rccs',
             'energyTypes', 'energySystem', 'battarySystems', 'pvSystems', 'controllerSystems',
             'inverterSystems', 'relayDriverSystems', 'loadRelaySystems', 'bspSystems',
             'rccSystems', 'loggerSystems', 'generatorSystems', 'turbineSystems', 'pvMcbSystems',
-            'controllerMcbSystems', 'inventerMcbSystems'));
+            'controllerMcbSystems', 'inventerMcbSystems', 'airConditioners', 'airConditionerSystems'));
     }
 
     /**
@@ -659,6 +691,7 @@ class EnergySystemController extends Controller
  
         if($request->name) $energySystem->name = $request->name;
         if($request->installation_year) $energySystem->installation_year = $request->installation_year;
+        if($request->cycle_year) $energySystem->cycle_year = $request->cycle_year;
         if($request->upgrade_year1) $energySystem->upgrade_year1 = $request->upgrade_year1;
         if($request->upgrade_year2) $energySystem->upgrade_year2 = $request->upgrade_year2;
         if($request->energy_system_type_id) $energySystem->energy_system_type_id = $request->energy_system_type_id;
@@ -833,6 +866,18 @@ class EnergySystemController extends Controller
             }
         }
 
+        // Air Conditioner
+        if($request->energy_air_conditioner_id) {
+            for($i=0; $i < count($request->energy_air_conditioner_id); $i++) {
+
+                $inventerMcbSystem = new EnergySystemAirConditioner();
+                $inventerMcbSystem->energy_air_conditioner_id = $request->energy_air_conditioner_id[$i];
+                $inventerMcbSystem->energy_air_conditioner_units = $request->energy_air_conditioner_units[$i]["subject"];
+                $inventerMcbSystem->energy_system_id = $energySystem->id;
+                $inventerMcbSystem->save();
+            }
+        }
+        
         return redirect('/energy-system')->with('message', 'Energy System Updated Successfully!');
     }
 
@@ -1022,10 +1067,22 @@ class EnergySystemController extends Controller
                 'energy_system_mcb_inverters.id')
             ->get();
 
+        $airConditionerSystems = DB::table('energy_system_air_conditioners')
+            ->join('energy_systems', 'energy_system_air_conditioners.energy_system_id', 
+                '=', 'energy_systems.id')
+            ->join('energy_air_conditioners', 'energy_system_air_conditioners.energy_air_conditioner_id', 
+                '=', 'energy_air_conditioners.id')
+            ->where('energy_system_air_conditioners.energy_system_id', '=', $id)
+            ->select('energy_system_air_conditioners.energy_air_conditioner_units', 
+                'energy_air_conditioners.model', 
+                'energy_air_conditioners.brand', 'energy_systems.name', 
+                'energy_system_air_conditioners.id')
+            ->get();
+
         return view('system.energy.show', compact('energySystem', 'battarySystems', 'pvSystems', 
             'controllerSystems', 'inverterSystems', 'relayDriverSystems', 'loadRelaySystems', 
             'bspSystems', 'rccSystems', 'loggerSystems', 'generatorSystems', 'turbineSystems', 
-            'pvMcbSystems', 'controllerMcbSystems', 'inventerMcbSystems'));
+            'pvMcbSystems', 'controllerMcbSystems', 'inventerMcbSystems', 'airConditionerSystems'));
     }
 
     /**

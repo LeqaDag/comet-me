@@ -8,7 +8,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use DB;
+use DB; 
 
 class WaterMaintenanceExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
     WithStyles
@@ -43,7 +43,7 @@ class WaterMaintenanceExport implements FromCollection, WithHeadings, WithTitle,
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->where('h2o_maintenance_calls.is_archived', 0)
             ->where('h2o_maintenance_call_actions.is_archived', 0)
-            ->select([
+            ->select([ 
                 'households.english_name as english_name', 
                 'public_structures.english_name as public_name', 
                 'communities.english_name as community_name',

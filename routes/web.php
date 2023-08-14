@@ -53,6 +53,8 @@ Route::get('/delete-community', [App\Http\Controllers\CommunityController::class
 Route::get('household/community/energy-source/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getCommunityEnergySource']);
 Route::get('ac-household/community/energy-source/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getCommunityEnergySource']);
 
+Route::get('/delete-compound', [App\Http\Controllers\CommunityController::class, 'deleteCommunityCompound'])->name('deleteCommunityCompound');
+
 Route::resource('representative', App\Http\Controllers\CommunityRepresentativeController::class);
 Route::get('/delete-representative', [App\Http\Controllers\CommunityRepresentativeController::class, 
     'deleteCommunityRepresentative'])->name('deleteCommunityRepresentative');
@@ -144,6 +146,7 @@ Route::get('/delete-energy-system-turbine', [App\Http\Controllers\EnergyComponen
 Route::get('/delete-energy-system-rcc', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemRcc'])->name('deleteEnergySystemRcc');
 Route::get('/delete-energy-system-mcb-controller', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbController'])->name('deleteEnergySystemMcbController');
 Route::get('/delete-energy-system-mcb-inventer', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbInverter'])->name('deleteEnergySystemMcbInverter');
+Route::get('/delete-energy-system-air', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemAirConditioner'])->name('deleteEnergySystemAirConditioner');
 
 Route::resource('water-system', App\Http\Controllers\WaterSystemController::class);
 Route::get('water_user/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getWaterUserByCommunity']);
@@ -244,6 +247,7 @@ Route::resource('energy-safety', App\Http\Controllers\EnergySafetyController::cl
 Route::get('/delete-energy-safety', [App\Http\Controllers\EnergySafetyController::class, 'deleteEnergySafety'])->name('deleteEnergySafety');
 Route::get('energy-safety/{id}/editpage', [App\Http\Controllers\EnergySafetyController::class, 'editPage']);
 Route::post('energy-safety-export', [App\Http\Controllers\EnergySafetyController::class, 'export'])->name('energy-safety.export');
+Route::get('energy_safety/info/{holder_id}/{publicUser}', [App\Http\Controllers\EnergySafetyController::class, 'getInfo']);
 
 Route::resource('new-energy-maintenance', App\Http\Controllers\NewEnergyMaintenanceCallController::class);
 Route::get('/delete-new-energy-maintenance', [App\Http\Controllers\NewEnergyMaintenanceCallController::class, 'deleteNewMaintenanceEnergy'])->name('deleteNewMaintenanceEnergy');
@@ -289,7 +293,6 @@ Route::get('/water-summary-result/chart', [App\Http\Controllers\WaterQualitySumm
 
 Route::resource('region', App\Http\Controllers\RegionController::class); 
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::resource('setting', App\Http\Controllers\SettingController::class); 
 Route::get('setting/edit_setting/{id}', [App\Http\Controllers\SettingController::class, 'updateSetting']);

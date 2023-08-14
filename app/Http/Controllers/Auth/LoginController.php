@@ -116,9 +116,10 @@ class LoginController extends Controller
 
                 return redirect()->route('2fa.index');
             }
-        }
+        } else {
 
-        return redirect("login")->withSuccess('Oppes! You have entered invalid credentials');
+            return redirect("login")->with('message', 'Oppes! You have entered invalid credentials');
+        }
     }
 
     /**
