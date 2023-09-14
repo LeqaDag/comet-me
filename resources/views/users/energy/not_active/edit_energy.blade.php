@@ -126,7 +126,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New/Old Community</label> 
-                            <select name='misc' class="form-control">
+                            <select name='installation_type_id' class="form-control">
                                 <option value="">
                                     {{$energyUser->InstallationType->type}}
                                 </option>

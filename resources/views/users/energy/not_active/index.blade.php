@@ -5,6 +5,16 @@
 @include('layouts.all')
 
 @section('content')
+<style>
+    label, input {
+    display: block;
+}
+
+label, table {
+    margin-top: 20px;
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
 <div class="container mb-4">
     <div class="row">
@@ -18,7 +28,7 @@
                 </div>
             </div>  
         </div>
-    </div> 
+    </div>
 </div> 
 
 <div class="container mb-4">
@@ -33,6 +43,20 @@
                     @csrf
                     <div class="card-body"> 
                         <div class="row">
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Community</label>
+                                    <select name="community_id"
+                                        class="selectpicker form-control" data-live-search="true">
+                                        <option disabled selected>Search Community</option>
+                                        @foreach($communities as $community)
+                                            <option value="{{$community->id}}">
+                                                {{$community->english_name}}
+                                            </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset>
+                            </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
@@ -59,6 +83,8 @@
                                     <input type="date" class="form-control" name="date_to">
                                 </fieldset>
                             </div>
+                        </div><br>
+                        <div class="row">
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <label class='col-md-12 control-label'>Download Excel</label>
                                 <button class="btn btn-info" type="submit">
@@ -73,8 +99,6 @@
         </div>
     </div> 
 </div> 
-
-
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Electricity Meter Users
@@ -112,6 +136,8 @@
 </div>
 
 @include('users.energy.details')
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script type="text/javascript">
     $(function () {
@@ -229,6 +255,14 @@
                                
                         }
                     }
+
+                    $('#incidentUser').html(" ");
+                    $('#incidentDate').html(" ");
+                    if(response['fbsIncident'] != []) {
+                        $('#incidentUser').html(response['fbsIncident'][0].incident);
+                        $('#incidentDate').html(response['fbsIncident'][0].incident_date);
+                    }
+
                 }
             });
         }); 

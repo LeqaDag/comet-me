@@ -16,32 +16,6 @@
         </a>
     </li>
 
-    <li class="menu-item" id="regions">
-        <a class="menu-link menu-toggle">
-            <i class="menu-icon tf-icons bx bx-map"></i>
-            <div>Regions</div>
-        </a>
-        <ul class="menu-sub">
-            <li class="menu-item" id="region">
-                <a href="{{url('region')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>All Regions</div>
-                </a>
-            </li>
-            <li class="menu-item" id="sub-region">
-                <a href="{{url('sub-region')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Sub Regions</div>
-                </a>
-            </li>
-            <li class="menu-item" id="sub-sub-region">
-                <a href="{{url('sub-sub-region')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Sub Sub Regions</div>
-                </a>
-            </li>
-        </ul>
-    </li>
     <li class="menu-item" id="communities">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-home"></i>
@@ -368,6 +342,33 @@
         </ul>
     </li>
 
+    <li class="menu-item" id="regions">
+        <a class="menu-link menu-toggle">
+            <i class="menu-icon tf-icons bx bx-map"></i>
+            <div>Regions</div>
+        </a>
+        <ul class="menu-sub">
+            <li class="menu-item" id="region">
+                <a href="{{url('region')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>All Regions</div>
+                </a>
+            </li>
+            <li class="menu-item" id="sub-region">
+                <a href="{{url('sub-region')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Sub Regions</div>
+                </a>
+            </li>
+            <li class="menu-item" id="sub-sub-region">
+                <a href="{{url('sub-sub-region')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Sub Sub Regions</div>
+                </a>
+            </li>
+        </ul>
+    </li>
+    
     @if(Auth::guard('user')->user()->user_type_id == 1 ||
         Auth::guard('user')->user()->user_type_id == 2)
     <li class="menu-item" id="donor">

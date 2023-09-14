@@ -7,10 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
-use DB;
+use DB; 
 use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\AllEnergyMeterDonor;
+use App\Models\AllEnergyVendingMeter;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
@@ -31,7 +32,7 @@ use App\Models\ServiceType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
-use App\Models\VendorUsername;
+use App\Models\VendorUserName;
 use App\Exports\AllEnergyExport;
 use Carbon\Carbon;
 use Image;
@@ -48,6 +49,49 @@ class AllEnergyController extends Controller
      */
     public function index(Request $request)
     {
+      //  /* Comparasion between platform and vending software
+        // $allEnergyMeters = AllEnergyMeter::where("is_archived", 0)->get();
+        // $allVendingMeters = AllEnergyVendingMeter::get();
+
+        // foreach($allEnergyMeters as $allEnergyMeter) {
+
+        //     foreach($allVendingMeters as $allVendingMeter)  {
+
+                
+        //         if($allEnergyMeter->meter_number == $allVendingMeter->meter_number) {
+
+        //             // $allVendingMeter->community_id = $allEnergyMeter->community_id;
+
+        //             if($allEnergyMeter->household_id) {
+
+        //                 $allVendingMeter->household_id = $allEnergyMeter->household_id;
+        //             }
+        //             if($allEnergyMeter->public_structure_id) {
+
+        //                 $allVendingMeter->public_structure_id = $allEnergyMeter->public_structure_id;
+        //             }
+
+        //             $allVendingMeter->save();
+
+        //             // $allEnergyMeter->last_purchase_date = $allVendingMeter->last_purchase_date;
+        //             // $allEnergyMeter->meter_case_id = $allVendingMeter->meter_case_id;
+        //             // $allEnergyMeter->meter_notes = $allVendingMeter->notes;
+        //             // $allEnergyMeter->save();
+
+        //         }
+        //     }
+        // }
+       // End comparasion*/
+
+        // $allMeters = AllEnergyMeter::get();
+        // $allDuplicatedMeters = DB::table('all_energy_meters')
+        //     ->select('meter_number', DB::raw('COUNT(*) as `count`'))
+        //     ->groupBy('meter_number', )
+        //     ->havingRaw('COUNT(*) > 1')
+        //     ->get();
+
+        // die($allDuplicatedMeters);
+
         // $allUsers = AllEnergyMeter::where("installation_type_id", 2)->get();
         
 
@@ -94,9 +138,6 @@ class AllEnergyController extends Controller
         //     $energyUser->ground_connected = "Yes";
         //     $energyUser->save();
         // }
-
-        
-        
 
         if (Auth::guard('user')->user() != null) {
 
@@ -265,16 +306,16 @@ class AllEnergyController extends Controller
         $communityVendors = DB::table('community_vendors')
             ->where('community_id', $community_id->id)
             ->where('community_vendors.is_archived', 0)
-            ->join('vendor_usernames', 'community_vendors.vendor_username_id', 
-                '=', 'vendor_usernames.id')
-            ->select('vendor_usernames.name', 'community_vendors.id as id',
-                'vendor_usernames.id as vendor_username_id')
+            ->join('vendor_user_names', 'community_vendors.vendor_username_id', 
+                '=', 'vendor_user_names.id')
+            ->select('vendor_user_names.name', 'community_vendors.id as id',
+                'vendor_user_names.id as vendor_username_id')
             ->get();
         
         $energySystems = EnergySystem::where('is_archived', 0)->get();
         $household = Household::findOrFail($energyUser->household_id);
         $meterCases = MeterCase::where('is_archived', 0)->get();
-        $vendor = VendorUsername::where('id', $energyUser->vendor_username_id)->first();
+        $vendor = VendorUserName::where('id', $energyUser->vendor_username_id)->first();
         $donors = Donor::where('is_archived', 0)->get();
         $installationTypes = InstallationType::where('is_archived', 0)->get();
 
@@ -348,7 +389,7 @@ class AllEnergyController extends Controller
 
         return view('users.energy.not_active.donor_edit', compact('energyDonors'));
     }
-
+ 
     /**
      * Update an existing resource in storage.
      *

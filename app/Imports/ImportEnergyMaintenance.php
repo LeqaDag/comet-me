@@ -5,6 +5,9 @@ namespace App\Imports;
 use App\Models\WaterQualityResult;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+
+use App\Models\AllEnergyMeter;
+use App\Models\AllEnergyVendingMeter;
 use App\Models\Community;
 use App\Models\EnergyUser;
 use App\Models\Household;
@@ -17,6 +20,7 @@ use App\Models\MaintenanceActionType;
 use App\Models\MaintenanceElectricityAction;
 use App\Models\MaintenanceStatus;
 use App\Models\MaintenanceType;
+use App\Models\MeterCase;
 use Carbon\Carbon;
 use Excel;
 
@@ -29,40 +33,46 @@ class ImportEnergyMaintenance implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
-       // dd(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['date']));
-        $reg_date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['date']);
+        // Get all meter numbers from vending file
+        // $meterVending = new AllEnergyVendingMeter();
+        // $meterVending->meter_number = $row["meter_number"]; 
+        // $meterVending->installation_date = $row["date"];
+        // $meterVending->last_purchase_date = $row["last_purchase_date"];
+        // $meterVending->meter_case_id = $row["meter_case_id"];
+        // $meterVending->notes = $row["notes"];
+        // $meterVending->save();
+        // end vending
 
-        //dd(date_timestamp_get($reg_date));
 
-        //$community = Community::where("english_name", $row['community'])->pluck("id");
-       
-        $household = Household::where("english_name", $row["household"])->first();
-        $public = PublicStructure::where("english_name", $row['public'])->first();
 
-        $refrigeratorHolder = new RefrigeratorHolder();
-        $refrigeratorHolder->refrigerator_type_id = $row['refrigerator_type_id'];
-        $refrigeratorHolder->payment = $row['payment'];
-        $refrigeratorHolder->receive_number = $row['receive_number'];
-        $refrigeratorHolder->is_paid = $row['is_paid'];
-        $refrigeratorHolder->community_name = $row['community'];
+        // Heeere
+        // $household = Household::where("english_name", $row["household"])->first();
+        // $public = PublicStructure::where("english_name", $row['public'])->first();
 
-        if($household) {
+        // $refrigeratorHolder = new RefrigeratorHolder();
+        // $refrigeratorHolder->refrigerator_type_id = $row['refrigerator_type_id'];
+        // $refrigeratorHolder->payment = $row['payment'];
+        // $refrigeratorHolder->receive_number = $row['receive_number'];
+        // $refrigeratorHolder->is_paid = $row['is_paid'];
+        // $refrigeratorHolder->community_name = $row['community'];
 
-            $refrigeratorHolder->household_id = $household->id;
-        } 
-        else if($public) {
+        // if($household) {
 
-            if($public) $refrigeratorHolder->public_structure_id = $public->id;
-        } 
+        //     $refrigeratorHolder->household_id = $household->id;
+        // } 
+        // else if($public) {
+
+        //     if($public) $refrigeratorHolder->public_structure_id = $public->id;
+        // } 
         
-        if(date_timestamp_get($reg_date)) {
-            $refrigeratorHolder->date = date_timestamp_get($reg_date) ? $reg_date->format('Y-m-d') : null;
-            $year = explode('-', date_timestamp_get($reg_date) ? $reg_date->format('Y-m-d') : null);
-            $refrigeratorHolder->year = $year[0];
-        }     
+        // if(date_timestamp_get($reg_date)) {
+        //     $refrigeratorHolder->date = date_timestamp_get($reg_date) ? $reg_date->format('Y-m-d') : null;
+        //     $year = explode('-', date_timestamp_get($reg_date) ? $reg_date->format('Y-m-d') : null);
+        //     $refrigeratorHolder->year = $year[0];
+        // }     
         
-        $refrigeratorHolder->save();
+        // $refrigeratorHolder->save();
 
-        return $refrigeratorHolder;
+        // return $refrigeratorHolder;
     }
 }

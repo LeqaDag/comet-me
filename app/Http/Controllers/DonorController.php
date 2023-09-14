@@ -10,7 +10,7 @@ use Auth;
 use DB;
 use Route;
 use App\Models\User;
-use App\Models\Community;
+use App\Models\Community; 
 use App\Models\CommunityDonor;
 use App\Models\Donor;
 use App\Models\InternetUser;
@@ -56,12 +56,13 @@ class DonorController extends Controller
                     ->addColumn('action', function($row) {
 
                         $empty = "";
+                        $updateButton = "<a type='button' class='updateDonor' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateDonorModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteDonor' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></s>";
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 ) 
                         {
                                 
-                            return $deleteButton;
+                            return $updateButton. " ". $deleteButton;
                         } else return $empty; 
                     })
                 
@@ -240,6 +241,30 @@ class DonorController extends Controller
         $donor->save();
 
         return redirect()->back();
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $communityDonor = CommunityDonor::findOrFail($id);
+        $communityId = $communityDonor->community_id;
+
+        $donors = Donor::where('is_archived', 0)->get();
+        $services = ServiceType::where('is_archived', 0)->get();
+
+        $serviceDonors = DB::table('community_donors')
+            ->where('community_donors.community_id', $communityId)
+            ->join('donors', 'community_donors.donor_id', '=', 'donors.id')
+            ->select('donors.donor_name', 'community_donors.id')
+            ->get(); 
+
+        return view('admin.donor.community.edit', compact('communityDonor', 'donors', 
+            'services', 'serviceDonors'));
     }
 
     /**

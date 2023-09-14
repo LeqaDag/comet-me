@@ -16,6 +16,7 @@ use App\Models\Household;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\RefrigeratorHolder;
+use App\Models\RefrigeratorHolderReceiveNumber;
 use App\Exports\RefrigeratorExport;
 use App\Imports\ImportRefrigerator;
 use Carbon\Carbon;
@@ -32,15 +33,41 @@ class RefrigeratorHolderController extends Controller
      */
     public function index(Request $request)
     {
-        // $holders = RefrigeratorHolder::where("community_id", NULL)->get();
+
+        // $numbers = RefrigeratorHolderReceiveNumber::get();
+        // foreach($numbers as $number) {
+
+        //     $holder = RefrigeratorHolder::where("community_name", $number->community_name)
+        //         ->where("household_name", $number->household_name)
+        //         ->where("year", $number->year)
+        //         ->get();
+
+        //     if($holder) {
+
+        //         $number->refrigerator_holder_id = $holder[0]->id;
+        //         $number->save();
+        //     }
+
+        //     $holder1 = RefrigeratorHolder::where("community_name", $number->community_name)
+        //         ->where("household_name", $number->household_name)
+        //         ->where("maintenance_year", $number->maintenance_year)
+        //         ->get();
+
+        //     if($holder1) {
+                
+        //         $number->refrigerator_holder_id = $holder1[0]->id;
+        //         $number->save();
+        //     }
+            
+        // }
+
+
+        // $holders = RefrigeratorHolder::where("community_id", 0)->get();
         
         // foreach($holders as $holder) {
         //     $community = Community::where('english_name', $holder->community_name)->first();
       
         //     $holder->community_id = $community->id;
- 
-        //     // $household = Household::where('english_name', $holder->household_name)->first();
-        //     // $holder->household_id = $household->id;
         //     $holder->save();
         // }
 
@@ -61,7 +88,7 @@ class RefrigeratorHolderController extends Controller
                         'households.english_name as household_name',
                         'public_structures.english_name as public_name',
                         'refrigerator_holders.payment', 'refrigerator_holders.is_paid', 
-                        'refrigerator_holders.receive_number', 'refrigerator_holders.status', 
+                        'refrigerator_holders.status', 
                         'refrigerator_holders.year')
                     ->latest(); 
     
@@ -91,8 +118,7 @@ class RefrigeratorHolderController extends Controller
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
-                                ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('refrigerator_holders.receive_number', 'LIKE', "%$search%");
+                                ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%");
                             });
                         }
                     })
@@ -129,14 +155,22 @@ class RefrigeratorHolderController extends Controller
             'community_id' => 'required',
         ]); 
 
-        $refrigeratorHolder = new RefrigeratorHolder();
+        $refrigeratorHolder = new RefrigeratorHolder(); 
         if($request->is_household == "no") {
 
             $refrigeratorHolder->public_structure_id = $request->public_structure_id;
         } else {
 
             $refrigeratorHolder->household_id = $request->household_id;
+
+            if($request->phone_number) {
+
+                $household = Household::findOrFail($request->household_id);
+                $household->phone_number = $request->phone_number;
+                $household->save();
+            }
         }
+
         $refrigeratorHolder->refrigerator_type_id = $request->refrigerator_type_id;
         $refrigeratorHolder->community_id = $request->community_id;
         $refrigeratorHolder->number_of_fridge = $request->number_of_fridge;
@@ -144,11 +178,34 @@ class RefrigeratorHolderController extends Controller
         $refrigeratorHolder->year = $request->year;
         $refrigeratorHolder->is_paid = $request->is_paid;
         $refrigeratorHolder->payment = $request->payment;
-        $refrigeratorHolder->receive_number = $request->receive_number;
         $refrigeratorHolder->notes = $request->notes;
         $refrigeratorHolder->save();
+        $id = $refrigeratorHolder->id;
 
+        if($request->receive_number) {
+
+            $newRefrigeratorHolderNumber = new RefrigeratorHolderReceiveNumber();
+            $newRefrigeratorHolderNumber->receive_number = $request->receive_number;
+            $newRefrigeratorHolderNumber->refrigerator_holder_id = $id;
+            $newRefrigeratorHolderNumber->year = $refrigeratorHolder->year;
+            $newRefrigeratorHolderNumber->maintenance_year = $refrigeratorHolder->maintenance_year;
+            $newRefrigeratorHolderNumber->save();
+        }
+        
         return redirect()->back()->with('message', 'New Refrigerator Holder Added Successfully!');
+    }
+
+    /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getPhoneNumber(Request $request)
+    {
+        $household = Household::where('id', $request->household_id)->get();
+
+        return response()->json(['household' => $household]);
     }
 
     /**
@@ -160,8 +217,10 @@ class RefrigeratorHolderController extends Controller
     public function edit($id) 
     {
         $refrigeratorHolder = RefrigeratorHolder::findOrFail($id);
+        $refrigeratorHolderNumber = RefrigeratorHolderReceiveNumber::where("refrigerator_holder_id", 
+            $id)->get();
 
-        return view('users.refrigerator.edit', compact('refrigeratorHolder'));
+        return view('users.refrigerator.edit', compact('refrigeratorHolder', 'refrigeratorHolderNumber'));
     }
 
     /**
@@ -173,6 +232,8 @@ class RefrigeratorHolderController extends Controller
     public function update(Request $request, $id)
     {
         $refrigeratorHolder = RefrigeratorHolder::findOrFail($id);
+        $refrigeratorHolderNumber = RefrigeratorHolderReceiveNumber::where("refrigerator_holder_id", 
+            $id)->get();
 
         $refrigeratorHolder->refrigerator_type_id = $request->refrigerator_type_id;
         $refrigeratorHolder->number_of_fridge = $request->number_of_fridge;
@@ -180,7 +241,34 @@ class RefrigeratorHolderController extends Controller
         $refrigeratorHolder->year = $request->year;
         $refrigeratorHolder->is_paid = $request->is_paid;
         $refrigeratorHolder->payment = $request->payment;
-        $refrigeratorHolder->receive_number = $request->receive_number;
+
+        if($request->receive_number) {
+
+            if(count($refrigeratorHolderNumber) > 0) {
+
+                $refrigeratorHolderNumber[0]->receive_number = $request->receive_number;
+                $refrigeratorHolderNumber[0]->save();
+            } else {
+
+                $newRefrigeratorHolderNumber = new RefrigeratorHolderReceiveNumber();
+                $newRefrigeratorHolderNumber->receive_number = $request->receive_number;
+                $newRefrigeratorHolderNumber->refrigerator_holder_id = $id;
+                $newRefrigeratorHolderNumber->year = $refrigeratorHolder->year;
+                $newRefrigeratorHolderNumber->maintenance_year = $refrigeratorHolder->maintenance_year;
+                $newRefrigeratorHolderNumber->save();
+            } 
+        }
+
+        if($refrigeratorHolder->household_id) {
+
+            if($request->phone_number) {
+
+                $household = Household::findOrFail($refrigeratorHolder->household_id);
+                $household->phone_number = $request->phone_number;
+                $household->save();
+            }
+        }
+
         $refrigeratorHolder->notes = $request->notes;
         $refrigeratorHolder->save();
 
@@ -196,6 +284,8 @@ class RefrigeratorHolderController extends Controller
     public function show($id)
     {
         $refrigeratorHolder = RefrigeratorHolder::findOrFail($id);
+        $refrigeratorHolderNumber = RefrigeratorHolderReceiveNumber::where("refrigerator_holder_id", 
+            $id)->get();
         $community = Community::where('id', $refrigeratorHolder->community_id)->first();
         $household = Household::where('id', $refrigeratorHolder->household_id)->first();
         $public = PublicStructure::where('id', $refrigeratorHolder->public_structure_id)->first();
@@ -204,6 +294,7 @@ class RefrigeratorHolderController extends Controller
         $response['community'] = $community;
         $response['household'] = $household;
         $response['public'] = $public;
+        $response['refrigeratorHolderNumber'] = $refrigeratorHolderNumber;
 
         return response()->json($response);
     }

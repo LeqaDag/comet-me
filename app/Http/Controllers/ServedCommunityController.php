@@ -52,6 +52,7 @@ class ServedCommunityController extends Controller
                     ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
                         'communities.id as id', 'communities.created_at as created_at', 
                         'communities.updated_at as updated_at',
+                        'communities.number_of_household as number_of_household',
                         'communities.number_of_people as number_of_people',
                         'regions.english_name as name',
                         'regions.arabic_name as aname',

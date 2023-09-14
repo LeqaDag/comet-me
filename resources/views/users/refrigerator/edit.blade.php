@@ -67,6 +67,15 @@ label {
                 </div>
 
                 <div class="row">
+                    @if($refrigeratorHolder->household_id)
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Phone Number</label>
+                                <input type="number" name="phone_number" class="form-control"
+                                    value="{{$refrigeratorHolder->Household->phone_number}}">
+                            </fieldset>
+                        </div>
+                    @endif
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Refrigerator Type</label>
@@ -142,8 +151,13 @@ label {
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Receipt Number</label>
-                            <input type="text" name="receive_number" class="form-control"
-                                value="{{$refrigeratorHolder->receive_number}}">
+                            @if(count($refrigeratorHolderNumber) > 0)
+                                <input type="text" name="receive_number" class="form-control"
+                                value="{{$refrigeratorHolderNumber[0]->receive_number}}">
+                            @else
+                                <input type="text" name="receive_number" class="form-control"
+                                value="">
+                            @endif
                         </fieldset>
                     </div>
                     

@@ -244,7 +244,7 @@ class WaterQualitySummaryExport implements FromCollection, WithHeadings, WithSty
         $sheet->setCellValue('F4', $this->fciMax);
         $sheet->setCellValue('F5', $this->fciMin);
         $sheet->setCellValue('H4', $this->ecMax);
-        $sheet->setCellValue('H5', $this->ecMin);
+        $sheet->setCellValue('H5', $this->ecMin); 
 
         $sheet->setAutoFilter('B6:H6');
         $sheet->getStyle('B6:G6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);

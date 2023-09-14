@@ -23,7 +23,7 @@
               <h2 class="mb-1">{{$regionNumbers}}</h2>
               <span class="text-muted">Regions</span>
               <div class="primary">
-                <a href="{{'sub-region'}}" type="button">
+                <a href="{{'sub-region'}}" target="_blank" type="button">
                   <i class="bx bx-map me-1 bx-lg text-warning"></i>
                 </a>
               </div>
@@ -36,21 +36,8 @@
               <h2 class="mb-1">{{$communityNumbers}}</h2>
               <span class="text-muted">Communitites</span>
               <div class="">
-                <a href="{{'community'}}" type="button">
+                <a href="{{'community'}}" target="_blank" type="button">
                   <i class="bx bx-home me-1 bx-lg text-success"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$numberOfPeople->number_of_people}}</h2>
-              <span class="text-muted">People</span>
-              <div class="primary">
-                <a href="{{'sub-region'}}" type="button">
-                  <i class="bx bx-group me-1 bx-lg text-dark"></i>
                 </a>
               </div>
             </div>
@@ -62,8 +49,21 @@
               <h2 class="mb-1">{{$householdNumbers}}</h2>
               <span class="text-muted">Households</span>
               <div class="primary">
-                <a href="{{'household'}}" type="button">
+                <a href="{{'household'}}" target="_blank" type="button">
                   <i class="bx bx-user me-1 bx-lg bx-primary"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$numberOfPeople->number_of_people}}</h2>
+              <span class="text-muted">People</span>
+              <div class="primary">
+                <a href="#" type="button">
+                  <i class="bx bx-group me-1 bx-lg text-dark"></i>
                 </a>
               </div>
             </div>
@@ -80,7 +80,7 @@
               <h2 class="mb-1">{{$numberOfMale->number_of_male}}</h2>
               <span class="text-muted">Male</span>
               <div class="">
-                <a href="{{'community'}}" type="button">
+                <a href="#" type="button">
                   <i class="bx bx-male me-1 bx-lg text-secondary"></i>
                 </a>
               </div>
@@ -93,7 +93,7 @@
               <h2 class="mb-1">{{$numberOfFemale->number_of_female}}</h2>
               <span class="text-muted">Female</span>
               <div class="primary">
-                <a href="{{'household'}}" type="button">
+                <a href="#" type="button">
                   <i class="bx bx-female me-1 bx-lg text-light"></i>
                 </a>
               </div>
@@ -106,7 +106,7 @@
               <h2 class="mb-1">{{$numberOfAdults->number_of_adults}}</h2>
               <span class="text-muted">Adults</span>
               <div class="primary">
-                <a href="{{'sub-region'}}" type="button">
+                <a href="#" type="button">
                   <i class="bx bx-male bx-lg text-danger"></i>
                   <i class="bx bx-female me-1 bx-lg text-danger"></i>
                 </a>
@@ -120,7 +120,7 @@
               <h2 class="mb-1">{{$numberOfChildren->number_of_children}}</h2>
               <span class="text-muted">Children</span>
               <div class="">
-                <a href="{{'household'}}" type="button">
+                <a href="#" type="button">
                   <i class="bx bx-face me-1 bx-lg text-info"></i>
                 </a>
               </div>
@@ -134,7 +134,7 @@
               <h2 class="mb-1">{{$totalMgSystem->count()}}</h2>
               <span class="text-muted">MG Systems</span>
               <div class="">
-                <a type="button">
+                <a href="{{'energy-system'}}" target="_blank" type="button">
                   <i class="bx bx-grid me-1 bx-lg text-success"></i>
                 </a>
               </div>
@@ -148,7 +148,7 @@
               <h2 class="mb-1">{{$totalFbsSystem->count()}}</h2>
               <span class="text-muted">FBS Systems</span>
               <div class="">
-                <a type="button">
+                <a href="{{'energy-system'}}" target="_blank" type="button"> 
                   <i class="bx bx-sun me-1 bx-lg text-warning"></i>
                 </a>
               </div>
@@ -174,7 +174,10 @@
               <li class="d-flex mb-4 pb-2">
                 <div class="avatar avatar-sm flex-shrink-0 me-3">
                   <span class="avatar-initial rounded-circle bg-label-primary">
-                    <i class='bx bx-water'></i></span>
+                    <a href="{{'all-water'}}" target="_blank" type="button"> 
+                      <i class='bx bx-water'></i>
+                    </a>
+                  </span>
                 </div>
                 <div class="d-flex flex-column w-100">
                   <div class="d-flex justify-content-between mb-1">
@@ -264,7 +267,10 @@
               <li class="d-flex mb-4 pb-2">
                 <div class="avatar avatar-sm flex-shrink-0 me-3">
                   <span class="avatar-initial rounded-circle bg-label-success">
-                    <i class='bx bx-wifi'></i></span>
+                    <a href="{{'internet-user'}}" target="_blank" type="button"> 
+                      <i class='bx bx-wifi'></i>
+                    </a>
+                  </span>
                 </div>
                 <div class="d-flex flex-column w-100">
                   <div class="d-flex justify-content-between mb-1">

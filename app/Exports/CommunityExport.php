@@ -7,11 +7,14 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithEvents; 
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Events\AfterSheet;
 use App\Models\CommunityDonor;
 use DB;
 
-class CommunityExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
+class CommunityExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles,
+    WithEvents
 {
     protected $request;
 
@@ -113,6 +116,21 @@ class CommunityExport implements FromCollection, WithHeadings, WithTitle, Should
     }
 
     /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+              
+                $event->sheet->getDelegate()->freezePane('A2');  
+            },
+        ];
+    }
+
+    /**
      * Styling
      *
      * @return response()
@@ -120,8 +138,8 @@ class CommunityExport implements FromCollection, WithHeadings, WithTitle, Should
     public function styles(Worksheet $sheet)
     {
         $sheet->setAutoFilter('A1:R1');
-
-        return [
+        
+        return [ 
             // Style the first row as bold text.
             1    => ['font' => ['bold' => true, 'size' => 12]],
         ];

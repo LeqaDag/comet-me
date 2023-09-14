@@ -357,6 +357,20 @@ class EnergyUserController extends Controller
         $vendor = VendorUserName::where('id', $energyMeter->vendor_username_id)->first();
         $installationType = InstallationType::where('id', $energyMeter->installation_type_id)->first();
 
+        // FBS Incident
+        $fbsIncident = DB::table('fbs_user_incidents')
+            ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
+            ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
+            ->join('incident_status_small_infrastructures', 
+                'fbs_user_incidents.incident_status_small_infrastructure_id', 
+                '=', 'incident_status_small_infrastructures.id')
+            ->where('fbs_user_incidents.is_archived', 0)
+            ->where('fbs_user_incidents.energy_user_id', $id)
+            ->select('fbs_user_incidents.date as incident_date', 
+                'incidents.english_name as incident', 
+                'incident_status_small_infrastructures.name as fbs_status')
+            ->get(); 
+
         $response['energy'] = $energyMeter;
         $response['energyMeterDonors'] = $energyMeterDonors;
         $response['community'] = $community;
@@ -368,6 +382,7 @@ class EnergyUserController extends Controller
         $response['public'] = $public;
         $response['vendor'] = $vendor;
         $response['installationType'] = $installationType;
+        $response['fbsIncident'] = $fbsIncident;
 
         return response()->json($response);
     }

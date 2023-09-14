@@ -37,16 +37,16 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Refrigerator Type: 
-                            <span class="spanDetails" id="refrigeratorType">
+                            Phone Number: 
+                            <span class="spanDetails" id="phoneNumberUser">
                                 
                             </span>
                         </h6>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
-                            Status: 
-                            <span class="spanDetails" id="status">
+                            Refrigerator Type: 
+                            <span class="spanDetails" id="refrigeratorType">
                                 
                             </span>
                         </h6>
@@ -97,6 +97,16 @@
                             </span>
                         </h6>
                     </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Status: 
+                            <span class="spanDetails" id="status">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div> 
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Notes: 

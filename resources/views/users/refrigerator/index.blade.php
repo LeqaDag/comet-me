@@ -238,12 +238,15 @@
                     $('#refrigeratorHolderModalTitle').html(" ");
                     $('#communityUser').html(" ");
                     $('#communityUser').html(response['community'].english_name);
-
+                    $('#phoneNumberUser').html(" ");
+                    
                     if(response['household'] != null) {
 
                         $('#refrigeratorHolderModalTitle').html(response['household'].english_name);
                         $('#englishNameUser').html(" ");
                         $('#englishNameUser').html(response['household'].english_name);
+                        $('#phoneNumberUser').html(" ");
+                        $('#phoneNumberUser').html(response['household'].phone_number);
 
                     } else if(response['public'] != null) {
 
@@ -264,10 +267,13 @@
                     $('#refrigeratorIsPaid').html(response['refrigerator'].is_paid);
                     $('#refrigeratorPayment').html(" ");
                     $('#refrigeratorPayment').html(response['refrigerator'].payment);
-                    $('#refrigeratorReceiveNumber').html(" ");
-                    $('#refrigeratorReceiveNumber').html(response['refrigerator'].receive_number);
                     $('#refrigeratorNote').html(" ");
                     $('#refrigeratorNote').html(response['refrigerator'].notes);
+                    $('#refrigeratorReceiveNumber').html(" ");
+                    if(response['refrigeratorHolderNumber']) {
+
+                        $('#refrigeratorReceiveNumber').html(response['refrigeratorHolderNumber'][0].receive_number);
+                    }
                 }
             });
         });

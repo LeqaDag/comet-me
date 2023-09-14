@@ -158,7 +158,7 @@
                 var row = chart.getSelection()[0].row;
                 var selected_data=data.getValue(row,0);
                 
-                $.ajax({
+                $.ajax({ 
                     url: "{{ route('incidentDetails') }}",
                     type: 'get',
                     data: {

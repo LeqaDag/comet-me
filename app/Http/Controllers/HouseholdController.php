@@ -118,14 +118,17 @@ class HouseholdController extends Controller
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
                     ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
                     ->leftJoin('refrigerator_holders', 'households.id', '=', 'refrigerator_holders.household_id')
+                    ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
+                        '=', 'refrigerator_holder_receive_numbers.refrigerator_holder_id')
                     ->where('internet_holder_young', 0)
                     ->where('households.is_archived', 0)
                     ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
                         'households.id as id', 'households.created_at as created_at', 
                         'households.updated_at as updated_at',
                         'communities.english_name as name',
-                        'communities.arabic_name as aname', 
-                        'refrigerator_holders.receive_number')
+                        'communities.arabic_name as aname',
+                        'refrigerator_holder_receive_numbers.receive_number')
+                    ->groupBy('households.id')
                     ->latest(); 
  
                 return Datatables::of($data)
@@ -275,6 +278,7 @@ class HouseholdController extends Controller
         $household->size_of_herd = $request->size_of_herd;
         $household->electricity_source = $request->electricity_source;
         $household->electricity_source_shared = $request->electricity_source_shared;
+        $household->number_of_people = $request->number_of_male + $request->number_of_female;
         $household->save();
         $id = $household->id;
 
@@ -289,6 +293,37 @@ class HouseholdController extends Controller
         $cistern->household_id = $id;
         $cistern->save();
         
+        $data = DB::table('households')
+            ->where('households.is_archived', 0)
+            ->join('communities', 'communities.id', '=', 'households.community_id')
+            ->select(
+                'households.community_id AS id',
+                DB::raw("count(households.community_id) AS total_household"))
+            ->groupBy('households.community_id')
+            ->get();
+       
+        
+        foreach($data as $d) {
+            $community = Community::findOrFail($d->id);
+            $community->number_of_household = $d->total_household;
+            $community->save();
+        }
+
+        $peopleHouseholds = DB::table('households')
+            ->where('households.is_archived', 0)
+            ->join('communities', 'communities.id', '=', 'households.community_id')
+            ->select(
+                'households.community_id AS id',
+                DB::raw("sum(households.number_of_male + households.number_of_female) AS total_people"))
+            ->groupBy('households.community_id')
+            ->get();
+
+        foreach($peopleHouseholds as $peopleHousehold) {
+            $community = Community::findOrFail($peopleHousehold->id);
+            $community->number_of_people = $peopleHousehold->total_people;
+            $community->save();
+        }
+
         return redirect('/household')
             ->with('message', 'New Household Added Successfully!');
     }

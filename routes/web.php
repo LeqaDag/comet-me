@@ -92,7 +92,8 @@ Route::resource('donor', App\Http\Controllers\DonorController::class);
 Route::get('donor/destory/{id}', App\Http\Controllers\DonorController::class.'@destroy');
 Route::resource('community-donor', App\Http\Controllers\CommunityDonorController::class);
 Route::get('/delete-community-donor', [App\Http\Controllers\CommunityDonorController::class, 'deleteCommunityDonor'])->name('deleteCommunityDonor');
- 
+Route::get('community-donor/{id}/editpage', [App\Http\Controllers\CommunityDonorController::class, 'editPage']);
+
 Route::get('region/get_region/{region_id}', [App\Http\Controllers\RegionController::class, 'getByRegion']);
 Route::get('region/get_sub_region/{region_id}/{sub_region_id}', [App\Http\Controllers\RegionController::class, 'getBySubRegion']);
 Route::get('region/edit_region/{id}', [App\Http\Controllers\RegionController::class, 'updateRegion']);  
@@ -257,6 +258,7 @@ Route::resource('refrigerator-user', App\Http\Controllers\RefrigeratorHolderCont
 Route::get('/delete-refrigerator', [App\Http\Controllers\RefrigeratorHolderController::class, 'deleteRefrigeratorHolder'])->name('deleteRefrigeratorHolder');
 Route::post('refrigerator-export', [App\Http\Controllers\RefrigeratorHolderController::class, 'export'])->name('refrigerator.export');
 Route::post('refrigerator-import', [App\Http\Controllers\RefrigeratorHolderController::class, 'import'])->name('refrigerator.import');
+Route::get('refrigerator-user/household/{id}', [App\Http\Controllers\RefrigeratorHolderController::class, 'getPhoneNumber']);
 
 Route::resource('refrigerator-maintenance', App\Http\Controllers\RefrigeratorMaintenanceCallController::class);
 Route::get('/delete-refrigerator-maintenance', [App\Http\Controllers\RefrigeratorMaintenanceCallController::class, 'deleteRefrigerator'])->name('deleteRefrigerator');

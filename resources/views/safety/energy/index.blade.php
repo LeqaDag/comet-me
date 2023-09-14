@@ -6,6 +6,21 @@
 
 @section('content')
 
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Ground Connected</h5>
+                </div>
+                <div class="card-body">
+                    <div id="energySafetyChart"></div>
+                </div>
+            </div>  
+        </div>
+    </div> 
+</div> 
+
 
 <div class="container mb-4">
     <div class="row">
@@ -124,6 +139,25 @@
 
 <script type="text/javascript">
     $(function () {
+
+        var analytics = <?php echo $energy_users; ?>;
+
+        google.charts.load('current', {'packages':['bar']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable(analytics);
+
+            var options = {
+                title: "",
+            };
+
+            var chart = new google.charts.Bar(document.getElementById('energySafetyChart'));
+            chart.draw(
+                data, 
+                options,
+            );
+        }
 
         var table = $('.data-table-energy-safety').DataTable({
             processing: true,

@@ -105,8 +105,40 @@ class EnergySafetyController extends Controller
             $meterCases = MeterCase::where('is_archived', 0)->get();
             $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
 
+            // 987 - 11 "FBS with no ground connected"
+            $data = DB::table('all_energy_meters')
+                ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->select(
+                    DB::raw('all_energy_meters.ground_connected as name'),
+                    DB::raw('count(*) as number'))
+                ->groupBy('all_energy_meters.ground_connected')
+                ->get();
+              
+            // $data1= DB::table('all_energy_meters')
+            //     ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+            //     ->where('all_energy_meters.is_archived', 0)
+            //     ->where('all_energy_meters.energy_system_type_id', 2)
+            //     ->select(
+            //         DB::raw('all_energy_meters.ground_connected as name'),
+            //         DB::raw('count(*) as number'))
+            //     ->groupBy('all_energy_meters.ground_connected')
+            //     ->get();
+
+            // die($data1);
+
+            $array[] = ['Ground Connected', 'Total'];
+            
+            foreach($data as $key => $value) {
+    
+                $array[++$key] = [$value->name, $value->number];
+            }
+
             return view('safety.energy.index', compact('communities', 'energySystemTypes', 
-                'meterCases'));
+                'meterCases'))
+                ->with('energy_users', json_encode($array)
+            );
         } else {
 
             return view('errors.not-found');
@@ -311,7 +343,7 @@ class EnergySafetyController extends Controller
         $energySafety->save();
 
         
-        if($request->ph_loop < 10 && $request->n_loop < 10) {
+        if($request->ph_loop > 10) {
 
             $maintenance = new ElectricityMaintenanceCall();
             $exist = [];

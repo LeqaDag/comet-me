@@ -9,7 +9,7 @@
 @include('layouts.all')
 
 @section('content')
-
+ 
 <div class="container mb-4">
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12">
@@ -125,6 +125,7 @@
     </div>
 </div>
 
+
 <script type="text/javascript">
     $(function () {
 
@@ -204,6 +205,25 @@
             
         });
 
+        var id = 0;
+
+        // Update donor-community
+        $('#donorTable').on('click', '.updateDonor',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            
+            // AJAX request
+            $.ajax({
+                url: 'community-donor/' + id + '/editpage',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    window.open(url, "_self"); 
+                }
+            });
+        });
+
         // delete energy user
         $('#donorTable').on('click', '.deleteDonor',function() {
             var id = $(this).data('id');
@@ -245,5 +265,3 @@
 </script>
 
 @endsection
-
-

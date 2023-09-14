@@ -36,6 +36,52 @@
                             </span>
                         </h6>
                     </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            # of People: 
+                            <span class="spanDetails" id="holderPeople">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            # of Male: 
+                            <span class="spanDetails" id="holderMale">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            # of Female: 
+                            <span class="spanDetails" id="holderFemale">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            # of Adults: 
+                            <span class="spanDetails" id="holderAdult">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            # of Children: 
+                            <span class="spanDetails" id="holderChildren">
+                               
+                            </span>
+                        </h6>
+                    </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Main Holder: 
@@ -45,6 +91,47 @@
                         </h6>
                     </div>
                 </div>
+                <hr>
+                <div id="energyDetails">
+                    <div class="row" >
+                        <h5>Energy Service Details</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                Energy Service: 
+                                <span class="spanDetails" id="dataEnergyService">
+                                    
+                                </span>
+                            </h6>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                Energy Date: 
+                                <span class="spanDetails" id="dataEnergyDate">
+                                    
+                                </span>
+                            </h6>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                Energy Meter: 
+                                <span class="spanDetails" id="dataEnergyMeter">
+                                    
+                                </span>
+                            </h6>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                Meter Number: 
+                                <span class="spanDetails" id="dataMeterNumber">
+                                    
+                                </span>
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+
                 <hr>
                 <div id="h2oDetails" style="visiblity:hidden; display:none">
                     <div class="row" >
@@ -189,6 +276,25 @@
                             <div class="spanDetails" id="donorsDetailsWaterHolder">
                               
                             </div>
+                        </h6>
+                    </div>
+                </div> 
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Incident: 
+                            <span class="spanDetails" id="incidentUser">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Incident Date: 
+                            <span class="spanDetails" id="incidentDate">
+                              
+                            </span>
                         </h6>
                     </div>
                 </div> 

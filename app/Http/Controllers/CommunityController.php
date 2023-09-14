@@ -10,6 +10,8 @@ use Auth;
 use DB; 
 use Route;
 use App\Models\User;
+use App\Models\AllEnergyMeter;
+use App\Models\AllEnergyMeterDonor;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\CommunityStatus;
@@ -275,8 +277,15 @@ class CommunityController extends Controller
         //     $subCommunity->household_id = $household->id;
         //     $subCommunity->save();
         // }
- 
-        
+  
+        $peopleHouseholds = Household::where('is_archived', 0)->get();
+        foreach($peopleHouseholds as $peopleHousehold) {
+
+            $peopleHousehold->number_of_people = $peopleHousehold->number_of_male +
+                $peopleHousehold->number_of_female;
+            $peopleHousehold->save();
+        }
+
         $data = DB::table('households')
             ->where('households.is_archived', 0)
             ->join('communities', 'communities.id', '=', 'households.community_id')
@@ -391,7 +400,7 @@ class CommunityController extends Controller
             for($i=0; $i < count($request->recommended_energy_system_id); $i++) {
 
                 $recommendedEnergy = new RecommendedCommunityEnergySystem();
-                $recommendedEnergy->energy_type_id = $request->recommended_energy_system_id[$i];
+                $recommendedEnergy->energy_system_type_id = $request->recommended_energy_system_id[$i];
                 $recommendedEnergy->community_id = $id;
                 $recommendedEnergy->save();
             }
@@ -685,6 +694,34 @@ class CommunityController extends Controller
 
         $secondName = SecondNameCommunity::where('community_id', $id)->first();
 
+        $totalMeters = AllEnergyMeter::where("community_id", $id)->count();
+        $energyDonors = DB::table('community_donors')
+            ->join('donors', 'community_donors.donor_id', 'donors.id')
+            ->join('service_types', 'community_donors.service_id', 'service_types.id')
+            ->where('community_donors.is_archived', 0)
+            ->where('community_donors.service_id', 1)
+            ->where('community_donors.community_id', $id)
+            ->select('donors.donor_name')
+            ->get();
+
+        $waterDonors = DB::table('community_donors')
+            ->join('donors', 'community_donors.donor_id', 'donors.id')
+            ->join('service_types', 'community_donors.service_id', 'service_types.id')
+            ->where('community_donors.is_archived', 0)
+            ->where('community_donors.service_id', 2)
+            ->where('community_donors.community_id', $id)
+            ->select('donors.donor_name')
+            ->get();
+
+        $internetDonors = DB::table('community_donors')
+            ->join('donors', 'community_donors.donor_id', 'donors.id')
+            ->join('service_types', 'community_donors.service_id', 'service_types.id')
+            ->where('community_donors.is_archived', 0)
+            ->where('community_donors.service_id', 3)
+            ->where('community_donors.community_id', $id)
+            ->select('donors.donor_name')
+            ->get();
+
         $response['community'] = $community;
         $response['region'] = $region;
         $response['sub-region'] = $subRegion;
@@ -696,7 +733,11 @@ class CommunityController extends Controller
         $response['communityWaterSources'] = $communityWaterSources;
         $response['communityRecommendedEnergy'] = $communityRecommendedEnergy;
         $response['communityRepresentative'] = $communityRepresentative;
-        $response['secondName'] = $secondName;
+        $response['secondName'] = $secondName; 
+        $response['totalMeters'] = $totalMeters;
+        $response['energyDonors'] = $energyDonors; 
+        $response['waterDonors'] = $waterDonors; 
+        $response['internetDonors'] = $internetDonors; 
 
         return response()->json($response);
     }

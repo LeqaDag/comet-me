@@ -239,7 +239,7 @@
         });
 
         var id = 0;
-
+ 
         // Update record
         $('#regionsTable').on('click','.updateRegion',function() {
             id = $(this).data('id');

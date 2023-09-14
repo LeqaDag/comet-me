@@ -112,6 +112,61 @@ class CommunityDonorController extends Controller
     }
 
     /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $communityDonor = CommunityDonor::findOrFail($id);
+
+        return response()->json($communityDonor);
+    } 
+
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $community = Community::findOrFail($id);
+
+        $community->save();
+
+        return redirect('/donor')->with('message', 'Donors Updated Successfully!');
+    }
+
+    /**
+     * Get a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getDonorData(int $id)
+    {
+        $donor = Donor::find($id);
+        $response = array();
+
+        if(!empty($donor)) {
+
+            $response['english_name'] = $donor->english_name;
+            $response['arabic_name'] = $donor->arabic_name;
+            $response['id'] = $id;
+
+            $response['success'] = 1;
+        } else {
+
+            $response['success'] = 0;
+        }
+
+        return response()->json($response);
+    }
+
+    /**
      * Delete a resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request

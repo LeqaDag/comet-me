@@ -8,10 +8,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents; 
+use Maatwebsite\Excel\Events\AfterSheet;
 use DB;
 
 class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
-    WithStyles
+    WithStyles, WithEvents
 {
     protected $request; 
 
@@ -62,6 +64,10 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
 
        // die($query->get());
 
+        if($this->request->community_id) {
+
+            $query->where("all_energy_meters.community_id", $this->request->community_id);
+        }
         if($this->request->type) {
 
             $query->where("all_energy_meters.installation_type_id", $this->request->type);
@@ -103,13 +109,28 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
     }
 
     /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+              
+                $event->sheet->getDelegate()->freezePane('A2');  
+            },
+        ];
+    }
+
+    /**
      * Styling
      *
      * @return response()
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:R1');
+        $sheet->setAutoFilter('A1:T1');
 
         return [
             // Style the first row as bold text.

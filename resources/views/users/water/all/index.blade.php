@@ -197,18 +197,18 @@
                                         </option>
                                         @endforeach
                                     </select> 
-                                </fieldset>
+                                </fieldset> 
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <input type="date" name="h2o_request_date" 
-                                    class="form-control" title="H2O Request Data from"> 
+                                    <input type="date" name="h2o_installation_date_from" 
+                                    class="form-control" title="H2O Installation Data from"> 
                                 </fieldset>
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
                                     <input type="date" name="h2o_installation_date" 
-                                    class="form-control" title="H2O Installation Data from"> 
+                                    class="form-control" title="H2O Installation Data to"> 
                                 </fieldset> 
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
@@ -224,7 +224,7 @@
         </div>
     </div> 
 </div> 
-
+ 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Water System Holders
@@ -426,6 +426,38 @@
                     $('#mainHolder').append(" ");
                     $('#mainHolder').html(response['allWaterHolder'].is_main);
 
+                    $('#dataEnergyService').append(" ");
+                    $('#dataEnergyService').html(response['household'].energy_system_status);
+
+                    $('#dataEnergyDate').append(" ");
+                    $('#dataEnergyMeter').append(" ");
+                    $('#dataMeterNumber').append(" ");
+                    if(response['energyUser'] != []) {
+                        $('#dataEnergyDate').html(response['energyUser'][0].installation_date);
+                        if(response['energyUser'][0].meter_number) {
+
+                            $('#dataEnergyMeter').html("Yes");
+                            $('#dataEnergyMeter').css('color', 'green');
+                        } else {
+
+                            $('#dataEnergyMeter').html("No");
+                            $('#dataEnergyMeter').css('color', 'red');
+                        }
+                        
+                        $('#dataMeterNumber').html(response['energyUser'][0].meter_number);
+                    }
+
+                    $('#holderPeople').append(" ");
+                    $('#holderPeople').html(response['household'].number_of_people);
+                    $('#holderMale').append(" ");
+                    $('#holderMale').html(response['household'].number_of_male);
+                    $('#holderFemale').append(" ");
+                    $('#holderFemale').html(response['household'].number_of_female);
+                    $('#holderAdult').append(" ");
+                    $('#holderAdult').html(response['household'].number_of_adults);
+                    $('#holderChildren').append(" ");
+                    $('#holderChildren').html(response['household'].number_of_children);
+
                     if(response['h2oUser'] == null) {
 
                         $("#h2oDetails").css("visibility", "hidden");
@@ -494,6 +526,13 @@
                             '<ul><li>'+ response['allWaterHolderDonors'][i].donor_name +'</li></ul>');
                                
                         }
+                    }
+
+                    $('#incidentUser').html(" ");
+                    $('#incidentDate').html(" ");
+                    if(response['waterIncident'] != []) {
+                        $('#incidentUser').html(response['waterIncident'][0].incident);
+                        $('#incidentDate').html(response['waterIncident'][0].incident_date);
                     }
                 }
             });

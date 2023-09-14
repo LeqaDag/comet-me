@@ -26,7 +26,7 @@ class InternetHolderController extends Controller
     {	
         $data = Http::get('http://185.190.140.86/api/users/');
 
-        $holders = json_decode(preg_replace('/\s+/', '', $data), true );
+        $holders = json_decode($data, true) ;
 
         foreach($holders as $holder) {
 
@@ -72,9 +72,9 @@ class InternetHolderController extends Controller
 
             // Heribet al-Nabi 2
             } else if($holder["user_group_id"] == 16) {
+  
+               // dd(json_encode($holder["holder_full_name"], JSON_UNESCAPED_UNICODE));
 
-                dd(preg_replace("/[^\p{L}[:space:]]/u",'',$holder["holder_full_name"]));
-                dd(str_replace(" ", "ضضض", $holder["holder_full_name"]));
                 $internetUser = new InternetUser();
                 $internetUser->internet_status_id = 1;
                 $internetUser->start_date = $holder["created_on"];
@@ -83,8 +83,14 @@ class InternetHolderController extends Controller
                 $household = Household::where("arabic_name", $holder["holder_full_name"])->first();
                 if($household) {
 
-                    $internetUser->household_id = $household->id;
-                    $internetUser->save();
+                    $existInternetHolder = InternetUser::where("household_id", $household->id)->first();
+                    if($existInternetHolder) {
+
+                    } else {
+                        
+                        $internetUser->household_id = $household->id;
+                        $internetUser->save();
+                    }
                 } else {
 
                     $newHousehold = new Household();

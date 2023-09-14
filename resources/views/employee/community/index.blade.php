@@ -325,7 +325,7 @@
                     <tr>
                         <th>English Name</th>
                         <th>Arabic Name</th>
-                        <th># of Families</th>
+                        <th># of Households</th>
                         <th># of People</th>
                         <th>Region</th>
                         <th>Sub Region</th>
@@ -394,7 +394,7 @@
         // View record details
         $('#communityTable').on('click','.detailsCommunityButton',function() {
             var id = $(this).data('id');
-        
+         
             // AJAX request
             $.ajax({
                 url: 'community/' + id,
@@ -429,12 +429,51 @@
                     $('#statusCommunity').html(response['status'].name);
                     $('#energyServiceCommunity').html(response['community'].energy_service);
                     $('#energyServiceYearCommunity').html(response['community'].energy_service_beginning_year);
+                    
                     $('#waterServiceCommunity').html(response['community'].water_service);
                     $('#waterServiceYearCommunity').html(response['community'].water_service_beginning_year);
                     $('#internetServiceCommunity').html(response['community'].internet_service);
                     $('#internetServiceYearCommunity').html(response['community'].internet_service_beginning_year);
                     $('#energySource').html(" ");
                     $('#energySource').html(response['community'].energy_source);
+                    $('#meterHoldersCommunity').html(" ");
+                    $('#meterHoldersCommunity').html(response['totalMeters']);
+
+                    $('#energyDonorsCommunity').html(" ");
+                    if(response['energyDonors'] != []) {
+                        for (var i = 0; i < response['energyDonors'].length; i++) {
+                            if(response['energyDonors'][i].donor_name == "0")  {
+                                response['energyDonors'][i].donor_name = "Not yet attributed";
+                            }
+                            $("#energyDonorsCommunity").append(
+                            '<ul><li>'+ response['energyDonors'][i].donor_name +'</li></ul>');
+                               
+                        }
+                    }
+
+                    $('#waterDonorsCommunity').html(" ");
+                    if(response['waterDonors'] != []) {
+                        for (var i = 0; i < response['waterDonors'].length; i++) {
+                            if(response['waterDonors'][i].donor_name == "0")  {
+                                response['waterDonors'][i].donor_name = "Not yet attributed";
+                            }
+                            $("#waterDonorsCommunity").append(
+                            '<ul><li>'+ response['waterDonors'][i].donor_name +'</li></ul>');
+                               
+                        }
+                    }
+
+                    $('#internetDonorsCommunity').html(" ");
+                    if(response['internetDonors'] != []) {
+                        for (var i = 0; i < response['internetDonors'].length; i++) {
+                            if(response['internetDonors'][i].donor_name == "0")  {
+                                response['internetDonors'][i].donor_name = "Not yet attributed";
+                            }
+                            $("#internetDonorsCommunity").append(
+                            '<ul><li>'+ response['internetDonors'][i].donor_name +'</li></ul>');
+                               
+                        }
+                    }
 
                     $("#secondNameDiv").css("visibility", "hidden");
                     $("#secondNameDiv").css('display', 'none');

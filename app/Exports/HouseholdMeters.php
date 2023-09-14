@@ -8,10 +8,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents; 
+use Maatwebsite\Excel\Events\AfterSheet;
 use DB;
 
 class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
-    WithStyles
+    WithStyles,WithEvents
 {
     protected $request;
 
@@ -51,6 +53,11 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
                 DB::raw('group_concat(donors.donor_name) as donors'),
             ])->groupBy('household_meters.id');
 
+
+        if($this->request->community_id) {
+
+            $query->where("all_energy_meters.community_id", $this->request->community_id);
+        }
         if($this->request->type) {
 
             $query->where("all_energy_meters.installation_type_id", $this->request->type);
@@ -81,6 +88,21 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
     public function title(): string
     {
         return 'Household Meters';
+    }
+
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+              
+                $event->sheet->getDelegate()->freezePane('A2');  
+            },
+        ];
     }
 
     /**

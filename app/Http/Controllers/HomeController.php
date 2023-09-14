@@ -322,6 +322,7 @@ class HomeController extends Controller
                 ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
                 ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
                 ->where('all_energy_meters.energy_system_type_id', 1)
+                ->orWhere('all_energy_meters.energy_system_type_id', 3)
                 ->select(
                     DB::raw('energy_systems.name as name'),
                     DB::raw('count(*) as number'))

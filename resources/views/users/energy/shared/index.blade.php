@@ -20,6 +20,20 @@
                         <div class="row">
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Community</label>
+                                    <select name="community_id"
+                                        class="selectpicker form-control" data-live-search="true">
+                                        <option disabled selected>Search Community</option>
+                                        @foreach($communities as $community)
+                                            <option value="{{$community->id}}">
+                                                {{$community->english_name}}
+                                            </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
                                     <select name="misc" id="selectedWaterSystemType" 
                                         class="form-control" required>

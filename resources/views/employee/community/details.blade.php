@@ -2,7 +2,7 @@
     .spanDetails {
         color: blue;
         font-size: 14px;
-    }
+    } 
 </style>
 <div id="communityDetails" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -109,7 +109,7 @@
                 </div>
                 <hr>
                 <div class="row">
-                    <h5>Service Details</h5>
+                    <h5>Energy Service Details</h5>
                 </div>
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
@@ -150,6 +150,29 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
+                            # of Meter Holders: 
+                            <span class="spanDetails" id="meterHoldersCommunity">
+                             
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Energy Donors: 
+                            <span class="spanDetails" id="energyDonorsCommunity">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                
+                <hr>
+                <div class="row">
+                    <h5>Water Service Details</h5>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
                             Water Service: 
                             <span class="spanDetails" id="waterServiceCommunity">
                              
@@ -174,6 +197,19 @@
                             </span>
                         </h6>
                     </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Water Donors: 
+                            <span class="spanDetails" id="waterDonorsCommunity">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                
+                <hr>
+                <div class="row">
+                    <h5>Internet Service Details</h5>
                 </div>
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
@@ -189,6 +225,14 @@
                             Internet Service Beginning Year: 
                             <span class="spanDetails" id="internetServiceYearCommunity">
                               
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Internet Donors: 
+                            <span class="spanDetails" id="internetDonorsCommunity">
+                                
                             </span>
                         </h6>
                     </div>

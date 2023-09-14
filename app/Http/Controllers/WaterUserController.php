@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
+use App\Models\AllEnergyMeter;
 use App\Models\AllWaterHolder;
 use App\Models\AllWaterHolderDonor;
 use App\Models\BsfStatus;
@@ -188,37 +189,66 @@ class WaterUserController extends Controller
         $h2oPublic = null;
         $public = null;
         $gridUser = null;
+        $energyUser = null;
 
         if($allWaterHolder->household_id && $allWaterHolder->is_main == "Yes") {
 
             $h2oUser = H2oUser::where('household_id', $allWaterHolder->household_id)->first();
-            $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
-            $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
+
+            if($h2oUser) {
+                $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
+                $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
+            }
+
             $gridUser = GridUser::where('household_id', $allWaterHolder->household_id)->first();
+
+            $energyUser = AllEnergyMeter::where("household_id", $allWaterHolder->household_id)->get();
         } 
 
         if($allWaterHolder->household_id && $allWaterHolder->is_main == "No") {
             
             $household = Household::where('id', $allWaterHolder->household_id)->first();
+            $energyUser = AllEnergyMeter::where("household_id", $allWaterHolder->household_id)->get();
         } 
 
         if($allWaterHolder->public_structure_id && $allWaterHolder->is_main == "Yes") {
 
             $h2oUser = H2oPublicStructure::where('public_structure_id', $allWaterHolder->public_structure_id)->first();
             $public = PublicStructure::where('id', $allWaterHolder->public_structure_id)->first();
-            $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
-            $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
+            
+            if($h2oUser) {
+
+                $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
+                $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
+            }
+
+            $energyUser = AllEnergyMeter::where("public_structure_id", $allWaterHolder->public_structure_id)->get();
         }
  
         if($allWaterHolder->public_structure_id && $allWaterHolder->is_main == "No") {
 
             $h2oPublic = null;
             $public = PublicStructure::where('id', $allWaterHolder->public_structure_id)->first();
+            $energyUser = AllEnergyMeter::where("public_structure_id", $allWaterHolder->public_structure_id)->get();
         }
 
         $community = Community::where('id', $allWaterHolder->community_id)->first();
         $household = Household::where('id', $allWaterHolder->household_id)->first();
         $networkUser = WaterNetworkUser::where('household_id', $allWaterHolder->household_id)->first();
+
+        $waterIncident = DB::table('h2o_system_incidents')
+            ->join('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
+                '=', 'all_water_holders.id')
+            ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
+            ->join('incident_statuses', 
+                'h2o_system_incidents.incident_status_id', 
+                '=', 'incident_statuses.id')
+            ->where('h2o_system_incidents.is_archived', 0)
+            ->where('h2o_system_incidents.all_water_holder_id', $id)
+            ->select('h2o_system_incidents.date as incident_date',
+                'incidents.english_name as incident', 
+                'incident_statuses.name as incident_status')
+            ->get(); 
 
         $response['allWaterHolder'] = $allWaterHolder;
         $response['allWaterHolderDonors'] = $allWaterHolderDonors;
@@ -231,6 +261,8 @@ class WaterUserController extends Controller
         $response['h2oPublic'] = $h2oPublic;
         $response['public'] = $public;
         $response['networkUser'] = $networkUser;
+        $response['waterIncident'] = $waterIncident;
+        $response['energyUser'] = $energyUser;
 
         return response()->json($response);
     }
@@ -717,6 +749,6 @@ class WaterUserController extends Controller
     public function export(Request $request) 
     {
                 
-        return Excel::download(new WaterUserExport($request), 'water_users.xlsx');
+        return Excel::download(new WaterUserExport($request), 'Water Holder Report.xlsx');
     }
 }

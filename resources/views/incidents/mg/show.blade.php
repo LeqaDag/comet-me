@@ -2,7 +2,7 @@
     .spanDetails {
         color: blue;
         font-size: 14px;
-    }
+    } 
 </style>
 <div id="viewMgIncidentModal" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">

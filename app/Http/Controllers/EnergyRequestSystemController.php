@@ -32,7 +32,7 @@ class EnergyRequestSystemController extends Controller
     public function index(Request $request)
     {
         if (Auth::guard('user')->user() != null) {
-
+ 
             if ($request->ajax()) {
 
                 $dataPublic = DB::table('energy_request_systems')
@@ -122,6 +122,8 @@ class EnergyRequestSystemController extends Controller
             ->orderBy('name', 'ASC')
             ->get();
 
+        $installationTypes = InstallationType::where('is_archived', 0)->get();
+        
         return view('request.energy.create', compact('communities', 'requestStatuses'));
     }
 }

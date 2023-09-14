@@ -76,6 +76,14 @@ label, table {
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Phone Number</label>
+                                <input type="number" name="phone_number" id="householdPhoneNumber"
+                                    class="form-control">
+                            </fieldset>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Refrigerator Type</label>
                                 <select name="refrigerator_type_id" class="form-control">
                                     <option disabled selected>Choose one...</option>
@@ -141,7 +149,7 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Notes</label>
                                 <textarea name="notes" class="form-control" 
-                                    style="resize:none" cols="20" rows="1">
+                                    style="resize:none" cols="20" rows="2">
                                 </textarea>
                             </fieldset>
                         </div>
@@ -193,6 +201,19 @@ label, table {
                         $('#selectedRefrigeratorHolder').html(data.html);
                     }
                 });
+            }
+        });
+    });
+
+    $(document).on('change', '#selectedRefrigeratorHolder', function () {
+        household_id = $(this).val();
+   
+        $.ajax({
+            url: "refrigerator-user/household/" + household_id,
+            method: 'GET',
+            success: function(data) {
+              
+                $('#householdPhoneNumber').html(data.household.phone_number);
             }
         });
     });

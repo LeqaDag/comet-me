@@ -404,7 +404,7 @@ All<span class="text-muted fw-light"> Households</span>
 
         var table = $('.data-table-households').DataTable({
             processing: true,
-            serverSide: true,
+            serverSide: true, 
             ajax: {
                 url: "{{ route('household.index') }}",
                 data: function (d) {
@@ -512,7 +512,7 @@ All<span class="text-muted fw-light"> Households</span>
                 type: 'get',
                 dataType: 'json',
                 success: function(response) {
-                    window.open(url, '_self'); 
+                    window.open(url); 
                 }
             });
         });
