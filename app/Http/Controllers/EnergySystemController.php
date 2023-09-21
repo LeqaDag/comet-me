@@ -86,6 +86,7 @@ class EnergySystemController extends Controller
                 $data = DB::table('energy_systems')
                     ->join('energy_system_types', 'energy_systems.energy_system_type_id', 
                         '=', 'energy_system_types.id')
+                    ->where('energy_systems.is_archived', 0)
                     ->select('energy_systems.id as id', 'energy_systems.created_at',
                         'energy_systems.updated_at', 'energy_systems.name',
                         'energy_systems.installation_year', 'energy_systems.upgrade_year1',
@@ -1114,6 +1115,34 @@ class EnergySystemController extends Controller
 
         $response = $dataIncidents; 
       
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystem(Request $request)
+    {
+        $id = $request->id;
+
+        $energySystem = EnergySystem::find($id);
+
+        if($energySystem) {
+
+            $energySystem->is_archived = 1;
+            $energySystem->save();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Energy System Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
         return response()->json($response); 
     }
 }

@@ -120,10 +120,111 @@ class CommunityDonorController extends Controller
     public function editPage($id)
     {
         $communityDonor = CommunityDonor::findOrFail($id);
-
+        
         return response()->json($communityDonor);
     } 
 
+    /**
+     * Update resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateCommunityDonor(int $id, int $donor_id, int $service_id)
+    {
+        $communityDonor = CommunityDonor::findOrFail($id);
+        
+        if($communityDonor->donor_id != $donor_id) {
+
+            $allEnergyMeters = AllEnergyMeter::where("community_id", $communityDonor->community_id)->get();
+            $allWaterHolders = AllWaterHolder::where("community_id", $communityDonor->community_id)->get();
+            $internetUsers = InternetUser::where("community_id", $communityDonor->community_id)->get();
+
+            if($service_id == 1) {
+    
+                if($allEnergyMeters) {
+                    foreach($allEnergyMeters as $allEnergyMeter) {
+        
+                        $allEnergyMeterDonor = new AllEnergyMeterDonor();
+                        $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                        $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
+                        $allEnergyMeterDonor->donor_id = $donor_id;
+                        $allEnergyMeterDonor->save();
+                    }
+
+                    $oldEnergyMeterDonors = AllEnergyMeterDonor::where("community_id", $communityDonor->community_id)
+                        ->where("donor_id", $communityDonor->donor_id)
+                        ->get();
+
+                    if($oldEnergyMeterDonors) {
+                        
+                        foreach($oldEnergyMeterDonors as $oldEnergyMeterDonor) {
+
+                            $oldEnergyMeterDonor->delete();
+                        }
+                    }
+                }
+
+            } else if($service_id == 2) {
+
+                // Add donors for water users
+                if($allWaterHolders) {
+                    foreach($allWaterHolders as $allWaterHolder) {
+        
+                        $allWaterHolderDonor = new AllWaterHolderDonor();
+                        $allWaterHolderDonor->all_water_holder_id = $allWaterHolder->id;
+                        $allWaterHolderDonor->community_id = $allWaterHolder->community_id;
+                        $allWaterHolderDonor->donor_id = $donor_id;
+                        $allWaterHolderDonor->save();
+                    }
+
+                    $oldWaterHolderDonors = AllWaterHolderDonor::where("community_id", $communityDonor->community_id)
+                        ->where("donor_id", $communityDonor->donor_id)
+                        ->get();
+
+                    if($oldWaterHolderDonors) {
+                        
+                        foreach($oldWaterHolderDonors as $oldWaterHolderDonor) {
+
+                            $oldWaterHolderDonor->delete();
+                        }
+                    }
+                }
+            } else if($service_id == 3) {
+
+                // Add donors for internet users
+                if($internetUsers) {
+                    foreach($internetUsers as $internetUser) {
+        
+                        $internetUserDonor = new InternetUserDonor();
+                        $internetUserDonor->internet_user_id = $internetUser->id;
+                        $internetUserDonor->community_id = $internetUser->community_id;
+                        $internetUserDonor->donor_id = $donor_id;
+                        $internetUserDonor->save();
+                    }
+
+                    $oldInternetUserDonors = AllInternetUserDonor::where("community_id", $communityDonor->community_id)
+                        ->where("donor_id", $communityDonor->donor_id)
+                        ->get();
+
+                    if($oldInternetUserDonors) {
+                        
+                        foreach($oldInternetUserDonors as $oldInternetUserDonor) {
+                            
+                            $oldInternetUserDonor->delete();
+                        }
+                    }
+                } 
+            }
+        }
+
+        $communityDonor->donor_id = $donor_id;
+        $communityDonor->save();
+
+        $response = 1;
+
+        return response()->json($response );
+    }
 
     /**
      * Update an existing resource in storage.

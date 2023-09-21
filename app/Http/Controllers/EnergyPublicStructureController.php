@@ -31,7 +31,7 @@ use App\Models\InstallationType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
-use App\Models\VendorUsername;
+use App\Models\VendorUserName;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -501,16 +501,15 @@ class EnergyPublicStructureController extends Controller
         $communityVendors = DB::table('community_vendors')
             ->where('community_id', $community_id->id)
             ->where('community_vendors.is_archived', 0)
-            ->join('vendor_usernames', 'community_vendors.vendor_username_id', 
-                '=', 'vendor_usernames.id')
-            ->select('vendor_usernames.name', 'community_vendors.id as id',
-                'vendor_usernames.id as vendor_username_id')
+            ->join('vendor_user_names', 'community_vendors.vendor_username_id', 
+                '=', 'vendor_user_names.id')
+            ->select('vendor_user_names.name', 'community_vendors.id as id',
+                'vendor_user_names.id as vendor_username_id')
             ->get();
 
         $publicStructures = PublicStructure::findOrFail($energyPublic->public_structure_id);
         $meterCases = MeterCase::where('is_archived', 0)->get();
-        $vendor = VendorUsername::where('id', $energyPublic->vendor_username_id)->first();
-
+        $vendor = VendorUserName::where('id', $energyPublic->vendor_username_id)->first();
         $energySystems = EnergySystem::where('is_archived', 0)->get();
         $donors = Donor::where('is_archived', 0)->get();
 

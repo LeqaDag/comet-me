@@ -44,6 +44,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
                 'donors.id')
             ->where('all_energy_meters.is_archived', 0)
+            ->where('all_energy_meter_donors.is_archived', 0) 
             ->select([
                 'households.english_name as english_name', 
                 'public_structures.english_name as public',

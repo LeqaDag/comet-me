@@ -342,6 +342,7 @@ class EnergyUserController extends Controller
 
         $energyMeterDonors = DB::table('all_energy_meter_donors')
             ->where('all_energy_meter_donors.all_energy_meter_id', $id)
+            ->where('all_energy_meter_donors.is_archived', 0)
             ->join('donors', 'all_energy_meter_donors.donor_id', '=', 'donors.id')
             ->select('donors.donor_name', 'all_energy_meter_donors.all_energy_meter_id')
             ->get(); 

@@ -9,7 +9,7 @@
 @include('layouts.all')
 
 <style>
-    label, input{
+    label, input{ 
     display: block;
 }
 .dropdown-toggle{

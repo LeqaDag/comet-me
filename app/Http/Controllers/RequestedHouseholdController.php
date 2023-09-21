@@ -144,6 +144,7 @@ class RequestedHouseholdController extends Controller
 
         $requestedSystem = new EnergyRequestSystem();
         $requestedSystem->household_id = $id;
+        $requestedSystem->date = $request->date;
         $requestedSystem->save();
 
         $cistern = new Cistern();

@@ -415,8 +415,8 @@ All<span class="text-muted fw-light"> Households</span>
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'name', name: 'name'},
-                { data: 'icon' },
-                { data: 'action' }
+                {data: 'icon' },
+                {data: 'action' }
             ]
         });
         

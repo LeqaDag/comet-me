@@ -58,6 +58,12 @@
                     <div>Sub Communities</div>
                 </a>
             </li>
+            <li class="menu-item" id="community-compound">
+                <a href="{{url('community-compound')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Community Compounds</div>
+                </a>
+            </li>
         </ul>
     </li>
     <li class="menu-item" id="households">
@@ -114,7 +120,7 @@
         </a>
     </li>
 
-    @if(Auth::guard('user')->user()->user_type_id == 1)
+    @if(Auth::guard('user')->user()->user_type_id == 1 || Auth::guard('user')->user()->user_type_id == 2)
     <li class="menu-item" id="energy-request">
         <a href="{{url('energy-request')}}" class="menu-link" >
             <i class="menu-icon tf-icons bx bx-check-square"></i>
@@ -452,8 +458,12 @@
         $("#representative").addClass("active");
         $("#communities").addClass("open");
     } else if(last_part == "sub-community-household") {
-
+        
         $("#sub-community-household").addClass("active");
+        $("#communities").addClass("open");
+    } else if(last_part == "community-compound") {
+        
+        $("#community-compound").addClass("active");
         $("#communities").addClass("open");
     } else if(last_part == "household") {
 

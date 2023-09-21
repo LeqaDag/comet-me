@@ -56,7 +56,7 @@ class DonorController extends Controller
                     ->addColumn('action', function($row) {
 
                         $empty = "";
-                        $updateButton = "<a type='button' class='updateDonor' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateDonorModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $updateButton = "<a type='button' class='updateDonor' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateDonorCommunityModal'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteDonor' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></s>";
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 ) 
@@ -253,7 +253,7 @@ class DonorController extends Controller
     {
         $communityDonor = CommunityDonor::findOrFail($id);
         $communityId = $communityDonor->community_id;
-
+        die($communityDonor);
         $donors = Donor::where('is_archived', 0)->get();
         $services = ServiceType::where('is_archived', 0)->get();
 
@@ -265,6 +265,39 @@ class DonorController extends Controller
 
         return view('admin.donor.community.edit', compact('communityDonor', 'donors', 
             'services', 'serviceDonors'));
+    }
+
+     /**
+     * Get a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getDonorData(int $id)
+    {
+        $communityDonor = CommunityDonor::findOrFail($id);
+
+        $response = array();
+
+        if(!empty($communityDonor)) {
+
+            $community = Community::findOrFail($communityDonor->community_id);
+            $service = ServiceType::findOrFail($communityDonor->service_id);
+            $donor = Donor::findOrFail($communityDonor->donor_id);
+
+            $response['donor_id'] = $communityDonor->donor_id;
+            $response['donor'] = $donor->donor_name;
+            $response['community'] = $community->english_name;
+            $response['service'] = $service->service_name;
+            $response['service_id'] = $service->id;
+            $response['id'] = $id;
+            $response['success'] = 1;
+        } else {
+
+            $response['success'] = 0;
+        }
+
+        return response()->json($response);
     }
 
     /**

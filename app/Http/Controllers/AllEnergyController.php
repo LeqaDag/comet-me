@@ -298,7 +298,9 @@ class AllEnergyController extends Controller
     public function edit($id)
     {
         $energyUser = AllEnergyMeter::findOrFail($id);
-        $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)->get();
+        $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
+            ->where("is_archived", 0)
+            ->get();
         $community_id = Community::findOrFail($energyUser->community_id);
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')

@@ -126,7 +126,7 @@ class EnergyMaintenanceCallController extends Controller
             $users = User::where('is_archived', 0)->get();
             $mgSystems = EnergySystem::where('is_archived', 0)
                 ->get();
-            $publicCategories = PublicStructureCategory::where('is_archived', 0)->get();
+            $publicCategories = PublicStructureCategory::where('is_archived', 0)->get(); 
     
             $userActions = MaintenanceElectricityAction::where('is_archived', 0)
                 ->where("system_user", 1)

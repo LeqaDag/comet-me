@@ -129,7 +129,7 @@ class HouseholdController extends Controller
                         'communities.arabic_name as aname',
                         'refrigerator_holder_receive_numbers.receive_number')
                     ->groupBy('households.id')
-                    ->latest(); 
+                    ->latest();  
  
                 return Datatables::of($data)
                     ->addIndexColumn()

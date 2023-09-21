@@ -1,7 +1,3 @@
-@php
-  $pricingModal = true;
-@endphp 
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'communities')

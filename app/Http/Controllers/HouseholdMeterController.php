@@ -204,7 +204,9 @@ class HouseholdMeterController extends Controller
     {
         $energyUser = AllEnergyMeter::where('id', $request->energy_user_id)->first();
         $household = Household::findOrFail($energyUser->household_id);
-        
+        $household->household_status_id = 4;
+        $household->save();
+
         $householdMeter = new HouseholdMeter();
         $householdMeter->user_name = $household->english_name;
         $householdMeter->user_name_arabic = $household->arabic_name;

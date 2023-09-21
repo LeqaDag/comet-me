@@ -15,12 +15,14 @@ use App\Models\Household;
 use App\Models\Photo;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
+use App\Models\SchoolCommunity;
+use App\Models\SchoolPublicStructure;
 use App\Exports\PublicStructureExport;
 use Auth;
 use Route;
 use DB;
 use Excel;
-use PDF;
+use PDF; 
 use DataTables;
 
 class PublicStructureController extends Controller
@@ -92,7 +94,8 @@ class PublicStructureController extends Controller
 
             $publicCategories = PublicStructureCategory::all();
 
-            return view('public.index', compact('communities', 'donors', 'publicCategories', 'regions'));
+            return view('public.index', compact('communities', 'donors', 'publicCategories', 
+                'regions'));
            
         } else {
 
@@ -151,10 +154,17 @@ class PublicStructureController extends Controller
      */
     public function edit($id) 
     {
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
         $publicStructure = PublicStructure::findOrFail($id);
         $publicCategories = PublicStructureCategory::all();
 
-        return view('public.edit', compact('publicStructure', 'publicCategories'));
+        $schoolPublicStructure = SchoolPublicStructure::where("public_structure_id", $id)->first();
+        $schoolCommunities = SchoolCommunity::where("public_structure_id", $id)->get();
+        
+        return view('public.edit', compact('publicStructure', 'publicCategories',
+            'schoolPublicStructure', 'schoolCommunities', 'communities'));
     }
 
     /**
@@ -170,10 +180,51 @@ class PublicStructureController extends Controller
         $publicStructure->english_name = $request->english_name;
         $publicStructure->arabic_name = $request->arabic_name;
         $publicStructure->notes = $request->notes;
-        $publicStructure->public_structure_category_id1 = $request->public_structure_category_id1;
-        $publicStructure->public_structure_category_id2 = $request->public_structure_category_id2;
-        $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
+        if($request->public_structure_category_id1) $publicStructure->public_structure_category_id1 = $request->public_structure_category_id1;
+        if($request->public_structure_category_id2) $publicStructure->public_structure_category_id2 = $request->public_structure_category_id2;
+        if($request->public_structure_category_id3) $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
         $publicStructure->save();
+
+        $existSchoolPublicStructure = SchoolPublicStructure::where("public_structure_id", $id)->first();
+        if($existSchoolPublicStructure) {
+
+            $existSchoolPublicStructure->grade_from = $request->grade_from;
+            $existSchoolPublicStructure->grade_to = $request->grade_to;
+            $existSchoolPublicStructure->number_of_students = $request->number_of_boys + $request->number_of_girls;
+            $existSchoolPublicStructure->number_of_boys = $request->number_of_boys;
+            $existSchoolPublicStructure->number_of_girls = $request->number_of_girls;
+            $existSchoolPublicStructure->save();
+        } else {
+
+            $schoolPublicStructure = new SchoolPublicStructure();
+            $schoolPublicStructure->grade_from = $request->grade_from;
+            $schoolPublicStructure->grade_to = $request->grade_to;
+            $schoolPublicStructure->number_of_students = $request->number_of_boys + $request->number_of_girls;
+            $schoolPublicStructure->number_of_boys = $request->number_of_boys;
+            $schoolPublicStructure->number_of_girls = $request->number_of_girls;
+            $schoolPublicStructure->public_structure_id = $id;
+            $schoolPublicStructure->save();
+        }
+        
+        if($request->communities) {
+            for($i=0; $i < count($request->communities); $i++) {
+
+                $schoolCommunity = new SchoolCommunity();
+                $schoolCommunity->community_id = $request->communities[$i];
+                $schoolCommunity->public_structure_id = $id;
+                $schoolCommunity->save();
+            }
+        }
+
+        if($request->new_communities) {
+            for($i=0; $i < count($request->new_communities); $i++) {
+
+                $schoolCommunity = new SchoolCommunity();
+                $schoolCommunity->community_id = $request->new_communities[$i];
+                $schoolCommunity->public_structure_id = $id;
+                $schoolCommunity->save();
+            }
+        }
 
         return redirect('/public-structure')->with('message', 'Public Structure Updated Successfully!');
     }
@@ -214,6 +265,33 @@ class PublicStructureController extends Controller
 
             $response['success'] = 1;
             $response['msg'] = 'Public Structure Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+     /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteschoolCommunity(Request $request)
+    {
+        $id = $request->id;
+
+        $public = SchoolCommunity::find($id);
+
+        if($public) {
+
+            $public->delete();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Served Community Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

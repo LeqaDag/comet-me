@@ -10,7 +10,7 @@
     display: block;
 }
 
-label, table {
+label, table { 
     margin-top: 20px;
 }
 </style>
@@ -53,6 +53,19 @@ label, table {
                                         @foreach($communities as $community)
                                         <option value="{{$community->english_name}}">
                                             {{$community->english_name}}
+                                        </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <select name="public" class="selectpicker form-control" 
+                                        data-live-search="true">
+                                        <option disabled selected>Search Public Structure</option>
+                                        @foreach($publicCategories as $publicCategory)
+                                        <option value="{{$publicCategory->id}}">
+                                            {{$publicCategory->name}}
                                         </option>
                                         @endforeach
                                     </select> 

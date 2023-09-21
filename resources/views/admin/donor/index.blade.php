@@ -125,6 +125,7 @@
     </div>
 </div>
 
+@include('admin.donor.community.edit')
 
 <script type="text/javascript">
     $(function () {
@@ -208,22 +209,69 @@
         var id = 0;
 
         // Update donor-community
-        $('#donorTable').on('click', '.updateDonor',function() {
+        $('#donorTable').on('click', '.updateDonor', function() {
             var id = $(this).data('id');
-            var url = window.location.href; 
-            url = url +'/'+ id +'/edit';
-            
+
             // AJAX request
             $.ajax({
-                url: 'community-donor/' + id + '/editpage',
+                url: 'getDonorData/' + id,
                 type: 'get',
                 dataType: 'json',
                 success: function(response) {
-                    window.open(url, "_self"); 
+
+                    $('#communityName').html(response.community);
+
+                    if(response.service == "Electricity") {
+
+                        $('#communityService').css("color", "orange");
+                    } else if(response.service == "Water") {
+
+                        $('#communityService').css("color", "blue");
+                    } else if(response.service == "Internet") {
+
+                        $('#communityService').css("color", "green");
+                    }
+
+                    $('#communityService').html(response.service);
+                    $('#serviceId').val(response.service_id);
+                    $('#communityDonor').html(response.donor);
+                    $('#donor_id').val(response.donor_id);
                 }
+            });
+
+            $('#saveDonorCommunityButton').on('click', function() {
+                        
+                donor_id = $('#donor_id').val();
+                service_id = $('#serviceId').val();
+
+                $.ajax({
+                    url: 'donor/edit_community_donor/' + id + '/'+ donor_id + '/' + service_id,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function(response) {
+    
+                        $('#updateDonorCommunityModal').modal('toggle');
+                        $('#closeDonorCommunityUpdate').click ();
+    
+                        if(response == 1) {
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Community Donor Updated Successfully!',
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+    
+                                $('#donorTable').DataTable().draw();
+                            });
+                        }
+                    }
+                });
             });
         });
 
+        
         // delete energy user
         $('#donorTable').on('click', '.deleteDonor',function() {
             var id = $(this).data('id');

@@ -30,7 +30,7 @@ class AllEnergyExport implements WithMultipleSheets, ShouldAutoSize
             // new EnergyUsers($this->request),
             new HouseholdMeters($this->request),
             // new PublicMeters($this->request)
-            new VendingMeters($this->request)
+          //  new VendingMeters($this->request)
         ];
 
         return $sheets;

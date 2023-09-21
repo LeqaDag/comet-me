@@ -81,6 +81,7 @@ class RefrigeratorHolderController extends Controller
                     ->leftJoin('public_structures', 'refrigerator_holders.public_structure_id', 
                         '=', 'public_structures.id')
                     ->where('refrigerator_holders.is_archived', 0)
+                    ->where('households.is_archived', 0)
                     ->select('refrigerator_holders.refrigerator_type_id', 'refrigerator_holders.date',
                         'refrigerator_holders.id as id', 'refrigerator_holders.created_at as created_at', 
                         'refrigerator_holders.updated_at as updated_at', 

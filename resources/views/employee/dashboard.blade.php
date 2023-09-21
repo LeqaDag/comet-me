@@ -54,7 +54,7 @@
                 </a>
               </div>
             </div>
-          </div>
+          </div> 
         </div>
         <div class="col-lg-3 col-sm-3 col-md-3mb-4">
           <div class="col">

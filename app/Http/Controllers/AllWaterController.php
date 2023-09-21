@@ -26,6 +26,7 @@ use App\Models\Household;
 use App\Models\WaterUser;
 use App\Models\WaterNetworkUser;
 use App\Models\EnergySystemType;
+use App\Models\WaterSystemType;
 use App\Exports\WaterUserExport;
 use Auth;
 use DB;
@@ -42,6 +43,28 @@ class AllWaterController extends Controller
      */
     public function index(Request $request)
     {	
+        $h2oFlag = AllWaterHolder::where("is_h2o", 1)->count();
+
+        //dd($h2oFlag);
+        // Add flag to users for type of system
+        $allWaterHolders = AllWaterHolder::get();
+
+        foreach($allWaterHolders as $allWaterHolder) {
+
+            // $h2oUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
+
+            // if($h2oUser) {
+            //     $allWaterHolder->is_h2o = 1;
+            //     $allWaterHolder->save();
+            // }
+            // $h2oPublic = H2oPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
+
+            // if($h2oPublic) {
+            //     $allWaterHolder->is_h2o = 1;
+            //     $allWaterHolder->save();
+            // }
+        }
+
         // $allDonors = H2oUserDonor::all();
 
         // foreach($allDonors as $allDonor) {
@@ -59,6 +82,7 @@ class AllWaterController extends Controller
         //     $allWaterHolderDonor->save();
         //     } 
         // }
+
 
         if (Auth::guard('user')->user() != null) {
 
@@ -159,10 +183,14 @@ class AllWaterController extends Controller
     
             $gridLarge = GridUser::where('grid_integration_large', '!=', 0)
                 ->where('is_archived', 0)
+                ->where('is_delivery', 'Yes')
+                ->where('is_complete', 'Yes')
                 ->selectRaw('SUM(grid_integration_large) AS sumLarge')
                 ->first();
             $gridSmall = GridUser::where('grid_integration_small', '!=', 0)
                 ->where('is_archived', 0)
+                ->where('is_delivery', 'Yes')
+                ->where('is_complete', 'Yes')
                 ->selectRaw('SUM(grid_integration_small) AS sumSmall')
                 ->first();
             
@@ -202,13 +230,16 @@ class AllWaterController extends Controller
             $gridUsers = GridUser::where('grid_integration_large', '!=', 0)
                 ->orWhere('grid_integration_small', '!=', 0)
                 ->where('is_archived', 0)
+                ->where('is_delivery', 'Yes')
+                ->where('is_complete', 'Yes')
                 ->count();
             $networkUsers = WaterNetworkUser::where('is_archived', 0)->count();
+            $waterSystemTypes = WaterSystemType::get();
 
             return view('users.water.all.index', compact('communities', 'bsfStatus', 'households', 
                 'h2oStatus', 'totalWaterHouseholds', 'totalWaterMale', 'totalWaterFemale',
                 'totalWaterChildren', 'totalWaterAdults', 'donors', 'energySystemTypes',
-                'h2oUsers', 'gridUsers', 'networkUsers', 'h2oSharedUsers'))
+                'h2oUsers', 'gridUsers', 'networkUsers', 'h2oSharedUsers', 'waterSystemTypes'))
             ->with('h2oChartStatus', json_encode($array))
             ->with('gridChartStatus', json_encode($arrayGrid));
         } else {
@@ -342,6 +373,8 @@ class AllWaterController extends Controller
             if($request->request_date) {
                 $gridUser->request_date = $request->request_date;
             }
+            if($request->small_date == null) $gridUser->small_date = null;
+            if($request->large_date == null) $gridUser->large_date = null;
             if($request->grid_integration_large) $gridUser->grid_integration_large = $request->grid_integration_large;
             if($request->large_date) $gridUser->large_date = $request->large_date;
             if($request->grid_integration_small) $gridUser->grid_integration_small = $request->grid_integration_small;
@@ -409,7 +442,7 @@ class AllWaterController extends Controller
                         }
                     }
                 }
-
+ 
                 for($i=0; $i < count($request->donors); $i++) {
         
                     $waterHolderDonor = new AllWaterHolderDonor();

@@ -310,23 +310,16 @@ class HomeController extends Controller
                 ->groupBy('incident_status_mg_systems.name')
                 ->get();
             $arrayIncidents[] = ['English Name', 'Number'];
-            
+             
             foreach($dataIncidents as $key => $value) {
 
                 $arrayIncidents[++$key] = [$value->name, $value->number];
             }
 
-            $totalMgSystem =  DB::table('all_energy_meters')
-                ->where('all_energy_meters.is_archived', 0)
-                ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
-                ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
-                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
-                ->where('all_energy_meters.energy_system_type_id', 1)
-                ->orWhere('all_energy_meters.energy_system_type_id', 3)
-                ->select(
-                    DB::raw('energy_systems.name as name'),
-                    DB::raw('count(*) as number'))
-                ->groupBy('energy_systems.name')
+            $totalMgSystem =  DB::table('energy_systems')
+                ->where('energy_systems.is_archived', 0)
+                ->where('energy_systems.energy_system_type_id', 1)
+                ->orWhere('energy_systems.energy_system_type_id', 4)
                 ->get();
 
             $totalFbsSystem =  DB::table('all_energy_meters')

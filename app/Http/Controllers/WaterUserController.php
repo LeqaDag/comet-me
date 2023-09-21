@@ -318,7 +318,7 @@ class WaterUserController extends Controller
                 $gridUser = new GridUser();
                 $gridUser->community_id = $request->community_id[0];
                 $gridUser->household_id = $request->household_id;
-                $gridUser->request_date = $request->request_date;
+                $gridUser->request_date = $request->request_date; 
                 $gridUser->grid_integration_large = $request->grid_integration_large;
                 $gridUser->large_date = $request->large_date;
                 $gridUser->grid_integration_small = $request->grid_integration_small;

@@ -86,6 +86,11 @@ Route::resource('sub-community-household', App\Http\Controllers\SubCommunityHous
 Route::get('/delete-sub-community-household', [App\Http\Controllers\SubCommunityHouseholdController::class, 'deleteSubCommunityHousehold'])->name('deleteSubCommunityHousehold');
 Route::post('sub-community-household-export', [App\Http\Controllers\SubCommunityHouseholdController::class, 'export'])->name('sub-community-household.export');
 Route::get('sub-community/get_by_community/{community_id}', [App\Http\Controllers\SubCommunityHouseholdController::class, 'getByCommunity']);
+Route::resource('community-compound', App\Http\Controllers\CommunityCompoundController::class);
+Route::get('community-compound/get_by_community/{community_id}', [App\Http\Controllers\CommunityCompoundController::class, 'getByCommunity']);
+Route::get('community-compound/{id}/editpage', [App\Http\Controllers\CommunityCompoundController::class, 'editPage']);
+Route::get('/delete-compound-household', [App\Http\Controllers\CommunityCompoundController::class, 'deleteCompoundHousehold'])->name('deleteCompoundHousehold');
+Route::post('community-compound-export', [App\Http\Controllers\CommunityCompoundController::class, 'export'])->name('community-compound.export');
 
 Route::get('household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::resource('donor', App\Http\Controllers\DonorController::class);
@@ -93,6 +98,8 @@ Route::get('donor/destory/{id}', App\Http\Controllers\DonorController::class.'@d
 Route::resource('community-donor', App\Http\Controllers\CommunityDonorController::class);
 Route::get('/delete-community-donor', [App\Http\Controllers\CommunityDonorController::class, 'deleteCommunityDonor'])->name('deleteCommunityDonor');
 Route::get('community-donor/{id}/editpage', [App\Http\Controllers\CommunityDonorController::class, 'editPage']);
+Route::get('/getDonorData/{id}', [App\Http\Controllers\DonorController::class, 'getDonorData'])->name('getDonorData');
+Route::get('donor/edit_community_donor/{id}/{donor_id}/{service_id}', [App\Http\Controllers\CommunityDonorController::class, 'updateCommunityDonor']);  
 
 Route::get('region/get_region/{region_id}', [App\Http\Controllers\RegionController::class, 'getByRegion']);
 Route::get('region/get_sub_region/{region_id}/{sub_region_id}', [App\Http\Controllers\RegionController::class, 'getBySubRegion']);
@@ -132,6 +139,7 @@ Route::resource('energy-system', App\Http\Controllers\EnergySystemController::cl
 Route::get('energy-system/{id}/editpage', [App\Http\Controllers\EnergySystemController::class, 'editPage']);
 Route::resource('energy-component', App\Http\Controllers\EnergyComponentController::class);
 Route::get('energy-system/{id}/showPage', [App\Http\Controllers\EnergySystemController::class, 'showPage']);
+Route::get('/delete-energy-system', [App\Http\Controllers\EnergySystemController::class, 'deleteEnergySystem'])->name('deleteEnergySystem');
 
 Route::get('/delete-energy-system-battery', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBattery'])->name('deleteEnergySystemBattery');
 Route::get('/delete-energy-system-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemPv'])->name('deleteEnergySystemPv');
@@ -306,6 +314,7 @@ Route::resource('public-structure', App\Http\Controllers\PublicStructureControll
 Route::post('public-structure-export', [App\Http\Controllers\PublicStructureController::class, 'export'])->name('public-structure.export');
 Route::get('/delete-public-structure', [App\Http\Controllers\PublicStructureController::class, 'deletePublicStructure'])->name('deletePublicStructure');
 Route::get('public/{id}/editpage', [App\Http\Controllers\PublicStructureController::class, 'editPage']);
+Route::get('/delete-school-public-structure', [App\Http\Controllers\PublicStructureController::class, 'deleteschoolCommunity'])->name('deleteschoolCommunity');
 
 Route::resource('energy-request', App\Http\Controllers\EnergyRequestSystemController::class);
 Route::post('energy-request-export', [App\Http\Controllers\EnergyRequestSystemController::class, 'export'])->name('energy-request.export');

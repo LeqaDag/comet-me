@@ -13,7 +13,7 @@
 <div class="container mb-4">
     <div class="row">
         <div class="col-md-6">
-            <div class="card">
+            <div class="card"> 
                 <div class="card-header">
                     <h5>System By Type</h5>
                 </div>
@@ -124,7 +124,7 @@
                 window.open(url, "_self"); 
             }
         });
-    });
+    }); 
 
     // View record details
     $('#systemEnergyTable').on('click', '.viewEnergySystem',function() {
@@ -140,6 +140,44 @@
             success: function(response) {
 
                 window.open(url, "_self"); 
+            }
+        });
+    });
+
+    // Delete record
+    $('#systemEnergyTable').on('click', '.deleteEnergySystem', function() {
+        var id = $(this).data('id');
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this energy system?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystem') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $('#systemEnergyTable').DataTable().draw();
+                            });
+                        } else {
+
+                            alert("Invalid ID.");
+                        }
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
             }
         });
     });

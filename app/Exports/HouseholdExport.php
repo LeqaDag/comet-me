@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports;
+namespace App\Exports; 
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -33,14 +33,21 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 '=', 'household_statuses.id')
             ->leftJoin('professions', 'households.profession_id', 
                 '=', 'professions.id')
+            ->leftJoin('energy_request_systems', 'households.id', 
+                '=', 'energy_request_systems.household_id')
+            ->leftJoin('all_energy_meters', 'households.id', 
+                '=', 'all_energy_meters.household_id')
             ->where('households.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'households.arabic_name as arabic_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'households.phone_number', 'professions.profession_name', 
-                'number_of_male', 'number_of_female', 'number_of_children','number_of_adults', 'school_students',
-                'household_statuses.status', 'households.created_at', 'water_system_status', 'internet_system_status');
+                'number_of_male', 'number_of_female', 'number_of_children','number_of_adults', 
+                'school_students', 'household_statuses.status', 
+                'all_energy_meters.is_main', 'all_energy_meters.meter_number',
+                'energy_request_systems.date', 
+                'water_system_status', 'internet_system_status');
 
         if($this->request->region) {
 
@@ -81,8 +88,8 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
     {
         return ["English Name", "Arabic Name", "Community", "Region", "Sub Region", 
             "Phone Number", "Profession", "# of Male", "# of Female", "# of Children", "# of Adults",
-            "# of School students", "Energy System Status", "Requset Date", "Water System Status", 
-            "Internet System Status"];
+            "# of School students", "Energy System Status", "Main User", "Meter Number",
+            "Requset Date", "Water System Status", "Internet System Status"];
     }
 
     public function title(): string

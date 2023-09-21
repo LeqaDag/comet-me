@@ -9,7 +9,7 @@
 @include('layouts.all')
 
 @section('content')
-
+ 
 <div class="container mb-4">
     <div class="col-lg-12 col-12">
         <div class="row">
@@ -188,6 +188,19 @@
                         <div class="row">
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
+                                    <select name="water_system_id" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                        <option disabled selected>Search System Type</option>
+                                        @foreach($waterSystemTypes as $waterSystemType)
+                                        <option value="{{$waterSystemType->id}}">
+                                            {{$waterSystemType->type}}
+                                        </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset> 
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
                                     <select name="community" class="selectpicker form-control" 
                                             data-live-search="true">
                                         <option disabled selected>Search Community</option>
@@ -211,6 +224,7 @@
                                     class="form-control" title="H2O Installation Data to"> 
                                 </fieldset> 
                             </div>
+                            <br><br><br>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <button class="btn btn-info" type="submit">
                                     <i class='fa-solid fa-file-excel'></i>

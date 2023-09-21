@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithEvents; 
 use Maatwebsite\Excel\Events\AfterSheet;
-use DB; 
+use DB;  
 
 class WaterUserHolder implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
     WithStyles, WithEvents
@@ -35,7 +35,7 @@ class WaterUserHolder implements FromCollection, WithHeadings, WithTitle, Should
                 'public_structures.id')
             ->LeftJoin('households', 'all_water_holders.household_id', 'households.id')
             ->LeftJoin('h2o_users', 'h2o_users.household_id', 'households.id')
-            ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
+            ->LeftJoin('grid_users', 'all_water_holders.household_id', '=', 'grid_users.household_id')
             ->leftJoin('water_network_users', 'households.id', 
                 '=', 'water_network_users.household_id')
             ->LeftJoin('h2o_statuses', 'h2o_users.h2o_status_id', '=', 'h2o_statuses.id')
@@ -62,6 +62,18 @@ class WaterUserHolder implements FromCollection, WithHeadings, WithTitle, Should
             ])
             ->groupBy('all_water_holders.id');
 
+        if($this->request->water_system_id) {
+
+            if( $this->request->water_system_id == 1) {
+
+                $data->where("h2o_users.is_archived", 0);
+            } else if( $this->request->water_system_id == 2) {
+                
+                $data->where("h2o_users.is_archived", 0);
+            } else if( $this->request->water_system_id == 1) {
+                
+            }
+        } 
         if($this->request->community) {
             $data->where("communities.english_name", $this->request->community);
         } 
@@ -79,7 +91,7 @@ class WaterUserHolder implements FromCollection, WithHeadings, WithTitle, Should
      * Write code on Method
      *
      * @return response()
-     */
+     */ 
     public function headings(): array
     {
         return ["Water System Holder", "Public Structure", "Main Holder", "Community", "Region", 

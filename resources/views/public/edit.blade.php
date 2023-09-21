@@ -1,18 +1,31 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'edit mg incident')
+@section('title', 'edit public structure')
 
 @include('layouts.all')
 
 <style>
     label, input {
-    display: block;
-}
 
-label {
-    margin-top: 20px;
-}
+        display: block;
+    }
+
+    .dropdown-toggle {
+
+        height: 40px;
+    }
+
+    label {
+
+        margin-top: 20px;
+    }
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> {{$publicStructure->english_name}}
@@ -107,6 +120,118 @@ label {
                         </fieldset>
                     </div> 
                 </div> 
+             
+                @if($publicStructure->public_structure_category_id1 == 1)
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Grade From</label>
+                                @if($schoolPublicStructure)
+                                    <input type="number" class="form-control" name="grade_from"
+                                        value="{{$schoolPublicStructure->grade_from}}"/>    
+                                @else
+                                    <input type="number" class="form-control" name="grade_from"/>  
+                                @endif
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Grade To</label>
+                                @if($schoolPublicStructure) 
+                                    <input type="number" class="form-control" name="grade_to"
+                                        value="{{$schoolPublicStructure->grade_to}}"/>    
+                                @else
+                                    <input type="number" class="form-control" name="grade_to"/>  
+                                @endif   
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Number of Boys</label>
+                                @if($schoolPublicStructure) 
+                                    <input type="number" class="form-control" name="number_of_boys"
+                                        value="{{$schoolPublicStructure->number_of_boys}}"/>    
+                                @else
+                                    <input type="number" class="form-control" name="number_of_boys"/>  
+                                @endif  
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Number of Girls</label>
+                                @if($schoolPublicStructure) 
+                                    <input type="number" class="form-control" name="number_of_girls"
+                                        value="{{$schoolPublicStructure->number_of_girls}}"/>    
+                                @else
+                                    <input type="number" class="form-control" name="number_of_girls"/>  
+                                @endif   
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="row">
+                        <h5>What communities does it serve</h5>
+                    </div>
+                    @if(count($schoolCommunities) > 0)
+
+                        <table id="schoolCommunitiesTable" 
+                            class="table table-striped data-table-school-community my-2">
+                            
+                            <tbody>
+                                @foreach($schoolCommunities as $schoolCommunity)
+                                <tr id="schoolCommunityRow">
+                                    <td class="text-center">
+                                        {{$schoolCommunity->Community->english_name}}
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn deleteschoolCommunity" id="deleteschoolCommunity" 
+                                            data-id="{{$schoolCommunity->id}}">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add more Communities</label>
+                                    <select class="selectpicker form-control" 
+                                        multiple data-live-search="true" name="communities[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($communities as $community)
+                                            <option value="{{$community->id}}">
+                                                {{$community->english_name}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                    @else 
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add Communities</label>
+                                    <select class="selectpicker form-control" 
+                                        multiple data-live-search="true" name="new_communities[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($communities as $community)
+                                            <option value="{{$community->id}}">
+                                                {{$community->english_name}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                    @endif
+                @endif
 
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
@@ -120,6 +245,8 @@ label {
                     </div>
                 </div>
                     
+               
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -131,4 +258,50 @@ label {
         </div>
     </div>
 </div>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+
+        // delete school community
+        $('#schoolCommunitiesTable').on('click', '.deleteschoolCommunity',function() {
+            var id = $(this).data('id');
+            var $ele = $(this).parent().parent();
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this served community?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteschoolCommunity') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $ele.fadeOut(1000, function () {
+                                        $ele.remove();
+                                    });
+                                });
+                            } 
+                        }
+                    });
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+    });
+</script>
+
 @endsection

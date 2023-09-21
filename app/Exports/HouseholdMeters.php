@@ -14,7 +14,7 @@ use DB;
 
 class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
     WithStyles,WithEvents
-{
+{ 
     protected $request;
 
     function __construct($request) {
@@ -112,7 +112,7 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:J1');
+        $sheet->setAutoFilter('A1:M1');
 
         return [
             // Style the first row as bold text.
