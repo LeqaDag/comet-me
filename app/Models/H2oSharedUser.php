@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class H2oSharedUser extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['household_id'];
+
+    public function Household()
+    {
+        return $this->belongsTo(Household::class, 'household_id', 'id');
+    }
 }

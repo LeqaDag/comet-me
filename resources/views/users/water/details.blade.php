@@ -2,7 +2,7 @@
     .spanDetails {
         color: blue;
         font-size: 14px;
-    }
+    } 
 </style>
 <div id="viewWaterUserModal" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -37,58 +37,53 @@
                         </h6>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <h6>
-                            # of People: 
-                            <span class="spanDetails" id="holderPeople">
+                <div id="informationHousehold"
+                    style="visibility:none; display:none">
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                # of People: 
+                                <span class="spanDetails" id="holderPeople">
+                                    
+                                </span>
+                            </h6>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                # of Male: 
+                                <span class="spanDetails" id="holderMale">
+                                    
+                                </span>
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                # of Female: 
+                                <span class="spanDetails" id="holderFemale">
+                                    
+                                </span>
+                            </h6>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                # of Adults: 
+                                <span class="spanDetails" id="holderAdult">
+                                    
+                                </span>
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <h6>
+                                # of Children: 
+                                <span class="spanDetails" id="holderChildren">
                                 
-                            </span>
-                        </h6>
-                    </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <h6>
-                            # of Male: 
-                            <span class="spanDetails" id="holderMale">
-                                
-                            </span>
-                        </h6>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <h6>
-                            # of Female: 
-                            <span class="spanDetails" id="holderFemale">
-                                
-                            </span>
-                        </h6>
-                    </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <h6>
-                            # of Adults: 
-                            <span class="spanDetails" id="holderAdult">
-                                
-                            </span>
-                        </h6>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <h6>
-                            # of Children: 
-                            <span class="spanDetails" id="holderChildren">
-                               
-                            </span>
-                        </h6>
-                    </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <h6>
-                            Main Holder: 
-                            <span class="spanDetails" id="mainHolder">
-                               
-                            </span>
-                        </h6>
+                                </span>
+                            </h6>
+                        </div>
                     </div>
                 </div>
                 <hr>
@@ -99,9 +94,9 @@
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <h6>
-                                Energy Service: 
-                                <span class="spanDetails" id="dataEnergyService">
-                                    
+                                Main Holder: 
+                                <span class="spanDetails" id="mainHolder">
+                                
                                 </span>
                             </h6>
                         </div>
@@ -293,6 +288,28 @@
                         <h6>
                             Incident Date: 
                             <span class="spanDetails" id="incidentDate">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                </div> 
+
+                <hr>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Shared H2O Household: 
+                            <span class="spanDetails" id="sharedHousehold">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                </div> 
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Shared Grid Household: 
+                            <span class="spanDetails" id="sharedGridHousehold">
                               
                             </span>
                         </h6>

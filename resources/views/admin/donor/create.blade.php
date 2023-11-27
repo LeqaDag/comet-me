@@ -2,9 +2,7 @@
     label, input {
         display: block;
     }
-    .dropdown-toggle{
-        height: 40px;   
-    }
+
     label, table {
         margin-top: 20px;
     }

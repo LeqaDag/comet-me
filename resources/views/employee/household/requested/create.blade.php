@@ -13,20 +13,11 @@
         display: block;
     }
 
-    label, table {
+    label, table { 
         margin-top: 20px;
-    }
-
-    .dropdown-toggle{
-        height: 40px;
-        
     }
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -92,9 +83,17 @@
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Phone Number</label>
-                            <input type="text" name="phone_number" value="{{old('phone_number')}}"
-                            class="form-control">
+                            <label class='col-md-12 control-label'>Recommendede Energy System</label>
+                            <select name="recommendede_energy_system_id" 
+                                class="selectpicker form-control"
+                                    data-live-search="true" required>
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energySystems as $energySystem)
+                                <option value="{{$energySystem->id}}">
+                                    {{$energySystem->name}}
+                                </option>
+                                @endforeach
+                            </select>
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -121,6 +120,13 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Phone Number</label>
+                            <input type="text" name="phone_number" value="{{old('phone_number')}}"
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many male?</label>
                             <input type="number" name="number_of_male" value="{{old('number_of_male')}}"
                             class="form-control">
@@ -133,6 +139,10 @@
                             class="form-control">
                         </fieldset>
                     </div>
+                </div>
+                   
+
+                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many adults?</label>
@@ -140,10 +150,6 @@
                             class="form-control">
                         </fieldset>
                     </div>
-                </div>
-                   
-
-                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many children under 16?</label>
@@ -159,6 +165,9 @@
                             class="form-control">
                         </fieldset>
                     </div>
+                </div>
+
+                <div class="row">
 
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
@@ -167,9 +176,6 @@
                             value="{{old('university_students')}}" class="form-control">
                         </fieldset>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Demolition order in house?</label>
@@ -263,10 +269,6 @@
 </div>
 
 @endsection
-
-<script src="{{ asset('js/jquery.min.js') }}"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script>
 

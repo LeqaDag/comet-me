@@ -9,21 +9,118 @@
 @include('layouts.all')
 
 @section('content')
+<style>
+    label, input {
+    display: block;
+}
 
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card"> 
-                <div class="card-header">
-                    <h5>System By Type</h5>
-                </div>
-                <div class="card-body">
-                    <div id="energySystemTypeChart"></div>
+label, table {
+    margin-top: 20px;
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
+<p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseEnergySystemVisualData" 
+        role="button" aria-expanded="false" aria-controls="collapseEnergySystemVisualData">
+        <i class="menu-icon tf-icons bx bx-show-alt"></i>
+        Visualize Data
+    </a>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseEnergySystemExport" aria-expanded="false" 
+        aria-controls="collapseEnergySystemExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target=".multi-collapse" aria-expanded="false" 
+        aria-controls="collapseEnergySystemVisualData collapseEnergySystemExport">
+        <i class="menu-icon tf-icons bx bx-expand-alt"></i>
+        Toggle All
+    </button>
+</p> 
+
+<div class="collapse multi-collapse mb-4" id="collapseEnergySystemVisualData">
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card"> 
+                    <div class="card-header">
+                        <h5>System By Type</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="energySystemTypeChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div> 
+        </div> 
+    </div>
 </div>
+
+<div class="collapse multi-collapse mb-4" id="collapseEnergySystemExport">
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Export Energy System Report
+                            <i class='fa-solid fa-file-excel text-info'></i>
+                        </h5>
+                    </div>
+                    <form method="POST" enctype='multipart/form-data' 
+                        action="{{ route('energy-system.export') }}">
+                        @csrf
+                        <div class="card-body"> 
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Community</label>
+                                        <select name="community_id"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Community</option>
+                                            @foreach($communities as $community)
+                                                <option value="{{$community->id}}">
+                                                    {{$community->english_name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset> 
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>System Type</label>
+                                        <select name="energy_type_id"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search System Type</option>
+                                            @foreach($energyTypes as $energyType)
+                                                <option value="{{$energyType->id}}">
+                                                    {{$energyType->name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Installation Year</label>
+                                        <input type="date" class="form-control" name="year_from">
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <label class='col-md-12 control-label'>Download Excel</label>
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>  
+            </div>
+        </div> 
+    </div> 
+</div> 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Energy Systems Design
@@ -60,6 +157,7 @@
                         <th class="text-center">Energy Name</th>
                         <th class="text-center">Type</th>
                         <th class="text-center">Installtion Year</th>
+                        <th class="text-center">Rated Ssolar Power (kW)</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -69,6 +167,8 @@
         </div>
     </div>
 </div>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script type="text/javascript">
 
@@ -87,6 +187,7 @@
                 {data: 'name', name: 'name'},
                 {data: 'type', name: 'type'},
                 {data: 'installation_year', name: 'installation_year'},
+                {data: 'total_rated_power', name: 'total_rated_power'},
                 {data: 'action'},
             ]
         });

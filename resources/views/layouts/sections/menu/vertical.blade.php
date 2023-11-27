@@ -195,6 +195,12 @@
                             <div>Shared H2O Public Structures</div>
                         </a>
                     </li>
+                    <li class="menu-item" id="shared-grid">
+                        <a href="{{url('shared-grid')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Shared Grid Holders</div>
+                        </a>
+                    </li>
                 </ul>
             </li>
             
@@ -311,12 +317,26 @@
                     <div>Water System</div>
                 </a>
             </li>
-            <li class="menu-item" id="internet-system">
-                <a href="{{url('internet-system')}}" class="menu-link" >
-                    <i class=""></i>
+
+            <li class="menu-item" id="internet-system-tab">
+                <a class="menu-link menu-toggle">
                     <div>Internet System</div>
                 </a>
-            </li>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="internet-system">
+                        <a href="{{url('internet-system')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>All Internet Systems</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="internet-cluster">
+                        <a href="{{url('internet-cluster')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>All Internet Clusters</div>
+                        </a>
+                    </li>
+                </ul>
+            </li> 
         </ul>
     </li>
 
@@ -344,6 +364,25 @@
                     <i class=""></i>
                     <div>Water Users</div>
                 </a>
+            </li>
+            <li class="menu-item" id="internet-incidents">
+                <a class="menu-link menu-toggle">
+                    <div>Internet Incidents</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="incident-network">
+                        <a href="{{url('incident-network')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Network</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="incident-internet-user">
+                        <a href="{{url('incident-internet-user')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Internet Users</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
         </ul>
     </li>
@@ -529,10 +568,15 @@
 
         $("#shared-h2o").addClass("active");
         $("#water-service").addClass("open");
-        $("#services").addClass("open");
+        $("#services").addClass("open"); 
     } else if(last_part == "water-public") {
 
         $("#water-public").addClass("active");
+        $("#water-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "shared-grid") {
+
+        $("#shared-grid").addClass("active");
         $("#water-service").addClass("open");
         $("#services").addClass("open");
     } else if(last_part == "internet-user") {
@@ -577,6 +621,12 @@
     } else if(last_part == "internet-system") {
 
         $("#internet-system").addClass("active");
+        $("#internet-system-tab").addClass("open");
+        $("#systems").addClass("open");
+    } else if(last_part == "internet-cluster") {
+
+        $("#internet-cluster").addClass("active");
+        $("#internet-system-tab").addClass("open");
         $("#systems").addClass("open");
     } else if(last_part == "mg-incident") {
 
@@ -602,5 +652,15 @@
     } else if(last_part == "setting") {
 
         $("#setting").addClass("active");
+    } else if(last_part == "incident-network") {
+
+        $("#incident-network").addClass("active");
+        $("#internet-incidents").addClass("open");
+        $("#incidents").addClass("open");
+    } else if(last_part == "incident-internet-user") {
+
+        $("#incident-internet-user").addClass("active");
+        $("#internet-incidents").addClass("open");
+        $("#incidents").addClass("open");
     }
 </script>

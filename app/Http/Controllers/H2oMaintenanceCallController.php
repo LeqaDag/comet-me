@@ -59,7 +59,8 @@ class H2oMaintenanceCallController extends Controller
                         '=', 'maintenance_statuses.id')
                     ->join('users', 'h2o_maintenance_calls.user_id', '=', 'users.id')
                     ->where('h2o_maintenance_calls.is_archived', 0)
-                    ->select('h2o_maintenance_calls.id as id', 'households.english_name', 
+                    ->select('h2o_maintenance_calls.id as id', 
+                        'households.english_name as household_name', 
                         'date_of_call', 'date_completed', 'h2o_maintenance_calls.notes',
                         'maintenance_types.type', 'maintenance_statuses.name', 
                         'communities.english_name as community_name',
@@ -68,6 +69,7 @@ class H2oMaintenanceCallController extends Controller
                         'users.name as user_name', 
                         'public_structures.english_name as public_name')
                     ->orderBy('h2o_maintenance_calls.date_of_call', 'DESC');
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -84,7 +86,14 @@ class H2oMaintenanceCallController extends Controller
                             return $viewButton. " ". $updateButton . " ". $deleteButton;
                         } else return $viewButton;
                     })
-                   
+                    ->addColumn('holder', function($row) {
+
+                        if($row->household_name != null) $holder = $row->household_name;
+                        else if($row->public_name != null) $holder = $row->public_name;
+                        else $holder = null;
+
+                        return $holder;
+                    })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request){
@@ -97,12 +106,11 @@ class H2oMaintenanceCallController extends Controller
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
                                 ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
-                                ->orWhere('maintenance_h2o_actions.maintenance_action_h2o', 'LIKE', "%$search%")
                                 ->orWhere('users.name', 'LIKE', "%$search%");
                             });
                         }
                     })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'holder'])
                 ->make(true);
             }
     

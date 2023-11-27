@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Models\AllEnergyMeter;
 use App\Models\AllWaterHolder;
 use App\Models\AllWaterHolderDonor;
 use App\Models\User;
@@ -16,6 +17,7 @@ use App\Models\CommunityWaterSource;
 use App\Models\GridUser;
 use App\Models\GridUserDonor;
 use App\Models\GridPublicStructure;
+use App\Models\GridSharedUser;
 use App\Models\H2oSharedUser;
 use App\Models\H2oStatus;
 use App\Models\H2oPublicStructure;
@@ -23,6 +25,7 @@ use App\Models\H2oUser;
 use App\Models\H2oUserDonor;
 use App\Models\H2oSharedPublicStructure;
 use App\Models\Household;
+use App\Models\PublicStructure;
 use App\Models\WaterUser;
 use App\Models\WaterNetworkUser;
 use App\Models\EnergySystemType;
@@ -43,24 +46,43 @@ class AllWaterController extends Controller
      */
     public function index(Request $request)
     {	
-        $h2oFlag = AllWaterHolder::where("is_h2o", 1)->count();
+        $h2oFlag = AllWaterHolder::where("water_system_id", 1)->count();
 
         //dd($h2oFlag);
         // Add flag to users for type of system
         $allWaterHolders = AllWaterHolder::get();
+        //dd($allWaterHolders);
 
         foreach($allWaterHolders as $allWaterHolder) {
 
             // $h2oUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
+            // $gridUser = GridUser::where("household_id", $allWaterHolder->household_id)->first();
 
+            // if($gridUser) {
+            //     if($allWaterHolder->water_system_id == 1) {
+
+            //     } else if($gridUser->grid_integration_large >= 1) {
+
+            //         $allWaterHolder->is_large_grid = 1;
+            //         $allWaterHolder->water_system_id  = 2;
+            //         $allWaterHolder->save();
+            //     } else if($gridUser->grid_integration_small >= 1) {
+
+            //         $allWaterHolder->is_small_grid = 1;
+            //         $allWaterHolder->water_system_id  = 2;
+            //         $allWaterHolder->save();
+            //     }
+            // } 
             // if($h2oUser) {
             //     $allWaterHolder->is_h2o = 1;
+            //     $allWaterHolder->water_system_id  = 1;
             //     $allWaterHolder->save();
             // }
             // $h2oPublic = H2oPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
 
             // if($h2oPublic) {
             //     $allWaterHolder->is_h2o = 1;
+            //     $allWaterHolder->water_system_id  = 1;
             //     $allWaterHolder->save();
             // }
         }
@@ -85,7 +107,7 @@ class AllWaterController extends Controller
 
 
         if (Auth::guard('user')->user() != null) {
-
+ 
             if ($request->ajax()) {
                 $data = DB::table('all_water_holders') 
                     ->join('communities', 'all_water_holders.community_id', 'communities.id')
@@ -98,7 +120,8 @@ class AllWaterController extends Controller
                         '=', 'water_network_users.household_id')
                     ->LeftJoin('h2o_statuses', 'h2o_users.h2o_status_id', '=', 'h2o_statuses.id')
                     ->where('all_water_holders.is_archived', 0)
-                    ->select('all_water_holders.id as id', 'households.english_name', 
+                    //->where('all_water_holders.water_system_id', 1)
+                    ->select('all_water_holders.id as id', 'households.english_name as household_name', 
                         'h2o_users.number_of_h20', 'grid_users.grid_integration_large', 
                         'grid_users.large_date', 'grid_users.grid_integration_small', 
                         'grid_users.small_date', 'grid_users.is_delivery', 'h2o_users.number_of_bsf', 
@@ -106,7 +129,7 @@ class AllWaterController extends Controller
                         'grid_users.is_complete', 'all_water_holders.created_at as created_at',
                         'all_water_holders.installation_year', 'h2o_statuses.status',
                         'all_water_holders.updated_at as updated_at', 'all_water_holders.is_main',
-                        'public_structures.english_name as public')
+                        'public_structures.english_name as public_name')
                     ->latest();
                 
               
@@ -116,7 +139,7 @@ class AllWaterController extends Controller
     
                         $updateButton = "<a type='button' class='updateWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateWaterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteWaterUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                        $viewButton = "<a type='button' class='viewWaterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $viewButton = "<a type='button' class='viewWaterUser' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
     
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 ||
@@ -126,6 +149,13 @@ class AllWaterController extends Controller
                                 
                             return $viewButton." ". $updateButton." ".$deleteButton;
                         } else return $viewButton;
+                    })
+                    ->addColumn('holder', function($row) {
+
+                        if($row->household_name != null) $holder = $row->household_name;
+                        else if($row->public_name != null) $holder = $row->public_name;
+
+                        return $holder;
                     })
                     ->addColumn('icon', function($row) {
 
@@ -152,7 +182,7 @@ class AllWaterController extends Controller
                             });
                         }
                     })
-                ->rawColumns(['action', 'icon'])
+                ->rawColumns(['action', 'icon', 'holder'])
                 ->make(true);
             }
     
@@ -305,10 +335,10 @@ class AllWaterController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //dd($request->all());
+       // dd($request->all());
 
         $allWaterHolder = AllWaterHolder::findOrFail($id);
-
+       
         $h2oUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
         $gridUser = GridUser::where('household_id', $allWaterHolder->household_id)->first();
 
@@ -337,9 +367,7 @@ class AllWaterController extends Controller
             $allWaterHolder->installation_date = $request->h2o_installation_date;
             $allWaterHolder->notes = $request->notes;
             $allWaterHolder->save();
-        }
-
-        if($h2oPublic) {
+        } else if($h2oPublic) {
 
             if($request->h2o_status_id) {
                 $h2oPublic->h2o_status_id = $request->h2o_status_id;
@@ -360,13 +388,54 @@ class AllWaterController extends Controller
             $allWaterHolder->installation_date = $request->h2o_installation_date;
             $allWaterHolder->notes = $request->notes;
             $allWaterHolder->save();
-        }
+        } else if($allWaterHolder->household_id) {
 
-        // if($gridUser == null) {
-        //     $gridUser = new GridUser();
-        //     $gridUser->community_id = $h2oUser->community_id;
-        //     $gridUser->household_id = $h2oUser->household_id;
-        // }
+            $newH2oUser =new H2oUser();
+            $newH2oUser->community_id = $allWaterHolder->community_id;
+            if($request->h2o_status_id) {
+                $newH2oUser->h2o_status_id = $request->h2o_status_id;
+            }
+            if($request->bsf_status_id) {
+                $newH2oUser->bsf_status_id = $request->bsf_status_id;
+            }
+
+            $newH2oUser->number_of_bsf = $request->number_of_bsf;
+            $newH2oUser->number_of_h20 = $request->number_of_h20; 
+            $newH2oUser->installation_year = $request->installation_year;
+            $newH2oUser->h2o_request_date = $request->h2o_request_date; 
+            $newH2oUser->h2o_installation_date = $request->h2o_installation_date;
+            $newH2oUser->save();
+            
+            $allWaterHolder->installation_year = $request->installation_year;
+            $allWaterHolder->request_date = $request->h2o_request_date; 
+            $allWaterHolder->installation_date = $request->h2o_installation_date;
+            $allWaterHolder->notes = $request->notes;
+            $allWaterHolder->save();
+
+        } else if($allWaterHolder->public_structure_id) {
+
+            $newH2oPublic =new H2oPublicStructure();
+            $newH2oPublic->community_id = $allWaterHolder->community_id;
+            if($request->h2o_status_id) {
+                $newH2oPublic->h2o_status_id = $request->h2o_status_id;
+            }
+            if($request->bsf_status_id) {
+                $newH2oPublic->bsf_status_id = $request->bsf_status_id;
+            }
+
+            $newH2oPublic->number_of_bsf = $request->number_of_bsf;
+            $newH2oPublic->number_of_h20 = $request->number_of_h20; 
+            $newH2oPublic->installation_year = $request->installation_year;
+            $newH2oPublic->h2o_request_date = $request->h2o_request_date; 
+            $newH2oPublic->h2o_installation_date = $request->h2o_installation_date;
+            $newH2oPublic->save();
+            
+            $allWaterHolder->installation_year = $request->installation_year;
+            $allWaterHolder->request_date = $request->h2o_request_date; 
+            $allWaterHolder->installation_date = $request->h2o_installation_date;
+            $allWaterHolder->notes = $request->notes;
+            $allWaterHolder->save();
+        }
 
         if($gridUser) {
 
@@ -375,6 +444,8 @@ class AllWaterController extends Controller
             }
             if($request->small_date == null) $gridUser->small_date = null;
             if($request->large_date == null) $gridUser->large_date = null;
+            if($request->grid_integration_large == null) $gridUser->grid_integration_large = null;
+            if($request->grid_integration_small == null) $gridUser->grid_integration_small = null;
             if($request->grid_integration_large) $gridUser->grid_integration_large = $request->grid_integration_large;
             if($request->large_date) $gridUser->large_date = $request->large_date;
             if($request->grid_integration_small) $gridUser->grid_integration_small = $request->grid_integration_small;
@@ -391,13 +462,15 @@ class AllWaterController extends Controller
             }
     
             $gridUser->save();
-        }
-
-        if($gridPublic) {
+        } else if($gridPublic) {
 
             if($request->request_date) {
                 $gridPublic->request_date = $request->request_date;
             }
+            if($request->small_date == null) $gridPublic->small_date = null;
+            if($request->large_date == null) $gridPublic->large_date = null;
+            if($request->grid_integration_large == null) $gridPublic->grid_integration_large = null;
+            if($request->grid_integration_small == null) $gridPublic->grid_integration_small = null;
             if($request->grid_integration_large) $gridPublic->grid_integration_large = $request->grid_integration_large;
             if($request->large_date) $gridPublic->large_date = $request->large_date;
             if($request->grid_integration_small) $gridPublic->grid_integration_small = $request->grid_integration_small;
@@ -414,7 +487,62 @@ class AllWaterController extends Controller
             }
     
             $gridPublic->save();
+        } else if($allWaterHolder->household_id) {
+
+            $newGridUser = new GridUser();
+            $newGridUser->household_id = $allWaterHolder->household_id;
+            $newGridUser->community_id = $allWaterHolder->community_id;
+            if($request->request_date) {
+                $newGridUser->request_date = $request->request_date;
+            }
+            if($request->small_date == null) $newGridUser->small_date = null;
+            if($request->large_date == null) $newGridUser->large_date = null;
+            if($request->grid_integration_large) $newGridUser->grid_integration_large = $request->grid_integration_large;
+            if($request->large_date) $newGridUser->large_date = $request->large_date;
+            if($request->grid_integration_small) $newGridUser->grid_integration_small = $request->grid_integration_small;
+            if($request->small_date) $newGridUser->small_date = $request->small_date;
+    
+            if($request->is_delivery) {
+                $newGridUser->is_delivery = $request->is_delivery;
+            }
+            if($request->is_paid) {
+                $newGridUser->is_paid = $request->is_paid;
+            }
+            if($request->is_complete) {
+                $newGridUser->is_complete = $request->is_complete;
+            }
+    
+    
+            $newGridUser->save();
+        } else if($allWaterHolder->public_structure_id) {
+
+            $newGridPublic = new GridPublicStructure();
+            $newGridPublic->public_structure_id = $allWaterHolder->public_structure_id;
+            $newGridPublic->community_id = $allWaterHolder->community_id;
+            
+            if($request->request_date) {
+                $newGridPublic->request_date = $request->request_date;
+            }
+            if($request->small_date == null) $newGridPublic->small_date = null;
+            if($request->large_date == null) $newGridPublic->large_date = null;
+            if($request->grid_integration_large) $newGridPublic->grid_integration_large = $request->grid_integration_large;
+            if($request->large_date) $newGridPublic->large_date = $request->large_date;
+            if($request->grid_integration_small) $newGridPublic->grid_integration_small = $request->grid_integration_small;
+            if($request->small_date) $newGridPublic->small_date = $request->small_date;
+    
+            if($request->is_delivery) {
+                $newGridPublic->is_delivery = $request->is_delivery;
+            }
+            if($request->is_paid) {
+                $newGridPublic->is_paid = $request->is_paid;
+            }
+            if($request->is_complete) {
+                $newGridPublic->is_complete = $request->is_complete;
+            }
+    
+            $newGridPublic->save();
         }
+
 
         if($request->donors) {
 
@@ -563,6 +691,117 @@ class AllWaterController extends Controller
         }
 
         return redirect('/all-water')->with('message', 'User Updated Successfully!');
+    }
+
+     /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $allWaterHolder = AllWaterHolder::findOrFail($id);
+      
+        $allWaterHolderDonors = DB::table('all_water_holder_donors')
+            ->where('all_water_holder_donors.is_archived', 0)
+            ->where('all_water_holder_donors.all_water_holder_id', $id)
+            ->join('donors', 'all_water_holder_donors.donor_id', '=', 'donors.id')
+            ->select('donors.donor_name', 'all_water_holder_donors.all_water_holder_id')
+            ->get();
+
+        $h2oUser = null;
+        $h2oStatus = null;
+        $bsfStatus = null;
+        $h2oPublic = null;
+        $public = null;
+        $gridUser = null;
+        $energyUser = null;
+        $energyPublic = null;
+        $sharedH2oUsers = [];
+        $sharedGridUsers = [];
+        $sharedH2oPublics = [];
+        $mainUser = null;
+        $mainGridUser = null;
+        $mainH2oPublic = null;
+
+        if($allWaterHolder->household_id && $allWaterHolder->is_main == "Yes") {
+
+            $h2oUser = H2oUser::where('household_id', $allWaterHolder->household_id)->first();
+
+            if($h2oUser) {
+                $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
+                $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
+                $sharedH2oUsers = H2oSharedUser::where('h2o_user_id', $h2oUser->id)
+                    ->where('is_archived', 0)->get();
+            }
+
+            $gridUser = GridUser::where('household_id', $allWaterHolder->household_id)->first();
+            if($gridUser) {
+                $sharedGridUsers = GridSharedUser::where('grid_user_id', $gridUser->id)
+                    ->where('is_archived', 0)->get();
+            }
+            $energyUser = AllEnergyMeter::where("household_id", $allWaterHolder->household_id)->get();
+        } 
+
+        if($allWaterHolder->household_id && $allWaterHolder->is_main == "No") {
+            
+            $household = Household::where('id', $allWaterHolder->household_id)->first();
+            $energyUser = AllEnergyMeter::where("household_id", $allWaterHolder->household_id)->get();
+            $mainUser = H2oSharedUser::where("household_id", $allWaterHolder->household_id)->first();
+            $mainGridUser = GridSharedUser::where("household_id", $allWaterHolder->household_id)->first();
+        } 
+
+        if($allWaterHolder->public_structure_id && $allWaterHolder->is_main == "Yes") {
+
+            $h2oUser = H2oPublicStructure::where('public_structure_id', $allWaterHolder->public_structure_id)->first();
+            $public = PublicStructure::where('id', $allWaterHolder->public_structure_id)->first();
+            
+            if($h2oUser) {
+
+                $h2oStatus = H2oStatus::where('id', $h2oUser->h2o_status_id)->first();
+                $bsfStatus = BsfStatus::where('id', $h2oUser->bsf_status_id)->first();
+                $sharedH2oPublics = H2oSharedPublicStructure::where('h2o_public_structure_id', $h2oUser->id)
+                    ->where('is_archived', 0)->get();
+            }
+
+            $energyUser = AllEnergyMeter::where("public_structure_id", $allWaterHolder->public_structure_id)->get();
+        }
+ 
+        if($allWaterHolder->public_structure_id && $allWaterHolder->is_main == "No") {
+
+            $h2oUser = null;
+            $public = PublicStructure::where('id', $allWaterHolder->public_structure_id)->first();
+            $energyUser = AllEnergyMeter::where("public_structure_id", $allWaterHolder->public_structure_id)->get();
+            $mainH2oPublic = H2oSharedPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
+        }
+
+        $community = Community::where('id', $allWaterHolder->community_id)->first();
+        $household = Household::where('id', $allWaterHolder->household_id)->first();
+        $networkUser = WaterNetworkUser::where('household_id', $allWaterHolder->household_id)->first();
+
+        $waterIncident = DB::table('h2o_system_incidents')
+            ->join('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
+                '=', 'all_water_holders.id')
+            ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
+            ->leftJoin('h2o_incident_statuses', 'h2o_system_incidents.id', 
+                'h2o_incident_statuses.h2o_system_incident_id')
+            ->leftJoin('incident_statuses', 
+                'h2o_incident_statuses.incident_status_id', 
+                '=', 'incident_statuses.id')
+            ->where('h2o_system_incidents.is_archived', 0)
+            ->where('h2o_system_incidents.all_water_holder_id', $id)
+            ->select('h2o_system_incidents.date as incident_date',
+                'incidents.english_name as incident', 
+                'incident_statuses.name as incident_status',
+                'h2o_system_incidents.response_date')
+            ->get(); 
+
+        return view('users.water.show', compact('allWaterHolder', 'allWaterHolderDonors', 
+            'h2oStatus', 'bsfStatus', 'community', 'household', 'public', 'mainUser',
+            'networkUser', 'waterIncident', 'h2oUser', 'gridUser', 'sharedH2oPublics',
+            'energyUser', 'energyPublic', 'sharedH2oUsers', 'sharedGridUsers', 'mainGridUser',
+            'mainH2oPublic'));
     }
 
     /**

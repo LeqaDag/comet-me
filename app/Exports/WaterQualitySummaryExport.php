@@ -23,7 +23,7 @@ class WaterQualitySummaryExport implements FromCollection, WithHeadings, WithSty
     protected $request;
 
     function __construct($request) {
-
+ 
         $this->request = $request;
     }
 
@@ -220,7 +220,7 @@ class WaterQualitySummaryExport implements FromCollection, WithHeadings, WithSty
     }
 
     /**
-     * Styling
+     * Styling 
      *
      * @return response()
      */
@@ -230,7 +230,7 @@ class WaterQualitySummaryExport implements FromCollection, WithHeadings, WithSty
         $sheet->mergeCells('B2:E2');
         $sheet->mergeCells('B3:E3');
         $sheet->mergeCells('B4:E4');
-        $sheet->mergeCells('B5:E5');
+        $sheet->mergeCells('B5:E5'); 
 
         $sheet->setCellValue('A1', 'COMET - ME Water Quality Programe ');
         $sheet->setCellValue('B3', 'Average');

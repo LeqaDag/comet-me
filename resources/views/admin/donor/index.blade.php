@@ -10,38 +10,20 @@
 
 @section('content')
  
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12">
-            <div class="panel panel-primary">
-                <div class="panel-body" >
-                    <div id="pie_chart_energy_donor_household" style="height:450px;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
- 
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12">
-            <div class="panel panel-primary">
-                <div class="panel-body" >
-                    <div id="pie_chart_water_donor_community" style="height:450px;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseDonorVisualData" 
+        role="button" aria-expanded="false" aria-controls="collapseDonorVisualData">
+        <i class="menu-icon tf-icons bx bx-show-alt"></i>
+        Visualize Data
+    </a>
+</p>
 
-<div class="container mb-4">
+<div class="collapse" id="collapseDonorVisualData">
     <div class="row">
         <div class="col-xl-6 col-lg-6 col-md-6">
             <div class="panel panel-primary">
                 <div class="panel-body" >
-                    <div id="pie_chart_h2o_donor_users" style="height:450px;">
+                    <div id="pie_chart_energy_donor_household" style="width:100%;height:250px;">
                     </div>
                 </div>
             </div>
@@ -49,20 +31,37 @@
         <div class="col-xl-6 col-lg-6 col-md-6">
             <div class="panel panel-primary">
                 <div class="panel-body" >
-                    <div id="pie_chart_grid_donor_users" style="height:450px;">
+                    <div id="pie_chart_water_donor_community" style="height:250px;">
                     </div>
                 </div>
             </div>
-        </div> 
+        </div>
     </div>
-</div>
 
-<div class="container mb-4">
-    <div class="row">
+    <div class="row" style="margin-top:15px">
+        <div class="col-xl-6 col-lg-6 col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div id="pie_chart_h2o_donor_users" style="height:250px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-lg-6 col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div id="pie_chart_grid_donor_users" style="height:250px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top:15px">
         <div class="col-xl-12 col-lg-12 col-md-12">
             <div class="panel panel-primary">
                 <div class="panel-body" >
-                    <div id="pie_chart_internet_donor_community" style="height:450px;">
+                    <div id="pie_chart_internet_donor_community" style="height:250px;">
                     </div>
                 </div>
             </div>
@@ -70,8 +69,7 @@
     </div>
 </div>
 
-
-<h4 class="py-3 breadcrumb-wrapper mb-4">
+<h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:25px">
   <span class="text-muted fw-light">All </span> donors
 </h4>
  

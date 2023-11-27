@@ -45,10 +45,10 @@ class AcHouseholdController extends Controller
             if ($request->ajax()) {
             
                 $data = DB::table('households')
+                    ->where('households.is_archived', 0)
                     ->where('households.household_status_id', 1)
                     ->orWhere('households.household_status_id', 2)
                     ->where('internet_holder_young', 0)
-                    ->where('households.is_archived', 0)
                     ->join('communities', 'households.community_id', '=', 'communities.id')
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
                     ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
@@ -64,9 +64,10 @@ class AcHouseholdController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
-    
-                        $empty = "";
+
+                        $detailsButton = "<a type='button' class='detailsHouseholdButton' data-bs-toggle='modal' data-bs-target='#householdDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
                         $updateButton = "<a type='button' class='updateAcHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteAcHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
 
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 || 
@@ -74,9 +75,9 @@ class AcHouseholdController extends Controller
                             Auth::guard('user')->user()->user_type_id == 4 || 
                             Auth::guard('user')->user()->user_type_id == 12 ) 
                         {
-                            return $updateButton;
+                            return $detailsButton." ". $updateButton." ".$deleteButton;
                         }
-                        else  return $empty;
+                        else  return $detailsButton;
                     })
                    
                     ->filter(function ($instance) use ($request) {

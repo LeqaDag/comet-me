@@ -6,13 +6,17 @@
 
 <style>
     label, input {
-    display: block;
-}
 
-label {
-    margin-top: 20px;
-}
+        display: block;
+    }
+
+    label {
+
+        margin-top: 20px;
+    }
+
 </style>
+
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> {{$mgIncident->EnergySystem->name}}
@@ -136,6 +140,13 @@ label {
                             class="form-control">
                         </fieldset>
                     </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Response Date</label>
+                            <input type="date" name="response_date" value="{{$mgIncident->response_date}}" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
                 </div>
 
                 <div class="row">
@@ -150,6 +161,180 @@ label {
                     </div>
                 </div>
                     
+                <hr>
+
+                <div class="row">
+                    <h5>Equipment Damaged</h5>
+                </div>
+                @if(count($mgIncidentEquipments) > 0)
+
+                    <table id="mgIncidentEquipmentsTable" 
+                        class="table table-striped data-table-fbs-equipments my-2">
+                        
+                        <tbody>
+                            @foreach($mgIncidentEquipments as $mgIncidentEquipment)
+                            <tr id="mgIncidentEquipmentRow">
+                                <td class="text-center">
+                                    {{$mgIncidentEquipment->IncidentEquipment->name}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteMgIncidentEquipment" id="deleteMgIncidentEquipment" 
+                                        data-id="{{$mgIncidentEquipment->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add More Equipment Damaged</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="more_equipment[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($incidentEquipments as $incidentEquipment)
+                                        <option value="{{$incidentEquipment->id}}">
+                                            {{$incidentEquipment->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Equipment Damaged</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_equipment[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($incidentEquipments as $incidentEquipment)
+                                        <option value="{{$incidentEquipment->id}}">
+                                            {{$incidentEquipment->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
+
+                <hr>
+
+                <div class="row">
+                    <h5>Households Affected</h5>
+                </div>
+                @if(count($mgAffectedHouseholds) > 0)
+
+                    <table id="mgAffectedHouseholdsTable" 
+                        class="table table-striped data-table-fbs-equipments my-2">
+                        
+                        <tbody>
+                            @foreach($mgAffectedHouseholds as $mgAffectedHousehold)
+                            <tr id="mgAffectedHouseholdRow">
+                                <td class="text-center">
+                                    {{$mgAffectedHousehold->english_name}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deletemgAffectedHousehold" id="deletemgAffectedHousehold" 
+                                        data-id="{{$mgAffectedHousehold->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add More Households Affected</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="more_household[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($households as $household)
+                                        <option value="{{$household->id}}">
+                                            {{$household->english_name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Households Affected</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_household[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($households as $household)
+                                        <option value="{{$household->id}}">
+                                            {{$household->english_name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
+
+                <br>
+                <hr>
+
+                <div class="row">
+                    <h5>Incident MG Photos</h5>
+                </div>
+                @if(count($mgIncidentPhotos) > 0)
+
+                    <table id="mgIncidentPhotosTable" 
+                        class="table table-striped data-table-mg-equipments my-2">
+                        
+                        <tbody>
+                            @foreach($mgIncidentPhotos as $mgIncidentPhoto)
+                            <tr id="mgIncidentPhotoRow">
+                                <td class="text-center">
+                                    <img src="{{url('/incidents/mg/'.$mgIncidentPhoto->slug)}}" 
+                                        class="d-block w-100" style="max-height:40vh;max-width:40vh;">
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteMgIncidentPhoto" id="deleteMgIncidentPhoto" 
+                                        data-id="{{$mgIncidentPhoto->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Upload More photos</label>
+                            <input type="file" name="more_photos[]"
+                                class="btn btn-primary me-2 mb-4 block w-full mt-1 rounded-md"
+                                accept="image/png, image/jpeg, image/jpg, image/gif" multiple/>
+                        </fieldset>
+                        <p class="mb-0">Allowed JPG, JPEG, GIF or PNG.</p>
+                    </div>
+                @else 
+                    <div class="row">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Upload new photos</label>
+                            <input type="file" name="new_photos[]"
+                                class="btn btn-primary me-2 mb-4 block w-full mt-1 rounded-md"
+                                accept="image/png, image/jpeg, image/jpg, image/gif" multiple/>
+                        </fieldset>
+                        <p class="mb-0">Allowed JPG, JPEG, GIF or PNG.</p>
+                    </div>
+                @endif
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -161,4 +346,135 @@ label {
         </div>
     </div>
 </div>
+
+<script>
+
+    $(document).on('change', '#fbsSelectedCommuntiy', function () {
+
+        community_id = $(this).val();
+        $.ajax({
+            url: "energy_user/get_by_community/" +  community_id,
+            method: 'GET',
+            success: function(data) {
+                $('#energyUserSelectedFbs').prop('disabled', false);
+                $('#energyUserSelectedFbs').html(data.html);
+            }
+        });
+    });
+
+    // delete photo
+    $('#mgIncidentPhotosTable').on('click', '.deleteMgIncidentPhoto',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this photo?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteMgIncidentPhoto') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // delete damaged equipment
+    $('#mgIncidentEquipmentsTable').on('click', '.deleteMgIncidentEquipment',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this equipment?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteMgIncidentEquipment') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // delete affected household
+    $('#mgAffectedHouseholdsTable').on('click', '.deletemgAffectedHousehold',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this household affected?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deletemgAffectedHousehold') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+</script>
+
 @endsection

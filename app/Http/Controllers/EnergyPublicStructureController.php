@@ -32,6 +32,8 @@ use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
 use App\Models\VendorUserName;
+use App\Exports\PublicMeters;
+use Excel;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -591,7 +593,7 @@ class EnergyPublicStructureController extends Controller
 
         return redirect('/energy-public')->with('message', 'Energy Public Updated Successfully!');
     }
-
+ 
     /**
      * Delete a resource from storage.
      *
@@ -618,5 +620,15 @@ class EnergyPublicStructureController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+
+        return Excel::download(new PublicMeters($request), 'energy_public_meters.xlsx');
     }
 }

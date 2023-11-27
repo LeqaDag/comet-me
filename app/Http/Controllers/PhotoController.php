@@ -44,7 +44,7 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
-        foreach ($request->photos as $photo) {
+        foreach ($request->photos as $photo) { 
             $original_name = $photo->getClientOriginalName();
             $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
             $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 

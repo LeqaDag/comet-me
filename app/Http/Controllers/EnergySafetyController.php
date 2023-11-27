@@ -17,6 +17,8 @@ use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
 use App\Models\Household;
 use App\Models\MeterCase;
+use App\Models\Region;
+use App\Models\SubRegion;
 use App\Models\PublicStructure;
 use App\Exports\EnergySafetyExport;
 use App\Models\ElectricityMaintenanceCall;
@@ -51,12 +53,13 @@ class EnergySafetyController extends Controller
                     ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
                     ->where('all_energy_meter_safety_checks.is_archived', 0)
                     ->select('all_energy_meters.meter_number', 
+                        'all_energy_meters.ground_connected',
                         'all_energy_meter_safety_checks.id as id', 
                         'all_energy_meter_safety_checks.created_at as created_at', 
                         'all_energy_meter_safety_checks.updated_at as updated_at', 
                         'communities.english_name as community_name',
                         'households.english_name as household_name',
-                        'public_structures.english_name as public',
+                        'public_structures.english_name as public_name',
                         'energy_system_types.name as energy_type_name',
                         'meter_cases.meter_case_name_english')
                     ->latest(); 
@@ -72,10 +75,17 @@ class EnergySafetyController extends Controller
                             Auth::guard('user')->user()->user_type_id == 2 ||
                             Auth::guard('user')->user()->user_type_id == 4) 
                         {
-                                
+                                 
                             return $viewButton." ". $updateButton." ".$deleteButton;
                         } else return $viewButton;
 
+                    })
+                    ->addColumn('holder', function($row) {
+
+                        if($row->household_name != null) $holder = $row->household_name;
+                        else if($row->public_name != null) $holder = $row->public_name;
+
+                        return $holder;
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -91,11 +101,12 @@ class EnergySafetyController extends Controller
                                 ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
                                 ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%")
                                 ->orWhere('meter_cases.meter_case_name_english', 'LIKE', "%$search%")
-                                ->orWhere('meter_cases.meter_case_name_arabic', 'LIKE', "%$search%");
+                                ->orWhere('meter_cases.meter_case_name_arabic', 'LIKE', "%$search%")
+                                ->orWhere('all_energy_meter_safety_checks.visit_date', 'LIKE', "%$search%");
                             });
                         }
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'holder'])
                     ->make(true);
             }
 
@@ -135,8 +146,61 @@ class EnergySafetyController extends Controller
                 $array[++$key] = [$value->name, $value->number];
             }
 
+            $regions = Region::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+
+            $subRegions = SubRegion::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+
+            $checkDate = DB::table('all_energy_meter_safety_checks')
+                ->select('visit_date', DB::raw('COUNT(*) AS cnt'))
+                ->groupBy('visit_date')
+                ->orderByRaw('COUNT(*) DESC')
+                ->take(1)
+                ->get(); 
+            
+            $groundYes =  DB::table('all_energy_meter_safety_checks')
+                ->join('all_energy_meters', 'all_energy_meters.id', 
+                    '=', 'all_energy_meter_safety_checks.all_energy_meter_id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meter_safety_checks.is_archived', 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.ground_connected', "Yes")
+                ->count();
+            $groundNo =  DB::table('all_energy_meter_safety_checks')
+                ->join('all_energy_meters', 'all_energy_meters.id', 
+                    '=', 'all_energy_meter_safety_checks.all_energy_meter_id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meter_safety_checks.is_archived', 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.ground_connected', "No")
+                ->count();
+
+            $notYetChecked = DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.ground_connected', "No")
+                ->count();
+
+            $groundConnectedFbs = AllEnergyMeter::where("is_archived", 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.ground_connected', "Yes")
+                ->count();
+            $groundNotConnectedFbs = AllEnergyMeter::where("is_archived", 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.ground_connected', "No")
+                ->count();
+          
+            $badResultsNumber = AllEnergyMeterSafetyCheck::where("ph_loop", "<", 10)
+                ->where("n_loop", "<", 10)
+                ->count();
+
             return view('safety.energy.index', compact('communities', 'energySystemTypes', 
-                'meterCases'))
+                'meterCases', 'regions', 'subRegions', 'checkDate', 'groundYes',
+                'groundNo', 'notYetChecked', 'groundConnectedFbs', 'groundNotConnectedFbs',
+                'badResultsNumber'))
                 ->with('energy_users', json_encode($array)
             );
         } else {

@@ -97,7 +97,8 @@ class WaterQualityResultController extends Controller
                     ->leftJoin('public_structures', 'water_quality_results.public_structure_id', 
                         '=', 'public_structures.id')
                     ->where('water_quality_results.is_archived', 0)
-                    ->select('water_quality_results.id as id', 'households.english_name as household', 
+                    ->select('water_quality_results.id as id', 
+                        'households.english_name as household_name', 
                         'communities.english_name as community_name',
                         'water_quality_results.created_at as created_at',
                         'water_quality_results.updated_at as updated_at',
@@ -121,7 +122,13 @@ class WaterQualityResultController extends Controller
                         } else return $viewButton;
                         
                     })
-                   
+                    ->addColumn('holder', function($row) {
+
+                        if($row->household_name != null) $holder = $row->household_name;
+                        else if($row->public_name != null) $holder = $row->public_name;
+
+                        return $holder;
+                    })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request){
@@ -130,11 +137,13 @@ class WaterQualityResultController extends Controller
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('households.english_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('water_quality_results.date', 'LIKE', "%$search%");
                             });
                         }
                     })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'holder'])
                 ->make(true);
             }
     
@@ -188,17 +197,21 @@ class WaterQualityResultController extends Controller
 
         if($flag == "user") {
 
-            $households = DB::table('households')
-                ->where('households.is_archived', 0)
-                ->where("households.community_id", $community_id)
+            $households = DB::table('all_water_holders')
+                ->join('households', 'all_water_holders.household_id', 'households.id')
+                ->where('all_water_holders.is_archived', 0)
+                ->where('all_water_holders.is_main', "Yes")
+                ->where("all_water_holders.community_id", $community_id)
                 ->orderBy('households.english_name', 'ASC')
                 ->select('households.id as id', 'households.english_name')
                 ->get();
         } else if($flag == "shared") {
 
-            $households = DB::table('households')
-                ->where('households.is_archived', 0)
-                ->where("households.community_id", $community_id)
+            $households =DB::table('all_water_holders')
+                ->join('households', 'all_water_holders.household_id', 'households.id')
+                ->where('all_water_holders.is_archived', 0)
+                ->where('all_water_holders.is_main', "No")
+                ->where("all_water_holders.community_id", $community_id)
                 ->orderBy('households.english_name', 'ASC')
                 ->select('households.id as id', 'households.english_name')
                 ->get();

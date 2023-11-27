@@ -5,6 +5,87 @@
 @include('layouts.all')
 
 @section('content')
+<p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseEnergyCometExport" aria-expanded="false" 
+        aria-controls="collapseEnergyCometExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+</p>
+
+<div class="collapse multi-collapse mb-4" id="collapseEnergyCometExport">
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Export Comet Meter Report
+                            <i class='fa-solid fa-file-excel text-info'></i>
+                        </h5>
+                    </div>
+                    <form method="POST" enctype='multipart/form-data' 
+                        action="{{ route('comet-meter.export') }}">
+                        @csrf
+                        <div class="card-body"> 
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Community</label>
+                                        <select name="community_id"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Community</option>
+                                            @foreach($communities as $community)
+                                                <option value="{{$community->id}}">
+                                                    {{$community->english_name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
+                                        <select name="type" id="selectedWaterSystemType" 
+                                            class="form-control" required>
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($installationTypes as $installationType)
+                                                <option value="{{$installationType->id}}">
+                                                    {{$installationType->type}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Installation date from</label>
+                                        <input type="date" class="form-control" name="date_from">
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Installation date to</label>
+                                        <input type="date" class="form-control" name="date_to">
+                                    </fieldset>
+                                </div>
+                            </div><br>
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <label class='col-md-12 control-label'>Download Excel</label>
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>  
+            </div>
+        </div> 
+    </div> 
+</div> 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Comet Meters

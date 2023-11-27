@@ -12,18 +12,10 @@
     label, input{ 
     display: block;
 }
-.dropdown-toggle{
-        height: 40px;
-        
-    }
 label {
     margin-top: 20px;
 }
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -238,6 +230,107 @@ label {
                             </fieldset>
                         </div>
                     </div> 
+ 
+                    <hr style="margin-top:30px">
+                    <div class="row">
+                        <h6>Recommended Energy Systems</h6>
+                    </div>
+                    @if(count($recommendedEnergySystems) > 0)
+
+                        <table id="recommendedEnergySystemsTable" class="table table-striped my-2">
+                            <tbody>
+                                @foreach($recommendedEnergySystems as $recommendedEnergySystem)
+                                <tr id="recommendedEnergySystemsRow">
+                                    <td class="text-center">
+                                        {{$recommendedEnergySystem->EnergySystemType->name}}
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="text" name="numbers" value="{{$recommendedEnergySystem->numbers}}"
+                                            placeholder="How many systems?" class="target_point form-control" 
+                                            data-id="{{$recommendedEnergySystem->id}}"
+                                            data-name="{{$recommendedEnergySystem->community_id}}"
+                                            id="recommended_numbers"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn deleteRecommendedEnergySystems" 
+                                            id="deleteRecommendedEnergySystems"
+                                            data-id="{{$recommendedEnergySystem->id}}">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                    </td
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                                <table class="table table-bordered" id="dynamicAddRemoveCompoundName">
+                                    <tr>
+                                        <th>Energy System Type</th>
+                                        <th>Numbers</th>
+                                        <th>Options</th>
+                                    </tr>
+                                    <tr> 
+                                        <td>
+                                            <select class="form-control"  name="recommended_systems">
+                                                <option selected disabled>Choose one...</option>
+                                                @foreach($energySystemTypes as $energySystemType)
+                                                    <option value="{{$energySystemType->id}}">
+                                                        {{$energySystemType->name}}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="addMoreInputFieldsCompoundName[0][subject]" 
+                                            placeholder="How many systems?" class="target_point form-control" 
+                                            data-id="0"/>
+                                        </td>
+                                        <td>
+                                            <button type="button" name="add" id="addCompoundNameButton" 
+                                            class="btn btn-outline-primary">
+                                                Add More
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add More Recommended Energy Systems</label>
+                                    <select class="selectpicker form-control" 
+                                        multiple data-live-search="true" name="recommended_systems[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($energySystemTypes as $energySystemType)
+                                            <option value="{{$energySystemType->id}}">
+                                                {{$energySystemType->name}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                        
+                    @else
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add Recommended Energy Systems</label>
+                                    <select class="selectpicker form-control" 
+                                        multiple data-live-search="true" name="new_recommended_systems[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($energySystemTypes as $energySystemType)
+                                            <option value="{{$energySystemType->id}}">{{$energySystemType->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                    @endif
+
 
                     <hr style="margin-top:30px">
                     <div class="row">
@@ -406,10 +499,35 @@ label {
     </div>
 </div>
 
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
-
 <script>
+
+    $('#recommended_numbers').on('change', function(){
+
+        var number = $(this).val();
+        var community_id = $(this).data("name");
+        alert(community_id);
+        $.ajax({
+            url: "/recommended/numbers",
+            method: 'POST',
+            data: {
+                number : number,
+                community_id : community_id
+            },
+            success: function(data) {
+                Swal.fire({
+                    icon: 'success',
+                    title: response.msg,
+                    showDenyButton: false,
+                    showCancelButton: false,
+                    confirmButtonText: 'Okay!'
+                }).then((result) => {
+                    $ele.fadeOut(1000, function () {
+                        $ele.remove();
+                    });
+                });
+            }
+        });
+    });
 
     // delete community compound
     $('#communityCompoundTable').on('click', '.deleteCommunityCompound',function() {

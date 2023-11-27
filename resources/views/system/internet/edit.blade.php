@@ -13,15 +13,7 @@
         margin-top: 20px;
     } 
 
-    .dropdown-toggle{
-        height: 40px;
-    }
 </style>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -874,11 +866,6 @@
         </div>
     </div>
 </div>
-
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
-
-<script src="{{ asset('js/jquery.min.js') }}"></script>
 
 <script>
 

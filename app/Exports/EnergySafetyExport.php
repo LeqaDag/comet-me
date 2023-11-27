@@ -11,7 +11,7 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell; 
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;  
 use DB;
 
 class EnergySafetyExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
@@ -33,6 +33,8 @@ class EnergySafetyExport implements FromCollection, WithHeadings, WithTitle, Sho
             ->join('all_energy_meters', 'all_energy_meters.id', 
                 '=', 'all_energy_meter_safety_checks.all_energy_meter_id')
             ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
+            ->join('regions', 'communities.region_id', '=', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->leftJoin('households', 'all_energy_meters.household_id', '=', 'households.id')
             ->LeftJoin('public_structures', 'all_energy_meters.public_structure_id', 
                 'public_structures.id')
@@ -56,6 +58,14 @@ class EnergySafetyExport implements FromCollection, WithHeadings, WithTitle, Sho
                 'all_energy_meter_safety_checks.notes',
                 );
 
+        if($this->request->region) {
+
+            $query->where("regions.english_name", $this->request->region);
+        } 
+        if($this->request->sub_region) {
+
+            $query->where("sub_regions.english_name", $this->request->sub_region);
+        } 
         if($this->request->community) {
 
             $query->where("communities.english_name", $this->request->community);
@@ -63,6 +73,10 @@ class EnergySafetyExport implements FromCollection, WithHeadings, WithTitle, Sho
         if($this->request->system_type) {
 
             $query->where("energy_system_types.name", $this->request->system_type);
+        }
+        if($this->request->ground) {
+
+            $query->where("all_energy_meters.ground_connected", $this->request->ground);
         }
         if($this->request->date_from) {
 

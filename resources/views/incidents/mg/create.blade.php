@@ -6,12 +6,12 @@
 label, table {
     margin-top: 20px;
 }
+    .dropdown-toggle{
+        height: 40px;
+        
+    }
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
 <div id="createMgIncident" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -34,8 +34,8 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select class="selectpicker form-control" 
-                                    multiple data-live-search="true" 
-                                    name="community_id[]" required>
+                                    data-live-search="true" id="communityMgIncident"
+                                    name="community_id" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -48,14 +48,8 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy System</label>
-                                <select name="energy_system_id[]" class="selectpicker form-control" 
-                                    multiple data-live-search="true" required >
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($energySystems as $energySystem)
-                                    <option value="{{$energySystem->id}}">
-                                        {{$energySystem->name}}
-                                    </option>
-                                    @endforeach
+                                <select name="energy_system_id" class="form-control" 
+                                    id="energySystemMgIncident" required disabled>
                                 </select>
                             </fieldset>
                         </div>
@@ -65,7 +59,8 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Incident Type</label>
-                                <select name="incident_id" class="form-control" required>
+                                <select name="incident_id" class="form-control" 
+                                    id="incidentMgType" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($incidents as $incident)
                                     <option value="{{$incident->id}}">
@@ -78,13 +73,8 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Incident MG Status</label>
-                                <select name="incident_status_mg_system_id" class="form-control" >
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($mgIncidents as $mgIncident)
-                                    <option value="{{$mgIncident->id}}">
-                                        {{$mgIncident->name}}
-                                    </option>
-                                    @endforeach
+                                <select name="incident_status_mg_system_id" disabled
+                                    class="form-control" id="incidentMgStatus" required>
                                 </select>
                             </fieldset>
                         </div>
@@ -97,6 +87,36 @@ label, table {
                                 <input type="date" name="date" class="form-control">
                             </fieldset>
                         </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Response Date</label>
+                                <input type="date" name="response_date" class="form-control">
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Equipment Damaged</label>
+                                <select name="incident_equipment_id[]" multiple
+                                    class="selectpicker form-control" data-live-search="true" >
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($incidentEquipments as $incidentEquipment)
+                                    <option value="{{$incidentEquipment->id}}">
+                                        {{$incidentEquipment->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <label class='col-md-12 control-label'>Households Affected</label>
+                            <select name="households[]" multiple id="selectedHouseholdAffected"
+                                class="selectpicker form-control" data-live-search="true" >
+                                <option disabled selected>Choose one...</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -108,6 +128,17 @@ label, table {
                             </fieldset>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Upload photos</label>
+                            <input type="file" name="photos[]"
+                                class="btn btn-primary me-2 mb-4 block w-full mt-1 rounded-md"
+                                accept="image/png, image/jpeg, image/jpg, image/gif" multiple/>
+                        </fieldset>
+                        <p class="mb-0">Allowed JPG, JPEG, GIF or PNG.</p>
+                    </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -118,5 +149,49 @@ label, table {
     </div>
 </div>
 
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+<script>
+
+    $(document).on('change', '#communityMgIncident', function () {
+        community_id = $(this).val();
+
+        $.ajax({
+            url: "mg-incident/get_system_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                console.log(data.html);
+                $('#energySystemMgIncident').prop('disabled', false);
+                $('#energySystemMgIncident').html(data.html);
+            }
+        });
+ 
+        $.ajax({
+            url: "mg-incident/get_household_by_community/" + community_id,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                var select = $('#selectedHouseholdAffected'); 
+
+                select.html(response.html);
+                select.selectpicker('refresh');
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+        });
+    });
+
+    $(document).on('change', '#incidentMgType', function () {
+        incident_type_id = $(this).val();
+
+        $.ajax({
+            url: "mg-incident/get_by_type/" + incident_type_id,
+            method: 'GET',
+            success: function(data) {
+                console.log(data.html);
+                $('#incidentMgStatus').prop('disabled', false);
+                $('#incidentMgStatus').html(data.html);
+            }
+        });
+    });
+</script>

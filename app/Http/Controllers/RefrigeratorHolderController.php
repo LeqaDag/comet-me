@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+ 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
@@ -81,7 +81,6 @@ class RefrigeratorHolderController extends Controller
                     ->leftJoin('public_structures', 'refrigerator_holders.public_structure_id', 
                         '=', 'public_structures.id')
                     ->where('refrigerator_holders.is_archived', 0)
-                    ->where('households.is_archived', 0)
                     ->select('refrigerator_holders.refrigerator_type_id', 'refrigerator_holders.date',
                         'refrigerator_holders.id as id', 'refrigerator_holders.created_at as created_at', 
                         'refrigerator_holders.updated_at as updated_at', 
@@ -110,6 +109,13 @@ class RefrigeratorHolderController extends Controller
                             return $viewButton." ". $updateButton." ".$deleteButton;
                         } else return $viewButton;
                     })
+                    ->addColumn('holder', function($row) {
+
+                        if($row->household_name != null) $holder = $row->household_name;
+                        else if($row->public_name != null) $holder = $row->public_name;
+
+                        return $holder;
+                    })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request) {
@@ -123,7 +129,7 @@ class RefrigeratorHolderController extends Controller
                             });
                         }
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'holder'])
                     ->make(true);
             }
     

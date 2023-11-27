@@ -6,12 +6,23 @@
 
 @section('content')
  
-<div class="container mb-4">
+<p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseSubCommunityExport" aria-expanded="false" 
+        aria-controls="collapseSubCommunityExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+</p>
+
+<div class="collapse multi-collapse container mb-4" id="collapseSubCommunityExport">
     <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Export Filter</h5>
+                    <h5>Export Sub-Community Report 
+                        <i class='fa-solid fa-file-excel text-info'></i>
+                    </h5>
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('sub-community-household.export') }}">

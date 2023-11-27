@@ -29,6 +29,7 @@ use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
 use App\Models\InstallationType;
+use App\Models\VendorUserName;
 use App\Exports\HouseholdMeters;
 use Carbon\Carbon;
 use Image;
@@ -59,13 +60,12 @@ class HouseholdMeterController extends Controller
                         'households.english_name as household_name',
                         'household_meters.user_name', 'household_meters.user_name_arabic')
                     ->latest(); 
-    
+     
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
     
-                        $viewButton = "<a type='button' class='viewHouseholdMeterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewHouseholdMeterUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                        $updateButton = "<a type='button' class='updateAllHouseholdMeterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateAllHouseholdMeterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $viewButton = "<a type='button' class='viewHouseholdMeterUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergySharedUserModal' ><i class='fa-solid fa-eye text-info'></i></a>";
                         $deleteButton = "<a type='button' class='deleteAllHouseholdMeterUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
@@ -75,7 +75,7 @@ class HouseholdMeterController extends Controller
                             Auth::guard('user')->user()->user_type_id == 12) 
                         {
                                 
-                            return $viewButton." ". $updateButton." ".$deleteButton;
+                            return $viewButton." ". $deleteButton;
                         } else return $viewButton;
        
                     })
@@ -124,10 +124,27 @@ class HouseholdMeterController extends Controller
     public function show($id)
     {
         $householdMeter = HouseholdMeter::findOrFail($id);
-        $household = Household::where('id', $householdMeter->household_id)->first();
+        $mainUser = AllEnergyMeter::findOrFail($householdMeter->energy_user_id);
+        $user = Household::where('id', $mainUser->household_id)->first();
+        $sharedUser = Household::where('id', $householdMeter->household_id)->first();
 
-        $response['household'] = $household;
+        $community = Community::where('id', $user->community_id)->first();
+        $meter = MeterCase::where('id', $mainUser->meter_case_id)->first();
+        $systemType = EnergySystemType::where('id', $mainUser->energy_system_type_id)->first();
+        $system = EnergySystem::where('id', $mainUser->energy_system_id)->first();
+        $vendor = VendorUserName::where('id', $mainUser->vendor_username_id)->first();
+        $installationType = InstallationType::where('id', $mainUser->installation_type_id)->first();
+
+        $response['user'] = $user;
+        $response['mainUser'] = $mainUser;
+        $response['sharedUser'] = $sharedUser;
         $response['householdMeters'] = $householdMeter;
+        $response['community'] = $community;
+        $response['meter'] = $meter;
+        $response['type'] = $systemType;
+        $response['system'] = $system;
+        $response['vendor'] = $vendor;
+        $response['installationType'] = $installationType;
 
         return response()->json($response);
     }
@@ -180,12 +197,17 @@ class HouseholdMeterController extends Controller
             $html = '<option value="">Choose One...</option>';
         } else {
 
-            $html = '<option selected>Choose One...</option>';
-            $households = Household::where('community_id', $energyUser->community_id)
-                ->where('id', '!=', $energyUser->household_id)
-                ->where('is_archived', 0)
-                ->orderBy('english_name', 'ASC')
+            $html = '<option disabled selected>Choose One...</option>';
+            $households = DB::table('households')
+                ->where('households.community_id', $energyUser->community_id)
+                ->where('households.id', '!=', $energyUser->household_id)
+                ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
+                ->whereNull('all_energy_meters.household_id')
+                ->where('households.is_archived', 0)
+                ->select('households.id', 'households.english_name')
+                ->orderBy('households.english_name', 'ASC')
                 ->get();
+
             foreach ($households as $household) {
                 $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
             }
@@ -207,12 +229,15 @@ class HouseholdMeterController extends Controller
         $household->household_status_id = 4;
         $household->save();
 
-        $householdMeter = new HouseholdMeter();
-        $householdMeter->user_name = $household->english_name;
-        $householdMeter->user_name_arabic = $household->arabic_name;
-        $householdMeter->household_id = $request->household_id;
-        $householdMeter->energy_user_id = $request->energy_user_id;
-        $householdMeter->save();
+        for($i=0; $i < count($request->household_id); $i++) {
+
+            $householdMeter = new HouseholdMeter();
+            $householdMeter->user_name = $household->english_name;
+            $householdMeter->user_name_arabic = $household->arabic_name;
+            $householdMeter->household_id = $request->household_id[$i];
+            $householdMeter->energy_user_id = $request->energy_user_id;
+            $householdMeter->save();
+        }
         
         return redirect()->back()->with('message', 'New Sub-Region Added Successfully!');
     }

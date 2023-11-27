@@ -174,13 +174,13 @@ All<span class="text-muted fw-light"> Requested Households</span>
         });
     
         // View record details
-        $('#requestedHouseholdsTable').on('click', '.updateHousehold',function() {
+        $('#requestedHouseholdsTable').on('click', '.updateHousehold', function() {
             var id = $(this).data('id');
             var url = window.location.href; 
             url = url +'/'+ id +'/edit';
             // AJAX request
             $.ajax({
-                url: 'household/' + id + '/editpage',
+                url: 'requested-household/' + id + '/editpage',
                 type: 'get',
                 dataType: 'json',
                 success: function(response) {

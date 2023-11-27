@@ -231,7 +231,6 @@ label, table {
     </div>
 </div>
 
-<script src="{{ asset('js/jquery.min.js') }}"></script>
 <script>
     
     $(document).on('change', '#communityChanges', function () {

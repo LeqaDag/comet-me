@@ -38,6 +38,7 @@ class PublicMeters implements FromCollection, WithHeadings, WithTitle, ShouldAut
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
                 'donors.id')
             ->where('all_energy_meters.is_archived', 0)
+            ->where('public_structures.comet_meter', 0)
             ->select('public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
@@ -46,29 +47,23 @@ class PublicMeters implements FromCollection, WithHeadings, WithTitle, ShouldAut
                 'all_energy_meters.installation_date', 'meter_cases.meter_case_name_english',
                 'donors.donor_name');
 
-        if($this->request->misc) {
+        if($this->request->community_id) {
 
-            if($this->request->misc == "misc") {
-
-                $query->where("all_energy_meters.misc", 1);
-            } else if($this->request->misc == "new") {
-
-                $query->where("all_energy_meters.misc", 0);
-            } else if($this->request->misc == "maintenance") {
-
-                $query->where("all_energy_meters.misc", 2);
-            }
+            $query->where("all_energy_meters.community_id", $this->request->community_id);
         }
+        if($this->request->type) {
 
+            $query->where("all_energy_meters.installation_type_id", $this->request->type);
+        }
         if($this->request->date_from) {
+
             $query->where("all_energy_meters.installation_date", ">=", $this->request->date_from);
         }
-
         if($this->request->date_to) {
+
             $query->where("all_energy_meters.installation_date", "<=", $this->request->date_to);
         }
 
-        //dd($query->count());
         return $query->get();
     }
 

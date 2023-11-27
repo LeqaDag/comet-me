@@ -6,16 +6,26 @@
 
 <style>
     label, input {
-    display: block;
-}
 
-label {
-    margin-top: 20px;
-}
+        display: block;
+    }
+
+    label {
+
+        margin-top: 20px;
+    }
+
 </style>
+
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-    <span class="text-muted fw-light">Edit </span> {{$waterIncident->AllWaterHolder->Household->english_name}}
+    <span class="text-muted fw-light">Edit </span> 
+    @if($waterHolder->household_id)
+            {{$waterHolder->Household->english_name}} 
+        @else @if($waterHolder->public_structure_id)
+            {{$waterHolder->PublicStructure->english_name}} 
+        @endif
+    @endif
     <span class="text-muted fw-light">Information </span> 
 </h4>
 
@@ -45,10 +55,15 @@ label {
                             <label class='col-md-12 control-label'>Energy User</label>
                             <select name="all_water_holder_id" class="form-control" 
                                 id="energyUserSelectedFbs" disabled>
-                                @if($waterIncident->all_water_holder_id)
+                                @if($waterHolder->household_id)
                                     <option value="{{$waterIncident->all_water_holder_id}}">
-                                        {{$waterIncident->AllWaterHolder->Household->english_name}}
-                                    </option>
+                                        {{$waterHolder->Household->english_name}}
+                                    </option> 
+                                    @else @if($waterHolder->public_structure_id)
+                                    <option value="{{$waterIncident->all_water_holder_id}}">
+                                        {{$waterHolder->PublicStructure->english_name}}
+                                    </option> 
+                                    @endif
                                 @endif
                             </select>
                         </fieldset>
@@ -82,27 +97,9 @@ label {
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Incident FBS Status</label>
-                            <select name="incident_status_id" 
-                                class="form-control">
-                                @if($waterIncident->incident_status_id)
-                                    <option value="{{$waterIncident->incident_status_id}}">
-                                        {{$waterIncident->IncidentStatus->name}}
-                                    </option>
-                                    @foreach($statuses as $status)
-                                        <option value="{{$status->id}}">
-                                            {{$status->name}}
-                                        </option>
-                                    @endforeach
-                                @else
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($statuses as $status)
-                                        <option value="{{$status->id}}">
-                                            {{$status->name}}
-                                        </option>
-                                    @endforeach
-                                @endif 
-                            </select>
+                            <label class='col-md-12 control-label'>Date Of Incident</label>
+                            <input type="date" name="date" value="{{$waterIncident->date}}" 
+                            class="form-control">
                         </fieldset>
                     </div>
                 </div>
@@ -110,24 +107,15 @@ label {
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Date Of Incident</label>
-                            <input type="date" name="date" value="{{$waterIncident->date}}" 
+                            <label class='col-md-12 control-label'>Response Date</label>
+                            <input type="date" name="response_date" value="{{$waterIncident->response_date}}" 
                             class="form-control">
                         </fieldset>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Equipments</label>
-                            <textarea name="equipment" class="form-control" 
-                                style="resize:none" cols="20" rows="3">
-                            {{$waterIncident->equipment}}
-                            </textarea>
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label>
                             <textarea name="notes" class="form-control" 
@@ -137,7 +125,180 @@ label {
                         </fieldset>
                     </div>
                 </div>
-                    
+                <hr>
+
+                <div class="row">
+                    <h5>Incident Water Statuses</h5>
+                </div>
+                @if(count($waterStatuses) > 0)
+
+                    <table id="waterStatusesTable" 
+                        class="table table-striped data-table-fbs-equipments my-2">
+                        
+                        <tbody>
+                            @foreach($waterStatuses as $waterStatus)
+                            <tr id="waterStatusRow">
+                                <td class="text-center">
+                                    {{$waterStatus->name}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteWaterIncidentStatus" id="deleteWaterIncidentStatus" 
+                                        data-id="{{$waterStatus->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add More Incident Status</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="more_statuses[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($statuses as $status)
+                                        <option value="{{$status->id}}">
+                                            {{$status->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Incident Status</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_statuses[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($statuses as $status)
+                                        <option value="{{$status->id}}">
+                                            {{$status->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
+                <br>
+                <hr>
+
+                <div class="row">
+                    <h5>Equipment Damaged</h5>
+                </div>
+                @if(count($WaterIncidentEquipments) > 0)
+
+                    <table id="waterIncidentEquipmentsTable" 
+                        class="table table-striped data-table-fbs-equipments my-2">
+                        
+                        <tbody>
+                            @foreach($WaterIncidentEquipments as $WaterIncidentEquipment)
+                            <tr id="waterIncidentEquipmentRow">
+                                <td class="text-center">
+                                    {{$WaterIncidentEquipment->IncidentEquipment->name}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteWaterIncidentEquipment" id="deleteWaterIncidentEquipment" 
+                                        data-id="{{$WaterIncidentEquipment->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add More Equipment Damaged</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="more_equipment[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($incidentEquipments as $incidentEquipment)
+                                        <option value="{{$incidentEquipment->id}}">
+                                            {{$incidentEquipment->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Equipment Damaged</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_equipment[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($incidentEquipments as $incidentEquipment)
+                                        <option value="{{$incidentEquipment->id}}">
+                                            {{$incidentEquipment->name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
+
+                <br>
+                <hr>
+
+                <div class="row">
+                    <h5>Incident Water Photos</h5>
+                </div>
+                @if(count($waterIncidentPhotos) > 0)
+
+                    <table id="waterIncidentPhotosTable" 
+                        class="table table-striped data-table-fbs-equipments my-2">
+                        
+                        <tbody>
+                            @foreach($waterIncidentPhotos as $waterIncidentPhoto)
+                            <tr id="waterIncidentPhotoRow">
+                                <td class="text-center">
+                                    <img src="{{url('/incidents/water/'.$waterIncidentPhoto->slug)}}" 
+                                        class="d-block w-100" style="max-height:40vh;max-width:40vh;">
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteIncidentPhoto" id="deleteIncidentPhoto" 
+                                        data-id="{{$waterIncidentPhoto->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Upload More photos</label>
+                            <input type="file" name="more_photos[]"
+                                class="btn btn-primary me-2 mb-4 block w-full mt-1 rounded-md"
+                                accept="image/png, image/jpeg, image/jpg, image/gif" multiple/>
+                        </fieldset>
+                        <p class="mb-0">Allowed JPG, JPEG, GIF or PNG.</p>
+                    </div>
+                @else 
+                    <div class="row">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Upload new photos</label>
+                            <input type="file" name="new_photos[]"
+                                class="btn btn-primary me-2 mb-4 block w-full mt-1 rounded-md"
+                                accept="image/png, image/jpeg, image/jpg, image/gif" multiple/>
+                        </fieldset>
+                        <p class="mb-0">Allowed JPG, JPEG, GIF or PNG.</p>
+                    </div>
+                @endif
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -165,6 +326,119 @@ label {
         });
     });
 
+    // delete status
+    $('#waterStatusesTable').on('click', '.deleteWaterIncidentStatus',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this status?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteWaterIncidentStatus') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+    
+    // delete photo
+    $('#waterIncidentPhotosTable').on('click', '.deleteIncidentPhoto',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this photo?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteIncidentPhoto') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // delete damaged equipment
+    $('#waterIncidentEquipmentsTable').on('click', '.deleteWaterIncidentEquipment',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this equipment?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteWaterIncidentEquipment') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
 </script>
 
 @endsection

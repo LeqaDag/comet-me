@@ -30,7 +30,7 @@ class FbsSharedUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', 
-                '=', 'all_energy_meters.id')
+                '=', 'all_energy_meters.id') 
             ->leftJoin('household_meters', 'all_energy_meters.id', 
                 '=', 'household_meters.energy_user_id')
             ->join('households', 'household_meters.household_id', '=', 'households.id')
@@ -42,7 +42,9 @@ class FbsSharedUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
                 'households.english_name as household_name', 'household_meters.user_name',
                 'communities.english_name as community_name', 
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
-                DB::raw('concat(donors.donor_name) as donors')
+                'households.number_of_male', 'households.number_of_female', 
+                'households.number_of_children', 'households.number_of_adults',
+                DB::raw('group_concat(DISTINCT donors.donor_name) as donors')
             ])
             ->groupBy('fbs_user_incidents.id');
 
@@ -52,7 +54,7 @@ class FbsSharedUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
         } 
         if($this->request->donor) {
 
-            $query->where("community_donors.donor_id", $this->request->donor);
+            $query->where("all_energy_meter_donors.donor_id", $this->request->donor);
         }
         if($this->request->date) {
 
@@ -70,6 +72,7 @@ class FbsSharedUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
     public function headings(): array
     {
         return ["Shared User", "Main User", "Community", "Region", "Sub Region", 
+            "# of Male", "# of Female", "# of Children", "# of Adults", 
             "Donor"];
     }
 
@@ -85,7 +88,7 @@ class FbsSharedUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:F1');
+        $sheet->setAutoFilter('A1:J1');
 
         return [
             // Style the first row as bold text.

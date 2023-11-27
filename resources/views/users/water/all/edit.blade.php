@@ -14,21 +14,11 @@
         display: block;
     }
 
-    .dropdown-toggle {
-
-        height: 40px;
-    }
-
     label {
 
         margin-top: 20px;
     }
 </style> 
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
 @section('content')
 
@@ -83,9 +73,10 @@
                 </div>
 
                 @if($h2oUser)
+                <hr>
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                        <label class='col-md-12 headingLabel'>H2O System</label>
+                        <h5>H2O System</h5>
                     </div>
                 </div>
                 <div class="row">
@@ -182,13 +173,12 @@
                             </fieldset>
                         </div>
                 </div>
-                @endif
 
-
-                @if($h2oPublic)
+                @else @if($h2oPublic)
+                <hr>
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                        <label class='col-md-12 headingLabel'>H2O System</label>
+                        <h5>H2O System</h5>
                     </div>
                 </div>
                 <div class="row">
@@ -285,12 +275,88 @@
                             </fieldset>
                         </div>
                 </div>
-                @endif
-
-                @if($gridUser)
+                @else
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                        <label class='col-md-12 headingLabel'>Grid System</label>
+                        <h5>H2O System</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Number of H2O</label>
+                            <input type="number" name="number_of_h20" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>H2O Status</label>
+                            <select name="h2o_status_id" class="form-control" >
+                                <option selected disabled>Choose one..</option>
+                                @foreach($h2oStatuses as $h2oStatus)
+                                    <option value="{{$h2oStatus->id}}">
+                                        {{$h2oStatus->status}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Number of BSF</label>
+                            <input type="number" name="number_of_bsf" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>BSF Status</label>
+                            <select name="bsf_status_id" class="form-control" >
+                                <option selected disabled>Choose one..</option>
+                                @foreach($bsfStatuses as $bsfStatus)
+                                    <option value="{{$bsfStatus->id}}">
+                                        {{$bsfStatus->name}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>H2O Request Date</label>
+                            <input type="date" name="h2o_request_date" 
+                                class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Installation Year</label>
+                            <input type="number" name="installation_year" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Installation Date</label>
+                                <input type="date" name="h2o_installation_date" 
+                                    class="form-control">
+                            </fieldset>
+                        </div>
+                </div>
+                @endif
+                @endif
+
+
+                @if($gridUser)
+                <hr>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <h5>Grid System</h5>
                     </div>
                 </div>
                 <div class="row">
@@ -364,13 +430,11 @@
                         </fieldset>
                     </div>
                 </div>
-                
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <label class='col-md-12 headingLabel'>Confirmation</label>
                     </div>
                 </div>
-
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
@@ -412,13 +476,12 @@
                         </fieldset>
                     </div>
                 </div>
-                @endif
 
-
-                @if($gridPublic)
+                @else @if($gridPublic)
+                <hr>
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                        <label class='col-md-12 headingLabel'>Grid System</label>
+                        <h5>Grid System</h5>
                     </div>
                 </div>
                 <div class="row">
@@ -540,8 +603,99 @@
                         </fieldset>
                     </div>
                 </div>
+
+                @else 
+                <hr>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <h5>New Grid System</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Integration Large</label>
+                            <input type="number" name="grid_integration_large" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Integration Large Date</label>
+
+                            <input type="date" name="large_date" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Integration Small</label>
+                            <input type="number" name="grid_integration_small"
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Integration Small Date</label>
+                           
+                            <input type="date" name="small_date" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Request Date</label>
+                            <input type="date" name="request_date" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <label class='col-md-12 headingLabel'>Confirmation</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Delivery</label>
+                            <select name="is_delivery" class="form-control">
+                                <option disabled selected>Choose one...</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Paid</label>
+                            <select name="is_paid" class="form-control">
+                                <option disabled selected>Choose one...</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="NA">NA</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Complete</label>
+                            <select name="is_complete" class="form-control">
+                                <option disabled selected>Choose one...</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+
+                @endif
                 @endif
 
+                <hr>
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
@@ -623,9 +777,6 @@
         </div>
     </div>
 </div>
-
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script type="text/javascript">
     $(function () {

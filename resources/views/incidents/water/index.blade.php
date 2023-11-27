@@ -7,78 +7,106 @@
 @section('content')
 
 @include('system.water.h2o_incidents_details')
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-md-12 col-lg-12">
-            <div class="col-xl-12 col-lg-12 col-md-12">
-                <div class="panel panel-primary">
-                    <div class="panel-body" >
-                        <div id="incidentsH2oChart" style="height:400px;">
+<p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseWaterIncidentVisualData" 
+        role="button" aria-expanded="false" aria-controls="collapseWaterIncidentVisualData">
+        <i class="menu-icon tf-icons bx bx-show-alt"></i>
+        Visualize Data
+    </a>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseWaterIncidentExport" aria-expanded="false" 
+        aria-controls="collapseWaterIncidentExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target=".multi-collapse" aria-expanded="false" 
+        aria-controls="collapseWaterIncidentVisualData collapseWaterIncidentExport">
+        <i class="menu-icon tf-icons bx bx-expand-alt"></i>
+        Toggle All
+    </button>
+</p> 
+
+<div class="collapse multi-collapse mb-4" id="collapseWaterIncidentVisualData">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body"> 
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12">
+                                <div id="incidentsH2oChart">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </div> 
             </div>
         </div>
     </div>
 </div>
 
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Export Filter</h5>
-                </div>
-                <form method="POST" enctype='multipart/form-data' 
-                    action="{{ route('water-incident.export') }}">
-                    @csrf
-                    <div class="card-body"> 
-                        <div class="row">
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <select name="community"
-                                        class="selectpicker form-control" data-live-search="true">
-                                        <option disabled selected>Search Community</option>
-                                        @foreach($communities as $community)
-                                        <option value="{{$community->english_name}}">
-                                            {{$community->english_name}}
-                                        </option>
-                                        @endforeach
-                                    </select> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <select name="donor"
-                                        class="selectpicker form-control" data-live-search="true">
-                                        <option disabled selected>Search Donor</option>
-                                        @foreach($donors as $donor)
-                                        <option value="{{$donor->id}}">
-                                            {{$donor->donor_name}}
-                                        </option>
-                                        @endforeach
-                                    </select> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <input type="date" name="date" 
-                                    class="form-control" title="Data from"> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <button class="btn btn-info" type="submit">
-                                    <i class='fa-solid fa-file-excel'></i>
-                                    Export Excel
-                                </button>
-                            </div>
-                        </div> 
+<div class="collapse multi-collapse mb-4" id="collapseWaterIncidentExport">
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Export Water Incident Report
+                            <i class='fa-solid fa-file-excel text-info'></i>
+                        </h5>
                     </div>
-                </form>
-            </div>  
-        </div>
+                    <form method="POST" enctype='multipart/form-data' 
+                        action="{{ route('water-incident.export') }}">
+                        @csrf
+                        <div class="card-body"> 
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <select name="community"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Community</option>
+                                            @foreach($communities as $community)
+                                            <option value="{{$community->english_name}}">
+                                                {{$community->english_name}}
+                                            </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <select name="donor"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Donor</option>
+                                            @foreach($donors as $donor)
+                                            <option value="{{$donor->id}}">
+                                                {{$donor->donor_name}}
+                                            </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <input type="date" name="date" 
+                                        class="form-control" title="Data from"> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Excel
+                                    </button>
+                                </div>
+                            </div> 
+                        </div>
+                    </form>
+                </div>  
+            </div>
+        </div> 
     </div> 
-</div> 
+</div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Water Incidents
@@ -91,8 +119,6 @@
         </div>
     </div>
 @endif
-
-@include('incidents.water.show')
 
 <div class="container">
     <div class="card my-2">
@@ -111,7 +137,7 @@
             <table id="waterIncidentsTable" class="table table-striped data-table-water-incidents my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">H2O User</th>
+                        <th class="text-center">Water Holder</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Incident</th>
                         <th class="text-center">Date</th>
@@ -205,7 +231,7 @@
                 }
             ],
             columns: [
-                {data: 'household_name', name: 'household_name'},
+                {data: 'holder'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'incident', name: 'incident'},
                 {data: 'date', name: 'date'},
@@ -217,36 +243,13 @@
         // View record details
         $('#waterIncidentsTable').on('click', '.viewWaterIncident', function() {
             var id = $(this).data('id');
-        
-            // AJAX request
-            $.ajax({
-                url: 'water-incident/' + id,
-                type: 'get',
-                dataType: 'json', 
-                success: function(response) {
-                    $('#waterIncidentModalTitle').html('');
-                    $('#waterIncidentModalTitle').html(response['h2oUser'].english_name);
-                    $('#waterUser').html('');
-                    $('#waterUser').html(response['h2oUser'].english_name);
-                    $('#communityName').html('');
-                    $('#communityName').html(response['community'].english_name);
-                    $('#incidentDate').html('');
-                    $('#incidentDate').html(response['waterIncident'].date);
-                    $('#waterIncidentStatus').html('')
-                    $('#waterIncidentStatus').html(response['waterStatus'].name);
-                    $('#incidentYear').html('');
-                    $('#incidentYear').html(response['waterIncident'].year);
-                    $('#incidentType').html('');
-                    $('#incidentType').html(response['incident'].english_name);
-                    $('#incidentEquipment').html('');
-                    $('#incidentEquipment').html(response['waterIncident'].equipment);
-                    $('#incidentNotes').html('');
-                    $('#incidentNotes').html(response['waterIncident'].notes);
-                }
-            });
+            var url = window.location.href; 
+           
+            url = url +'/'+ id ;
+            window.open(url); 
         });
 
-        // View record photos
+        // View record edit
         $('#waterIncidentsTable').on('click', '.updateWaterIncident',function() {
             var id = $(this).data('id');
             var url = window.location.href; 

@@ -778,7 +778,7 @@ class CommunityController extends Controller
                 
         return Excel::download(new CommunityExport($request), 'communities.xlsx');
     }
-
+ 
     /**
      * View Edit page.
      *
@@ -815,8 +815,15 @@ class CommunityController extends Controller
             ->where('is_archived', 0)
             ->get();
 
+        $recommendedEnergySystems = RecommendedCommunityEnergySystem::where('community_id', $id)
+            ->where('is_archived', 0)
+            ->get();
+
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+
         return view('employee.community.edit', compact('community', 'products', 
-            'communityStatuses', 'regions', 'subRegions', 'secondName', 'compounds'));
+            'communityStatuses', 'regions', 'subRegions', 'secondName', 'compounds',
+            'recommendedEnergySystems', 'energySystemTypes'));
     }
 
     /**

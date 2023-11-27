@@ -354,22 +354,23 @@ class EnergyUserController extends Controller
         $meter = MeterCase::where('id', $energyMeter->meter_case_id)->first();
         $systemType = EnergySystemType::where('id', $energyMeter->energy_system_type_id)->first();
         $system = EnergySystem::where('id', $energyMeter->energy_system_id)->first();
-        $householdMeters = HouseholdMeter::where("energy_user_id", $id)->get();
+        $householdMeters = DB::table('household_meters')
+            ->where('household_meters.energy_user_id', $id)
+            ->where('household_meters.is_archived', 0)
+            ->join('households', 'household_meters.household_id', '=', 'households.id')
+            ->select('households.english_name')
+            ->get(); 
+
         $vendor = VendorUserName::where('id', $energyMeter->vendor_username_id)->first();
         $installationType = InstallationType::where('id', $energyMeter->installation_type_id)->first();
 
         // FBS Incident
         $fbsIncident = DB::table('fbs_user_incidents')
-            ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
             ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
-            ->join('incident_status_small_infrastructures', 
-                'fbs_user_incidents.incident_status_small_infrastructure_id', 
-                '=', 'incident_status_small_infrastructures.id')
             ->where('fbs_user_incidents.is_archived', 0)
             ->where('fbs_user_incidents.energy_user_id', $id)
             ->select('fbs_user_incidents.date as incident_date', 
-                'incidents.english_name as incident', 
-                'incident_status_small_infrastructures.name as fbs_status')
+                'incidents.english_name')
             ->get(); 
 
         $response['energy'] = $energyMeter;
@@ -379,7 +380,7 @@ class EnergyUserController extends Controller
         $response['meter'] = $meter;
         $response['type'] = $systemType;
         $response['system'] = $system;
-        $response['householdMeters'] = $householdMeters;
+        $response['householdMeters'] = $householdMeters; 
         $response['public'] = $public;
         $response['vendor'] = $vendor;
         $response['installationType'] = $installationType;

@@ -13,13 +13,23 @@
     }
 </style>
 
-<div class="py-3 container">
-    <h4 class="py-3 breadcrumb-wrapper">
-        <span class="text-muted fw-light">Network </span> Diagram
-    </h4>
-    <img src="/assets/images/diagram.png" class="img-fluid" alt="Responsive image">
+<p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseInternetSystemVisualData" 
+        role="button" aria-expanded="false" aria-controls="collapseInternetSystemVisualData">
+        <i class="menu-icon tf-icons bx bx-show-alt"></i>
+        Visualize Data
+    </a>
+</p> 
+
+<div class="collapse multi-collapse mb-4" id="collapseInternetSystemVisualData">
+    <div class="py-3 container">
+        <h4 class="py-3 breadcrumb-wrapper">
+            <span class="text-muted fw-light">Network </span> Diagram
+        </h4>
+        <img src="/assets/images/diagram.png" class="img-fluid" alt="Responsive image">
+    </div>
+    <br>
 </div>
-<br>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Internet Systems
@@ -69,6 +79,8 @@
         </div>
     </div>
 </div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 
 <script type="text/javascript">
     

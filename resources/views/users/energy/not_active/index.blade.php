@@ -14,91 +14,121 @@ label, table {
     margin-top: 20px;
 }
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Electricity Meter Issues</h5>
-                </div>
-                <div class="card-body">
-                    <div id="energyUserChart"></div>
-                </div>
-            </div>  
-        </div>
-    </div>
-</div> 
-
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Export Filter</h5>
-                </div>
-                <form method="POST" enctype='multipart/form-data' 
-                    action="{{ route('energy-meter.export') }}">
-                    @csrf
-                    <div class="card-body"> 
-                        <div class="row">
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <label class='col-md-12 control-label'>Community</label>
-                                    <select name="community_id"
-                                        class="selectpicker form-control" data-live-search="true">
-                                        <option disabled selected>Search Community</option>
-                                        @foreach($communities as $community)
-                                            <option value="{{$community->id}}">
-                                                {{$community->english_name}}
-                                            </option>
-                                        @endforeach
-                                    </select> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
-                                    <select name="type" id="selectedWaterSystemType" 
-                                        class="form-control" required>
-                                        <option disabled selected>Choose one...</option>
-                                        @foreach($installationTypes as $installationType)
-                                            <option value="{{$installationType->id}}">
-                                                {{$installationType->type}}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <label class='col-md-12 control-label'>Installation date from</label>
-                                    <input type="date" class="form-control" name="date_from">
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <label class='col-md-12 control-label'>Installation date to</label>
-                                    <input type="date" class="form-control" name="date_to">
-                                </fieldset>
-                            </div>
-                        </div><br>
-                        <div class="row">
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <label class='col-md-12 control-label'>Download Excel</label>
-                                <button class="btn btn-info" type="submit">
-                                    <i class='fa-solid fa-file-excel'></i>
-                                    Export Excel
-                                </button>
+<p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseEnergyUserVisualData" 
+        role="button" aria-expanded="false" aria-controls="collapseEnergyUserVisualData">
+        <i class="menu-icon tf-icons bx bx-show-alt"></i>
+        Visualize Data
+    </a>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseEnergyUserExport" aria-expanded="false" 
+        aria-controls="collapseEnergyUserExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target=".multi-collapse" aria-expanded="false" 
+        aria-controls="collapseEnergyUserVisualData collapseEnergyUserExport">
+        <i class="menu-icon tf-icons bx bx-expand-alt"></i>
+        Toggle All
+    </button> 
+</p> 
+ 
+<div class="collapse multi-collapse mb-4" id="collapseEnergyUserVisualData">
+    <div class="container">
+        <div class="row g-4 mb-4">  
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-header">
+                        <h5>Electricity Meter Issues</h5>
+                    </div>
+                    <div class="panel-body" >
+                        <div class="">
+                            <div id="energyUserChart" >
+                                <div></div>
                             </div>
                         </div>
                     </div>
-                </form>
-            </div>  
+                </div>
+            </div>
         </div>
+    </div>  
+</div>
+
+<div class="collapse multi-collapse container mb-4" id="collapseEnergyUserExport">
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            Export Electricity Meter Users Report 
+                            <i class='fa-solid fa-file-excel text-info'></i>
+                        </h5>
+                    </div>
+                    <form method="POST" enctype='multipart/form-data' 
+                        action="{{ route('energy-meter.export') }}">
+                        @csrf
+                        <div class="card-body"> 
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Community</label>
+                                        <select name="community_id"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Community</option>
+                                            @foreach($communities as $community)
+                                                <option value="{{$community->id}}">
+                                                    {{$community->english_name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
+                                        <select name="type" id="selectedWaterSystemType" 
+                                            class="form-control" required>
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($installationTypes as $installationType)
+                                                <option value="{{$installationType->id}}">
+                                                    {{$installationType->type}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Installation date from</label>
+                                        <input type="date" class="form-control" name="date_from">
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Installation date to</label>
+                                        <input type="date" class="form-control" name="date_to">
+                                    </fieldset>
+                                </div>
+                            </div><br>
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <label class='col-md-12 control-label'>Download Excel</label>
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>  
+            </div>
+        </div> 
     </div> 
-</div> 
+</div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Electricity Meter Users
@@ -136,8 +166,6 @@ label, table {
 </div>
 
 @include('users.energy.details')
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script type="text/javascript">
     $(function () {
@@ -206,7 +234,7 @@ label, table {
             $.ajax({
                 url: 'energy-user/' + id,
                 type: 'get',
-                dataType: 'json',
+                dataType: 'json', 
                 success: function(response) { 
                     $('#energyUserModalTitle').html(" ");
                     $('#energyUserModalTitle').html(response['household'].english_name);
@@ -256,11 +284,21 @@ label, table {
                         }
                     }
 
+                    $('#sharedHousehold').html(" ");
+                    if(response['householdMeters'] != []) {
+                        for (var i = 0; i < response['householdMeters'].length; i++) {
+                            $("#sharedHousehold").append(
+                            '<ul><li>'+ response['householdMeters'][i].english_name +'</li></ul>');  
+                        }
+                    }
+
                     $('#incidentUser').html(" ");
                     $('#incidentDate').html(" ");
                     if(response['fbsIncident'] != []) {
-                        $('#incidentUser').html(response['fbsIncident'][0].incident);
-                        $('#incidentDate').html(response['fbsIncident'][0].incident_date);
+                        for (var i = 0; i < response['fbsIncident'].length; i++) {
+                            $('#incidentUser').html(response['fbsIncident'][i].english_name);
+                            $('#incidentDate').html(response['fbsIncident'][i].incident_date);
+                        }
                     }
 
                 }

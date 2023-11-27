@@ -92,6 +92,9 @@ Route::get('community-compound/{id}/editpage', [App\Http\Controllers\CommunityCo
 Route::get('/delete-compound-household', [App\Http\Controllers\CommunityCompoundController::class, 'deleteCompoundHousehold'])->name('deleteCompoundHousehold');
 Route::post('community-compound-export', [App\Http\Controllers\CommunityCompoundController::class, 'export'])->name('community-compound.export');
 
+Route::resource('compound', App\Http\Controllers\CompoundController::class);
+
+Route::get('progress-household/household/get_un_user_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getNonUserByCommunity']);
 Route::get('household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::resource('donor', App\Http\Controllers\DonorController::class);
 Route::get('donor/destory/{id}', App\Http\Controllers\DonorController::class.'@destroy');
@@ -140,6 +143,7 @@ Route::get('energy-system/{id}/editpage', [App\Http\Controllers\EnergySystemCont
 Route::resource('energy-component', App\Http\Controllers\EnergyComponentController::class);
 Route::get('energy-system/{id}/showPage', [App\Http\Controllers\EnergySystemController::class, 'showPage']);
 Route::get('/delete-energy-system', [App\Http\Controllers\EnergySystemController::class, 'deleteEnergySystem'])->name('deleteEnergySystem');
+Route::post('energy-system-export', [App\Http\Controllers\EnergySystemController::class, 'export'])->name('energy-system.export');
 
 Route::get('/delete-energy-system-battery', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBattery'])->name('deleteEnergySystemBattery');
 Route::get('/delete-energy-system-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemPv'])->name('deleteEnergySystemPv');
@@ -170,6 +174,10 @@ Route::get('/details/chart', [App\Http\Controllers\WaterUserController::class, '
 Route::get('/delete-household', [App\Http\Controllers\HouseholdController::class, 'deleteHousehold'])->name('deleteHousehold');
 Route::get('household/{id}/editpage', [App\Http\Controllers\HouseholdController::class, 'editPage']);
 Route::get('public/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getAllPublic']);
+Route::get('requested-household/{id}/editpage', [App\Http\Controllers\HouseholdController::class, 'editPage']);
+Route::get('initial-household/{id}/editpage', [App\Http\Controllers\HouseholdController::class, 'editPage']);
+Route::get('progress-household/{id}/editpage', [App\Http\Controllers\HouseholdController::class, 'editPage']);
+Route::get('served-household/{id}/editpage', [App\Http\Controllers\HouseholdController::class, 'editPage']);
 
 Route::resource('all-meter', App\Http\Controllers\AllEnergyController::class);
 Route::get('/allMeter/{id}', [App\Http\Controllers\AllEnergyController::class, 'getEnergyUserData'])->name('getEnergyUserData');
@@ -187,12 +195,15 @@ Route::get('/delete-comet-meter', [App\Http\Controllers\EnergyCometMeterControll
 Route::get('energy_public/{id}/editpage', [App\Http\Controllers\EnergyPublicStructureController::class, 'editPage']);
 Route::get('/delete-publicDonor', [App\Http\Controllers\EnergyPublicStructureController::class, 'deleteEnergyPublicDonor'])->name('deleteEnergyPublicDonor');
 Route::get('comet-meter/{id}/editpage', [App\Http\Controllers\EnergyCometMeterController::class, 'editPage']);
+Route::post('energy-public-export', [App\Http\Controllers\EnergyPublicStructureController::class, 'export'])->name('energy-public.export');
+Route::post('comet-meter-export', [App\Http\Controllers\EnergyCometMeterController::class, 'export'])->name('comet-meter.export');
 
 Route::resource('internet-user', App\Http\Controllers\InternetUserController::class);
 Route::get('/details/fbs/incident', [App\Http\Controllers\EnergySystemController::class, 'incidentFbsDetails'])->name('incidentFbsDetails');
 Route::post('internet-user-export', [App\Http\Controllers\InternetUserController::class, 'export'])->name('internet-user.export');
 Route::get('internet-user/{id}/editpage', [App\Http\Controllers\InternetUserController::class, 'editPage']);
 Route::get('/delete-internetDonor', [App\Http\Controllers\InternetUserController::class, 'deleteInternetDonor'])->name('deleteInternetDonor');
+Route::get('/delete-internet-user', [App\Http\Controllers\InternetUserController::class, 'deleteInternetHolder'])->name('deleteInternetHolder');
 
 Route::resource('household-meter', App\Http\Controllers\HouseholdMeterController::class);
 Route::get('household-meter/get_households/{id}', [App\Http\Controllers\HouseholdMeterController::class, 'getHouseholds'])->name('getHouseholds');
@@ -203,18 +214,21 @@ Route::post('household-meter-export', [App\Http\Controllers\HouseholdMeterContro
 Route::resource('all-water', App\Http\Controllers\AllWaterController::class);
 Route::resource('shared-h2o', App\Http\Controllers\SharedWaterController::class);
 Route::resource('water-public', App\Http\Controllers\WaterPublicStructureController::class); 
+Route::resource('shared-grid', App\Http\Controllers\WaterSharedGridController::class); 
 Route::get('all-water/{id}/editpage', [App\Http\Controllers\AllWaterController::class, 'editPage']);
 Route::get('shared-h2o/get_by_community/{community_id}', [App\Http\Controllers\SharedWaterController::class, 'getH2oUsersByCommunity']);
 Route::get('/delete-shared-h2o', [App\Http\Controllers\SharedWaterController::class, 'deleteSharedWaterUser'])->name('deleteSharedWaterUser');
 Route::get('water-public/get_by_community/{community_id}', [App\Http\Controllers\WaterPublicStructureController::class, 'getH2oPublicByCommunity']);
 Route::get('allMeter/{id}/editpage', [App\Http\Controllers\AllEnergyController::class, 'editPage']);
 Route::get('/delete-waterDonor', [App\Http\Controllers\AllWaterController::class, 'deleteWaterDonor'])->name('deleteWaterDonor');
+Route::get('shared-grid/get_by_community/{community_id}', [App\Http\Controllers\WaterSharedGridController::class, 'getGridUsersByCommunity']);
+Route::get('/delete-shared-grid', [App\Http\Controllers\WaterSharedGridController::class, 'deleteSharedGridUser'])->name('deleteSharedGridUser');
 
 Route::resource('water-maintenance', App\Http\Controllers\H2oMaintenanceCallController::class);
 Route::post('water-maintenance-export', [App\Http\Controllers\H2oMaintenanceCallController::class, 'export'])->name('water-maintenance.export');
 Route::get('/delete-h2o-action', [App\Http\Controllers\H2oMaintenanceCallController::class, 'deleteH2oAction'])->name('deleteH2oAction');
 Route::get('/delete-h2o-user', [App\Http\Controllers\H2oMaintenanceCallController::class, 'deletePerformedUsers'])->name('deletePerformedUsers');
-
+ 
 Route::resource('internet-system', App\Http\Controllers\InternetSystemController::class);
 Route::get('internet-system/{id}/showPage', [App\Http\Controllers\InternetSystemController::class, 'showPage']);
 Route::get('/delete-internet-system', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystem'])->name('deleteInternetSystem');
@@ -279,15 +293,42 @@ Route::get('/delete-refrigerator-performed', [App\Http\Controllers\RefrigeratorM
 Route::resource('mg-incident', App\Http\Controllers\MgIncidentController::class);
 Route::get('/delete-mg-incident', [App\Http\Controllers\MgIncidentController::class, 'deleteMgIncident'])->name('deleteMgIncident');
 Route::post('mg-incident-export', [App\Http\Controllers\MgIncidentController::class, 'export'])->name('mg-incident.export');
+Route::get('mg-incident/get_system_by_community/{community_id}', [App\Http\Controllers\MgIncidentController::class, 'getSystemByCommunity']);
+Route::get('mg-incident/get_by_type/{incident_type_id}', [App\Http\Controllers\MgIncidentController::class, 'getStatusByIncidentType']);
+Route::get('/delete-mg-equipment', [App\Http\Controllers\MgIncidentController::class, 'deleteMgIncidentEquipment'])->name('deleteMgIncidentEquipment');
+Route::get('/delete-mg-household', [App\Http\Controllers\MgIncidentController::class, 'deletemgAffectedHousehold'])->name('deletemgAffectedHousehold');
+Route::get('mg-incident/get_household_by_community/{community_id}', [App\Http\Controllers\MgIncidentController::class, 'getHouseholdByCommunity']);
+Route::get('/delete-mg-photo', [App\Http\Controllers\MgIncidentController::class, 'deleteMgIncidentPhoto'])->name('deleteMgIncidentPhoto');
 
 Route::resource('fbs-incident', App\Http\Controllers\FbsIncidentController::class);
 Route::get('/delete-fbs-incident', [App\Http\Controllers\FbsIncidentController::class, 'deleteFbsIncident'])->name('deleteFbsIncident');
 Route::post('fbs-incident-export', [App\Http\Controllers\FbsIncidentController::class, 'export'])->name('fbs-incident.export');
 Route::get('/delete-fbs-equipment', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentEquipment'])->name('deleteIncidentEquipment');
+Route::get('/delete-fbs-status', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentStatus'])->name('deleteIncidentStatus');
+Route::get('/delete-fbs-photo', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentPhoto'])->name('deleteIncidentPhoto');
 
 Route::resource('water-incident', App\Http\Controllers\WaterIncidentController::class);
 Route::get('/delete-water-incident', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncident'])->name('deleteWaterIncident');
 Route::post('water-incident-export', [App\Http\Controllers\WaterIncidentController::class, 'export'])->name('water-incident.export');
+Route::get('/delete-water-equipment', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncidentEquipment'])->name('deleteWaterIncidentEquipment');
+Route::get('/delete-water-photo', [App\Http\Controllers\WaterIncidentController::class, 'deleteIncidentPhoto'])->name('deleteIncidentPhoto');
+Route::get('/delete-water-status', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncidentStatus'])->name('deleteWaterIncidentStatus');
+
+// internet incidents
+Route::resource('incident-network', App\Http\Controllers\InternetNetworkIncidentController::class);
+Route::resource('incident-internet-user', App\Http\Controllers\InternetUserIncidentController::class);
+Route::post('incident-internet-user-export', [App\Http\Controllers\InternetUserIncidentController::class, 'export'])->name('incident-internet-user.export');
+Route::get('incident-internet-user/get_by_community/{community_id}', [App\Http\Controllers\InternetUserIncidentController::class, 'getInternetUsersByCommunity']);
+Route::get('/delete-internet-user-equipment', [App\Http\Controllers\InternetUserIncidentController::class, 'deleteIncidentEquipment'])->name('deleteIncidentEquipment');
+Route::get('/delete-incident-internet-user', [App\Http\Controllers\InternetUserIncidentController::class, 'deleteInternetUserIncident'])->name('deleteInternetUserIncident');
+Route::get('/delete-incident-network', [App\Http\Controllers\InternetNetworkIncidentController::class, 'deleteInternetNetworkIncident'])->name('deleteInternetNetworkIncident');
+Route::post('incident-network-export', [App\Http\Controllers\InternetNetworkIncidentController::class, 'export'])->name('incident-network.export');
+Route::get('/delete-network-area', [App\Http\Controllers\InternetNetworkIncidentController::class, 'deleteAreaAffected'])->name('deleteAreaAffected');
+Route::get('/delete-network-household', [App\Http\Controllers\InternetNetworkIncidentController::class, 'deleteAffectedHousehold'])->name('deleteAffectedHousehold');
+Route::get('/delete-network-equipment', [App\Http\Controllers\InternetNetworkIncidentController::class, 'deleteNetworkEquipment'])->name('deleteNetworkEquipment');
+Route::get('/delete-network-photo', [App\Http\Controllers\InternetNetworkIncidentController::class, 'deleteNetworkPhoto'])->name('deleteNetworkPhoto');
+Route::get('/delete-internet-incident-photo', [App\Http\Controllers\InternetUserIncidentController::class, 'deleteInternetUserPhoto'])->name('deleteInternetUserPhoto');
+
 
 Route::post('quality-result-export', [App\Http\Controllers\WaterQualityResultController::class, 'export'])->name('quality-result.export');
 Route::get('water_holder/get_by_community/{community_id}/{flag}', [App\Http\Controllers\WaterQualityResultController::class, 'getWaterHolderByCommunity']);

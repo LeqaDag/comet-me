@@ -35,7 +35,7 @@ class SharedWaterController extends Controller
     public function index(Request $request)
     {	
         if (Auth::guard('user')->user() != null) {
-
+ 
             if ($request->ajax()) {
                 $data = DB::table('h2o_shared_users')
                     ->join('households', 'h2o_shared_users.household_id', 'households.id')

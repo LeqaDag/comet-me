@@ -10,7 +10,7 @@ class FbsUserIncident extends Model
     use HasFactory;
 
     protected $fillable = ['community_id', 'energy_user_id', 'incident_id', 
-        'incident_status_small_infrastructure_id', 'date'];
+        'public_structure_id', 'date'];
 
     public function Community()
     {
@@ -27,6 +27,12 @@ class FbsUserIncident extends Model
         return $this->belongsTo(Incident::class, 'incident_id', 'id');
     }
 
+    public function PublicStructure()
+    {
+        
+        return $this->belongsTo(PublicStructure::class, 'public_structure_id', 'id');
+    }
+    
     public function IncidentStatusSmallInfrastructure()
     {
         return $this->belongsTo(IncidentStatusSmallInfrastructure::class, 

@@ -8,21 +8,26 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
-use Route;
+use Route; 
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\Donor;
 use App\Models\EnergyDonor;
 use App\Models\EnergySystem;
+use App\Models\Household;
 use App\Models\HouseholdMeter;
 use App\Models\MgIncident;
 use App\Models\Incident;
+use App\Models\IncidentEquipment;
 use App\Models\IncidentStatusMgSystem;
 use App\Models\Region;
+use App\Models\MgIncidentEquipment;
+use App\Models\MgAffectedHousehold;
+use App\Models\MgIncidentPhoto;
 use App\Exports\MgIncidentExport;
 use Carbon\Carbon;
-use Image;
+use Intervention\Image\Facades\Image;
 use DataTables;
 use Excel;
 
@@ -125,8 +130,19 @@ class MgIncidentController extends Controller
                 $arrayIncidents[++$key] = [$value->name, $value->number];
             }
     
+            $incidentEquipments = IncidentEquipment::where('is_archived', 0)
+                ->where("incident_equipment_type_id", 3)
+                ->orderBy('name', 'ASC')
+                ->get(); 
+
+            $households = DB::table('all_energy_meters')
+                ->join("households", "all_energy_meters.household_id", "households.id")
+                ->select("households.id", "households.english_name")
+                ->get();
+
             return view('incidents.mg.index', compact('communities', 'energySystems',
-                'incidents', 'mgIncidents', 'mgIncidentsNumber', 'donors'))
+                'incidents', 'mgIncidents', 'mgIncidentsNumber', 'donors',
+                'incidentEquipments', 'households'))
                 ->with('incidentsData', json_encode($arrayIncidents));
                 
         } else {
@@ -152,12 +168,50 @@ class MgIncidentController extends Controller
             $mgIncident->year = $year[0];
         }
 
-        $mgIncident->community_id = $request->community_id[0];
-        $mgIncident->energy_system_id = $request->energy_system_id[0];
+        $mgIncident->community_id = $request->community_id;
+        $mgIncident->energy_system_id = $request->energy_system_id;
         $mgIncident->incident_id = $request->incident_id;
         $mgIncident->incident_status_mg_system_id = $request->incident_status_mg_system_id;
+        $mgIncident->response_date = $request->response_date;
         $mgIncident->notes = $request->notes;
         $mgIncident->save();
+
+        if($request->incident_equipment_id) {
+            for($i=0; $i < count($request->incident_equipment_id); $i++) {
+
+                $mgEquipment = new MgIncidentEquipment();
+                $mgEquipment->incident_equipment_id = $request->incident_equipment_id[$i];
+                $mgEquipment->mg_incident_id = $mgIncident->id;
+                $mgEquipment->save();
+            }
+        }
+
+        if($request->households) { 
+            for($i=0; $i < count($request->households); $i++) {
+
+                $mgHousehold = new MgAffectedHousehold();
+                $mgHousehold->household_id = $request->households[$i];
+                $mgHousehold->mg_incident_id = $mgIncident->id;
+                $mgHousehold->save();
+            }
+        }
+
+        if ($request->file('photos')) {
+
+            foreach($request->photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/incidents/mg/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $mgIncidentPhoto = new MgIncidentPhoto();
+                $mgIncidentPhoto->slug = $extra_name;
+                $mgIncidentPhoto->mg_incident_id = $mgIncident->id;
+                $mgIncidentPhoto->save();
+            }
+        }
 
         return redirect()->back()
         ->with('message', 'New MG Incident Added Successfully!');
@@ -175,15 +229,31 @@ class MgIncidentController extends Controller
         $energySystem = EnergySystem::where('id', $mgIncident->energy_system_id)->first();
         $community = Community::where('id', $mgIncident->community_id)->first();
         $incident = Incident::where('id', $mgIncident->incident_id)->first();
-        $mgStatus = IncidentStatusMgSystem::where('id', $mgIncident->incident_status_mg_system_id)->first();
+        $mgStatus = IncidentStatusMgSystem::where('id', $mgIncident->incident_status_mg_system_id)
+            ->first();
+        $mgIncidentEquipments = DB::table('mg_incident_equipment')
+            ->join('incident_equipment', 'mg_incident_equipment.incident_equipment_id', 
+                '=', 'incident_equipment.id')
+            ->join('mg_incidents', 'mg_incident_equipment.mg_incident_id', 
+                '=', 'mg_incidents.id')
+            ->where('mg_incident_equipment.mg_incident_id', $id)
+            ->where('mg_incident_equipment.is_archived', 0)
+            ->get();
+        $mgAffectedHouseholds = DB::table('mg_affected_households')
+            ->join('households', 'mg_affected_households.household_id', 
+                '=', 'households.id')
+            ->join('mg_incidents', 'mg_affected_households.mg_incident_id', 
+                '=', 'mg_incidents.id')
+            ->where('mg_affected_households.mg_incident_id', $id)
+            ->where('mg_affected_households.is_archived', 0)
+            ->get();
 
-        $response['mgIncident'] = $mgIncident;
-        $response['energySystem'] = $energySystem;
-        $response['community'] = $community;
-        $response['incident'] = $incident;
-        $response['mgStatus'] = $mgStatus;
+        $mgIncidentPhotos = MgIncidentPhoto::where('mg_incident_id', $id)
+            ->get();
 
-        return response()->json($response);
+        return view('incidents.mg.show', compact('mgIncident', 'community', 
+            'incident', 'mgStatus', 'mgIncidentEquipments', 'mgAffectedHouseholds',
+            'mgIncidentPhotos', 'energySystem'));
     }
 
     /**
@@ -207,16 +277,41 @@ class MgIncidentController extends Controller
      */
     public function edit($id) 
     {
-        $mgIncident = MgIncident::findOrFail($id);
+        $mgIncident = MgIncident::findOrFail($id); 
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();
         $energySystems = EnergySystem::where('is_archived', 0)->get();
         $incidents = Incident::where('is_archived', 0)->get();
         $mgIncidents = IncidentStatusMgSystem::where('is_archived', 0)->get();
+        $mgIncidentEquipments = MgIncidentEquipment::where('mg_incident_id', $id)
+            ->where('is_archived', 0)
+            ->get();
+        $incidentEquipments = IncidentEquipment::where('is_archived', 0)
+            ->where("incident_equipment_type_id", 3)
+            ->orderBy('name', 'ASC')
+            ->get(); 
+        $mgAffectedHouseholds = DB::table('mg_affected_households')
+            ->join('households', 'mg_affected_households.household_id', 
+                '=', 'households.id')
+            ->join('mg_incidents', 'mg_affected_households.mg_incident_id', 
+                '=', 'mg_incidents.id')
+            ->where('mg_affected_households.mg_incident_id', $id)
+            ->where('mg_affected_households.is_archived', 0)
+            ->select('mg_affected_households.id', 'households.english_name')
+            ->get();
+
+        $households = DB::table('all_energy_meters')
+            ->join("households", "all_energy_meters.household_id", "households.id")
+            ->where('households.community_id', $mgIncident->community_id)
+            ->select("households.id", "households.english_name")
+            ->get();
+        $mgIncidentPhotos = MgIncidentPhoto::where('mg_incident_id', $id)
+            ->get();
 
         return view('incidents.mg.edit', compact('mgIncident', 'communities', 'energySystems', 
-            'incidents', 'mgIncidents'));
+            'incidents', 'mgIncidents', 'incidentEquipments', 'mgIncidentEquipments',
+            'mgAffectedHouseholds', 'households', 'mgIncidentPhotos'));
     }
 
     /**
@@ -240,10 +335,116 @@ class MgIncidentController extends Controller
         $mgIncident->energy_system_id = $request->energy_system_id;
         $mgIncident->incident_id = $request->incident_id;
         $mgIncident->incident_status_mg_system_id = $request->incident_status_mg_system_id;
+        $mgIncident->response_date = $request->response_date;
         $mgIncident->notes = $request->notes;
         $mgIncident->save();
 
+        if($request->new_equipment) {
+ 
+            for($i=0; $i < count($request->new_equipment); $i++) {
+
+                $mgEquipment = new MgIncidentEquipment();
+                $mgEquipment->incident_equipment_id = $request->new_equipment[$i];
+                $mgEquipment->mg_incident_id = $mgIncident->id;
+                $mgEquipment->save();
+            }
+        }
+
+        if($request->more_equipment) {
+
+            for($i=0; $i < count($request->more_equipment); $i++) {
+
+                $mgEquipment = new MgIncidentEquipment();
+                $mgEquipment->incident_equipment_id = $request->more_equipment[$i];
+                $mgEquipment->mg_incident_id = $mgIncident->id;
+                $mgEquipment->save();
+            }
+        }
+
+        if($request->new_household) {
+ 
+            for($i=0; $i < count($request->new_household); $i++) {
+
+                $mgHousehold = new MgAffectedHousehold();
+                $mgHousehold->household_id = $request->new_household[$i];
+                $mgHousehold->mg_incident_id = $mgIncident->id;
+                $mgHousehold->save();
+            }
+        }
+
+        if($request->more_household) {
+
+            for($i=0; $i < count($request->more_household); $i++) {
+
+                $mgHousehold = new MgAffectedHousehold();
+                $mgHousehold->household_id = $request->more_household[$i];
+                $mgHousehold->mg_incident_id = $mgIncident->id;
+                $mgHousehold->save();
+            }
+        }
+
+        if ($request->file('more_photos')) {
+
+            foreach($request->more_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/incidents/mg/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $mgIncidentPhoto = new MgIncidentPhoto();
+                $mgIncidentPhoto->slug = $extra_name;
+                $mgIncidentPhoto->mg_incident_id = $mgIncident->id;
+                $mgIncidentPhoto->save();
+            }
+        }
+
+        if ($request->file('new_photos')) {
+
+            foreach($request->new_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/incidents/mg/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $mgIncidentPhoto = new MgIncidentPhoto();
+                $mgIncidentPhoto->slug = $extra_name;
+                $mgIncidentPhoto->mg_incident_id = $mgIncident->id;
+                $mgIncidentPhoto->save();
+            }
+        }
+
         return redirect('/mg-incident')->with('message', 'MG Incident Updated Successfully!');
+    }
+
+     /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteMgIncidentPhoto(Request $request)
+    {
+        $id = $request->id;
+
+        $mgPhoto = MgIncidentPhoto::find($id);
+
+        if($mgPhoto) {
+
+            $mgPhoto->delete();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Photo Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 
     /**
@@ -272,6 +473,156 @@ class MgIncidentController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteMgIncidentEquipment(Request $request)
+    {
+        $id = $request->id;
+
+        $mgEquipment = MgIncidentEquipment::find($id);
+
+        if($mgEquipment) {
+
+            $mgEquipment->delete();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Equipment Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deletemgAffectedHousehold(Request $request)
+    {
+        $id = $request->id;
+
+        $mgHousehold = MgAffectedHousehold::find($id);
+
+        if($mgHousehold) {
+
+            $mgHousehold->delete();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Household Affected Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getHouseholdByCommunity(Request $request)
+    {
+        $households = Household::where('community_id', $request->community_id)
+            ->where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+
+        if (!$request->community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option selected>Choose One...</option>';
+            $households = Household::where('community_id', $request->community_id)
+                ->where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+
+            foreach ($households as $household) {
+                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Get system by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getSystemByCommunity(Request $request)
+    {
+        $systems = EnergySystem::where('community_id', $request->community_id)
+            ->where('is_archived', 0)
+            ->orderBy('name', 'ASC')
+            ->get();
+
+        if (!$request->community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option selected>Choose One...</option>';
+            $systems = EnergySystem::where('community_id', $request->community_id)
+                ->orderBy('name', 'ASC')
+                ->where('is_archived', 0)
+                ->get();
+
+            foreach ($systems as $system) {
+                $html .= '<option value="'.$system->id.'">'.$system->name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getStatusByIncidentType(Request $request)
+    {
+        $mgIncidents = IncidentStatusMgSystem::where('incident_id', $request->incident_type_id)
+            ->where('is_archived', 0)
+            ->orderBy('name', 'ASC')
+            ->get();
+
+        if (!$request->incident_type_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option selected>Choose One...</option>';
+            $mgIncidents = IncidentStatusMgSystem::where('incident_id', $request->incident_type_id)
+                ->orderBy('name', 'ASC')
+                ->where('is_archived', 0)
+                ->get();
+
+            foreach ($mgIncidents as $mgIncident) {
+                $html .= '<option value="'.$mgIncident->id.'">'.$mgIncident->name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
     }
 
     /**

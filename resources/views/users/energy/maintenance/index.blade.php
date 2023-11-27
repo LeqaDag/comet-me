@@ -6,62 +6,75 @@
 
 @section('content')
 
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Export Filter</h5>
-                </div>
-                <form method="POST" enctype='multipart/form-data' 
-                    action="{{ route('energy-maintenance.export') }}">
-                    @csrf
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <select name="community_id"
-                                        class="selectpicker form-control" data-live-search="true">
-                                        <option disabled selected>Search Community</option>
-                                        @foreach($communities as $community)
-                                            <option value="{{$community->id}}">
-                                                {{$community->english_name}}
+<p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseEnergymaintenanceExport" aria-expanded="false" 
+        aria-controls="collapseEnergymaintenanceExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+</p> 
+
+<div class="collapse multi-collapse mb-4" id="collapseEnergymaintenanceExport">
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Export Electricity Maintenance Report
+                            <i class='fa-solid fa-file-excel text-info'></i>
+                        </h5>
+                    </div>
+                    <form method="POST" enctype='multipart/form-data' 
+                        action="{{ route('energy-maintenance.export') }}">
+                        @csrf
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <select name="community_id"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Community</option>
+                                            @foreach($communities as $community)
+                                                <option value="{{$community->id}}">
+                                                    {{$community->english_name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <select name="public" class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Public Structure</option>
+                                            @foreach($publicCategories as $publicCategory)
+                                            <option value="{{$publicCategory->id}}">
+                                                {{$publicCategory->name}}
                                             </option>
-                                        @endforeach
-                                    </select> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <select name="public" class="selectpicker form-control" data-live-search="true">
-                                        <option disabled selected>Search Public Structure</option>
-                                        @foreach($publicCategories as $publicCategory)
-                                        <option value="{{$publicCategory->id}}">
-                                            {{$publicCategory->name}}
-                                        </option>
-                                        @endforeach
-                                    </select> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <input type="date" name="date" 
-                                    class="form-control" title="Completed Data from"> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <button class="btn btn-info" type="submit">
-                                        <i class='fa-solid fa-file-excel'></i>
-                                        Export Excel
-                                    </button>
-                                </fieldset>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <input type="date" name="date" 
+                                        class="form-control" title="Completed Data from"> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <button class="btn btn-info" type="submit">
+                                            <i class='fa-solid fa-file-excel'></i>
+                                            Export Excel
+                                        </button>
+                                    </fieldset>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
-            </div>  
-        </div>
+                    </form>
+                </div>  
+            </div>
+        </div> 
     </div> 
 </div> 
 
@@ -118,9 +131,7 @@
             <table id="maintenanceEnergyTable" class="table table-striped data-table-energy-maintenance my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">Energy System</th>
-                        <th class="text-center">Household</th>
-                        <th class="text-center">Public Structure</th>
+                        <th class="text-center">Energy Agent</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Recipient</th>
                         <!--<th class="text-center">Action</th>-->
@@ -153,9 +164,7 @@
                 }
             },
             columns: [
-                {data: 'energy_name', name: 'energy_name'},
-                {data: 'english_name', name: 'english_name'},
-                {data: 'public_name', name: 'public_name'},
+                {data: 'holder'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'user_name', name: 'user_name'},
                // {data: 'maintenance_action_electricity', name: 'maintenance_action_electricity'},

@@ -168,5 +168,35 @@ class UsersTableSeeder extends Seeder
             'user_type_id' => 10,
             'is_admin' => 0
         ));
+        User::create(array(
+            'name'     => 'Ahmad Najadah',
+            'email'    => 'ahmadnajadeh@comet-me.org',
+            'password' => Hash::make('Ahmad@2023'),
+            'gender' => "male",
+            'image' => "12.png",
+            'phone' => "0587910062",
+            'user_type_id' => 7,
+            'is_admin' => 0
+        ));
+        User::create(array(
+            'name'     => 'Ameer Saaydeh',
+            'email'    => 'ameer@comet-me.org',
+            'password' => Hash::make('Ameer@2023'),
+            'gender' => "male",
+            'image' => "12.png",
+            'phone' => "0598451467",
+            'user_type_id' => 7,
+            'is_admin' => 0
+        ));
+        User::create(array(
+            'name'     => 'Ahmad Najadah',
+            'email'    => 'ahmadnajadeh@comet-me.org',
+            'password' => Hash::make('Ahmad@2023'),
+            'gender' => "male",
+            'image' => "12.png",
+            'phone' => "0592479428",
+            'user_type_id' => 7,
+            'is_admin' => 0
+        ));
     }
 }

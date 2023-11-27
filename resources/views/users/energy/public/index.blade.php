@@ -6,75 +6,207 @@
 
 @section('content')
 
-<div class="row mb-4">
-    <div class="col-lg-12 col-md-12 mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Energy Public Facilities</h5>
-            </div>
-            <div class="card-body pb-2">
-                <div class="d-flex justify-content-around align-items-center flex-wrap mb-4">
-                    <div class="user-analytics text-center me-2">
-                        <i type="solid" class="bx bx-buildings me-1"></i>
-                        <span>Schools</span> 
-                        <div class="d-flex align-items-center mt-2">
-                        <h5 class="mb-0">{{$schools}}</h5>
+<p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseEnergyPublicVisualData" 
+        role="button" aria-expanded="false" aria-controls="collapseEnergyPublicVisualData">
+        <i class="menu-icon tf-icons bx bx-show-alt"></i>
+        Visualize Data
+    </a>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseEnergyPublicExport" aria-expanded="false" 
+        aria-controls="collapseEnergyPublicExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target=".multi-collapse" aria-expanded="false" 
+        aria-controls="collapseEnergyPublicVisualData collapseEnergyPublicExport">
+        <i class="menu-icon tf-icons bx bx-expand-alt"></i>
+        Toggle All
+    </button>
+</p>
+
+<div class="collapse multi-collapse mb-4" id="collapseEnergyPublicVisualData">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Energy Public Facilities</h5>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="row">
+                    <div class="col-lg-3 col-sm-3 col-md-3 mb-4">
+                        <div class="col">
+                            <div class="card-body text-center">
+                                <h2 class="mb-1">{{$schools}}</h2>
+                                <span class="text-muted">Schools</span>
+                                <div class="primary">
+                                    <a target="_blank" type="button">
+                                        <i type="solid" class="bx bx-lg bx-buildings text-warning"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="sessions-analytics text-center me-2">
-                    <i class="bx bx-face me-1"></i>
-                    <span>Kindergarten</span>
-                    <div class="d-flex align-items-center mt-2">
-                        <h5 class="mb-0">{{$kindergarten}}</h5>
+                    <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+                        <div class="col">
+                            <div class="card-body text-center">
+                                <h2 class="mb-1">{{$kindergarten}}</h2>
+                                <span class="text-muted">Kindergarten</span>
+                                <div class="">
+                                    <a  target="_blank" type="button">
+                                    <i class="bx bx-lg bx-face text-success"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="user-analytics text-center me-2">
-                    <i class="bx bx-clinic me-1"></i>
-                    <span>Clinics</span>
-                    <div class="d-flex align-items-center mt-2">
-                        <h5 class="mb-0">{{$clinics}}</h5>
+                    <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+                        <div class="col">
+                            <div class="card-body text-center">
+                                <h2 class="mb-1">{{$clinics}}</h2>
+                                <span class="text-muted">Clinics</span>
+                                <div class="">
+                                    <a  target="_blank" type="button">
+                                    <i class="bx bx-lg bx-clinic text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="sessions-analytics text-center me-2">
-                    <i class="bx bx-arch me-1"></i>
-                    <span>Mosques</span>
-                    <div class="d-flex align-items-center mt-2">
-                        <h5 class="mb-0">{{$mosques}}</h5>
+                    <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+                        <div class="col">
+                            <div class="card-body text-center">
+                                <h2 class="mb-1">{{$mosques}}</h2>
+                                <span class="text-muted">Mosques</span>
+                                <div class="">
+                                    <a  target="_blank" type="button">
+                                    <i class="bx bx-lg bx-arch text-info"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="sessions-analytics text-center me-2">
-                    <i class="bx bx-building me-1"></i>
-                    <span>Madafah</span>
-                    <div class="d-flex align-items-center mt-2">
-                        <h5 class="mb-0">{{$madafah}}</h5>
+                    <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+                        <div class="col">
+                            <div class="card-body text-center">
+                                <h2 class="mb-1">{{$madafah}}</h2>
+                                <span class="text-muted">Madafah</span>
+                                <div class="">
+                                    <a  target="_blank" type="button">
+                                    <i class="bx bx-lg bx-building text-primary"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="sessions-analytics text-center me-2">
-                    <i class="bx bx-store-alt me-1"></i>
-                    <span>Community Center</span>
-                    <div class="d-flex align-items-center mt-2">
-                        <h5 class="mb-0">{{$center}}</h5>
+                    <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+                        <div class="col">
+                            <div class="card-body text-center">
+                                <h2 class="mb-1">{{$center}}</h2>
+                                <span class="text-muted">Community Center</span>
+                                <div class="">
+                                    <a  target="_blank" type="button">
+                                    <i class="bx bx-lg bx-store-alt text-dark"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Electricity Public Structures Issues</h5>
-                </div>
-                <div class="card-body">
-                    <div id="energyPublicStructuresChart"></div>
+    <div class="container">
+        <div class="row g-4 mb-4"> 
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-header">
+                        <h5>Electricity Public Structures Issues</h5>
+                    </div>
+                    <div class="panel-body" >
+                        <div class="">
+                            <div id="energyPublicStructuresChart" >
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div> 
 </div>
+
+<div class="collapse multi-collapse mb-4" id="collapseEnergyPublicExport">
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Export Public Structures Meter Report
+                            <i class='fa-solid fa-file-excel text-info'></i>
+                        </h5>
+                    </div>
+                    <form method="POST" enctype='multipart/form-data' 
+                        action="{{ route('energy-public.export') }}">
+                        @csrf
+                        <div class="card-body"> 
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Community</label>
+                                        <select name="community_id"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Community</option>
+                                            @foreach($communities as $community)
+                                                <option value="{{$community->id}}">
+                                                    {{$community->english_name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
+                                        <select name="type" id="selectedWaterSystemType" 
+                                            class="form-control" required>
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($installationTypes as $installationType)
+                                                <option value="{{$installationType->id}}">
+                                                    {{$installationType->type}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Installation date from</label>
+                                        <input type="date" class="form-control" name="date_from">
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Installation date to</label>
+                                        <input type="date" class="form-control" name="date_to">
+                                    </fieldset>
+                                </div>
+                            </div><br>
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <label class='col-md-12 control-label'>Download Excel</label>
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>  
+            </div>
+        </div> 
+    </div> 
+</div> 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Public Structures Meters

@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
-use DB;
+use DB; 
 use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\AllEnergyMeterDonor;
@@ -15,11 +15,15 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\EnergySystemType;
 use App\Models\EnergyRequestStatus;
+use App\Models\EnergyRequestSystem;
 use App\Models\Household;
 use App\Models\PublicStructure;
+use App\Models\InstallationType;
 use App\Models\Region;
+use App\Exports\EnergyRequestSystemExport;
 use Carbon\Carbon;
 use Image;
+use Excel;
 use DataTables;
 
 class EnergyRequestSystemController extends Controller
@@ -31,6 +35,13 @@ class EnergyRequestSystemController extends Controller
      */
     public function index(Request $request)
     {
+        $requestedSystems = EnergyRequestSystem::where("installation_type_id", 2)->get();
+        foreach($requestedSystems as $requestedSystem) {
+
+            $requestedSystem->recommendede_energy_system_id = 2;
+            $requestedSystem->save();
+        }
+
         if (Auth::guard('user')->user() != null) {
  
             if ($request->ajax()) {
@@ -125,5 +136,15 @@ class EnergyRequestSystemController extends Controller
         $installationTypes = InstallationType::where('is_archived', 0)->get();
         
         return view('request.energy.create', compact('communities', 'requestStatuses'));
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+                
+        return Excel::download(new EnergyRequestSystemExport($request), 'Requested Information.xlsx');
     }
 }

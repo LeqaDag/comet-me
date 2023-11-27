@@ -10,7 +10,7 @@
             <form method="POST" enctype='multipart/form-data' 
                 action="{{url('community-compound')}}">
                 @csrf
-                <div class="modal-body">
+                <div class="modal-body"> 
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
@@ -42,15 +42,10 @@
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Household</label>
-                                <select name="household_id[]" id="selectedHouseholdComound" 
-                                    class="selectedHouseholdComound form-control selectpicker" 
+                                <select name="household_id[]" id="selectedHouseholdCompound" 
+                                    class="form-control selectpicker" 
                                     data-live-search="true" multiple>
                                     <option disabled selected>Choose one...</option>
-                                    @foreach($households as $household)
-                                    <option value="{{$household->id}}">
-                                        {{$household->english_name}}
-                                    </option>
-                                    @endforeach
                                 </select>
                             </fieldset>
                         </div>
@@ -78,12 +73,13 @@
                 $('#selectedCompound').prop('disabled', false);
                 $('#selectedCompound').html(data.htmlCompounds);
 
-                // $("#selectedHouseholdComound").append('<option>Select</option>');
-                // $.each(data.htmlHouseholds, function(key, value) {
+                var select = $('#selectedHouseholdCompound'); 
 
-                //     $("#selectedHouseholdComound").append('<option value="'+value['id']+'">'+value['english_name']+'</option>');
-                // });
-                // $('#selectedHouseholdComound').selectpicker();
+                select.html(data.htmlHouseholds);
+                select.selectpicker('refresh');
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
             }
         });
     });

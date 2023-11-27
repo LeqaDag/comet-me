@@ -66,6 +66,24 @@
                     </h6>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <h6>
+                        Rated Ssolar Power (kW): 
+                        <span class="spanDetails">
+                            {{$energySystem->total_rated_power}}
+                        </span>
+                    </h6>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <h6>
+                        Generated Power (kW): 
+                        <span class="spanDetails">
+                            {{$energySystem->generated_power}}
+                        </span>
+                    </h6>
+                </div>
+            </div>
             <hr>
             @if(count($battarySystems) < 1)
                 <div class="alert alert-warning">

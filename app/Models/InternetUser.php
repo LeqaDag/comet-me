@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class InternetUser extends Model
 {
-    use HasFactory; 
+    use HasFactory;  
 
     protected $fillable = ['community_id', 'household_id', 'public_structure_id'];
 

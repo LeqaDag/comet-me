@@ -11,9 +11,10 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\InternetUser;
 use App\Models\Household;
+use App\Models\PublicStructure;
 use Auth;
-use DB; 
-use Route;
+use DB;  
+use Route; 
 
 class InternetHolderController extends Controller
 {
@@ -30,57 +31,29 @@ class InternetHolderController extends Controller
 
         foreach($holders as $holder) {
 
-            // Mufaqara 7
-            if($holder["user_group_id"] == 2) {
- 
+            if($holder["user_group_name"] == "Comet Employee" ||
+                $holder["user_group_name"] == "أبو فلاح	") {
+            } else {
 
-            // Susya 15
-            } else if($holder["user_group_id"] == 3) {
-
-            // Um al-Khair South 9
-            } else if($holder["user_group_id"] == 4) {
-
-            // Tuba 5
-            } else if($holder["user_group_id"] == 5) {
-
-            // Jib al-Deeb 22
-            } else if($holder["user_group_id"] == 6) {
-
-            // Sha'ab al-Buttum 9
-            } else if($holder["user_group_id"] == 7) {
-
-            // Um al-Khair South 8
-            } else if($holder["user_group_id"] == 8) {
-
-            // Ghuiwn 6
-            } else if($holder["user_group_id"] == 9) {
-
-            // Khallet al-Dabe'a 2
-            } else if($holder["user_group_id"] == 10) {
- 
-            // Ras al-Tin 16
-            } else if($holder["user_group_id"] == 12) {
-
-            // Maghyer al-Abeed 2
-            } else if($holder["user_group_id"] == 13) {
-
-            // Sfai Fouq 4
-            } else if($holder["user_group_id"] == 14) {
-
-            // Wadi Rakhim 8
-            } else if($holder["user_group_id"] == 15) {
-
-            // Heribet al-Nabi 2
-            } else if($holder["user_group_id"] == 16) {
-  
-               // dd(json_encode($holder["holder_full_name"], JSON_UNESCAPED_UNICODE));
-
+                $community = Community::where("arabic_name", $holder["user_group_name"])->first();
+                $household = Household::where("is_archived", 0)
+                    ->where("arabic_name", $holder["holder_full_name"])
+                    ->first();
+                $public = PublicStructure::where("is_archived", 0)
+                    ->where("arabic_name", $holder["holder_full_name"])
+                    ->first();
+               
+                if($community == null) dd($holder["user_group_name"] );
                 $internetUser = new InternetUser();
                 $internetUser->internet_status_id = 1;
                 $internetUser->start_date = $holder["created_on"];
-                $internetUser->internet_status_id = 1;
-                $internetUser->community_id = 104;
-                $household = Household::where("arabic_name", $holder["holder_full_name"])->first();
+                $internetUser->active = $holder["active"];
+                $internetUser->is_expire = $holder["is_expire"];
+                $internetUser->community_id = $community->id;
+                
+                $community->internet_service = "Yes";
+                $community->save();
+                
                 if($household) {
 
                     $existInternetHolder = InternetUser::where("household_id", $household->id)->first();
@@ -91,28 +64,29 @@ class InternetHolderController extends Controller
                         $internetUser->household_id = $household->id;
                         $internetUser->save();
                     }
-                } else {
+                } else if($public) {
 
-                    $newHousehold = new Household();
-                    $newHousehold->arabic_name = $holder["holder_full_name"];
-                    $newHousehold->internet_holder_young = 1;
-                    $newHousehold->community_id = 104;
-                    $newHousehold->profession_id = 1;
-                    $newHousehold->save();
+                    $existInternetPublic = InternetUser::where("public_structure_id", $public->id)->first();
+                    if($existInternetPublic) {
 
-                    $internetUser->household_id = $newHousehold->id;
-                    $internetUser->save();
+                    } else {
+                         
+                        $internetUser->public_structure_id = $public->id;
+                        $internetUser->save();
+                    }
+                } else { 
+
+                    // $newHousehold = new Household();
+                    // $newHousehold->arabic_name = $holder["holder_full_name"];
+                    // $newHousehold->internet_holder_young = 1;
+                    // $newHousehold->community_id = $community->id;
+                    // $newHousehold->profession_id = 1;
+                    // $newHousehold->save();
+
+                    // $internetUser->household_id = $newHousehold->id;
+                    // $internetUser->save();
                 }
             }
-            // Wadi Jehish 3
-            else if($holder["user_group_id"] == 17) {
-
-            }
-            // Magher al-Deir 7
-            else if($holder["user_group_id"] == 18) {
-
-            }
-            
         }
 
        die(InternetUser::get());

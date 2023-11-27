@@ -1,24 +1,18 @@
 @extends('layouts/layoutMaster')
 
 @section('title', 'Elc')
+
+@include('layouts.all')
 <style>
     label, input{
     display: block;
 }
-.dropdown-toggle{
-        height: 40px;
-        
-    }
 label {
     margin-top: 20px;
 }
 </style>
 @section('vendor-style')
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
 @endsection
 
@@ -37,8 +31,8 @@ label {
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New/Old Community</label>
-                            <select name="misc" id="selectedUserMisc" 
-                                class="form-control" required>
+                            <select name="misc" id="selectedUserMisc" data-live-search="true"
+                                class="selectpicker form-control" required>
                                 <option disabled selected>Choose one...</option>
                                 @foreach($installationTypes as $installationType)
                                     <option value="{{$installationType->id}}">
@@ -51,10 +45,11 @@ label {
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Community</label>
-                            <select class="selectpicker form-control" 
+                            <select class="selectpicker form-control"
                                 data-live-search="true" 
                                 name="community_id" id="selectedUserCommunity"
                                 required>
+                                <option disabled selected>Choose one...</option>
                                 @foreach($communities as $community)
                                     <option value="{{$community->id}}">
                                         {{$community->english_name}}
@@ -68,8 +63,9 @@ label {
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Users</label>
-                            <select name="household_id" id="selectedUserHousehold" 
-                            class="form-control" disabled required>
+                            <select name="household_id[]" id="selectedUserHousehold" 
+                                class="selectpicker form-control" data-live-search="true" 
+                                multiple disabled required>
                                 <option disabled selected>Choose one...</option>
                             </select>
                         </fieldset>
@@ -82,7 +78,7 @@ label {
                                 data-bs-toggle="modal" data-bs-target="#createNewHousehold">
                                 Create Now
                             </button>
-                            @include('employee.household.new_create')
+                            
                         </fieldset>
                     </div>
 
@@ -264,21 +260,21 @@ label {
     </div>
 </div>
 
-
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
-
 <script>
    
     $(document).on('change', '#selectedUserCommunity', function () {
 
         community_id = $(this).val();
         $.ajax({
-            url: "household/get_by_community/" +  community_id,
+            url: "household/get_un_user_by_community/" +  community_id,
             method: 'GET',  
             success: function(data) {
                 $('#selectedUserHousehold').prop('disabled', false);
-                $('#selectedUserHousehold').html(data.html);
+
+                var select = $('#selectedUserHousehold'); 
+
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
         }); 
 

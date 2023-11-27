@@ -7,16 +7,8 @@ label, table {
     margin-top: 20px;
 }
 
-.headingLabel {
-    font-size:18px;
-    font-weight: bold;
-}
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
 <div id="createSubCommunity" class="modal fade" role="dialog">
     <div class="modal-dialog">

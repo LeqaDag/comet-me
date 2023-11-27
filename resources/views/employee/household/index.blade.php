@@ -17,210 +17,235 @@ label, table {
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
-<div class="container">
-    <div class="row g-4 mb-4">
-        <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-3 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Energy Service</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="p-0 m-0">
-                        <li class="d-flex mb-4 pb-2">
-                            <div class="avatar avatar-sm flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded-circle bg-label-primary">
-                                    <a type="button" data-bs-toggle="modal" 
-                                        data-bs-target="#communityInitial">
-                                        <i class='bx bx-message'></i>
-                                    </a>
-                                </span>
-                            </div>
-                            <div class="d-flex flex-column w-100">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span>Initial Households</span>
-                                    <span class="text-muted">{{$householdInitial}}</span>
-                                </div>
-                                <div class="progress" style="height:6px;">
-                                    <div class="progress-bar bg-primary" style="width: {{$householdInitial}}%" 
-                                        role="progressbar" aria-valuenow="{{$householdInitial}}" 
-                                        aria-valuemin="0" 
-                                        aria-valuemax="{{$householdRecords}}">
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="d-flex mb-4 pb-2">
-                            <div class="avatar avatar-sm flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded-circle bg-label-warning">
-                                    <a type="button" data-bs-toggle="modal" 
-                                        data-bs-target="#householdAC">
-                                        <i class='bx bx-message-alt-detail'></i>
-                                    </a>
-                                </span>
-                            </div>
-                            <div class="d-flex flex-column w-100">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span>AC Survey</span>
-                                    <span class="text-muted">
-                                        @if($householdAC)
-                                            {{$householdAC}}
-                                        @endif
+<p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseHouseholdVisualData" 
+        role="button" aria-expanded="false" aria-controls="collapseHouseholdVisualData">
+        <i class="menu-icon tf-icons bx bx-show-alt"></i>
+        Visualize Data
+    </a>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseHouseholdExport" aria-expanded="false" 
+        aria-controls="collapseHouseholdExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target=".multi-collapse" aria-expanded="false" 
+        aria-controls="collapseHouseholdVisualData collapseHouseholdExport">
+        <i class="menu-icon tf-icons bx bx-expand-alt"></i>
+        Toggle All
+    </button>
+</p> 
+
+<div class="collapse multi-collapse mb-4" id="collapseHouseholdVisualData">
+    <div class="container">
+        <div class="row g-4 mb-4">
+            <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-3 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Energy Service</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="p-0 m-0">
+                            <li class="d-flex mb-4 pb-2">
+                                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded-circle bg-label-primary">
+                                        <a type="button" data-bs-toggle="modal" 
+                                            data-bs-target="#communityInitial">
+                                            <i class='bx bx-message'></i>
+                                        </a>
                                     </span>
                                 </div>
-                                <div class="progress" style="height:6px;">
-                                    <div class="progress-bar bg-warning" style="width: {{$householdAC}}%" 
-                                        role="progressbar" aria-valuenow="{{$householdAC}}" aria-valuemin="0" 
-                                        aria-valuemax="{{$householdRecords}}">
+                                <div class="d-flex flex-column w-100">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Initial Households</span>
+                                        <span class="text-muted">{{$householdInitial}}</span>
+                                    </div>
+                                    <div class="progress" style="height:6px;">
+                                        <div class="progress-bar bg-primary" style="width: {{$householdInitial}}%" 
+                                            role="progressbar" aria-valuenow="{{$householdInitial}}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="{{$householdRecords}}">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li class="d-flex mb-4 pb-2">
-                            <div class="avatar avatar-sm flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded-circle bg-label-success">
-                                    <a type="button" data-bs-toggle="modal" 
-                                        data-bs-target="#communitySurveyed">
-                                        <i class='bx bx-bulb'></i>
-                                    </a>
-                                </span>
-                                </span>
-                            </div>
-                            <div class="d-flex flex-column w-100">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span>Active Households</span>
-                                    <span class="text-muted">
-                                        {{$householdServed}}
+                            </li>
+                            <li class="d-flex mb-4 pb-2">
+                                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded-circle bg-label-warning">
+                                        <a type="button" data-bs-toggle="modal" 
+                                            data-bs-target="#householdAC">
+                                            <i class='bx bx-message-alt-detail'></i>
+                                        </a>
                                     </span>
                                 </div>
-                                <?php
-                                    $diff = ($householdServed / $householdRecords ) * 100;
-                                ?>
-                                <div class="progress" style="height:6px;">
-                                    <div class="progress-bar bg-success" 
-                                        style="width: {{$diff}}%" 
-                                        role="progressbar" 
-                                        aria-valuenow="{{$diff}}" 
-                                        aria-valuemin="0" 
-                                        aria-valuemax="{{$householdRecords}}">
+                                <div class="d-flex flex-column w-100">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>AC Survey</span>
+                                        <span class="text-muted">
+                                            @if($householdAC)
+                                                {{$householdAC}}
+                                            @endif
+                                        </span>
+                                    </div>
+                                    <div class="progress" style="height:6px;">
+                                        <div class="progress-bar bg-warning" style="width: {{$householdAC}}%" 
+                                            role="progressbar" aria-valuenow="{{$householdAC}}" aria-valuemin="0" 
+                                            aria-valuemax="{{$householdRecords}}">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </li>
-                    </ul>
+                            </li>
+                            <li class="d-flex mb-4 pb-2">
+                                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded-circle bg-label-success">
+                                        <a type="button" data-bs-toggle="modal" 
+                                            data-bs-target="#communitySurveyed">
+                                            <i class='bx bx-bulb'></i>
+                                        </a>
+                                    </span>
+                                    </span>
+                                </div>
+                                <div class="d-flex flex-column w-100">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Active Households</span>
+                                        <span class="text-muted">
+                                            {{$householdServed}}
+                                        </span>
+                                    </div>
+                                    <?php
+                                        $diff = ($householdServed / $householdRecords ) * 100;
+                                    ?>
+                                    <div class="progress" style="height:6px;">
+                                        <div class="progress-bar bg-success" 
+                                            style="width: {{$diff}}%" 
+                                            role="progressbar" 
+                                            aria-valuenow="{{$diff}}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="{{$householdRecords}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-4 col-xl-4 col-xxl-3 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span>Water Service</span>
-                            <div class="d-flex align-items-end mt-2">
-                                <h4 class="mb-0 me-2">
+            <div class="col-sm-4 col-xl-4 col-xxl-3 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div class="content-left">
+                                <span>Water Service</span>
+                                <div class="d-flex align-items-end mt-2">
+                                    <h4 class="mb-0 me-2">
+                                        @if ($householdWater)
+                                            {{$householdWater}}
+                                        @endif
+                                    </h4> <small>Households</small>
+                                </div>
+                                
                                     @if ($householdWater)
-                                        {{$householdWater}}
-                                    @endif
-                                </h4> <small>Households</small>
-                            </div>
-                            
-                                @if ($householdWater)
-                                <?php
-                                    $min = $householdRecords - $householdWater;
-                                ?>
+                                    <?php
+                                        $min = $householdRecords - $householdWater;
+                                    ?>
 
+                                        @if($min < $householdRecords/2)
+                                            <small class="text-success">{{$min}}
+                                        @else 
+                                            <small class="text-danger">{{$min}}
+                                        @endif
+                                        
+                                    @endif
+                                </small>
+                                <small>Remaining</small>
+                            </div>
+                            <span class="badge bg-label-primary rounded p-2">
+                                <a type="button" data-bs-toggle="modal" 
+                                    data-bs-target="#communityWater">
+                                    <i class="bx bx-water bx-sm"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div class="content-left">
+                                <span>Internet Service</span>
+                                <div class="d-flex align-items-end mt-2">
+                                    <h4 class="mb-0 me-2">
+                                        {{$householdInternet}}
+                                    </h4>  
+                                    <small>Households</small>
+                                </div>
+                            
+                                <?php
+                                    $min = $householdRecords - $householdInternet;
+                                ?>  
                                     @if($min < $householdRecords/2)
                                         <small class="text-success">{{$min}}
                                     @else 
                                         <small class="text-danger">{{$min}}
                                     @endif
-                                    
-                                @endif
-                            </small>
-                            <small>Remaining</small>
-                        </div>
-                        <span class="badge bg-label-primary rounded p-2">
-                            <a type="button" data-bs-toggle="modal" 
-                                data-bs-target="#communityWater">
-                                <i class="bx bx-water bx-sm"></i>
-                            </a>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span>Internet Service</span>
-                            <div class="d-flex align-items-end mt-2">
-                                <h4 class="mb-0 me-2">
-                                    {{$householdInternet}}
-                                </h4>  
-                                <small>Households</small>
+                                
+                                </small>
+                                <small>Remaining</small>
                             </div>
-                         
-                            <?php
-                                $min = $householdRecords - $householdInternet;
-                            ?>  
-                                @if($min < $householdRecords/2)
-                                    <small class="text-success">{{$min}}
-                                @else 
-                                    <small class="text-danger">{{$min}}
-                                @endif
-                            
-                            </small>
-                            <small>Remaining</small>
+                            <span class="badge bg-label-success rounded p-2">
+
+                                <a type="button" data-bs-toggle="modal" 
+                                    data-bs-target="#communityInternet">
+                                    <i class="bx bx-wifi bx-sm"></i>
+                                </a>
+
+                            </span>
                         </div>
-                        <span class="badge bg-label-success rounded p-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
 
-                            <a type="button" data-bs-toggle="modal" 
-                                data-bs-target="#communityInternet">
-                                <i class="bx bx-wifi bx-sm"></i>
-                            </a>
+    <div class="container">
+        <div class="row g-4 mb-4"> 
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-header">
+                        <h5>Households by Region</h5>
+                    </div>
+                    <div class="panel-body" >
+                        <div class="row">
+                            <div id="pie_chart_regional_household" class="col-md-12">
 
-                        </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="container mb-4 my-2">
-    <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12">
-            <div class="panel panel-primary">
-                <div class="panel-header">
-                    <h5>Households by Region</h5>
-                </div>
-                <div class="panel-body" >
-                    <div id="pie_chart_regional_household" style="height:300px;">
+    <div class="container ">
+        <div class="row mb-4 my-2">
+            <div class="col-xl-12 col-lg-12 col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-header">
+                        <h5>Households by Sub-Region</h5>
+                    </div>
+                    <div class="panel-body" >
+                        <div id="pie_chart_sub_regional_household" style="height:300px;">
+                        </div>
                     </div>
                 </div>
-            </div>
+            </div> 
         </div>
     </div>
 </div>
 
-<div class="container mb-4 my-2">
-    <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12">
-            <div class="panel panel-primary">
-                <div class="panel-header">
-                    <h5>Households by Sub-Region</h5>
-                </div>
-                <div class="panel-body" >
-                    <div id="pie_chart_sub_regional_household" style="height:300px;">
-                    </div>
-                </div>
-            </div>
-        </div> 
-    </div>
-</div>
-
-<div class="container mb-4">
+<div class="collapse multi-collapse container mb-4" id="collapseHouseholdExport">
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -228,7 +253,6 @@ label, table {
                     <h5>Export Household Report
                         <i class='fa-solid fa-file-excel text-info'></i>
                     </h5>
-
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('household.export') }}">
@@ -351,10 +375,13 @@ All<span class="text-muted fw-light"> Households</span>
                 class="table table-striped data-table-households my-2">
                 <thead>
                     <tr>
+                        
                         <th class="text-center">English Name</th>
                         <th class="text-center">Arabic Name</th>
                         <th class="text-center">Community</th>
-                        <th class="text-center">Refrigerator</th>
+                        <th class="text-center">Status</th>
+                        <!-- <th class="text-center">Main User</th>
+                        <th class="text-center">Refrigerator</th> -->
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -412,14 +439,23 @@ All<span class="text-muted fw-light"> Households</span>
                 }
             },
             columns: [
+               // {data: 'checkStatus'},
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'name', name: 'name'},
-                {data: 'icon' },
+                {data: 'statusLabel'},
+               // {data: 'is_main', name: 'is_main'},
+              //  {data: 'icon' },
                 {data: 'action' }
             ]
-        });
+        }); 
         
+        // change the status
+        $('#householdsTable').on('click', '.householdStatus',function() {
+            var id = $(this).val();
+            alert(id);
+        });
+
         // View record details
         $('#householdsTable').on('click', '.detailsHouseholdButton',function() {
             var id = $(this).data('id');

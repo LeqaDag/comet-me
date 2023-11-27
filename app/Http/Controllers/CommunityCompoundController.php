@@ -51,7 +51,7 @@ class CommunityCompoundController extends Controller
                     ->join('households', 'compound_households.household_id', 
                         '=', 'households.id')
                     ->join('compounds', 'compound_households.compound_id', 
-                        '=', 'compounds.id')
+                        '=', 'compounds.id') 
                     ->where('compound_households.is_archived', 0)
                     ->select('compounds.english_name as english_name', 
                         'compounds.arabic_name as arabic_name',
@@ -90,8 +90,8 @@ class CommunityCompoundController extends Controller
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('regions.english_name', 'LIKE', "%$search%")
                                 ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('sub_communities.english_name', 'LIKE', "%$search%")
-                                ->orWhere('sub_communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('compounds.english_name', 'LIKE', "%$search%")
+                                ->orWhere('compounds.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('households.english_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%");
                             });
@@ -186,7 +186,9 @@ class CommunityCompoundController extends Controller
         } else {
 
             $htmlCompounds = '<option value="">Choose One...</option>';
-            $htmlHouseholds = Household::where('community_id', $request->community_id)
+            $htmlHouseholds = '<option value="">Choose One...</option>';
+            
+            $households = Household::where('community_id', $request->community_id)
                 ->where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')
                 ->get();
@@ -198,6 +200,10 @@ class CommunityCompoundController extends Controller
 
             foreach ($compounds as $compound) {
                 $htmlCompounds .= '<option value="'.$compound->id.'">'.$compound->english_name.'</option>';
+            }
+
+            foreach ($households as $household) {
+                $htmlHouseholds .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
             }
         }
 

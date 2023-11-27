@@ -13,11 +13,6 @@ label, table {
 }
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-
 <div id="createHouseholdMeter" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -63,9 +58,10 @@ label, table {
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Household "Shared"</label>
-                                <select name="household_id" id="selectedAllHousehold" 
-                                class="form-control" disabled required>
+                                <label class='col-md-12 control-label'>Households "Shared"</label>
+                                <select name="household_id[]" id="selectedAllHousehold" 
+                                    class="selectpicker form-control" data-live-search="true" 
+                                    multiple disabled required>
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
@@ -81,10 +77,6 @@ label, table {
     </div>
 </div>
 
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
-
-<script src="{{ asset('js/jquery.min.js') }}"></script>
 <script>
 
     $(document).on('change', '#communitySharedUser', function () {
@@ -109,7 +101,10 @@ label, table {
                 success: function(data) { 
 
                     $('#selectedAllHousehold').prop('disabled', false);
-                    $('#selectedAllHousehold').html(data.html);
+                    var select = $('#selectedAllHousehold'); 
+
+                    select.html(data.html);
+                    select.selectpicker('refresh');
                 }
             });
         });

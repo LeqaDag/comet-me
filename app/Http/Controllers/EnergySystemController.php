@@ -63,10 +63,12 @@ use App\Models\CommunityWaterSource;
 use App\Models\IncidentStatusSmallInfrastructure;
 use App\Models\FbsSystem;
 use App\Models\Town;
+use App\Exports\EnergySystemExport;
 use Carbon\Carbon;
 use Auth;
 use DataTables;
 use DB;
+use Excel;
 use Image;
 use Route;
 
@@ -90,7 +92,8 @@ class EnergySystemController extends Controller
                     ->select('energy_systems.id as id', 'energy_systems.created_at',
                         'energy_systems.updated_at', 'energy_systems.name',
                         'energy_systems.installation_year', 'energy_systems.upgrade_year1',
-                        'energy_system_types.name as type')
+                        'energy_system_types.name as type',
+                        'energy_systems.total_rated_power')
                     ->latest();
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -145,8 +148,13 @@ class EnergySystemController extends Controller
                 $arrayEnergySystem[++$key] = 
                 [$value->name, $value->number];
             }
-    
-            return view('system.energy.index', compact('communities', 'donors', 'services'))
+
+            $energyTypes = EnergySystemType::where('is_archived', 0)
+                ->orderBy('name', 'ASC')
+                ->get();
+        
+            return view('system.energy.index', compact('communities', 'donors', 'services',
+                'energyTypes'))
             ->with(
                 'energySystemData', json_encode($arrayEnergySystem)
             );
@@ -237,7 +245,7 @@ class EnergySystemController extends Controller
         $energySystem->energy_system_type_id = $request->energy_system_type_id;
         $energySystem->notes = $request->notes;
         $energySystem->save();
-
+ 
         // Battery
         if($request->battery_id) {
             for($i=0; $i < count($request->battery_id); $i++) {
@@ -695,6 +703,10 @@ class EnergySystemController extends Controller
         if($request->cycle_year) $energySystem->cycle_year = $request->cycle_year;
         if($request->upgrade_year1) $energySystem->upgrade_year1 = $request->upgrade_year1;
         if($request->upgrade_year2) $energySystem->upgrade_year2 = $request->upgrade_year2;
+        if($request->total_rated_power == null) $energySystem->total_rated_power = null;
+        if($request->total_rated_power) $energySystem->total_rated_power = $request->total_rated_power;
+        if($request->generated_power == null) $energySystem->generated_power = null;
+        if($request->generated_power) $energySystem->generated_power = $request->generated_power;
         if($request->energy_system_type_id) $energySystem->energy_system_type_id = $request->energy_system_type_id;
         $energySystem->notes = $request->notes;
         $energySystem->save();
@@ -1144,5 +1156,15 @@ class EnergySystemController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+                
+        return Excel::download(new EnergySystemExport($request), 'energy_systems.xlsx');
     }
 }

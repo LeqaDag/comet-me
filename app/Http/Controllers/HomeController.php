@@ -94,7 +94,7 @@ class HomeController extends Controller
                 ->selectRaw('count(*) as number')
                 ->groupBy('incidents.english_name', 'h2o_system_incidents.year')
                 ->get();
-
+ 
             $allIncidents = DB::table('mg_incidents')
                 ->where('mg_incidents.is_archived', 0)
                 ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
@@ -411,18 +411,20 @@ class HomeController extends Controller
 
             $InternetUsersCounts = DB::table('internet_users')
                 ->where('internet_users.is_archived', 0)
-                ->join('households', 'internet_users.household_id', 'households.id')
-                ->join('communities', 'internet_users.community_id', 'communities.id')
-                ->where('communities.internet_service', 'Yes')
                 ->whereNotNull('internet_users.household_id');
+                //->join('households', 'internet_users.household_id', 'households.id')
+                //->join('communities', 'internet_users.community_id', 'communities.id')
+                //->where('communities.internet_service', 'Yes')
+               // ->whereNotNull('internet_users.household_id');
+
 
             $InternetPublicCount = DB::table('internet_users')
                 ->where('internet_users.is_archived', 0)
-                ->join('communities', 'internet_users.community_id', 'communities.id')
-                ->where('communities.internet_service', 'Yes')
+                //->join('communities', 'internet_users.community_id', 'communities.id')
+               // ->where('communities.internet_service', 'Yes')
                 ->whereNull('internet_users.household_id')
                 ->count();
-
+            
             $allInternetPeople=0;
          
             foreach($activeInternetCommuntiies->get() as $activeInternetCommuntiy) 
@@ -431,23 +433,50 @@ class HomeController extends Controller
                     ->where('is_archived', 0)
                     ->count();
             }
-
+ 
             // percentage of how many internet contract holders we have out of 
             // total households in active "internet" community
             $internetPercentage = round(($InternetUsersCounts->count())/$allInternetPeople * 100, 2);
 
+            $allContractHolders = DB::table('internet_users')
+                ->where('internet_users.is_archived', 0)
+                ->count();
+
             $allInternetUsersCounts = $InternetUsersCounts
+                ->join('households', 'internet_users.household_id', 'households.id')
                 ->where('households.internet_holder_young', 0)
                 ->count();
 
             $youngInternetHolders = DB::table('internet_users')
                 ->where('internet_users.is_archived', 0)
                 ->join('households', 'internet_users.household_id', 'households.id')
-                ->join('communities', 'internet_users.community_id', 'communities.id')
-                ->where('communities.internet_service', 'Yes')
+                //->join('communities', 'internet_users.community_id', 'communities.id')
+               // ->where('communities.internet_service', 'Yes')
                 ->whereNotNull('internet_users.household_id')
                 ->where('households.internet_holder_young', 1)
                 ->count();
+
+            $communitiesInternet = Community::where("internet_service", "yes")
+                ->where('is_archived', 0)
+                ->get(); 
+
+            $ratedPowerMG = EnergySystem::where("energy_system_type_id", 1)
+                ->orWhere("energy_system_type_id", 3)
+                ->orWhere("energy_system_type_id", 4)
+                ->select(DB::raw('SUM(total_rated_power) as total_rated_power'))
+                ->first();
+
+            $ratedPowerFBS = DB::table('all_energy_meters') 
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', 
+                    'energy_system_types.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->select(DB::raw('SUM(total_rated_power) as total_rated_power'))
+                ->first();
+
+            $totalRatedPower = round(
+                $ratedPowerMG->total_rated_power + $ratedPowerFBS->total_rated_power, 3);
 
             return view('employee.dashboard', compact('householdNumbers', 'numberOfPeople',
                 'communityNumbers', 'h2oUsersNumbers', 'h2oSharedNumbers', 'gridUsersNumber', 
@@ -459,7 +488,8 @@ class HomeController extends Controller
                 'servedHouseholdCount', 'waterNetworkUsers', 'internetPercentage', 
                 'activeInternetCommuntiies', 'allInternetPeople', 'allInternetUsersCounts',
                 'InternetPublicCount', 'activeInternetCommuntiiesCount', 'youngInternetHolders',
-                'totalMgSystem', 'totalFbsSystem'))
+                'totalMgSystem', 'totalFbsSystem', 'communitiesInternet', 'allContractHolders',
+                'totalRatedPower'))
                 ->with(
                     'initialYearEnergyData', json_encode($arrayYearEnergy))
                 ->with(

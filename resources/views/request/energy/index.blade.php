@@ -16,60 +16,74 @@ label, table {
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Export Filter</h5>
-                </div>
-                <form method="POST" enctype='multipart/form-data' 
-                    action="{{ route('energy-request.export') }}">
-                    @csrf
-                    <div class="card-body"> 
-                        <div class="row">
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <label class='col-md-12 control-label'>Community</label>
-                                    <select name="community"
-                                        class="selectpicker form-control" data-live-search="true">
-                                        <option disabled selected>Search Community</option>
-                                        @foreach($communities as $community)
-                                        <option value="{{$community->english_name}}">
-                                            {{$community->english_name}}
-                                        </option>
-                                        @endforeach
-                                    </select> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <fieldset class="form-group">
-                                    <label class='col-md-12 control-label'>Status of request</label>
-                                    <select name="request_status"
-                                        class="selectpicker form-control" data-live-search="true">
-                                        <option disabled selected>Search Status of request</option>
-                                        @foreach($requestStatuses as $requestStatus)
-                                        <option value="{{$requestStatus->name}}">
-                                            {{$requestStatus->name}}
-                                        </option>
-                                        @endforeach
-                                    </select> 
-                                </fieldset>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3">
-                                <label class='col-md-12 control-label'>Download Excel</label>
-                                <button class="btn btn-info" type="submit">
-                                    <i class='fa-solid fa-file-excel'></i>
-                                    Export Excel
-                                </button>
+<p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseEnergyRequestExport" aria-expanded="false" 
+        aria-controls="collapseEnergyRequestExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button> 
+</p>
+
+<div class="collapse multi-collapse container mb-4" id="collapseEnergyRequestExport">
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            Export Requested Systems Report 
+                            <i class='fa-solid fa-file-excel text-info'></i>
+                        </h5>
+                    </div>
+                    <form method="POST" enctype='multipart/form-data' 
+                        action="{{ route('energy-request.export') }}">
+                        @csrf
+                        <div class="card-body"> 
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Community</label>
+                                        <select name="community"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Community</option>
+                                            @foreach($communities as $community)
+                                            <option value="{{$community->id}}">
+                                                {{$community->english_name}}
+                                            </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Status of request</label>
+                                        <select name="request_status"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Status of request</option>
+                                            @foreach($requestStatuses as $requestStatus)
+                                            <option value="{{$requestStatus->id}}">
+                                                {{$requestStatus->name}}
+                                            </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <label class='col-md-12 control-label'>Download Excel</label>
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Excel
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
-            </div>  
-        </div>
+                    </form>
+                </div>  
+            </div>
+        </div> 
     </div> 
-</div> 
+</div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Requested Systems

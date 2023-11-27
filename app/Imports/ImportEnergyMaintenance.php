@@ -13,7 +13,40 @@ use App\Models\EnergyUser;
 use App\Models\Household;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
+use App\Models\EnergyBattery;
+use App\Models\EnergyPv;
+use App\Models\EnergyAirConditioner;
+use App\Models\EnergyBatteryStatusProcessor;
+use App\Models\EnergyBatteryTemperatureSensor;
+use App\Models\EnergyChargeController;
+use App\Models\EnergyGenerator;
+use App\Models\EnergyInverter;
+use App\Models\EnergyLoadRelay;
+use App\Models\EnergyMcbAc;
+use App\Models\EnergyMcbPv;
+use App\Models\EnergyMonitoring;
+use App\Models\EnergyWindTurbine;
+use App\Models\EnergyMcbChargeController;
+use App\Models\EnergyMcbInverter;
+use App\Models\EnergyRelayDriver;
+use App\Models\EnergyRemoteControlCenter;
 use App\Models\EnergySystem;
+use App\Models\EnergySystemRelayDriver;
+use App\Models\EnergySystemBattery;
+use App\Models\EnergySystemMonitoring;
+use App\Models\EnergySystemPv;
+use App\Models\EnergySystemChargeController;
+use App\Models\EnergySystemRemoteControlCenter;
+use App\Models\EnergySystemWindTurbine;
+use App\Models\EnergySystemGenerator;
+use App\Models\EnergySystemBatteryStatusProcessor;
+use App\Models\EnergySystemBatteryTemperatureSensor;
+use App\Models\EnergySystemInverter;
+use App\Models\EnergySystemLoadRelay;
+use App\Models\EnergySystemMcbPv;
+use App\Models\EnergySystemMcbChargeController;
+use App\Models\EnergySystemMcbInverter;
+use App\Models\EnergySystemAirConditioner;
 use App\Models\ElectricityMaintenanceCall;
 use App\Models\ElectricityMaintenanceCallUser;
 use App\Models\MaintenanceActionType;
@@ -41,10 +74,25 @@ class ImportEnergyMaintenance implements ToModel, WithHeadingRow
         // $meterVending->meter_case_id = $row["meter_case_id"];
         // $meterVending->notes = $row["notes"];
         // $meterVending->save();
-        // end vending
+        // end vending 
 
 
 
+        $energySystem = EnergySystem::where("name", $row["name"])->first();
+        $battery = EnergyBattery::where("battery_model", $row["model"])->first();
+        $exist = EnergySystemBattery::where("battery_type_id", $battery->id)->first();
+
+        if($exist){
+
+        } else {
+            
+            $batterySystem = new EnergySystemBattery();
+            $batterySystem->battery_type_id = $battery->id;
+            $batterySystem->battery_units = $row["units"];
+            $batterySystem->energy_system_id = $energySystem->id;
+            $batterySystem->save();
+        }
+        
         // Heeere
         // $household = Household::where("english_name", $row["household"])->first();
         // $public = PublicStructure::where("english_name", $row['public'])->first();

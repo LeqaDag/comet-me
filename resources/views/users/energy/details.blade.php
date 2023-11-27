@@ -15,7 +15,7 @@
                     aria-label="Close">
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body"> 
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
@@ -160,6 +160,18 @@
                         <h6>
                             Incident Date: 
                             <span class="spanDetails" id="incidentDate">
+                              
+                            </span>
+                        </h6>
+                    </div>
+                </div> 
+
+                <hr>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Shared Households: 
+                            <span class="spanDetails" id="sharedHousehold">
                               
                             </span>
                         </h6>

@@ -15,16 +15,24 @@ label, table {
 }
 </style>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
-<div class="container mb-4">
+<p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseCompoundCommunityExport" aria-expanded="false" 
+        aria-controls="collapseCompoundCommunityExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+</p>
+
+<div class="collapse multi-collapse container mb-4" id="collapseCompoundCommunityExport">
     <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Export Filter</h5>
+                    <h5>Export Community-Compound Report 
+                        <i class='fa-solid fa-file-excel text-info'></i>
+                    </h5>
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('community-compound.export') }}">
@@ -107,7 +115,7 @@ label, table {
             <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createSubCommunityHousehold">
+                        data-bs-toggle="modal" data-bs-target="#createCommunityCompound">
                         Create New Community Compound	
                     </button>
                     @include('admin.community.compound.create_compound')
@@ -143,9 +151,6 @@ label, table {
         </div>
     </div>
 </div>
-
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script type="text/javascript">
     $(function () {

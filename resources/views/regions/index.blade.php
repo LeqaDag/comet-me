@@ -1,7 +1,3 @@
-@php
-  $pricingModal = true;
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'regions')
@@ -10,128 +6,139 @@
 
 @section('content')
 
-<h5 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">Summary /</span> Region and Sub-region
-</h5>
+<p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseRegionsVisualData" 
+        role="button" aria-expanded="false" aria-controls="collapseRegionsVisualData">
+        <i class="menu-icon tf-icons bx bx-show-alt"></i>
+        Visualize Data
+    </a>
+</p> 
 
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-xl-6 col-lg-6 col-md-6">
-            <fieldset class="form-group">
-                <label class='col-md-12 control-label'>Region</label>
-                <select name="region_id" id="selectedRegion" 
-                    class="form-control" required>
-                    <option disabled selected>Choose one...</option>
-                    @foreach($regions as $region)
-                    <option value="{{$region->id}}">
-                        {{$region->english_name}}
-                    </option>
-                    @endforeach
-                </select>
-            </fieldset>
-        </div>
-        <div class="col-xl-6 col-lg-6 col-md-6">
-            <fieldset class="form-group">
-                <label class='col-md-12 control-label'>Sub Region</label>
-                <select name="sub_region_id" id="selectedSubRegions" 
-                class="form-control" disabled required>
-                    <option disabled selected>Choose one...</option>
-                </select>
-            </fieldset>
-        </div>
-    </div>
-</div>
+<div class="collapse multi-collapse mb-4" id="collapseRegionsVisualData">
+    <h5 class="py-3 breadcrumb-wrapper mb-4">
+        <span class="text-muted fw-light">Summary /</span> Region and Sub-region
+    </h5>
 
-<div class="card mb-4" id="regionsDivDetails" style="visiblity:hidden; display:none">
-    <div class="card-body">
-        <div class="row"> 
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <div class="row align-items-end">
-                    <div class="col-6">
-                        <h4 class=" text-primary mb-2 pt-4 pb-1" id="communitiesNumber">#</h4>
-                        <span class="d-block mb-4 text-nowrap">Communities</span>
-                    </div>
-                    <div class="col-6">
-                        <i class="bx bx-home me-1 bx-lg text-primary"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <div class="row align-items-end">
-                    <div class="col-6">
-                        <h4 class=" text-primary mb-2 pt-4 pb-1" id="householdsNumber">#</h4>
-                        <span class="d-block mb-4 text-nowrap">Households</span>
-                    </div>
-                    <div class="col-6">
-                        <i class="bx bx-user me-1 bx-lg text-warning"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <div class="row align-items-end">
-                    <div class="col-6">
-                        <h4 class=" text-primary mb-2 pt-4 pb-1" id="energyUsersNumber"></h4>
-                        <span class="d-block mb-4 text-nowrap">Energy Holders</span>
-                    </div>
-                    <div class="col-6">
-                        <i class="bx bx-user-check me-1 bx-lg text-danger"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <div class="row align-items-end">
-                    <div class="col-6">
-                        <h4 class=" text-primary mb-2 pt-4 pb-1" id="mgSystemsNumber">
-                            
-                        </h4>
-                        <span class="d-block mb-4 text-nowrap">MG Systems</span>
-                    </div>
-                    <div class="col-6">
-                        <i class="bx bx-grid me-1 bx-lg text-success"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div class="container mb-4">
         <div class="row">
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <div class="row align-items-end">
-                    <div class="col-6">
-                        <h4 class=" text-primary mb-2 pt-4 pb-1" id="fbsSystemsNumber"></h4>
-                        <span class="d-block mb-4 text-nowrap">FBS Systems</span>
-                    </div>
-                    <div class="col-6">
-                        <i class="bx bx-sun me-1 bx-lg text-dark"></i>
-                    </div>
-                </div> 
+            <div class="col-xl-6 col-lg-6 col-md-6">
+                <fieldset class="form-group">
+                    <label class='col-md-12 control-label'>Region</label>
+                    <select name="region_id" id="selectedRegion" 
+                        class="form-control" required>
+                        <option disabled selected>Choose one...</option>
+                        @foreach($regions as $region)
+                        <option value="{{$region->id}}">
+                            {{$region->english_name}}
+                        </option>
+                        @endforeach
+                    </select>
+                </fieldset>
             </div>
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <div class="row align-items-end">
-                    <div class="col-6">
-                        <h4 class=" text-primary mb-2 pt-4 pb-1" id="h2oUsersNumber"></h4>
-                        <span class="d-block mb-4 text-nowrap">H2O Holders</span>
+            <div class="col-xl-6 col-lg-6 col-md-6">
+                <fieldset class="form-group">
+                    <label class='col-md-12 control-label'>Sub Region</label>
+                    <select name="sub_region_id" id="selectedSubRegions" 
+                    class="form-control" disabled required>
+                        <option disabled selected>Choose one...</option>
+                    </select>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-4" id="regionsDivDetails" style="visiblity:hidden; display:none">
+        <div class="card-body">
+            <div class="row"> 
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <div class="row align-items-end">
+                        <div class="col-6">
+                            <h4 class=" text-primary mb-2 pt-4 pb-1" id="communitiesNumber">#</h4>
+                            <span class="d-block mb-4 text-nowrap">Communities</span>
+                        </div>
+                        <div class="col-6">
+                            <i class="bx bx-home me-1 bx-lg text-primary"></i>
+                        </div>
                     </div>
-                    <div class="col-6">
-                        <i class="bx bx-droplet me-1 bx-lg text-info"></i>
+                </div>
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <div class="row align-items-end">
+                        <div class="col-6">
+                            <h4 class=" text-primary mb-2 pt-4 pb-1" id="householdsNumber">#</h4>
+                            <span class="d-block mb-4 text-nowrap">Households</span>
+                        </div>
+                        <div class="col-6">
+                            <i class="bx bx-user me-1 bx-lg text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <div class="row align-items-end">
+                        <div class="col-6">
+                            <h4 class=" text-primary mb-2 pt-4 pb-1" id="energyUsersNumber"></h4>
+                            <span class="d-block mb-4 text-nowrap">Energy Holders</span>
+                        </div>
+                        <div class="col-6">
+                            <i class="bx bx-user-check me-1 bx-lg text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <div class="row align-items-end">
+                        <div class="col-6">
+                            <h4 class=" text-primary mb-2 pt-4 pb-1" id="mgSystemsNumber">
+                                
+                            </h4>
+                            <span class="d-block mb-4 text-nowrap">MG Systems</span>
+                        </div>
+                        <div class="col-6">
+                            <i class="bx bx-grid me-1 bx-lg text-success"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-12 mb-4">
-                <div class="row align-items-end">
-                    <div class="col-6">
-                        <h4 class=" text-primary mb-2 pt-4 pb-1" id="internetUsersNumber"></h4>
-                        <span class="d-block mb-4 text-nowrap">Internet Holders</span>
+
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <div class="row align-items-end">
+                        <div class="col-6">
+                            <h4 class=" text-primary mb-2 pt-4 pb-1" id="fbsSystemsNumber"></h4>
+                            <span class="d-block mb-4 text-nowrap">FBS Systems</span>
+                        </div>
+                        <div class="col-6">
+                            <i class="bx bx-sun me-1 bx-lg text-dark"></i>
+                        </div>
+                    </div> 
+                </div>
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <div class="row align-items-end">
+                        <div class="col-6">
+                            <h4 class=" text-primary mb-2 pt-4 pb-1" id="h2oUsersNumber"></h4>
+                            <span class="d-block mb-4 text-nowrap">H2O Holders</span>
+                        </div>
+                        <div class="col-6">
+                            <i class="bx bx-droplet me-1 bx-lg text-info"></i>
+                        </div>
                     </div>
-                    <div class="col-6">
-                        <i class="bx bx-wifi me-1 bx-lg text-light"></i>
+                </div>
+                <div class="col-lg-3 col-md-6 col-12 mb-4">
+                    <div class="row align-items-end">
+                        <div class="col-6">
+                            <h4 class=" text-primary mb-2 pt-4 pb-1" id="internetUsersNumber"></h4>
+                            <span class="d-block mb-4 text-nowrap">Internet Holders</span>
+                        </div>
+                        <div class="col-6">
+                            <i class="bx bx-wifi me-1 bx-lg text-light"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Regions
@@ -180,6 +187,8 @@
         </div>
     </div>
 </div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 
 <script type="text/javascript">
 

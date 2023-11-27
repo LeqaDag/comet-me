@@ -31,19 +31,29 @@ class WaterUserHolder implements FromCollection, WithHeadings, WithTitle, Should
             ->join('communities', 'all_water_holders.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+            ->LeftJoin('grid_public_structures', 'all_water_holders.public_structure_id', 
+                'grid_public_structures.public_structure_id')
+            ->LeftJoin('h2o_public_structures', 'all_water_holders.public_structure_id', 
+                'h2o_public_structures.public_structure_id')
+            ->LeftJoin('h2o_shared_public_structures', 'all_water_holders.public_structure_id', 
+                'h2o_shared_public_structures.public_structure_id')
             ->LeftJoin('public_structures', 'all_water_holders.public_structure_id', 
                 'public_structures.id')
             ->LeftJoin('households', 'all_water_holders.household_id', 'households.id')
             ->LeftJoin('h2o_users', 'h2o_users.household_id', 'households.id')
+            ->LeftJoin('h2o_shared_users', 'h2o_shared_users.household_id', 'households.id')
             ->LeftJoin('grid_users', 'all_water_holders.household_id', '=', 'grid_users.household_id')
+            ->LeftJoin('grid_shared_users', 'grid_shared_users.household_id', 'households.id')
             ->leftJoin('water_network_users', 'households.id', 
                 '=', 'water_network_users.household_id')
+            ->LeftJoin('community_supply_tank_users', 'community_supply_tank_users.household_id', 
+                'households.id')
             ->LeftJoin('h2o_statuses', 'h2o_users.h2o_status_id', '=', 'h2o_statuses.id')
             ->LeftJoin('all_water_holder_donors', 'all_water_holders.id', 
                 '=', 'all_water_holder_donors.all_water_holder_id')
             ->LeftJoin('donors', 'all_water_holder_donors.donor_id', '=', 'donors.id')
             ->where('all_water_holders.is_archived', 0)
-            ->select([
+            ->select([ 
                 'households.english_name as english_name', 
                 'public_structures.english_name as public',
                 'all_water_holders.is_main', 
@@ -60,20 +70,36 @@ class WaterUserHolder implements FromCollection, WithHeadings, WithTitle, Should
                 'households.phone_number',
                 DB::raw('group_concat(donors.donor_name) as donors'),
             ])
-            ->groupBy('all_water_holders.id');
+            ->groupBy('all_water_holders.id'); 
 
         if($this->request->water_system_id) {
 
             if( $this->request->water_system_id == 1) {
 
-                $data->where("h2o_users.is_archived", 0);
+                $data->where("h2o_users.is_archived", 0)
+                    ->orWhere("h2o_shared_users.is_archived", 0)
+                    ->orWhere("h2o_public_structures.is_archived", 0)
+                    ->orWhere("h2o_shared_public_structures.is_archived", 0);
             } else if( $this->request->water_system_id == 2) {
                 
-                $data->where("h2o_users.is_archived", 0);
-            } else if( $this->request->water_system_id == 1) {
-                
+                $data->where("grid_users.is_archived", 0)
+                    ->orWhere("grid_shared_users.is_archived", 0)
+                    ->orWhere("grid_public_structures.is_archived", 0);
+            } else if( $this->request->water_system_id == 4) {
+
+                $data->where("water_network_users.is_archived", 0);
+            } else if( $this->request->water_system_id == 3) {
+
+                $data->where("community_supply_tank_users.is_archived", 0);
             }
         } 
+
+        if($this->request->complete) {
+            
+            $data->where("grid_users.is_complete", $this->request->complete)
+                ->orWhere("grid_public_structures.is_complete", $this->request->complete);
+        }
+        
         if($this->request->community) {
             $data->where("communities.english_name", $this->request->community);
         } 

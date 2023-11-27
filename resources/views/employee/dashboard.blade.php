@@ -156,6 +156,20 @@
           </div>
         </div>
 
+        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
+          <div class="col">
+            <div class="card-body text-center">
+              <h2 class="mb-1">{{$totalRatedPower}}</h2>
+              <span class="text-muted">Total Rated Power (KW)</span>
+              <div class="">
+                <a href="{{'energy-system'}}" target="_blank" type="button"> 
+                  <i class="bx bx-wind me-1 bx-lg" style="color:yellow"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -277,7 +291,7 @@
                     <span>Internet Users</span>
                     <span class="text-muted">
                       {{$internetPercentage}} %
-                    </span>
+                    </span> 
                   </div>
                   <div class="progress" style="height:6px;">
                     <div class="progress-bar bg-success" style="width: {{$internetPercentage}}%" 
@@ -296,7 +310,10 @@
               <div class="d-flex align-content-center">
                 <div class="avatar avatar-sm flex-shrink-0 me-3">
                   <span class="avatar-initial rounded-circle bg-label-success">
-                    <i class='bx bx-home'></i>
+                    <a type="button" data-bs-toggle="modal" 
+                      data-bs-target="#communityInternet">
+                      <i class='bx bx-home'></i>
+                    </a>
                   </span>
                 </div>
                 <div class="chart-info">
@@ -304,6 +321,7 @@
                   <small class="text-muted">Active Communities</small>
                 </div>
               </div>
+              @include('employee.community.service.internet')
               <div class="d-flex align-content-center">
                 <div class="avatar avatar-sm flex-shrink-0 me-3">
                   <span class="avatar-initial rounded-circle bg-label-success">
@@ -311,8 +329,19 @@
                   </span>
                 </div>
                 <div class="chart-info"> 
-                  <h5 class="mb-0">{{$allInternetUsersCounts}}</h5>
+                  <h5 class="mb-0">{{$allContractHolders}}</h5>
                   <small class="text-muted">Contract Holders</small>
+                </div>
+              </div>
+              <div class="d-flex align-content-center">
+                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                  <span class="avatar-initial rounded-circle bg-label-success">
+                    <i class='bx bx-user'></i>
+                  </span>
+                </div>
+                <div class="chart-info">
+                  <h5 class="mb-0">{{$allInternetUsersCounts}}</h5>
+                  <small class="text-muted">Users</small>
                 </div>
               </div>
               <div class="d-flex align-content-center">
@@ -329,23 +358,12 @@
               <div class="d-flex align-content-center">
                 <div class="avatar avatar-sm flex-shrink-0 me-3">
                   <span class="avatar-initial rounded-circle bg-label-success">
-                    <i class='bx bx-user'></i>
-                  </span>
-                </div>
-                <div class="chart-info">
-                  <h5 class="mb-0">{{$allInternetPeople}}</h5>
-                  <small class="text-muted">Active Users</small>
-                </div>
-              </div>
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-success">
                     <i class='bx bx-buildings'></i>
                   </span>
                 </div>
                 <div class="chart-info">
                   <h5 class="mb-0">{{$InternetPublicCount}}</h5>
-                  <small class="text-muted">Active Public Structures</small>
+                  <small class="text-muted">Public Structures</small>
                 </div>
               </div>
             </div>

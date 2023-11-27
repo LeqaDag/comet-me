@@ -18,6 +18,7 @@ use App\Models\ElectricityMaintenanceCall;
 use App\Models\FbsUserIncident;
 use App\Models\GridUser;
 use App\Models\H2oUser;
+use App\Models\H2oSharedUser;
 use App\Models\H2oMaintenanceCall;
 use App\Models\InternetUser;
 use App\Models\RefrigeratorHolder;
@@ -38,11 +39,13 @@ use App\Models\Structure;
 use App\Models\SubRegion;
 use App\Models\Profession;
 use App\Models\MovedHousehold;
+use App\Models\GridSharedUser;
 use App\Exports\HouseholdExport;
 use Carbon\Carbon;
 use DataTables;
 use mikehaertl\wkhtmlto\Pdf;
 use Excel;
+use Illuminate\Support\Facades\URL;
 
 class HouseholdController extends Controller
 {
@@ -82,7 +85,6 @@ class HouseholdController extends Controller
             $regions = Region::where('is_archived', 0)->get();
             $subregions = SubRegion::where('is_archived', 0)->get();
 
-            
             $householdRecords = Household::where('is_archived', 0)->count();
             $householdsInitial = Household::where("household_status_id", 1)
                 ->where('is_archived', 0)
@@ -117,19 +119,27 @@ class HouseholdController extends Controller
                     ->join('communities', 'households.community_id', '=', 'communities.id')
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
                     ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-                    ->leftJoin('refrigerator_holders', 'households.id', '=', 'refrigerator_holders.household_id')
-                    ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
-                        '=', 'refrigerator_holder_receive_numbers.refrigerator_holder_id')
+                    ->join('household_statuses', 'households.household_status_id', 
+                        'household_statuses.id')
+                    // ->leftJoin('refrigerator_holders', 'households.id', '=', 'refrigerator_holders.household_id')
+                    // ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
+                    //     '=', 'refrigerator_holder_receive_numbers.refrigerator_holder_id')
+                    // ->leftJoin('all_energy_meters', 'households.id', '=', 
+                    //     'all_energy_meters.household_id')
                     ->where('internet_holder_young', 0)
                     ->where('households.is_archived', 0)
-                    ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
+                    ->select('households.english_name as english_name', 
+                        'households.arabic_name as arabic_name',
                         'households.id as id', 'households.created_at as created_at', 
                         'households.updated_at as updated_at',
                         'communities.english_name as name',
                         'communities.arabic_name as aname',
-                        'refrigerator_holder_receive_numbers.receive_number')
+                        'household_statuses.status',
+                        //'refrigerator_holder_receive_numbers.receive_number',
+                        //'all_energy_meters.is_main'
+                        )
                     ->groupBy('households.id')
-                    ->latest();  
+                    ->latest();   
  
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -139,21 +149,50 @@ class HouseholdController extends Controller
                         $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
                         if(Auth::guard('user')->user()->user_type_id != 7 || 
-                            Auth::guard('user')->user()->user_type_id != 11 ) 
+                            Auth::guard('user')->user()->user_type_id != 11 || 
+                            Auth::guard('user')->user()->user_type_id != 8) 
                         {
                                 
                             return $detailsButton." ". $updateButton." ".$deleteButton;
                         } else return $detailsButton; 
 
                     })
+                    ->addColumn('statusLabel', function($row) {
+
+                        if($row->status == "Initial") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-dark'>".$row->status."</span>";
+
+                        else if($row->status == "AC Survey") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-primary'>".$row->status."</span>";
+                       
+                        else if($row->status == "In Progress") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-warning'>".$row->status."</span>";
+
+                        else if($row->status == "Served") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-success'>".$row->status."</span>";
+
+                        else if($row->status == "Requested") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-info'>".$row->status."</span>";
+
+                        else if($row->status == "Displaced") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
+
+                        return $statusLabel;
+                    })
+                    ->addColumn('checkStatus', function($row) {
+
+                        $checkStatus = "<input type='checkbox' class='householdStatus form-check-input' name='household_status_id[]' id='". $row->id ."' value='". $row->id ."'>";
+                      
+                        return $checkStatus;
+                    })
                     ->addColumn('icon', function($row) {
 
-                        $icon = "<i class='fa-solid fa-check text-success'></i>";
+                        // $icon = "<i class='fa-solid fa-check text-success'></i>";
 
-                        if($row->receive_number != NULL) $icon = "<i class='fa-solid fa-check text-success'></i>";
-                        else $icon = "<i class='fa-solid fa-close text-danger'></i>";
+                        // if($row->receive_number != NULL) $icon = "<i class='fa-solid fa-check text-success'></i>";
+                        // else $icon = "<i class='fa-solid fa-close text-danger'></i>";
 
-                        return $icon;
+                        // return $icon;
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -165,11 +204,14 @@ class HouseholdController extends Controller
                                     ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                     ->orWhere('sub_regions.arabic_name', 'LIKE', "%$search%")
                                     ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
-                                    ->orWhere('households.arabic_name', 'LIKE', "%$search%");
+                                    ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('household_statuses.status', 'LIKE', "%$search%")
+                                   // ->orWhere('all_energy_meters.is_main', 'LIKE', "%$search%")
+                                    ;
                             });
                         }
                     })
-                    ->rawColumns(['action', 'icon'])
+                    ->rawColumns(['action', 'icon', 'statusLabel', 'checkStatus'])
                     ->make(true);
             }
 
@@ -463,6 +505,35 @@ class HouseholdController extends Controller
     }
 
     /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getNonUserByCommunity(Request $request)
+    {
+        if (!$request->community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option disabled selected>Choose One...</option>';
+            $households = DB::table('households')
+                ->where('households.community_id', $request->community_id)
+                ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
+                ->whereNull('all_energy_meters.household_id')
+                ->select('households.id', 'households.english_name')
+                ->get();
+
+            foreach ($households as $household) {
+                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
      * Write code on Construct
      *
      * @return \Illuminate\Http\Response
@@ -579,6 +650,34 @@ class HouseholdController extends Controller
     {
         $household = Household::findOrFail($id);
         $householdMeter = HouseholdMeter::where('user_name', $household->english_name)->first();
+
+        // update user name for shared h2o
+        $h2oUser = H2oUser::where('household_id', $household->id)->first();
+        if($h2oUser) {
+
+            $sharedH2oUser = H2oSharedUser::where('h2o_user_id', $h2oUser->id)->first();
+            if($sharedH2oUser) {
+
+                if($request->english_name) $sharedH2oUser->user_english_name = $request->english_name;
+                if($request->arabic_name) $sharedH2oUser->user_arabic_name = $request->arabic_name;
+                $sharedH2oUser->save();
+            }
+        }
+        // end updating user name for shared h2o
+        
+        // update user name for shared grid user
+        $gridUser = GridUser::where('household_id', $household->id)->first();
+        if($gridUser) {
+
+            $sharedGridUser = GridSharedUser::where('grid_user_id', $gridUser->id)->first();
+            if($sharedGridUser) {
+
+                if($request->english_name) $sharedGridUser->grid_user_english_name = $request->english_name;
+                if($request->arabic_name) $sharedGridUser->grid_user_arabic_name = $request->arabic_name;
+                $sharedGridUser->save();
+            }
+        }
+        // end updating user name for shared grid user
 
         $household->english_name = $request->english_name;
         $household->arabic_name = $request->arabic_name;
@@ -714,6 +813,7 @@ class HouseholdController extends Controller
         $household->save();
 
         if($householdMeter) {
+
             if($request->english_name) $householdMeter->user_name = $request->english_name;
             if($request->arabic_name) $householdMeter->user_name_arabic = $request->arabic_name;
             $householdMeter->save();
@@ -778,7 +878,7 @@ class HouseholdController extends Controller
             $communityHousehold->household_id = $id;
             $communityHousehold->save();
         }
-
+        
         return redirect('/household')
             ->with('message', 'Household Updated Successfully!');
     }

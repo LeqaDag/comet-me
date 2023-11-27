@@ -14,6 +14,7 @@
     swiperMultipleSlides = document.querySelector('#swiper-multiple-slides'),
     swiper3dCoverflowEffect = document.querySelector('#swiper-3d-coverflow-effect'),
     swiper3dCubeEffect = document.querySelector('#swiper-3d-cube-effect'),
+    swiper3dCubeEffect1 = document.querySelector('#swiper-3d-cube-effect1'),
     swiper3dFlipEffect = document.querySelector('#swiper-3d-flip-effect'),
     galleryThumbs = document.querySelector('.gallery-thumbs'),
     galleryTop = document.querySelector('.gallery-top');
@@ -141,7 +142,21 @@
       }
     });
   }
-
+  if (swiper3dCubeEffect1) {
+    new Swiper(swiper3dCubeEffect1, {
+      effect: 'cube',
+      grabCursor: true,
+      cubeEffect: {
+        shadow: true,
+        slideShadows: true,
+        shadowScale: 0.94,
+        shadowOffset: 20
+      },
+      pagination: {
+        el: '.swiper-pagination'
+      }
+    });
+  }
   // 3D flip effect
   // --------------------------------------------------------------------
   if (swiper3dFlipEffect) {

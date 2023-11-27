@@ -46,7 +46,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             ->where('all_energy_meters.is_archived', 0)
             ->where('all_energy_meter_donors.is_archived', 0) 
             ->select([
-                'households.english_name as english_name', 
+                'households.english_name as english_name',  
                 'public_structures.english_name as public',
                 'all_energy_meters.is_main',
                 'installation_types.type',

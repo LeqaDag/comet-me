@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Hash;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Arr;
 use Excel;
-    
+     
 class UserController extends Controller
 {
     /**
@@ -170,7 +170,6 @@ class UserController extends Controller
     {
         $user = User::find($id);
         $userTypes = UserType::all();
-
     
         return view('admin.users.edit', compact('user', 'userTypes'));
     }

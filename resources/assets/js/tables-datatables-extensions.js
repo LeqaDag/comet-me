@@ -44,7 +44,7 @@ $(function () {
             if (typeof $status[$status_number] === 'undefined') {
               return data;
             }
-            return (
+            return ( 
               '<span class="badge rounded-pill ' +
               $status[$status_number].class +
               '">' +

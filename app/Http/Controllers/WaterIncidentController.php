@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
-use DB;
+use DB; 
 use Route;
 use App\Models\AllWaterHolder;
 use App\Models\GridUser;
@@ -16,10 +16,16 @@ use App\Models\IncidentStatus;
 use App\Models\H2oStatus;
 use App\Models\H2oUser;
 use App\Models\H2oSystemIncident;
+use App\Models\H2oIncidentPhoto;
+use App\Models\H2oPublicStructure;
+use App\Models\GridPublicStructure;
+use App\Models\H2oIncidentStatus;
 use App\Models\Household;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\Incident;
+use App\Models\IncidentEquipment;
+use App\Models\WaterIncidentEquipment;
 use App\Exports\WaterIncidentExport;
 use Carbon\Carbon;
 use Image; 
@@ -44,21 +50,27 @@ class WaterIncidentController extends Controller
                     ->join('communities', 'h2o_system_incidents.community_id', '=', 'communities.id')
                     ->join('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
                         '=', 'all_water_holders.id')
-                    ->join('households', 'all_water_holders.household_id', '=', 'households.id')
+                    ->leftJoin('households', 'all_water_holders.household_id', '=', 'households.id')
+                    ->leftJoin('public_structures', 'all_water_holders.public_structure_id', 
+                        'public_structures.id')
                     ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
-                    ->join('incident_statuses', 
-                        'h2o_system_incidents.incident_status_id', 
+                    ->leftJoin('h2o_incident_statuses', 'h2o_system_incidents.id', 
+                        '=', 'h2o_incident_statuses.h2o_system_incident_id')
+                    ->leftJoin('incident_statuses', 
+                        'h2o_incident_statuses.incident_status_id', 
                         '=', 'incident_statuses.id')
                     ->where('h2o_system_incidents.is_archived', 0)
-                    ->select('h2o_system_incidents.date', 'h2o_system_incidents.year',
+                    ->select(['h2o_system_incidents.date', 'h2o_system_incidents.year',
                         'h2o_system_incidents.id as id', 'h2o_system_incidents.created_at as created_at', 
                         'h2o_system_incidents.updated_at as updated_at', 
                         'communities.english_name as community_name', 
                         'households.english_name as household_name',
-                        'incidents.english_name as incident', 
-                        'incident_statuses.name as incident_status',
-                        'h2o_system_incidents.notes')
-                    ->latest(); 
+                        'public_structures.english_name as public_name', 
+                        'incidents.english_name as incident',
+                        DB::raw('group_concat(DISTINCT incident_statuses.name) as incident_status'),
+                        'h2o_system_incidents.notes'])
+                    ->orderBy('h2o_system_incidents.date', 'desc')
+                    ->groupBy('h2o_system_incidents.id'); 
     
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -77,6 +89,13 @@ class WaterIncidentController extends Controller
                         } else return $viewButton;
        
                     })
+                    ->addColumn('holder', function($row) {
+
+                        if($row->household_name != null) $holder = $row->household_name;
+                        else if($row->public_name != null) $holder = $row->public_name;
+
+                        return $holder;
+                    })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request) {
@@ -86,16 +105,19 @@ class WaterIncidentController extends Controller
                                 ->orWhere('incident_statuses.name', 'LIKE', "%$search%")
                                 ->orWhere('households.english_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('h2o_system_incidents.date', 'LIKE', "%$search%")
                                 ->orWhere('incidents.english_name', 'LIKE', "%$search%");
                             });
                         }
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'holder'])
                     ->make(true);
             }
     
             $communities = Community::where('is_archived', 0)
+                ->where('water_service', 'Yes')
                 ->orderBy('english_name', 'ASC')
                 ->get();
             $h2oUsers = DB::table('all_water_holders')
@@ -106,6 +128,11 @@ class WaterIncidentController extends Controller
                 ->get();
     
             $incidents = Incident::where('is_archived', 0)->get();
+            $incidentEquipments = IncidentEquipment::where('is_archived', 0)
+                ->where("incident_equipment_type_id", 1)
+                ->orderBy('name', 'ASC')
+                ->get(); 
+
             $incidentStatuses = IncidentStatus::where('is_archived', 0)->get();
             $h2oIncidentsNumber = H2oSystemIncident::where('is_archived', 0)->count();
             $donors = Donor::where('is_archived', 0)
@@ -134,7 +161,7 @@ class WaterIncidentController extends Controller
             }
     
             return view('incidents.water.index', compact('communities', 'h2oUsers',
-                'incidents', 'incidentStatuses', 'h2oIncidentsNumber', 'donors'))
+                'incidents', 'incidentStatuses', 'h2oIncidentsNumber', 'donors', 'incidentEquipments'))
                 ->with('h2oIncidents', json_encode($arrayIncidents));
                 
         } else {
@@ -154,6 +181,8 @@ class WaterIncidentController extends Controller
         $allWaterHolder = AllWaterHolder::where("household_id", $request->all_water_holder_id)->first();
         $waterIncident = new H2oSystemIncident();
 
+        //dd($request->all_water_holder_id);
+
         if($request->date) {
 
             $waterIncident->date = $request->date;
@@ -162,12 +191,61 @@ class WaterIncidentController extends Controller
         }
 
         $waterIncident->community_id = $request->community_id[0];
-        $waterIncident->all_water_holder_id = $allWaterHolder->id;
+        if($request->public_user == "user") {
+
+            $waterUser = AllWaterHolder::where('household_id', $request->all_water_holder_id)->first();
+            $waterIncident->all_water_holder_id = $waterUser->id;
+        }
+
+        if($request->public_user == "public") {
+
+            $waterUser = AllWaterHolder::where('public_structure_id', $request->all_water_holder_id)->first();
+            $waterIncident->all_water_holder_id = $waterUser->id;
+        }
+
         $waterIncident->incident_id = $request->incident_id;
-        $waterIncident->incident_status_id = $request->incident_status_id;
-        $waterIncident->equipment = $request->equipment;
+        $waterIncident->response_date = $request->response_date;
         $waterIncident->notes = $request->notes;
         $waterIncident->save();
+        $id = $waterIncident->id;
+
+        if($request->incident_equipment_id) {
+            for($i=0; $i < count($request->incident_equipment_id); $i++) {
+
+                $waterEquipment = new WaterIncidentEquipment();
+                $waterEquipment->incident_equipment_id = $request->incident_equipment_id[$i];
+                $waterEquipment->h2o_system_incident_id = $id;
+                $waterEquipment->save();
+            }
+        }
+
+        if($request->incident_status_id) {
+            for($i=0; $i < count($request->incident_status_id); $i++) {
+
+                $waterStatus = new H2oIncidentStatus();
+                $waterStatus->incident_status_id = 
+                    $request->incident_status_id[$i];
+                $waterStatus->h2o_system_incident_id = $id;
+                $waterStatus->save();
+            }
+        }
+
+        if ($request->file('photos')) {
+
+            foreach($request->photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/incidents/water/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $h2oIncidentPhoto = new H2oIncidentPhoto();
+                $h2oIncidentPhoto->slug = $extra_name;
+                $h2oIncidentPhoto->h2o_system_incident_id = $id;
+                $h2oIncidentPhoto->save();
+            }
+        }
 
         return redirect()->back()
             ->with('message', 'New Water Incident Added Successfully!');
@@ -182,14 +260,33 @@ class WaterIncidentController extends Controller
     public function edit($id) 
     {
         $waterIncident = H2oSystemIncident::findOrFail($id);
+        $waterHolder = AllWaterHolder::findOrFail($waterIncident->all_water_holder_id);
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();
         $incidents = Incident::where('is_archived', 0)->get();
         $statuses = IncidentStatus::where('is_archived', 0)->get();
+        $incidentEquipments = IncidentEquipment::where('is_archived', 0)
+            ->where("incident_equipment_type_id", 1)
+            ->orderBy('name', 'ASC')
+            ->get();
+        $WaterIncidentEquipments = WaterIncidentEquipment::where('h2o_system_incident_id', $id)
+            ->where('is_archived', 0)
+            ->get();
+        $waterStatuses = DB::table('h2o_incident_statuses')
+            ->join('h2o_system_incidents', 'h2o_system_incidents.id', 
+                'h2o_incident_statuses.h2o_system_incident_id')
+            ->join('incident_statuses', 'h2o_incident_statuses.incident_status_id', 
+                'incident_statuses.id')
+            ->where('h2o_incident_statuses.h2o_system_incident_id', $id)
+            ->select('h2o_incident_statuses.id', 'incident_statuses.name')
+            ->get();
+        $waterIncidentPhotos = H2oIncidentPhoto::where('h2o_system_incident_id', $id)
+            ->get();
 
         return view('incidents.water.edit', compact('waterIncident', 'communities', 
-            'incidents', 'statuses'));
+            'incidents', 'statuses', 'incidentEquipments', 'WaterIncidentEquipments',
+            'waterStatuses', 'waterIncidentPhotos', 'waterHolder'));
     }
 
     /**
@@ -210,10 +307,87 @@ class WaterIncidentController extends Controller
         }
 
         $waterIncident->incident_id = $request->incident_id;
-        $waterIncident->incident_status_id = $request->incident_status_id;
         $waterIncident->equipment = $request->equipment;
         $waterIncident->notes = $request->notes;
         $waterIncident->save();
+
+        if($request->new_equipment) {
+
+            for($i=0; $i < count($request->new_equipment); $i++) {
+
+                $fbsEquipment = new WaterIncidentEquipment();
+                $fbsEquipment->incident_equipment_id = $request->new_equipment[$i];
+                $fbsEquipment->h2o_system_incident_id = $waterIncident->id;
+                $fbsEquipment->save();
+            }
+        }
+
+        if($request->more_equipment) {
+
+            for($i=0; $i < count($request->more_equipment); $i++) {
+
+                $fbsEquipment = new WaterIncidentEquipment();
+                $fbsEquipment->incident_equipment_id = $request->more_equipment[$i];
+                $fbsEquipment->h2o_system_incident_id = $waterIncident->id;
+                $fbsEquipment->save();
+            }
+        }
+        
+        if($request->new_statuses) {
+            for($i=0; $i < count($request->new_statuses); $i++) {
+
+                $waterStatus = new H2oIncidentStatus();
+                $waterStatus->incident_status_id = 
+                    $request->new_statuses[$i];
+                $waterStatus->h2o_system_incident_id = $id;
+                $waterStatus->save();
+            }
+        }
+
+        if($request->more_statuses) {
+            for($i=0; $i < count($request->more_statuses); $i++) {
+
+                $waterStatus = new H2oIncidentStatus();
+                $waterStatus->incident_status_id = 
+                    $request->more_statuses[$i];
+                $waterStatus->h2o_system_incident_id = $id;
+                $waterStatus->save();
+            }
+        }
+
+        if ($request->file('new_photos')) {
+
+            foreach($request->new_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/incidents/water/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $waterIncidentPhoto = new H2oIncidentPhoto();
+                $waterIncidentPhoto->slug = $extra_name;
+                $waterIncidentPhoto->h2o_system_incident_id = $id;
+                $waterIncidentPhoto->save();
+            }
+        }
+
+        if ($request->file('more_photos')) {
+
+            foreach($request->more_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/incidents/water/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $waterIncidentPhoto = new H2oIncidentPhoto();
+                $waterIncidentPhoto->slug = $extra_name;
+                $waterIncidentPhoto->h2o_system_incident_id = $id;
+                $waterIncidentPhoto->save();
+            }
+        }
 
         return redirect('/water-incident')->with('message', 'Water Incident Updated Successfully!');
     }
@@ -227,20 +401,91 @@ class WaterIncidentController extends Controller
     public function show($id)
     {
         $waterIncident = H2oSystemIncident::findOrFail($id);
-        $householdId = AllWaterHolder::where('id', $waterIncident->all_water_holder_id)->first();
-
-        $h2oUser = Household::findOrFail($householdId->household_id);
+        $waterHolder = AllWaterHolder::findOrFail($waterIncident->all_water_holder_id);
+        $h2oUser = H2oUser::where('household_id', $waterHolder->household_id)->get();
+        $h2oPublic = H2oPublicStructure::where('public_structure_id', $waterHolder->public_structure_id)->get();
+        $gridPublic = GridPublicStructure::where('public_structure_id', $waterHolder->public_structure_id)->get();
+        $gridUser = GridUser::where('household_id', $waterHolder->household_id)->get();
         $community = Community::where('id', $waterIncident->community_id)->first();
         $incident = Incident::where('id', $waterIncident->incident_id)->first();
         $waterStatus = IncidentStatus::where('id', $waterIncident->incident_status_id)->first();
+        $waterIncidentEquipments = DB::table('water_incident_equipment')
+            ->join('incident_equipment', 'water_incident_equipment.incident_equipment_id', 
+                '=', 'incident_equipment.id')
+            ->join('h2o_system_incidents', 'water_incident_equipment.h2o_system_incident_id', 
+                '=', 'h2o_system_incidents.id')
+            ->where('water_incident_equipment.h2o_system_incident_id', $id)
+            ->where('water_incident_equipment.is_archived', 0)
+            ->get();
 
-        $response['waterIncident'] = $waterIncident;
-        $response['h2oUser'] = $h2oUser;
-        $response['community'] = $community;
-        $response['incident'] = $incident;
-        $response['waterStatus'] = $waterStatus;
+        $waterStatuses = DB::table('h2o_incident_statuses')
+            ->join('h2o_system_incidents', 'h2o_system_incidents.id', 
+                'h2o_incident_statuses.h2o_system_incident_id')
+            ->join('incident_statuses', 'h2o_incident_statuses.incident_status_id', 
+                'incident_statuses.id')
+            ->where('h2o_incident_statuses.h2o_system_incident_id', $id)
+            ->get();
+        $waterIncidentPhotos = H2oIncidentPhoto::where('h2o_system_incident_id', $id)
+            ->get();
+ 
+        return view('incidents.water.show', compact('waterIncident', 'community', 
+            'incident', 'waterHolder', 'waterStatus', 'waterIncidentEquipments',
+            'waterStatuses', 'waterIncidentPhotos', 'h2oUser', 'gridUser', 'h2oPublic',
+            'gridPublic'));
+    }
 
-        return response()->json($response);
+     /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteIncidentPhoto(Request $request)
+    {
+        $id = $request->id;
+
+        $waterPhoto = H2oIncidentPhoto::find($id);
+
+        if($waterPhoto) {
+
+            $waterPhoto->delete();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Photo Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteWaterIncidentStatus(Request $request)
+    {
+        $id = $request->id;
+
+        $waterStatus = H2oIncidentStatus::find($id);
+
+        if($waterStatus) {
+
+            $waterStatus->delete();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Status Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 
     /**
@@ -262,6 +507,34 @@ class WaterIncidentController extends Controller
             
             $response['success'] = 1;
             $response['msg'] = 'Water Incident Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteWaterIncidentEquipment(Request $request)
+    {
+        $id = $request->id;
+
+        $waterEquipment = WaterIncidentEquipment::find($id);
+
+        if($waterEquipment) {
+
+            $waterEquipment->is_archived = 1;
+            $waterEquipment->save();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Equipment Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

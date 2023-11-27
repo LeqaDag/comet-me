@@ -30,18 +30,23 @@ WithStyles
             ->join('communities', 'internet_users.community_id', '=', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->join('households', 'internet_users.household_id', '=', 'households.id')
+            ->leftJoin('households', 'internet_users.household_id', '=', 'households.id')
+            ->leftJoin('public_structures', 'internet_users.public_structure_id', '=', 
+                'public_structures.id')
             ->join('internet_statuses', 'internet_users.internet_status_id', '=', 'internet_statuses.id')
-            ->leftJoin('community_donors', 'community_donors.community_id', '=', 'communities.id')
-            ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
-            ->where('community_donors.service_id', 3)
+            ->LeftJoin('internet_user_donors', 'internet_users.id', 
+                '=', 'internet_user_donors.internet_user_id')
+            ->LeftJoin('donors', 'internet_user_donors.donor_id', '=', 'donors.id')
             ->where('internet_users.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'households.arabic_name as arabic_name', 
+                'public_structures.english_name as public', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'internet_users.start_date', 'internet_statuses.name', 
-                'internet_users.number_of_contract');
+                'internet_users.number_of_contract',
+                DB::raw('group_concat(donors.donor_name) as donors')
+            )->groupBy('internet_users.id'); 
 
         if($this->request->community) {
 
@@ -66,8 +71,9 @@ WithStyles
      */
     public function headings(): array
     {
-        return ["Internet Holder", "Arabic Name", "Community", "Region", "Sub Region", 
-            "Start Date", "Internet Status", "Number of Contracts"];
+        return ["Internet Holder", "Arabic Name", "Public Name", "Community", "Region", "Sub Region", 
+            "Start Date", "Internet Status", "Number of Contracts",
+            "Donors"];
     }
 
     public function title(): string
@@ -82,7 +88,7 @@ WithStyles
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:H1');
+        $sheet->setAutoFilter('A1:I1');
 
         return [
             // Style the first row as bold text.

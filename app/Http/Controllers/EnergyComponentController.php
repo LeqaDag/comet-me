@@ -33,7 +33,7 @@ use App\Models\EnergyRemoteControlCenter;
 use App\Models\EnergySystemType;
 use App\Models\EnergySystemRelayDriver;
 use App\Models\EnergySystemBattery;
-use App\Models\EnergySystemMonitoring;
+use App\Models\EnergySystemMonitoring; 
 use App\Models\EnergySystemPv;
 use App\Models\EnergySystemChargeController;
 use App\Models\EnergySystemRemoteControlCenter;
@@ -93,7 +93,7 @@ class EnergyComponentController extends Controller
     {       
         //dd($request->all());
 
-        // Battery
+        // Battery 
         if($request->battery_models[0]["subject"] != null) {
             for($i=0; $i < count($request->battery_models); $i++) {
 

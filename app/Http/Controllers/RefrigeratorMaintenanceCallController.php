@@ -48,7 +48,8 @@ class RefrigeratorMaintenanceCallController extends Controller
                         '=', 'maintenance_statuses.id')
                     ->join('users', 'refrigerator_maintenance_calls.user_id', '=', 'users.id')
                     ->where('refrigerator_maintenance_calls.is_archived', 0)
-                    ->select('refrigerator_maintenance_calls.id as id', 'households.english_name', 
+                    ->select('refrigerator_maintenance_calls.id as id', 
+                        'households.english_name as household_name', 
                         'date_of_call', 'date_completed', 'refrigerator_maintenance_calls.notes',
                         'maintenance_types.type', 'maintenance_statuses.name', 
                         'communities.english_name as community_name',
@@ -74,7 +75,13 @@ class RefrigeratorMaintenanceCallController extends Controller
                             return $viewButton. " ".$updateButton. " ". $deleteButton ;
                         } else return $viewButton;
                     })
-                   
+                    ->addColumn('holder', function($row) {
+
+                        if($row->household_name != null) $holder = $row->household_name;
+                        else if($row->public_name != null) $holder = $row->public_name;
+
+                        return $holder;
+                    })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request){
@@ -92,7 +99,7 @@ class RefrigeratorMaintenanceCallController extends Controller
                             });
                         }
                     })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'holder'])
                 ->make(true);
             }
     
