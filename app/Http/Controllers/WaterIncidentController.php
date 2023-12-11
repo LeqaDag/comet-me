@@ -27,6 +27,7 @@ use App\Models\Incident;
 use App\Models\IncidentEquipment;
 use App\Models\WaterIncidentEquipment;
 use App\Exports\WaterIncidentExport;
+use App\Exports\AllIncidentExport;
 use Carbon\Carbon;
 use Image; 
 use DataTables;
@@ -550,7 +551,12 @@ class WaterIncidentController extends Controller
      */
     public function export(Request $request) 
     {
-                
-        return Excel::download(new WaterIncidentExport($request), 'water_incidents.xlsx');
+        if($request->type == "all") {
+
+            return Excel::download(new AllIncidentExport($request), 'all_incidents.xlsx');
+        }  else {
+
+            return Excel::download(new WaterIncidentExport($request), 'water_incidents.xlsx');
+        }       
     }
 }

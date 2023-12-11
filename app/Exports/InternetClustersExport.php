@@ -97,6 +97,8 @@ class InternetClustersExport implements FromCollection, WithTitle,
      */
     public function styles(Worksheet $sheet)
     {
+        $sheet->setAutoFilter('A1:F1');
+
         $sheet->setCellValue('A1', 'Count/Value');
         $sheet->setCellValue('B1', 'Cluster Name');
         $sheet->setCellValue('C1', 'ISP');

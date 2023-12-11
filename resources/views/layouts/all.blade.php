@@ -1,12 +1,9 @@
-
 <link rel="stylesheet" href="{{asset('assets/vendor/css/pages/ui-carousel.css')}}" />
 <style>
-    
-.dropdown-toggle{
-        height: 40px;
-        
+    .dropdown-toggle{
+        height: 40px;      
     }
-</style>
+</style> 
  
 @section('vendor-style')
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}">
@@ -26,7 +23,7 @@ href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
 
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/swiper/swiper.css')}}" />
 
-
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/leaflet/leaflet.css')}}" />
 <!-- JavaScript -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
@@ -52,6 +49,7 @@ href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
 <script src="{{asset('assets/vendor/libs/apex-charts/apexcharts.js')}}"></script>
 
 <script src="{{asset('assets/vendor/libs/swiper/swiper.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/leaflet/leaflet.js')}}"></script>
 @endsection
 
 @section('page-script')
@@ -65,5 +63,5 @@ src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/t
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
-
+<script src="{{asset('assets/js/maps-leaflet.js')}}"></script>
 @endsection

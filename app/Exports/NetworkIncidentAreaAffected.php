@@ -77,7 +77,7 @@ class NetworkIncidentAreaAffected implements FromCollection, WithHeadings, WithT
 
     public function title(): string
     {
-        return 'Area Affected';
+        return 'Network Incidents Area Affected';
     }
 
     /**

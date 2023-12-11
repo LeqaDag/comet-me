@@ -15,7 +15,6 @@ label, table {
     margin-top: 20px;
 }
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
 <p>
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseHouseholdVisualData" 
@@ -392,10 +391,6 @@ All<span class="text-muted fw-light"> Households</span>
         </div>
     </div>
 </div>
-
-<script src="{{ asset('js/jquery.min.js') }}"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script type="text/javascript">
     $(function () {

@@ -168,6 +168,18 @@ label, table {
                                 <input type="text" name="lawyer" class="form-control">
                             </fieldset>
                         </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Latitude</label>
+                                <input type="text" name="latitude" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Longitude</label>
+                                <input type="text" name="longitude" class="form-control">
+                            </fieldset>
+                        </div>
                     </div>
 
                     <div class="row">

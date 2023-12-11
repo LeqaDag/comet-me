@@ -77,7 +77,7 @@ class MgIncidentHouseholdsAffected implements FromCollection, WithHeadings, With
 
     public function title(): string
     {
-        return 'Households Affected';
+        return 'MG Households Affected';
     }
 
     /**

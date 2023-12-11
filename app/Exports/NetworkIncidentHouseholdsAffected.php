@@ -76,7 +76,7 @@ class NetworkIncidentHouseholdsAffected implements FromCollection, WithHeadings,
 
     public function title(): string
     {
-        return 'Households Affected';
+        return 'Network Incidents Households Affected';
     }
 
     /**

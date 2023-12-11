@@ -28,6 +28,7 @@ use App\Models\EnergySystemType;
 use App\Models\PublicStructureCategory;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\CommunityService;
 use App\Models\CommunityHousehold;
 use App\Models\Cistern;
 use App\Models\Household;
@@ -179,7 +180,21 @@ class InProgressHouseholdController extends Controller
      */
     public function store(Request $request)
     { 
-       // dd($request->all()); 
+        // dd($request->all()); 
+        $existCommunityService = CommunityService::where("community_id", $request->community_id)
+            ->where("service_id", 1)
+            ->first();
+
+        if($existCommunityService) {
+
+        } else {
+
+            $communityService = new CommunityService();
+            $communityService->service_id = 1;
+            $communityService->community_id = $request->community_id;
+            $communityService->save();
+        }
+
         if($request->household_id) {
 
             for($i=0; $i < count($request->household_id); $i++) {

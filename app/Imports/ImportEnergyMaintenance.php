@@ -54,6 +54,7 @@ use App\Models\MaintenanceElectricityAction;
 use App\Models\MaintenanceStatus;
 use App\Models\MaintenanceType;
 use App\Models\MeterCase;
+use App\Models\DisplacedHousehold;
 use Carbon\Carbon;
 use Excel;
 
@@ -66,6 +67,11 @@ class ImportEnergyMaintenance implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
+        // $community = Community::where("english_name", $row["name"])->first();
+        // $community->latitude = $row["lat"];
+        // $community->longitude = $row["long"];
+        // $community->save();
+
         // Get all meter numbers from vending file
         // $meterVending = new AllEnergyVendingMeter();
         // $meterVending->meter_number = $row["meter_number"]; 
@@ -78,20 +84,29 @@ class ImportEnergyMaintenance implements ToModel, WithHeadingRow
 
 
 
-        $energySystem = EnergySystem::where("name", $row["name"])->first();
-        $battery = EnergyBattery::where("battery_model", $row["model"])->first();
-        $exist = EnergySystemBattery::where("battery_type_id", $battery->id)->first();
+        // $household = Household::where("english_name", $row["name"])
+        //     ->where("is_archived", 0)
+        //     ->first();
+        // $oldCommunity = Community::where("english_name", $row["old"])->first();
+        // $newCommunity = Community::where("english_name", $row["new"])->first();
+        // $oldEnergy = EnergySystem::where("name", $row["old_energy"])->first();
+        // $newEnergy = EnergySystem::where("name", $row["new_energy"])->first();
+        // // //$exist = DisplacedHousehold::where("household_id", $household->id)->first();
 
-        if($exist){
-
-        } else {
+    
             
-            $batterySystem = new EnergySystemBattery();
-            $batterySystem->battery_type_id = $battery->id;
-            $batterySystem->battery_units = $row["units"];
-            $batterySystem->energy_system_id = $energySystem->id;
-            $batterySystem->save();
-        }
+        // $displacedHousehold = new DisplacedHousehold();
+        // $displacedHousehold->household_name = $row["name"];
+        // $displacedHousehold->old_community_id = $oldCommunity->id;
+        // $displacedHousehold->new_community_id = $newCommunity->id;
+        // $displacedHousehold->old_energy_system_id = $oldEnergy->id;
+        // $displacedHousehold->new_energy_system_id = $newEnergy->id;
+        // $displacedHousehold->system_retrieved = "Yes";
+        // $displacedHousehold->old_meter_number = $row["old_meter"];
+        // $displacedHousehold->area = $row["area"];
+        // $displacedHousehold->sub_region_id = $row["region"];
+        // $displacedHousehold->save();
+        
         
         // Heeere
         // $household = Household::where("english_name", $row["household"])->first();

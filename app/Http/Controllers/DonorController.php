@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
-use DB;
+use DB; 
 use Route;
 use App\Models\User;
 use App\Models\Community; 
@@ -17,8 +17,10 @@ use App\Models\InternetUser;
 use App\Models\InternetUserDonor;
 use App\Models\EnergyDonor;
 use App\Models\ServiceType;
+use App\Exports\DonorExport;
 use Carbon\Carbon;
 use Image;
+use Excel;
 use DataTables;
 
 class DonorController extends Controller
@@ -313,5 +315,15 @@ class DonorController extends Controller
         $donor->save();
 
         return redirect()->back();
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+
+        return Excel::download(new DonorExport($request), 'donors.xlsx'); 
     }
 }

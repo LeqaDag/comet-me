@@ -12,13 +12,25 @@
  
 <p>
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseDonorVisualData" 
-        role="button" aria-expanded="false" aria-controls="collapseDonorVisualData">
+        role="button" aria-expanded="false" aria-controls="collapseHouseholdVisualData">
         <i class="menu-icon tf-icons bx bx-show-alt"></i>
         Visualize Data
     </a>
-</p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseDonorExport" aria-expanded="false" 
+        aria-controls="collapseHouseholdExport">
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target=".multi-collapse" aria-expanded="false" 
+        aria-controls="collapseDonorVisualData collapseDonorExport">
+        <i class="menu-icon tf-icons bx bx-expand-alt"></i>
+        Toggle All
+    </button>
+</p> 
 
-<div class="collapse" id="collapseDonorVisualData">
+<div class="collapse multi-collapse container mb-4" id="collapseDonorVisualData">
     <div class="row">
         <div class="col-xl-6 col-lg-6 col-md-6">
             <div class="panel panel-primary">
@@ -68,6 +80,78 @@
         </div>
     </div>
 </div>
+
+<div class="collapse multi-collapse container mb-4" id="collapseDonorExport">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Export Donor Report
+                        <i class='fa-solid fa-file-excel text-info'></i>
+                    </h5>
+                </div>
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('donor.export') }}">
+                    @csrf
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <select name="community" class="selectpicker form-control" 
+                                        data-live-search="true">
+                                        <option disabled selected>Search Community</option>
+                                        @foreach($communities as $community)
+                                        <option value="{{$community->id}}">
+                                            {{$community->english_name}}
+                                        </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <select class="selectpicker form-control" 
+                                        data-live-search="true" 
+                                        name="service" required>
+                                        <option disabled selected>Choose Service Type...</option>
+                                        @foreach($services as $service)
+                                        <option value="{{$service->id}}">
+                                            {{$service->service_name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div> 
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <select class="selectpicker form-control" 
+                                        data-live-search="true" 
+                                        name="donor" required>
+                                        <option disabled selected>Choose Donor...</option>
+                                        @foreach($donors as $donor)
+                                        <option value="{{$donor->id}}">
+                                            {{$donor->donor_name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div> 
+                            <div class="col-xl-3 col-lg-3 col-md-3">
+                                <fieldset class="form-group">
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Excel
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>  
+        </div>
+    </div> 
+</div> 
+
 
 <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:25px">
   <span class="text-muted fw-light">All </span> donors

@@ -46,9 +46,9 @@ class CommunityExport implements FromCollection, WithHeadings, WithTitle, Should
             ->join('community_statuses', 'communities.community_status_id', 
                 '=', 'community_statuses.id')
             ->leftJoin('community_donors', 'communities.id', 'community_donors.community_id')
-            ->join('donors', 'community_donors.donor_id', 'donors.id')
+            ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->leftJoin('service_types', 'community_donors.service_id', 'service_types.id')
-            ->where('communities.is_archived', 0)
+            //->where('communities.is_archived', 0)
             ->select('communities.english_name as english_name', 
                 'communities.arabic_name as arabic_name',
                 'regions.english_name as name', 'sub_regions.english_name as subname',

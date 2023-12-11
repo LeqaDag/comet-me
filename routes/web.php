@@ -103,6 +103,7 @@ Route::get('/delete-community-donor', [App\Http\Controllers\CommunityDonorContro
 Route::get('community-donor/{id}/editpage', [App\Http\Controllers\CommunityDonorController::class, 'editPage']);
 Route::get('/getDonorData/{id}', [App\Http\Controllers\DonorController::class, 'getDonorData'])->name('getDonorData');
 Route::get('donor/edit_community_donor/{id}/{donor_id}/{service_id}', [App\Http\Controllers\CommunityDonorController::class, 'updateCommunityDonor']);  
+Route::post('donor-export', [App\Http\Controllers\DonorController::class, 'export'])->name('donor.export');
 
 Route::get('region/get_region/{region_id}', [App\Http\Controllers\RegionController::class, 'getByRegion']);
 Route::get('region/get_sub_region/{region_id}/{sub_region_id}', [App\Http\Controllers\RegionController::class, 'getBySubRegion']);
@@ -344,7 +345,6 @@ Route::get('/water-summary-result/chart', [App\Http\Controllers\WaterQualitySumm
 
 Route::resource('region', App\Http\Controllers\RegionController::class); 
 
-
 Route::resource('setting', App\Http\Controllers\SettingController::class); 
 Route::get('setting/edit_setting/{id}', [App\Http\Controllers\SettingController::class, 'updateSetting']);
 
@@ -361,3 +361,11 @@ Route::resource('energy-request', App\Http\Controllers\EnergyRequestSystemContro
 Route::post('energy-request-export', [App\Http\Controllers\EnergyRequestSystemController::class, 'export'])->name('energy-request.export');
 
 Route::resource('requested-household', App\Http\Controllers\RequestedHouseholdController::class);
+
+Route::resource('displaced-household', App\Http\Controllers\DisplacedHouseholdController::class);
+Route::get('/delete-displaced-household', [App\Http\Controllers\DisplacedHouseholdController::class, 'deleteDisplacedHousehold'])->name('deleteDisplacedHousehold');
+Route::get('displaced-household/get_household_by_community/{community_id}', [App\Http\Controllers\DisplacedHouseholdController::class, 'getHouseholdByCommunity']);
+Route::get('displaced-household/get_system_by_community/{community_id}', [App\Http\Controllers\DisplacedHouseholdController::class, 'getSystemsByCommunity']);
+Route::post('displaced-household-export', [App\Http\Controllers\DisplacedHouseholdController::class, 'export'])->name('displaced-household.export');
+
+Route::get('filter_map', [App\Http\Controllers\HomeController::class, 'CommunityMapFilter']);

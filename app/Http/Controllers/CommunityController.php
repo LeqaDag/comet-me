@@ -11,10 +11,12 @@ use DB;
 use Route;
 use App\Models\User;
 use App\Models\AllEnergyMeter;
+use App\Models\AllWaterHolder;
 use App\Models\AllEnergyMeterDonor;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\CommunityStatus;
+use App\Models\CommunityService;
 use App\Models\CommunityRepresentative;
 use App\Models\CommunityRole;
 use App\Models\Compound;
@@ -36,6 +38,9 @@ use App\Models\CommunityWaterSource;
 use App\Exports\CommunityExport;
 use App\Models\NearbySettlement;
 use App\Models\NearbyTown;
+use App\Models\InternetUser;
+use App\Models\H2oUser;
+use App\Models\GridUser;
 use App\Models\Town;
 use App\Models\RecommendedCommunityEnergySystem;
 use App\Models\WaterSource;
@@ -80,9 +85,7 @@ class CommunityController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
 
-                        $detailsButton = "<a type='button' class='detailsCommunityButton' data-bs-toggle='modal' data-bs-target='#communityDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
-                        $mapButton = "<a type='button' class='mapCommunityButton' data-id='".$row->id."'><i class='fa-solid fa-map text-warning'></i></a>";
-                        $imageButton = "<a type='button' class='imageCommunity' data-id='".$row->id."' ><i class='fa-solid fa-image text-info'></i></a>";
+                        $detailsButton = "<a type='button' class='detailsCommunityButton' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
                         $updateButton = "<a type='button' class='updateCommunity' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateCommunityModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteCommunity' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
     
@@ -90,8 +93,8 @@ class CommunityController extends Controller
                             Auth::guard('user')->user()->user_type_id == 2 ) 
                         {
                                 
-                            return  $detailsButton. " ". $mapButton. " ". $imageButton. " ". $updateButton." ".$deleteButton;
-                        } else return $detailsButton. " ". $mapButton. " ". $imageButton; 
+                            return  $detailsButton." ". $updateButton." ".$deleteButton;
+                        } else return $detailsButton; 
 
                     })
                     ->filter(function ($instance) use ($request) {
@@ -345,6 +348,8 @@ class CommunityController extends Controller
         $community->land_status = $request->land_status;
         $community->lawyer = $request->lawyer;
         $community->energy_source = $request->energy_source; 
+        $community->latitude = $request->latitude; 
+        $community->longitude = $request->longitude;
         $community->notes = $request->notes;
         if($request->product_type_id) $community->product_type_id = $request->product_type_id;
         if($request->reception) $community->reception = $request->reception;
@@ -521,7 +526,7 @@ class CommunityController extends Controller
                 $secondNameCommunity->community_id = $id;
             }
             $secondNameCommunity->save();
-        }
+        } 
 
         return redirect()->back()->with('message', 'New Community Inserted Successfully!');
     }
@@ -648,15 +653,17 @@ class CommunityController extends Controller
         $region = Region::where('id', $community->region_id)->first();
         $subRegion = SubRegion::where('id', $community->sub_region_id)->first();
         $status = CommunityStatus::where('id', $community->community_status_id)->first();
-        $publicStructures = PublicStructure::where('community_id', $community->id)->get();
-        $nearbySettlement = DB::table('nearby_settlements')
+        $publicStructures = PublicStructure::where('community_id', $community->id)
+            ->where('comet_meter', 0)
+            ->get();
+        $nearbySettlements = DB::table('nearby_settlements')
             ->where('nearby_settlements.is_archived', 0)
             ->join('communities', 'nearby_settlements.community_id', '=', 'communities.id')
             ->join('settlements', 'nearby_settlements.settlement_id', '=', 'settlements.id')
             ->where('community_id', $community->id)
             ->select('settlements.english_name')
             ->get();
-        $nearbyTown = DB::table('nearby_towns')
+        $nearbyTowns = DB::table('nearby_towns')
             ->where('nearby_towns.is_archived', 0)
             ->join('communities', 'nearby_towns.community_id', '=', 'communities.id')
             ->join('towns', 'nearby_towns.town_id', '=', 'towns.id')
@@ -722,24 +729,32 @@ class CommunityController extends Controller
             ->select('donors.donor_name')
             ->get();
 
-        $response['community'] = $community;
-        $response['region'] = $region;
-        $response['sub-region'] = $subRegion;
-        $response['status'] = $status;
-        $response['public'] = $publicStructures;
-        $response['nearbySettlement'] = $nearbySettlement;
-        $response['nearbyTown'] = $nearbyTown;
-        $response['compounds'] = $compounds;
-        $response['communityWaterSources'] = $communityWaterSources;
-        $response['communityRecommendedEnergy'] = $communityRecommendedEnergy;
-        $response['communityRepresentative'] = $communityRepresentative;
-        $response['secondName'] = $secondName; 
-        $response['totalMeters'] = $totalMeters;
-        $response['energyDonors'] = $energyDonors; 
-        $response['waterDonors'] = $waterDonors; 
-        $response['internetDonors'] = $internetDonors; 
+ 
+        $totalWaterHolders = H2oUser::where("is_archived", 0)
+            ->where("community_id", $id)
+            ->count();
 
-        return response()->json($response);
+        $gridLarge = GridUser::where('is_archived', 0)
+            ->where('grid_integration_large', '!=', 0)
+            ->where("community_id", $id)
+            ->selectRaw('SUM(grid_integration_large) AS sum')
+            ->first();
+        $gridSmall = GridUser::where('is_archived', 0)
+            ->where('grid_integration_small', '!=', 0)
+            ->where("community_id", $id)
+            ->selectRaw('SUM(grid_integration_small) AS sum')
+            ->first();
+
+        $internetHolders = InternetUser::where("is_archived", 0)
+            ->where("community_id", $id)
+            ->count();
+
+        $photos = Photo::where("community_id", $id)->get();
+        
+        return view('employee.community.show', compact('community', 'energyDonors', 'waterDonors',
+            'internetDonors', 'nearbySettlements', 'totalMeters', 'communityWaterSources',
+            'totalWaterHolders', 'gridLarge', 'gridSmall', 'internetHolders', 'secondName',
+            'communityRepresentative', 'publicStructures', 'compounds', 'nearbyTowns', 'photos'));
     }
 
     /**
@@ -848,14 +863,70 @@ class CommunityController extends Controller
         if($request->is_bedouin) $community->is_bedouin = $request->is_bedouin;
         if($request->demolition) $community->demolition = $request->demolition;
         if($request->land_status) $community->land_status = $request->land_status;
-        if($request->energy_service) $community->energy_service = $request->energy_service;
+
+        if($request->energy_service) {
+
+            $community->energy_service = $request->energy_service;
+
+            $existCommunityService = CommunityService::where("community_id", $id)
+                ->where("service_id", 1)
+                ->first();
+
+            if($existCommunityService) {
+
+            } else {
+
+                $communityService = new CommunityService();
+                $communityService->service_id = 1;
+                $communityService->community_id = $id;
+                $communityService->save();
+            }
+        }
+        
         if($request->energy_service_beginning_year) $community->energy_service_beginning_year = $request->energy_service_beginning_year;
-        if($request->water_service) $community->water_service = $request->water_service;
+        
+        if($request->water_service) {
+
+            $community->water_service = $request->water_service;
+            $existCommunityService = CommunityService::where("community_id", $id)
+                ->where("service_id", 2)
+                ->first();
+
+            if($existCommunityService) {
+
+            } else {
+
+                $communityService = new CommunityService();
+                $communityService->service_id = 2;
+                $communityService->community_id = $id;
+                $communityService->save();
+            }
+        }
+        
         if($request->water_service_beginning_year) $community->water_service_beginning_year = $request->water_service_beginning_year;
-        if($request->internet_service) $community->internet_service = $request->internet_service;
+       
+        if($request->internet_service) {
+
+            $community->internet_service = $request->internet_service;
+            $existCommunityService = CommunityService::where("community_id", $id)
+                ->where("service_id", 3)
+                ->first();
+
+            if($existCommunityService) {
+
+            } else {
+
+                $communityService = new CommunityService();
+                $communityService->service_id = 3;
+                $communityService->community_id = $id;
+                $communityService->save();
+            }
+        }
+      
         if($request->internet_service_beginning_year) $community->internet_service_beginning_year = $request->internet_service_beginning_year;
         if($request->description) $community->description = $request->description;
-
+        if($request->latitude) $community->latitude = $request->latitude; 
+        if($request->longitude) $community->longitude = $request->longitude;
         $community->save();
 
         if($request->addMoreInputFieldsCompoundName) {

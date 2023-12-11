@@ -9,6 +9,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\CommunityService;
 use App\Models\InternetUser;
 use App\Models\Household;
 use App\Models\PublicStructure;
@@ -36,6 +37,20 @@ class InternetHolderController extends Controller
             } else {
 
                 $community = Community::where("arabic_name", $holder["user_group_name"])->first();
+                $existCommunityService = CommunityService::where("community_id", $community->id)
+                    ->where("service_id", 3)
+                    ->first();
+
+                if($existCommunityService) {
+
+                } else {
+                    
+                    $communityService = new CommunityService();
+                    $communityService->service_id = 3;
+                    $communityService->community_id = $community->id;
+                    $communityService->save();
+                }
+
                 $household = Household::where("is_archived", 0)
                     ->where("arabic_name", $holder["holder_full_name"])
                     ->first();

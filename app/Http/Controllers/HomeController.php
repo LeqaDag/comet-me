@@ -12,10 +12,11 @@ use App\Models\Community;
 use Carbon\Carbon;
 use App\Models\CommunityDonor;
 use App\Models\CommunityStatus;
+use App\Models\CommunityService;
 use App\Models\CommunityRepresentative;
 use App\Models\CommunityRole;
 use App\Models\Compound;
-use App\Models\Donor;
+use App\Models\Donor; 
 use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
 use App\Models\EnergyUser;
@@ -69,6 +70,28 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+        // $communities = DB::table("internet_users")
+        //     ->join("communities", "internet_users.community_id", "communities.id")
+        //     ->groupBy("communities.id")
+        //     ->get();
+        
+        // foreach($communities as $community) {
+
+        //     $exist = CommunityService::where("community_id", $community->id)
+        //         ->where("service_id", 3)
+        //         ->first();
+        //     if($exist) {
+
+        //     } else {
+
+        //         $communityService = new CommunityService();
+        //         $communityService->community_id = $community->id;
+        //         $communityService->service_id = 3;
+        //         $communityService->save();
+        //     }
+        // }
+
+
         if (Auth::guard('user')->user() != null) {
             
             $mgIncidentsYear = DB::table('mg_incidents')
@@ -116,7 +139,7 @@ class HomeController extends Controller
             $householdNumbers = Household::where('internet_holder_young', 0)
                 ->where('is_archived', 0)
                 ->where('energy_system_status', 'Served')
-                ->count();
+                ->count(); 
             $regionNumbers = Region::where('is_archived', 0)->count();
  
             $h2oUsersNumbers = H2oUser::where('is_archived', 0)->count();
@@ -478,6 +501,28 @@ class HomeController extends Controller
             $totalRatedPower = round(
                 $ratedPowerMG->total_rated_power + $ratedPowerFBS->total_rated_power, 3);
 
+            $communities = Community::where("latitude", "!=", NULL)
+                ->select("id", "english_name", "latitude", "longitude")->get();
+
+            $regions = Region::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get(); 
+            $subregions = SubRegion::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $donors = Donor::where('is_archived', 0)
+                ->orderBy('donor_name', 'ASC')
+                ->get();
+
+            $services = ServiceType::where('is_archived', 0)
+                ->orderBy('service_name', 'ASC')
+                ->get();
+                
+            $statuses = CommunityStatus::where('is_archived', 0)
+                ->orderBy('name', 'ASC')
+                ->get();
+
             return view('employee.dashboard', compact('householdNumbers', 'numberOfPeople',
                 'communityNumbers', 'h2oUsersNumbers', 'h2oSharedNumbers', 'gridUsersNumber', 
                 'gridLarge', 'regionNumbers', 'gridSmall', 'h2oNumber', 'systemHoldersNumber',
@@ -489,7 +534,8 @@ class HomeController extends Controller
                 'activeInternetCommuntiies', 'allInternetPeople', 'allInternetUsersCounts',
                 'InternetPublicCount', 'activeInternetCommuntiiesCount', 'youngInternetHolders',
                 'totalMgSystem', 'totalFbsSystem', 'communitiesInternet', 'allContractHolders',
-                'totalRatedPower'))
+                'totalRatedPower', 'communities', 'regions', 'subregions', 'energySystemTypes',
+                'donors', 'services', 'statuses'))
                 ->with(
                     'initialYearEnergyData', json_encode($arrayYearEnergy))
                 ->with(
@@ -563,5 +609,185 @@ class HomeController extends Controller
         $response = $dataIncidents; 
       
         return response()->json($response); 
+    }
+
+    /**
+     * Filter Community Map
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function CommunityMapFilter(Request $request)
+    {
+        $communities = DB::table("communities")->whereNotNull("communities.latitude");
+   
+        // Search Region
+        if($request->regions) {
+            $regionIds = $request->regions;
+        
+            $communities->where(function ($query) use ($regionIds) {
+                foreach ($regionIds as $regionId) {
+                    if (is_array($regionId)) {
+                        $query->orWhereIn('id', function ($subQuery) use ($regionId) {
+                            $subQuery->select('communities.id')
+                                ->from('regions')
+                                ->whereIn('region_id', $regionId);
+                        });
+                    } else {
+                        $query->orWhereIn('id', function ($subQuery) use ($regionId) {
+                            $subQuery->select('communities.id')
+                                ->from('regions')
+                                ->where('region_id', $regionId);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Search Sub Region
+        if($request->sub_regions) {
+            $subRegionIds = $request->sub_regions;
+        
+            $communities->where(function ($query) use ($subRegionIds) {
+                foreach ($subRegionIds as $subRegionId) {
+                    if (is_array($subRegionId)) {
+                        $query->orWhereIn('id', function ($subQuery) use ($subRegionId) {
+                            $subQuery->select('communities.id')
+                                ->from('sub_regions')
+                                ->whereIn('sub_region_id', $subRegionId);
+                        });
+                    } else {
+                        $query->orWhereIn('id', function ($subQuery) use ($subRegionId) {
+                            $subQuery->select('communities.id')
+                                ->from('sub_regions')
+                                ->where('sub_region_id', $subRegionId);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Search Services
+        if ($request->services) {
+            $serviceIds = $request->services;
+        
+            $communities->where(function ($query) use ($serviceIds) {
+                foreach ($serviceIds as $serviceId) {
+                    if (is_array($serviceId)) {
+                        $query->orWhereIn('id', function ($subQuery) use ($serviceId) {
+                            $subQuery->select('communities.id')
+                                ->from('community_services')
+                                ->whereIn('service_id', $serviceId);
+                        });
+                    } else {
+                        $query->orWhereIn('id', function ($subQuery) use ($serviceId) {
+                            $subQuery->select('communities.id')
+                                ->from('community_services')
+                                ->where('service_id', $serviceId);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Search Service Year
+        if($request->years) {
+
+            $yearIds = $request->years;
+        
+            $communities->where(function ($query) use ($yearIds) {
+                foreach ($yearIds as $yearId) {
+                    if (is_array($yearId)) {
+                        $query->orWhere(function ($subQuery) use ($yearId) {
+                            $subQuery->whereIn('energy_service_beginning_year', $yearId)
+                                ->orWhereIn('water_service_beginning_year', $yearId)
+                                ->orWhereIn('internet_service_beginning_year', $yearId);
+                        });
+                    } else {
+                        $query->orWhere(function ($subQuery) use ($yearId) {
+                            $subQuery->where('energy_service_beginning_year', $yearId)
+                                ->orWhere('water_service_beginning_year', $yearId)
+                                ->orWhere('internet_service_beginning_year', $yearId);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Search community statuses
+        if($request->statuses) {
+            $statusesIds = $request->statuses;
+        
+            $communities->where(function ($query) use ($statusesIds) {
+                foreach ($statusesIds as $statusesId) {
+                    if (is_array($statusesId)) {
+                        $query->orWhereIn('id', function ($subQuery) use ($statusesId) {
+                            $subQuery->select('communities.id')
+                                ->from('community_statuses')
+                                ->whereIn('community_status_id', $statusesId);
+                        });
+                    } else {
+                        $query->orWhereIn('id', function ($subQuery) use ($statusesId) {
+                            $subQuery->select('communities.id')
+                                ->from('community_statuses')
+                                ->where('community_status_id', $statusesId);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Search System Types
+        if($request->system_types) {
+            $systemTypeIds = $request->system_types;
+        
+            $communities->join("all_energy_meters", "communities.id", "all_energy_meters.community_id")
+                ->groupBy("communities.id");
+
+            $communities->where(function ($query) use ($systemTypeIds) {
+                foreach ($systemTypeIds as $systemTypeId) {
+                    if (is_array($systemTypeId)) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($systemTypeId) {
+                            $subQuery->select('communities.id')
+                                ->from('energy_system_types')
+                                ->whereIn('energy_system_type_id', $systemTypeId);
+                        });
+                    } else {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($systemTypeId) {
+                            $subQuery->select('communities.id')
+                                ->from('energy_system_types')
+                                ->where('energy_system_type_id', $systemTypeId);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Search Donors
+        if ($request->donors) {
+            $donorIds = $request->donors;
+        
+            $communities->where(function ($query) use ($donorIds) {
+                foreach ($donorIds as $donorId) {
+                    if (is_array($donorId)) {
+                        $query->orWhereIn('id', function ($subQuery) use ($donorId) {
+                            $subQuery->select('communities.id')
+                                ->from('community_donors')
+                                ->whereIn('donor_id', $donorId);
+                        });
+                    } else {
+                        $query->orWhereIn('id', function ($subQuery) use ($donorId) {
+                            $subQuery->select('communities.id')
+                                ->from('community_donors')
+                                ->where('donor_id', $donorId);
+                        });
+                    }
+                }
+            });
+        }
+
+        return response()->json([
+            'communities' => $communities->get()
+        ]); 
     }
 }

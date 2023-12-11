@@ -35,4 +35,9 @@ class Community extends Model
     {
         return $this->belongsTo(CommunityStatus::class, 'community_status_id', 'id');
     }
+
+    public function communityServices() {
+
+        return $this->hasMany(communityServices::class);
+    }
 }

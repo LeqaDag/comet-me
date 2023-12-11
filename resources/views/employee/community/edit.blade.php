@@ -183,10 +183,24 @@ label {
                                 value="{{$community->land_status}}" class="form-control">
                             </fieldset>
                         </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Latitude</label>
+                                <input type="text" name="latitude" 
+                                value="{{$community->latitude}}" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Longitude</label>
+                                <input type="text" name="longitude" 
+                                value="{{$community->longitude}}" class="form-control">
+                            </fieldset>
+                        </div> 
                     </div>
 
                     <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Notes</label>
                                 <textarea name="notes" class="form-control" 

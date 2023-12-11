@@ -13,6 +13,7 @@ use App\Models\AllWaterHolderDonor;
 use App\Models\BsfStatus;
 use App\Models\Donor;
 use App\Models\Community;
+use App\Models\CommunityService;
 use App\Models\CommunityWaterSource;
 use App\Models\GridUser;
 use App\Models\GridUserDonor;
@@ -177,6 +178,20 @@ class WaterUserController extends Controller
      */
     public function store(Request $request)
     {
+        $existCommunityService = CommunityService::where("community_id", $request->community_id[0])
+            ->where("service_id", 2)
+            ->first();
+            
+        if($existCommunityService) {
+
+        } else {
+
+            $communityService = new CommunityService();
+            $communityService->service_id = 2;
+            $communityService->community_id = $request->community_id[0];
+            $communityService->save();
+        }
+
         $exist = AllWaterHolder::where("household_id", $request->household_id)->first();
 
         if($request->public_user == "user") {

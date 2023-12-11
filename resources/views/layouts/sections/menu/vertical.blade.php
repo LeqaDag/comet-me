@@ -110,6 +110,12 @@
                     <div>Served</div>
                 </a>
             </li>
+            <li class="menu-item" id="displaced-household">
+                <a href="{{url('displaced-household')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Displaced</div>
+                </a>
+            </li>
         </ul>
     </li>
    
@@ -527,6 +533,10 @@
     } else if(last_part == "served-household") {
 
         $("#served-household").addClass("active");
+        $("#households").addClass("open");
+    }  else if(last_part == "displaced-household") {
+
+        $("#displaced-household").addClass("active");
         $("#households").addClass("open");
     } else if(last_part == "public-structure") {
 

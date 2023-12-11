@@ -24,6 +24,7 @@ use App\Models\Incident;
 use App\Models\Household;
 use App\Models\Region;
 use App\Exports\InternetUserIncidentExport;
+use App\Exports\AllIncidentExport;
 use Carbon\Carbon;
 use Intervention\Image\Facades\Image;
 use DataTables;
@@ -454,7 +455,12 @@ class InternetUserIncidentController extends Controller
      */
     public function export(Request $request) 
     {
-                
-        return Excel::download(new InternetUserIncidentExport($request), 'internet_user_incidents.xlsx');
+        if($request->type == "all") {
+
+            return Excel::download(new AllIncidentExport($request), 'all_incidents.xlsx');
+        }  else {
+
+            return Excel::download(new InternetUserIncidentExport($request), 'internet_user_incidents.xlsx');
+        }    
     }
 }

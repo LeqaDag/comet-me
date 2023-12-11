@@ -26,6 +26,7 @@ use App\Models\MgIncidentEquipment;
 use App\Models\MgAffectedHousehold;
 use App\Models\MgIncidentPhoto;
 use App\Exports\MgIncidentExport;
+use App\Exports\AllIncidentExport;
 use Carbon\Carbon;
 use Intervention\Image\Facades\Image;
 use DataTables;
@@ -626,12 +627,17 @@ class MgIncidentController extends Controller
     }
 
     /**
-     * 
+     *  
      * @return \Illuminate\Support\Collection
      */
     public function export(Request $request) 
     {
-                
-        return Excel::download(new MgIncidentExport($request), 'mg_incidents.xlsx');
+        if($request->type == "all") {
+
+            return Excel::download(new AllIncidentExport($request), 'all_incidents.xlsx');
+        }  else { 
+
+            return Excel::download(new MgIncidentExport($request), 'mg_incidents.xlsx');
+        }   
     }
 }

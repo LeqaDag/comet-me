@@ -199,6 +199,8 @@ class InternetMetricsExport implements FromCollection, WithTitle,
      */
     public function styles(Worksheet $sheet)
     {
+        $sheet->setAutoFilter('A1:J1');
+
         $sheet->setCellValue('A1', 'Details');
         $sheet->setCellValue('B1', 'Active Communities');
         $sheet->setCellValue('C1', 'Inactive Communities (without subscriptions)');

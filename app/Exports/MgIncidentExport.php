@@ -13,7 +13,7 @@ class MgIncidentExport implements WithMultipleSheets, ShouldAutoSize
     use Exportable;
 
     protected $request;
-
+ 
     function __construct($request) {
         $this->request = $request;
     }

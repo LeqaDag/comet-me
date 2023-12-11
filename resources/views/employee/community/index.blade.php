@@ -314,7 +314,7 @@
     </div>
 @endif
 @include('employee.community.details')
-
+ 
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
@@ -406,149 +406,12 @@
         });
 
         // View record details
-        $('#communityTable').on('click','.detailsCommunityButton',function() {
+        $('#communityTable').on('click', '.detailsCommunityButton', function() {
             var id = $(this).data('id');
-         
-            // AJAX request
-            $.ajax({
-                url: 'community/' + id,
-                type: 'get',
-                dataType: 'json',
-                success: function(response) {
-
-                    $('#communityModalTitle').html(" ");
-                    $('#englishNameCommunity').html(" ");
-                    $('#arabicNameCommunity').html(" ");
-                    $('#numberOfCompoundsCommunity').html(" ");
-                    $('#numberOfPeopleCommunity').html(" ");
-                    $('#englishNameRegion').html(" ");
-                    $('#numberOfHouseholdCommunity').html(" ");
-                    $('#englishNameSubRegion').html(" ");
-                    $('#statusCommunity').html(" ");
-                    $('#energyServiceCommunity').html(" ");
-                    $('#energyServiceYearCommunity').html(" ");
-                    $('#waterServiceCommunity').html(" ");
-                    $('#waterServiceYearCommunity').html(" ");
-                    $('#internetServiceCommunity').html(" ");
-                    $('#internetServiceYearCommunity').html(" ");
- 
-                    $('#communityModalTitle').html(response['community'].english_name);
-                    $('#englishNameCommunity').html(response['community'].english_name);
-                    $('#arabicNameCommunity').html(response['community'].arabic_name);
-                    $('#numberOfCompoundsCommunity').html(response['community'].number_of_compound);
-                    $('#numberOfPeopleCommunity').html(response['community'].number_of_people);
-                    $('#englishNameRegion').html(response['region'].english_name);
-                    $('#numberOfHouseholdCommunity').html(response['community'].number_of_household);
-                    $('#englishNameSubRegion').html(response['sub-region'].english_name);
-                    $('#statusCommunity').html(response['status'].name);
-                    $('#energyServiceCommunity').html(response['community'].energy_service);
-                    $('#energyServiceYearCommunity').html(response['community'].energy_service_beginning_year);
-                    
-                    $('#waterServiceCommunity').html(response['community'].water_service);
-                    $('#waterServiceYearCommunity').html(response['community'].water_service_beginning_year);
-                    $('#internetServiceCommunity').html(response['community'].internet_service);
-                    $('#internetServiceYearCommunity').html(response['community'].internet_service_beginning_year);
-                    $('#energySource').html(" ");
-                    $('#energySource').html(response['community'].energy_source);
-                    $('#meterHoldersCommunity').html(" ");
-                    $('#meterHoldersCommunity').html(response['totalMeters']);
-
-                    $('#energyDonorsCommunity').html(" ");
-                    if(response['energyDonors'] != []) {
-                        for (var i = 0; i < response['energyDonors'].length; i++) {
-                            if(response['energyDonors'][i].donor_name == "0")  {
-                                response['energyDonors'][i].donor_name = "Not yet attributed";
-                            }
-                            $("#energyDonorsCommunity").append(
-                            '<ul><li>'+ response['energyDonors'][i].donor_name +'</li></ul>');
-                               
-                        }
-                    }
-
-                    $('#waterDonorsCommunity').html(" ");
-                    if(response['waterDonors'] != []) {
-                        for (var i = 0; i < response['waterDonors'].length; i++) {
-                            if(response['waterDonors'][i].donor_name == "0")  {
-                                response['waterDonors'][i].donor_name = "Not yet attributed";
-                            }
-                            $("#waterDonorsCommunity").append(
-                            '<ul><li>'+ response['waterDonors'][i].donor_name +'</li></ul>');
-                               
-                        }
-                    }
-
-                    $('#internetDonorsCommunity').html(" ");
-                    if(response['internetDonors'] != []) {
-                        for (var i = 0; i < response['internetDonors'].length; i++) {
-                            if(response['internetDonors'][i].donor_name == "0")  {
-                                response['internetDonors'][i].donor_name = "Not yet attributed";
-                            }
-                            $("#internetDonorsCommunity").append(
-                            '<ul><li>'+ response['internetDonors'][i].donor_name +'</li></ul>');
-                               
-                        }
-                    }
-
-                    $("#secondNameDiv").css("visibility", "hidden");
-                    $("#secondNameDiv").css('display', 'none');
-
-                    if(response['secondName']) {
-
-                        $("#secondNameDiv").css("visibility", "visible");
-                        $("#secondNameDiv").css('display', 'block');
-
-                        $('#secondNameEnglish').html(" ");
-                        $('#secondNameArabic').html(" ");
-                        $('#secondNameEnglish').html(response['secondName'].english_name);
-                        $('#secondNameArabic').html(response['secondName'].arabic_name);
-                    }
-
-                    $("#communityRepresentative").html(" "); 
-                    $("#representativeRole").html(" ");
-                    for (var i = 0; i < response['communityRepresentative'].length; i++) {
-                        $("#communityRepresentative").append(
-                            '<ul><li>'+ response['communityRepresentative'][i].english_name +'</li></ul>');
-                        $("#representativeRole").append(
-                            '<ul><li>'+ response['communityRepresentative'][i].role +'</li></ul>');
-                    }
-
-                    $("#structuresCommunity").html(" ");
-                    for (var i = 0; i < response['public'].length; i++) {
-                        $("#structuresCommunity").append(
-                            '<ul><li>'+ response['public'][i].english_name +'</li> </ul>');
-                    } 
-
-                    $("#compoundsCommunity").html(" ");
-                    for (var i = 0; i < response['compounds'].length; i++) {
-                        $("#compoundsCommunity").append(
-                            '<ul><li>'+ response['compounds'][i].english_name +'</li> </ul>');
-                    }
-
-                    $("#townsCommunity").html(" ");
-                    for (var i = 0; i < response['nearbyTown'].length; i++) {
-                        $("#townsCommunity").append(
-                            '<ul><li>'+ response['nearbyTown'][i].english_name +'</li> </ul>');
-                    }
-
-                    $("#settlementsCommunity").html(" ");
-                    for (var i = 0; i < response['nearbySettlement'].length; i++) {
-                        $("#settlementsCommunity").append(
-                            '<ul><li>'+ response['nearbySettlement'][i].english_name +'</li> </ul>');
-                    }
- 
-                    $("#waterSourcesCommunity").html(" ");
-                    for (var i = 0; i < response['communityWaterSources'].length; i++) {
-                        $("#waterSourcesCommunity").append(
-                            '<ul><li>'+ response['communityWaterSources'][i].name +'</li> </ul>');
-                    }
-
-                    $("#energySourcesCommunity").html(" ");
-                    for (var i = 0; i < response['communityRecommendedEnergy'].length; i++) {
-                        $("#energySourcesCommunity").append(
-                            '<ul><li>'+ response['communityRecommendedEnergy'][i].name +'</li> </ul>');
-                    }
-                }
-            });
+            var url = window.location.href; 
+           
+            url = url +'/'+ id ;
+            window.open(url); 
         }); 
         
         // View record photos

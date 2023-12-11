@@ -11,6 +11,128 @@
   Welcome {{Auth::guard('user')->user()->name}}  
 </h1> 
 
+<div class="col-12">
+  <div class="card mb-4">
+    <h5 class="card-header">All Communities</h5>
+    <div class="card-body">
+      <form method="POST" enctype='multipart/form-data' id="communityFilterMapForm">
+        @csrf
+        <div class="card-body">
+          <div class="row">
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="regions[]" class="selectpicker form-control" 
+                data-live-search="true" multiple>
+                  <option disabled selected>Search Regions</option>
+                  @foreach($regions as $region)
+                  <option value="{{$region->id}}">
+                    {{$region->english_name}}
+                  </option>
+                  @endforeach
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="sub_regions[]" class="selectpicker form-control" 
+                data-live-search="true" multiple>
+                  <option disabled selected>Search Sub Regions</option>
+                  @foreach($subregions as $subregion)
+                  <option value="{{$subregion->id}}">
+                    {{$subregion->english_name}}
+                  </option>
+                  @endforeach
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="services[]"
+                  class="selectpicker form-control" 
+                  data-live-search="true" multiple>
+                  <option disabled selected>Search Services</option>
+                  @foreach($services as $service)
+                    <option value="{{$service->id}}">
+                      {{$service->service_name}}
+                    </option>
+                  @endforeach
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="years[]" class="selectpicker form-control" 
+                  data-live-search="true" multiple>
+                  <option disabled selected>Search Service Year</option>
+                  @php
+                    $startYear = 2010; // C
+                    $currentYear = date("Y");
+                  @endphp
+                  @for ($year = $currentYear; $year >= $startYear; $year--)
+                    <option value="{{ $year }}">{{ $year }}</option>
+                  @endfor
+                </select> 
+              </fieldset>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="statuses[]" class="selectpicker form-control" 
+                data-live-search="true" multiple>
+                  <option disabled selected>Search Community Statuses</option>
+                  @foreach($statuses as $status)
+                  <option value="{{$status->id}}">
+                    {{$status->name}}
+                  </option>
+                  @endforeach
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="system_types[]"
+                  class="selectpicker form-control" 
+                  data-live-search="true" multiple>
+                  <option disabled selected>Search System Types</option>
+                  @foreach($energySystemTypes as $energySystemType)
+                    <option value="{{$energySystemType->id}}">
+                      {{$energySystemType->name}}
+                    </option>
+                  @endforeach
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="donors[]" class="selectpicker form-control" 
+                  data-live-search="true" multiple>
+                  <option disabled selected>Search Donors</option>
+                  @foreach($donors as $donor)
+                    <option value="{{$donor->id}}">
+                      {{$donor->donor_name}}
+                    </option>
+                  @endforeach
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <button class="btn btn-info" id="communityFilterMapButton" type="button">
+                  <i class='fa-solid fa-map'></i>
+                  View Filtered Map
+                </button>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </form>
+      <div class="leaflet-map" id="layerControl1"></div>
+      <div class="leaflet-map" id="layerControlFilter"></div>
+    </div>
+  </div>
+</div>
 
 <div class="card mb-4">
   <div class="card-body">
@@ -427,10 +549,6 @@
   </div>
 </div>
 
-
-
-
-
   <!-- Masafer Yatta-->
 <div class="card mb-4">
   <div class="card-header">
@@ -544,6 +662,122 @@
 </div>
 
 
+<script type="module">
+ 
+  const street = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+    maxZoom: 18
+  }),
+  watercolor = L.tileLayer('http://tile.stamen.com/watercolor/{z}/{x}/{y}.jpg', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+    maxZoom: 18
+  });
+
+  var firstMap = $("#layerControl1");
+  var filteredMap = $("#layerControlFilter");
+
+  // view default map
+  if (firstMap) {
+
+    filteredMap.css("visibility", "hidden");
+    filteredMap.css('display','none');
+
+    const communities = {!! json_encode($communities) !!};
+    const cities = L.layerGroup();
+    communities.forEach(community => {
+      const { latitude, longitude, english_name } = community;
+      const marker = L.marker([latitude, longitude]).bindPopup(english_name);
+      cities.addLayer(marker);
+    });
+
+    const layerControl1 = L.map('layerControl1', {
+      center: [32.2428238, 35.494258],
+      zoom: 10,
+      layers: [street, cities]
+    });
+    const baseMaps = {
+      Street: street,
+      Watercolor: watercolor
+    };
+    const overlayMaps = {
+      Cities: cities
+    };
+
+    MapCommunity(layerControl1, baseMaps, overlayMaps);
+  }
+
+  $('#communityFilterMapButton').on('click', function() {
+    event.preventDefault();
+
+    var formData = $("#communityFilterMapForm").serialize();
+
+    console.log(formData);
+
+    $.ajax({
+      url: '/filter_map', 
+      type: 'GET',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (data) {
+
+        if(filteredMap) {
+
+          firstMap.css("visibility", "hidden");
+          firstMap.css('display','none');
+
+          filteredMap.css("visibility", "visible");
+          filteredMap.css('display','block');
+
+          var cities = L.layerGroup();
+          data.communities.forEach(community => {
+            var { latitude, longitude, english_name } = community;
+            var markerFiltered = L.marker([latitude, longitude]).bindPopup(english_name);
+            cities.addLayer(markerFiltered);
+          });
+
+          const layerControlFiltered = L.map('layerControlFilter', {
+            center: [32.2428238, 35.494258],
+            zoom: 10,
+            layers: [street, cities]
+          });
+          const baseMapsFiltered = {
+            Street: street,
+            Watercolor: watercolor
+          };
+          const overlayMapsFiltered = {
+            Cities: cities
+          };
+
+          MapCommunityFiltered(layerControlFiltered, baseMapsFiltered, overlayMapsFiltered) 
+        }
+      },
+      error: function (xhr, status, error) {
+          // Handle error
+          console.error(error);
+      }
+    });
+  });
+
+  function MapCommunity(layerControl1, baseMaps, overlayMaps) {
+
+    L.control.layers(baseMaps, overlayMaps).addTo(layerControl1);
+    L.tileLayer('https://c.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+      maxZoom: 18
+    }).addTo(layerControl1);
+  }
+
+  function MapCommunityFiltered(layerControlFiltered, baseMapsFiltered, overlayMapsFiltered) {
+
+    L.control.layers(baseMapsFiltered, overlayMapsFiltered).addTo(layerControlFiltered);
+    L.tileLayer('https://c.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+      maxZoom: 18
+    }).addTo(layerControlFiltered);
+  }
+
+</script>
 
 <script type="text/javascript">
 
@@ -573,17 +807,6 @@
       chartInternet.draw(
         internetData
       );
-
-      
-
-      // var chartEnergy = new google.charts.Bar
-      //   (document.getElementById('energyCumulativeSum'));
-      //   chartEnergy.draw(
-      //     cumulativeSumEnergyData, options
-      // );
-
-
-
     }
   });
 </script>

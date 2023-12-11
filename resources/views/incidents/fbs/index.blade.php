@@ -64,6 +64,16 @@
                             <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
+                                        <select name="type" class="selectpicker form-control" 
+                                            required>
+                                            <option disabled selected>FBS or All Incidents?</option>
+                                            <option value="fbs">FBS Incidents</option>
+                                            <option value="all">All Incidents</option>
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
                                         <select name="community"
                                             class="selectpicker form-control" data-live-search="true">
                                             <option disabled selected>Search Community</option>
@@ -94,6 +104,8 @@
                                         class="form-control" title="Data from"> 
                                     </fieldset>
                                 </div>
+                            </div><br>
+                            <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <button class="btn btn-info" type="submit">
                                         <i class='fa-solid fa-file-excel'></i>

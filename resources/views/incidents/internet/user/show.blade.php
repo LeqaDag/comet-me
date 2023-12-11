@@ -113,8 +113,28 @@
                         </div>
                     </div>
                 @endif
+<br>
+                <div class="container">
+                    <span class="timeline-indicator timeline-indicator-danger">
+                        <button type="button" class="btn btn-info" id="editInternetUserIncident"
+                            data-id="{{$internetUser->id}}">
+                            Go to Edit!
+                        </button>
+                    </span>
+                </div>
             </ul>
         </div>
     </div>
 </div>
+
+<script>
+    // View record edit
+    $('#editInternetUserIncident').on('click', function() {
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        
+        url = url +'/'+ 'edit';
+        window.open(url, "_self"); 
+    });
+</script>
 @endsection
