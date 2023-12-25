@@ -194,6 +194,32 @@ label, table {
                             </select>
                         </fieldset>
                     </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy System Type</label>
+                            <select name="energy_system_type_id" 
+                                class="selectpicker form-control" data-live-search="true" >
+                                
+                                @if($household->energy_system_type_id)
+                                <option value="{{$household->EnergySystemType->id}}" disabled selected>
+                                    {{$household->EnergySystemType->name}}
+                                </option>
+                                @foreach($energySystemTypes as $energySystemType)
+                                <option value="{{$energySystemType->id}}">
+                                    {{$energySystemType->name}}
+                                </option>
+                                @endforeach
+                                @else
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energySystemTypes as $energySystemType)
+                                <option value="{{$energySystemType->id}}">
+                                    {{$energySystemType->name}}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
                 </div>
 
                 <div class="row">

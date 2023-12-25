@@ -9,7 +9,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use DB;
+use DB; 
 
 class RefrigeratorMaintenanceExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
     WithStyles
@@ -35,25 +35,31 @@ class RefrigeratorMaintenanceExport implements FromCollection, WithHeadings, Wit
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->join('maintenance_types', 'refrigerator_maintenance_calls.maintenance_type_id', 
                 '=', 'maintenance_types.id') 
-            ->join('refrigerator_maintenance_call_actions', 'refrigerator_maintenance_calls.id', 
+            ->leftJoin('refrigerator_maintenance_call_actions', 'refrigerator_maintenance_calls.id', 
                 'refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id')
-            ->join('maintenance_refrigerator_actions', 
+            ->leftJoin('maintenance_refrigerator_actions', 
                 'refrigerator_maintenance_call_actions.maintenance_refrigerator_action_id', 
                 '=', 'maintenance_refrigerator_actions.id')
+            ->leftJoin('refrigerator_maintenance_call_users', 'refrigerator_maintenance_calls.id', 
+                'refrigerator_maintenance_call_users.refrigerator_maintenance_call_id')
+            ->leftJoin('users as performed_users', 'refrigerator_maintenance_call_users.user_id', 
+                'performed_users.id')
             ->join('maintenance_statuses', 'refrigerator_maintenance_calls.maintenance_status_id', 
                 '=', 'maintenance_statuses.id')
-            ->join('users', 'refrigerator_maintenance_calls.user_id', '=', 'users.id')
+            ->join('users as recipients', 'refrigerator_maintenance_calls.user_id', 'recipients.id')
             ->where('refrigerator_maintenance_calls.is_archived', 0)
             ->select([
-                'households.english_name as english_name', 
-                'public_structures.english_name as public_name', 
+                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as exported_value'),
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
-                'users.name as user_name',
-                DB::raw('group_concat(maintenance_refrigerator_actions.maintenance_action_refrigerator_english)'),
-                DB::raw('group_concat(maintenance_refrigerator_actions.maintenance_action_refrigerator)'),
+                'recipients.name as user_name',
+                DB::raw('group_concat(DISTINCT maintenance_refrigerator_actions.maintenance_action_refrigerator_english)'),
+                DB::raw('group_concat(DISTINCT maintenance_refrigerator_actions.maintenance_action_refrigerator)'),
                 'maintenance_statuses.name', 'maintenance_types.type',
-                'date_of_call', 'date_completed', 'refrigerator_maintenance_calls.notes'
+                'date_of_call', 'date_completed', 
+                DB::raw('group_concat(DISTINCT performed_users.name)'),
+                'refrigerator_maintenance_calls.notes'
             ])
             ->groupBy('refrigerator_maintenance_calls.id');
 
@@ -82,9 +88,9 @@ class RefrigeratorMaintenanceExport implements FromCollection, WithHeadings, Wit
      */
     public function headings(): array
     {
-        return ["Household Name", "Public Structure", "Community", "Region", "Sub Region", 
-            "Recipient", "Action in English", "Action in Arabic", "Status", "Type", "Call Date",
-            "Completed Date", "Notes"];
+        return ["Agent", "Community", "Region", "Sub Region", "Recipient", "Action in English", 
+            "Action in Arabic", "Status", "Type", "Call Date", "Completed Date", "Performed By", 
+            "Notes"];
     }
 
     public function title(): string

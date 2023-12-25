@@ -41,21 +41,13 @@ label, table {
                             </fieldset>
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Old Energy System</label>
-                                <select name="old_energy_system_id" class="form-control" 
-                                    id="oldEnergySystem" required disabled>
-                                </select>
-                            </fieldset>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <label class='col-md-12 control-label'>Displaced Households</label>
                             <select name="households[]" multiple id="selectedHousehold"
                                 class="selectpicker form-control" data-live-search="true">
                             </select>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>New Community</label>
@@ -71,9 +63,12 @@ label, table {
                                 </select>
                             </fieldset>
                         </div> 
-                    </div>
-
-                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Date Of Displacement</label>
+                                <input type="date" name="displacement_date" class="form-control">
+                            </fieldset>
+                        </div>
                     </div>
                   
                     <div class="row">
@@ -106,12 +101,6 @@ label, table {
                     </div>
 
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Date Of Displacement</label>
-                                <input type="date" name="displacement_date" class="form-control">
-                            </fieldset>
-                        </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>System Retrieved</label>

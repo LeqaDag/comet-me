@@ -13,7 +13,31 @@
 
 <div class="col-12">
   <div class="card mb-4">
-    <h5 class="card-header">All Communities</h5>
+    <h5 class="card-header">
+      <div class="row">
+        <div class="col-xl-6 col-lg-6 col-md-6">
+          Map of Communities
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-3">
+          <fieldset class="form-group">
+            <button class="btn btn-dark" id="clearFiltersButton">
+              <i class='fa-solid fa-eraser'></i>
+                Clear Filters
+            </button>
+          </fieldset>
+        </div>
+        @if(Auth::guard('user')->user()->user_type_id == 1)
+        <div class="col-xl-3 col-lg-3 col-md-3">
+          <fieldset class="form-group">
+            <button class="btn btn-dark" id="exportSVGButton">
+              <i class='fa-solid fa-eraser'></i>
+                Export SVG
+            </button>
+          </fieldset>
+        </div>
+        @endif
+      </div>
+    </h5>
     <div class="card-body">
       <form method="POST" enctype='multipart/form-data' id="communityFilterMapForm">
         @csrf
@@ -22,8 +46,8 @@
             <div class="col-xl-3 col-lg-3 col-md-3">
               <fieldset class="form-group">
                 <select name="regions[]" class="selectpicker form-control" 
-                data-live-search="true" multiple>
-                  <option disabled selected>Search Regions</option>
+                data-live-search="true" id="filterByRegion" multiple>
+                  <option disabled selected>Filter by Regions</option>
                   @foreach($regions as $region)
                   <option value="{{$region->id}}">
                     {{$region->english_name}}
@@ -36,7 +60,7 @@
               <fieldset class="form-group">
                 <select name="sub_regions[]" class="selectpicker form-control" 
                 data-live-search="true" multiple>
-                  <option disabled selected>Search Sub Regions</option>
+                  <option disabled selected>Filter by Sub Regions</option>
                   @foreach($subregions as $subregion)
                   <option value="{{$subregion->id}}">
                     {{$subregion->english_name}}
@@ -47,10 +71,20 @@
             </div>
             <div class="col-xl-3 col-lg-3 col-md-3">
               <fieldset class="form-group">
+                <select name="bedouin_fallah[]" class="selectpicker form-control" 
+                data-live-search="true" multiple>
+                  <option disabled selected>Filter by Bedouin/Fallah</option>
+                  <option value="bedouin">Bedouin</option>
+                  <option value="fallah">Fallah</option>
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
                 <select name="services[]"
                   class="selectpicker form-control" 
                   data-live-search="true" multiple>
-                  <option disabled selected>Search Services</option>
+                  <option disabled selected>Filter by Services</option>
                   @foreach($services as $service)
                     <option value="{{$service->id}}">
                       {{$service->service_name}}
@@ -59,11 +93,14 @@
                 </select> 
               </fieldset>
             </div>
+          </div>
+          <br>
+          <div class="row">
             <div class="col-xl-3 col-lg-3 col-md-3">
               <fieldset class="form-group">
                 <select name="years[]" class="selectpicker form-control" 
                   data-live-search="true" multiple>
-                  <option disabled selected>Search Service Year</option>
+                  <option disabled selected>Filter by Service Year</option>
                   @php
                     $startYear = 2010; // C
                     $currentYear = date("Y");
@@ -74,14 +111,11 @@
                 </select> 
               </fieldset>
             </div>
-          </div>
-          <br>
-          <div class="row">
             <div class="col-xl-3 col-lg-3 col-md-3">
               <fieldset class="form-group">
                 <select name="statuses[]" class="selectpicker form-control" 
                 data-live-search="true" multiple>
-                  <option disabled selected>Search Community Statuses</option>
+                  <option disabled selected>Filter by Community Statuses</option>
                   @foreach($statuses as $status)
                   <option value="{{$status->id}}">
                     {{$status->name}}
@@ -95,7 +129,7 @@
                 <select name="system_types[]"
                   class="selectpicker form-control" 
                   data-live-search="true" multiple>
-                  <option disabled selected>Search System Types</option>
+                  <option disabled selected>Filter by System Types</option>
                   @foreach($energySystemTypes as $energySystemType)
                     <option value="{{$energySystemType->id}}">
                       {{$energySystemType->name}}
@@ -108,12 +142,26 @@
               <fieldset class="form-group">
                 <select name="donors[]" class="selectpicker form-control" 
                   data-live-search="true" multiple>
-                  <option disabled selected>Search Donors</option>
+                  <option disabled selected>Filter by Donors</option>
                   @foreach($donors as $donor)
                     <option value="{{$donor->id}}">
                       {{$donor->donor_name}}
                     </option>
                   @endforeach
+                </select> 
+              </fieldset>
+            </div>
+          </div><br> 
+          <div class="row">
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
+                <select name="incidents[]" class="selectpicker form-control" 
+                data-live-search="true" multiple>
+                  <option disabled selected>Filter by Incidents</option>
+                  <option value="mg">MG</option>
+                  <option value="fbs">FBS</option>
+                  <option value="water">Water</option>
+                  <option value="internet">Internet</option>
                 </select> 
               </fieldset>
             </div>
@@ -128,7 +176,9 @@
           </div>
         </div>
       </form>
+      
       <div class="leaflet-map" id="layerControl1"></div>
+      <div class="leaflet-map" id="clearMapControl"></div>
       <div class="leaflet-map" id="layerControlFilter"></div>
     </div>
   </div>
@@ -674,37 +724,116 @@
   });
 
   var firstMap = $("#layerControl1");
+  var clearMap = $("#clearMapControl");
   var filteredMap = $("#layerControlFilter");
+  DefaultMapView();
 
-  // view default map
-  if (firstMap) {
+  function DefaultMapView() {
+   
+    // view default map
+    if (firstMap) {
+
+      filteredMap.css("visibility", "hidden");
+      filteredMap.css('display','none');
+
+      clearMap.css("visibility", "hidden");
+      clearMap.css('display','none');
+
+      const communities = {!! json_encode($communities) !!};
+      const cities = L.layerGroup();
+      communities.forEach(community => {
+        const { latitude, longitude, english_name } = community;
+        const marker = L.marker([latitude, longitude]).bindPopup(english_name);
+        cities.addLayer(marker);
+      });
+
+      const layerControl1 = L.map('layerControl1', {
+        center: [32.2428238, 35.494258],
+        zoom: 10,
+        layers: [street, cities]
+      });
+      const baseMaps = {
+        Street: street,
+        Watercolor: watercolor
+      };
+      const overlayMaps = {
+        Cities: cities
+      };
+
+      MapCommunity(layerControl1, baseMaps, overlayMaps);
+    }
+  }
+
+  function ClearMapView() {
+   
+   // view default map
+   if (clearMap) {
 
     filteredMap.css("visibility", "hidden");
     filteredMap.css('display','none');
 
-    const communities = {!! json_encode($communities) !!};
-    const cities = L.layerGroup();
-    communities.forEach(community => {
-      const { latitude, longitude, english_name } = community;
-      const marker = L.marker([latitude, longitude]).bindPopup(english_name);
-      cities.addLayer(marker);
-    });
+    firstMap.css("visibility", "hidden");
+    firstMap.css('display','none');
 
-    const layerControl1 = L.map('layerControl1', {
-      center: [32.2428238, 35.494258],
-      zoom: 10,
-      layers: [street, cities]
-    });
-    const baseMaps = {
-      Street: street,
-      Watercolor: watercolor
-    };
-    const overlayMaps = {
-      Cities: cities
-    };
+    clearMap.css("visibility", "visible");
+    clearMap.css('display','block');
 
-    MapCommunity(layerControl1, baseMaps, overlayMaps);
-  }
+     const communities = {!! json_encode($communities) !!};
+     const cities = L.layerGroup();
+     communities.forEach(community => {
+       const { latitude, longitude, english_name } = community;
+       const marker = L.marker([latitude, longitude]).bindPopup(english_name);
+       cities.addLayer(marker);
+     });
+
+     const clearMapControl = L.map('clearMapControl', {
+       center: [32.2428238, 35.494258],
+       zoom: 10,
+       layers: [street, cities]
+     });
+     const baseMaps = {
+       Street: street,
+       Watercolor: watercolor
+     };
+     const overlayMaps = {
+       Cities: cities
+     };
+
+     MapCommunity(clearMapControl, baseMaps, overlayMaps);
+   }
+ }
+
+  $('#clearFiltersButton').on('click', function() {
+
+    $('.selectpicker').prop('selectedIndex', 0);
+    $('.selectpicker').selectpicker('refresh');
+    ClearMapView();
+  });
+
+  $('#exportSVGButton').on('click', function() {
+
+    const mapContainer = document.getElementById('layerControl1');
+
+    // Create an SVG element
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+    // Get Leaflet map content and render it to the SVG
+    const serializer = new XMLSerializer();
+    const mapContent = serializer.serializeToString(mapContainer);
+
+    canvg(svg, mapContent, {
+        ignoreMouse: true,
+        ignoreAnimation: true,
+        renderCallback: function () {
+            // Convert SVG to Blob and create a download link
+            const svgBlob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(svgBlob);
+            link.download = 'map.svg';
+            link.click();
+        }
+    });
+  });
 
   $('#communityFilterMapButton').on('click', function() {
     event.preventDefault();
@@ -725,6 +854,9 @@
 
           firstMap.css("visibility", "hidden");
           firstMap.css('display','none');
+
+          clearMap.css("visibility", "hidden");
+          clearMap.css('display','none');
 
           filteredMap.css("visibility", "visible");
           filteredMap.css('display','block');

@@ -79,38 +79,13 @@
         });
 
         // View record details
-        $('#communityInitialTable').on('click','.detailsCommunityButton',function() {
+        $('#communityInitialTable').on('click', '.detailsCommunityButton', function() {
             var id = $(this).data('id');
-        
-            // AJAX request
-            $.ajax({
-                url: 'community/' + id,
-                type: 'get',
-                dataType: 'json',
-                success: function(response) {
+            var url = window.location.href; 
+            var updatedURL = url.replace('/initial-community', '/community');
 
-                    $('#communityModalTitle').html(response['community'].english_name);
-                    $('#englishNameCommunity').html(response['community'].english_name);
-                    $('#arabicNameCommunity').html(response['community'].arabic_name);
-                    $('#numberOfCompoundsCommunity').html(response['community'].number_of_compound);
-                    $('#numberOfPeopleCommunity').html(response['community'].number_of_people);
-                    $('#englishNameRegion').html(response['region'].english_name);
-                    $('#numberOfHouseholdCommunity').html(response['community'].number_of_households);
-                    $('#englishNameSubRegion').html(response['sub-region'].english_name);
-                    $('#statusCommunity').html(response['status'].name);
-                    $('#energyServiceCommunity').html(response['community'].energy_service);
-                    $('#energyServiceYearCommunity').html(response['community'].energy_service_beginning_year);
-                    $('#waterServiceCommunity').html(response['community'].water_service);
-                    $('#waterServiceYearCommunity').html(response['community'].water_service_beginning_year);
-                    $('#internetServiceCommunity').html(response['community'].internet_service);
-                    $('#internetServiceYearCommunity').html(response['community'].internet_service_beginning_year);
-                    
-                    for (var i = 0; i < response['public'].length; i++) {
-                        $("#structuresCommunity").append(
-                            '<ul><li>'+ response['public'][i].english_name +'</li> </ul>');
-                    } 
-                }
-            });
+            updatedURL = updatedURL +'/'+ id ;
+            window.open(updatedURL); 
         });
         
     });

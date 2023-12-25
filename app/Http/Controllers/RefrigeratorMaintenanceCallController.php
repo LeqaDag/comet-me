@@ -94,7 +94,6 @@ class RefrigeratorMaintenanceCallController extends Controller
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
                                 ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
-                                ->orWhere('maintenance_refrigerator_actions.maintenance_action_refrigerator', 'LIKE', "%$search%")
                                 ->orWhere('users.name', 'LIKE', "%$search%");
                             });
                         }

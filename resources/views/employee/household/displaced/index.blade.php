@@ -183,7 +183,23 @@ All<span class="text-muted fw-light"> Displaced Families</span>
                 {data: 'action' }
             ]
         }); 
-        
+         
+        // Edit details
+        $('#displacedHouseholdsTable').on('click', '.updateDisplacedHousehold',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            // AJAX request
+            $.ajax({
+                url: 'displaced-household/' + id + '/editpage',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    window.open(url); 
+                }
+            });
+        });
+
         // View record details
         $('#displacedHouseholdsTable').on('click', '.viewDisplacedHouseholdButton', function() {
             var id = $(this).data('id');

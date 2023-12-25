@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents; 
 use Maatwebsite\Excel\Events\AfterSheet;
 use DB;
-
+ 
 class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
     WithStyles, WithEvents
 {
@@ -46,8 +46,8 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             ->where('all_energy_meters.is_archived', 0)
             ->where('all_energy_meter_donors.is_archived', 0) 
             ->select([
-                'households.english_name as english_name',  
-                'public_structures.english_name as public',
+                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as exported_value'),
                 'all_energy_meters.is_main',
                 'installation_types.type',
                 'communities.english_name as community_name',
@@ -97,7 +97,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
      */
     public function headings(): array
     {
-        return ["Energy User", "Public Structure", "Main Holder", "Installation Type", "Community", 
+        return ["Energy Holder (User/Public)", "Main Holder", "Installation Type", "Community", 
             "Region", "Sub Region", "Meter Case", "Energy System", "Energy System Type", 
             "Connected Ground", "Number of male", "Number of Female", "Number of adults", 
             "Number of children", "Phone number", "Meter Number", "Daily Limit", 

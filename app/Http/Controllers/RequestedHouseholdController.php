@@ -144,7 +144,7 @@ class RequestedHouseholdController extends Controller
             'arabic_name' => 'required',
             'profession_id' => 'required'
         ]);
-
+ 
        // dd($request->all());
         $household = new Household();
         $household->household_status_id = 5;
@@ -166,12 +166,14 @@ class RequestedHouseholdController extends Controller
         $household->electricity_source = $request->electricity_source;
         $household->electricity_source_shared = $request->electricity_source_shared;
         $household->number_of_people = $request->number_of_male + $request->number_of_female;
+        $household->energy_system_type_id = $request->recommendede_energy_system_id;
         $household->save();
+
         $id = $household->id;
 
         $requestedSystem = new EnergyRequestSystem();
         $requestedSystem->household_id = $id;
-        $requestedSystem->date = Carbon::now();
+        $requestedSystem->date = Carbon::now(); 
         $requestedSystem->energy_service = "Yes";
         $requestedSystem->recommendede_energy_system_id = $request->recommendede_energy_system_id;
         $requestedSystem->save();

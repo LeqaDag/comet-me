@@ -20,21 +20,21 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
     function __construct($request) {
         $this->request = $request;
     }
-
+ 
     /**
     * @return \Illuminate\Support\Collection
     */
     public function collection()  
     {
         $query = DB::table('energy_request_systems')
-            ->join('households', 'energy_request_systems.household_id', '=', 'households.id')
-            ->join('communities', 'households.community_id', '=', 'communities.id')
-            ->join('regions', 'communities.region_id', '=', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+            ->join('households', 'energy_request_systems.household_id', 'households.id')
+            ->join('communities', 'households.community_id', 'communities.id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
             ->leftJoin('energy_request_statuses', 'energy_request_systems.energy_request_status_id', 
-                '=', 'energy_request_statuses.id')
+                'energy_request_statuses.id')
             ->leftJoin('energy_system_types', 'energy_request_systems.recommendede_energy_system_id', 
-                '=', 'energy_system_types.id')
+                'energy_system_types.id')
             ->where('energy_request_systems.is_archived', 0)
             ->where('energy_request_systems.recommendede_energy_system_id', 2)
             ->select('households.english_name as household',

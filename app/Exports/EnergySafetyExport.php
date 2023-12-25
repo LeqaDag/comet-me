@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports;
+namespace App\Exports; 
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -43,7 +43,8 @@ class EnergySafetyExport implements FromCollection, WithHeadings, WithTitle, Sho
             ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
             ->where('all_energy_meter_safety_checks.is_archived', 0)
             ->select('communities.english_name as community', 
-                'households.english_name as household', 'public_structures.english_name as public', 
+                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as exported_value'), 
                 'energy_system_types.name as energy_type_name',
                 'all_energy_meters.meter_number', 'meter_cases.meter_case_name_english',
                 'all_energy_meter_safety_checks.rcd_x_phase0', 
@@ -102,7 +103,7 @@ class EnergySafetyExport implements FromCollection, WithHeadings, WithTitle, Sho
      */
     public function headings(): array
     {
-        return ["Community", "User User", "Public Holder", "System Type", "Meter Number", 
+        return ["Community", "Energy Holder", "System Type", "Meter Number", 
             "Meter Case", "Phase=0", "Phase=180", "Phase=0", "Phase=180", "Phase=0", "Phase=180", 
             "<5", "<5", "Visit Date", "Notes"];
     }
@@ -125,7 +126,7 @@ class EnergySafetyExport implements FromCollection, WithHeadings, WithTitle, Sho
         $sheet->mergeCells('K2:L2');
         $sheet->mergeCells('I2:J2');
 
-        $sheet->setAutoFilter('A3:P3');
+        $sheet->setAutoFilter('A3:O3');
 
         $sheet->setCellValue('G1', 'RCD');
         $sheet->setCellValue('G2', 'X 0.5');

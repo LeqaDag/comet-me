@@ -309,6 +309,8 @@ class InitialHouseholdController extends Controller
         $household->size_of_herd = $request->size_of_herd;
         if($request->electricity_source) $household->electricity_source = $request->electricity_source;
         if($request->electricity_source_shared) $household->electricity_source_shared = $request->electricity_source_shared;
+        if($request->energy_system_type_id) $household->energy_system_type_id = $request->energy_system_type_id;
+
         $household->save();
 
         if($householdMeter) {

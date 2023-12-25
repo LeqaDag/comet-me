@@ -115,7 +115,7 @@
                             @endif
                         </fieldset>
                     </div>
-                </div>
+                </div> 
 
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -187,11 +187,13 @@
                         </fieldset>
                     </div>
 
-                    <div class="col-xl-4 col-lg-4 col-md-4">
+                </div>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label>
-                            <input type="text" name="notes" 
-                            class="form-control">
+                            <textarea type="text" name="notes" style="resize:none"
+                            class="form-control" rows="3"></textarea>
                         </fieldset>
                     </div>
                 </div>

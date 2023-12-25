@@ -542,7 +542,7 @@
     $('#editCommunity').on('click', function() {
         var id = $(this).data('id');
         var url = window.location.href; 
-        
+    
         url = url +'/'+ 'edit';
         window.open(url, "_self"); 
     });

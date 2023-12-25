@@ -64,4 +64,6 @@ src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/t
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 <script src="{{asset('assets/js/maps-leaflet.js')}}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.0-beta.4/canvg.min.js"></script>
 @endsection

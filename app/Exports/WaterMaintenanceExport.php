@@ -13,7 +13,7 @@ use DB;
 class WaterMaintenanceExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
     WithStyles
 {
-    protected $request;
+    protected $request; 
 
     function __construct($request) {
 
@@ -36,22 +36,26 @@ class WaterMaintenanceExport implements FromCollection, WithHeadings, WithTitle,
                 'h2o_maintenance_call_actions.h2o_maintenance_call_id')
             ->join('maintenance_h2o_actions', 'h2o_maintenance_call_actions.maintenance_h2o_action_id', 
                 'maintenance_h2o_actions.id')
+            ->leftJoin('h2o_maintenance_call_users', 'h2o_maintenance_calls.id', 
+                'h2o_maintenance_call_users.h2o_maintenance_call_id')
+            ->leftJoin('users as performed_users', 'h2o_maintenance_call_users.user_id', 
+                'performed_users.id')
             ->join('maintenance_statuses', 'h2o_maintenance_calls.maintenance_status_id', 
                 '=', 'maintenance_statuses.id')
-            ->join('users', 'h2o_maintenance_calls.user_id', '=', 'users.id')
+            ->join('users as recipients', 'h2o_maintenance_calls.user_id', 'recipients.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->where('h2o_maintenance_calls.is_archived', 0)
             ->where('h2o_maintenance_call_actions.is_archived', 0)
             ->select([ 
-                'households.english_name as english_name', 
-                'public_structures.english_name as public_name', 
+                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as exported_value'), 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
-                'users.name as user_name', 
-                DB::raw('group_concat(maintenance_h2o_actions.maintenance_action_h2o_english)'),
-                DB::raw('group_concat(maintenance_h2o_actions.maintenance_action_h2o)'),
-                'maintenance_statuses.name', 'maintenance_types.type', 
+                'recipients.name as user_name', 'maintenance_statuses.name', 'maintenance_types.type', 
+                DB::raw('group_concat(DISTINCT maintenance_h2o_actions.maintenance_action_h2o_english)'),
+                DB::raw('group_concat(DISTINCT maintenance_h2o_actions.maintenance_action_h2o)'),
+                DB::raw('group_concat(DISTINCT performed_users.name)'),
                 'date_of_call', 'date_completed', 'h2o_maintenance_calls.notes'
             ])
             ->groupBy('h2o_maintenance_calls.id');
@@ -78,9 +82,9 @@ class WaterMaintenanceExport implements FromCollection, WithHeadings, WithTitle,
      */
     public function headings(): array
     {
-        return ["Household Name", "Public Structure", "Community", "Region", "Sub Region", 
-            "Recipient", "Action in English", "Action in Arabic", "Status", "Type", "Call Date",
-            "Completed Date", "Notes"];
+        return ["Water Holder", "Community", "Region", "Sub Region", "Recipient", 
+            "Status", "Type", "Action in English", "Action in Arabic", 
+            "Performed By", "Call Date", "Completed Date", "Notes"];
     }
 
     public function title(): string

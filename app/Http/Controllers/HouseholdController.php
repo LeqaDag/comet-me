@@ -281,9 +281,10 @@ class HouseholdController extends Controller
             ->get();
         $regions = Region::where('is_archived', 0)->get();
         $professions = Profession::where('is_archived', 0)->get();
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
 
         return view('employee.household.create', compact('communities', 'regions', 
-            'professions'));
+            'professions', 'energySystemTypes'));
     }
 
     /**
@@ -321,6 +322,8 @@ class HouseholdController extends Controller
         $household->electricity_source = $request->electricity_source;
         $household->electricity_source_shared = $request->electricity_source_shared;
         $household->number_of_people = $request->number_of_male + $request->number_of_female;
+        if($request->energy_system_type_id) $household->energy_system_type_id = $request->energy_system_type_id;
+
         $household->save();
         $id = $household->id;
 
@@ -520,8 +523,8 @@ class HouseholdController extends Controller
             $html = '<option disabled selected>Choose One...</option>';
             $households = DB::table('households')
                 ->where('households.community_id', $request->community_id)
-                ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
-                ->whereNull('all_energy_meters.household_id')
+               // ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
+                //->whereNull('all_energy_meters.household_id')
                 ->select('households.id', 'households.english_name')
                 ->get();
 
@@ -635,9 +638,12 @@ class HouseholdController extends Controller
         $structure = Structure::where("household_id", $id)->first();
         $cistern = Cistern::where("household_id", $id)->first();
         $communityHousehold = CommunityHousehold::where('household_id', $id)->first();
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)
+            ->orderBy('name', 'ASC')
+            ->get();
 
         return view('employee.household.edit', compact('household', 'regions', 'communities',
-            'professions', 'structure', 'cistern', 'communityHousehold'));
+            'professions', 'structure', 'cistern', 'communityHousehold', 'energySystemTypes'));
     }
 
     /**
@@ -810,6 +816,7 @@ class HouseholdController extends Controller
         $household->size_of_herd = $request->size_of_herd;
         if($request->electricity_source) $household->electricity_source = $request->electricity_source;
         if($request->electricity_source_shared) $household->electricity_source_shared = $request->electricity_source_shared;
+        if($request->energy_system_type_id) $household->energy_system_type_id = $request->energy_system_type_id;
         $household->save();
 
         if($householdMeter) {

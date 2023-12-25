@@ -134,8 +134,59 @@ class EnergyRequestSystemController extends Controller
             ->get();
 
         $installationTypes = InstallationType::where('is_archived', 0)->get();
-        
-        return view('request.energy.create', compact('communities', 'requestStatuses'));
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+
+        return view('request.energy.create', compact('communities', 'requestStatuses', 'energySystemTypes'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+
+        // $energyRequestSystem = new EnergyRequestSystem();
+        // $energyRequestSystem->community_id = $request->community_id;
+        // $energyRequestSystem->community_id = $request->community_id;
+        // $energyRequestSystem->community_id = $request->community_id;
+        // $energyRequestSystem->community_id = $request->community_id;
+        // $energyRequestSystem->community_id = $request->community_id;
+        // $energyRequestSystem->save();
+
+        return redirect()->back()
+            ->with('message', 'New Energy Requested System Added Successfully!');
+    }
+
+
+     /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getRequestedByCommunity(Request $request)
+    {
+        if (!$request->community_id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option selected>Choose One...</option>';
+            $households = Household::where('community_id', $request->community_id)
+                ->where('is_archived', 0)
+                ->where('household_status_id', 5)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+
+            foreach ($households as $household) {
+                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
     }
 
     /**

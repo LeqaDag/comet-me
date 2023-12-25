@@ -41,4 +41,10 @@ class DisplacedHousehold extends Model
         
         return $this->belongsTo(EnergySystem::class, 'new_energy_system_id', 'id');
     }
+
+    public function SubRegion()
+    {
+        
+        return $this->belongsTo(SubRegion::class, 'sub_region_id', 'id');
+    }
 }

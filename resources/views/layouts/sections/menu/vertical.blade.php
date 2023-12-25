@@ -78,7 +78,8 @@
                     <div>All</div>
                 </a>
             </li>
-            @if(Auth::guard('user')->user()->user_type_id == 1)
+            @if(Auth::guard('user')->user()->user_type_id == 1 || 
+                Auth::guard('user')->user()->user_type_id == 3)
                 <li class="menu-item" id="requested-household">
                     <a href="{{url('requested-household')}}" class="menu-link" >
                         <i class=""></i>

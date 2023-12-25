@@ -640,7 +640,7 @@ class CommunityController extends Controller
 
         return response()->json($response); 
     }
-
+ 
     /**
      * Show the specified resource from storage.
      *

@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
-use DB;
+use DB; 
 use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\Donor;
@@ -18,6 +18,7 @@ use App\Models\HouseholdMeter;
 use App\Models\HouseholdStatus;
 use App\Models\DisplacedHousehold;
 use App\Models\EnergySystemType;
+use App\Models\EnergySystem;
 use App\Models\SubRegion;
 use App\Exports\DisplacedHouseholdExport;
 use Carbon\Carbon;
@@ -73,7 +74,7 @@ class DisplacedHouseholdController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
                         $detailsButton = "<a type='button' class='viewDisplacedHouseholdButton' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
-                        $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $updateButton = "<a type='button' class='updateDisplacedHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteDisplacedHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
                         if(Auth::guard('user')->user()->user_type_id != 7 || 
@@ -128,6 +129,14 @@ class DisplacedHouseholdController extends Controller
     {  
        // dd($request->households[0]);
 
+        $oldCommunity = Community::findOrFail($request->old_community_id);
+
+        if($oldCommunity) {
+
+            $oldCommunity->community_status_id = 5;
+            $oldCommunity->save();
+        }
+
         if($request->households) {
 
             if($request->households[0] == "all") {
@@ -147,16 +156,65 @@ class DisplacedHouseholdController extends Controller
                     if($energyUser) {
 
                         $displacedHousehold->old_meter_number = $energyUser->meter_number; 
+                        $displacedHousehold->old_energy_system_id = $energyUser->energy_system_id;
                     }
 
-                    // $sharedHousehold =  HouseholdMeter::where("household_id", $household->id)->first();
-                    // if($sharedHousehold) {
+                    $sharedHousehold =  HouseholdMeter::where("is_archived", 0)
+                        ->where("household_id", $household->id)
+                        ->first();
+                    if($sharedHousehold) {
 
-                    // }
+                        $mainUser = AllEnergyMeter::findOrFail($sharedHousehold->energy_user_id);
+                        $displacedHousehold->old_meter_number = $mainUser->meter_number; 
+                        $displacedHousehold->old_energy_system_id = $mainUser->energy_system_id;
+                    }
 
                     $displacedHousehold->old_community_id = $request->old_community_id;
-                    $displacedHousehold->old_energy_system_id = $request->old_energy_system_id;
-                    $displacedHousehold->new_community_id = $request->new_community_id;
+                    if($request->new_community_id) {
+
+                        $displacedHousehold->new_community_id = $request->new_community_id;
+                        $household = Household::findOrFail($household->id);
+                        $household->community_id = $request->new_community_id;
+                        $household->save();
+
+                        $allEnergyMeter = AllEnergyMeter::where("household_id", 
+                            $household->id)
+                            ->first();
+                        if($allEnergyMeter) {
+
+                            $allEnergyMeter->community_id = $request->new_community_id;
+                            if($allEnergyMeter->energy_system_type != 2) {
+
+                                $energySystem = EnergySystem::where("community_id", $request->new_community_id)->first();
+                                if($energySystem) {
+                                    $allEnergyMeter->energy_system_id = $energySystem->id;
+                                }
+                            }
+                            $allEnergyMeter->save();
+
+                            $allEnergyMeterDonors = AllEnergyMeterDonor::where("all_energy_meter_id", 
+                                $allEnergyMeter->id)
+                                ->get();
+                            if($allEnergyMeterDonors) {
+
+                                foreach($allEnergyMeterDonors as $allEnergyMeterDonor) {
+
+                                    $allEnergyMeterDonor->community_id = $request->new_community_id;
+                                    $allEnergyMeterDonor->save();
+                                }
+                            }
+
+                            $userIncidents = FbsUserIncident::where("energy_user_id", $allEnergyMeter->id)->get();
+                            if($userIncidents) {
+
+                                foreach($userIncidents as $userIncident) {
+
+                                    $userIncident->community_id = $request->new_community_id;
+                                    $userIncident->save();
+                                }
+                            }
+                        }
+                    }
                     $displacedHousehold->area = $request->area;
                     $displacedHousehold->sub_region_id = $request->sub_region_id;
                     $displacedHousehold->displacement_date = $request->displacement_date;
@@ -176,10 +234,65 @@ class DisplacedHouseholdController extends Controller
                     if($energyUser) {
 
                         $displacedHousehold->old_meter_number = $energyUser->meter_number; 
+                        $displacedHousehold->old_energy_system_id = $energyUser->energy_system_id;
                     }
+
+                    $sharedHousehold =  HouseholdMeter::where("is_archived", 0)
+                        ->where("household_id", $request->households[$i])
+                        ->first();
+                    if($sharedHousehold) {
+
+                        $mainUser = AllEnergyMeter::findOrFail($sharedHousehold->energy_user_id);
+                        $displacedHousehold->old_meter_number = $mainUser->meter_number; 
+                        $displacedHousehold->old_energy_system_id = $mainUser->energy_system_id;
+                    }
+
                     $displacedHousehold->old_community_id = $request->old_community_id;
-                    $displacedHousehold->old_energy_system_id = $request->old_energy_system_id;
-                    $displacedHousehold->new_community_id = $request->new_community_id;
+                    if($request->new_community_id) {
+
+                        $displacedHousehold->new_community_id = $request->new_community_id;
+                        $household = Household::findOrFail($request->households[$i]);
+                        $household->community_id = $request->new_community_id;
+                        $household->save();
+
+                        $allEnergyMeter = AllEnergyMeter::where("household_id", 
+                            $request->households[$i])
+                            ->first();
+                        if($allEnergyMeter) {
+
+                            $allEnergyMeter->community_id = $request->new_community_id;
+                            if($allEnergyMeter->energy_system_type != 2) {
+
+                                $energySystem = EnergySystem::where("community_id", $request->new_community_id)->first();
+                                if($energySystem) {
+                                    $allEnergyMeter->energy_system_id = $energySystem->id;
+                                }
+                            }
+                            $allEnergyMeter->save();
+
+                            $allEnergyMeterDonors = AllEnergyMeterDonor::where("all_energy_meter_id", 
+                                $allEnergyMeter->id)
+                                ->get();
+                            if($allEnergyMeterDonors) {
+
+                                foreach($allEnergyMeterDonors as $allEnergyMeterDonor) {
+
+                                    $allEnergyMeterDonor->community_id = $request->new_community_id;
+                                    $allEnergyMeterDonor->save();
+                                }
+                            }
+
+                            $userIncidents = FbsUserIncident::where("energy_user_id", $allEnergyMeter->id)->get();
+                            if($userIncidents) {
+
+                                foreach($userIncidents as $userIncident) {
+
+                                    $userIncident->community_id = $request->new_community_id;
+                                    $userIncident->save();
+                                }
+                            }
+                        }
+                    }
                     $displacedHousehold->area = $request->area;
                     $displacedHousehold->sub_region_id = $request->sub_region_id;
                     $displacedHousehold->displacement_date = $request->displacement_date;
@@ -215,6 +328,116 @@ class DisplacedHouseholdController extends Controller
         
         return view('employee.household.displaced.show', compact('displacedHousehold', 
             'sharedHouseholds'));
+    }
+
+
+     /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $displacedHousehold = DisplacedHousehold::findOrFail($id);
+
+        return response()->json($displacedHousehold);
+    } 
+
+    /** 
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $subRegions = SubRegion::where('is_archived', 0)->get();
+        $displacedHousehold = DisplacedHousehold::findOrFail($id);
+        $energySystems = EnergySystem::where('is_archived', 0)->get();
+
+        return view('employee.household.displaced.edit', compact('communities', 'subRegions',
+            'displacedHousehold', 'energySystems'));
+    }
+
+      /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    { 
+        $displacedHousehold = DisplacedHousehold::findOrFail($id);
+
+        if($request->new_community_id) {
+
+            $displacedHousehold->new_community_id = $request->new_community_id;
+            $household = Household::findOrFail($displacedHousehold->household_id);
+            $household->community_id = $request->new_community_id;
+            $household->save();
+
+            $allEnergyMeter = AllEnergyMeter::where("household_id", 
+                $displacedHousehold->household_id)
+                ->first();
+            if($allEnergyMeter) {
+
+                $allEnergyMeter->community_id = $request->new_community_id;
+                if($allEnergyMeter->energy_system_type != 2) {
+
+                    $energySystem = EnergySystem::where("community_id", $request->new_community_id)->first();
+                    if($energySystem) {
+                        $allEnergyMeter->energy_system_id = $energySystem->id;
+                    }
+                }
+                $allEnergyMeter->save();
+
+                $allEnergyMeterDonors = AllEnergyMeterDonor::where("all_energy_meter_id", 
+                    $allEnergyMeter->id)
+                    ->get();
+                if($allEnergyMeterDonors) {
+
+                    foreach($allEnergyMeterDonors as $allEnergyMeterDonor) {
+
+                        $allEnergyMeterDonor->community_id = $request->new_community_id;
+                        $allEnergyMeterDonor->save();
+                    }
+                }
+
+                $userIncidents = FbsUserIncident::where("energy_user_id", $allEnergyMeter->id)->get();
+                if($userIncidents) {
+
+                    foreach($userIncidents as $userIncident) {
+
+                        $userIncident->community_id = $request->new_community_id;
+                        $userIncident->save();
+                    }
+                }
+            }
+        }
+
+        if($request->new_energy_system_id) {
+
+            $displacedHousehold->new_energy_system_id = $request->new_energy_system_id;
+
+            $energyUser = AllEnergyMeter::where("household_id", $displacedHousehold->household_id)
+                ->where("energy_system_id", $request->new_energy_system_id)
+                ->first();
+            if($energyUser)  $displacedHousehold->new_meter_number = $energyUser->meter_number;
+        }
+
+        if($request->area) $displacedHousehold->area = $request->area;
+        if($request->sub_region_id) $displacedHousehold->sub_region_id = $request->sub_region_id;
+        if($request->displacement_date) $displacedHousehold->displacement_date = null;
+        if($request->displacement_date) $displacedHousehold->displacement_date = $request->displacement_date;
+        if($request->system_retrieved) $displacedHousehold->system_retrieved = $request->system_retrieved;
+        if($request->notes) $displacedHousehold->notes = $request->notes;
+        $displacedHousehold->save();
+
+        return redirect('/displaced-household')->with('message', 'Displaced Household Updated Successfully!');
     }
 
     /**

@@ -287,6 +287,8 @@ class AcHouseholdController extends Controller
         $household->electricity_source = $request->electricity_source;
         $household->electricity_source_shared = $request->electricity_source_shared;
         $household->number_of_people = $request->number_of_male + $request->number_of_female;
+        if($request->energy_system_type_id) $household->energy_system_type_id = $request->energy_system_type_id;
+
         $household->save();
         $id = $household->id;
 
@@ -396,6 +398,8 @@ class AcHouseholdController extends Controller
         $household->size_of_herd = $request->size_of_herd;
         if($request->electricity_source) $household->electricity_source = $request->electricity_source;
         if($request->electricity_source_shared) $household->electricity_source_shared = $request->electricity_source_shared;
+        if($request->energy_system_type_id) $household->energy_system_type_id = $request->energy_system_type_id;
+
         $household->save();
 
         $cistern = Cistern::where('household_id', $id)->first();

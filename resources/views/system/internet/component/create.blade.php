@@ -271,8 +271,6 @@
     </div>
 </div>
 
-@endsection
-
 <script>
 
     var router_counter = 0;
@@ -389,3 +387,4 @@
     });
 
 </script>
+@endsection

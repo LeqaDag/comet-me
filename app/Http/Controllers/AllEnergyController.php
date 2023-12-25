@@ -425,15 +425,13 @@ class AllEnergyController extends Controller
             $request->meter_case_id == 13 || $request->meter_case_id == 14) 
         {
 
-            if($request->meter_case_id == 1) {
-                $household = Household::findOrFail($energyUser->household_id);
-                $household->household_status_id = 4;
-                $household->energy_service = "Yes";
-                $household->energy_system_status = "Served";
-                $household->energy_meter = "Yes";
-                $household->save();
-            }
-
+            $household = Household::findOrFail($energyUser->household_id);
+            $household->household_status_id = 4;
+            $household->energy_service = "Yes";
+            $household->energy_system_status = "Served";
+            $household->energy_meter = "Yes";
+            $household->save();
+            
             $energyUser->meter_case_id = $request->meter_case_id;
         }
 

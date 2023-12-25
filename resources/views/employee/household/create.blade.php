@@ -174,13 +174,29 @@
 
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy System Type</label>
+                            <select name="energy_system_type_id" 
+                                class="selectpicker form-control" data-live-search="true" >
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energySystemTypes as $energySystemType)
+                                <option value="{{$energySystemType->id}}">
+                                    {{$energySystemType->name}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+                
+                <div class="row">  
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label>
                             <input type="text" name="notes" 
                             class="form-control">
                         </fieldset>
                     </div>
                 </div>
-
                 <label for=""></label>
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12">

@@ -174,11 +174,12 @@ class EnergyMaintenanceCallController extends Controller
         $maintenance = new ElectricityMaintenanceCall();
         if($request->household_id) {
 
+            $maintenance->household_id = $request->household_id;
+
             $energyUserId = AllEnergyMeter::where('household_id', $request->household_id)
                 ->select('id')
                 ->get();
         
-            $maintenance->household_id = $request->household_id;
             $maintenance->energy_user_id = $energyUserId[0]->id;
         }
     

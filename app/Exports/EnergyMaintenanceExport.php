@@ -32,33 +32,37 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
                 'households.id')
             ->leftJoin('public_structures', 'electricity_maintenance_calls.public_structure_id', 
                 'public_structures.id')
+            ->leftJoin('energy_systems', 'electricity_maintenance_calls.energy_system_id', 
+                'energy_systems.id')
             ->join('communities', 'electricity_maintenance_calls.community_id', 'communities.id')
-            ->join('regions', 'communities.region_id', '=', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+            ->join('regions', 'communities.region_id','regions.id')
+            ->join('sub_regions', 'communities.sub_region_id','sub_regions.id')
             ->join('maintenance_types', 'electricity_maintenance_calls.maintenance_type_id', 
-                '=', 'maintenance_types.id')
+               'maintenance_types.id')
             ->join('electricity_maintenance_call_actions', 'electricity_maintenance_calls.id', 
                 'electricity_maintenance_call_actions.electricity_maintenance_call_id')
-            ->join('maintenance_electricity_actions', 
+            ->leftJoin('maintenance_electricity_actions', 
                 'electricity_maintenance_call_actions.maintenance_electricity_action_id', 
                 'maintenance_electricity_actions.id')
-
-            ->join('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
-                '=', 'maintenance_statuses.id')
-            // ->join('electricity_maintenance_call_users', 'electricity_maintenance_calls.id', 
-            //     'electricity_maintenance_call_users.electricity_maintenance_call_id')
-            ->join('users', 'electricity_maintenance_calls.user_id', '=', 'users.id')
+            ->leftJoin('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
+               'maintenance_statuses.id')
+            ->leftJoin('electricity_maintenance_call_users', 'electricity_maintenance_calls.id', 
+                'electricity_maintenance_call_users.electricity_maintenance_call_id')
+            ->leftJoin('users as performed_users', 'electricity_maintenance_call_users.user_id', 
+                'performed_users.id')
+            ->leftJoin('users as recipients', 'electricity_maintenance_calls.user_id', 'recipients.id')
             ->where('electricity_maintenance_calls.is_archived', 0)
             ->select([
-                'households.english_name as english_name', 
-                'public_structures.english_name as public_name', 
+                DB::raw('COALESCE(households.english_name, public_structures.english_name, energy_systems.name) as exported_value'),
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
-                'users.name as user_name',
-                DB::raw('group_concat(maintenance_electricity_actions.maintenance_action_electricity)'),
-                DB::raw('group_concat(maintenance_electricity_actions.maintenance_action_electricity_english)'),
+                'recipients.name as recipient_name',
                 'maintenance_statuses.name', 'maintenance_types.type',
-                'date_of_call', 'date_completed', 'electricity_maintenance_calls.notes'
+                DB::raw('group_concat(DISTINCT maintenance_electricity_actions.maintenance_action_electricity)'),
+                DB::raw('group_concat(DISTINCT maintenance_electricity_actions.maintenance_action_electricity_english)'),
+                'date_of_call', 'date_completed', 
+                DB::raw('group_concat(DISTINCT performed_users.name)'),
+                'electricity_maintenance_calls.notes'
             ])
             ->groupBy('electricity_maintenance_calls.id');
 
@@ -84,9 +88,9 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
      */
     public function headings(): array
     {
-        return ["Household Name", "Public Structure", "Community", "Region", "Sub Region", 
-            "Recipient", "Action in Arabic", "Action in English", "Status", "Type", "Call Date",
-            "Completed Date", "Notes"];
+        return ["Agent", "Community", "Region", "Sub Region", "Recipient", "Status", "Type", 
+            "Action in Arabic", "Action in English", "Call Date", "Completed Date", 
+            "Performed By", "Notes"];
     }
 
     public function title(): string

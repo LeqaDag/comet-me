@@ -52,7 +52,11 @@
                                         <i class="bx bx-bulb bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1">Old Energy System</small>
-                                            <h6 class="mb-0">{{$displacedHousehold->OldEnergySystem->name}}</h6>
+                                            <h6 class="mb-0">
+                                                @if($displacedHousehold->old_energy_system_id)
+                                                {{$displacedHousehold->OldEnergySystem->name}}
+                                                @endif
+                                            </h6>
                                         </div>
                                     </li>
                                 </ul>
@@ -119,17 +123,27 @@
                             </div>
                             <div>
                                 <p class="mb-0">Area</p>
+                                <span class="text-muted">
                                     {{$displacedHousehold->area}}
+                                </span>
                             </div>
+                            <div>
+                                <p class="mb-0">Region</p>
+                                <span class="text-muted">
+                                @if($displacedHousehold->SubRegion)
+                                    {{$displacedHousehold->SubRegion->english_name}}
+                                @endif
+                                </span>
+                            </div>
+                        </div> <br>
+                        <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
                             <div class="mb-sm-0 mb-2">
                                 <p class="mb-0">System Retrieved</p>
                                 <span class="text-muted">
                                     {{$displacedHousehold->system_retrieved}}
                                 </span>
                             </div>
-                        </div> <br>
-                        <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
-                            <div class="mb-sm-0 mb-2">
+                            <div>
                                 <p class="mb-0">Shared Households</p>
                                 @if(count($sharedHouseholds) > 0)
                                     @foreach($sharedHouseholds as $sharedHousehold)

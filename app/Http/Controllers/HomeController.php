@@ -628,16 +628,16 @@ class HomeController extends Controller
             $communities->where(function ($query) use ($regionIds) {
                 foreach ($regionIds as $regionId) {
                     if (is_array($regionId)) {
-                        $query->orWhereIn('id', function ($subQuery) use ($regionId) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($regionId) {
                             $subQuery->select('communities.id')
                                 ->from('regions')
-                                ->whereIn('region_id', $regionId);
+                                ->whereIn('communities.region_id', $regionId);
                         });
                     } else {
-                        $query->orWhereIn('id', function ($subQuery) use ($regionId) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($regionId) {
                             $subQuery->select('communities.id')
                                 ->from('regions')
-                                ->where('region_id', $regionId);
+                                ->where('communities.region_id', $regionId);
                         });
                     }
                 }
@@ -651,17 +651,41 @@ class HomeController extends Controller
             $communities->where(function ($query) use ($subRegionIds) {
                 foreach ($subRegionIds as $subRegionId) {
                     if (is_array($subRegionId)) {
-                        $query->orWhereIn('id', function ($subQuery) use ($subRegionId) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($subRegionId) {
                             $subQuery->select('communities.id')
                                 ->from('sub_regions')
-                                ->whereIn('sub_region_id', $subRegionId);
+                                ->whereIn('communities.sub_region_id', $subRegionId);
                         });
                     } else {
-                        $query->orWhereIn('id', function ($subQuery) use ($subRegionId) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($subRegionId) {
                             $subQuery->select('communities.id')
                                 ->from('sub_regions')
-                                ->where('sub_region_id', $subRegionId);
+                                ->where('communities.sub_region_id', $subRegionId);
                         });
+                    }
+                }
+            });
+        }
+
+        // Search Bedouin/Fallah
+        if($request->bedouin_fallah) {
+            $bedouin_fallahIds = $request->bedouin_fallah;
+    
+            $communities->where(function ($query) use ($bedouin_fallahIds) {
+                foreach ($bedouin_fallahIds as $bedouin_fallahId) {
+                    if (is_array($bedouin_fallahId)) {
+
+                        $query->whereIn('communities.is_bedouin', "Yes")
+                            ->whereIn('communities.is_fallah', "Yes");
+                    } else {
+                        
+                        if($bedouin_fallahId == "bedouin") {
+
+                            $query->where('communities.is_bedouin', "Yes");
+                        } else if($bedouin_fallahId == "fallah") {
+
+                            $query->where('communities.is_fallah', "Yes");
+                        }
                     }
                 }
             });
@@ -674,16 +698,16 @@ class HomeController extends Controller
             $communities->where(function ($query) use ($serviceIds) {
                 foreach ($serviceIds as $serviceId) {
                     if (is_array($serviceId)) {
-                        $query->orWhereIn('id', function ($subQuery) use ($serviceId) {
-                            $subQuery->select('communities.id')
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($serviceId) {
+                            $subQuery->select('community_services.community_id')
                                 ->from('community_services')
-                                ->whereIn('service_id', $serviceId);
+                                ->whereIn('community_services.service_id', $serviceId);
                         });
                     } else {
                         $query->orWhereIn('id', function ($subQuery) use ($serviceId) {
-                            $subQuery->select('communities.id')
+                            $subQuery->select('community_services.community_id')
                                 ->from('community_services')
-                                ->where('service_id', $serviceId);
+                                ->where('community_services.service_id', $serviceId);
                         });
                     }
                 }
@@ -721,16 +745,16 @@ class HomeController extends Controller
             $communities->where(function ($query) use ($statusesIds) {
                 foreach ($statusesIds as $statusesId) {
                     if (is_array($statusesId)) {
-                        $query->orWhereIn('id', function ($subQuery) use ($statusesId) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($statusesId) {
                             $subQuery->select('communities.id')
                                 ->from('community_statuses')
-                                ->whereIn('community_status_id', $statusesId);
+                                ->whereIn('communities.community_status_id', $statusesId);
                         });
                     } else {
-                        $query->orWhereIn('id', function ($subQuery) use ($statusesId) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($statusesId) {
                             $subQuery->select('communities.id')
                                 ->from('community_statuses')
-                                ->where('community_status_id', $statusesId);
+                                ->where('communities.community_status_id', $statusesId);
                         });
                     }
                 }
@@ -741,22 +765,23 @@ class HomeController extends Controller
         if($request->system_types) {
             $systemTypeIds = $request->system_types;
         
-            $communities->join("all_energy_meters", "communities.id", "all_energy_meters.community_id")
-                ->groupBy("communities.id");
+            $communities->leftJoin("all_energy_meters", "communities.id", 
+                "all_energy_meters.community_id");
+             //   ->groupBy("communities.id");
 
             $communities->where(function ($query) use ($systemTypeIds) {
                 foreach ($systemTypeIds as $systemTypeId) {
                     if (is_array($systemTypeId)) {
                         $query->orWhereIn('communities.id', function ($subQuery) use ($systemTypeId) {
-                            $subQuery->select('communities.id')
+                            $subQuery->select('all_energy_meters.community_id')
                                 ->from('energy_system_types')
-                                ->whereIn('energy_system_type_id', $systemTypeId);
+                                ->whereIn('energy_system_types.id', $systemTypeId);
                         });
                     } else {
                         $query->orWhereIn('communities.id', function ($subQuery) use ($systemTypeId) {
-                            $subQuery->select('communities.id')
+                            $subQuery->select('all_energy_meters.community_id')
                                 ->from('energy_system_types')
-                                ->where('energy_system_type_id', $systemTypeId);
+                                ->where('energy_system_types.id', $systemTypeId);
                         });
                     }
                 }
@@ -770,16 +795,42 @@ class HomeController extends Controller
             $communities->where(function ($query) use ($donorIds) {
                 foreach ($donorIds as $donorId) {
                     if (is_array($donorId)) {
-                        $query->orWhereIn('id', function ($subQuery) use ($donorId) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($donorId) {
                             $subQuery->select('communities.id')
                                 ->from('community_donors')
-                                ->whereIn('donor_id', $donorId);
+                                ->whereIn('community_donors.donor_id', $donorId);
                         });
                     } else {
-                        $query->orWhereIn('id', function ($subQuery) use ($donorId) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($donorId) {
                             $subQuery->select('communities.id')
                                 ->from('community_donors')
-                                ->where('donor_id', $donorId);
+                                ->where('community_donors.donor_id', $donorId);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Search Incidents
+        if($request->incidents) {
+            $incidentsIds = $request->incidents;
+         
+            $communities->leftJoin("mg_incidents", "communities.id", 
+                "mg_incidents.community_id");
+
+            $communities->where(function ($query) use ($incidentsIds) {
+                foreach ($incidentsIds as $incidentsId) {
+                    if (is_array($incidentsId)) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($incidentsId) {
+                            $subQuery->select('all_energy_meters.community_id')
+                                ->from('energy_system_types')
+                                ->whereIn('energy_system_types.id', $incidentsId);
+                        });
+                    } else {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($incidentsId) {
+                            $subQuery->select('all_energy_meters.community_id')
+                                ->from('energy_system_types')
+                                ->where('energy_system_types.id', $incidentsId);
                         });
                     }
                 }
@@ -788,6 +839,32 @@ class HomeController extends Controller
 
         return response()->json([
             'communities' => $communities->get()
+        ]); 
+    }
+
+     /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function Ticket()
+    {
+   
+        return view('ticket.scan');
+    }
+
+    /**
+     * Filter Community Map
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function Scan(Request $request)
+    {
+        $scannedData = $request->code;
+
+        return response()->json([
+            'scannedData' => $scannedData
         ]); 
     }
 }

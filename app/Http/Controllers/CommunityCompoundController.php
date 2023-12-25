@@ -111,9 +111,12 @@ class CommunityCompoundController extends Controller
             $households =  Household::where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')
                 ->get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)
+                ->orderBy('name', 'ASC')
+                ->get();
 
             return view('admin.community.compound.index', compact('communities', 'regions', 
-                'compounds', 'households'));
+                'compounds', 'households', 'energySystemTypes'));
         } else {
 
             return view('errors.not-found');
@@ -165,7 +168,15 @@ class CommunityCompoundController extends Controller
             $compoundHousehold->household_id = $request->household_id[$i];
             $compoundHousehold->compound_id = $request->compound_id;
             $compoundHousehold->community_id = $request->community_id;
+            $compoundHousehold->energy_system_type_id = $request->energy_system_type_id;
             $compoundHousehold->save();
+
+            $household = Household::findOrFail($request->household_id[$i]);
+            if($request->energy_system_type_id) {
+                
+                $household->energy_system_type_id = $request->energy_system_type_id;
+                $household->save();
+            }
         }
        
         return redirect()->back()->with('message', 'New Compound Households Added Successfully!');

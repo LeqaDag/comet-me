@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Exports;
+
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use DB; 
+
+class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+    WithStyles
+{
+    protected $request;
+
+    function __construct($request) {
+
+        $this->request = $request;
+    }
+
+    /**
+    * @return \Illuminate\Support\Collection
+    */
+    public function collection()
+    { 
+        $query = DB::table('camera_communities')
+            ->join('communities', 'camera_communities.community_id', 'communities.id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+            ->leftJoin('households', 'camera_communities.household_id', 'households.id')
+            ->leftJoin('camera_community_types', 'camera_communities.id', 
+                'camera_community_types.camera_community_id')
+            ->leftJoin('cameras', 'camera_community_types.camera_id', 'cameras.id')
+            ->leftJoin('nvr_community_types', 'camera_communities.id', 
+                'nvr_community_types.camera_community_id')
+            ->leftJoin('nvr_cameras', 'nvr_community_types.nvr_camera_id', 'nvr_cameras.id')
+            ->where('camera_communities.is_archived', 0)
+            ->select([
+                'communities.english_name as community_name',
+                'regions.english_name as region', 'sub_regions.english_name as sub_region',
+                'camera_communities.date',
+                'households.english_name as english_name',
+                DB::raw('SUM(DISTINCT camera_community_types.number) as camera_number'),
+                DB::raw('group_concat(DISTINCT cameras.model) as cameras'),
+                DB::raw('group_concat(DISTINCT camera_community_types.number) as camera_numbers'),
+                DB::raw('SUM(DISTINCT nvr_community_types.number) as nvr_number'),
+                DB::raw('group_concat(DISTINCT nvr_cameras.model) as nvrs'),
+                DB::raw('group_concat(DISTINCT nvr_community_types.number) as nvr_numbers'),
+                'camera_communities.notes'
+            ])
+            ->groupBy('camera_communities.id')
+            ->orderBy('camera_communities.date', 'desc'); 
+
+        if($this->request->sub_region) {
+
+            $query->where("sub_regions.id", $this->request->sub_region);
+        }
+        if($this->request->community) {
+
+            $query->where("communities.id", $this->request->community);
+        } 
+        if($this->request->date) {
+
+            $query->where("camera_communities.date", ">=", $this->request->date);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function headings(): array
+    {
+        return ["Community", "Region", "Sub Region", "Installation Date", "Responsible",
+            "# of Cameras", "Camera Models", "Camera Number", 
+            "# of NVRs", "NVR Models", "NVR Number", "Notes"];
+    }
+
+    public function title(): string
+    {
+        return 'Installed Cameras';
+    }
+
+    /**
+     * Styling
+     *
+     * @return response()
+     */
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->setAutoFilter('A1:L1');
+
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+        ];
+    }
+}

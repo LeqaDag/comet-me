@@ -1,5 +1,5 @@
 @extends('layouts/layoutMaster')
-
+@include('layouts.all')
 @section('title', 'create energy request')
 <style>
     label, input{
@@ -15,10 +15,6 @@ label {
 </style>
 @section('vendor-style')
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 
 @endsection
 
@@ -39,7 +35,7 @@ label {
                         <label class='col-md-12 control-label'>Community</label>
                         <select class="selectpicker form-control" 
                             data-live-search="true" id="selectedRequestCommunity"
-                            name="community_id[]" required>
+                            name="community_id" required>
                             <option disabled selected>Choose one...</option>
                             @foreach($communities as $community)
                             <option value="{{$community->id}}">
@@ -55,8 +51,9 @@ label {
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Household</label>
-                        <select name="household_id" class="form-control" 
-                            id="selectedRequestHousehold" disabled>
+                        <select name="household_id" class="selectpicker form-control" 
+                            id="selectedRequestHousehold" data-live-search="true" disabled
+                            multiple>
                             <option disabled selected>Choose one...</option>
                         </select>
                     </fieldset>
@@ -91,6 +88,22 @@ label {
             </div>
 
             <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Recommended Energy System Type</label>
+                        <select name="recommendede_energy_system_id" 
+                            class="selectpicker form-control" data-live-search="true" >
+                            <option disabled selected>Choose one...</option>
+                            @foreach($energySystemTypes as $energySystemType)
+                            <option value="{{$energySystemType->id}}">
+                                {{$energySystemType->name}}
+                            </option>
+                            @endforeach
+                        </select>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Referred by</label>
@@ -118,26 +131,24 @@ label {
     </div>
 </div>
 
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script>
    
-    $(document).on('change', '#selectedUserCommunity', function () {
+    $(document).on('change', '#selectedRequestCommunity', function () {
 
         community_id = $(this).val();
         $.ajax({
-            url: "household/get_by_community/" +  community_id,
+            url: "energy-request/get_by_community/" +  community_id,
             method: 'GET',  
             success: function(data) {
-                $('#selectedUserHousehold').prop('disabled', false);
-                $('#selectedUserHousehold').html(data.html);
+                $('#selectedRequestHousehold').prop('disabled', false);
+
+                var select = $('#selectedRequestHousehold'); 
+
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
         }); 
-
-        energy_type_id= $("#selectedEnergySystemType").val();
-
-        changeEnergySystemType(energy_type_id, community_id);
     });
 
 </script>

@@ -19,6 +19,10 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('2fa');
   
+Route::get('/ticket', [App\Http\Controllers\HomeController::class, 'Ticket'])->name('ticket');
+Route::get('/scan', [App\Http\Controllers\HomeController::class, 'Scan'])->name('scan');
+
+
 Route::get('2fa', [App\Http\Controllers\TwoFAController::class, 'index'])->name('2fa.index');
 Route::post('2fa', [App\Http\Controllers\TwoFAController::class, 'store'])->name('2fa.post');
 Route::get('2fa/reset', [App\Http\Controllers\TwoFAController::class, 'resend'])->name('2fa.resend');
@@ -359,6 +363,7 @@ Route::get('/delete-school-public-structure', [App\Http\Controllers\PublicStruct
 
 Route::resource('energy-request', App\Http\Controllers\EnergyRequestSystemController::class);
 Route::post('energy-request-export', [App\Http\Controllers\EnergyRequestSystemController::class, 'export'])->name('energy-request.export');
+Route::get('energy-request/energy-request/get_by_community/{community_id}', [App\Http\Controllers\EnergyRequestSystemController::class, 'getRequestedByCommunity']);
 
 Route::resource('requested-household', App\Http\Controllers\RequestedHouseholdController::class);
 
@@ -367,5 +372,16 @@ Route::get('/delete-displaced-household', [App\Http\Controllers\DisplacedHouseho
 Route::get('displaced-household/get_household_by_community/{community_id}', [App\Http\Controllers\DisplacedHouseholdController::class, 'getHouseholdByCommunity']);
 Route::get('displaced-household/get_system_by_community/{community_id}', [App\Http\Controllers\DisplacedHouseholdController::class, 'getSystemsByCommunity']);
 Route::post('displaced-household-export', [App\Http\Controllers\DisplacedHouseholdController::class, 'export'])->name('displaced-household.export');
+Route::get('displaced-household/{id}/editpage', [App\Http\Controllers\DisplacedHouseholdController::class, 'editPage']);
 
 Route::get('filter_map', [App\Http\Controllers\HomeController::class, 'CommunityMapFilter']);
+
+Route::resource('camera', App\Http\Controllers\CameraCommunityController::class);
+Route::get('/delete-community-camera', [App\Http\Controllers\CameraCommunityController::class, 
+    'deleteCameraCommunity'])->name('deleteCameraCommunity');
+Route::get('/delete-camera-type', [App\Http\Controllers\CameraCommunityController::class, 'deleteCommunityCamera'])->name('deleteCommunityCamera');
+Route::get('/delete-nvr-camera-type', [App\Http\Controllers\CameraCommunityController::class, 'deleteCommunityNvrCamera'])->name('deleteCommunityNvrCamera');
+Route::get('/delete-community-camera-photo', [App\Http\Controllers\CameraCommunityController::class, 'deleteCommunityCameraPhoto'])->name('deleteCommunityCameraPhoto');
+Route::post('camera-export', [App\Http\Controllers\CameraCommunityController::class, 'export'])->name('camera.export');
+
+Route::resource('displaced-community', App\Http\Controllers\DisplacedCommunityController::class);

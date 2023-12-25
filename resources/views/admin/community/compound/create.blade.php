@@ -49,6 +49,20 @@
                                 </select>
                             </fieldset>
                         </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Energy System Type</label>
+                                <select name="energy_system_type_id" 
+                                    class="selectpicker form-control" data-live-search="true" >
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($energySystemTypes as $energySystemType)
+                                    <option value="{{$energySystemType->id}}">
+                                        {{$energySystemType->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

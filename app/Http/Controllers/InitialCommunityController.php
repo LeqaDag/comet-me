@@ -10,9 +10,15 @@ use Auth;
 use DB;
 use Route;
 use App\Models\User;
+use App\Models\AllEnergyMeter;
+use App\Models\AllWaterHolder;
+use App\Models\AllEnergyMeterDonor;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\CommunityStatus;
+use App\Models\CommunityService;
+use App\Models\CommunityRepresentative;
+use App\Models\CommunityRole;
 use App\Models\Compound;
 use App\Models\Donor;
 use App\Models\EnergySystem;
@@ -20,15 +26,23 @@ use App\Models\EnergySystemType;
 use App\Models\Household;
 use App\Models\Photo;
 use App\Models\Region;
+use App\Models\SecondNameCommunity;
 use App\Models\SubRegion;
 use App\Models\SubCommunity;
+use App\Models\Settlement;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
+use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
-use App\Models\PublicStructureCategory;
-use App\Models\Settlement;
+use App\Exports\CommunityExport;
+use App\Models\NearbySettlement;
+use App\Models\NearbyTown;
+use App\Models\InternetUser;
+use App\Models\H2oUser;
+use App\Models\GridUser;
 use App\Models\Town;
+use App\Models\RecommendedCommunityEnergySystem;
 use App\Models\WaterSource;
 use Carbon\Carbon;
 use Image;
@@ -67,7 +81,7 @@ class InitialCommunityController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn() 
                     ->addColumn('action', function($row) {
-                        $detailsButton = "<a type='button' class='detailsCommunityButton' data-bs-toggle='modal' data-bs-target='#communityDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
+                        $detailsButton = "<a type='button' class='detailsCommunityButton' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
     
                         return $detailsButton;
                     })

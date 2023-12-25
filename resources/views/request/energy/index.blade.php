@@ -14,7 +14,6 @@ label, table {
     margin-top: 20px;
 }
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
 <p>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
@@ -26,7 +25,7 @@ label, table {
 </p>
 
 <div class="collapse multi-collapse container mb-4" id="collapseEnergyRequestExport">
-    <div class="container mb-4">
+    <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -133,10 +132,6 @@ label, table {
         </div>
     </div>
 </div>
-
-<script src="{{ asset('js/jquery.min.js') }}"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script type="text/javascript">
     $(function () {

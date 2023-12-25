@@ -24,4 +24,8 @@ class Household extends Model
         return $this->belongsTo(Profession::class, 'profession_id', 'id');
     }
 
+    public function EnergySystemType()
+    {
+        return $this->belongsTo(EnergySystemType::class, 'energy_system_type_id', 'id');
+    }
 }
