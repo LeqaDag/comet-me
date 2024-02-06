@@ -202,7 +202,7 @@ label, table {
     });
 
     function getUserByCommunity(community_id) {
-   
+    
         $.ajax({
             url: "water_user/get_by_community/" + community_id,
             method: 'GET',

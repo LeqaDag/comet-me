@@ -101,8 +101,8 @@ label, table {
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Completed Date</label>
-                                <input type="date" name="date_completed" class="form-control">
+                                <label class='col-md-12 control-label'>Visit Date</label>
+                                <input type="date" name="visit_date" class="form-control">
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -126,6 +126,12 @@ label, table {
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Completed Date</label>
+                                <input type="date" name="date_completed" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Refrigerator Action</label>
                                 <select name="maintenance_refrigerator_action_id[]" multiple
                                     class="selectpicker form-control" data-live-search="true" >
@@ -141,6 +147,9 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Recipient</label>
@@ -157,9 +166,6 @@ label, table {
                                 @endif
                             </fieldset>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Performed By</label>

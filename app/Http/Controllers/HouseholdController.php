@@ -113,6 +113,10 @@ class HouseholdController extends Controller
                 ->where('is_archived', 0)
                 ->count(); 
 
+            $communityFilter = $request->input('filter');
+            $regionFilter = $request->input('second_filter');
+            $statusFilter = $request->input('third_filter');
+
             if ($request->ajax()) {
                 
                 $data = DB::table('households')
@@ -127,19 +131,34 @@ class HouseholdController extends Controller
                     // ->leftJoin('all_energy_meters', 'households.id', '=', 
                     //     'all_energy_meters.household_id')
                     ->where('internet_holder_young', 0)
-                    ->where('households.is_archived', 0)
-                    ->select('households.english_name as english_name', 
-                        'households.arabic_name as arabic_name',
-                        'households.id as id', 'households.created_at as created_at', 
-                        'households.updated_at as updated_at',
-                        'communities.english_name as name',
-                        'communities.arabic_name as aname',
-                        'household_statuses.status',
-                        //'refrigerator_holder_receive_numbers.receive_number',
-                        //'all_energy_meters.is_main'
-                        )
-                    ->groupBy('households.id')
-                    ->latest();   
+                    ->where('households.is_archived', 0);
+                    
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($regionFilter != null) {
+
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($statusFilter != null) {
+
+                    $data->where('household_statuses.id', $statusFilter);
+                }
+
+                $data->select(
+                    'households.english_name as english_name', 
+                    'households.arabic_name as arabic_name',
+                    'households.id as id', 'households.created_at as created_at', 
+                    'households.updated_at as updated_at',
+                    'communities.english_name as name',
+                    'communities.arabic_name as aname',
+                    'household_statuses.status',
+                    //'refrigerator_holder_receive_numbers.receive_number',
+                    //'all_energy_meters.is_main'
+                    )
+                ->groupBy('households.id')
+                ->latest();
  
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -201,9 +220,8 @@ class HouseholdController extends Controller
                                     $w->orWhere('households.english_name', 'LIKE', "%$search%")
                                     ->orWhere('communities.english_name', 'LIKE', "%$search%")
                                     ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                    ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                    ->orWhere('sub_regions.arabic_name', 'LIKE', "%$search%")
-                                    ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('regions.arabic_name', '=', $search)
+                                    ->orWhere('regions.english_name', '=', $search)
                                     ->orWhere('households.arabic_name', 'LIKE', "%$search%")
                                     ->orWhere('household_statuses.status', 'LIKE', "%$search%")
                                    // ->orWhere('all_energy_meters.is_main', 'LIKE', "%$search%")
@@ -301,8 +319,8 @@ class HouseholdController extends Controller
             'arabic_name' => 'required',
             'profession_id' => 'required'
         ]);
-
-       // dd($request->all());
+ 
+       // dd($request->all()); 
         $household = new Household();
         $household->english_name = $request->english_name;
         $household->arabic_name = $request->arabic_name;
@@ -641,9 +659,11 @@ class HouseholdController extends Controller
         $energySystemTypes = EnergySystemType::where('is_archived', 0)
             ->orderBy('name', 'ASC')
             ->get();
+        $householdStatuses = HouseholdStatus::where('is_archived', 0)->get();
 
         return view('employee.household.edit', compact('household', 'regions', 'communities',
-            'professions', 'structure', 'cistern', 'communityHousehold', 'energySystemTypes'));
+            'professions', 'structure', 'cistern', 'communityHousehold', 'energySystemTypes',
+            'householdStatuses'));
     }
 
     /**
@@ -812,6 +832,9 @@ class HouseholdController extends Controller
         $household->number_of_male = $request->number_of_male;
         $household->number_of_female = $request->number_of_female;
         $household->demolition_order = $request->demolition_order;
+        if($request->household_status_id) $household->household_status_id = $request->household_status_id;
+        if($request->water_system_status) $household->water_system_status = $request->water_system_status;
+        if($request->internet_system_status) $household->internet_system_status = $request->internet_system_status;
         $household->notes = $request->notes;
         $household->size_of_herd = $request->size_of_herd;
         if($request->electricity_source) $household->electricity_source = $request->electricity_source;

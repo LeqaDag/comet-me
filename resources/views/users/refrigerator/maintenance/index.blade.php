@@ -21,9 +21,22 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Export Refrigerator Maintenance Report
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Export Refrigerator Maintenance Report
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearRefrigeratorMaintenanceFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('refrigerator-maintenance.export') }}">
@@ -58,13 +71,13 @@
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <input type="date" name="call_date" 
+                                        <input type="date" name="call_date" id="refrigeratorMaintenanceCallDate"
                                         class="form-control" title="Call Data from"> 
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <input type="date" name="date" 
+                                        <input type="date" name="date" id="refrigeratorMaintenanceDate"
                                         class="form-control" title="Completed Data from"> 
                                     </fieldset>
                                 </div>
@@ -199,6 +212,15 @@
         });
     });
 
+    // Clear Filters for Export
+    $('#clearRefrigeratorMaintenanceFiltersButton').on('click', function() {
+
+        $('.selectpicker').prop('selectedIndex', 0);
+        $('.selectpicker').selectpicker('refresh');
+        $('#refrigeratorMaintenanceDate').val(' ');
+        $('#refrigeratorMaintenanceCallDate').val(' ');
+    });
+
     // View update
     $('#maintenanceRefrigeratorTable').on('click', '.updateRefrigeratorMaintenance',function() {
         var id = $(this).data('id');
@@ -236,6 +258,8 @@
 
                 $('#callDate').html('');
                 $('#callDate').html(response['refrigeratorMaintenance'].date_of_call);
+                $('#visitDate').html('');
+                $('#visitDate').html(response['refrigeratorMaintenance'].visit_date);
                 $('#completedDate').html('');
                 $('#completedDate').html(response['refrigeratorMaintenance'].date_completed);
 

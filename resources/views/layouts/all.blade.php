@@ -30,6 +30,8 @@ href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
 <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- <link rel="stylesheet" href="{{asset('assets/vendor/libs/animate-on-scroll/animate-on-scroll.css')}}" /> -->
 @endsection
 
 @section('vendor-script')
@@ -50,6 +52,7 @@ href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
 
 <script src="{{asset('assets/vendor/libs/swiper/swiper.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/leaflet/leaflet.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/animate-on-scroll/animate-on-scroll.js')}}"></script>
 @endsection
 
 @section('page-script')
@@ -66,4 +69,5 @@ src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/t
 <script src="{{asset('assets/js/maps-leaflet.js')}}"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.0-beta.4/canvg.min.js"></script>
+<script src="{{asset('assets/js/extended-ui-timeline.js')}}"></script>
 @endsection

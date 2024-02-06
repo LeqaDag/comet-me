@@ -18,7 +18,7 @@ label, table {
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
-                    Create New Shared Meter User
+                    Create New Shared Meter Holder
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
@@ -66,6 +66,16 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Public Structures "Shared"</label>
+                                <select name="public_id[]" id="selectedAllPublic" 
+                                    class="selectpicker form-control" data-live-search="true" 
+                                    multiple disabled required>
+                                    <option disabled selected>Choose one...</option>
+                                </select>
+                            </fieldset>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -101,7 +111,20 @@ label, table {
                 success: function(data) { 
 
                     $('#selectedAllHousehold').prop('disabled', false);
-                    var select = $('#selectedAllHousehold'); 
+                    var selectHousehold = $('#selectedAllHousehold'); 
+
+                    selectHousehold.html(data.html);
+                    selectHousehold.selectpicker('refresh');
+                }
+            });
+
+            $.ajax({
+                url: "household-meter/get_publics/" + user_id,
+                method: 'GET',
+                success: function(data) { 
+
+                    $('#selectedAllPublic').prop('disabled', false);
+                    var select = $('#selectedAllPublic'); 
 
                     select.html(data.html);
                     select.selectpicker('refresh');

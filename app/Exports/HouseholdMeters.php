@@ -35,14 +35,17 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
             ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->join('households', 'household_meters.household_id', '=', 'households.id')
+            ->leftJoin('households', 'household_meters.household_id', '=', 'households.id')
+            ->leftJoin('public_structures', 'household_meters.public_structure_id', 
+                'public_structures.id')
             ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id', '=',
                 'all_energy_meter_donors.all_energy_meter_id')
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
                 'donors.id')
             ->where('household_meters.is_archived', 0)
             ->select([
-                'households.english_name as english_name',
+                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                as household_name'),
                 'household_meters.user_name', 'installation_types.type',
                 'meter_cases.meter_case_name_english',  
                 'communities.english_name as community_name',
@@ -80,7 +83,7 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function headings(): array
     {
-        return ["Shared User", "Main User", "Installation Type", "Meter Case",
+        return ["Shared Holder", "Main User", "Installation Type", "Meter Case",
             "Community", "Region", "Sub Region", "Number of male", "Number of Female", 
             "Number of adults", "Number of children", "Phone number", "Donors"];
     }

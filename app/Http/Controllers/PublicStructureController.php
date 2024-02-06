@@ -34,19 +34,35 @@ class PublicStructureController extends Controller
      */
     public function index(Request $request)
     { 
+        $communityFilter = $request->input('filter');
+        $categoryFilter = $request->input('second_filter');
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
 
                 $data = DB::table('public_structures')
-                    ->join('communities', 'public_structures.community_id', '=', 'communities.id')
-                    ->where('public_structures.is_archived', 0)
-                    ->select('public_structures.english_name', 'public_structures.arabic_name',
-                        'public_structures.id as id', 'public_structures.created_at as created_at', 
-                        'public_structures.updated_at as updated_at', 
-                        'communities.english_name as community_name')
-                    ->latest(); 
+                    ->join('communities', 'public_structures.community_id', 'communities.id')
+                    ->where('public_structures.is_archived', 0);
     
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($categoryFilter != null) {
+
+                    $data->where("public_structures.public_structure_category_id1", $categoryFilter)
+                        ->orWhere("public_structures.public_structure_category_id2", $categoryFilter)
+                        ->orWhere("public_structures.public_structure_category_id3", $categoryFilter);
+                }
+
+                $data->select(
+                    'public_structures.english_name', 'public_structures.arabic_name',
+                    'public_structures.id as id', 'public_structures.created_at as created_at', 
+                    'public_structures.updated_at as updated_at', 
+                    'communities.english_name as community_name')
+                ->latest(); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

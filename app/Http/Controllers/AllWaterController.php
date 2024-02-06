@@ -26,12 +26,12 @@ use App\Models\H2oUser;
 use App\Models\H2oUserDonor;
 use App\Models\H2oSharedPublicStructure;
 use App\Models\Household;
-use App\Models\PublicStructure;
+use App\Models\PublicStructure; 
 use App\Models\WaterUser;
 use App\Models\WaterNetworkUser;
 use App\Models\EnergySystemType;
 use App\Models\WaterSystemType;
-use App\Exports\WaterUserExport;
+use App\Exports\WaterUserExport; 
 use Auth;
 use DB;
 use Route;
@@ -109,30 +109,51 @@ class AllWaterController extends Controller
 
         if (Auth::guard('user')->user() != null) {
  
+            $filterValue = $request->input('filter');
+            $secondFilterValue = $request->input('second_filter'); 
+ 
             if ($request->ajax()) {
+
                 $data = DB::table('all_water_holders') 
                     ->join('communities', 'all_water_holders.community_id', 'communities.id')
                     ->LeftJoin('public_structures', 'all_water_holders.public_structure_id', 
                         'public_structures.id')
                     ->LeftJoin('households', 'all_water_holders.household_id', 'households.id')
                     ->LeftJoin('h2o_users', 'h2o_users.household_id', 'households.id')
-                    ->LeftJoin('grid_users', 'h2o_users.household_id', '=', 'grid_users.household_id')
+                    ->LeftJoin('grid_users', 'h2o_users.household_id', 'grid_users.household_id')
                     ->leftJoin('water_network_users', 'households.id', 
-                        '=', 'water_network_users.household_id')
-                    ->LeftJoin('h2o_statuses', 'h2o_users.h2o_status_id', '=', 'h2o_statuses.id')
-                    ->where('all_water_holders.is_archived', 0)
-                    //->where('all_water_holders.water_system_id', 1)
-                    ->select('all_water_holders.id as id', 'households.english_name as household_name', 
-                        'h2o_users.number_of_h20', 'grid_users.grid_integration_large', 
-                        'grid_users.large_date', 'grid_users.grid_integration_small', 
-                        'grid_users.small_date', 'grid_users.is_delivery', 'h2o_users.number_of_bsf', 
-                        'grid_users.is_paid', 'communities.english_name as community_name', 
-                        'grid_users.is_complete', 'all_water_holders.created_at as created_at',
-                        'all_water_holders.installation_year', 'h2o_statuses.status',
-                        'all_water_holders.updated_at as updated_at', 'all_water_holders.is_main',
-                        'public_structures.english_name as public_name')
-                    ->latest();
+                        'water_network_users.household_id')
+                    ->LeftJoin('h2o_statuses', 'h2o_users.h2o_status_id', 'h2o_statuses.id')
+                    ->leftJoin('h2o_shared_users', 'h2o_shared_users.h2o_user_id', 
+                        'h2o_users.id')
+                    ->leftJoin('households as shared_households', 'shared_households.id', 
+                        'h2o_shared_users.household_id')
+                    ->leftJoin('grid_shared_users', 'grid_shared_users.grid_user_id', 
+                        'grid_users.id')
+                    ->leftJoin('households as shared_grid_households', 'shared_grid_households.id', 
+                        'grid_shared_users.household_id')
+                    ->where('all_water_holders.is_archived', 0);
                 
+                if($filterValue != null) {
+
+                    $data->where('communities.id', $filterValue);
+                }
+                if ($secondFilterValue != null) {
+
+                    $data->where('all_water_holders.installation_year', $secondFilterValue);
+                }
+
+                $data->select(
+                    'all_water_holders.id as id', 'households.english_name as household_name', 
+                    'h2o_users.number_of_h20', 'grid_users.grid_integration_large', 
+                    'grid_users.large_date', 'grid_users.grid_integration_small', 
+                    'grid_users.small_date', 'grid_users.is_delivery', 'h2o_users.number_of_bsf', 
+                    'grid_users.is_paid', 'communities.english_name as community_name', 
+                    'grid_users.is_complete', 'all_water_holders.created_at as created_at',
+                    'all_water_holders.installation_year', 'h2o_statuses.status',
+                    'all_water_holders.updated_at as updated_at', 'all_water_holders.is_main',
+                    'public_structures.english_name as public_name')
+                ->latest();
               
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -175,6 +196,10 @@ class AllWaterController extends Controller
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('households.english_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('shared_households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('shared_households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('shared_grid_households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('shared_grid_households.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
                                 ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('h2o_statuses.status', 'LIKE', "%$search%")

@@ -55,7 +55,7 @@ class HomeController extends Controller
 {
     /**
      * Create a new controller instance.
-     *
+     * 
      * @return void
      */
     public function __construct()
@@ -138,7 +138,7 @@ class HomeController extends Controller
                 ->count();
             $householdNumbers = Household::where('internet_holder_young', 0)
                 ->where('is_archived', 0)
-                ->where('energy_system_status', 'Served')
+                ->where('household_status_id', 4)
                 ->count(); 
             $regionNumbers = Region::where('is_archived', 0)->count();
  
@@ -405,7 +405,7 @@ class HomeController extends Controller
 
             $cumulativeSumInternet[] = ['Year', 'Sum'];
             $sumInternet = 0;
-
+ 
             foreach($totalInternet as $key => $value) {
 
                 $sumInternet += $value->number;
@@ -430,8 +430,8 @@ class HomeController extends Controller
             $activeInternetCommuntiies = Community::where('internet_service', 'Yes')
                 ->where('is_archived', 0);
 
-            $activeInternetCommuntiiesCount = $activeInternetCommuntiies->count();
-
+            $activeInternetCommuntiiesCount = InternetUser::groupBy('community_id')->get();
+            
             $InternetUsersCounts = DB::table('internet_users')
                 ->where('internet_users.is_archived', 0)
                 ->whereNotNull('internet_users.household_id');
@@ -479,8 +479,18 @@ class HomeController extends Controller
                 ->where('households.internet_holder_young', 1)
                 ->count();
 
-            $communitiesInternet = Community::where("internet_service", "yes")
-                ->where('is_archived', 0)
+            $communitiesInternet = DB::table('internet_users')
+                ->join('communities', 'internet_users.community_id', 'communities.id')
+                ->join('regions', 'communities.region_id', 'regions.id')
+                ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+                ->where('internet_users.is_archived', 0)
+                ->groupBy('internet_users.community_id')
+                ->select(
+                    'communities.english_name', 'communities.number_of_people', 
+                    'communities.internet_service_beginning_year',
+                    'regions.english_name as region_name',
+                    'sub_regions.english_name as sub_region_name'
+                )
                 ->get(); 
 
             $ratedPowerMG = EnergySystem::where("energy_system_type_id", 1)
@@ -763,7 +773,7 @@ class HomeController extends Controller
 
         // Search System Types
         if($request->system_types) {
-            $systemTypeIds = $request->system_types;
+            $systemTypeIds = $request->system_types; 
         
             $communities->leftJoin("all_energy_meters", "communities.id", 
                 "all_energy_meters.community_id");
@@ -811,29 +821,50 @@ class HomeController extends Controller
             });
         }
 
-        // Search Incidents
-        if($request->incidents) {
+        if ($request->incidents) {
             $incidentsIds = $request->incidents;
-         
-            $communities->leftJoin("mg_incidents", "communities.id", 
-                "mg_incidents.community_id");
-
+    
             $communities->where(function ($query) use ($incidentsIds) {
-                foreach ($incidentsIds as $incidentsId) {
-                    if (is_array($incidentsId)) {
-                        $query->orWhereIn('communities.id', function ($subQuery) use ($incidentsId) {
-                            $subQuery->select('all_energy_meters.community_id')
-                                ->from('energy_system_types')
-                                ->whereIn('energy_system_types.id', $incidentsId);
-                        });
-                    } else {
-                        $query->orWhereIn('communities.id', function ($subQuery) use ($incidentsId) {
-                            $subQuery->select('all_energy_meters.community_id')
-                                ->from('energy_system_types')
-                                ->where('energy_system_types.id', $incidentsId);
-                        });
+                $query->where(function ($subQuery) use ($incidentsIds) {
+                    foreach ($incidentsIds as $incidentId) {
+                        switch ($incidentId) {
+                            case 'mg':
+                                $subQuery->orWhereExists(function ($mgQuery) {
+                                    $mgQuery->select(DB::raw(1))
+                                        ->from('mg_incidents')
+                                        ->whereColumn('communities.id', 
+                                            'mg_incidents.community_id');
+                                });
+                                break;
+                            case 'fbs':
+                                $subQuery->orWhereExists(function ($fbsQuery) {
+                                    $fbsQuery->select(DB::raw(1))
+                                        ->from('fbs_user_incidents')
+                                        ->whereColumn('communities.id', 
+                                            'fbs_user_incidents.community_id');
+                                });
+                                break;
+                            case 'water':
+                                $subQuery->orWhereExists(function ($waterQuery) {
+                                    $waterQuery->select(DB::raw(1))
+                                        ->from('h2o_system_incidents')
+                                        ->whereColumn('communities.id', 
+                                            'h2o_system_incidents.community_id');
+                                });
+                                break;
+                            case 'internet':
+                                $subQuery->orWhereExists(function ($internetQuery) {
+                                    $internetQuery->select(DB::raw(1))
+                                        ->from('internet_network_incidents')
+                                        ->leftJoin('internet_user_incidents', 'communities.id',  
+                                            'internet_user_incidents.community_id')
+                                        ->whereColumn('communities.id', 
+                                            'internet_network_incidents.community_id');
+                                });
+                                break;
+                        }
                     }
-                }
+                });
             });
         }
 

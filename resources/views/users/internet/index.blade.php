@@ -404,9 +404,22 @@ label, table {
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Export Internet User Report
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Export Internet User Report
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearInternetUserFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div> 
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('internet-user.export') }}">
@@ -442,7 +455,7 @@ label, table {
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
                                     <input type="date" name="start_date" 
-                                    class="form-control" title="Data from"> 
+                                     id="startDate" class="form-control" title="Data from"> 
                                 </fieldset>
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
@@ -532,6 +545,14 @@ label, table {
                 {data: 'action'}
             ]
         });
+    });
+
+    // Clear Filters for Export
+    $('#clearInternetUserFiltersButton').on('click', function() {
+
+        $('.selectpicker').prop('selectedIndex', 0);
+        $('.selectpicker').selectpicker('refresh');
+        $('#startDate').val(' ');
     });
 
     // Update record

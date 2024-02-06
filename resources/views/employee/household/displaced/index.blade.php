@@ -45,9 +45,22 @@ label, table {
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Export Household Report
-                        <i class='fa-solid fa-file-excel text-info'></i>
-                    </h5>
+                    <div class="row">
+                        <div class="col-xl-10 col-lg-10 col-md-10">
+                            <h5>
+                                Export Displaced Families Report 
+                                <i class='fa-solid fa-file-excel text-info'></i>
+                            </h5>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-2">
+                            <fieldset class="form-group">
+                                <button class="" id="clearDisplacedHouseholdFiltersButton">
+                                <i class='fa-solid fa-eraser'></i>
+                                    Clear Filters
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('displaced-household.export') }}">
@@ -94,7 +107,7 @@ label, table {
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <input type="date" name="date" 
+                                    <input type="date" name="date" id="displacedDate"
                                     class="form-control" title="Displacement Data from"> 
                                 </fieldset>
                             </div>
@@ -129,6 +142,55 @@ All<span class="text-muted fw-light"> Displaced Families</span>
 
 <div class="container"> 
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Old Community</label>
+                        <select class="selectpicker form-control" 
+                            data-live-search="true" id="filterByOldCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By New Region</label>
+                        <select name="region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterBySubRegion">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($subRegions as $subRegion)
+                                <option value="{{$subRegion->id}}">{{$subRegion->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By New Community</label>
+                        <select  class="selectpicker form-control" 
+                            data-live-search="true" id="filterByNewCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id != 7 ||
                 Auth::guard('user')->user()->user_type_id != 11  )
@@ -164,15 +226,20 @@ All<span class="text-muted fw-light"> Displaced Families</span>
 
 
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-displaced-household').DataTable({
+    var table;
+    function DataTableContent() {
+
+        table = $('.data-table-displaced-household').DataTable({
             processing: true,
             serverSide: true, 
             ajax: {
                 url: "{{ route('displaced-household.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.filter = $('#filterByOldCommunity').val();
+                    d.second_filter = $('#filterByNewCommunity').val();
+                    d.third_filter = $('#filterBySubRegion').val();
                 }
             },
             columns: [
@@ -183,7 +250,41 @@ All<span class="text-muted fw-light"> Displaced Families</span>
                 {data: 'action' }
             ]
         }); 
-         
+    }
+
+    $(function () {
+
+        DataTableContent();
+        
+        $('#filterBySubRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByNewCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByOldCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-displaced-household')) {
+                $('.data-table-displaced-household').DataTable().destroy();
+            }
+            DataTableContent();
+        });
+
+        // Clear Filters for Export
+        $('#clearDisplacedHouseholdFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#displacedDate').val('');
+        });
+
         // Edit details
         $('#displacedHouseholdsTable').on('click', '.updateDisplacedHousehold',function() {
             var id = $(this).data('id');

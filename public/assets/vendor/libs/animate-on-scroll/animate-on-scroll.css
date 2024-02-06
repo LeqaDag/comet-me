@@ -946,8 +946,7 @@
 }
 
 [data-aos^=flip][data-aos^=flip] {
-  -webkit-backface-visibility: hidden;
-          backface-visibility: hidden;
+  
   transition-property: -webkit-transform;
   transition-property: transform;
   transition-property: transform, -webkit-transform;

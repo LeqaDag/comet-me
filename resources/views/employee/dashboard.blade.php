@@ -15,7 +15,7 @@
   <div class="card mb-4">
     <h5 class="card-header">
       <div class="row">
-        <div class="col-xl-6 col-lg-6 col-md-6">
+        <div class="col-xl-9 col-lg-9 col-md-9">
           Map of Communities
         </div>
         <div class="col-xl-3 col-lg-3 col-md-3">
@@ -26,16 +26,16 @@
             </button>
           </fieldset>
         </div>
-        @if(Auth::guard('user')->user()->user_type_id == 1)
-        <div class="col-xl-3 col-lg-3 col-md-3">
-          <fieldset class="form-group">
-            <button class="btn btn-dark" id="exportSVGButton">
-              <i class='fa-solid fa-eraser'></i>
-                Export SVG
-            </button>
-          </fieldset>
-        </div>
-        @endif
+        <!--@if(Auth::guard('user')->user()->user_type_id == 1)-->
+        <!--<div class="col-xl-3 col-lg-3 col-md-3">-->
+        <!--  <fieldset class="form-group">-->
+        <!--    <button class="btn btn-dark" id="exportSVGButton">-->
+        <!--      <i class='fa-solid fa-eraser'></i>-->
+        <!--        Export SVG-->
+        <!--    </button>-->
+        <!--  </fieldset>-->
+        <!--</div>-->
+        <!--@endif-->
       </div>
     </h5>
     <div class="card-body">
@@ -150,7 +150,7 @@
                   @endforeach
                 </select> 
               </fieldset>
-            </div>
+            </div> 
           </div><br> 
           <div class="row">
             <div class="col-xl-3 col-lg-3 col-md-3">
@@ -184,366 +184,10 @@
   </div>
 </div>
 
-<div class="card mb-4">
-  <div class="card-body">
-    <h5>Served Communities Energy</h5>
-    <div class="col-lg-12 col-md-12 col-sm-12">
-      <div class="row">
-        <div class="col-lg-3 col-sm-3 col-md-3 mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$regionNumbers}}</h2>
-              <span class="text-muted">Regions</span>
-              <div class="primary">
-                <a href="{{'sub-region'}}" target="_blank" type="button">
-                  <i class="bx bx-map me-1 bx-lg text-warning"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$communityNumbers}}</h2>
-              <span class="text-muted">Communitites</span>
-              <div class="">
-                <a href="{{'community'}}" target="_blank" type="button">
-                  <i class="bx bx-home me-1 bx-lg text-success"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$householdNumbers}}</h2>
-              <span class="text-muted">Households</span>
-              <div class="primary">
-                <a href="{{'household'}}" target="_blank" type="button">
-                  <i class="bx bx-user me-1 bx-lg bx-primary"></i>
-                </a>
-              </div>
-            </div>
-          </div> 
-        </div>
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$numberOfPeople->number_of_people}}</h2>
-              <span class="text-muted">People</span>
-              <div class="primary">
-                <a href="#" type="button">
-                  <i class="bx bx-group me-1 bx-lg text-dark"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-12 col-md-12">
-      <div class="row">
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$numberOfMale->number_of_male}}</h2>
-              <span class="text-muted">Male</span>
-              <div class="">
-                <a href="#" type="button">
-                  <i class="bx bx-male me-1 bx-lg text-secondary"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$numberOfFemale->number_of_female}}</h2>
-              <span class="text-muted">Female</span>
-              <div class="primary">
-                <a href="#" type="button">
-                  <i class="bx bx-female me-1 bx-lg text-light"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$numberOfAdults->number_of_adults}}</h2>
-              <span class="text-muted">Adults</span>
-              <div class="primary">
-                <a href="#" type="button">
-                  <i class="bx bx-male bx-lg text-danger"></i>
-                  <i class="bx bx-female me-1 bx-lg text-danger"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$numberOfChildren->number_of_children}}</h2>
-              <span class="text-muted">Children</span>
-              <div class="">
-                <a href="#" type="button">
-                  <i class="bx bx-face me-1 bx-lg text-info"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$totalMgSystem->count()}}</h2>
-              <span class="text-muted">MG Systems</span>
-              <div class="">
-                <a href="{{'energy-system'}}" target="_blank" type="button">
-                  <i class="bx bx-grid me-1 bx-lg text-success"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$totalFbsSystem->count()}}</h2>
-              <span class="text-muted">FBS Systems</span>
-              <div class="">
-                <a href="{{'energy-system'}}" target="_blank" type="button"> 
-                  <i class="bx bx-sun me-1 bx-lg text-warning"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-sm-3 col-md-3mb-4">
-          <div class="col">
-            <div class="card-body text-center">
-              <h2 class="mb-1">{{$totalRatedPower}}</h2>
-              <span class="text-muted">Total Rated Power (KW)</span>
-              <div class="">
-                <a href="{{'energy-system'}}" target="_blank" type="button"> 
-                  <i class="bx bx-wind me-1 bx-lg" style="color:yellow"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-  <!-- H2O Users -->
-  <div class="row mb-4">
-    <div class="col-lg-12 col-xl-12 col-md-12 mb-4">
-      <div class="card"> 
-        <div class="card-header">
-          <h5 class="card-title mb-0">Water Users</h5>
-        </div>
-        <div class="card-body pb-2">
-          <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
-            <ul class="p-0 m-0">
-              <li class="d-flex mb-4 pb-2">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-primary">
-                    <a href="{{'all-water'}}" target="_blank" type="button"> 
-                      <i class='bx bx-water'></i>
-                    </a>
-                  </span>
-                </div>
-                <div class="d-flex flex-column w-100">
-                  <div class="d-flex justify-content-between mb-1">
-                    <span>H2O Users</span>
-                    <span class="text-muted">
-                      {{$h2oUsersNumbers}}
-                    </span>
-                  </div>
-                  <?php
-                    $diff = ($h2oUsersNumbers/ $householdNumbers) * 100;
-                  ?>
-                  <div class="progress" style="height:6px;">
-                    <div class="progress-bar bg-primary" style="width: {{$diff}}%" 
-                    role="progressbar" aria-valuenow="{{$diff}}" 
-                    aria-valuemin="0" 
-                    aria-valuemax="{{$householdNumbers}}"></div>
-                  </div>
-                </div>
-              </li>
-            
-            </ul>
-          </div>
-
-          <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
-            <div class="d-flex justify-content-between align-items-center gap-3 w-100">
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-primary">
-                    <i class='bx bx-droplet'></i>
-                  </span>
-                </div>
-                <div class="chart-info">
-                  <h5 class="mb-0">{{$h2oNumber->sum}}</h5>
-                  <small class="text-muted">H2O System</small>
-                </div>
-              </div>
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-primary">
-                    <i class='bx bx-droplet bx-large'></i>
-                  </span>
-                </div>
-                <div class="chart-info">
-                  <h5 class="mb-0">{{$gridLarge->sum}}</h5>
-                  <small class="text-muted">Grid Integration Large</small>
-                </div>
-              </div>
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-primary">
-                    <i class='bx bx-droplet'></i>
-                  </span>
-                </div>
-                <div class="chart-info">
-                  <h5 class="mb-0">{{$gridSmall->sum}}</h5>
-                  <small class="text-muted">Grid Integration Small</small>
-                </div>
-              </div>
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-primary">
-                    <i class='bx bx-droplet'></i>
-                  </span>
-                </div>
-                <div class="chart-info">
-                  <h5 class="mb-0">{{$waterNetworkUsers}}</h5>
-                  <small class="text-muted">Water Network</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-    <!-- Internet Users -->
-  <div class="row mb-4">
-    <div class="col-lg-12 col-xl-12 col-md-12 mb-4">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title mb-0">Internet Users</h5>
-        </div>
-        <div class="card-body pb-2">
-          <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
-            <ul class="p-0 m-0">
-              <li class="d-flex mb-4 pb-2">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-success">
-                    <a href="{{'internet-user'}}" target="_blank" type="button"> 
-                      <i class='bx bx-wifi'></i>
-                    </a>
-                  </span>
-                </div>
-                <div class="d-flex flex-column w-100">
-                  <div class="d-flex justify-content-between mb-1">
-                    <span>Internet Users</span>
-                    <span class="text-muted">
-                      {{$internetPercentage}} %
-                    </span> 
-                  </div>
-                  <div class="progress" style="height:6px;">
-                    <div class="progress-bar bg-success" style="width: {{$internetPercentage}}%" 
-                    role="progressbar" aria-valuenow="{{$internetPercentage}}" 
-                    aria-valuemin="0" 
-                    aria-valuemax="{{$allInternetPeople}}"></div>
-                  </div>
-                </div>
-              </li>
-            
-            </ul>
-          </div>
-
-          <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
-            <div class="d-flex justify-content-between align-items-center gap-3 w-100">
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-success">
-                    <a type="button" data-bs-toggle="modal" 
-                      data-bs-target="#communityInternet">
-                      <i class='bx bx-home'></i>
-                    </a>
-                  </span>
-                </div>
-                <div class="chart-info">
-                  <h5 class="mb-0">{{$activeInternetCommuntiiesCount}}</h5>
-                  <small class="text-muted">Active Communities</small>
-                </div>
-              </div>
-              @include('employee.community.service.internet')
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-success">
-                    <i class='bx bx-book-content bx-large'></i>
-                  </span>
-                </div>
-                <div class="chart-info"> 
-                  <h5 class="mb-0">{{$allContractHolders}}</h5>
-                  <small class="text-muted">Contract Holders</small>
-                </div>
-              </div>
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-success">
-                    <i class='bx bx-user'></i>
-                  </span>
-                </div>
-                <div class="chart-info">
-                  <h5 class="mb-0">{{$allInternetUsersCounts}}</h5>
-                  <small class="text-muted">Users</small>
-                </div>
-              </div>
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-success">
-                    <i class='bx bx-happy bx-large'></i>
-                  </span>
-                </div>
-                <div class="chart-info"> 
-                  <h5 class="mb-0">{{$youngInternetHolders}}</h5>
-                  <small class="text-muted">Young Holders</small>
-                </div>
-              </div>
-              <div class="d-flex align-content-center">
-                <div class="avatar avatar-sm flex-shrink-0 me-3">
-                  <span class="avatar-initial rounded-circle bg-label-success">
-                    <i class='bx bx-buildings'></i>
-                  </span>
-                </div>
-                <div class="chart-info">
-                  <h5 class="mb-0">{{$InternetPublicCount}}</h5>
-                  <small class="text-muted">Public Structures</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<h4> Active Services Users
+  <span style="font-size:15px"><a href="{{'all-active'}}" target="_blank">View details</a></span>
+</h4>
+@include('shared.summary')
 
 <!-- Cumulative Sum Energy -->
 <div class="row mb-4">
@@ -764,44 +408,89 @@
     }
   }
 
-  function ClearMapView() {
+function ClearMapView() {
+    if (clearMap) {
+        // Hide other map elements and show the clearMap
+        filteredMap.css("visibility", "hidden");
+        filteredMap.css('display', 'none');
+        firstMap.css("visibility", "hidden");
+        firstMap.css('display', 'none');
+        clearMap.css("visibility", "visible");
+        clearMap.css('display', 'block');
+
+        // Get the clearMap container element
+        const clearMapContainer = document.getElementById('clearMapControl');
+
+        // Remove all child nodes (this effectively clears the existing map)
+        while (clearMapContainer.firstChild) {
+            clearMapContainer.removeChild(clearMapContainer.firstChild);
+        }
+
+        // Create a new map instance in the cleared container
+        const communities = {!! json_encode($communities) !!};
+        const cities = L.layerGroup();
+        communities.forEach(community => {
+            const { latitude, longitude, english_name } = community;
+            const marker = L.marker([latitude, longitude]).bindPopup(english_name);
+            cities.addLayer(marker);
+        });
+
+        const clearMapControl = L.map('clearMapControl', {
+            center: [32.2428238, 35.494258],
+            zoom: 10,
+            layers: [street, cities]
+        });
+
+        const baseMaps = {
+            Street: street,
+            Watercolor: watercolor
+        };
+        const overlayMaps = {
+            Cities: cities
+        };
+
+        MapCommunity(clearMapControl, baseMaps, overlayMaps);
+    }
+}
+
+//   function ClearMapView() {
    
-   // view default map
-   if (clearMap) {
+//    // view default map
+//    if (clearMap) {
 
-    filteredMap.css("visibility", "hidden");
-    filteredMap.css('display','none');
+//     filteredMap.css("visibility", "hidden");
+//     filteredMap.css('display','none');
 
-    firstMap.css("visibility", "hidden");
-    firstMap.css('display','none');
+//     firstMap.css("visibility", "hidden");
+//     firstMap.css('display','none');
 
-    clearMap.css("visibility", "visible");
-    clearMap.css('display','block');
+//     clearMap.css("visibility", "visible");
+//     clearMap.css('display','block');
 
-     const communities = {!! json_encode($communities) !!};
-     const cities = L.layerGroup();
-     communities.forEach(community => {
-       const { latitude, longitude, english_name } = community;
-       const marker = L.marker([latitude, longitude]).bindPopup(english_name);
-       cities.addLayer(marker);
-     });
+//      const communities = {!! json_encode($communities) !!};
+//      const cities = L.layerGroup();
+//      communities.forEach(community => {
+//        const { latitude, longitude, english_name } = community;
+//        const marker = L.marker([latitude, longitude]).bindPopup(english_name);
+//        cities.addLayer(marker);
+//      });
 
-     const clearMapControl = L.map('clearMapControl', {
-       center: [32.2428238, 35.494258],
-       zoom: 10,
-       layers: [street, cities]
-     });
-     const baseMaps = {
-       Street: street,
-       Watercolor: watercolor
-     };
-     const overlayMaps = {
-       Cities: cities
-     };
+//      const clearMapControl = L.map('clearMapControl', {
+//        center: [32.2428238, 35.494258],
+//        zoom: 10,
+//        layers: [street, cities]
+//      });
+//      const baseMaps = {
+//        Street: street,
+//        Watercolor: watercolor
+//      };
+//      const overlayMaps = {
+//        Cities: cities
+//      };
 
-     MapCommunity(clearMapControl, baseMaps, overlayMaps);
-   }
- }
+//      MapCommunity(clearMapControl, baseMaps, overlayMaps);
+//    }
+//  }
 
   $('#clearFiltersButton').on('click', function() {
 

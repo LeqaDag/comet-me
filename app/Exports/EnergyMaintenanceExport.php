@@ -66,6 +66,7 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
             ])
             ->groupBy('electricity_maintenance_calls.id');
 
+
         if($this->request->public) {
             $data->where("public_structures.public_structure_category_id1", $this->request->public)
                 ->orWhere("public_structures.public_structure_category_id2", $this->request->public)

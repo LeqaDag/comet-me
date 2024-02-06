@@ -45,9 +45,22 @@ label, table {
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Export Installed Cameras Report
-                        <i class='fa-solid fa-file-excel text-info'></i>
-                    </h5>
+                    <div class="row">
+                        <div class="col-xl-10 col-lg-10 col-md-10">
+                            <h5>
+                            Export Installed Cameras Report
+                                <i class='fa-solid fa-file-excel text-info'></i>
+                            </h5>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-2">
+                            <fieldset class="form-group">
+                                <button class="" id="clearCameraFiltersButton">
+                                <i class='fa-solid fa-eraser'></i>
+                                    Clear Filters
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div> 
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('camera.export') }}">
@@ -83,7 +96,7 @@ label, table {
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <input type="date" name="date" 
+                                    <input type="date" name="date" id="installationDate"
                                     class="form-control" title="Installation Data from"> 
                                 </fieldset>
                             </div>
@@ -175,7 +188,15 @@ All<span class="text-muted fw-light"> Installed Cameras</span>
                 {data: 'action' }
             ]
         }); 
-         
+
+        // Clear Filters for Export
+        $('#clearCameraFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#installationDate').val(' ');
+        });
+                
         // Edit details
         $('#cameraCommunityTable').on('click', '.updateCameraCommunity',function() {
             var id = $(this).data('id');

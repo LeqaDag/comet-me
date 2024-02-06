@@ -1,4 +1,4 @@
-<div id="compoundHouseholds{{$compound->id}}" class="modal fade" tabindex="-1" aria-hidden="true" 
+<div id="compoundHouseholds{{$compound->id}}" class="modal fade" aria-hidden="true" 
     aria-labelledby="">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

@@ -62,6 +62,8 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                 $metrics[0]["total_accounts_expired_over_30_days"];
             $exist->sale_points = $metrics[0]["total_sale_points"];
             $exist->total_cash = $metrics[0]["total_cash_income"];
+            $exist->total_hotspot_communities = $metrics[0]["total_hotspot_communities"];
+            $exist->total_broadband_communities = $metrics[0]["total_broadband_communities"];
             $exist->save();
 
         } else {
@@ -80,6 +82,8 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                 $metrics[0]["total_accounts_expired_over_30_days"];
             $internetMetric->sale_points = $metrics[0]["total_sale_points"];
             $internetMetric->total_cash = $metrics[0]["total_cash_income"];
+            $internetMetric->total_hotspot_communities = $metrics[0]["total_hotspot_communities"];
+            $internetMetric->total_broadband_communities = $metrics[0]["total_broadband_communities"];
             $internetMetric->save();
         }
         
@@ -165,7 +169,9 @@ class InternetMetricsExport implements FromCollection, WithTitle,
             $row->expire_contacts_over_month,
             $row->expire_contacts_less_month,
             $row->sale_points,
-            $row->total_cash
+            $row->total_cash,
+            $row->total_hotspot_communities,
+            $row->total_broadband_communities
         ];
     }
 
@@ -199,7 +205,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:J1');
+        $sheet->setAutoFilter('A1:L1');
 
         $sheet->setCellValue('A1', 'Details');
         $sheet->setCellValue('B1', 'Active Communities');
@@ -211,6 +217,8 @@ class InternetMetricsExport implements FromCollection, WithTitle,
         $sheet->setCellValue('H1', 'Contracts (Ended within 30 days & not renewed)');
         $sheet->setCellValue('I1', 'Number of Vending Points');
         $sheet->setCellValue('J1', 'Total vending points debt');
+        $sheet->setCellValue('K1', 'Total Hotspot Communities');
+        $sheet->setCellValue('L1', 'Total Broadband Communities');
 
         $sheet->getStyle('B1')->getAlignment()->setWrapText(true);
         $sheet->getStyle('C1')->getAlignment()->setWrapText(true);
@@ -221,6 +229,8 @@ class InternetMetricsExport implements FromCollection, WithTitle,
         $sheet->getStyle('H1')->getAlignment()->setWrapText(true);
         $sheet->getStyle('I1')->getAlignment()->setWrapText(true);
         $sheet->getStyle('J1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('K1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('L1')->getAlignment()->setWrapText(true);
 
         $sheet->getColumnDimension('B')->setAutoSize(false)->setWidth(30);
         $sheet->getColumnDimension('C')->setAutoSize(false)->setWidth(35);
@@ -231,6 +241,8 @@ class InternetMetricsExport implements FromCollection, WithTitle,
         $sheet->getColumnDimension('H')->setAutoSize(false)->setWidth(35);
         $sheet->getColumnDimension('I')->setAutoSize(false)->setWidth(30);
         $sheet->getColumnDimension('J')->setAutoSize(false)->setWidth(30);
+        $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(30);
+        $sheet->getColumnDimension('L')->setAutoSize(false)->setWidth(30);
 
         for ($i=0; $i < count($this->query); $i++) { 
 

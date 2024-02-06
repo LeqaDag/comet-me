@@ -26,8 +26,8 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
     */
     public function collection()  
     {
-        $query = DB::table('energy_request_systems')
-            ->join('households', 'energy_request_systems.household_id', 'households.id')
+        $query = DB::table('households')
+            ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
             ->join('communities', 'households.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
@@ -35,7 +35,8 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
                 'energy_request_statuses.id')
             ->leftJoin('energy_system_types', 'energy_request_systems.recommendede_energy_system_id', 
                 'energy_system_types.id')
-            ->where('energy_request_systems.is_archived', 0)
+            ->where('households.is_archived', 0)
+            ->where('households.household_status_id', 5)
             ->where('energy_request_systems.recommendede_energy_system_id', 2)
             ->select('households.english_name as household',
                 'communities.english_name as community_name', 
@@ -73,7 +74,7 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
 
     public function title(): string
     {
-        return 'Requested Household';
+        return 'Requested Households MISC';
     }
 
     /**

@@ -188,7 +188,7 @@ class H2oMaintenanceCallController extends Controller
                 $h2oMaintenanceCallAction->h2o_maintenance_call_id = $maintenanceId;
                 $h2oMaintenanceCallAction->save();
             }
-        }
+        } 
 
         if($request->performed_by) {
             for($i=0; $i < count($request->performed_by); $i++) {

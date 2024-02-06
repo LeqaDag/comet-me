@@ -20,9 +20,21 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Export Sub-Community Report 
-                        <i class='fa-solid fa-file-excel text-info'></i>
-                    </h5>
+                    <div class="row">
+                        <div class="col-xl-10 col-lg-10 col-md-10">
+                            <h5>Export Sub-Community Report 
+                                <i class='fa-solid fa-file-excel text-info'></i>
+                            </h5>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-2">
+                            <fieldset class="form-group">
+                                <button class="" id="clearSubCommunityFiltersButton">
+                                <i class='fa-solid fa-eraser'></i>
+                                    Clear Filters
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('sub-community-household.export') }}">
@@ -98,6 +110,55 @@
 
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Region</label>
+                        <select name="region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByRegion">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($regions as $region)
+                                <option value="{{$region->id}}">{{$region->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Sub Region</label>
+                        <select name="sub_region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterBySubRegion">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($subregions as $subRegion)
+                                <option value="{{$subRegion->id}}">{{$subRegion->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
 
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
@@ -144,15 +205,20 @@
 </div>
 
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-sub-communities').DataTable({
+    var table;
+    function DataTableContent() {
+
+        table = $('.data-table-sub-communities').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('sub-community-household.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.filter = $('#filterByCommunity').val();
+                    d.second_filter = $('#filterByRegion').val();
+                    d.third_filter = $('#filterBySubRegion').val();
                 }
             },
             columns: [
@@ -163,6 +229,39 @@
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'action'}
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterBySubRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-sub-communities')) {
+                $('.data-table-sub-communities').DataTable().destroy();
+            }
+            DataTableContent();
+        });
+
+        // Clear Filters for Export
+        $('#clearSubCommunityFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
         });
 
         // View record details

@@ -21,10 +21,22 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>
-                            Export Shared Users Report 
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Export Shared Holders Report 
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearEnergySharedFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div> 
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('household-meter.export') }}">
@@ -49,7 +61,7 @@
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
                                         <select name="misc" id="selectedWaterSystemType" 
-                                            class="form-control" required>
+                                            class="selectpicker form-control">
                                             <option disabled selected>Choose one...</option>
                                             @foreach($installationTypes as $installationType)
                                                 <option value="{{$installationType->id}}">
@@ -62,13 +74,15 @@
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Installation date from</label>
-                                        <input type="date" class="form-control" name="date_from">
+                                        <input type="date" class="form-control" name="date_from"
+                                            id="installationSharedDateFrom">
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Installation date to</label>
-                                        <input type="date" class="form-control" name="date_to">
+                                        <input type="date" class="form-control" name="date_to"
+                                            id="installationSharedDateTo">
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
@@ -88,7 +102,7 @@
 </div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Shared Users
+  <span class="text-muted fw-light">All </span> Shared Holders
 </h4>
 
 @if(session()->has('message'))
@@ -98,8 +112,6 @@
         </div>
     </div>
 @endif
-
-
 
 <div class="container">
     <div class="card my-2">
@@ -112,7 +124,7 @@
                 <div>
                     <button type="button" class="btn btn-success" 
                         data-bs-toggle="modal" data-bs-target="#createHouseholdMeter">
-                        Create New Shared User
+                        Create New Shared Holder
                     </button>
                     @include('users.energy.shared.create')
                 </div>
@@ -120,7 +132,7 @@
             <table id="allHouseholdMeterTable" class="table table-striped data-table-energy-shared my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">Shared User (Household)</th>
+                        <th class="text-center">Shared Holder (Household/Public)</th>
                         <th class="text-center">Meter Holder</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Options</th>
@@ -154,6 +166,15 @@
             ]
         });
 
+        // Clear Filters for Export
+        $('#clearEnergySharedFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#installationSharedDateFrom').val(' ');
+            $('#installationSharedDateTo').val(' ');
+        });
+
         // View record details
         $('#allHouseholdMeterTable').on('click', '.viewHouseholdMeterUser',function() {
             var id = $(this).data('id');
@@ -164,11 +185,21 @@
                 type: 'get',
                 dataType: 'json',
                 success: function(response) { 
+
                     $('#energySharedUserModalTitle').html(" ");
-                    $('#energySharedUserModalTitle').html(response['sharedUser'].english_name);
-                    
                     $('#englishNameSharedUser').html(" ");
-                    $('#englishNameSharedUser').html(response['sharedUser'].english_name);
+
+                    if(response['sharedUser'] != null) {
+
+                        $('#energySharedUserModalTitle').html(response['sharedUser'].english_name);
+                        $('#englishNameSharedUser').html(response['sharedUser'].english_name);
+                    } 
+
+                    if(response['sharedPublic'] != null) {
+
+                        $('#energySharedUserModalTitle').html(response['sharedPublic'].english_name);
+                        $('#englishNameSharedUser').html(response['sharedPublic'].english_name);
+                    }
                     
                     $('#englishNameMainUser').html(" ");
                     $('#englishNameMainUser').html(response['user'].english_name);

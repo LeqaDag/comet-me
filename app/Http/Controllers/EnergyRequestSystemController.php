@@ -196,6 +196,6 @@ class EnergyRequestSystemController extends Controller
     public function export(Request $request) 
     {
                 
-        return Excel::download(new EnergyRequestSystemExport($request), 'Requested Information.xlsx');
+        return Excel::download(new EnergyRequestSystemExport($request), 'Energy Project.xlsx');
     }
 }

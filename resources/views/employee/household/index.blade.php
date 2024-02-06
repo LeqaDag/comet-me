@@ -249,9 +249,22 @@ label, table {
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Export Household Report
-                        <i class='fa-solid fa-file-excel text-info'></i>
-                    </h5>
+                    <div class="row">
+                        <div class="col-xl-10 col-lg-10 col-md-10">
+                            <h5>
+                                Export Household Report 
+                                <i class='fa-solid fa-file-excel text-info'></i>
+                            </h5>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-2">
+                            <fieldset class="form-group">
+                                <button class="" id="clearHouseholdFiltersButton">
+                                <i class='fa-solid fa-eraser'></i>
+                                    Clear Filters
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('household.export') }}">
@@ -260,9 +273,9 @@ label, table {
                         <div class="row">
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group"> 
-                                    <select name="region" class="selectpicker form-control" 
-                                        data-live-search="true">
-                                        <option disabled selected>Search Region</option>
+                                    <select name="region[]" class="selectpicker form-control" 
+                                        data-live-search="true" multiple>
+                                        <option disabled selected>Search Regions</option>
                                         @foreach($regions as $region)
                                         <option value="{{$region->id}}">
                                             {{$region->english_name}}
@@ -273,8 +286,8 @@ label, table {
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <select name="community" class="selectpicker form-control" 
-                                        data-live-search="true">
+                                    <select name="community[]" class="selectpicker form-control" 
+                                        data-live-search="true" multiple>
                                         <option disabled selected>Search Community</option>
                                         @foreach($communities as $community)
                                         <option value="{{$community->id}}">
@@ -286,8 +299,8 @@ label, table {
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <select name="status" class="selectpicker form-control" 
-                                    data-live-search="true">
+                                    <select name="status[]" class="selectpicker form-control" 
+                                    data-live-search="true" multiple>
                                         <option disabled selected>Search Household Status</option>
                                         @foreach($householdStatuses as $householdStatus)
                                             <option value="{{$householdStatus->id}}">
@@ -299,10 +312,10 @@ label, table {
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <select name="system_type"
+                                    <select name="system_type[] "
                                         class="selectpicker form-control" 
-                                    data-live-search="true">
-                                        <option disabled selected>Search System Type</option>
+                                        data-live-search="true" multiple>
+                                        <option disabled selected>Search System Types</option>
                                         @foreach($energySystemTypes as $energySystemType)
                                             <option value="{{$energySystemType->id}}">
                                                 {{$energySystemType->name}}
@@ -311,10 +324,13 @@ label, table {
                                     </select> 
                                 </fieldset>
                             </div>
-                            <!-- <div class="col-xl-3 col-lg-3 col-md-3">
+                        </div>
+                        <div class="row" style="margin-top:18px">
+                            <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <select name="donor" class="form-control">
-                                        <option disabled selected>Search Donor</option>
+                                    <select name="donor[]" class="selectpicker form-control" 
+                                        data-live-search="true" multiple>
+                                        <option disabled selected >Search Donors</option>
                                         @foreach($donors as $donor)
                                             <option value="{{$donor->id}}">
                                                 {{$donor->donor_name}}
@@ -322,8 +338,7 @@ label, table {
                                         @endforeach
                                     </select> 
                                 </fieldset>
-                            </div> -->
-                            <br><br><br>
+                            </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
                                     <button class="btn btn-info" type="submit">
@@ -356,6 +371,55 @@ All<span class="text-muted fw-light"> Households</span>
 
 <div class="container"> 
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Region</label>
+                        <select name="region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByRegion">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($regions as $region)
+                                <option value="{{$region->id}}">{{$region->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Status</label>
+                        <select name="sub_region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByHouseholdStatus">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($householdStatuses as $householdStatus)
+                                <option value="{{$householdStatus->id}}">{{$householdStatus->status}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id != 7 ||
                 Auth::guard('user')->user()->user_type_id != 11  )
@@ -393,6 +457,35 @@ All<span class="text-muted fw-light"> Households</span>
 </div>
 
 <script type="text/javascript">
+
+    var table;
+    function DataTableContent() {
+
+        table = $('.data-table-households').DataTable({
+            processing: true,
+            serverSide: true, 
+            ajax: {
+                url: "{{ route('household.index') }}",
+                data: function (d) {
+                    d.search = $('input[type="search"]').val();
+                    d.filter = $('#filterByCommunity').val();
+                    d.second_filter = $('#filterByRegion').val();
+                    d.third_filter = $('#filterByHouseholdStatus').val();
+                }
+            },
+            columns: [
+               // {data: 'checkStatus'},
+                {data: 'english_name', name: 'english_name'},
+                {data: 'arabic_name', name: 'arabic_name'},
+                {data: 'name', name: 'name'},
+                {data: 'statusLabel'},
+               // {data: 'is_main', name: 'is_main'},
+              //  {data: 'icon' },
+                {data: 'action' }
+            ]
+        }); 
+    }
+
     $(function () {
 
         var analytics = <?php echo $regionHouseholdsData; ?>;
@@ -424,27 +517,36 @@ All<span class="text-muted fw-light"> Households</span>
             chartSubRegion.draw(dataSubRegion, optionsSubRegion);
         }
 
-        var table = $('.data-table-households').DataTable({
-            processing: true,
-            serverSide: true, 
-            ajax: {
-                url: "{{ route('household.index') }}",
-                data: function (d) {
-                    d.search = $('input[type="search"]').val()
-                }
-            },
-            columns: [
-               // {data: 'checkStatus'},
-                {data: 'english_name', name: 'english_name'},
-                {data: 'arabic_name', name: 'arabic_name'},
-                {data: 'name', name: 'name'},
-                {data: 'statusLabel'},
-               // {data: 'is_main', name: 'is_main'},
-              //  {data: 'icon' },
-                {data: 'action' }
-            ]
-        }); 
+        DataTableContent();
         
+        $('#filterByRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByHouseholdStatus').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-households')) {
+                $('.data-table-households').DataTable().destroy();
+            }
+            DataTableContent();
+        });
+        
+        // Clear Filters for Export
+        $('#clearHouseholdFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+        });
+
         // change the status
         $('#householdsTable').on('click', '.householdStatus',function() {
             var id = $(this).val();
@@ -473,6 +575,7 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#phoneNumberHousehold').html(" ");
                     $('#energyServiceHousehold').html(" ");
                     $('#energyMeterHousehold').html(" ");
+                    $('#internetServiceHousehold').html(" ");
                     $('#waterServiceHousehold').html(" ");
                     $('#energyStatusHousehold').html(" ");
 
@@ -488,7 +591,8 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#phoneNumberHousehold').html(response['household'].phone_number);
                     $('#energyServiceHousehold').html(response['household'].energy_service);
                     $('#energyMeterHousehold').html(response['household'].energy_meter);
-                    $('#waterServiceHousehold').html(response['household'].water_service);
+                    $('#waterServiceHousehold').html(response['household'].water_system_status);
+                    $('#internetServiceHousehold').html(response['household'].internet_system_status);
                     $('#energyStatusHousehold').html(response['status'].status);
                     
                     $('#numberOfCistern').html(" ");

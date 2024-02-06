@@ -13,11 +13,11 @@ class WaterUserExport implements WithMultipleSheets, ShouldAutoSize
     use Exportable;
 
     protected $request;
-
+ 
     function __construct($request) {
         $this->request = $request;
     }
-
+ 
     /**
      * @return array
      */ 

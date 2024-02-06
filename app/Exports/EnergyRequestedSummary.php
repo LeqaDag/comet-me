@@ -29,8 +29,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
     */
     public function collection()  
     {
-
-        $query = DB::table('communities')
+        $queryCommunities =  DB::table('communities')
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('community_statuses', 'communities.community_status_id', 
                 'community_statuses.id')
@@ -38,41 +37,65 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'communities.id')
             ->leftJoin('energy_system_types as all_energy_types', 'all_energy_types.id',
                 'all_households.energy_system_type_id')
-            ->leftJoin('compounds', 'communities.id', 'compounds.community_id')
-            ->leftJoin('compound_households', 'compound_households.compound_id', 'compounds.id')
-            ->leftJoin('households', 'compound_households.household_id', 'households.id')
-            ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
             ->where('communities.is_archived', 0)
             ->where('communities.community_status_id', 1)
             ->orWhere('communities.community_status_id', 2)
+             ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('compounds')
+                    ->whereRaw('compounds.community_id = communities.id');
+            })
             ->select(
-                DB::raw('IFNULL(compounds.english_name, communities.english_name)'),
+                'communities.english_name',
                 'regions.english_name as region',
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 2 THEN 1 END) as sum_FBS'),
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 1 THEN 1 END) as sum_MG'),
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END) as sum_SMG')
+                )
+            ->groupBy('communities.english_name');
 
-                DB::raw('COUNT(CASE WHEN energy_system_types.id = 2 THEN 1 ELSE 
-                (CASE WHEN all_energy_types.id = 2 THEN 1 ELSE 0 END) END) as sum_FBS'),
-
-               // DB::raw('COUNT(CASE WHEN energy_system_types.id = 2 THEN 1 END) as sum_FBS'),
+        $queryCompounds = DB::table('compounds')
+            ->join('communities', 'communities.id', 'compounds.community_id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->join('community_statuses', 'communities.community_status_id', 
+                'community_statuses.id')
+            ->join('compound_households', 'compound_households.compound_id', 'compounds.id')
+            ->join('households', 'compound_households.household_id', 'households.id')
+            ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
+            ->where('communities.is_archived', 0)
+            ->where('households.household_status_id', 2)
+            ->where('communities.community_status_id', 1)
+            ->orWhere('communities.community_status_id', 2)
+            ->orWhere('communities.community_status_id', 3)
+            ->select(
+                'compounds.english_name',
+                'regions.english_name as region',
+                DB::raw('COUNT(CASE WHEN energy_system_types.id = 2 THEN 1 END) as sum_FBS'),
                 DB::raw('COUNT(CASE WHEN energy_system_types.id = 1 THEN 1 END) as sum_MG'),
                 DB::raw('COUNT(CASE WHEN energy_system_types.id = 4 THEN 1 END) as sum_SMG')
                 )
-            ->groupBy(DB::raw('IFNULL(compounds.english_name, communities.english_name)'));
+            ->groupBy('compounds.english_name');
 
-        $this->misc = DB::table('energy_request_systems')
-            ->where('energy_request_systems.is_archived', 0)
+        $this->misc = DB::table('households')
+            ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
+            ->where('households.is_archived', 0)
+            ->where('households.household_status_id', 5)
             ->where('energy_request_systems.recommendede_energy_system_id', 2)
             ->count();
 
         if($this->request->community_id) {
 
-            $query->where("communities.id", $this->request->community_id);
+            $queryCompounds->where("communities.id", $this->request->community_id);
         }
         if($this->request->request_status) {
 
-            $query->where("energy_request_systems.energy_request_status_id", $this->request->request_status);
+            $queryCompounds->where("energy_request_systems.energy_request_status_id", $this->request->request_status);
         }
 
-        return $query->get();
+        $communitiesCollection = collect($queryCommunities->get());
+        $compoundsCollection = collect($queryCompounds->get());
+
+        return $compoundsCollection->merge($communitiesCollection);
     } 
 
     public function startCell(): string

@@ -12,7 +12,7 @@
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
-                    @if (count($communitiesInternet))
+                    @if (count($communitiesInternet)) 
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -33,10 +33,10 @@
                                         {{ $community->number_of_people }}
                                     </td>
                                     <td class="text-center">
-                                        {{ $community->Region->english_name }} 
+                                        {{ $community->region_name }} 
                                     </td>
                                     <td class="text-center">
-                                        {{ $community->SubRegion->english_name }} 
+                                        {{ $community->sub_region_name }} 
                                     </td>
                                     <td class="text-center">
                                         {{ $community->internet_service_beginning_year}}

@@ -1,7 +1,3 @@
-@php
-  $pricingModal = true;
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'In Progress households')
@@ -10,7 +6,7 @@
 
 @section('content')
 
-<div class="container mb-4 my-2">
+<div class="container mb-4 my-2"> 
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12">
             <div class="panel panel-primary">
@@ -50,11 +46,23 @@
                 Auth::guard('user')->user()->user_type_id == 3 ||
                 Auth::guard('user')->user()->user_type_id == 4 ||
                 Auth::guard('user')->user()->user_type_id == 12)
-                <div>
-                    <a type="button" class="btn btn-success" 
-                        href="{{url('progress-household', 'create')}}" >
-                        Create New Elc. / In Progress Household
-                    </a>
+                <div class="row">
+                    <div class="col-lg-5 col-md-5">
+                        <a type="button" class="btn btn-success" 
+                            href="{{url('progress-household', 'create')}}" >
+                            Create New Elc. / In Progress Household
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('energy-request.export') }}">
+                            @csrf
+                            <button class="btn btn-info" type="submit">
+                                <i class='fa-solid fa-file-excel'></i>
+                                Export Energy Summary Report 
+                            </button>
+                        </form>
+                    </div>
                 </div>
             @endif
             </div>

@@ -86,9 +86,22 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Export Donor Report
-                        <i class='fa-solid fa-file-excel text-info'></i>
-                    </h5>
+                    <div class="row">
+                        <div class="col-xl-10 col-lg-10 col-md-10">
+                            <h5>
+                                Export Donor Report 
+                                <i class='fa-solid fa-file-excel text-info'></i>
+                            </h5>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-2">
+                            <fieldset class="form-group">
+                                <button class="" id="clearDonorFiltersButton">
+                                <i class='fa-solid fa-eraser'></i>
+                                    Clear Filters
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('donor.export') }}">
@@ -286,6 +299,13 @@
                 { data: 'action' }
             ],
             
+        });
+         
+        // Clear Filters for Export
+        $('#clearDonorFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
         });
 
         var id = 0;

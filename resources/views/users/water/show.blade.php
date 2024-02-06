@@ -601,8 +601,6 @@
                 <li class="timeline-end-indicator timeline-indicator-success">
                     <i class="bx bx-image"></i>
                 </li>
-
-          
             </ul>
         </div>
     </div>

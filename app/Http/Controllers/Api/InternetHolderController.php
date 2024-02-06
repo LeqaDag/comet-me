@@ -75,7 +75,8 @@ class InternetHolderController extends Controller
                     if($existInternetHolder) {
 
                     } else {
-                        
+                        $household->internet_system_status = "Served";
+                        $household->save();
                         $internetUser->household_id = $household->id;
                         $internetUser->save();
                     }
@@ -91,15 +92,16 @@ class InternetHolderController extends Controller
                     }
                 } else { 
 
-                    // $newHousehold = new Household();
-                    // $newHousehold->arabic_name = $holder["holder_full_name"];
-                    // $newHousehold->internet_holder_young = 1;
-                    // $newHousehold->community_id = $community->id;
-                    // $newHousehold->profession_id = 1;
-                    // $newHousehold->save();
+                    $newHousehold = new Household();
+                    $newHousehold->arabic_name = $holder["holder_full_name"];
+                    $newHousehold->internet_holder_young = 1;
+                    $newHousehold->community_id = $community->id;
+                    $newHousehold->internet_system_status = "Served";
+                    $newHousehold->profession_id = 1;
+                    $newHousehold->save();
 
-                    // $internetUser->household_id = $newHousehold->id;
-                    // $internetUser->save();
+                    $internetUser->household_id = $newHousehold->id;
+                    $internetUser->save();
                 }
             }
         }

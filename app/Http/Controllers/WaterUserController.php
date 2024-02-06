@@ -634,7 +634,7 @@ class WaterUserController extends Controller
     public function getPublicByCommunity($community_id)
     {
         $publics = DB::table('all_water_holders')
-            ->join('public_structures', 'all_water_holders.public_structure_id', '=', 'public_structures.id')
+            ->join('public_structures', 'all_water_holders.public_structure_id', 'public_structures.id')
             ->where("all_water_holders.community_id", $community_id)
             ->select('public_structures.id', 'public_structures.english_name')
             ->get();
@@ -646,7 +646,7 @@ class WaterUserController extends Controller
 
             $html = '<option value="">Select...</option>';
             $publics = DB::table('all_water_holders')
-                ->join('public_structures', 'all_water_holders.public_structure_id', '=', 'public_structures.id')
+                ->join('public_structures', 'all_water_holders.public_structure_id', 'public_structures.id')
                 ->where("all_water_holders.community_id", $community_id)
                 ->select('public_structures.id', 'public_structures.english_name')
                 ->get();

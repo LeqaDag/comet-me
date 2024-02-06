@@ -45,6 +45,10 @@ class DisplacedHouseholdController extends Controller
             
         // }
 
+        $oldCommunityFilter = $request->input('filter');
+        $newCommunityFilter = $request->input('second_filter');
+        $regionFilter = $request->input('third_filter');
+
         if (Auth::guard('user')->user() != null) {
 
             $communities = Community::where('is_archived', 0)
@@ -60,16 +64,31 @@ class DisplacedHouseholdController extends Controller
                         'new_communities.id')
                     ->leftJoin('sub_regions', 'displaced_households.sub_region_id', 'sub_regions.id')
                     ->join('households', 'displaced_households.household_id', 'households.id')
-                    ->where('displaced_households.is_archived', 0)
-                    ->select('households.english_name as english_name',
-                        'displaced_households.id as id', 'displaced_households.created_at as created_at', 
-                        'displaced_households.updated_at as updated_at',
-                        'old_communities.english_name as old_community',
-                        'new_communities.english_name as new_community',
-                        'sub_regions.english_name as region'
-                    )
-                    ->latest();   
- 
+                    ->where('displaced_households.is_archived', 0);   
+
+                if($oldCommunityFilter != null) {
+
+                    $data->where('old_communities.id', $oldCommunityFilter);
+                }
+                if ($newCommunityFilter != null) {
+
+                    $data->where('new_communities.id', $newCommunityFilter);
+                }
+                if ($regionFilter != null) {
+
+                    $data->where('sub_regions.id', $regionFilter);
+                }
+
+                $data->select(
+                    'households.english_name as english_name',
+                    'displaced_households.id as id', 'displaced_households.created_at as created_at', 
+                    'displaced_households.updated_at as updated_at',
+                    'old_communities.english_name as old_community',
+                    'new_communities.english_name as new_community',
+                    'sub_regions.english_name as region'
+                )
+                ->latest();
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

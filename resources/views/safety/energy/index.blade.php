@@ -121,9 +121,22 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Export Energy Safety Check Report
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Export Energy Safety Check Report
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearSafteyFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div> 
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('energy-safety.export') }}">
@@ -200,13 +213,15 @@
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Visit date from</label>
-                                        <input type="date" class="form-control" name="date_from">
+                                        <input type="date" class="form-control" name="date_from"
+                                            id="safteyVisitDateFrom">
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Visit date to</label>
-                                        <input type="date" class="form-control" name="date_to">
+                                        <input type="date" class="form-control" name="date_to"
+                                            id="safteyVisitDateTo">
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
@@ -312,6 +327,15 @@
                 {data: 'ground_connected', name: 'ground_connected'},
                 {data: 'action'}
             ]
+        });
+
+        // Clear Filters for Export
+        $('#clearSafteyFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#safteyVisitDateFrom').val(' ');
+            $('#safteyVisitDateTo').val(' ');
         });
 
         // View record details

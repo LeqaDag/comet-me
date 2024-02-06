@@ -33,6 +33,15 @@ label, table {
                 @csrf
                 @method('PATCH')
                 <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>
+                                <h4>General Details</h4> 
+                            </label>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>English Name</label>
@@ -233,8 +242,80 @@ label, table {
                         </fieldset>
                     </div>
                 </div>
+                <hr>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>
+                                <h4>Services Details</h4> 
+                            </label>
+                        </fieldset>
+                    </div>
+                </div>
 
-                <label for=""></label>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy Status</label>
+                            <select name="household_status_id" class="form-control" >
+                                @if($household->HouseholdStatus)
+                                    <option value="{{$household->HouseholdStatus->id}}" disabled selected>
+                                        {{$household->HouseholdStatus->status}}
+                                    </option>
+                                    @foreach($householdStatuses as $householdStatus)
+                                    <option value="{{$householdStatus->id}}">
+                                        {{$householdStatus->status}}
+                                    </option>
+                                    @endforeach
+                                @else
+                                @foreach($householdStatuses as $householdStatus)
+                                <option value="{{$householdStatus->id}}">
+                                    {{$householdStatus->status}}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Water Service</label>
+                            <select name="water_system_status" class="form-control" >
+                                @if($household->water_system_status)
+                                    <option value="{{$household->water_system_status}}" disabled selected>
+                                        {{$household->water_system_status}}
+                                    </option>
+                                    <option value="Served">Served</option>
+                                    <option value="Not Served">Not Served</option>
+                                @else
+                                <option selected disabled>Choose one...</option>
+                                <option value="Served">Served</option>
+                                <option value="Not Served">Not Served</option>
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Internet Service</label>
+                            <select name="internet_system_status" class="form-control" >
+                                @if($household->internet_system_status)
+                                    <option value="{{$household->internet_system_status}}" disabled selected>
+                                        {{$household->internet_system_status}}
+                                    </option>
+                                    <option value="Served">Served</option>
+                                    <option value="Not Served">Not Served</option>
+                                @else
+                                <option selected disabled>Choose one...</option>
+                                <option value="Served">Served</option>
+                                <option value="Not Served">Not Served</option>
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <hr>
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12">
                         <fieldset class="form-group">

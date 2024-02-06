@@ -58,7 +58,7 @@
                                             aria-valuemax="{{$communityRecords}}">
                                         </div>
                                     </div>
-                                </div>
+                                </div> 
                             </li>
                             <li class="d-flex mb-4 pb-2">
                                 <div class="avatar avatar-sm flex-shrink-0 me-3">
@@ -223,10 +223,22 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>
-                        Export Community Report 
-                        <i class='fa-solid fa-file-excel text-info'></i>
-                    </h5>
+                    <div class="row">
+                        <div class="col-xl-10 col-lg-10 col-md-10">
+                            <h5>
+                                Export Community Report 
+                                <i class='fa-solid fa-file-excel text-info'></i>
+                            </h5>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-2">
+                            <fieldset class="form-group">
+                                <button class="" id="clearCommunityFiltersButton">
+                                <i class='fa-solid fa-eraser'></i>
+                                    Clear Filters
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('community.export') }}">
@@ -235,8 +247,8 @@
                         <div class="row">
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <select name="region" class="selectpicker form-control" 
-                                    data-live-search="true">
+                                    <select name="region[]" class="selectpicker form-control" 
+                                    data-live-search="true" multiple>
                                         <option disabled selected>Search Region</option>
                                         @foreach($regions as $region)
                                         <option value="{{$region->id}}">
@@ -248,8 +260,8 @@
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <select name="public" class="selectpicker form-control" 
-                                    data-live-search="true">
+                                    <select name="public[]" class="selectpicker form-control" 
+                                    data-live-search="true" multiple>
                                         <option disabled selected>Search Public Structure</option>
                                         @foreach($publicCategories as $publicCategory)
                                         <option value="{{$publicCategory->id}}">
@@ -261,9 +273,9 @@
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <select name="system_type"
+                                    <select name="system_type[]"
                                         class="selectpicker form-control" 
-                                    data-live-search="true">
+                                        data-live-search="true" multiple>
                                         <option disabled selected>Search System Type</option>
                                         @foreach($energySystemTypes as $energySystemType)
                                             <option value="{{$energySystemType->id}}">
@@ -275,8 +287,8 @@
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <select name="donor" class="selectpicker form-control" 
-                                    data-live-search="true">
+                                    <select name="donor[]" class="selectpicker form-control" 
+                                    data-live-search="true" multiple>
                                         <option disabled selected>Search Donor</option>
                                         @foreach($donors as $donor)
                                             <option value="{{$donor->id}}">
@@ -286,7 +298,9 @@
                                     </select> 
                                 </fieldset>
                             </div>
-                            <div style="margin-top:18px" class="col-xl-3 col-lg-3 col-md-3">
+                        </div>
+                        <div class="row" style="margin-top:18px">
+                            <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
                                     <button class="btn btn-info" type="submit">
                                         <i class='fa-solid fa-file-excel'></i>
@@ -316,7 +330,56 @@
 @include('employee.community.details')
  
 <div class="container">
-    <div class="card my-2">
+    <div class="card my-2"> 
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Region</label>
+                        <select name="region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByRegion">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($regions as $region)
+                                <option value="{{$region->id}}">{{$region->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Sub Region</label>
+                        <select name="sub_region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterBySubRegion">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($subregions as $subRegion)
+                                <option value="{{$subRegion->id}}">{{$subRegion->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Status</label>
+                        <select name="status_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByStatus">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communityStatuses as $communityStatus)
+                                <option value="{{$communityStatus->id}}">{{$communityStatus->name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
                 Auth::guard('user')->user()->user_type_id == 2  )
@@ -355,42 +418,19 @@
 
 <script type="text/javascript">
     
-    $(function () {
-        
-        var analytics = <?php echo $regionsData; ?>;
-        var analyticsSubRegions = <?php echo $subRegionsData; ?>;
+    var table;
+    function DataTableContent() {
 
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(drawChart);
-
-        function drawChart()
-        {
-            var data = google.visualization.arrayToDataTable(analytics);
-            var options = {
-                title : 'Communities by Region' 
-            };
-
-            var data1 = google.visualization.arrayToDataTable(analyticsSubRegions);
-            var options1 = {
-                title : 'Communities by Sub-Region' 
-            };
-
-
-            var chart = new google.visualization.PieChart(document.getElementById('pie_chart_regional_community'));
-            chart.draw(data, options);
-
-            var chart1 = new google.visualization.PieChart(document.getElementById('pie_chart_sub_regional_community'));
-            chart1.draw(data1, options1);
-
-        }
-        
-        var table = $('.data-table-communities').DataTable({
+        table = $('.data-table-communities').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('community.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.filter = $('#filterByRegion').val();
+                    d.second_filter = $('#filterBySubRegion').val();
+                    d.third_filter = $('#filterByStatus').val();
                 }
             },
             columns: [
@@ -403,6 +443,64 @@
                 {data: 'status_name', name: 'status_name'},
                 {data: 'action'}
             ]
+        });
+    }
+
+    $(function () {
+        
+        var analytics = <?php echo $regionsData; ?>;
+        var analyticsSubRegions = <?php echo $subRegionsData; ?>;
+
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart()
+        {
+            var data = google.visualization.arrayToDataTable(analytics);
+            var options = {
+                title : 'Communities by Region'
+            };
+
+            var data1 = google.visualization.arrayToDataTable(analyticsSubRegions);
+            var options1 = {
+                title : 'Communities by Sub-Region'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('pie_chart_regional_community'));
+            chart.draw(data, options);
+
+            var chart1 = new google.visualization.PieChart(document.getElementById('pie_chart_sub_regional_community'));
+            chart1.draw(data1, options1);
+        }
+
+        DataTableContent();
+        
+        $('#filterByRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterBySubRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByStatus').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-communities')) {
+                $('.data-table-communities').DataTable().destroy();
+            }
+            DataTableContent();
+        });
+
+        // Clear Filters for Export
+        $('#clearCommunityFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
         });
 
         // View record details

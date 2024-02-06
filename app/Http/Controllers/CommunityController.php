@@ -60,6 +60,10 @@ class CommunityController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
+            $regionFilter = $request->input('filter');
+            $subRegionFilter = $request->input('second_filter');
+            $statusFilter = $request->input('third_filter');
+
             if ($request->ajax()) {
 
                 $data = DB::table('communities')
@@ -69,18 +73,34 @@ class CommunityController extends Controller
                         '=', 'community_statuses.id')
                     ->leftJoin('second_name_communities', 'communities.id',
                         '=', 'second_name_communities.community_id')
-                    ->where('communities.is_archived', 0)
-                    ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
-                        'communities.id as id', 'communities.created_at as created_at', 
-                        'communities.updated_at as updated_at',
-                        'communities.number_of_people as number_of_people',
-                        'communities.number_of_household as number_of_household',
-                        'regions.english_name as name',
-                        'regions.arabic_name as aname',
-                        'sub_regions.english_name as subname',
-                        'community_statuses.name as status_name')
-                    ->latest(); 
+                    ->where('communities.is_archived', 0);
     
+                if($regionFilter != null) {
+
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($subRegionFilter != null) {
+
+                    $data->where('sub_regions.id', $subRegionFilter);
+                }
+                if ($statusFilter != null) {
+
+                    $data->where('community_statuses.id', $statusFilter);
+                }
+
+                $data->select(
+                    'communities.english_name as english_name', 
+                    'communities.arabic_name as arabic_name',
+                    'communities.id as id', 'communities.created_at as created_at', 
+                    'communities.updated_at as updated_at',
+                    'communities.number_of_people as number_of_people',
+                    'communities.number_of_household as number_of_household',
+                    'regions.english_name as name',
+                    'regions.arabic_name as aname',
+                    'sub_regions.english_name as subname',
+                    'community_statuses.name as status_name')
+                ->latest(); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -99,12 +119,12 @@ class CommunityController extends Controller
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
-                                $instance->where(function($w) use($request) {
+                            $instance->where(function($w) use($request) {
                                 $search = $request->get('search');
                                 $w->orWhere('communities.english_name', 'LIKE', "%$search%")
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('regions.english_name', 'LIKE', "%$search%")
-                                ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('regions.english_name', '=', $search)
+                                ->orWhere('regions.arabic_name', '=', $search)
                                 ->orWhere('sub_regions.english_name', 'LIKE', "%$search%")
                                 ->orWhere('community_statuses.name', 'LIKE', "%$search%")
                                 ->orWhere('second_name_communities.english_name', 'LIKE', "%$search%")
@@ -117,6 +137,7 @@ class CommunityController extends Controller
             }
             
             $communities = Community::paginate();
+            $communityStatuses = CommunityStatus::where('is_archived', 0)->get();
             $communityRecords = Community::where('is_archived', 0)->count();
             $communityWater = Community::where("water_service", "yes")
                 ->where('is_archived', 0)
@@ -208,7 +229,7 @@ class CommunityController extends Controller
                 'products', 'energyTypes', 'communitiesInitial', 'communityInitial', 
                 'communitiesSurvyed', 'communitySurvyed', 'settlements', 'towns',
                 'publicCategories', 'energySystemTypes', 'publicStructures', 'donors',
-                'waterSources'))
+                'waterSources', 'communityStatuses'))
                 ->with('regionsData', json_encode($array))->with(
                     'subRegionsData', json_encode($arraySubRegions)
                 );

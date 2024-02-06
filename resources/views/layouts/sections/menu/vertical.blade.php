@@ -9,6 +9,13 @@
         </a>
     </li>
 
+    <li class="menu-item" id="action-items">
+        <a href="{{url('action-item')}}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-task"></i>
+            <div>Action Items</div>
+        </a>
+    </li>
+
     <li class="menu-item" id="all-active">
         <a href="{{url('all-active')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-show"></i>
@@ -225,34 +232,23 @@
                     </li>
                 </ul>
             </li> 
+
+            <li class="menu-item" id="camera-service">
+                <a class="menu-link menu-toggle">
+                <!--  <i class="menu-icon tf-icons bx bx-wifi"></i>-->
+                    <div>Cameras </div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="camera">
+                        <a href="{{url('camera')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>All Installed</div>
+                        </a>
+                    </li>
+                </ul>
+            </li> 
         </ul>
     </li>
-
-    <!-- 
-
-    
-    <li class="menu-item">
-        <a class="menu-link menu-toggle">
-            <i class="menu-icon tf-icons bx bx-receipt"></i>
-            <div>Water Quality Results</div>
-        </a>
-        <ul class="menu-sub">
-            <li class="menu-item">
-            <a href="{{url('water-summary')}}" class="menu-link" >
-                <i class=""></i>
-                <div>Summary</div>
-            </a>
-            </li>
-            <li class="menu-item">
-            <a href="{{url('quality-result')}}" class="menu-link" >
-                <i class=""></i>
-                <div>All Results</div>
-            </a>
-            </li>
-        </ul>
-    </li> -->
-<!-- 
-   -->
  
     <li class="menu-item" id="maintenance">
         <a class="menu-link menu-toggle">
@@ -347,7 +343,6 @@
         </ul>
     </li>
 
-
     <li class="menu-item" id="incidents">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-error-alt"></i>
@@ -429,12 +424,12 @@
             <div>Donors</div>
         </a>
     </li>
-    <li class="menu-item" id="chart">
+    <!-- <li class="menu-item" id="chart">
         <a href="{{url('chart')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-chart"></i>
             <div>Charts</div>
         </a>
-    </li>
+    </li> -->
     <li class="menu-item" id="user">
         <a href="{{url('user')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-group"></i>
@@ -469,6 +464,10 @@
     } else if(last_part == "all-active") {
 
         $("#all-active").addClass("active");
+
+    }  else if(last_part == "action-item") {
+
+        $("#action-items").addClass("active");
 
     } else if(last_part == "region") {
 
@@ -594,6 +593,11 @@
 
         $("#internet-user").addClass("active");
         $("#internet-service").addClass("open");
+        $("#services").addClass("open");
+    }  else if(last_part == "camera") {
+
+        $("#camera").addClass("active");
+        $("#camera-service").addClass("open");
         $("#services").addClass("open");
     } else if(last_part == "energy-maintenance") {
 

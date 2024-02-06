@@ -61,12 +61,32 @@
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
+                            Visit Date: 
+                            <span class="spanDetails" id="visitDate">
+                                
+                            </span>
+                        </h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
                             Completed Date: 
                             <span class="spanDetails" id="completedDate">
                                 
                             </span>
                         </h6>
                     </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <h6>
+                            Maintenance Status: 
+                            <span class="spanDetails" id="maintenanceStatus">
+                              
+                            </span>
+                        </h6> 
+                    </div>
+                </div>  
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Performed By: 
@@ -86,14 +106,6 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <h6>
-                            Maintenance Status: 
-                            <span class="spanDetails" id="maintenanceStatus">
-                              
-                            </span>
-                        </h6> 
-                    </div>
                     <div class="col-xl-12 col-lg-12 col-md-12">
                         <h6>
                             Notes: 

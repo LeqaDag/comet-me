@@ -215,6 +215,7 @@ Route::get('household-meter/get_households/{id}', [App\Http\Controllers\Househol
 Route::get('/delete-household-meter', [App\Http\Controllers\HouseholdMeterController::class, 'deleteHouseholdMeter'])->name('deleteHouseholdMeter');
 Route::get('household-meter/get_users/{community_id}', [App\Http\Controllers\HouseholdMeterController::class, 'getUsers'])->name('getUsers');
 Route::post('household-meter-export', [App\Http\Controllers\HouseholdMeterController::class, 'export'])->name('household-meter.export');
+Route::get('household-meter/get_publics/{id}', [App\Http\Controllers\HouseholdMeterController::class, 'getPublicStructures'])->name('getPublicStructures');
 
 Route::resource('all-water', App\Http\Controllers\AllWaterController::class);
 Route::resource('shared-h2o', App\Http\Controllers\SharedWaterController::class);
@@ -354,6 +355,11 @@ Route::get('setting/edit_setting/{id}', [App\Http\Controllers\SettingController:
 
 Route::resource('all-active', App\Http\Controllers\AllActiveUserController::class); 
 Route::post('all-active-export', [App\Http\Controllers\AllActiveUserController::class, 'export'])->name('all-active.export');
+
+Route::resource('action-item', App\Http\Controllers\ActionItemController::class); 
+Route::get('action-item/household/missing', [App\Http\Controllers\ActionItemController::class, 'householdMissingDetails']);
+Route::get('missing/donors/{community_id}', [App\Http\Controllers\ActionItemController::class, 'householdMissingDonors']);
+Route::get('action-item/ac-household/export', [App\Http\Controllers\ActionItemController::class, 'householdAcExport']);
 
 Route::resource('public-structure', App\Http\Controllers\PublicStructureController::class);
 Route::post('public-structure-export', [App\Http\Controllers\PublicStructureController::class, 'export'])->name('public-structure.export');

@@ -53,24 +53,39 @@ class AllActiveUserController extends Controller
     {
         if (Auth::guard('user')->user() != null) {
 
+            $filterValue = $request->input('filter');
+
             if ($request->ajax()) {
 
                 $data = DB::table('households')
                     ->where('households.is_archived', 0)
-                    ->join('communities', 'households.community_id', '=', 'communities.id')
-                    ->join('regions', 'communities.region_id', '=', 'regions.id')
-                    ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-                    ->where('households.energy_system_status', 'Served')
-                    ->orWhere('households.water_system_status', 'Served')
-                    ->orWhere('households.internet_system_status', 'Served')
-                    ->select('communities.english_name as community_name',
-                        'households.id as id', 'households.created_at as created_at', 
-                        'households.updated_at as updated_at', 'regions.english_name as region',
-                        'households.english_name as household_name',
-                        'households.arabic_name as arabic_name', 'households.energy_system_status', 
-                        'households.water_system_status', 'households.internet_system_status')
-                    ->latest(); 
-    
+                    ->join('communities', 'households.community_id', 'communities.id')
+                    ->join('regions', 'communities.region_id', 'regions.id')
+                    ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+                    //->where('households.internet_holder_young', 0)
+                    ->where('households.household_status_id', 4);
+
+                if($filterValue == 'water') {
+
+                    $data->where('households.water_system_status', 'Served');
+                } else  if($filterValue == 'internet') {
+
+                    $data->where('households.internet_system_status', 'Served');
+                } else {
+
+                    $data->orWhere('households.water_system_status', 'Served')
+                        ->orWhere('households.internet_system_status', 'Served');
+                }
+                
+                $data->select(
+                    'communities.english_name as community_name',
+                    'households.id as id', 'households.created_at as created_at', 
+                    'households.updated_at as updated_at', 'regions.english_name as region',
+                    'households.english_name as household_name',
+                    'households.arabic_name as arabic_name', 'households.energy_system_status', 
+                    'households.water_system_status', 'households.internet_system_status')
+                ->latest(); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->filter(function ($instance) use ($request) {
@@ -96,7 +111,20 @@ class AllActiveUserController extends Controller
             $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
             $regions = Region::where('is_archived', 0)->get();
 
-            return view('users.all.index', compact('communities', 'energySystemTypes', 'regions'));
+            $allHouseholds = Household::where("is_archived", 0)->count();
+            $energyUsers = Household::where("is_archived", 0)
+                ->where("household_status_id", 4)
+                ->count();
+            $waterUsers = Household::where("water_system_status", "Served")->count();
+            $internetUsers = DB::table('internet_users')
+                ->whereNotNull("internet_users.household_id")
+                ->where('internet_users.is_archived', 0)
+                ->leftJoin('households', 'internet_users.household_id', 'households.id')
+                ->where('households.internet_holder_young', 0)
+                ->count(); 
+
+            return view('users.all.index', compact('communities', 'energySystemTypes', 'regions',
+                'allHouseholds', 'energyUsers', 'waterUsers', 'internetUsers'));
         } else {
  
             return view('errors.not-found');

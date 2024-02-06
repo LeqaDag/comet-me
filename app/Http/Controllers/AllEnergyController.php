@@ -145,11 +145,15 @@ class AllEnergyController extends Controller
             if ($request->ajax()) {
 
                 $data = DB::table('all_energy_meters')
-                    ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
-                    ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
-                    ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
-                    ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
-                    ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+                    ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                    ->join('households', 'all_energy_meters.household_id', 'households.id')
+                    ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                    ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
+                    ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
+                    ->leftJoin('household_meters', 'household_meters.energy_user_id', 
+                        'all_energy_meters.id')
+                    ->leftJoin('households as shared_households', 'shared_households.id', 
+                        'household_meters.household_id')
                     ->where('all_energy_meters.is_archived', 0)
                     ->select('all_energy_meters.meter_number', 'all_energy_meters.meter_active',
                         'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
@@ -196,6 +200,8 @@ class AllEnergyController extends Controller
                                 $w->orWhere('communities.english_name', 'LIKE', "%$search%")
                                 ->orWhere('all_energy_meters.is_main', 'LIKE', "%$search%")
                                 ->orWhere('households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('shared_households.english_name', 'LIKE', "%$search%")
+                                ->orWhere('shared_households.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('energy_systems.name', 'LIKE', "%$search%")

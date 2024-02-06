@@ -25,6 +25,7 @@ use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\Region;
+use App\Models\SubRegion;
 use App\Exports\CompoundHouseholdExport; 
 use Carbon\Carbon;
 use Image;
@@ -42,30 +43,50 @@ class CommunityCompoundController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
+            $communityFilter = $request->input('filter');
+            $regionFilter = $request->input('second_filter');
+            $subRegionFilter = $request->input('third_filter');
+
             if ($request->ajax()) {
 
                 $data = DB::table('compound_households')
                     ->join('communities', 'compound_households.community_id', 
-                        '=', 'communities.id')
-                    ->join('regions', 'communities.region_id', '=', 'regions.id')
+                        'communities.id')
+                    ->join('regions', 'communities.region_id', 'regions.id')
+                    ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
                     ->join('households', 'compound_households.household_id', 
-                        '=', 'households.id')
+                        'households.id')
                     ->join('compounds', 'compound_households.compound_id', 
-                        '=', 'compounds.id') 
-                    ->where('compound_households.is_archived', 0)
-                    ->select('compounds.english_name as english_name', 
-                        'compounds.arabic_name as arabic_name',
-                        'communities.english_name as community_english_name', 
-                        'communities.arabic_name as community_arabic_name',
-                        'compound_households.id as id', 'compound_households.created_at as created_at', 
-                        'compound_households.updated_at as updated_at',
-                        'communities.number_of_people as number_of_people',
-                        'communities.number_of_household as number_of_household',
-                        'regions.english_name as name',
-                        'regions.arabic_name as aname',
-                        'households.english_name as household')
-                    ->latest(); 
+                        'compounds.id') 
+                    ->where('compound_households.is_archived', 0);
     
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($regionFilter != null) {
+
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($subRegionFilter != null) {
+
+                    $data->where('sub_regions.id', $subRegionFilter);
+                }
+
+                $data->select(
+                    'compounds.english_name as english_name', 
+                    'compounds.arabic_name as arabic_name',
+                    'communities.english_name as community_english_name', 
+                    'communities.arabic_name as community_arabic_name',
+                    'compound_households.id as id', 'compound_households.created_at as created_at', 
+                    'compound_households.updated_at as updated_at',
+                    'communities.number_of_people as number_of_people',
+                    'communities.number_of_household as number_of_household',
+                    'regions.english_name as name',
+                    'regions.arabic_name as aname',
+                    'households.english_name as household')
+                ->latest(); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -107,6 +128,9 @@ class CommunityCompoundController extends Controller
             $regions = Region::where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')
                 ->get();
+            $subregions = SubRegion::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $compounds = Compound::where('is_archived', 0)->get();
             $households =  Household::where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')
@@ -116,7 +140,7 @@ class CommunityCompoundController extends Controller
                 ->get();
 
             return view('admin.community.compound.index', compact('communities', 'regions', 
-                'compounds', 'households', 'energySystemTypes'));
+                'compounds', 'households', 'energySystemTypes', 'subregions'));
         } else {
 
             return view('errors.not-found');

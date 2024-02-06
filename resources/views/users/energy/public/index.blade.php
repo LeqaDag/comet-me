@@ -141,9 +141,22 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Export Public Structures Meter Report
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Export Public Structures Meter Report
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearEnergyPublicFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div> 
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('energy-public.export') }}">
@@ -168,7 +181,7 @@
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
                                         <select name="type" id="selectedWaterSystemType" 
-                                            class="form-control" required>
+                                            class="selectpicker form-control">
                                             <option disabled selected>Choose one...</option>
                                             @foreach($installationTypes as $installationType)
                                                 <option value="{{$installationType->id}}">
@@ -181,13 +194,15 @@
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Installation date from</label>
-                                        <input type="date" class="form-control" name="date_from">
+                                        <input type="date" class="form-control" name="date_from"
+                                            id="installationPublicDateFrom">
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Installation date to</label>
-                                        <input type="date" class="form-control" name="date_to">
+                                        <input type="date" class="form-control" name="date_to"
+                                            id="installationPublicDateTo">
                                     </fieldset>
                                 </div>
                             </div><br>
@@ -300,7 +315,15 @@
             ]
         });
 
-        
+        // Clear Filters for Export
+        $('#clearEnergyPublicFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#installationPublicDateFrom').val(' ');
+            $('#installationPublicDateTo').val(' ');
+        });
+
         // View record update page
         $('#energyPublicStructuresTable').on('click', '.updateEnergyPublic',function() {
             var id = $(this).data('id');

@@ -51,13 +51,16 @@ class HouseholdMeterController extends Controller
 
                 $data = DB::table('household_meters')
                     ->join('all_energy_meters', 'household_meters.energy_user_id', '=', 'all_energy_meters.id')
-                    ->join('households', 'household_meters.household_id', '=', 'households.id')
+                    ->leftJoin('households', 'household_meters.household_id', '=', 'households.id')
+                    ->leftJoin('public_structures', 'household_meters.public_structure_id', 
+                        'public_structures.id')
                     ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
                     ->where('household_meters.is_archived', 0)
                     ->select('communities.english_name as community_name',
                         'household_meters.id as id', 'household_meters.created_at',
                         'household_meters.updated_at',
-                        'households.english_name as household_name',
+                        DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                        as household_name'),
                         'household_meters.user_name', 'household_meters.user_name_arabic')
                     ->latest(); 
      
@@ -127,6 +130,7 @@ class HouseholdMeterController extends Controller
         $mainUser = AllEnergyMeter::findOrFail($householdMeter->energy_user_id);
         $user = Household::where('id', $mainUser->household_id)->first();
         $sharedUser = Household::where('id', $householdMeter->household_id)->first();
+        $sharedPublic = PublicStructure::where('id', $householdMeter->public_structure_id)->first();
 
         $community = Community::where('id', $user->community_id)->first();
         $meter = MeterCase::where('id', $mainUser->meter_case_id)->first();
@@ -138,6 +142,7 @@ class HouseholdMeterController extends Controller
         $response['user'] = $user;
         $response['mainUser'] = $mainUser;
         $response['sharedUser'] = $sharedUser;
+        $response['sharedPublic'] = $sharedPublic;
         $response['householdMeters'] = $householdMeter;
         $response['community'] = $community;
         $response['meter'] = $meter;
@@ -168,9 +173,18 @@ class HouseholdMeterController extends Controller
             $users = DB::table('all_energy_meters')
                 ->where('all_energy_meters.is_archived', 0)
                 ->where('all_energy_meters.community_id', $community->id)
-                ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
-                ->orderBy('households.english_name', 'ASC')
-                ->select('all_energy_meters.id', 'households.english_name')
+                ->join('households', 'all_energy_meters.household_id', 'households.id')
+                // ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
+                //     'public_structures.id')
+                ->select('all_energy_meters.id', 
+                    'households.english_name')
+                    //DB::raw('IFNULL(households.english_name, public_structures.english_name) as english_name'))
+                // ->orderByRaw('CASE 
+                //     WHEN households.english_name IS NOT NULL THEN 0 
+                //     WHEN public_structures.english_name IS NOT NULL THEN 1 
+                //     ELSE 2 
+                //     END')
+                ->orderBy('english_name', 'ASC')
                 ->get();
 
             foreach ($users as $user) {
@@ -216,6 +230,42 @@ class HouseholdMeterController extends Controller
         return response()->json(['html' => $html]);
     }
 
+     /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getPublicStructures($id)
+    {
+        $energyUser = AllEnergyMeter::findOrFail($id);
+       
+        if (!$id) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option disabled selected>Choose One...</option>';
+
+            $publics = DB::table('public_structures')
+                ->where('public_structures.community_id', $energyUser->community_id)
+                ->where('public_structures.id', '!=', $energyUser->public_structure_id)
+                ->leftJoin('all_energy_meters', 'public_structures.id', 
+                    'all_energy_meters.public_structure_id')
+                ->whereNull('all_energy_meters.public_structure_id')
+                ->where('public_structures.is_archived', 0)
+                ->select('public_structures.id', 'public_structures.english_name')
+                ->orderBy('public_structures.english_name', 'ASC')
+                ->get();
+
+            foreach ($publics as $public) {
+                $html .= '<option value="'.$public->id.'">'.$public->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -229,17 +279,34 @@ class HouseholdMeterController extends Controller
         $household->household_status_id = 4;
         $household->save();
 
-        for($i=0; $i < count($request->household_id); $i++) {
+        if($request->household_id) {
 
-            $householdMeter = new HouseholdMeter();
-            $householdMeter->user_name = $household->english_name;
-            $householdMeter->user_name_arabic = $household->arabic_name;
-            $householdMeter->household_id = $request->household_id[$i];
-            $householdMeter->energy_user_id = $request->energy_user_id;
-            $householdMeter->save();
+            for($i=0; $i < count($request->household_id); $i++) {
+
+                $householdMeter = new HouseholdMeter();
+                $householdMeter->user_name = $household->english_name;
+                $householdMeter->user_name_arabic = $household->arabic_name;
+                $householdMeter->household_id = $request->household_id[$i];
+                $householdMeter->energy_user_id = $request->energy_user_id;
+                $householdMeter->save();
+            }
+        }
+
+        if($request->public_id) {
+
+            for($i=0; $i < count($request->public_id); $i++) {
+
+                $householdMeter = new HouseholdMeter();
+                $householdMeter->user_name = $household->english_name;
+                $householdMeter->user_name_arabic = $household->arabic_name;
+                $householdMeter->public_structure_id = $request->public_id[$i];
+                $householdMeter->energy_user_id = $request->energy_user_id;
+                $householdMeter->save();
+            }
         }
         
-        return redirect()->back()->with('message', 'New Sub-Region Added Successfully!');
+        
+        return redirect()->back()->with('message', 'New Shared Holders Added Successfully!');
     }
 
      /**

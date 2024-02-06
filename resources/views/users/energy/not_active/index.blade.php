@@ -62,10 +62,22 @@ label, table {
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>
-                            Export Electricity Meter Users Report 
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Export Electricity Meter Users Report 
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearEnergyHolderFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div> 
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('energy-meter.export') }}">
@@ -90,7 +102,7 @@ label, table {
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
                                         <select name="type" id="selectedWaterSystemType" 
-                                            class="form-control" required>
+                                            class="selectpicker form-control" >
                                             <option disabled selected>Choose one...</option>
                                             @foreach($installationTypes as $installationType)
                                                 <option value="{{$installationType->id}}">
@@ -103,13 +115,15 @@ label, table {
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Installation date from</label>
-                                        <input type="date" class="form-control" name="date_from">
+                                        <input type="date" class="form-control" name="date_from"
+                                        id="installationEnergyDateFrom">
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Installation date to</label>
-                                        <input type="date" class="form-control" name="date_to">
+                                        <input type="date" class="form-control" name="date_to"
+                                        id="installationEnergyDateTo">
                                     </fieldset>
                                 </div>
                             </div><br>
@@ -208,6 +222,15 @@ label, table {
                 {data: 'energy_type_name', name: 'energy_type_name'},
                 {data: 'action'}
             ]
+        });
+
+        // Clear Filters for Export
+        $('#clearEnergyHolderFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#installationEnergyDateFrom').val(' ');
+            $('#installationEnergyDateTo').val(' ');
         });
 
         // View record details

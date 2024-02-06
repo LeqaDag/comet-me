@@ -46,9 +46,9 @@ class AcHouseholdController extends Controller
             
                 $data = DB::table('households')
                     ->where('households.is_archived', 0)
-                    ->where('households.household_status_id', 1)
-                    ->orWhere('households.household_status_id', 2)
-                    ->where('internet_holder_young', 0)
+                    ->where('households.internet_holder_young', 0)
+                    //->where('households.household_status_id', 1)
+                    ->where('households.household_status_id', 2)
                     ->join('communities', 'households.community_id', '=', 'communities.id')
                     ->join('regions', 'communities.region_id', '=', 'regions.id')
                     ->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
@@ -99,8 +99,8 @@ class AcHouseholdController extends Controller
     
             $dataHouseholdsByCommunity = DB::table('households')
                 ->where('households.is_archived', 0)
-                ->where('households.household_status_id', 1)
-                ->orWhere('households.household_status_id', 2)
+                //->where('households.household_status_id', 1)
+                ->where('households.household_status_id', 2)
                 ->join('communities', 'households.community_id', '=', 'communities.id')
                 ->select(
                         DB::raw('communities.english_name as english_name'),

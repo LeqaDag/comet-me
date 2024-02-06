@@ -25,7 +25,53 @@
     <div class="card my-2 mx-auto" >
         <div class="card-body">
             <div class="card-header">
-            
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Filter By Region</label>
+                            <select name="region_id" class="selectpicker form-control" 
+                                data-live-search="true" id="filterByRegion">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($regions as $region)
+                                    <option value="{{$region->id}}">{{$region->english_name}}</option>
+                                @endforeach
+                            </select> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Filter By Sub Region</label>
+                            <select name="sub_region_id" class="selectpicker form-control" 
+                                data-live-search="true" id="filterBySubRegion">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($subregions as $subRegion)
+                                    <option value="{{$subRegion->id}}">{{$subRegion->english_name}}</option>
+                                @endforeach
+                            </select> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Filter By Status</label>
+                            <select name="status_id" class="selectpicker form-control" 
+                                data-live-search="true" id="filterByStatus">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($communityStatuses as $communityStatus)
+                                    <option value="{{$communityStatus->id}}">{{$communityStatus->name}}</option>
+                                @endforeach
+                            </select> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Clear All Filters</label>
+                            <button class="btn btn-dark" id="clearFiltersButton">
+                                <i class='fa-solid fa-eraser'></i>
+                                Clear Filters
+                            </button>
+                        </fieldset>
+                    </div>
+                </div>
             </div>
 
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
@@ -58,15 +104,20 @@
 </div>
 
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-community-representatives').DataTable({
+    var table;
+    function DataTableContent() {
+
+        table = $('.data-table-community-representatives').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('representative.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.filter = $('#filterByRegion').val();
+                    d.second_filter = $('#filterBySubRegion').val();
+                    d.third_filter = $('#filterByStatus').val();
                 }
             },
             columns: [
@@ -77,6 +128,32 @@
                 {data: 'role', name: 'role'},
                 {data: 'action'}
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+        
+        $('#filterByRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterBySubRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByStatus').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-community-representatives')) {
+                $('.data-table-community-representatives').DataTable().destroy();
+            }
+            DataTableContent();
         });
 
         // View record details

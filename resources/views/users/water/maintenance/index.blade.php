@@ -21,9 +21,22 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Export Water Maintenance Report
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Export Water Maintenance Report
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearWaterMaintenanceFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('water-maintenance.export') }}">
@@ -58,7 +71,7 @@
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <input type="date" name="date" 
+                                        <input type="date" name="date" id="waterMaintenanceDate"
                                         class="form-control" title="Completed Data from"> 
                                     </fieldset>
                                 </div>
@@ -148,6 +161,14 @@
                 {data: 'action'},
             ]
         });
+    });
+
+    // Clear Filters for Export
+    $('#clearWaterMaintenanceFiltersButton').on('click', function() {
+
+        $('.selectpicker').prop('selectedIndex', 0);
+        $('.selectpicker').selectpicker('refresh');
+        $('#waterMaintenanceDate').val(' ');
     });
 
     // Delete record

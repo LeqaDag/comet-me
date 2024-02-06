@@ -30,10 +30,22 @@ label, table {
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>
-                            Export Requested Systems Report 
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                    Export Requested Systems Report 
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearRequestedFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('energy-request.export') }}">
@@ -154,6 +166,13 @@ label, table {
                 {data: 'internet_service', name: 'internet_service'},
                 {data: 'action'}
             ]
+        });
+         
+        // Clear Filters for Export
+        $('#clearRequestedFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
         });
 
         // View record details

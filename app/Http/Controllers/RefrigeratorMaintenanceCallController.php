@@ -47,6 +47,11 @@ class RefrigeratorMaintenanceCallController extends Controller
                     ->join('maintenance_statuses', 'refrigerator_maintenance_calls.maintenance_status_id', 
                         '=', 'maintenance_statuses.id')
                     ->join('users', 'refrigerator_maintenance_calls.user_id', '=', 'users.id')
+                    ->leftJoin('refrigerator_maintenance_call_actions', 'refrigerator_maintenance_calls.id', 
+                        'refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id')
+                    ->leftJoin('maintenance_refrigerator_actions', 
+                        'refrigerator_maintenance_call_actions.maintenance_refrigerator_action_id', 
+                        '=', 'maintenance_refrigerator_actions.id')
                     ->where('refrigerator_maintenance_calls.is_archived', 0)
                     ->select('refrigerator_maintenance_calls.id as id', 
                         'households.english_name as household_name', 
@@ -94,7 +99,9 @@ class RefrigeratorMaintenanceCallController extends Controller
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('maintenance_statuses.name', 'LIKE', "%$search%")
                                 ->orWhere('maintenance_types.type', 'LIKE', "%$search%")
-                                ->orWhere('users.name', 'LIKE', "%$search%");
+                                ->orWhere('users.name', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_refrigerator_actions.maintenance_action_refrigerator', 'LIKE', "%$search%")
+                                ->orWhere('maintenance_refrigerator_actions.maintenance_action_refrigerator_english', 'LIKE', "%$search%");
                             });
                         }
                     })
@@ -164,6 +171,7 @@ class RefrigeratorMaintenanceCallController extends Controller
 
         $maintenance->community_id = $request->community_id[0];
         $maintenance->date_of_call = $request->date_of_call;
+        $maintenance->visit_date = $request->visit_date;
         $maintenance->date_completed = $request->date_completed;
         $maintenance->maintenance_status_id = $request->maintenance_status_id;
         $maintenance->user_id = $request->user_id;
@@ -249,6 +257,7 @@ class RefrigeratorMaintenanceCallController extends Controller
         $maintenance = RefrigeratorMaintenanceCall::findOrFail($id);
 
         $maintenance->date_of_call = $request->date_of_call;
+        $maintenance->visit_date = $request->visit_date;
         $maintenance->date_completed = $request->date_completed;
         $maintenance->maintenance_status_id = $request->maintenance_status_id;
         $maintenance->user_id = $request->user_id;

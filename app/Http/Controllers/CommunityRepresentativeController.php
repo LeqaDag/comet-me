@@ -51,31 +51,51 @@ class CommunityRepresentativeController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
-            if ($request->ajax()) {
+            $regionFilter = $request->input('filter');
+            $subRegionFilter = $request->input('second_filter');
+            $statusFilter = $request->input('third_filter');
 
+            if ($request->ajax()) {
+ 
                 $data = DB::table('community_representatives')
-                    ->join('communities', 'community_representatives.community_id', '=', 'communities.id')
-                    ->join('regions', 'communities.region_id', '=', 'regions.id')
+                    ->join('communities', 'community_representatives.community_id', 'communities.id')
+                    ->join('regions', 'communities.region_id', 'regions.id')
+                    ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
                     ->join('households', 'community_representatives.household_id', 
-                        '=', 'households.id')
+                       'households.id')
                     ->join('community_statuses', 'communities.community_status_id', 
-                        '=', 'community_statuses.id')
+                       'community_statuses.id')
                     ->join('community_roles', 'community_representatives.community_role_id', 
-                        '=', 'community_roles.id')
-                    ->where('community_representatives.is_archived', 0)
-                    ->select('communities.english_name as english_name', 'communities.arabic_name as arabic_name',
-                        'community_representatives.id as id', 'community_representatives.created_at as created_at', 
-                        'community_representatives.updated_at as updated_at',
-                        'communities.number_of_people as number_of_people',
-                        'communities.number_of_household as number_of_household',
-                        'regions.english_name as name',
-                        'regions.arabic_name as aname',
-                        'community_roles.role',
-                        'households.english_name as household',
-                        'households.phone_number',
-                        'community_statuses.name as status_name')
-                    ->latest(); 
+                       'community_roles.id')
+                    ->where('community_representatives.is_archived', 0);
     
+                if($regionFilter != null) {
+
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($subRegionFilter != null) {
+
+                    $data->where('sub_regions.id', $subRegionFilter);
+                }
+                if ($statusFilter != null) {
+
+                    $data->where('community_statuses.id', $statusFilter);
+                }
+
+                $data->select(
+                    'communities.english_name as english_name', 'communities.arabic_name as arabic_name',
+                    'community_representatives.id as id', 'community_representatives.created_at as created_at', 
+                    'community_representatives.updated_at as updated_at',
+                    'communities.number_of_people as number_of_people',
+                    'communities.number_of_household as number_of_household',
+                    'regions.english_name as name',
+                    'regions.arabic_name as aname',
+                    'community_roles.role',
+                    'households.english_name as household',
+                    'households.phone_number',
+                    'community_statuses.name as status_name')
+                ->latest(); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -115,9 +135,16 @@ class CommunityRepresentativeController extends Controller
                 ->orderBy('english_name', 'ASC')
                 ->get();
             $communityRoles = CommunityRole::where('is_archived', 0)->get();
-            
+            $communityStatuses = CommunityStatus::where('is_archived', 0)->get();
+            $regions = Region::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get(); 
+            $subregions = SubRegion::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+
             return view('admin.community.representatives.index', compact('communities', 
-                'communityRoles'));
+                'communityRoles', 'regions', 'subregions', 'communityStatuses'));
         } else {
 
             return view('errors.not-found');

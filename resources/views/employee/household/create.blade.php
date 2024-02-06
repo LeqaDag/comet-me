@@ -1,7 +1,3 @@
-@php
-  $pricingModal = true;
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'households')
@@ -22,20 +18,22 @@
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">Add </span> New Household
-</h4>
+</h4> 
 
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" action="{{url('household')}}" enctype="multipart/form-data" >
+            <form method="POST" id="householdForm" action="{{url('household')}}" 
+                enctype="multipart/form-data" novalidate>
                 @csrf
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Father/Husband Name</label>
-                            <input type="text" name="english_name" 
+                            <input type="text" name="english_name" id="householdEnglishName" 
                             placeholder="Write in English" value="{{old('english_name')}}"
                             class="form-control" required>
+                            <div id="english_name_error" class="text-danger"></div>
                             @if ($errors->has('english_name'))
                                 <span class="error">{{ $errors->first('english_name') }}</span>
                             @endif
@@ -45,7 +43,9 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Father/Husband Name</label>
                             <input type="text" name="arabic_name" placeholder="Write in Arabic"
-                            class="form-control" value="{{old('arabic_name')}}" required>
+                            class="form-control" value="{{old('arabic_name')}}" 
+                            id="householdArabicName" required>
+                            <div id="arabic_name_error" class="text-danger"></div>
                             @if ($errors->has('arabic_name'))
                                 <span class="error">{{ $errors->first('arabic_name') }}</span>
                             @endif
@@ -58,7 +58,6 @@
                             class="form-control">
                         </fieldset>
                     </div> 
-                    
                 </div>
 
                 <div class="row">
@@ -85,7 +84,8 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Phone Number</label>
                             <input type="text" name="phone_number" value="{{old('phone_number')}}"
-                            class="form-control">
+                            class="form-control" id="phoneNumber">
+                            <div id="phone_error" class="text-danger"></div>
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -105,6 +105,7 @@
                             @if ($errors->has('community_id'))
                                 <span class="error">{{ $errors->first('community_id') }}</span>
                             @endif
+                            <div id="community_error" class="text-danger"></div>
                         </fieldset>
                     </div>
                 </div>
@@ -133,7 +134,6 @@
                     </div>
                 </div>
                    
-
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
@@ -269,14 +269,92 @@
     </div>
 </div>
 
-@endsection
-
 <script>
+    $(document).ready(function () {
 
+        var oldSelectProfession;
+        var oldSelectCommunity;
+
+        $('#selectedProfession').on('focus', function () {
+
+            oldSelectProfession = $(this).val();
+        });
+
+        $('#householdEnglishName').keyup(function () {
+            validateEnglishName();
+        });
+        $('#householdArabicName').keyup(function () {
+            validateArabicName();
+        });
+        $('#selectedCommunity').keyup(function () {
+            validateSelectCommunity();
+        });
+        $('#phoneNumber').keyup(function () {
+            validatePhoneNumber();
+        });
+
+        $('#householdForm').submit(function (e) {
+            if (!validateEnglishName() && !validateArabicName() && !validateSelectCommunity()) {
+                e.preventDefault();
+                // Prevent form submission if any validation fails
+            }
+        });
+
+        function validateEnglishName() {
+
+            var english_name = $('#householdEnglishName').val();
+            if (english_name.length < 10) {
+                $('#english_name_error').html('English Name must be at least 10 characters.');
+                return false;
+            } else {
+                $('#english_name_error').html('');
+                return true;
+            }
+        }
+
+        function validateArabicName() {
+
+            var arabic_name = $('#householdArabicName').val();
+            var arabicRegex = /[\u0600-\u06FF]/; // Unicode range for Arabic script
+            if (!arabicRegex.test(arabic_name)) {
+                $('#arabic_name_error').html('Please enter text with Arabic characters.');
+                return false;
+            } else {
+                $('#arabic_name_error').html('');
+                return true;
+            }
+        }
+
+        function validateSelectCommunity() {
+            var selectedValue = $('#selectedCommunity').val();
+            if (selectedValue === '') {
+                $('#community_error').html('Please select community');
+                return false;
+            } else {
+                $('#community_error').html('');
+                return true;
+            }
+        }
+
+        function validatePhoneNumber() {
+            var phoneNumber = $('#phoneNumber').val();
+            var phoneRegex = /^\d{10}$/; // 10 digits
+            if (!phoneRegex.test(phoneNumber)) {
+                $('#phone_error').html('Please enter a valid 10-digit phone number.');
+                return false;
+            } else {
+                $('#phone_error').html('');
+                return true;
+            }
+        }
+
+        // Other field validation functions...
+    });
 
     $(document).on('change', '#selectedProfession', function () {
-        
+
         selectedValue = $(this).val();
+        oldSelectProfession = selectedValue;
 
         if(selectedValue == "other") {
             $("#createProfession").modal('show');
@@ -330,3 +408,4 @@
         $('#electricitySourceShared').prop('disabled', false);
     });
 </script>
+@endsection

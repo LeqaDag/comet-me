@@ -1,7 +1,3 @@
-@php
-  $pricingModal = true;
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'energy-system')
@@ -18,7 +14,6 @@ label, table {
     margin-top: 20px;
 }
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
 <p>
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseEnergySystemVisualData" 
@@ -63,9 +58,22 @@ label, table {
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Export Energy System Report
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Export Energy System Report
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearEnergySystemFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('energy-system.export') }}">
@@ -103,7 +111,17 @@ label, table {
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Installation Year</label>
-                                        <input type="date" class="form-control" name="year_from">
+                                        <select name="year_from" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Filter by Year</option>
+                                            @php
+                                                $startYear = 2010; // C
+                                                $currentYear = date("Y");
+                                            @endphp
+                                            @for ($year = $currentYear; $year >= $startYear; $year--)
+                                                <option value="{{ $year }}">{{ $year }}</option>
+                                            @endfor
+                                        </select> 
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
@@ -167,8 +185,6 @@ label, table {
         </div>
     </div>
 </div>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 <script type="text/javascript">
 
@@ -208,6 +224,13 @@ label, table {
                 data
             );
         }
+    });
+        
+    // Clear Filters for Export
+    $('#clearEnergySystemFiltersButton').on('click', function() {
+
+        $('.selectpicker').prop('selectedIndex', 0);
+        $('.selectpicker').selectpicker('refresh');
     });
 
     // View record update page

@@ -89,11 +89,21 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Visit Date</label>
+                            <input type="date" name="visit_date" class="form-control" 
+                                value="{{$refrigeratorMaintenance->visit_date}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Completed Date</label>
                             <input type="date" name="date_completed" class="form-control"
                                 value="{{$refrigeratorMaintenance->date_completed}}" >
                         </fieldset>
                     </div>
+                </div>
+ 
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Maintenance Type</label>
@@ -111,9 +121,6 @@
                             </select>
                         </fieldset>
                     </div>
-                </div>
- 
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Maintenance Status</label>

@@ -30,10 +30,22 @@ label, table {
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>
-                            Export Public Structures Report 
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                    Export Public Structures Report 
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearPublicFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('public-structure.export') }}">
@@ -110,6 +122,43 @@ label, table {
 
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Category</label>
+                        <select name="region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCategory">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($publicCategories as $publicCategory)
+                                <option value="{{$publicCategory->id}}">{{$publicCategory->name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||  
                 Auth::guard('user')->user()->user_type_id == 2 ||
@@ -144,16 +193,18 @@ label, table {
 
 <script type="text/javascript">
 
-    $(function () {
+    var table;
+    function DataTableContent() {
 
-        var table = $('.data-table-public-structure').DataTable({
-            
+        table = $('.data-table-public-structure').DataTable({
             processing: true,
             serverSide: true, 
             ajax: {
                 url: "{{ route('public-structure.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.filter = $('#filterByCommunity').val();
+                    d.second_filter = $('#filterByCategory').val();
                 }
             },
             dom: 'Blfrtip',
@@ -163,6 +214,29 @@ label, table {
                 {data: 'community_name', name: 'community_name'},
                 {data: 'action'}
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+        
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByCategory').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-public-structure')) {
+                $('.data-table-public-structure').DataTable().destroy();
+            }
+            DataTableContent();
         });
 
         // View record details
@@ -188,6 +262,13 @@ label, table {
                     $('#publicNotes').html(response['publicStructure'].notes);
                 }
             });
+        });
+         
+        // Clear Filters for Export
+        $('#clearPublicFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
         });
 
         // View edit page

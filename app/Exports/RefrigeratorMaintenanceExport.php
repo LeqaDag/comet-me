@@ -13,7 +13,7 @@ use DB;
 
 class RefrigeratorMaintenanceExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
     WithStyles
-{
+{ 
     protected $request;
 
     function __construct($request) {
@@ -57,7 +57,7 @@ class RefrigeratorMaintenanceExport implements FromCollection, WithHeadings, Wit
                 DB::raw('group_concat(DISTINCT maintenance_refrigerator_actions.maintenance_action_refrigerator_english)'),
                 DB::raw('group_concat(DISTINCT maintenance_refrigerator_actions.maintenance_action_refrigerator)'),
                 'maintenance_statuses.name', 'maintenance_types.type',
-                'date_of_call', 'date_completed', 
+                'date_of_call', 'visit_date','date_completed', 
                 DB::raw('group_concat(DISTINCT performed_users.name)'),
                 'refrigerator_maintenance_calls.notes'
             ])
@@ -89,7 +89,7 @@ class RefrigeratorMaintenanceExport implements FromCollection, WithHeadings, Wit
     public function headings(): array
     {
         return ["Agent", "Community", "Region", "Sub Region", "Recipient", "Action in English", 
-            "Action in Arabic", "Status", "Type", "Call Date", "Completed Date", "Performed By", 
+            "Action in Arabic", "Status", "Type", "Call Date", "Visit Date", "Completed Date", "Performed By", 
             "Notes"];
     }
 

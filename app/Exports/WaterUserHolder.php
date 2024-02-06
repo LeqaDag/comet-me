@@ -54,8 +54,8 @@ class WaterUserHolder implements FromCollection, WithHeadings, WithTitle, Should
             ->LeftJoin('donors', 'all_water_holder_donors.donor_id', '=', 'donors.id')
             ->where('all_water_holders.is_archived', 0)
             ->select([ 
-                'households.english_name as english_name', 
-                'public_structures.english_name as public',
+                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as exported_value'),
                 'all_water_holders.is_main', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
@@ -99,7 +99,7 @@ class WaterUserHolder implements FromCollection, WithHeadings, WithTitle, Should
             $data->where("grid_users.is_complete", $this->request->complete)
                 ->orWhere("grid_public_structures.is_complete", $this->request->complete);
         }
-        
+         
         if($this->request->community) {
             $data->where("communities.english_name", $this->request->community);
         } 
@@ -120,7 +120,7 @@ class WaterUserHolder implements FromCollection, WithHeadings, WithTitle, Should
      */ 
     public function headings(): array
     {
-        return ["Water System Holder", "Public Structure", "Main Holder", "Community", "Region", 
+        return ["Water System Holder", "Main Holder", "Community", "Region", 
             "Sub Region", "H2O Status", "H2O Installation Year", 
             "Installation date (H2O)", "H2O systems",  "Number of BSF", 
             "Grid Integration Large", "Installation date (Grid Large)", 

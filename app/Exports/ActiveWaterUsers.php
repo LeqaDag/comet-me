@@ -16,7 +16,7 @@ class ActiveWaterUsers implements FromCollection, WithHeadings, WithTitle, Shoul
 
         $this->request = $request;
     }
-
+ 
     /**
     * @return \Illuminate\Support\Collection
     */

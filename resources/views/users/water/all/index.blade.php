@@ -205,9 +205,22 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Export Water System Holder Report
-                            <i class='fa-solid fa-file-excel text-info'></i>
-                        </h5>
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Export Water System Holder Report
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearWaterHolderFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div> 
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
                         action="{{ route('water-user.export') }}">
@@ -253,7 +266,8 @@
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <input type="date" name="h2o_installation_date_from" 
-                                        class="form-control" title="H2O Installation Data from"> 
+                                        class="form-control" title="H2O Installation Data from"
+                                            id="installationH2ODateFrom"> 
                                     </fieldset>
                                 </div>
                             </div>
@@ -261,7 +275,8 @@
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <input type="date" name="h2o_installation_date" 
-                                        class="form-control" title="H2O Installation Data to"> 
+                                        class="form-control" title="H2O Installation Data to"
+                                            id="installationH2ODateTo"> 
                                     </fieldset> 
                                 </div>
                                 <br><br><br>
@@ -294,7 +309,49 @@
 
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Installtion Year</label>
+                        <select name="years" class="selectpicker form-control" 
+                            data-live-search="true" id="FilterByInstallationYear">
+                            <option disabled selected>Choose one...</option>
+                            @php
+                                $startYear = 2013; // C
+                                $currentYear = date("Y");
+                            @endphp
+                            @for ($year = $currentYear; $year >= $startYear; $year--)
+                                <option value="{{ $year }}">{{ $year }}</option>
+                            @endfor
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
+            
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
                 Auth::guard('user')->user()->user_type_id == 2 ||
                 Auth::guard('user')->user()->user_type_id == 5 ||
@@ -411,16 +468,19 @@
         }
     });
 
-    $(function () {
+    var table ;
+    function DataTableContent() {
 
         // DataTable
-        var table = $('.data-table-water-all-users').DataTable({
+        table = $('.data-table-water-all-users').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('all-water.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.filter = $('#filterByCommunity').val();
+                    d.second_filter = $('#FilterByInstallationYear').val();
                 }
             },
             columns: [
@@ -430,251 +490,106 @@
                 {data: 'action'}
             ],
         });
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); // Reload DataTable when the dropdown value changes
+        });
+
+        $('#FilterByInstallationYear').on('change', function() {
+            table.ajax.reload(); // Reload DataTable when the dropdown value changes
+        });
+    }); 
+
+    // Clear Filter
+    $('#clearFiltersButton').on('click', function() {
+
+        $('.selectpicker').prop('selectedIndex', 0);
+        $('.selectpicker').selectpicker('refresh');
+        if ($.fn.DataTable.isDataTable('.data-table-water-all-users')) {
+            $('.data-table-water-all-users').DataTable().destroy();
+        }
+        DataTableContent();
     });
-        // Update record
-        $('#waterAllUsersTable').on('click', '.updateWaterUser',function() {
-            var id = $(this).data('id');
-            var url = window.location.href; 
-            url = url +'/'+ id +'/edit';
-            // AJAX request
-            $.ajax({
-                url: 'all-water/' + id + '/editpage',
-                type: 'get',
-                dataType: 'json',
-                success: function(response) {
-                    window.open(url, "_self");
-                }
-            });
+
+    // Clear Filters for Export
+    $('#clearWaterHolderFiltersButton').on('click', function() {
+
+        $('.selectpicker').prop('selectedIndex', 0);
+        $('.selectpicker').selectpicker('refresh');
+        $('#installationH2ODateFrom').val(' ');
+        $('#installationH2ODateTo').val(' ');
+    });
+
+    // Update record
+    $('#waterAllUsersTable').on('click', '.updateWaterUser',function() {
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        url = url +'/'+ id +'/edit';
+        // AJAX request
+        $.ajax({
+            url: 'all-water/' + id + '/editpage',
+            type: 'get',
+            dataType: 'json',
+            success: function(response) {
+                window.open(url, "_self");
+            }
         });
+    });
 
-        // View record details
-        $('#waterAllUsersTable').on('click', '.viewWaterUser', function() {
-            var id = $(this).data('id');
-            var url = window.location.href; 
-           
-            url = url +'/'+ id ;
-            window.open(url); 
-        });
+    // View record details
+    $('#waterAllUsersTable').on('click', '.viewWaterUser', function() {
+        var id = $(this).data('id');
+        var url = window.location.href; 
+        
+        url = url +'/'+ id ;
+        window.open(url); 
+    });
 
-        // // View record details
-        // $('#waterAllUsersTable').on('click','.viewWaterUser',function() {
-        //     var id = $(this).data('id');
-            
-        //     // AJAX request
-        //     $.ajax({
-        //         url: 'all-water/' + id,
-        //         type: 'get', 
-        //         dataType: 'json', 
-        //         success: function(response) {
+    // Delete record
+    $('#waterAllUsersTable').on('click', '.deleteWaterUser',function() {
+        var id = $(this).data('id');
 
-        //             $('#WaterUserModalTitle').html(" ");
-        //             $('#communityUser').html(" ");
-        //             $('#communityUser').html(response['community'].english_name);
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this user?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteWaterUser') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
 
-        //             if(response['household'] != null) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $('#waterAllUsersTable').DataTable().draw();
+                            });
+                        } else {
 
-        //                 $('#WaterUserModalTitle').html(response['household'].english_name);
-        //                 $('#englishNameUser').html(" ");
-        //                 $('#englishNameUser').html(response['household'].english_name);
-
-        //                 $("#informationHousehold").css("display", "block");
-        //                 $("#informationHousehold").css("visibility", "visible");
-        //                 $('#holderPeople').append(" ");
-        //                 $('#holderPeople').html(response['household'].number_of_people);
-        //                 $('#holderMale').append(" ");
-        //                 $('#holderMale').html(response['household'].number_of_male);
-        //                 $('#holderFemale').append(" ");
-        //                 $('#holderFemale').html(response['household'].number_of_female);
-        //                 $('#holderAdult').append(" ");
-        //                 $('#holderAdult').html(response['household'].number_of_adults);
-        //                 $('#holderChildren').append(" ");
-        //                 $('#holderChildren').html(response['household'].number_of_children);
-        //             } else if(response['public'] != null) {
-
-        //                 $('#WaterUserModalTitle').html(response['public'].english_name);
-        //                 $('#englishNameUser').html(" ");
-        //                 $('#englishNameUser').html(response['public'].english_name);
-        //                 $("#informationHousehold").css("display", "none");
-        //                 $("#informationHousehold").css("visibility", "none");
-
-        //                 $('#dataEnergyService').append(" ");
-        //                 $('#holderPeople').append(" ");
-        //                 $('#holderMale').append(" ");
-        //                 $('#holderFemale').append(" ");
-        //                 $('#holderAdult').append(" ");
-        //                 $('#holderChildren').append(" ");
-        //             }
-
-        //             $('#mainHolder').append(" ");
-        //             $('#mainHolder').html(response['allWaterHolder'].is_main);
-
-        //             $('#dataEnergyDate').append(" ");
-        //             $('#dataEnergyMeter').append(" ");
-        //             $('#dataMeterNumber').append(" ");
-
-        //             if(response['energyUser'] != null) {
-        //                 $('#dataEnergyDate').html(response['energyUser'][0].installation_date);
-        //                 if(response['energyUser'][0].meter_number) {
-
-        //                     $('#dataEnergyMeter').html("Yes");
-        //                     $('#dataEnergyMeter').css('color', 'green');
-        //                 } else {
-
-        //                     $('#dataEnergyMeter').html("No");
-        //                     $('#dataEnergyMeter').css('color', 'red');
-        //                 }
-                        
-        //                 $('#dataMeterNumber').html(response['energyUser'][0].meter_number);
-
-        //             } else if(response['energyPublic'] != []) {
-        //                 $('#dataEnergyDate').html(response['energyPublic'][0].installation_date);
-        //                 if(response['energyPublic'][0].meter_number) {
-
-        //                     $('#dataEnergyMeter').html("Yes");
-        //                     $('#dataEnergyMeter').css('color', 'green');
-        //                 } else {
-
-        //                     $('#dataEnergyMeter').html("No");
-        //                     $('#dataEnergyMeter').css('color', 'red');
-        //                 }
-        //                 $('#dataMeterNumber').html(response['energyPublic'][0].meter_number);
-        //             } 
-
-        //             if(response['h2oUser'] == null) {
-
-        //                 $("#h2oDetails").css("visibility", "hidden");
-        //                 $("#h2oDetails").css('display', 'none');
-        //                 $("#gridDetails").css("visibility", "hidden");
-        //                 $("#gridDetails").css('display', 'none');
-                        
-        //             } else if(response['h2oUser']) {
-
-        //                 $("#h2oDetails").css("visibility", "visible");
-        //                 $("#h2oDetails").css('display', 'block');
-                        
-        //                 $('#numberH2oUser').append(" ");
-        //                 $('#dateH2oUser').append(" ");
-        //                 $('#yearH2oUser').append(" ");
-        //                 $('#statusH2oUser').append(" ");
-        //                 $('#numberBsfUser').append(" ");
-        //                 $('#statusBsfUser').append(" "); 
-
-        //                 $('#numberH2oUser').html(response['h2oUser'].number_of_h20);
-        //                 $('#dateH2oUser').html(response['h2oUser'].h2o_request_date);
-        //                 $('#yearH2oUser').html(response['h2oUser'].installation_year);
-        //                 $('#statusH2oUser').html(response['h2oStatus'].status);
-        //                 $('#numberBsfUser').html(response['h2oUser'].number_of_bsf);
-        //                 if(response['bsfStatus']) $('#statusBsfUser').html(response['bsfStatus'].name); 
-        //             }
-                    
-        //             if(response['gridUser'] != null) {
-
-        //                 $("#gridDetails").css("visibility", "visible");
-        //                 $("#gridDetails").css('display', 'block');
-
-        //                 $('#dateGridUser').append(" ");
-        //                 $('#dateGridUser').html(response['gridUser'].request_date);
-        //                 $('#gridLargeNumber').append(" ");
-        //                 $('#gridLargeNumber').html(response['gridUser'].grid_integration_large);
-        //                 $('#gridLargeDateNumber').append(" ");
-        //                 $('#gridLargeDateNumber').html(response['gridUser'].large_date);
-        //                 $('#gridSmallNumber').append(" ");
-        //                 $('#gridSmallNumber').html(response['gridUser'].grid_integration_small);
-        //                 $('#gridSmallDateNumber').append(" ");
-        //                 $('#gridSmallDateNumber').html(response['gridUser'].small_date);
-        //                 $('#gridDelivery').append(" ");
-        //                 $('#gridDelivery').html(response['gridUser'].is_delivery);
-        //                 $('#gridPaid').append(" ");
-        //                 $('#gridPaid').html(response['gridUser'].is_paid);
-        //                 $('#gridComplete').append(" ");
-        //                 $('#gridComplete').html(response['gridUser'].is_complete);
-        //             } 
-
-        //             if(response['networkUser'] != null) {
-
-        //                 $("#h2oDetails").css("visibility", "hidden");
-        //                 $("#h2oDetails").css('display', 'none');
-        //                 $("#gridDetails").css("visibility", "hidden");
-        //                 $("#gridDetails").css('display', 'none');
-        //             }
-
-        //             $('#donorsDetailsWaterHolder').html(" ");
-        //             if(response['allWaterHolderDonors'] != []) {
-        //                 for (var i = 0; i < response['allWaterHolderDonors'].length; i++) {
-        //                     if(response['allWaterHolderDonors'][i].donor_name == "0")  {
-        //                         response['allWaterHolderDonors'][i].donor_name = "Not yet attributed";
-        //                     }
-        //                     $("#donorsDetailsWaterHolder").append(
-        //                     '<ul><li>'+ response['allWaterHolderDonors'][i].donor_name +'</li></ul>');
-                               
-        //                 }
-        //             }
-
-        //             $('#incidentUser').html(" ");
-        //             $('#incidentDate').html(" ");
-        //             if(response['waterIncident'].length > 0) {
-        //                 $('#incidentUser').html(response['waterIncident'][0].incident);
-        //                 $('#incidentDate').html(response['waterIncident'][0].incident_date);
-        //             }
-
-        //             $('#sharedHousehold').html(" ");
-        //             if(response['sharedHouseholds'] != []) {
-        //                 for (var i = 0; i < response['sharedHouseholds'].length; i++) {
-        //                     $("#sharedHousehold").append(
-        //                     '<ul><li>'+ response['sharedHouseholds'][i].english_name +'</li></ul>');  
-        //                 }
-        //             }
-        //             $('#sharedGridHousehold').html(" ");
-        //             if(response['sharedGrid'] != []) {
-        //                 for (var i = 0; i < response['sharedGrid'].length; i++) {
-        //                     $("#sharedGridHousehold").append(
-        //                     '<ul><li>'+ response['sharedGrid'][i].english_name +'</li></ul>');  
-        //                 }
-        //             }
-        //         }
-        //     });
-        // });
-
-        // Delete record
-        $('#waterAllUsersTable').on('click', '.deleteWaterUser',function() {
-            var id = $(this).data('id');
-
-            Swal.fire({
-                icon: 'warning',
-                title: 'Are you sure you want to delete this user?',
-                showDenyButton: true,
-                confirmButtonText: 'Confirm'
-            }).then((result) => {
-                if(result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ route('deleteWaterUser') }}",
-                        type: 'get',
-                        data: {id: id},
-                        success: function(response) {
-                            if(response.success == 1) {
-
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: response.msg,
-                                    showDenyButton: false,
-                                    showCancelButton: false,
-                                    confirmButtonText: 'Okay!'
-                                }).then((result) => {
-                                    $('#waterAllUsersTable').DataTable().draw();
-                                });
-                            } else {
-
-                                alert("Invalid ID.");
-                            }
+                            alert("Invalid ID.");
                         }
-                    });
-                } else if (result.isDenied) {
+                    }
+                });
+            } else if (result.isDenied) {
 
-                    Swal.fire('Changes are not saved', '', 'info')
-                }
-               
-            });
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+            
         });
+    });
     
 </script>
 @endsection

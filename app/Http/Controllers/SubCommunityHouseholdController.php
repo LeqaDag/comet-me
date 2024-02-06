@@ -61,35 +61,55 @@ class SubCommunityHouseholdController extends Controller
             $subHousehold->save();
         }
 
+        $communityFilter = $request->input('filter');
+        $regionFilter = $request->input('second_filter');
+        $subRegionFilter = $request->input('third_filter');
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
 
                 $data = DB::table('sub_community_households')
                     ->join('communities', 'sub_community_households.community_id', 
-                        '=', 'communities.id')
-                    ->join('regions', 'communities.region_id', '=', 'regions.id')
+                        'communities.id')
+                    ->join('regions', 'communities.region_id', 'regions.id')
+                    ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
                     ->join('community_statuses', 'communities.community_status_id', 
-                        '=', 'community_statuses.id')
+                        'community_statuses.id')
                     ->join('households', 'sub_community_households.household_id', 
-                        '=', 'households.id')
+                        'households.id')
                     ->join('sub_communities', 'sub_community_households.sub_community_id', 
-                        '=', 'sub_communities.id')
-                    ->where('sub_community_households.is_archived', 0)
-                    ->select('sub_communities.english_name as english_name', 
-                        'sub_communities.arabic_name as arabic_name',
-                        'communities.english_name as community_english_name', 
-                        'communities.arabic_name as community_arabic_name',
-                        'sub_community_households.id as id', 'sub_community_households.created_at as created_at', 
-                        'sub_community_households.updated_at as updated_at',
-                        'communities.number_of_people as number_of_people',
-                        'communities.number_of_household as number_of_household',
-                        'regions.english_name as name',
-                        'regions.arabic_name as aname',
-                        'households.english_name as household',
-                        'community_statuses.name as status_name')
-                    ->latest(); 
-    
+                        'sub_communities.id')
+                    ->where('sub_community_households.is_archived', 0); 
+
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($regionFilter != null) {
+
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($subRegionFilter != null) {
+
+                    $data->where('sub_regions.id', $subRegionFilter);
+                }
+
+                $data->select(
+                    'sub_communities.english_name as english_name', 
+                    'sub_communities.arabic_name as arabic_name',
+                    'communities.english_name as community_english_name', 
+                    'communities.arabic_name as community_arabic_name',
+                    'sub_community_households.id as id', 'sub_community_households.created_at as created_at', 
+                    'sub_community_households.updated_at as updated_at',
+                    'communities.number_of_people as number_of_people',
+                    'communities.number_of_household as number_of_household',
+                    'regions.english_name as name',
+                    'regions.arabic_name as aname',
+                    'households.english_name as household',
+                    'community_statuses.name as status_name')
+                ->latest();
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -131,11 +151,14 @@ class SubCommunityHouseholdController extends Controller
             $regions = Region::where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')
                 ->get();
+            $subregions = SubRegion::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
             $subCommunities = SubCommunity::where('is_archived', 0)->get();
 
             return view('admin.community.sub.index', compact('communities', 'regions', 
-                'energySystemTypes', 'subCommunities'));
+                'energySystemTypes', 'subCommunities', 'subregions'));
         } else {
 
             return view('errors.not-found');
