@@ -276,7 +276,7 @@
                             </div>
                             <span>Assigned this task to <strong>{{$user->name}}</strong></span>
                             @endif 
-                            @endforeach
+                            @endforeach 
                         </div>
                         @if(count($missingSchoolDetails) > 0)
                         <p>You've {{$missingSchoolDetails->count()}}
@@ -425,11 +425,11 @@
             <!-- Action Items for adding energy system for In Progress -->
             <li class="timeline-item mb-md-4 mb-5 timeline-item-right">
                 <span class="timeline-indicator timeline-indicator-primary" data-aos="zoom-in" data-aos-delay="200">
-                    <i class="bx bx-task"></i>
+                    <i class="bx bx-reset"></i>
                 </span>
                 <div class="timeline-event card p-0" data-aos="fade-right">
                     <div class="card-header border-0 d-flex justify-content-between">
-                        <h6 class="card-title mb-0">AC Households</h6>
+                        <h6 class="card-title mb-0">In Progress</h6>
                     </div>
                     <div class="card-body pb-0">
                         <div class="d-flex flex-wrap mb-4">
@@ -471,18 +471,17 @@
                                 @include('employee.community.service.ac_survey')
                             </li>
                         </ul> -->
-                        @if(count($acHouseholds) > 0)
-                        <p>You've {{$acHouseholds->count()}}
+                        @if(count($inProgressHouseholdsAcCommunity) > 0)
+                        <p>You've {{$inProgressHouseholdsAcCommunity->count()}}
                             <a type="button" title="Export AC Households"
-                                href="action-item/ac-household/export">
-                                AC households 
+                                href="action-item/in-progress-household/export">
+                                In-Progress households 
                             </a>
-                            which are not related to AC Survey "AC Community"
-                            ,Need to be checked
+                            Need an AC Installation, Follow up!
                         </p> 
                         @endif
                     </div>
-                    <div class="timeline-event-time">AC Survey</div>
+                    <div class="timeline-event-time">In Progress</div>
                 </div>
             </li>
 
@@ -496,73 +495,9 @@
                         <h6 class="card-title mb-0">Energy Users</h6>
                     </div>
                     <div class="card-body pb-0">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between 
-                                align-items-center ps-0">
-                                <div class="d-flex flex-wrap mb-4">
-                                    <i class="text-success bx bx-home"></i>
-                                    <span>MISC FBS or New Community</span>
-                                    <p>
-                                    @if(count($newCommunityFbs) > 0)
-                                        <p>You've {{$newCommunityFbs->count()}}
-                                            <a title="Export AC Households"
-                                                href="all-meter" target="_blank">
-                                                New Energy Holders
-                                            </a>
-                                            need to fill out meter number, daily limit and other details.
-                                        </p> 
-                                    @endif
-                                    </p>
-                                </div> 
-                                <div class="mb-4">
-                                    @foreach($users as $user)
-                                    @if($user->user_type_id == 3)
-                                    <div>
-                                        <div class="avatar avatar-xs me-2">
-                                        @if($user->image == "")
-                            
-                                        @if($user->gender == "male")
-                                            <img src='/users/profile/male.jpg'
-                                                class="rounded-circle">
-                                        @else
-                                            <img src='/assets/images/female.png'
-                                                class="rounded-circle">
-                                        @endif
-                                        @else
-                                            <img src="{{url('users/profile/'.$user->image)}}" alt="Avatar" 
-                                                class="rounded-circle" />
-                                        @endif
-                                        </div>
-                                    </div>
-                                    <span>Assigned this task to <strong>{{$user->name}}</strong>
-                                    </span>
-                                    @endif 
-                                    @endforeach
-                                </div>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
-                                <div>
-                                    <i class="text-success bx bx-grid"></i>
-                                    <span>MG Extension</span>
-                                    <p>
-                                    @if(count($newEnergyHolders) > 0)
-                                        <p>You've {{$newEnergyHolders->count()}}
-                                            <a title="Export AC Households"
-                                                href="all-meter" target="_blank">
-                                                New Energy Holders
-                                            </a>
-                                            need to fill out meter number, daily limit and other details.
-                                        </p> 
-                                    @endif
-                                    </p>
-                                </div>
-                            </li>
-                        </ul>
-                       
-
                         <div class="d-flex flex-wrap mb-4">
                             @foreach($users as $user)
-                            @if($user->user_type_id == 12)
+                            @if($user->user_type_id == 4)
                             <div>
                                 <div class="avatar avatar-xs me-2">
                                 @if($user->image == "")
@@ -584,6 +519,17 @@
                             @endif 
                             @endforeach
                         </div>
+                        <p>
+                        @if(count($newEnergyUsers) > 0)
+                            <p>You've {{$newEnergyUsers->count()}}
+                                <a title="Export AC Households"
+                                    href="all-meter" target="_blank">
+                                    New Energy Holders
+                                </a>
+                                need to fill out meter number, daily limit and other details.
+                            </p> 
+                        @endif
+                        </p>
                     </div>
                     <div class="timeline-event-time">Energy Service</div>
                 </div>
@@ -718,8 +664,289 @@
                 </div>
             </li>
 
-            <!-- Action Items for adding missing donors for the community and users -->
+            <!-- Action Items for Incidents -->
             <li class="timeline-item mb-md-4 mb-5 timeline-item-left">
+                <span class="timeline-indicator timeline-indicator-danger" 
+                    data-aos="zoom-in" data-aos-delay="200">
+                    <i class="bx bx-error-alt"></i>
+                </span>
+                <div class="timeline-event card p-0" data-aos="fade-left">
+                    <div class="card-body pb-0">
+                        <div class="d-flex flex-wrap mb-4">
+                            @foreach($users as $user)
+                            @if($user->user_type_id == 4)
+                            <div>
+                                <div class="avatar avatar-xs me-2">
+                                @if($user->image == "")
+                    
+                                @if($user->gender == "male")
+                                    <img src='/users/profile/male.jpg' alt="Internet Manager Avatar" 
+                                        class="rounded-circle">
+                                @else
+                                    <img src='/assets/images/female.png' alt="Internet Manager Avatar" 
+                                        class="rounded-circle">
+                                @endif
+                                @else
+                                    <img src="{{url('users/profile/'.$user->image)}}" alt="Avatar" 
+                                        class="rounded-circle" />
+                                @endif
+                                </div>
+                            </div>
+                            <span>Assigned this task to <strong>{{$user->name}}</strong></span>
+                            @endif
+                            @endforeach
+                        </div> 
+
+                        <h6 class="card-title mb-0">
+                            <span class="align-middle">
+                                Incidents 
+                                <span class="badge rounded-pill bg-label-danger">MG Systems</span>
+                            </span>
+                        </h6>
+                     
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>In Progress</span>
+                                </div>
+                                <div>
+                                @if(count($mgIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$mgIncidents->where('incident_status_mg_system_id', 16)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>System Not Repaired</span>
+                                </div>
+                                <div>
+                                @if(count($mgIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$mgIncidents->where('incident_status_mg_system_id', 13)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>System Not Replaced</span>
+                                </div>
+                                <div>
+                                @if(count($mgIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$mgIncidents->where('incident_status_mg_system_id', 15)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body pb-0">
+                        <h6 class="card-title mb-0">
+                            <span class="align-middle">
+                                Incidents 
+                                <span class="badge rounded-pill bg-label-danger">FBS Users</span>
+                            </span>
+                        </h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>Response in progress</span>
+                                </div>
+                                <div>
+                                @if(count($fbsIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$fbsIncidents->where('incident_status_small_infrastructure_id', 7)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>Not Repaired</span>
+                                </div>
+                                <div>
+                                @if(count($fbsIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$fbsIncidents->where('incident_status_small_infrastructure_id', 11)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>Not Retrieved</span>
+                                </div>
+                                <div>
+                                @if(count($fbsIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$fbsIncidents->where('incident_status_small_infrastructure_id', 2)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body pb-0">
+                        <h6 class="card-title mb-0">
+                            <span class="align-middle">
+                                Incidents 
+                                <span class="badge rounded-pill bg-label-danger">Water Holders</span>
+                            </span>
+                        </h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>In progress</span>
+                                </div>
+                                <div>
+                                @if(count($waterIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$waterIncidents->where('incident_status_id', 5)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>Not Repaired</span>
+                                </div>
+                                <div>
+                                @if(count($waterIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$waterIncidents->where('incident_status_id', 8)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>Not Retrieved</span>
+                                </div>
+                                <div>
+                                @if(count($waterIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$waterIncidents->where('incident_status_id', 1)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body pb-0">
+                        <div class="d-flex flex-wrap mb-4">
+                            @foreach($users as $user)
+                            @if($user->user_type_id == 6)
+                            <div>
+                                <div class="avatar avatar-xs me-2">
+                                @if($user->image == "")
+                    
+                                @if($user->gender == "male")
+                                    <img src='/users/profile/male.jpg' alt="Internet Manager Avatar" 
+                                        class="rounded-circle">
+                                @else
+                                    <img src='/assets/images/female.png' alt="Internet Manager Avatar" 
+                                        class="rounded-circle">
+                                @endif
+                                @else
+                                    <img src="{{url('users/profile/'.$user->image)}}" alt="Avatar" 
+                                        class="rounded-circle" />
+                                @endif
+                                </div>
+                            </div>
+                            <span>Assigned this task to <strong>{{$user->name}}</strong></span>
+                            @endif
+                            @endforeach
+                        </div> 
+                        <h6 class="card-title mb-0">
+                            <span class="align-middle">
+                                Incidents 
+                                <span class="badge rounded-pill bg-label-danger">Internet Network</span>
+                            </span>
+                        </h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>In progress</span>
+                                </div>
+                                <div>
+                                @if(count($networkIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$networkIncidents->where('incident_status_id', 6)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>Not Retrieved</span>
+                                </div>
+                                <div>
+                                @if(count($networkIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$networkIncidents->where('incident_status_id', 1)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body pb-0">
+                        <h6 class="card-title mb-0">
+                            <span class="align-middle">
+                                Incidents 
+                                <span class="badge rounded-pill bg-label-danger">Internet Holders</span>
+                            </span>
+                        </h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>In progress</span>
+                                </div>
+                                <div>
+                                @if(count($internetHolderIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$internetHolderIncidents->where('internet_incident_status_id', 6)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between 
+                                align-items-center ps-0 text-warning">
+                                <div>
+                                    <span>Not Retrieved</span>
+                                </div>
+                                <div>
+                                @if(count($internetHolderIncidents) > 0)
+                                    <span class="text-dark"> 
+                                        {{$internetHolderIncidents->where('internet_incident_status_id', 1)->count()}}
+                                    </span>
+                                @endif
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="timeline-event-time">Incidents</div>
+                </div>
+            </li>
+            
+            <!-- Action Items for adding missing donors for the community and users -->
+            <li class="timeline-item mb-md-4 mb-5 timeline-item-right">
                 <span class="timeline-indicator timeline-indicator-info" data-aos="zoom-in" data-aos-delay="200">
                 <i class="bx bx-shekel"></i>
                 </span>

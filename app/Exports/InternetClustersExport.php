@@ -16,7 +16,7 @@ use App\Models\InternetCluster;
 use App\Models\InternetMetric;
 use App\Models\InternetMetricCluster;
 use App\Models\Household;
-use Carbon\Carbon;
+use Carbon\Carbon; 
 use DB;
 
 class InternetClustersExport implements FromCollection, WithTitle, 
@@ -39,7 +39,7 @@ class InternetClustersExport implements FromCollection, WithTitle,
             ->join('internet_metrics', 'internet_metric_clusters.internet_metric_id', 
                 'internet_metrics.id')
             ->join('internet_clusters', 'internet_metric_clusters.internet_cluster_id', 
-                'internet_clusters.id')
+                'internet_clusters.id') 
             ->select('internet_metrics.date_from', 'internet_metrics.date_to', 
                 'internet_clusters.name', 
                 'internet_metric_clusters.source_of_connection', 

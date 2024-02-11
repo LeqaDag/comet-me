@@ -24,13 +24,13 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
     /**
     * @return \Illuminate\Support\Collection
     */
-    public function collection()  
+    public function collection()   
     {
         $query = DB::table('households')
             ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
             ->join('communities', 'households.community_id', 'communities.id')
-            ->join('regions', 'communities.region_id', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->leftJoin('compound_households', 'compound_households.household_id', 'households.id')
+            ->leftJoin('compounds', 'compound_households.compound_id', 'compounds.id')
             ->leftJoin('energy_request_statuses', 'energy_request_systems.energy_request_status_id', 
                 'energy_request_statuses.id')
             ->leftJoin('energy_system_types', 'energy_request_systems.recommendede_energy_system_id', 
@@ -40,7 +40,7 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
             ->where('energy_request_systems.recommendede_energy_system_id', 2)
             ->select('households.english_name as household',
                 'communities.english_name as community_name', 
-                'regions.english_name as region', 'sub_regions.english_name as sub_region',
+                'compounds.english_name as compound_name',
                 'energy_system_types.name', "energy_request_systems.date", 
                 'households.number_of_male', 'households.number_of_female', 
                 'households.number_of_adults', 'households.number_of_children', 
@@ -67,7 +67,7 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
      */
     public function headings(): array
     {
-        return ["Household", "Community", "Region", "Sub Region", "System Type",  
+        return ["Household", "Community", "Compound", "System Type",  
             "Request Date", "Number of male", "Number of Female", "Number of adults", 
             "Number of children", "Phone number"];
     }

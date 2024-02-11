@@ -34,7 +34,7 @@ label, table {
         <i class="menu-icon tf-icons bx bx-expand-alt"></i>
         Toggle All
     </button>
-</p> 
+</p>  
 
 <div class="collapse multi-collapse mb-4" id="collapseHouseholdVisualData">
     <div class="container">
@@ -370,7 +370,7 @@ All<span class="text-muted fw-light"> Households</span>
 @include('employee.household.details')
 
 <div class="container"> 
-    <div class="card my-2">
+    <div class="card my-2"> 
         <div class="card-header">
             <div class="row">
                 <div class="col-xl-3 col-lg-3 col-md-3">

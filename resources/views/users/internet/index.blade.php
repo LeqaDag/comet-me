@@ -488,7 +488,53 @@ label, table {
 <div class="container">
     <div class="card my-2">
         <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Network Cluster</label>
+                        <select name="cluster_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCluster">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($internetClusters as $internetCluster)
+                                <option value="{{$internetCluster->id}}">{{$internetCluster->name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Installation Date</label>
+                        <input type="date" name="date" class="form-control"
+                            id="filterByInstallationDate">
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
 
+        <div class="card-body">
+            <div>
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
                 Auth::guard('user')->user()->user_type_id == 2 ||
                 Auth::guard('user')->user()->user_type_id == 6 ||
@@ -500,9 +546,7 @@ label, table {
                     </button>
                 </div>
             @endif
-        </div>
-       
-        <div class="card-body">
+            </div>
             <table id="internetAllUsersTable" class="table table-striped data-table-internet-users my-2">
                 <thead>
                     <tr>
@@ -528,14 +572,18 @@ label, table {
 
 <script type="text/javascript">
 
-    $(function () {
-        var table = $('.data-table-internet-users').DataTable({
+    var table;
+    function DataTableContent() {
+        table = $('.data-table-internet-users').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('internet-user.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.community_filter = $('#filterByCommunity').val();
+                    d.cluster_filter = $('#filterByCluster').val();
+                    d.date_filter = $('#filterByInstallationDate').val();
                 }
             },
             columns: [
@@ -544,6 +592,33 @@ label, table {
                 {data: 'start_date', name: 'start_date'},
                 {data: 'action'}
             ]
+        });
+    }
+
+
+    $(function () {
+        DataTableContent();
+        
+        $('#filterByCluster').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByInstallationDate').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#filterByInstallationDate').val(' ');
+            if ($.fn.DataTable.isDataTable('.data-table-internet-users')) {
+                $('.data-table-internet-users').DataTable().destroy();
+            }
+            DataTableContent();
         });
     });
 

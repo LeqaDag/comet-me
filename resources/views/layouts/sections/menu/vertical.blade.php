@@ -332,12 +332,12 @@
                             <div>All Internet Systems</div>
                         </a>
                     </li>
-                    <li class="menu-item" id="internet-cluster">
+                    <!-- <li class="menu-item" id="internet-cluster">
                         <a href="{{url('internet-cluster')}}" class="menu-link" >
                             <i class=""></i>
                             <div>All Internet Clusters</div>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </li> 
         </ul>

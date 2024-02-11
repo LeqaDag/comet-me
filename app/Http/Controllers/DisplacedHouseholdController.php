@@ -77,7 +77,7 @@ class DisplacedHouseholdController extends Controller
                 if ($regionFilter != null) {
 
                     $data->where('sub_regions.id', $regionFilter);
-                }
+                } 
 
                 $data->select(
                     'households.english_name as english_name',
@@ -129,8 +129,24 @@ class DisplacedHouseholdController extends Controller
             $householdStatuses = HouseholdStatus::where('is_archived', 0)->get();
             $subRegions = SubRegion::where('is_archived', 0)->get();
 
+            $dataHouseholdsByOldCommunity = DB::table('displaced_households')
+                ->join('communities', 'displaced_households.old_community_id', 'communities.id')
+                ->where('displaced_households.is_archived', 0)
+                ->select(
+                        DB::raw('communities.english_name as english_name'),
+                        DB::raw('count(*) as number'))
+                ->groupBy('communities.english_name')
+                ->get();
+            $arrayHouseholdsByOldCommunity[] = ['Old Community', 'Total'];
+            
+            foreach($dataHouseholdsByOldCommunity as $key => $value) {
+
+                $arrayHouseholdsByOldCommunity[++$key] = [$value->english_name, $value->number];
+            }
+
             return view('employee.household.displaced.index', compact('communities', 
-                'energySystemTypes', 'subRegions'));
+                'energySystemTypes', 'subRegions'))
+                ->with('oldCommunityHouseholdsData', json_encode($arrayHouseholdsByOldCommunity));
 
         } else {
 

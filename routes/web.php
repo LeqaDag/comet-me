@@ -99,6 +99,7 @@ Route::post('community-compound-export', [App\Http\Controllers\CommunityCompound
 Route::resource('compound', App\Http\Controllers\CompoundController::class);
 
 Route::get('progress-household/household/get_un_user_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getNonUserByCommunity']);
+Route::get('progress-household/household/get_community_type/{installation_type}', [App\Http\Controllers\HouseholdController::class, 'getCommunityByType']);
 Route::get('household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::resource('donor', App\Http\Controllers\DonorController::class);
 Route::get('donor/destory/{id}', App\Http\Controllers\DonorController::class.'@destroy');
@@ -360,6 +361,7 @@ Route::resource('action-item', App\Http\Controllers\ActionItemController::class)
 Route::get('action-item/household/missing', [App\Http\Controllers\ActionItemController::class, 'householdMissingDetails']);
 Route::get('missing/donors/{community_id}', [App\Http\Controllers\ActionItemController::class, 'householdMissingDonors']);
 Route::get('action-item/ac-household/export', [App\Http\Controllers\ActionItemController::class, 'householdAcExport']);
+Route::get('action-item/in-progress-household/export', [App\Http\Controllers\ActionItemController::class, 'householdInProgressExport']);
 
 Route::resource('public-structure', App\Http\Controllers\PublicStructureController::class);
 Route::post('public-structure-export', [App\Http\Controllers\PublicStructureController::class, 'export'])->name('public-structure.export');

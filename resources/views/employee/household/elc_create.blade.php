@@ -49,12 +49,6 @@ label {
                                 data-live-search="true" 
                                 name="community_id" id="selectedUserCommunity"
                                 required>
-                                <option disabled selected>Choose one...</option>
-                                @foreach($communities as $community)
-                                    <option value="{{$community->id}}">
-                                        {{$community->english_name}}
-                                    </option>
-                                @endforeach
                             </select>
                         </fieldset>
                     </div>
@@ -262,6 +256,25 @@ label {
 
 <script>
    
+    
+    $(document).on('change', '#selectedUserMisc', function () {
+
+        installation_type = $(this).val();
+        $.ajax({
+            url: "household/get_community_type/" +  installation_type,
+            method: 'GET',  
+            success: function(data) {
+                $('#selectedUserCommunity').prop('disabled', false);
+
+                var select = $('#selectedUserCommunity'); 
+
+                select.html(data.html);
+                select.selectpicker('refresh');
+            }
+        }); 
+
+    });
+
     $(document).on('change', '#selectedUserCommunity', function () {
 
         community_id = $(this).val();
@@ -287,7 +300,7 @@ label {
 
         energy_type_id = $(this).val();
 
-        if(energy_type_id == 1 || energy_type_id == 3) {
+        if(energy_type_id == 1 || energy_type_id == 3 || energy_type_id == 4) {
 
             community_id = $("#selectedUserCommunity").val();
         } else {

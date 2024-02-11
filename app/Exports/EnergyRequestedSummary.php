@@ -50,7 +50,9 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'regions.english_name as region',
                 DB::raw('COUNT(CASE WHEN all_energy_types.id = 2 THEN 1 END) as sum_FBS'),
                 DB::raw('COUNT(CASE WHEN all_energy_types.id = 1 THEN 1 END) as sum_MG'),
-                DB::raw('COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END) as sum_SMG')
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END) as sum_SMG'),
+                DB::raw('COUNT(CASE WHEN all_households.household_status_id = 3 THEN 1 END) as sum_AC'),
+                DB::raw('COUNT(CASE WHEN all_households.household_status_id = 4 THEN 1 END) as sum_DC')
                 )
             ->groupBy('communities.english_name');
 
@@ -72,7 +74,9 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'regions.english_name as region',
                 DB::raw('COUNT(CASE WHEN energy_system_types.id = 2 THEN 1 END) as sum_FBS'),
                 DB::raw('COUNT(CASE WHEN energy_system_types.id = 1 THEN 1 END) as sum_MG'),
-                DB::raw('COUNT(CASE WHEN energy_system_types.id = 4 THEN 1 END) as sum_SMG')
+                DB::raw('COUNT(CASE WHEN energy_system_types.id = 4 THEN 1 END) as sum_SMG'),
+                DB::raw('COUNT(CASE WHEN households.household_status_id = 3 THEN 1 END) as sum_AC'),
+                DB::raw('COUNT(CASE WHEN households.household_status_id = 4 THEN 1 END) as sum_DC')
                 )
             ->groupBy('compounds.english_name');
 
@@ -111,7 +115,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
     /**
      * Write code on Method
      *
-     * @return response()
+     * @return response() 
      */
     public function registerEvents(): array
     {
@@ -130,12 +134,14 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:E1');
+        $sheet->setAutoFilter('A1:G1');
         $sheet->setCellValue('A1', 'Name');   
         $sheet->setCellValue('B1', 'Geographical Region'); 
         $sheet->setCellValue('C1', '# confirmed FBS'); 
         $sheet->setCellValue('D1', '# confirmed households/meters (MG)'); 
         $sheet->setCellValue('E1', 'Small MG (no electricity room)'); 
+        $sheet->setCellValue('F1', 'Completed AC'); // household_status is in-progress
+        $sheet->setCellValue('G1', 'Completed DC'); // household_status is served
 
         $sheet->setCellValue('A2', 'MISC FBS -- "Requested Systems"');     
         $sheet->setCellValue('B2', ' ');     
@@ -143,7 +149,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
 
         return [
             // Style the first row as bold text.
-            1    => ['font' => ['bold' => true, 'size' => 12]],
+            1    => ['font' => ['bold' => true, 'size' => 12]]
         ];
     }
 }

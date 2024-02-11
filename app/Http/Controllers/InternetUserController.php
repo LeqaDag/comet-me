@@ -13,7 +13,8 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\Donor;
-use App\Models\InternetUser;
+use App\Models\InternetCluster; 
+use App\Models\InternetUser; 
 use App\Models\InternetUserDonor;
 use App\Models\Household;
 use App\Models\Region;
@@ -35,25 +36,49 @@ class InternetUserController extends Controller
     {
         if (Auth::guard('user')->user() != null) {
 
+            $communityFilter = $request->input('community_filter');
+            $clusterFilter = $request->input('cluster_filter');
+            $dateFilter = $request->input('date_filter');
+
             if ($request->ajax()) {
   
                 $data = DB::table('internet_users')
-                    ->join('communities', 'internet_users.community_id', '=', 'communities.id')
-                    ->leftJoin('households', 'internet_users.household_id', '=', 'households.id')
+                    ->join('communities', 'internet_users.community_id', 'communities.id')
+                    ->leftJoin('households', 'internet_users.household_id', 'households.id')
                     ->leftJoin('public_structures', 'internet_users.public_structure_id', 
-                        '=', 'public_structures.id')
-                    ->join('internet_statuses', 'internet_users.internet_status_id', '=', 'internet_statuses.id')
-                    ->where('internet_users.is_archived', 0)
-                    ->select('internet_users.number_of_people', 'internet_users.number_of_contract',
-                        'internet_users.id as id', 'internet_users.created_at as created_at', 
-                        'internet_users.updated_at as updated_at', 
-                        'internet_users.start_date',
-                        'public_structures.english_name as public_name',
-                        'communities.english_name as community_name',
-                        'households.english_name as household_name',
-                        'internet_statuses.name')
-                    ->latest(); 
+                        'public_structures.id')
+                    ->join('internet_statuses', 'internet_users.internet_status_id', 'internet_statuses.id')
+                    ->where('internet_users.is_archived', 0);
+
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($clusterFilter != null) {
+
+                    $data->leftJoin('internet_cluster_communities', 'communities.id', 
+                            'internet_cluster_communities.community_id')
+                        ->leftJoin('internet_clusters', 'internet_clusters.id',
+                            'internet_cluster_communities.internet_cluster_id')
+                        ->where('internet_clusters.id', $clusterFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('internet_users.start_date', $dateFilter);
+                }
      
+                $data->select(
+                    'internet_users.number_of_people', 'internet_users.number_of_contract',
+                    'internet_users.id as id', 'internet_users.created_at as created_at', 
+                    'internet_users.updated_at as updated_at', 
+                    'internet_users.start_date',
+                    'public_structures.english_name as public_name',
+                    'communities.english_name as community_name',
+                    'households.english_name as household_name',
+                    'internet_statuses.name'
+                    )
+                    ->latest();
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -112,7 +137,6 @@ class InternetUserController extends Controller
             $dataJson = json_decode($dataApi, true);
             $clusters = json_decode($clusterApi, true);
 
-            
             $InternetUsersCounts = DB::table('internet_users')
                 ->where('internet_users.is_archived', 0)
                 ->whereNotNull('internet_users.household_id');
@@ -159,10 +183,12 @@ class InternetUserController extends Controller
                 ->where('is_archived', 0)
                 ->get(); 
 
+            $internetClusters = InternetCluster::get();
+
             return view('users.internet.index', compact('communities', 'donors', 'dataJson', 
                 'clusters', 'internetPercentage', 'allInternetPeople', 'activeInternetCommuntiiesCount',
                 'allContractHolders', 'allInternetUsersCounts', 'youngInternetHolders',
-                'communitiesInternet', 'InternetPublicCount'));
+                'communitiesInternet', 'InternetPublicCount', 'internetClusters'));
              
         } else {
 

@@ -38,6 +38,24 @@ label, table {
 
 <div class="collapse multi-collapse mb-4" id="collapseDisplacedHouseholdVisualData">
 
+    <div class="container">
+        <div class="row g-4 mb-4"> 
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-header">
+                        <h5>Displaced Households by Old Community</h5>
+                    </div>
+                    <div class="panel-body" >
+                        <div class="row">
+                            <div id="pie_chart_old_community_household" class="col-md-12">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="collapse multi-collapse container mb-4" id="collapseDisplacedHouseholdExport">
@@ -253,6 +271,22 @@ All<span class="text-muted fw-light"> Displaced Families</span>
     }
 
     $(function () {
+
+        var analytics = <?php echo $oldCommunityHouseholdsData; ?>;
+        
+        google.charts.load('current', {'packages':['bar']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart()
+        {
+            var data = google.visualization.arrayToDataTable(analytics);
+            var options = {
+                title : 'Displaced Households by Old Community' 
+            };
+
+            var chart = new google.charts.Bar(document.getElementById('pie_chart_old_community_household'));
+            chart.draw(data, options);
+        }
 
         DataTableContent();
         

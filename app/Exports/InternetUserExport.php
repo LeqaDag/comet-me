@@ -20,7 +20,7 @@ WithStyles
 
         $this->request = $request;
     }
-
+ 
     /**
     * @return \Illuminate\Support\Collection
     */
@@ -36,12 +36,17 @@ WithStyles
             ->join('internet_statuses', 'internet_users.internet_status_id', '=', 'internet_statuses.id')
             ->LeftJoin('internet_user_donors', 'internet_users.id', 
                 '=', 'internet_user_donors.internet_user_id')
+            ->LeftJoin('internet_cluster_communities', 'internet_cluster_communities.community_id', 
+                'communities.id')
+            ->LeftJoin('internet_clusters', 'internet_cluster_communities.internet_cluster_id', 
+                'internet_clusters.id')
             ->LeftJoin('donors', 'internet_user_donors.donor_id', '=', 'donors.id')
             ->where('internet_users.is_archived', 0)
             ->select('households.english_name as english_name', 
                 'households.arabic_name as arabic_name', 
                 'public_structures.english_name as public', 
                 'communities.english_name as community_name',
+                'internet_clusters.name as cluster_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'internet_users.start_date', 'internet_statuses.name', 
                 'internet_users.number_of_contract',
@@ -71,8 +76,8 @@ WithStyles
      */
     public function headings(): array
     {
-        return ["Internet Holder", "Arabic Name", "Public Name", "Community", "Region", "Sub Region", 
-            "Start Date", "Internet Status", "Number of Contracts",
+        return ["Internet Holder", "Arabic Name", "Public Name", "Community", "Cluster Name", 
+            "Region", "Sub Region", "Start Date", "Internet Status", "Number of Contracts",
             "Donors"];
     }
 
@@ -88,7 +93,7 @@ WithStyles
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:I1');
+        $sheet->setAutoFilter('A1:K1');
 
         return [
             // Style the first row as bold text.

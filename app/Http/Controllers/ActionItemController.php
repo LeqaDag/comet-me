@@ -27,6 +27,8 @@ use App\Models\H2oUser;
 use App\Models\GridUser;
 use App\Models\Photo;
 use App\Models\Region;
+use App\Models\FbsUserIncident;
+use App\Models\H2oSystemIncident;
 use App\Models\Setting;
 use App\Models\SubRegion;
 use App\Models\SubCommunity;
@@ -43,12 +45,15 @@ use App\Models\H2oStatus;
 use App\Models\Incident;
 use App\Models\MgIncident;
 use App\Models\IncidentStatusMgSystem;
+use App\Models\InternetNetworkIncident;
+use App\Models\InternetUserIncident;
 use App\Models\InternetUser;
 use App\Models\RecommendedCommunityEnergySystem;
 use App\Models\MeterList;
 use App\Models\WaterNetworkUser;
 use App\Exports\MissingHouseholdDetailsExport;
 use App\Exports\MissingHouseholdAcExport;
+use App\Exports\InProgressHouseholdExport;
 use Auth;
 use Route;
 use DB;
@@ -150,10 +155,14 @@ class ActionItemController extends Controller
             $inProgressHouseholdsInitialCommunity = $countHouseholds
                 ->where('communities.community_status_id', 1)
                 ->get();
-            $inProgressHouseholdsAcCommunity = $countHouseholds
+            $inProgressHouseholdsAcCommunity = DB::table('households')
+                ->where('households.is_archived', 0)
+                ->where('households.internet_holder_young', 0)
+                ->where('households.household_status_id', 3)
+                ->join('communities', 'communities.id', 'households.community_id')
                 ->where('communities.community_status_id', 2)
                 ->get();
-           // dd($inProgressHouseholdsActiveCommunity->count());
+           
 
             $missingCommunityDonors = DB::table('communities')
                 ->leftJoin('community_donors', function ($join) {
@@ -241,6 +250,17 @@ class ActionItemController extends Controller
                     'communities.english_name as community')
                 ->get();
 
+            $newEnergyUsers = AllEnergyMeter::where('meter_number', 0)
+                ->where('is_archived', 0)
+                ->get();
+ 
+            
+            $mgIncidents = MgIncident::where('is_archived', 0)->get();
+            $fbsIncidents = FbsUserIncident::where('is_archived', 0)->get();
+            $waterIncidents = H2oSystemIncident::where('is_archived', 0)->get();
+            $networkIncidents = InternetNetworkIncident::where('is_archived', 0)->get();
+            $internetHolderIncidents = InternetUserIncident::where('is_archived', 0)->get();
+
             return view('actions.index', compact('youngHolders', 'internetManager',
                 'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
                 'missingMaleNumbers', 'missingFemaleNumbers', 'missingChildrenNumbers',
@@ -248,8 +268,10 @@ class ActionItemController extends Controller
                 'internetDataApi', 'missingCommunityDonors', 'communitiesAC',
                 'newCommunityFbs', 'newCommunityMgExtension', 'newEnergyHolders',
                 'missingCommunityRepresentatives', 'communityWaterService', 
-                'communityWaterServiceYear', 'communityInternetService', 
-                'communityInternetServiceYear', 'missingSchoolDetails'));
+                'communityWaterServiceYear', 'communityInternetService', 'waterIncidents',
+                'communityInternetServiceYear', 'missingSchoolDetails', 'fbsIncidents',
+                'inProgressHouseholdsAcCommunity', 'newEnergyUsers', 'mgIncidents',
+                'networkIncidents', 'internetHolderIncidents'));
 
         } else {
 
@@ -341,6 +363,37 @@ class ActionItemController extends Controller
             
         return Excel::download(new MissingHouseholdAcExport($request, $data), 
             'ac_households.xlsx');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function householdInProgressExport(Request $request) 
+    {       
+        $data = DB::table('households')
+            ->join('communities', 'communities.id', 'households.community_id')
+            ->join('community_statuses', 'communities.community_status_id', 
+                'community_statuses.id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->leftJoin('professions', 'households.profession_id', 
+                'professions.id')
+            ->leftJoin('energy_system_types', 'households.energy_system_type_id', 
+                'energy_system_types.id')
+            ->where('households.is_archived', 0)
+            ->where('households.internet_holder_young', 0)
+            ->where('households.household_status_id', 3)
+            ->where('communities.community_status_id', 2)
+            ->select(
+                'households.english_name', 'communities.english_name as community',
+                'regions.english_name as region', 
+                'energy_system_types.name',  
+                'professions.profession_name', 
+                'number_of_male', 'number_of_female', 'number_of_children', 
+                'number_of_adults');
+            
+        return Excel::download(new InProgressHouseholdExport($request, $data), 
+            'in_progress_households.xlsx');
     }
 
     /**

@@ -267,7 +267,7 @@ class HouseholdController extends Controller
 
                 $arrayHouseholdsBySubRegion[++$key] = [$value->english_name, $value->number];
             }
-            
+             
             $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
             $donors = Donor::where('is_archived', 0)->get();
             $publicCategories = PublicStructureCategory::where('is_archived', 0)->get();
@@ -548,6 +548,44 @@ class HouseholdController extends Controller
 
             foreach ($households as $household) {
                 $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Get community by installation type
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getCommunityByType(Request $request)
+    {
+        if (!$request->installation_type) {
+
+            $html = '<option value="">Choose One...</option>';
+        } else {
+
+            $html = '<option disabled selected>Choose One...</option>';
+
+            if($request->installation_type == 1) {
+
+                $communities = Community::where('is_archived', 0)
+                    ->where('community_status_id', 1)
+                    ->orWhere('community_status_id', 2)
+                    ->get();
+
+            } else {
+ 
+                $communities = Community::where('is_archived', 0)
+                    ->where('community_status_id', '!=', 1)
+                    ->get();
+            }
+            
+
+            foreach ($communities as $community) {
+                $html .= '<option value="'.$community->id.'">'.$community->english_name.'</option>';
             }
         }
 

@@ -77,9 +77,11 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
         $compoundsCollection = collect($queryCompounds->get());
 
         $query =  DB::table('households')
+            ->join('household_statuses', 'households.household_status_id', 
+                'household_statuses.id')
             ->join('communities', 'communities.id', 'households.community_id')
-            ->join('regions', 'communities.region_id', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->leftJoin('compound_households', 'compound_households.household_id', 'households.id')
+            ->leftJoin('compounds', 'compound_households.compound_id', 'compounds.id')
             ->join('community_statuses', 'communities.community_status_id', 
                 'community_statuses.id')
             ->leftJoin('energy_system_types', 'energy_system_types.id',
@@ -89,8 +91,13 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
             ->orWhere('communities.community_status_id', 2)
             ->select(
                 'households.english_name as household',
-                'communities.english_name as community_name', 
-                'regions.english_name as region', 'sub_regions.english_name as sub_region',
+                'communities.english_name as community_name',
+                DB::raw("CASE 
+                    WHEN households.household_status_id = 4 THEN 'DC Completed' 
+                    WHEN households.household_status_id = 3 THEN 'AC Completed' 
+                    ELSE household_statuses.status 
+                END as status"),
+                'compounds.english_name as compound_name',
                 'energy_system_types.name', 'households.number_of_male', 
                 'households.number_of_female', 'households.number_of_adults', 
                 'households.number_of_children', 'households.phone_number'
@@ -106,14 +113,14 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
      */
     public function headings(): array
     {
-        return ["Household", "Community", "Region", "Sub Region", "System Type",  
+        return ["Household", "Community", "Status", "Compound", "System Type",  
             "Number of male", "Number of Female", "Number of adults", 
             "Number of children", "Phone number"];
     }
 
     public function title(): string
     {
-        return 'Requested Households - New Communities';
+        return 'Households - New Communities';
     }
 
     /**
