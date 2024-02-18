@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithEvents; 
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Events\AfterSheet;
-use App\Models\CommunityDonor;
+use App\Models\CommunityDonor; 
 use DB;
 
 class CommunityExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles,

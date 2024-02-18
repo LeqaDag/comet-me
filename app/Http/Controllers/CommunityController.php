@@ -32,6 +32,7 @@ use App\Models\SubCommunity;
 use App\Models\Settlement;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
+use App\Models\GridCommunityCompound;
 use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
@@ -311,11 +312,12 @@ class CommunityController extends Controller
         }
 
         $data = DB::table('households')
-            ->where('households.is_archived', 0)
-            ->join('communities', 'communities.id', '=', 'households.community_id')
+            ->join('communities', 'communities.id', 'households.community_id')
             ->select(
                 'households.community_id AS id',
-                DB::raw("count(households.community_id) AS total_household"))
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 
+                THEN 1 ELSE NULL END) as total_household'),
+                )
             ->groupBy('households.community_id')
             ->get();
        
@@ -328,11 +330,14 @@ class CommunityController extends Controller
         }
 
         $households = DB::table('households')
-            ->where('households.is_archived', 0)
-            ->join('communities', 'communities.id', '=', 'households.community_id')
+            ->join('communities', 'communities.id', 'households.community_id')
             ->select(
                 'households.community_id AS id',
-                DB::raw("sum(households.number_of_male + households.number_of_female) AS total_people"))
+                DB::raw('SUM(CASE WHEN households.is_archived = 0 THEN 
+                    households.number_of_male + households.number_of_female ELSE 0 END) 
+                    as total_people')
+                )
+
             ->groupBy('households.community_id')
             ->get();
 
@@ -379,6 +384,10 @@ class CommunityController extends Controller
 
         $id = $community->id;
  
+        $gridCommunity = new GridCommunityCompound();
+        $gridCommunity->community_id = $id;
+        $gridCommunity->save();
+
         $lastCommunity = Community::findOrFail($id);
       
         if($request->addMoreInputFieldsCompoundName) {

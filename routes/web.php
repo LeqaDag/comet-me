@@ -109,6 +109,7 @@ Route::get('community-donor/{id}/editpage', [App\Http\Controllers\CommunityDonor
 Route::get('/getDonorData/{id}', [App\Http\Controllers\DonorController::class, 'getDonorData'])->name('getDonorData');
 Route::get('donor/edit_community_donor/{id}/{donor_id}/{service_id}', [App\Http\Controllers\CommunityDonorController::class, 'updateCommunityDonor']);  
 Route::post('donor-export', [App\Http\Controllers\DonorController::class, 'export'])->name('donor.export');
+Route::get('donor/{id}/editpage', [App\Http\Controllers\DonorController::class, 'editPage']);
 
 Route::get('region/get_region/{region_id}', [App\Http\Controllers\RegionController::class, 'getByRegion']);
 Route::get('region/get_sub_region/{region_id}/{sub_region_id}', [App\Http\Controllers\RegionController::class, 'getBySubRegion']);

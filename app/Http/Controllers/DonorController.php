@@ -53,12 +53,13 @@ class DonorController extends Controller
                         'donors.donor_name as donor_name',
                         'service_types.service_name as service_name')
                     ->latest(); 
+                    
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
 
                         $empty = "";
-                        $updateButton = "<a type='button' class='updateDonor' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateDonorCommunityModal'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $updateButton = "<a type='button' class='updateDonor' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteDonor' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></s>";
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 ) 
@@ -251,11 +252,24 @@ class DonorController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
+    public function editPage($id)
+    {
+        $communityDonor = CommunityDonor::findOrFail($id);
+
+        return response()->json($communityDonor);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
     public function edit($id) 
     {
         $communityDonor = CommunityDonor::findOrFail($id);
         $communityId = $communityDonor->community_id;
-        die($communityDonor);
+    
         $donors = Donor::where('is_archived', 0)->get();
         $services = ServiceType::where('is_archived', 0)->get();
 
@@ -269,7 +283,26 @@ class DonorController extends Controller
             'services', 'serviceDonors'));
     }
 
-     /**
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $communityDonor = CommunityDonor::findOrFail($id);
+        
+        if($request->donor_id) {
+
+            $communityDonor->donor_id = $request->donor_id;
+            $communityDonor->save();
+        }
+
+        return redirect('/donor')->with('message', 'Donor Updated Successfully!');
+    }
+
+    /**
      * Get a resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request

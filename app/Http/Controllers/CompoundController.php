@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Compound;
+use App\Models\GridCommunityCompound;
 
 class CompoundController extends Controller
 {
@@ -18,10 +19,15 @@ class CompoundController extends Controller
         if($request->addMoreInputFieldsCompoundName) {
             foreach($request->addMoreInputFieldsCompoundName as $compoundName) {
                 if($compoundName["subject"] != NULL) {
-                    Compound::create([
-                        'english_name' => $compoundName["subject"],
-                        'community_id' => $request->community_id,
-                    ]);
+
+                    $compound = new Compound();
+                    $compound->english_name = $compoundName["subject"];
+                    $compound->community_id = $request->community_id;
+                    $compound->save();
+
+                    $gridCompound = new GridCommunityCompound();
+                    $gridCompound->compound_id = $compound->id;
+                    $gridCompound->save();
                 }
             }
         }

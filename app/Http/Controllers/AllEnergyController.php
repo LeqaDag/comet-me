@@ -143,7 +143,7 @@ class AllEnergyController extends Controller
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
-
+ 
                 $data = DB::table('all_energy_meters')
                     ->join('communities', 'all_energy_meters.community_id', 'communities.id')
                     ->join('households', 'all_energy_meters.household_id', 'households.id')
@@ -164,7 +164,8 @@ class AllEnergyController extends Controller
                         'energy_system_types.name as energy_type_name',
                         'meter_cases.meter_case_name_english',
                         'all_energy_meters.is_main')
-                    ->latest(); 
+                    ->latest()
+                    ->distinct();
     
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -572,8 +573,7 @@ class AllEnergyController extends Controller
         
         if($user) {
 
-            $user->is_archived = 1;
-            $user->save();
+            $user->delete();
 
             if($sharedMeters) {
                 foreach($sharedMeters as $sharedMeter) {
@@ -583,8 +583,7 @@ class AllEnergyController extends Controller
                         ->where('donor_id', $mainEnergyDonor->donor_id)
                         ->first();
         
-                    $sharedDonor->is_archived = 1;
-                    $sharedDonor->save();
+                    $sharedDonor->delete();
                 }
             }
             

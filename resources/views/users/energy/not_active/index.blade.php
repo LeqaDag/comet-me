@@ -12,7 +12,7 @@
 
 label, table {
     margin-top: 20px;
-}
+} 
 </style>
 
 <p>

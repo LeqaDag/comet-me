@@ -225,7 +225,7 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col-xl-10 col-lg-10 col-md-10">
-                            <h5>
+                            <h5> 
                                 Export Community Report 
                                 <i class='fa-solid fa-file-excel text-info'></i>
                             </h5>
@@ -327,7 +327,7 @@
         </div>
     </div>
 @endif
-@include('employee.community.details')
+@include('employee.community.details') 
  
 <div class="container">
     <div class="card my-2"> 

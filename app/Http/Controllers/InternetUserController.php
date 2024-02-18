@@ -76,7 +76,7 @@ class InternetUserController extends Controller
                     'communities.english_name as community_name',
                     'households.english_name as household_name',
                     'internet_statuses.name'
-                    )
+                    ) 
                     ->latest();
 
                 return Datatables::of($data)
@@ -100,6 +100,7 @@ class InternetUserController extends Controller
 
                         if($row->household_name != null) $holder = $row->household_name;
                         else if($row->public_name != null) $holder = $row->public_name;
+                        else $holder = "";
 
                         return $holder;
                     })
@@ -303,8 +304,7 @@ class InternetUserController extends Controller
 
         if($internetHolderDonor) {
 
-            $internetHolderDonor->is_archived = 1;
-            $internetHolderDonor->save();
+            $internetHolderDonor->delete();
 
             $response['success'] = 1;
             $response['msg'] = 'Internet Donor Deleted successfully'; 

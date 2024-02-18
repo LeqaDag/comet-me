@@ -29,6 +29,7 @@ use App\Models\Photo;
 use App\Models\Region;
 use App\Models\FbsUserIncident;
 use App\Models\H2oSystemIncident;
+use App\Models\GridCommunityCompound;
 use App\Models\Setting;
 use App\Models\SubRegion;
 use App\Models\SubCommunity;
@@ -38,8 +39,9 @@ use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
+use App\Models\ElectricityMaintenanceCall;
 use App\Models\Town;
-use App\Models\BsfStatus;
+use App\Models\BsfStatus; 
 use App\Models\H2oSharedUser;
 use App\Models\H2oStatus;
 use App\Models\Incident;
@@ -133,6 +135,15 @@ class ActionItemController extends Controller
             $communitiesAC = Community::where("community_status_id", 2)
                 ->where('is_archived', 0)
                 ->get();
+
+            $notStartedACSurveyCommunities =  Community::where("community_status_id", 1)
+                ->where('is_archived', 0)
+                ->get();
+
+            Community::where("community_status_id", 1)
+                ->where('is_archived', 0)
+                ->get();
+
             $acHouseholds = DB::table('households')
                 ->where('households.is_archived', 0)
                 ->where('households.internet_holder_young', 0)
@@ -261,6 +272,260 @@ class ActionItemController extends Controller
             $networkIncidents = InternetNetworkIncident::where('is_archived', 0)->get();
             $internetHolderIncidents = InternetUserIncident::where('is_archived', 0)->get();
 
+            $miscRequested =  DB::table('households')
+                ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
+                ->where('households.is_archived', 0)
+                ->where('households.household_status_id', 5)
+                ->where('energy_request_systems.recommendede_energy_system_id', 2)
+                ->get(); 
+ 
+            $queryCompounds = DB::table('compounds')
+                ->join('communities', 'communities.id', 'compounds.community_id')
+                ->join('regions', 'communities.region_id', 'regions.id')
+                ->join('community_statuses', 'communities.community_status_id', 
+                    'community_statuses.id')
+                ->join('compound_households', 'compound_households.compound_id', 'compounds.id')
+                ->join('households', 'compound_households.household_id', 'households.id')
+                ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.community_status_id', 1)
+                ->select(
+                    'compounds.english_name',
+                    DB::raw('COUNT(compound_households.household_id) as number_of_household')
+                    )
+                ->groupBy('compounds.english_name')
+                ->get(); 
+
+            $notStartedACInstallationCommunities =  DB::table('communities')
+                ->join('regions', 'communities.region_id', 'regions.id')
+                ->join('community_statuses', 'communities.community_status_id', 
+                    'community_statuses.id')
+                ->join('households as all_households', 'all_households.community_id',
+                    'communities.id')
+                ->join('energy_system_types as all_energy_types', 'all_energy_types.id',
+                    'all_households.energy_system_type_id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.community_status_id', 1)
+                ->orWhere('communities.community_status_id', 2)
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('compounds')
+                        ->whereRaw('compounds.community_id = communities.id');
+                })
+                ->select( 
+                    'communities.english_name', 'communities.id',
+                    
+                    DB::raw('COUNT(CASE WHEN all_households.household_status_id = 2 
+                        THEN 1 ELSE NULL END) as number'),
+                    DB::raw('SUM(CASE WHEN all_households.household_status_id IN 
+                        (2, 1) THEN 1 ELSE 0 END) as number_of_households')
+                    )
+                ->groupBy('communities.english_name')
+                ->get();
+
+            
+            $notStartedACInstallationCompounds = DB::table('compounds')
+                ->join('communities', 'communities.id', 'compounds.community_id')
+                ->join('regions', 'communities.region_id', 'regions.id')
+                ->join('community_statuses', 'communities.community_status_id', 'community_statuses.id')
+                ->join('compound_households', 'compound_households.compound_id', 'compounds.id')
+                ->join('households', 'compound_households.household_id', 'households.id')
+                ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
+                ->where('communities.is_archived', 0)
+                ->where(function ($query) {
+                    $query->where('communities.community_status_id', 2)
+                        ->orWhere('communities.community_status_id', 3);
+                })
+                ->select(
+                    'compounds.english_name', 
+                    DB::raw('COUNT(CASE WHEN households.household_status_id = 2 
+                        THEN 1 ELSE NULL END) as number'),
+                    DB::raw('SUM(CASE WHEN households.household_status_id IN 
+                        (2, 3) THEN 1 ELSE 0 END) as number_of_households')
+                )
+                ->groupBy('compounds.english_name')
+                ->get();
+
+
+            $totalNotStartedAC = $notStartedACInstallationCommunities->count() +
+                $notStartedACInstallationCompounds->count();
+
+            $communitiesElecticityRoomMissing = DB::table('communities')
+                ->leftJoin('grid_community_compounds', 'communities.id', '=', 'grid_community_compounds.community_id')
+                ->where('communities.community_status_id', [2, 1, 3])
+                ->where('grid_community_compounds.electricity_room', 'No')
+                ->select('communities.id', 'communities.english_name as community')
+                ->get();
+
+            $communitiesGridMissing = DB::table('communities')
+                ->leftJoin('grid_community_compounds', 'communities.id', 'grid_community_compounds.community_id')
+                ->where('communities.community_status_id', [2, 3])
+                ->where('grid_community_compounds.grid', 'No')
+                ->select('communities.id', 'communities.english_name as community')
+                ->get();
+
+            $compoundsElecticityRoomMissing = DB::table('compounds')
+                ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
+                ->leftJoin('communities', 'communities.id', 'compounds.community_id')
+                ->where('communities.community_status_id', [2, 3])
+                ->where('grid_community_compounds.electricity_room', 'No')
+                ->select('compounds.id', 'compounds.english_name as compound')
+                ->get();
+
+            //die($compoundsElecticityRoomMissing);
+            $compoundsGridMissing = DB::table('compounds')
+                ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
+                ->leftJoin('communities', 'communities.id', 'compounds.community_id')
+                ->where('communities.community_status_id', [2, 3])
+                ->where('grid_community_compounds.grid', 'No')
+                ->select('compounds.id', 'compounds.english_name as compound')
+                ->get();
+
+            $communitiesNeedToCompleteElectricity = DB::table('grid_community_compounds')
+                ->join('communities', 'communities.id', 'grid_community_compounds.community_id')
+                ->where('communities.community_status_id', [2, 3])
+                ->where('grid_community_compounds.electricity_room', 'No')
+                ->select('communities.english_name as community')
+                ->get();
+
+            $communitiesMgSmgNotDCInstallations = DB::table('all_energy_meters')
+                ->join('communities', 'communities.id', 'all_energy_meters.community_id')
+                ->where('all_energy_meters.energy_system_type_id', [4, 1])
+                ->where('all_energy_meters.meter_number', 0)
+                ->select(
+                    'communities.english_name as community',
+                    DB::raw('COUNT(all_energy_meters.id) as number_of_household'),
+                    DB::raw('COUNT(communities.id) as number'),
+                    )
+                ->groupBy('communities.id')
+                ->get();
+
+            $communitiesFbsNotDCInstallations = DB::table('all_energy_meters')
+                ->join('communities', 'communities.id', 'all_energy_meters.community_id')
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.meter_number', 0)
+                ->select(
+                    'communities.english_name as community',
+                    DB::raw('COUNT(all_energy_meters.id) as number_of_household'),
+                    DB::raw('COUNT(communities.id) as number'),
+                    )
+                ->groupBy('communities.id')
+                ->get();
+
+            $electricityNewMaintenances =  DB::table('electricity_maintenance_calls')
+                ->where('electricity_maintenance_calls.is_archived', 0)
+                ->join('electricity_maintenance_call_actions', 'electricity_maintenance_calls.id',
+                    'electricity_maintenance_call_actions.electricity_maintenance_call_id')
+                ->where('electricity_maintenance_calls.maintenance_status_id', 1)
+                ->where('electricity_maintenance_call_actions.maintenance_electricity_action_id', '!=', 75)
+                ->get();
+
+            $electricityInProgressMaintenances =  DB::table('electricity_maintenance_calls')
+                ->where('electricity_maintenance_calls.is_archived', 0)
+                ->where('electricity_maintenance_calls.maintenance_status_id', 2)
+                ->get();
+
+            $refrigeratorNewMaintenances =  DB::table('refrigerator_maintenance_calls')
+                ->where('refrigerator_maintenance_calls.is_archived', 0)
+                ->where('refrigerator_maintenance_calls.maintenance_status_id', 1)
+                ->get();
+
+            $refrigeratorInProgressMaintenances =  DB::table('refrigerator_maintenance_calls')
+                ->where('refrigerator_maintenance_calls.is_archived', 0)
+                ->where('refrigerator_maintenance_calls.maintenance_status_id', 2)
+                ->get();
+
+            $waterNewMaintenances =  DB::table('h2o_maintenance_calls')
+                ->where('h2o_maintenance_calls.is_archived', 0)
+                ->where('h2o_maintenance_calls.maintenance_status_id', 1)
+                ->get();
+
+            $waterInProgressMaintenances =  DB::table('h2o_maintenance_calls')
+                ->where('h2o_maintenance_calls.is_archived', 0)
+                ->where('h2o_maintenance_calls.maintenance_status_id', 2)
+                ->get();
+      
+            $missingUserEnergDonors = DB::table('all_energy_meters')
+                ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                ->leftJoin('energy_system_types', 'all_energy_meters.energy_system_type_id', 
+                    'energy_system_types.id')
+                ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id', 
+                    'all_energy_meter_donors.all_energy_meter_id')
+                ->join('households', 'households.id', 
+                    'all_energy_meters.household_id')
+                ->whereNull('all_energy_meter_donors.all_energy_meter_id')
+                ->select(
+                    'communities.english_name as community', 
+                    'households.english_name as household_name',
+                    'energy_systems.name as energy_name', 'energy_system_types.name as type')
+               // ->groupBy('communities.id')
+                ->get();
+
+            $missingEnergyPublicDonors = DB::table('all_energy_meters')
+                ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                ->leftJoin('energy_system_types', 'all_energy_meters.energy_system_type_id', 
+                    'energy_system_types.id')
+                ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id', 
+                    'all_energy_meter_donors.all_energy_meter_id')
+                ->join('public_structures', 'public_structures.id', 
+                    'all_energy_meters.public_structure_id')
+                ->whereNull('all_energy_meter_donors.all_energy_meter_id')
+                ->select(
+                    'communities.english_name', 'public_structures.english_name as public',
+                    'energy_systems.name as energy_name', 'energy_system_types.name as type')
+                ->groupBy('communities.id')
+                ->get();
+
+            $missingUserWaterDonors = DB::table('all_water_holders')
+                ->join('communities', 'all_water_holders.community_id', 'communities.id')
+                ->leftJoin('all_water_holder_donors', 'all_water_holders.id', 
+                    'all_water_holder_donors.all_water_holder_id')
+                ->join('households', 'households.id', 
+                    'all_water_holders.household_id')
+                ->whereNull('all_water_holder_donors.all_water_holder_id')
+                ->select(
+                    'communities.english_name as community', 
+                    'households.english_name as household_name')
+                ->get();
+
+            $missingPublicWaterDonors = DB::table('all_water_holders')
+                ->join('communities', 'all_water_holders.community_id', 'communities.id')
+                ->leftJoin('all_water_holder_donors', 'all_water_holders.id', 
+                    'all_water_holder_donors.all_water_holder_id')
+                ->join('public_structures', 'public_structures.id', 
+                    'all_water_holders.public_structure_id')
+                ->whereNull('all_water_holder_donors.all_water_holder_id')
+                ->select(
+                    'communities.english_name', 'public_structures.english_name as public')
+                ->groupBy('communities.id')
+                ->get();
+
+            $missingUserInternetDonors = DB::table('internet_users')
+                ->join('communities', 'internet_users.community_id', 'communities.id')
+                ->leftJoin('internet_user_donors', 'internet_users.id', 
+                    'internet_user_donors.internet_user_id')
+                ->join('households', 'households.id', 
+                    'internet_users.household_id')
+                ->whereNull('internet_user_donors.internet_user_id')
+                ->select(
+                    'communities.english_name as community', 
+                    'households.english_name as household_name')
+                ->get();
+
+            $missingPublicInternetDonors = DB::table('internet_users')
+                ->join('communities', 'internet_users.community_id', 'communities.id')
+                ->leftJoin('internet_user_donors', 'internet_users.id', 
+                    'internet_user_donors.internet_user_id')
+                ->join('public_structures', 'public_structures.id', 
+                    'internet_users.public_structure_id')
+                ->whereNull('internet_user_donors.internet_user_id')
+                ->select(
+                    'communities.english_name as community', 
+                    'public_structures.english_name as public')
+                ->get();
+
             return view('actions.index', compact('youngHolders', 'internetManager',
                 'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
                 'missingMaleNumbers', 'missingFemaleNumbers', 'missingChildrenNumbers',
@@ -271,13 +536,77 @@ class ActionItemController extends Controller
                 'communityWaterServiceYear', 'communityInternetService', 'waterIncidents',
                 'communityInternetServiceYear', 'missingSchoolDetails', 'fbsIncidents',
                 'inProgressHouseholdsAcCommunity', 'newEnergyUsers', 'mgIncidents',
-                'networkIncidents', 'internetHolderIncidents'));
+                'networkIncidents', 'internetHolderIncidents', 'notStartedACSurveyCommunities',
+                'notStartedACInstallationCommunities', 'miscRequested', 'queryCompounds',
+                'notStartedACInstallationCompounds', 'totalNotStartedAC',
+                'communitiesGridMissing', 'compoundsGridMissing', 
+                'communitiesNeedToCompleteElectricity', 'communitiesElecticityRoomMissing',
+                'compoundsElecticityRoomMissing', 'communitiesFbsNotDCInstallations',
+                'communitiesMgSmgNotDCInstallations',
+                'electricityNewMaintenances', 'electricityInProgressMaintenances',
+                'refrigeratorNewMaintenances', 'refrigeratorInProgressMaintenances',
+                'waterNewMaintenances', 'waterInProgressMaintenances', 'missingUserEnergDonors',
+                'missingEnergyPublicDonors', 'missingUserWaterDonors',
+                'missingPublicWaterDonors', 'missingUserInternetDonors', 'missingPublicInternetDonors'));
 
         } else {
 
             return view('errors.not-found');
         }    
     }
+
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    { 
+        if($request->community_id) {
+
+            $existGridCommunity = GridCommunityCompound::where('community_id', $request->community_id)
+                ->first();
+
+            if($existGridCommunity) {
+
+                $existGridCommunity->electricity_room = $request->electricity_room;
+                $existGridCommunity->grid = $request->grid;
+                $existGridCommunity->save();
+
+            } else {
+
+                $gridCommunity = new GridCommunityCompound();
+                $gridCommunity->community_id = $request->community_id;
+                $gridCommunity->electricity_room = $request->electricity_room;
+                $gridCommunity->grid = $request->grid;
+                $gridCommunity->save();
+            }
+        } else if($request->compound_id) {
+
+            $existGridCompound = GridCommunityCompound::where('compound_id', $request->compound_id)
+                ->first();
+
+            if($existGridCompound) {
+
+                $existGridCompound->electricity_room = $request->electricity_room;
+                $existGridCompound->grid = $request->grid;
+                $existGridCompound->save();
+
+            } else {
+
+                $gridCompound = new GridCommunityCompound();
+                $gridCompound->compound_id = $request->compound_id;
+                $gridCompound->electricity_room = $request->electricity_room;
+                $gridCompound->grid = $request->grid;
+                $gridCompound->save();
+            }
+        }
+
+        return redirect()->back();
+    }
+
 
     /**
      * 

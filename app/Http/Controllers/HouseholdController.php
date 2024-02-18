@@ -112,7 +112,7 @@ class HouseholdController extends Controller
             $householdInternet = Household::where("internet_system_status", "Served")
                 ->where('is_archived', 0)
                 ->count(); 
-
+ 
             $communityFilter = $request->input('filter');
             $regionFilter = $request->input('second_filter');
             $statusFilter = $request->input('third_filter');
@@ -195,6 +195,10 @@ class HouseholdController extends Controller
 
                         else if($row->status == "Displaced") 
                         $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
+
+                        else if($row->status == "Not Served") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-light'>".$row->status."</span>";
+
 
                         return $statusLabel;
                     })

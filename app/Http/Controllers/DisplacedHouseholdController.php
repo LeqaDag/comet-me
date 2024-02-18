@@ -35,15 +35,16 @@ class DisplacedHouseholdController extends Controller
      */
     public function index(Request $request)
     {	
-        // $displacedHouseholds = DisplacedHousehold::get();
+        $displacedHouseholds = DisplacedHousehold::where('old_community_id', 182)
+            ->get();
 
-        // foreach($displacedHouseholds as $displacedHousehold) {
+        foreach($displacedHouseholds as $displacedHousehold) {
 
-        //     $household = Household::where("english_name", $displacedHousehold->household_name)->first();
-        //     $displacedHousehold->household_id = $household->id;
-        //     $displacedHousehold->save();
+            //$household = Household::where("english_name", $displacedHousehold->household_name)->first();
+            $displacedHousehold->old_energy_system_id = 99;
+            $displacedHousehold->save();
             
-        // }
+        }
 
         $oldCommunityFilter = $request->input('filter');
         $newCommunityFilter = $request->input('second_filter');

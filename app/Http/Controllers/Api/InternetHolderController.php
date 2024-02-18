@@ -57,7 +57,7 @@ class InternetHolderController extends Controller
                 $public = PublicStructure::where("is_archived", 0)
                     ->where("arabic_name", $holder["holder_full_name"])
                     ->first();
-               
+                
                 if($community == null) dd($holder["user_group_name"] );
                 $internetUser = new InternetUser();
                 $internetUser->internet_status_id = 1;

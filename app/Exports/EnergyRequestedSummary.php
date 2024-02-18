@@ -36,7 +36,9 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->leftJoin('households as all_households', 'all_households.community_id',
                 'communities.id')
             ->leftJoin('energy_system_types as all_energy_types', 'all_energy_types.id',
-                'all_households.energy_system_type_id')
+                'all_households.energy_system_type_id') 
+            ->leftJoin('grid_community_compounds', 'communities.id',
+                'grid_community_compounds.community_id')
             ->where('communities.is_archived', 0)
             ->where('communities.community_status_id', 1)
             ->orWhere('communities.community_status_id', 2)
@@ -45,14 +47,17 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                     ->from('compounds')
                     ->whereRaw('compounds.community_id = communities.id');
             })
-            ->select(
-                'communities.english_name',
+            ->select( 
+                'communities.english_name', 
                 'regions.english_name as region',
                 DB::raw('COUNT(CASE WHEN all_energy_types.id = 2 THEN 1 END) as sum_FBS'),
                 DB::raw('COUNT(CASE WHEN all_energy_types.id = 1 THEN 1 END) as sum_MG'),
                 DB::raw('COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END) as sum_SMG'),
+                'grid_community_compounds.electricity_room',
+                'grid_community_compounds.grid',
                 DB::raw('COUNT(CASE WHEN all_households.household_status_id = 3 THEN 1 END) as sum_AC'),
-                DB::raw('COUNT(CASE WHEN all_households.household_status_id = 4 THEN 1 END) as sum_DC')
+                DB::raw('COUNT(CASE WHEN all_households.household_status_id = 4 AND 
+                    communities.community_status_id = 3 THEN 1 END) as sum_DC'),
                 )
             ->groupBy('communities.english_name');
 
@@ -64,6 +69,8 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->join('compound_households', 'compound_households.compound_id', 'compounds.id')
             ->join('households', 'compound_households.household_id', 'households.id')
             ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
+            ->leftJoin('grid_community_compounds', 'compounds.id',
+                'grid_community_compounds.compound_id')
             ->where('communities.is_archived', 0)
             ->where('households.household_status_id', 2)
             ->where('communities.community_status_id', 1)
@@ -75,6 +82,8 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 DB::raw('COUNT(CASE WHEN energy_system_types.id = 2 THEN 1 END) as sum_FBS'),
                 DB::raw('COUNT(CASE WHEN energy_system_types.id = 1 THEN 1 END) as sum_MG'),
                 DB::raw('COUNT(CASE WHEN energy_system_types.id = 4 THEN 1 END) as sum_SMG'),
+                'grid_community_compounds.electricity_room',
+                'grid_community_compounds.grid',
                 DB::raw('COUNT(CASE WHEN households.household_status_id = 3 THEN 1 END) as sum_AC'),
                 DB::raw('COUNT(CASE WHEN households.household_status_id = 4 THEN 1 END) as sum_DC')
                 )
@@ -134,14 +143,16 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:G1');
+        $sheet->setAutoFilter('A1:I1');
         $sheet->setCellValue('A1', 'Name');   
         $sheet->setCellValue('B1', 'Geographical Region'); 
         $sheet->setCellValue('C1', '# confirmed FBS'); 
         $sheet->setCellValue('D1', '# confirmed households/meters (MG)'); 
         $sheet->setCellValue('E1', 'Small MG (no electricity room)'); 
-        $sheet->setCellValue('F1', 'Completed AC'); // household_status is in-progress
-        $sheet->setCellValue('G1', 'Completed DC'); // household_status is served
+        $sheet->setCellValue('F1', 'Electricity Room)'); 
+        $sheet->setCellValue('G1', 'Grid'); 
+        $sheet->setCellValue('H1', 'Completed AC'); // household_status is in-progress
+        $sheet->setCellValue('I1', 'Completed DC'); // household_status is served
 
         $sheet->setCellValue('A2', 'MISC FBS -- "Requested Systems"');     
         $sheet->setCellValue('B2', ' ');     

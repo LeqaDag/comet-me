@@ -105,13 +105,13 @@
                 </div>
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('donor.export') }}">
-                    @csrf
+                    @csrf 
                     <div class="card-body">
                         <div class="row">
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
-                                    <select name="community" class="selectpicker form-control" 
-                                        data-live-search="true">
+                                    <select name="community[]" class="selectpicker form-control" 
+                                        data-live-search="true" multiple>
                                         <option disabled selected>Search Community</option>
                                         @foreach($communities as $community)
                                         <option value="{{$community->id}}">
@@ -124,8 +124,8 @@
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
                                     <select class="selectpicker form-control" 
-                                        data-live-search="true" 
-                                        name="service" required>
+                                        data-live-search="true" multiple
+                                        name="service[]" required>
                                         <option disabled selected>Choose Service Type...</option>
                                         @foreach($services as $service)
                                         <option value="{{$service->id}}">
@@ -138,8 +138,8 @@
                             <div class="col-xl-3 col-lg-3 col-md-3">
                                 <fieldset class="form-group">
                                     <select class="selectpicker form-control" 
-                                        data-live-search="true" 
-                                        name="donor" required>
+                                        data-live-search="true" multiple
+                                        name="donor[]" required>
                                         <option disabled selected>Choose Donor...</option>
                                         @foreach($donors as $donor)
                                         <option value="{{$donor->id}}">
@@ -219,8 +219,6 @@
         
     </div>
 </div>
-
-@include('admin.donor.community.edit')
 
 <script type="text/javascript">
     $(function () {
@@ -310,68 +308,85 @@
 
         var id = 0;
 
-        // Update donor-community
+        // View record update page
         $('#donorTable').on('click', '.updateDonor', function() {
             var id = $(this).data('id');
-
+            var url = window.location.href; 
+            url = url +'/'+ id +'/edit';
+            
             // AJAX request
             $.ajax({
-                url: 'getDonorData/' + id,
+                url: 'donor/' + id + '/editpage',
                 type: 'get',
                 dataType: 'json',
                 success: function(response) {
-
-                    $('#communityName').html(response.community);
-
-                    if(response.service == "Electricity") {
-
-                        $('#communityService').css("color", "orange");
-                    } else if(response.service == "Water") {
-
-                        $('#communityService').css("color", "blue");
-                    } else if(response.service == "Internet") {
-
-                        $('#communityService').css("color", "green");
-                    }
-
-                    $('#communityService').html(response.service);
-                    $('#serviceId').val(response.service_id);
-                    $('#communityDonor').html(response.donor);
-                    $('#donor_id').val(response.donor_id);
+                    window.open(url, "_self"); 
                 }
             });
-
-            $('#saveDonorCommunityButton').on('click', function() {
-                        
-                donor_id = $('#donor_id').val();
-                service_id = $('#serviceId').val();
-
-                $.ajax({
-                    url: 'donor/edit_community_donor/' + id + '/'+ donor_id + '/' + service_id,
-                    type: 'get',
-                    dataType: 'json',
-                    success: function(response) {
-    
-                        $('#updateDonorCommunityModal').modal('toggle');
-                        $('#closeDonorCommunityUpdate').click ();
-    
-                        if(response == 1) {
-                            
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Community Donor Updated Successfully!',
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-    
-                                $('#donorTable').DataTable().draw();
-                            });
-                        }
-                    }
-                });
-            });
         });
+
+        // // Update donor-community
+        // $('#donorTable').on('click', '.updateDonor', function() {
+        //     var id = $(this).data('id');
+
+        //     // AJAX request
+        //     $.ajax({
+        //         url: 'getDonorData/' + id,
+        //         type: 'get',
+        //         dataType: 'json',
+        //         success: function(response) {
+
+        //             $('#communityName').html(response.community);
+
+        //             if(response.service == "Electricity") {
+
+        //                 $('#communityService').css("color", "orange");
+        //             } else if(response.service == "Water") {
+
+        //                 $('#communityService').css("color", "blue");
+        //             } else if(response.service == "Internet") {
+
+        //                 $('#communityService').css("color", "green");
+        //             }
+
+        //             $('#communityService').html(response.service);
+        //             $('#serviceId').val(response.service_id);
+        //             $('#communityDonor').html(response.donor);
+        //             $('#donor_id').val(response.donor_id);
+        //         }
+        //     });
+
+        //     $('#saveDonorCommunityButton').on('click', function() {
+                        
+        //         donor_id = $('#donor_id').val();
+        //         service_id = $('#serviceId').val();
+
+        //         $.ajax({
+        //             url: 'donor/edit_community_donor/' + id + '/'+ donor_id + '/' + service_id,
+        //             type: 'get',
+        //             dataType: 'json',
+        //             success: function(response) {
+    
+        //                 $('#updateDonorCommunityModal').modal('toggle');
+        //                 $('#closeDonorCommunityUpdate').click ();
+    
+        //                 if(response == 1) {
+                            
+        //                     Swal.fire({
+        //                         icon: 'success',
+        //                         title: 'Community Donor Updated Successfully!',
+        //                         showDenyButton: false,
+        //                         showCancelButton: false,
+        //                         confirmButtonText: 'Okay!'
+        //                     }).then((result) => {
+    
+        //                         $('#donorTable').DataTable().draw();
+        //                     });
+        //                 }
+        //             }
+        //         });
+        //     });
+        // });
 
         
         // delete energy user

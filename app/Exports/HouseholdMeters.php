@@ -15,7 +15,7 @@ use DB;
 class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
     WithStyles,WithEvents
 { 
-    protected $request;
+    protected $request; 
 
     function __construct($request) {
         $this->request = $request;
@@ -28,19 +28,19 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
     {
         $query = DB::table('household_meters') 
             ->join('all_energy_meters', 'all_energy_meters.id', 
-                '=', 'household_meters.energy_user_id')
-            ->LeftJoin('installation_types', 'all_energy_meters.installation_type_id', '=', 
+                'household_meters.energy_user_id')
+            ->LeftJoin('installation_types', 'all_energy_meters.installation_type_id', 
                 'installation_types.id')
-            ->leftJoin('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
-            ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
-            ->join('regions', 'communities.region_id', '=', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->leftJoin('households', 'household_meters.household_id', '=', 'households.id')
+            ->leftJoin('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
+            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->leftJoin('households', 'household_meters.household_id', 'households.id')
             ->leftJoin('public_structures', 'household_meters.public_structure_id', 
                 'public_structures.id')
-            ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id', '=',
+            ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id',
                 'all_energy_meter_donors.all_energy_meter_id')
-            ->leftJoin('donors', 'all_energy_meter_donors.donor_id', '=',
+            ->leftJoin('donors', 'all_energy_meter_donors.donor_id',
                 'donors.id')
             ->where('household_meters.is_archived', 0)
             ->select([

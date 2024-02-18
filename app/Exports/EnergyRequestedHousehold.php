@@ -36,7 +36,7 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
             ->leftJoin('energy_system_types', 'energy_request_systems.recommendede_energy_system_id', 
                 'energy_system_types.id')
             ->where('households.is_archived', 0)
-            ->where('households.household_status_id', 5)
+            ->where('households.household_status_id', 5) 
             ->where('energy_request_systems.recommendede_energy_system_id', 2)
             ->select('households.english_name as household',
                 'communities.english_name as community_name', 

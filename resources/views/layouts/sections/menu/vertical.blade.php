@@ -109,7 +109,7 @@
             <li class="menu-item" id="progress-household">
                 <a href="{{url('progress-household')}}" class="menu-link" >
                     <i class=""></i>
-                    <div>In Progress</div>
+                    <div>AC Completed</div>
                 </a>
             </li>
             <li class="menu-item" id="served-household">

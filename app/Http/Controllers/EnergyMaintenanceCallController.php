@@ -170,7 +170,7 @@ class EnergyMaintenanceCallController extends Controller
             'maintenance_electricity_action_id' => 'required',
             'user_id' => 'required'
         ]);
- 
+  
         $maintenance = new ElectricityMaintenanceCall();
         if($request->household_id) {
 

@@ -109,13 +109,20 @@ class LoginController extends Controller
         if (auth()->guard('user')->attempt(['email' => $request->email, 
             'password' => $request->password])) {
 
-            if (auth()->guard('user')->user()->is_admin == 1 || 
-                auth()->guard('user')->user()->is_Admin == 0) 
-            {
-                auth()->guard('user')->user()->generateCode();
+            if(auth()->guard('user')->user()->is_archived == 0) {
 
-                return redirect()->route('2fa.index');
+                if (auth()->guard('user')->user()->is_admin == 1 || 
+                    auth()->guard('user')->user()->is_Admin == 0) 
+                {
+                    auth()->guard('user')->user()->generateCode();
+
+                    return redirect()->route('2fa.index');
+                }
+            } else {
+
+                return redirect("login")->with('message', 'Oppes! You can not login with our system!');
             }
+            
         } else {
 
             return redirect("login")->with('message', 'Oppes! You have entered invalid credentials');

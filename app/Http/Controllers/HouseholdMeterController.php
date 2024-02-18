@@ -323,8 +323,7 @@ class HouseholdMeterController extends Controller
 
         if($householdMeter) {
 
-            $householdMeter->is_archived = 1;
-            $householdMeter->save();
+            $householdMeter->delete();
             
             $response['success'] = 1;
             $response['msg'] = 'Household Meter Deleted successfully'; 

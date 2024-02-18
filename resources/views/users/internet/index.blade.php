@@ -591,7 +591,7 @@ label, table {
                 {data: 'community_name', name: 'community_name'},
                 {data: 'start_date', name: 'start_date'},
                 {data: 'action'}
-            ]
+            ] 
         });
     }
 

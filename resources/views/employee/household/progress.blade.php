@@ -11,7 +11,7 @@
         <div class="col-xl-12 col-lg-12 col-md-12">
             <div class="panel panel-primary">
                 <div class="panel-header">
-                    <h5>In Progress Households by Community</h5>
+                    <h5>AC Completed Households by Community</h5>
                 </div>
                 <div class="panel-body" >
                     <div id="community_progress_households_chart" style="height:300px;">
@@ -23,7 +23,7 @@
 </div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-    <span class="text-muted fw-light">All </span>In Progress Households
+    <span class="text-muted fw-light">All </span>AC Completed Households
 </h4>
 
 @if(session()->has('message'))

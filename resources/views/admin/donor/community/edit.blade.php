@@ -1,24 +1,52 @@
-<div id="updateDonorCommunityModal" class="modal fade" tabindex="-1" aria-hidden="true" 
-        role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Update 
-                    <span id="communityName"></span> 
-                    Donor for
-                    <span id="communityService"></span>
-                </h4>
-                <button type="button" class="close" data-bs-dismiss="modal">&times;</button> 
-            </div>
-            <div class="modal-body"> 
+@extends('layouts/layoutMaster')
+
+@section('title', 'edit donor')
+
+@include('layouts.all')
+
+<style>
+    label, input{ 
+    display: block;
+}
+label {
+    margin-top: 20px;
+}
+</style>
+
+@section('content')
+<h4 class="py-3 breadcrumb-wrapper mb-4">
+    <span class="text-muted fw-light">Edit </span> {{$communityDonor->Community->english_name}}
+    <span class="text-muted fw-light">Information </span> 
+</h4>
+
+<div class="card">
+    <div class="card-content collapse show">
+        <div class="card-body">
+            <form method="POST" action="{{route('donor.update', $communityDonor->id)}}"
+             enctype="multipart/form-data" >
+                @csrf
+                @method('PATCH')
                 <div class="row">
-                    <input type="hidden" name="service_id" id="serviceId">
+
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Service</label>
+                            <select class="form-control" disabled>
+                                <option selected disabled>
+                                    {{$communityDonor->ServiceType->service_name}}
+                                </option>
+                            </select>
+                        </fieldset>
+                    </div>
+
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Donor</label>
-                            <select id='donor_id' class="form-control">
-                                <option id="communityDonor"selected></option>
+                            <select name='donor_id' class="selectpicker form-control"
+                                data-live-search="true">
+                                <option disabled selected>
+                                    {{$communityDonor->Donor->donor_name}}
+                                </option>
                                 @foreach($donors as $donor)
                                     <option value="{{$donor->id}}">
                                         {{$donor->donor_name}}
@@ -28,15 +56,15 @@
                         </fieldset>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success btn-sm" 
-                    id="saveDonorCommunityButton">Save
-                </button>
-                <button type="button" id="closeDonorCommunityUpdate" class="btn btn-default btn-sm" 
-                    data-bs-dismiss="modal">Close
-                </button>
-            </div>
+                <div class="row" style="margin-top:20px">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <button type="submit" class="btn btn-primary">
+                            Save changes
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+@endsection

@@ -846,8 +846,7 @@ class AllWaterController extends Controller
         
         if($mainWaterDonor) {
 
-            $mainWaterDonor->is_archived = 1;
-            $mainWaterDonor->save();
+            $mainWaterDonor->delete();
 
             if($h2oMainUser) {
 
@@ -863,8 +862,7 @@ class AllWaterController extends Controller
                             ->where('donor_id', $mainWaterDonor->donor_id)
                             ->first();
                         if($sharedDonor) {
-                            $sharedDonor->is_archived = 1;
-                            $sharedDonor->save();
+                            $sharedDonor->delete();
                         }
                     }
                 }
