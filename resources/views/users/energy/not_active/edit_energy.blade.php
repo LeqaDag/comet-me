@@ -4,7 +4,7 @@
 
 @extends('layouts/layoutMaster')
 
-@section('title', 'edit household')
+@section('title', 'edit energy user')
 
 @include('layouts.all')
 

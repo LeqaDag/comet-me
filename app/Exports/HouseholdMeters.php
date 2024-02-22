@@ -90,7 +90,7 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
 
     public function title(): string
     {
-        return 'Household Meters';
+        return 'Shared Meters';
     }
 
     /**

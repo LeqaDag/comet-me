@@ -197,7 +197,7 @@ class HouseholdController extends Controller
                         $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
 
                         else if($row->status == "Not Served") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-light'>".$row->status."</span>";
+                        $statusLabel = "<span class='badge rounded-pill bg-label-dark'>".$row->status."</span>";
 
 
                         return $statusLabel;

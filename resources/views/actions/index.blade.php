@@ -51,41 +51,49 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
                                 <div class="text-warning" style="font-weight:bold; font-size:16px">
                                     <i class="bx bx-alarm-exclamation"></i>
-                                    <span >Not Yet Started AC Survey</span>
+                                    <a data-toggle="collapse" class="text-warning" 
+                                        href="#notYetStartedACSurveyTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="notYetStartedACSurveyTab">
+                                        AC Survey Not Yet Started 
+                                    </a>
                                 </div>
                             </li>
                         </ul>
-                        @if(count($notStartedACSurveyCommunities) > 0)
-                        <p>You've got {{$notStartedACSurveyCommunities->count()}} initial communities 
-                            that need a visit to kickstart the survey process.
-                            <br>
-                            <span class="text-warning">
-                            If you've already visited the community, please enter the survey details into the platform
-                            </span>
-                        </p> 
-                        @foreach($notStartedACSurveyCommunities as $notStartedACSurveyCommunity)
-                            <ul class="list-group">
-                                <li class="d-flex list-group-item" style="margin-top:9px">
-                                    <span> {{$notStartedACSurveyCommunity->english_name}}  / 
-                                        {{$notStartedACSurveyCommunity->number_of_household}}
-                                    </span>   
-                                </li>
-                            </ul>
-                            @endforeach
-                        @endif
-                        @if(count($queryCompounds) > 0)
-                        <p>You've got {{$queryCompounds->count()}} initial compounds 
-                            that need a visit to kickstart the survey process.
-                        </p> 
-                        @foreach($queryCompounds as $queryCompound)
-                            <ul class="list-group">
-                                <li class="d-flex list-group-item" style="margin-top:9px">
-                                    <span> {{$queryCompound->english_name}}  / 
-                                    </span>   
-                                </li>
-                            </ul>
-                            @endforeach
-                        @endif
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="notYetStartedACSurveyTab">
+                            @if(count($notStartedACSurveyCommunities) > 0)
+                            <p>You've got {{$notStartedACSurveyCommunities->count()}} initial communities 
+                                that need a visit to kickstart the survey process.
+                                <br>
+                                <span class="text-warning">
+                                If you've already visited the community, please enter the survey details into the platform
+                                </span>
+                            </p> 
+                            @foreach($notStartedACSurveyCommunities as $notStartedACSurveyCommunity)
+                                <ul class="list-group">
+                                    <li class="d-flex list-group-item" style="margin-top:9px">
+                                        <span> {{$notStartedACSurveyCommunity->english_name}}  / 
+                                            {{$notStartedACSurveyCommunity->number_of_household}}
+                                        </span>   
+                                    </li>
+                                </ul>
+                                @endforeach
+                            @endif
+                            @if(count($queryCompounds) > 0)
+                            <p>You've got {{$queryCompounds->count()}} initial compounds 
+                                that need a visit to kickstart the survey process.
+                            </p> 
+                            @foreach($queryCompounds as $queryCompound)
+                                <ul class="list-group">
+                                    <li class="d-flex list-group-item" style="margin-top:9px">
+                                        <span> {{$queryCompound->english_name}}  / 
+                                        </span>   
+                                    </li>
+                                </ul>
+                                @endforeach
+                            @endif
+                        </div>
                     </div>
                 
                     <div class="card-body pb-0">
@@ -93,167 +101,323 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
                                 <div class="text-danger" style="font-weight:bold; font-size:16px">
                                     <i class="bx bx-grid"></i>
-                                    <span >Not Yet Completed AC Installation</span>
+                                    <a data-toggle="collapse" class="text-danger" 
+                                        href="#notYetCompletedACInstallationTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="notYetCompletedACInstallationTab">
+                                        AC Installation Not Yet Completed
+                                    </a>
                                 </div>
                             </li>
                         </ul>
-                        
-                        @if($totalNotStartedAC > 0)
-                        <p>You've got {{$totalNotStartedAC}} communities 
-                            / Compounds
-                            that need to complete the AC installation process.
-                        </p> 
-                            @if(count($notStartedACInstallationCommunities) > 0)
-                            @foreach($notStartedACInstallationCommunities as $notStartedACInstallationCommunity)
-                            <ul class="list-group">
-                                <li class="d-flex list-group-item" style="margin-top:9px">
-                                    <span> {{$notStartedACInstallationCommunity->english_name}} -  
-                                        {{$notStartedACInstallationCommunity->number}}
-                                        <span class="text-info">/ 
-                                        {{$notStartedACInstallationCommunity->number_of_households}}
-                                        </span>
-                                    </span>   
-                                </li>
-                            </ul>
-                            @endforeach
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="notYetCompletedACInstallationTab">
+                            @if($totalNotStartedAC > 0)
+                                <p>You've got {{$totalNotStartedAC}} communities 
+                                    / Compounds
+                                    that need to complete the AC installation process.
+                                </p> 
+                                @if(count($notStartedACInstallationCommunities) > 0)
+                                @foreach($notStartedACInstallationCommunities as $notStartedACInstallationCommunity)
+                                <ul class="list-group">
+                                    <li class="d-flex list-group-item" style="margin-top:9px">
+                                        <span> {{$notStartedACInstallationCommunity->english_name}} -  
+                                            {{$notStartedACInstallationCommunity->number}}
+                                            <span class="text-info">/ 
+                                            {{$notStartedACInstallationCommunity->number_of_households}}
+                                            </span>
+                                        </span>   
+                                    </li>
+                                </ul>
+                                @endforeach
+                                @endif
+                                @if(count($notStartedACInstallationCompounds) > 0)
+                                @foreach($notStartedACInstallationCompounds as $queryCompound)
+                                <ul class="list-group">
+                                    <li class="d-flex list-group-item" style="margin-top:9px">
+                                        <span> {{$queryCompound->english_name}}  -
+                                            {{$queryCompound->number}}
+                                            <span class="text-info">/ 
+                                            {{$queryCompound->number_of_households}}
+                                            </span>
+                                        </span>   
+                                    </li>
+                                </ul>
+                                @endforeach
+                                @endif
                             @endif
-                            @if(count($notStartedACInstallationCompounds) > 0)
-                            @foreach($notStartedACInstallationCompounds as $queryCompound)
-                            <ul class="list-group">
-                                <li class="d-flex list-group-item" style="margin-top:9px">
-                                    <span> {{$queryCompound->english_name}}  -
-                                        {{$queryCompound->number}}
-                                        <span class="text-info">/ 
-                                        {{$queryCompound->number_of_households}}
-                                        </span>
-                                    </span>   
-                                </li>
-                            </ul>
-                            @endforeach
-                            @endif
-                        @endif
+                        </div>
                     </div>
 
+                    <!-- Not Yet Completed Electricity Room-->
                     <div class="card-body pb-0">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
                                 <div class="text-primary" style="font-weight:bold; font-size:16px">
                                     <i class="bx bx-pulse"></i>
-                                    <span>Not Yet Completed Electricity Room</span>
+                                    <a data-toggle="collapse" class="text-primary" 
+                                        href="#notYetCompletedElectricityRoomTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="notYetCompletedElectricityRoomTab">
+                                        Electricity Room Not Yet Completed 
+                                    </a>
                                 </div>
                             </li>
                         </ul>
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="notYetCompletedElectricityRoomTab">
 
-                        @if(count($communitiesElecticityRoomMissing) > 0 ||
-                            count($compoundsElecticityRoomMissing) > 0)
-                        <p>You've got {{$communitiesElecticityRoomMissing->count()
-                                + $compoundsElecticityRoomMissing->count()}} SMG/MG 
-                            communities or compounds that need 
-                            to complete the electricity room.
-                        </p> 
-                            @if(count($compoundsElecticityRoomMissing) > 0)
-                            @foreach($compoundsElecticityRoomMissing as $compoundsElecticityRoom)
-                            <ul class="list-group">
-                                <li class="d-flex list-group-item" style="margin-top:9px">
-                                    <span> {{$compoundsElecticityRoom->compound}}
-                                    </span>   
-                                </li>
-                            </ul>
-                            @endforeach
+                            @if(count($communitiesElecticityRoomMissing) > 0 ||
+                                count($compoundsElecticityRoomMissing) > 0)
+                                <p>You've got {{$communitiesElecticityRoomMissing->count()
+                                        + $compoundsElecticityRoomMissing->count()}} SMG/MG 
+                                    communities or compounds that need 
+                                    to complete the electricity room.
+                                </p> 
+                                @if(count($compoundsElecticityRoomMissing) > 0)
+                                    @foreach($compoundsElecticityRoomMissing as $compoundsElecticityRoom)
+                                    <ul class="list-group">
+                                        <li class="d-flex list-group-item" style="margin-top:9px">
+                                            <a type="button" data-bs-toggle="modal" 
+                                                data-bs-target="#updateElectricityGridCompound{{$compoundsElecticityRoom->id}}">
+                                                <span>{{$compoundsElecticityRoom->compound}}</span>   
+                                            </a> 
+                                        </li>
+                                    </ul>
+                                    @include('actions.AC.room_compound')
+                                    @endforeach
+                                @endif
+                                @if(count($communitiesElecticityRoomMissing) > 0)
+                                    @foreach($communitiesElecticityRoomMissing as $communitiesElecticityRoom)
+                                    <ul class="list-group">
+                                        <li class="d-flex list-group-item" style="margin-top:9px">
+                                            <a type="button" data-bs-toggle="modal" 
+                                                data-bs-target="#updateElectricityGrid{{$communitiesElecticityRoom->id}}">
+                                                <span>{{$communitiesElecticityRoom->community}}</span>   
+                                            </a> 
+                                        </li>
+                                    </ul>
+                                    @include('actions.AC.room_community')
+                                    @endforeach
+                                @endif
                             @endif
-                            @if(count($communitiesElecticityRoomMissing) > 0)
-                            @foreach($communitiesElecticityRoomMissing as $communitiesElecticityRoom)
-                            <ul class="list-group">
-                                <li class="d-flex list-group-item" style="margin-top:9px">
-                                    <span>{{$communitiesElecticityRoom->community}}
-                                    </span>   
-                                </li>
-                            </ul>
-                            @endforeach
-                            @endif
-                        @endif
+                        </div>
                     </div>
 
+                    <!-- Not Yet Completed Grid-->
                     <div class="card-body pb-0">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
                                 <div class="text-info" style="font-weight:bold; font-size:16px">
                                     <i class="bx bx-grid-alt"></i>
-                                    <span>Not Yet Completed Grid</span>
+                                    <a data-toggle="collapse" class="text-info" 
+                                        href="#notYetCompletedGridTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="notYetCompletedGridTab">
+                                        Grid Not Yet Completed
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="notYetCompletedGridTab">
+                            @if(count($communitiesGridMissing) > 0 ||
+                                count($compoundsGridMissing) > 0)
+                            <p>You've got {{$communitiesGridMissing->count()
+                                    + $compoundsGridMissing->count()}} SMG/MG 
+                                communities or compounds that need 
+                                to complete the grid.
+                            </p> 
+                                @if(count($compoundsGridMissing) > 0)
+                                    @foreach($compoundsGridMissing as $compoundsGrid)
+                                    <ul class="list-group">
+                                        <li class="d-flex list-group-item" style="margin-top:9px">
+                                            <a type="button" data-bs-toggle="modal" 
+                                                data-bs-target="#updateGridCompound{{$compoundsGrid->id}}">
+                                                <span>{{$compoundsGrid->compound}}</span>   
+                                            </a> 
+                                        </li>
+                                    </ul>
+                                    @include('actions.AC.grid_compound')
+                                    @endforeach
+                                @endif
+                                @if(count($communitiesGridMissing) > 0)
+                                    @foreach($communitiesGridMissing as $communitiesGrid)
+                                    <ul class="list-group">
+                                        <li class="d-flex list-group-item" style="margin-top:9px">
+                                            <a type="button" data-bs-toggle="modal" 
+                                                data-bs-target="#updateGridCommunity{{$communitiesGrid->id}}">
+                                                <span>{{$communitiesGrid->community}}</span>   
+                                            </a> 
+                                        </li>
+                                    </ul>
+                                    @include('actions.AC.grid_community')
+                                    @endforeach
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Not Yet Completed DC Installations -->
+                    <div class="card-body pb-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
+                                <div class="text-dark" style="font-weight:bold; font-size:16px">
+                                    <i class="bx bx-barcode"></i>
+                                    <a data-toggle="collapse" class="text-dark" 
+                                        href="#notYetCompletedDCInstallationTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="notYetCompletedDCInstallationTab">
+                                        DC installations Not Yet Completed 
+                                    </a>
                                 </div>
                             </li>
                         </ul>
 
-                        @if(count($communitiesGridMissing) > 0 ||
-                            count($compoundsGridMissing) > 0)
-                        <p>You've got {{$communitiesGridMissing->count()
-                                + $compoundsGridMissing->count()}} SMG/MG 
-                            communities or compounds that need 
-                            to complete the electricity room.
-                        </p> 
-                            @if(count($compoundsGridMissing) > 0)
-                            @foreach($compoundsGridMissing as $compoundsGrid)
-                            <ul class="list-group">
-                                <li class="d-flex list-group-item" style="margin-top:9px">
-                                    <span> {{$compoundsGrid->compound}}
-                                    </span>   
-                                </li>
-                            </ul>
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="notYetCompletedDCInstallationTab">
+                            <!-- @if(count($communitiesFbsNotDCInstallations) > 0)
+                                You've got 
+                                <span class="text-danger">
+                                    {{$communitiesFbsNotDCInstallations->count()}} FBS
+                                </span>   
+                                communities that completed AC installations but didn't 
+                                complete the DC installation process.
+                            @foreach($communitiesFbsNotDCInstallations as $communitiesFbs)
+                                <ul class="list-group">
+                                    <li class="d-flex list-group-item" style="margin-top:9px">
+                                        <span> {{$communitiesFbs->community}}  - 
+                                            {{$communitiesFbs->number_of_holders}}
+                                        </span>   
+                                    </li>
+                                </ul>
+                            @endforeach
+                            @endif -->
+
+                            @if(count($communitiesFbsNotDCInstallations) > 0)
+                                You've got 
+                                <span class="text-danger">
+                                    {{$holdersFbsNotDCInstallations->count()}} 
+                                    holders 
+                                </span>  in
+                                <span class="text-danger"> 
+                                    {{$communitiesFbsNotDCInstallations->count()}}
+                                    FBS communities 
+                                 </span> 
+                                 that need to complete the DC installation process.
+                            @foreach($communitiesFbsNotDCInstallations as $holdersFbs)
+                                <ul class="list-group">
+                                    <li class="d-flex list-group-item" style="margin-top:9px">
+                                        <a type="button" data-bs-toggle="modal" 
+                                            data-bs-target="#communitiesFbsNotDCInstallations{{$holdersFbs->id}}">
+                                            <span> {{$holdersFbs->community}}  - 
+                                                {{$holdersFbs->number_of_holders}}
+                                            </span>   
+                                        </a>
+                                    </li>
+                                </ul>
+                                @include('actions.DC.fbs')
                             @endforeach
                             @endif
-                            @if(count($communitiesGridMissing) > 0)
-                            @foreach($communitiesGridMissing as $communitiesGrid)
-                            <ul class="list-group">
-                                <li class="d-flex list-group-item" style="margin-top:9px">
-                                    <span>{{$communitiesGrid->community}}
-                                    </span>   
-                                </li>
-                            </ul>
+                            <br>
+
+                            @if(count($communitiesMgSmgNotDCInstallations) > 0)
+                                You've got 
+                                <span class="text-danger">
+                                    {{$holdersMgSmgNotDCInstallations->count()}} 
+                                    holders 
+                                </span> in
+                                <span class="text-danger"> 
+                                    {{$communitiesMgSmgNotDCInstallations->count()}}
+                                    MG/SMG communities 
+                                </span> 
+                                that need to complete the DC installation process.
+                            @foreach($communitiesMgSmgNotDCInstallations as $holdersMgSmg)
+                                <ul class="list-group">
+                                    <li class="d-flex list-group-item" style="margin-top:9px">
+                                        <a type="button" data-bs-toggle="modal" 
+                                            data-bs-target="#communitiesMgSmgNotDCInstallations{{$holdersMgSmg->id}}">
+                                            <span> {{$holdersMgSmg->community}}  - 
+                                                {{$holdersMgSmg->number_of_holders}}
+                                            </span>   
+                                        </a>
+                                    </li>
+                                </ul>
+                                @include('actions.DC.grid')
                             @endforeach
                             @endif
-                        @endif
+
+                            <!-- @if(count($communitiesMgSmgNotDCInstallations) > 0)
+                            <a type="button" data-bs-toggle="modal" 
+                                data-bs-target="#communitiesMgSmgNotDCInstallations">
+                                You've got 
+                                <span class="text-danger">
+                                    {{$communitiesMgSmgNotDCInstallations->count()}} MG/SMG
+                                </span>   
+                                communities that completed AC installations but didn't 
+                                complete the DC installation process.
+                            </a>
+                            @endif -->
+                        </div>
+                        <!-- 
+                        <p>
+                        You've got XX communities or compounds where you haven't 
+                        completed activating the meters.
+                        </p> -->
                     </div>
 
                     <div class="card-body pb-0">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
                                 <div class="text-success" style="font-weight:bold; font-size:16px">
-                                    <i class="bx bx-barcode"></i>
-                                    <span>Not Yet Completed DC installations</span>
+                                    <i class="bx bx-bulb"></i>
+                                    <a data-toggle="collapse" class="text-success" 
+                                        href="#notYetMeterActivationTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="notYetMeterActivationTab">
+                                        Meter Activation Not Yet Completed 
+                                    </a>
                                 </div>
                             </li>
                         </ul>
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="notYetMeterActivationTab">
 
-                        @if(count($communitiesFbsNotDCInstallations) > 0)
-                        <a type="button" data-bs-toggle="modal" 
-                            data-bs-target="#communitiesFbsNotDCInstallations">
-                            You've got 
-                            <span class="text-danger">
-                                {{$communitiesFbsNotDCInstallations->count()}} FBS
-                            </span>   
-                            communities that need to 
-                            complete the DC installation process.
-                        </a>
-                        @include('actions.DC.fbs')
-                        @endif
-
-                        @if(count($communitiesMgSmgNotDCInstallations) > 0)
-                        <a type="button" data-bs-toggle="modal" 
-                            data-bs-target="#communitiesMgSmgNotDCInstallations">
-                            You've got 
-                            <span class="text-danger">
-                                {{$communitiesMgSmgNotDCInstallations->count()}} MG/SMG
-                            </span>   
-                            communities that need to 
-                            complete the DC installation process.
-                        </a>
-                        @include('actions.DC.grid')
-                        @endif
-                        <!-- 
-                        <p>
-                        You've got XX communities or compounds where you haven't 
-                        completed activating the meters.
-                        </p> -->
+                            <div class="d-flex flex-wrap mb-4">
+                            @foreach($users as $user)
+                            @if($user->user_type_id == 4)
+                                <div>
+                                    <div class="avatar avatar-xs me-2">
+                                    @if($user->image == "")
+                        
+                                    @if($user->gender == "male")
+                                        <img src='/users/profile/male.jpg'
+                                            class="rounded-circle">
+                                    @else
+                                        <img src='/assets/images/female.png'
+                                            class="rounded-circle">
+                                    @endif
+                                    @else
+                                        <img src="{{url('users/profile/'.$user->image)}}" alt="Avatar" 
+                                            class="rounded-circle" />
+                                    @endif
+                                    </div>
+                                </div>
+                                <span>Assigned this task to <strong>{{$user->name}}</strong></span>
+                                @endif 
+                                @endforeach
+                            </div>
+                            <!-- add out of total users -->
+                            @if(count($newEnergyUsers) > 0)
+                                <p>You've {{$newEnergyUsers->count()}} 
+                                    <a title="Export AC Households"
+                                        href="all-meter" target="_blank">
+                                        Energy Holders
+                                    </a>
+                                    where the meter is not yet activated.
+                                </p>
+                            @endif
+                        </div>
                     </div>
 
                     <!-- <div class="card-body pb-0">
@@ -286,7 +450,7 @@
                                         @csrf
                                         <button class="" type="submit">
                                             <i class='fa-solid fa-file-excel'></i>
-                                            Export Energy Summary Report 
+                                            Export Energy Installation Progress Report 
                                         </button>
                                     </form>
                                 </div>
@@ -343,7 +507,7 @@
                         <p>You've got {{$miscRequested->count()}} MISC systems 
                             that need to begin the installation process.
                         </p> 
-                        @endif
+                        @endif 
                     </div>
 
                     <div class="card-body pb-0">
@@ -355,7 +519,7 @@
                                         @csrf
                                         <button class="" type="submit">
                                             <i class='fa-solid fa-file-excel'></i>
-                                            Export Energy Summary Report 
+                                            Export Energy Installation Progress Report 
                                         </button>
                                     </form>
                                 </div>
@@ -405,197 +569,237 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
                                 <div class="text-warning" style="font-weight:bold; font-size:16px">
                                     <i class="bx bx-bulb"></i>
-                                    <a class="text-warning" href="energy-maintenance" target="_blank">
-                                        <span>Electricity Maintenances</span>
+                                    <a data-toggle="collapse" class="text-warning" 
+                                        href="#ElectricityMaintenancesTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="ElectricityMaintenancesTab">
+                                        Electricity Maintenances
                                     </a>
                                 </div>
                             </li>
                         </ul>
-                        @if(count($electricityNewMaintenances) > 0)
-                        <p>
-                            You've got {{$electricityNewMaintenances->count()}}
-                            new maintenance calls
-                        </p> 
-                        @endif
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="ElectricityMaintenancesTab">
 
-                        @if(count($electricityInProgressMaintenances) > 0)
-                        <p>
-                            You've got {{$electricityInProgressMaintenances->count()}}
-                            maintenance actions that are still in progress.
-                        </p> 
-                        @endif
+                            @if(count($electricityNewMaintenances) > 0)
+                                <p>
+                                    You've got 
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#electricityNewMaintenances">
+                                        <span class="text-warning">
+                                        {{$electricityNewMaintenances->count()}} NEW
+                                        </span>   
+                                    </a>
+                                    maintenance calls
+                                </p> 
+                                @include('actions.maintenance.energy.new')
+                            @endif
+
+                            @if(count($electricityInProgressMaintenances) > 0)
+                                <p>
+                                    You've got  
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#electricityInProgressMaintenances">
+                                        <span class="text-warning">
+                                        {{$electricityInProgressMaintenances->count()}} 
+                                        </span>   
+                                    </a>
+                                    maintenance actions that are still in progress.
+                                </p> 
+                                @include('actions.maintenance.energy.in_progress')
+                            </p> 
+                            @endif
+                        </div>
+
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
+                                <div class="text-danger" style="font-weight:bold; font-size:16px">
+                                    <i class="bx bx-plug"></i>
+                                    <a data-toggle="collapse" class="text-danger" 
+                                        href="#SafteyCheckTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="SafteyCheckTab">
+                                        Saftey Check
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="SafteyCheckTab">
+                            
+                            @if(count($notYetConnectedGround) > 0)
+                                <p>
+                                    You've got  
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#notYetConnectedGround">
+                                        <span class="text-danger">
+                                        {{$notYetConnectedGround->count()}} FBS
+                                        </span>   
+                                    </a>
+                                    not yet ground connected
+                                </p> 
+                                @include('actions.maintenance.energy.saftey.fbs_not_connected')
+                            </p> 
+                            @endif
+
+                            @if(count($notYetSafteyCheckedFbs) > 0)
+                                <p>
+                                    You've got 
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#notYetSafteyCheckedFbs">
+                                        <span class="text-danger">
+                                        {{$notYetSafteyCheckedFbs->count()}} FBS
+                                        </span>   
+                                    </a>
+                                    not yet checked
+                                </p> 
+                                @include('actions.maintenance.energy.saftey.fbs_not_checked')
+                            @endif
+
+                            @if(count($notYetSafteyCompletedFbs) > 0)
+                                <p>
+                                    You've got 
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#notYetSafteyCompletedFbs">
+                                        <span class="text-danger">
+                                        {{$notYetSafteyCompletedFbs->count()}} FBS
+                                        </span>   
+                                    </a>
+                                    not yet completed
+                                </p> 
+                                @include('actions.maintenance.energy.saftey.fbs_not_completed')
+                            @endif
+
+                            @if(count($notYetSafteyCheckedMg) > 0)
+                                <p>
+                                    You've got 
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#notYetSafteyCheckedMg">
+                                        <span class="text-danger">
+                                        {{$notYetSafteyCheckedMg->count()}} MG
+                                        </span>   
+                                    </a>
+                                    not yet checked
+                                </p> 
+                                @include('actions.maintenance.energy.saftey.mg_not_checked')
+                            @endif
+
+                            @if(count($notYetCompletedSafteyCheckedMg) > 0)
+                                <p>
+                                    You've got 
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#notYetCompletedSafteyCheckedMg">
+                                        <span class="text-danger">
+                                        {{$notYetCompletedSafteyCheckedMg->count()}} MG
+                                        </span>   
+                                    </a>
+                                    not yet completed
+                                </p> 
+                                @include('actions.maintenance.energy.saftey.mg_not_completed')
+                            @endif
+                        </div>
 
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
                                 <div class="text-primary" style="font-weight:bold; font-size:16px">
                                     <i class="bx bx-fridge"></i>
-                                    <a class="text-primary" href="refrigerator-maintenance" target="_blank">
-                                        <span>Refrigerator Maintenances</span>
+                                    <a data-toggle="collapse" class="text-primary" 
+                                        href="#RefrigeratorMaintenancesTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="RefrigeratorMaintenancesTab">
+                                        Refrigerator Maintenances
                                     </a>
                                 </div>
                             </li>
                         </ul>
-                        @if(count($refrigeratorNewMaintenances) > 0)
-                        <p>
-                            You've got {{$refrigeratorNewMaintenances->count()}}
-                            new maintenance calls
-                        </p> 
-                        @endif
 
-                        @if(count($refrigeratorInProgressMaintenances) > 0)
-                        <p>
-                            You've got {{$refrigeratorInProgressMaintenances->count()}}
-                            maintenance actions that are still in progress.
-                        </p> 
-                        @endif
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="RefrigeratorMaintenancesTab">
+
+                            @if(count($refrigeratorNewMaintenances) > 0)
+                                <p>
+                                    You've got 
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#refrigeratorNewMaintenances">
+                                        <span class="text-primary">
+                                        {{$refrigeratorNewMaintenances->count()}} NEW
+                                        </span>   
+                                    </a>
+                                    maintenance calls
+                                </p> 
+                                @include('actions.maintenance.refrigerator.new')
+                            @endif
+
+
+                            @if(count($refrigeratorInProgressMaintenances) > 0)
+                                <p>
+                                    You've got 
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#refrigeratorInProgressMaintenances">
+                                        <span class="text-primary">
+                                        {{$refrigeratorInProgressMaintenances->count()}} 
+                                        </span>   
+                                    </a>
+                                    maintenance actions that are still in progress.
+                                </p> 
+                                @include('actions.maintenance.refrigerator.in_progress')
+                            @endif
+                        </div>
 
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
                                 <div class="text-info" style="font-weight:bold; font-size:16px">
                                     <i class="bx bx-droplet"></i>
-                                    <a class="text-info" href="water-maintenance" target="_blank">
-                                        <span>Water Maintenances</span>
+                                    <a data-toggle="collapse" class="text-info" 
+                                        href="#WaterMaintenancesTab" 
+                                        aria-expanded="false" 
+                                        aria-controls="WaterMaintenancesTab">
+                                        Water Maintenances
                                     </a>
                                 </div>
                             </li>
                         </ul>
-                        @if(count($waterNewMaintenances) > 0)
-                        <p>
-                            You've got {{$waterNewMaintenances->count()}}
-                            new maintenance calls
-                        </p> 
-                        @endif
 
-                        @if(count($waterInProgressMaintenances) > 0)
-                        <p>
-                            You've got {{$waterInProgressMaintenances->count()}}
-                            maintenance actions that are still in progress.
-                        </p> 
-                        @endif
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="WaterMaintenancesTab">
+
+                            @if(count($waterNewMaintenances) > 0)
+                                <p>
+                                    You've got 
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#waterNewMaintenances">
+                                        <span class="text-info">
+                                        {{$waterNewMaintenances->count()}} NEW
+                                        </span>   
+                                    </a>
+                                    maintenance calls
+                                </p> 
+                                @include('actions.maintenance.water.new')
+                            @endif
+
+                            @if(count($waterInProgressMaintenances) > 0)
+                                <p>
+                                    You've got 
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#waterInProgressMaintenances">
+                                        <span class="text-info">
+                                        {{$waterInProgressMaintenances->count()}} 
+                                        </span>   
+                                    </a>
+                                    maintenance actions that are still in progress.
+                                </p> 
+                                @include('actions.maintenance.water.in_progress')
+                            @endif
+
+                        </div>
                     </div>
 
                     <div class="timeline-event-time">Maintenance</div>
                 </div>
             </li>
 
-            <!-- Action Items for AC-->
-            <li class="timeline-item mb-md-4 mb-5 timeline-item-right">
-                <span class="timeline-indicator timeline-indicator-info" data-aos="zoom-in" data-aos-delay="200">
-                    <i class="bx bx-bulb"></i>
-                </span>
-                <div class="timeline-event card p-0" data-aos="fade-right">
-                    <div class="card-header border-0 d-flex justify-content-between">
-                        <h5 class="card-title mb-0">(MG/SMG) Communities/Compounds</h5>
-                    </div>
-                    <div class="card-body pb-0">
-                        <div class="d-flex flex-wrap mb-4">
-                            @foreach($users as $user)
-                            @if($user->user_type_id == 3)
-                            <div>
-                                <div class="avatar avatar-xs me-2">
-                                @if($user->image == "")
-                    
-                                @if($user->gender == "male")
-                                    <img src='/users/profile/male.jpg'
-                                        class="rounded-circle">
-                                @else
-                                    <img src='/assets/images/female.png'
-                                        class="rounded-circle">
-                                @endif
-                                @else
-                                    <img src="{{url('users/profile/'.$user->image)}}" alt="Avatar" 
-                                        class="rounded-circle" />
-                                @endif
-                                </div>
-                            </div>
-                            <span>Assigned this task to <strong>{{$user->name}}</strong></span>
-                            @endif 
-                            @endforeach
-                        </div>
-                        @if(count($compoundsGridMissing) > 0 || count($communitiesGridMissing) > 0 )
-                        <p>
-                            You've got {{$communitiesGridMissing->count() + $compoundsGridMissing->count()}}  
-                            Communities / Compounds 
-                            that need to fill out Electricity Room or Grid Installation to
-                            <span class="text-success">YES</span>
-                        </p>
-                        @foreach($communitiesGridMissing as $communitiesGrid)
-                        <ul class="list-group">
-                            <li class="d-flex list-group-item" style="margin-top:9px">
-                                <a type="button" data-bs-toggle="modal" 
-                                    data-bs-target="#updateElectricityGrid{{$communitiesGrid->id}}">
-                                    <span>{{$communitiesGrid->community}}</span>   
-                                </a>
-                            </li>
-                        </ul>
-                        @include('actions.AC.grid_room_community')
-                        @endforeach
-
-                        @foreach($compoundsGridMissing as $compoundsGrid)
-                        <ul class="list-group">
-                            <li class="d-flex list-group-item" style="margin-top:9px">
-                                <a type="button" data-bs-toggle="modal" 
-                                    data-bs-target="#updateElectricityGridCompound{{$compoundsGrid->id}}">
-                                    <span>{{$compoundsGrid->compound}}</span>   
-                                </a>  
-                            </li>
-                        </ul>
-                        @include('actions.AC.grid_room_compound')
-                        @endforeach
-                        @endif
-                    </div>
-
-                    <div class="card-body pb-0">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
-                                <div class="text-success" style="font-weight:bold; font-size:16px">
-                                    <i class="bx bx-bulb"></i>
-                                    <span >DC Completed </span>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="d-flex flex-wrap mb-4">
-                            @foreach($users as $user)
-                            @if($user->user_type_id == 4)
-                            <div>
-                                <div class="avatar avatar-xs me-2">
-                                @if($user->image == "")
-                    
-                                @if($user->gender == "male")
-                                    <img src='/users/profile/male.jpg'
-                                        class="rounded-circle">
-                                @else
-                                    <img src='/assets/images/female.png'
-                                        class="rounded-circle">
-                                @endif
-                                @else
-                                    <img src="{{url('users/profile/'.$user->image)}}" alt="Avatar" 
-                                        class="rounded-circle" />
-                                @endif
-                                </div>
-                            </div>
-                            <span>Assigned this task to <strong>{{$user->name}}</strong></span>
-                            @endif 
-                            @endforeach
-                        </div>
-                        @if(count($newEnergyUsers) > 0)
-                            <p>You've {{$newEnergyUsers->count()}} 
-                                <a title="Export AC Households"
-                                    href="all-meter" target="_blank">
-                                    Energy Holders
-                                </a>
-                                Please check that all new meters are activated and details 
-                                are updated in the platform.
-                            </p>
-                        @endif
-                    </div>
-
-                    <div class="timeline-event-time">AC/DC Entry</div>
-                </div>
-            </li>
-
             <!-- Action Items for Missing details for the communities -->
-            <li class="timeline-item mb-md-4 mb-5">
+            <li class="timeline-item mb-md-4 mb-5 timeline-item-right">
                 <span class="timeline-indicator timeline-indicator-success" data-aos="zoom-in" data-aos-delay="200">
                 <i class="bx bx-home"></i>
                 </span>
@@ -737,7 +941,7 @@
             </li>
 
             <!-- Action Items for Missing details for the households -->
-            <li class="timeline-item mb-md-4 mb-5">
+            <li class="timeline-item mb-md-4 mb-5 timeline-item-left">
                 <span class="timeline-indicator timeline-indicator-danger" data-aos="zoom-in" data-aos-delay="200">
                 <i class="bx bx-user"></i>
                 </span>
@@ -826,8 +1030,8 @@
                 </div>
             </li> 
 
-            <!-- Action Items for adding energy system for AC Survey -->
-            <li class="timeline-item mb-md-4 mb-5 timeline-item-left">
+            <!-- Action Items for Public Structures -->
+            <li class="timeline-item mb-md-4 mb-5 timeline-item-right">
                 <span class="timeline-indicator timeline-indicator-primary" data-aos="zoom-in" data-aos-delay="200">
                     <i class="bx bx-building"></i>
                 </span>
@@ -877,7 +1081,7 @@
             </li>
 
             <!-- Action Items for adding energy system for initial Survey -->
-            <li class="timeline-item">
+            <li class="timeline-item timeline-item-left" >
                 <span class="timeline-indicator timeline-indicator-info" data-aos="zoom-in" data-aos-delay="200">
                 <i class="bx bx-edit-alt"></i>
                 </span>
@@ -1055,7 +1259,7 @@
             </li> -->
 
             <!-- Action Items for adding english name for the internet contract holders -->
-            <li class="timeline-item mb-md-4 mb-5 timeline-item-left">
+            <li class="timeline-item mb-md-4 mb-5 timeline-item-right">
                 <span class="timeline-indicator timeline-indicator-success" data-aos="zoom-in" data-aos-delay="200">
                     <i class="bx bx-wifi"></i>
                 </span>
@@ -1133,7 +1337,7 @@
             </li>
 
             <!-- Action Items for adding internet system for the new communities -->
-            <li class="timeline-item mb-md-4 mb-5 timeline-item-left">
+            <li class="timeline-item mb-md-4 mb-5 timeline-item-right">
                 <span class="timeline-indicator timeline-indicator-success" data-aos="zoom-in" data-aos-delay="200">
                     <i class="bx bx-wifi"></i>
                 </span>
@@ -1184,7 +1388,7 @@
             </li>
 
             <!-- Action Items for Incidents -->
-            <li class="timeline-item mb-md-4 mb-5 timeline-item-right">
+            <li class="timeline-item mb-md-4 mb-5 timeline-item-left">
                 <span class="timeline-indicator timeline-indicator-danger" 
                     data-aos="zoom-in" data-aos-delay="200">
                     <i class="bx bx-error-alt"></i>
@@ -1465,7 +1669,7 @@
             </li>
             
             <!-- Action Items for adding missing donors for the community and users -->
-            <li class="timeline-item mb-md-4 mb-5 timeline-item-left">
+            <li class="timeline-item mb-md-4 mb-5 timeline-item-right">
                 <span class="timeline-indicator timeline-indicator-info" data-aos="zoom-in" data-aos-delay="200">
                 <i class="bx bx-shekel"></i>
                 </span>
@@ -1498,220 +1702,237 @@
                         </div>  
                         <div class="d-flex flex-wrap mb-4">
                             <h5 class="card-title mb-0">
-                                <span class="align-middle">
+                                <a data-toggle="collapse" class="text-warning" 
+                                    href="#EnergyDonorsTab" 
+                                    aria-expanded="false" 
+                                    aria-controls="EnergyDonorsTab">
                                     Energy Donors 
-                                </span>
+                                </a>
                             </h5>
                         </div>
                         
-                        @if(count($missingCommunityDonors) > 0)
-                            <div class="p0">
-                                <h6 class="card-title mb-0">
-                                    <span class="align-middle">
-                                        <span class="badge rounded-pill bg-label-warning">
-                                            For Communities
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="EnergyDonorsTab">
+
+                            @if(count($missingCommunityDonors) > 0)
+                                <div class="p0">
+                                    <h6 class="card-title mb-0">
+                                        <span class="align-middle">
+                                            <span class="badge rounded-pill bg-label-warning">
+                                                For Communities
+                                            </span>
                                         </span>
-                                    </span>
-                                </h6>
-                            </div>
-                            <div class="mb-4">
-                                <p>Add the 
-                                    <a class="btn btn-warning btn-sm" type="button" 
-                                        href="/donor" target="_blank">
-                                        <span> Donors </span> 
-                                    </a>
-                                    for these communities: 
-                                </p>
-                                <ul class="list-group list-group-numbered">
-                                @foreach($missingCommunityDonors as $missingCommunityDonor)
-                                    <li class="d-flex list-group-item list-group-item-warning"
-                                        style="margin-top:9px">
-                                        <?php
-                                            $missingEnergyUserDonors = DB::table('all_energy_meters')
-                                            ->join('households', 'all_energy_meters.household_id', 
-                                                'households.id')
-                                            ->leftJoin('all_energy_meter_donors', function ($join) {
-                                                $join->on('all_energy_meters.id', 
-                                                    'all_energy_meter_donors.community_id')
-                                                    ->where('all_energy_meter_donors.is_archived', 0);
-                                            })
-                                            ->whereNull('all_energy_meter_donors.all_energy_meter_id')
-                                            ->where('all_energy_meters.community_id', 
-                                                $missingCommunityDonor->id)
-                                            ->select('households.english_name', 
-                                                'households.id')
-                                            ->get();
-                                        ?>
-                                        <span> 
-                                            <a type="button" class="viewMissingEnergyUserDonors"
-                                                data-id="{{$missingCommunityDonor->id}}">
-                                                {{$missingCommunityDonor->english_name}} 
-                                                / {{$missingEnergyUserDonors->count()}}
-                                            </a>
+                                    </h6>
+                                </div>
+                                <div class="mb-4">
+                                    <p>Add the 
+                                        <a class="btn btn-warning btn-sm" type="button" 
+                                            href="/donor" target="_blank">
+                                            <span> Donors </span> 
+                                        </a>
+                                        for these communities: 
+                                    </p>
+                                    <ul class="list-group list-group-numbered">
+                                    @foreach($missingCommunityDonors as $missingCommunityDonor)
+                                        <li class="d-flex list-group-item list-group-item-warning"
+                                            style="margin-top:9px">
+                                            <?php
+                                                $missingEnergyUserDonors = DB::table('all_energy_meters')
+                                                ->join('households', 'all_energy_meters.household_id', 
+                                                    'households.id')
+                                                ->leftJoin('all_energy_meter_donors', function ($join) {
+                                                    $join->on('all_energy_meters.id', 
+                                                        'all_energy_meter_donors.community_id')
+                                                        ->where('all_energy_meter_donors.is_archived', 0);
+                                                })
+                                                ->whereNull('all_energy_meter_donors.all_energy_meter_id')
+                                                ->where('all_energy_meters.community_id', 
+                                                    $missingCommunityDonor->id)
+                                                ->select('households.english_name', 
+                                                    'households.id')
+                                                ->get();
+                                            ?>
+                                            <span> 
+                                                <a type="button" class="viewMissingEnergyUserDonors"
+                                                    data-id="{{$missingCommunityDonor->id}}">
+                                                    {{$missingCommunityDonor->english_name}} 
+                                                    / {{$missingEnergyUserDonors->count()}}
+                                                </a>
+                                            </span>   
+                                            @include('actions.missing_donor_household')
+                                        </li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @else
+                                <p>Nothing to do!</p>
+                            @endif
+                             
+                            
+                            @if(count($missingUserEnergDonors) > 0)
+                                <div>
+                                    <h6 class="card-title mb-0">
+                                        <span class="align-middle">
+                                            <span class="badge rounded-pill bg-label-warning">
+                                                For Holders
+                                            </span>
+                                        </span>
+                                    </h6>
+                                </div>
+                                <div class="mb-4">
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#missingUserEnergDonors">
+                                        You've got 
+                                        <span class="text-warning">
+                                            {{$missingUserEnergDonors->count()}} Energy Users
                                         </span>   
-                                        @include('actions.missing_donor_household')
-                                    </li>
-                                @endforeach
-                                </ul>
-                            </div>
-                        @else
-                            <p>Nothing to do!</p>
-                        @endif
-                        
-                        
-                        @if(count($missingUserEnergDonors) > 0)
-                            <div>
-                                <h6 class="card-title mb-0">
-                                    <span class="align-middle">
-                                        <span class="badge rounded-pill bg-label-warning">
-                                            For Holders
-                                        </span>
-                                    </span>
-                                </h6>
-                            </div>
-                            <div class="mb-4">
-                                <a type="button" data-bs-toggle="modal" 
-                                    data-bs-target="#missingUserEnergDonors">
-                                    You've got 
-                                    <span class="text-warning">
-                                        {{$missingUserEnergDonors->count()}} Energy Users
-                                    </span>   
-                                    that missing the donor, check them and fill them out!
-                                </a>
-                                @include('actions.donors.energy_user')
-                            </div>
-                        @endif
+                                        that missing the donor, check them and fill them out!
+                                    </a>
+                                    @include('actions.donors.energy_user')
+                                </div>
+                            @endif
 
-                        @if(count($missingEnergyPublicDonors) > 0)
-                            <div>
-                                <h6 class="card-title mb-0">
-                                    <span class="align-middle">
-                                        <span class="badge rounded-pill bg-label-warning">
-                                            For Public Structures
+                            @if(count($missingEnergyPublicDonors) > 0)
+                                <div>
+                                    <h6 class="card-title mb-0">
+                                        <span class="align-middle">
+                                            <span class="badge rounded-pill bg-label-warning">
+                                                For Public Structures
+                                            </span>
                                         </span>
-                                    </span>
-                                </h6>
-                            </div>
-                            <div class="mb-4">
-                                <a type="button" data-bs-toggle="modal" 
-                                    data-bs-target="#missingEnergyPublicDonors">
-                                    You've got 
-                                    <span class="text-warning">
-                                        {{$missingEnergyPublicDonors->count()}} Public Structures
-                                    </span>   
-                                    that missing the donor, check them and fill them out!
-                                </a>
-                                @include('actions.donors.energy_public')
-                            </div>
-                        @endif
+                                    </h6>
+                                </div>
+                                <div class="mb-4">
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#missingEnergyPublicDonors">
+                                        You've got 
+                                        <span class="text-warning">
+                                            {{$missingEnergyPublicDonors->count()}} Public Structures
+                                        </span>   
+                                        that missing the donor, check them and fill them out!
+                                    </a>
+                                    @include('actions.donors.energy_public')
+                                </div>
+                            @endif
+                        </div>
+
                         <hr>
-
                         <div class="d-flex flex-wrap mb-4">
                             <h5 class="card-title mb-0">
-                                <span class="align-middle">
+                                <a data-toggle="collapse" class="text-info" 
+                                    href="#WaterDonorsTab" 
+                                    aria-expanded="false" 
+                                    aria-controls="WaterDonorsTab">
                                     Water Donors 
-                                </span>
+                                </a>
                             </h5>
                         </div>
                         
-                        @if(count($missingUserWaterDonors) > 0)
-                            <div>
-                                <h6 class="card-title mb-0">
-                                    <span class="align-middle">
-                                        <span class="badge rounded-pill bg-label-info">
-                                            For Holders
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="WaterDonorsTab">
+                            @if(count($missingUserWaterDonors) > 0)
+                                <div>
+                                    <h6 class="card-title mb-0">
+                                        <span class="align-middle">
+                                            <span class="badge rounded-pill bg-label-info">
+                                                For Holders
+                                            </span>
                                         </span>
-                                    </span>
-                                </h6>
-                            </div>
-                            <div class="mb-4">
+                                    </h6>
+                                </div>
+                                <div class="mb-4">
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#missingUserWaterDonors">
+                                        You've got 
+                                        <span class="text-info">
+                                            {{$missingUserWaterDonors->count()}} Water Users
+                                        </span>   
+                                        that missing the donor, check them and fill them out!
+                                    </a>
+                                    @include('actions.donors.water_user')
+                                </div>
+                            @endif
+                            @if(count($missingPublicWaterDonors) > 0)
+                                <div>
+                                    <h6 class="card-title mb-0">
+                                        <span class="align-middle">
+                                            <span class="badge rounded-pill bg-label-info">
+                                                For Public Structures
+                                            </span>
+                                        </span>
+                                    </h6>
+                                </div>
                                 <a type="button" data-bs-toggle="modal" 
-                                    data-bs-target="#missingUserWaterDonors">
+                                    data-bs-target="#missingPublicWaterDonors">
                                     You've got 
                                     <span class="text-info">
-                                        {{$missingUserWaterDonors->count()}} Water Users
+                                        {{$missingPublicWaterDonors->count()}} Public Structures
                                     </span>   
                                     that missing the donor, check them and fill them out!
                                 </a>
-                                @include('actions.donors.water_user')
-                            </div>
-                        @endif
-
-                        
-                        @if(count($missingPublicWaterDonors) > 0)
-                            <div>
-                                <h6 class="card-title mb-0">
-                                    <span class="align-middle">
-                                        <span class="badge rounded-pill bg-label-info">
-                                            For Public Structures
-                                        </span>
-                                    </span>
-                                </h6>
-                            </div>
-                            <a type="button" data-bs-toggle="modal" 
-                                data-bs-target="#missingPublicWaterDonors">
-                                You've got 
-                                <span class="text-info">
-                                    {{$missingPublicWaterDonors->count()}} Public Structures
-                                </span>   
-                                that missing the donor, check them and fill them out!
-                            </a>
-                            @include('actions.donors.water_public')
-                        @endif
+                                @include('actions.donors.water_public')
+                            @endif
+                        </div>
 
                         <hr>
                         <div class="d-flex flex-wrap mb-4">
                             <h5 class="card-title mb-0">
                                 <span class="align-middle">
+                                <a data-toggle="collapse" class="text-success" 
+                                    href="#InternetDonorsTab" 
+                                    aria-expanded="false" 
+                                    aria-controls="InternetDonorsTab">
                                     Internet Donors 
-                                </span>
+                                </a>
                             </h5>
                         </div>
                         
-                        @if(count($missingUserInternetDonors) > 0)
-                            <div>
-                                <h6 class="card-title mb-0">
-                                    <span class="align-middle">
-                                        <span class="badge rounded-pill bg-label-success">
-                                            For Holders
+                        <div class="collapse multi-collapse container mb-4" 
+                            id="InternetDonorsTab">
+                            @if(count($missingUserInternetDonors) > 0)
+                                <div>
+                                    <h6 class="card-title mb-0">
+                                        <span class="align-middle">
+                                            <span class="badge rounded-pill bg-label-success">
+                                                For Holders
+                                            </span>
                                         </span>
-                                    </span>
-                                </h6>
-                            </div>
-                            <div class="mb-4">
+                                    </h6>
+                                </div>
+                                <div class="mb-4">
+                                    <a type="button" data-bs-toggle="modal" 
+                                        data-bs-target="#missingUserInternetDonors">
+                                        You've got 
+                                        <span class="text-success">
+                                            {{$missingUserInternetDonors->count()}} Internet Users
+                                        </span>   
+                                        that missing the donor, check them and fill them out!
+                                    </a>
+                                    @include('actions.donors.internet_user')
+                                </div>
+                            @endif
+
+                            @if(count($missingPublicInternetDonors) > 0)
+                                <div>
+                                    <h6 class="card-title mb-0">
+                                        <span class="align-middle">
+                                            <span class="badge rounded-pill bg-label-success">
+                                                For Public Structures
+                                            </span>
+                                        </span>
+                                    </h6>
+                                </div>
                                 <a type="button" data-bs-toggle="modal" 
-                                    data-bs-target="#missingUserInternetDonors">
+                                    data-bs-target="#missingPublicInternetDonors">
                                     You've got 
                                     <span class="text-success">
-                                        {{$missingUserInternetDonors->count()}} Internet Users
+                                        {{$missingPublicInternetDonors->count()}} Public Structures
                                     </span>   
                                     that missing the donor, check them and fill them out!
                                 </a>
-                                @include('actions.donors.internet_user')
-                            </div>
-                        @endif
-
-                        @if(count($missingPublicInternetDonors) > 0)
-                            <div>
-                                <h6 class="card-title mb-0">
-                                    <span class="align-middle">
-                                        <span class="badge rounded-pill bg-label-success">
-                                            For Public Structures
-                                        </span>
-                                    </span>
-                                </h6>
-                            </div>
-                            <a type="button" data-bs-toggle="modal" 
-                                data-bs-target="#missingPublicInternetDonors">
-                                You've got 
-                                <span class="text-success">
-                                    {{$missingPublicInternetDonors->count()}} Public Structures
-                                </span>   
-                                that missing the donor, check them and fill them out!
-                            </a>
-                            @include('actions.donors.internet_public')
-                        @endif
-
+                                @include('actions.donors.internet_public')
+                            @endif
+                        </div>
                     </div>
                     <div class="timeline-event-time">Donors</div>
                 </div>
@@ -1736,7 +1957,7 @@
                 $('#missingEnergyUserDonorsContent').find('tbody').html('');
                 response.html.forEach(refill_table);
                 function refill_table(item, index){
-                    $('#missingEnergyUserDonorsContent').find('tbody').append('<tr><td>'+item.holder_name+'</td><td>'+item.name+'</td></tr>');
+                    $('#missingEnergyUserDonorsContent').find('tbody').append('<tr><td>'+item.holder_name+'</td><td>'+item.name+'</td><td>'+item.status+'</td></tr>');
                 }
 
                 $('#missingEnergyUserDonorsModel').modal('show');

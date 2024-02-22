@@ -15,7 +15,7 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
-use App\Models\Household;
+use App\Models\Household; 
 use App\Models\MeterCase;
 use App\Models\Region;
 use App\Models\SubRegion;
@@ -163,12 +163,13 @@ class EnergySafetyController extends Controller
             
             $groundYes =  DB::table('all_energy_meter_safety_checks')
                 ->join('all_energy_meters', 'all_energy_meters.id', 
-                    '=', 'all_energy_meter_safety_checks.all_energy_meter_id')
+                    'all_energy_meter_safety_checks.all_energy_meter_id')
                 ->where('all_energy_meters.is_archived', 0)
                 ->where('all_energy_meter_safety_checks.is_archived', 0)
                 ->where('all_energy_meters.energy_system_type_id', 2)
                 ->where('all_energy_meters.ground_connected', "Yes")
                 ->count();
+
             $groundNo =  DB::table('all_energy_meter_safety_checks')
                 ->join('all_energy_meters', 'all_energy_meters.id', 
                     '=', 'all_energy_meter_safety_checks.all_energy_meter_id')
@@ -176,12 +177,17 @@ class EnergySafetyController extends Controller
                 ->where('all_energy_meter_safety_checks.is_archived', 0)
                 ->where('all_energy_meters.energy_system_type_id', 2)
                 ->where('all_energy_meters.ground_connected', "No")
-                ->count();
+                ->count();  
 
-            $notYetChecked = DB::table('all_energy_meters')
+
+            $notYetChecked =  DB::table('all_energy_meters')
+                ->leftJoin('all_energy_meter_safety_checks', function($join) {
+                    $join->on('all_energy_meters.id', 'all_energy_meter_safety_checks.all_energy_meter_id')
+                        ->where('all_energy_meter_safety_checks.is_archived', 0);
+                })
+                ->whereNull('all_energy_meter_safety_checks.all_energy_meter_id')
                 ->where('all_energy_meters.is_archived', 0)
                 ->where('all_energy_meters.energy_system_type_id', 2)
-                ->where('all_energy_meters.ground_connected', "No")
                 ->count();
 
             $groundConnectedFbs = AllEnergyMeter::where("is_archived", 0)

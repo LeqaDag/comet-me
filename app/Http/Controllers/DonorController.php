@@ -292,9 +292,8 @@ class DonorController extends Controller
     public function update(Request $request, $id)
     {
         $communityDonor = CommunityDonor::findOrFail($id);
-        
         if($request->donor_id) {
-
+            
             $communityDonor->donor_id = $request->donor_id;
             $communityDonor->save();
         }

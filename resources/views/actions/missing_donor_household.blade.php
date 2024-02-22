@@ -10,11 +10,12 @@
                 </button>
             </div>
             <div class="modal-body" id="missingEnergyUserDonorsContent">
-                <div class="table-responsive">
+                <div class="table-responsive"> 
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th class="text-center">Name</th>
+                                <th class="text-center">Household Status</th>
                                 <th class="text-center">Energy System</th>
                             </tr>
                         </thead>

@@ -105,7 +105,7 @@
                     <i class=""></i>
                     <div>AC Survey</div>
                 </a>
-            </li>
+            </li> 
             <li class="menu-item" id="progress-household">
                 <a href="{{url('progress-household')}}" class="menu-link" >
                     <i class=""></i>
@@ -246,6 +246,18 @@
                         </a>
                     </li>
                 </ul>
+                @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                    Auth::guard('user')->user()->user_type_id == 6 ||
+                    Auth::guard('user')->user()->user_type_id == 10)
+                    <ul class="menu-sub">
+                        <li class="menu-item" id="camera-component">
+                            <a href="{{url('camera-component')}}" class="menu-link" >
+                                <i class=""></i>
+                                <div>Camera Components</div>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
             </li> 
         </ul>
     </li>
@@ -588,6 +600,11 @@
 
         $("#shared-grid").addClass("active");
         $("#water-service").addClass("open");
+        $("#services").addClass("open");
+    }  else if(last_part == "camera-component") {
+
+        $("#camera-component").addClass("active");
+        $("#internet-service").addClass("open");
         $("#services").addClass("open");
     } else if(last_part == "internet-user") {
 

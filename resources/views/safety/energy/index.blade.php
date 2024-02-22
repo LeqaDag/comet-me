@@ -10,7 +10,7 @@
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseEnergySafetyVisualData" 
         role="button" aria-expanded="false" aria-controls="collapseEnergySafetyVisualData">
         <i class="menu-icon tf-icons bx bx-show-alt"></i>
-        Visualize Data
+        Visualize Data 
     </a>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
         data-target="#collapseEnergySafetyExport" aria-expanded="false" 
@@ -72,7 +72,7 @@
                     <div class="col-lg-4 col-sm-4 col-md-4 mb-4">
                         <div class="col">
                             <div class="card-body text-center">
-                                <h3 class="mb-1">{{$groundNo}}</h3>
+                                <h3 class="mb-1">{{$notYetChecked}}</h3>
                                 <span class="text-muted">FBS Not Yet Checked</span>
                                 <div class="">
                                     <a  target="_blank" type="button">

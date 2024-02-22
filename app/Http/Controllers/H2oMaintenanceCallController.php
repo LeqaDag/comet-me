@@ -171,8 +171,17 @@ class H2oMaintenanceCallController extends Controller
 
         $maintenance->community_id = $request->community_id[0];
         $maintenance->date_of_call = $request->date_of_call;
-        $maintenance->date_completed = $request->date_completed;
-        $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        if($request->date_completed) {
+
+            $maintenance->date_completed = $request->date_completed;
+            $maintenance->maintenance_status_id = 3;
+        } else if($request->date_completed == null)  {
+
+            $maintenance->date_completed = null;
+        } else {
+
+            $energyMaintenance->maintenance_status_id = $request->maintenance_status_id;
+        }
         $maintenance->user_id = $request->user_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->notes = $request->notes;
@@ -252,8 +261,15 @@ class H2oMaintenanceCallController extends Controller
         $maintenance = H2oMaintenanceCall::findOrFail($id);
 
         $maintenance->date_of_call = $request->date_of_call;
-        $maintenance->date_completed = $request->date_completed;
-        $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        if($request->date_completed) {
+
+            $maintenance->date_completed = $request->date_completed;
+            $maintenance->maintenance_status_id = 3;
+        } else if($request->date_completed == null)  {
+
+            $maintenance->date_completed = null;   
+            $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        }
         $maintenance->user_id = $request->user_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->notes = $request->notes;

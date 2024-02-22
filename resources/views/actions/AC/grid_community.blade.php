@@ -8,7 +8,7 @@ label, table {
 }
 </style>
 
-<div id="updateElectricityGridCompound{{$compoundsGrid->id}}" class="modal fade" tabindex="-1" aria-hidden="true">
+<div id="updateGridCommunity{{$communitiesGrid->id}}" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -23,22 +23,26 @@ label, table {
                 <form method="POST" enctype='multipart/form-data' action="{{url('action-item')}}">
                     @csrf
                     <div class="row">
-                        <input type="hidden" name="compound_id" value="{{$compoundsGrid->id}}">
+                        <input type="hidden" name="community_id" value="{{$communitiesGrid->id}}">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Electricity Room</label>
                                 <select name="electricity_room" class="form-control">
-                                    <option disabled selected>Choose one...</option>
+                                    <option disabled selected>
+                                        {{$communitiesGrid->electricity_room}}
+                                    </option>
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                 </select>
-                            </fieldset>
+                            </fieldset> 
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Grid</label>
                                 <select name="grid" class="form-control">
-                                    <option disabled selected>Choose one...</option>
+                                    <option disabled selected>
+                                        {{$communitiesGrid->grid}}
+                                    </option>
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                 </select>

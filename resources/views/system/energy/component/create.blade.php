@@ -500,8 +500,6 @@
     </div>
 </div>
 
-@endsection
-
 <script>
 
     var battery_counter = 0;
@@ -730,3 +728,4 @@
     });
 
 </script>
+@endsection

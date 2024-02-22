@@ -100,7 +100,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <h6>
                             Vendor: 
-                            <span class="spanDetails" id="vendorDateComet">
+                            <span class="spanDetails" id="vendorDatePublic">
                                
                             </span>
                         </h6>

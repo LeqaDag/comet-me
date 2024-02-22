@@ -34,7 +34,7 @@ label, table {
         <i class="menu-icon tf-icons bx bx-expand-alt"></i>
         Toggle All
     </button>
-</p>  
+</p>   
 
 <div class="collapse multi-collapse mb-4" id="collapseHouseholdVisualData">
     <div class="container">
@@ -589,7 +589,7 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#numberOfChildrenHousehold').html(response['household'].number_of_children);
                     $('#numberOfAdultsHousehold').html(response['household'].number_of_adults);
                     $('#phoneNumberHousehold').html(response['household'].phone_number);
-                    $('#energyServiceHousehold').html(response['household'].energy_service);
+                    $('#energyServiceHousehold').html(response['household'].energy_system_status);
                     $('#energyMeterHousehold').html(response['household'].energy_meter);
                     $('#waterServiceHousehold').html(response['household'].water_system_status);
                     $('#internetServiceHousehold').html(response['household'].internet_system_status);

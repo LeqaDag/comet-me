@@ -1,4 +1,4 @@
-<div id="communitiesMgSmgNotDCInstallations" class="modal fade" tabindex="-1" aria-hidden="true">
+<div id="communitiesMgSmgNotDCInstallations{{$holdersMgSmg->id}}" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -12,24 +12,26 @@
             
             <div class="modal-body">
                 <div class="table-responsive">
-                    @if (count($communitiesMgSmgNotDCInstallations))
+                    @if (count($holdersMgSmgNotDCInstallations))
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th class="text-center">English Name</th>
-                                    <th class="text-center"># of Households</th>
+                                    <th class="text-center">Holder</th>
+                                    <th class="text-center">Community</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            @foreach($communitiesMgSmgNotDCInstallations as $community)
+                            @foreach($holdersMgSmgNotDCInstallations as $holder)
+                                @if($holder->id == $holdersMgSmg->id)
                                 <tr> 
                                     <td class="text-center">
-                                        {{ $community->community }}
+                                        {{ $holder->holder }}
                                     </td>
                                     <td class="text-center">
-                                        {{ $community->number_of_household }}
+                                        {{ $holder->community }}
                                     </td>
                                 </tr>
+                                @endif
                             @endforeach
                             </tbody>
                         </table>

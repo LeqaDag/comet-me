@@ -47,7 +47,7 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
                 'households.phone_number');
 
        // die($query->get());
-
+ 
         if($this->request->community_id) {
 
             $query->where("communities.id", $this->request->community_id);

@@ -362,7 +362,7 @@
                     $('#systemLimitPublic').html(" ");
                     $('#systemDatePublic').html(" ");
                     $('#systemNotesPublic').html(" ");
-
+ 
                     $('#energyPublicModalTitle').html(response['public'].english_name);
                     $('#englishNamePublic').html(response['public'].english_name);
                     $('#communityPublic').html(response['community'].english_name);

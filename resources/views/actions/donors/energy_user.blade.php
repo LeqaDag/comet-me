@@ -17,11 +17,11 @@
                             <thead>
                                 <tr>
                                     <th class="text-center">User</th>
+                                    <th class="text-center">Status</th>
                                     <th class="text-center">Community</th>
                                     <th class="text-center">Energy System</th>
-                                    <th class="text-center">Energy System Type</th>
                                 </tr>
-                            </thead>
+                            </thead> 
                             <tbody>
                             @foreach($missingUserEnergDonors as $missing)
                                 <tr> 
@@ -29,13 +29,13 @@
                                     {{ $missing->household_name }}
                                     </td>
                                     <td class="text-center">
+                                    {{ $missing->status }}
+                                    </td>
+                                    <td class="text-center">
                                     {{ $missing->community }}
                                     </td>
                                     <td class="text-center">
                                     {{ $missing->energy_name }}
-                                    </td>
-                                    <td class="text-center">
-                                    {{ $missing->type }}
                                     </td>
                                 </tr>
                             @endforeach

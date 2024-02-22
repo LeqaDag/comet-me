@@ -104,6 +104,18 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                         $internetMetricCluster->source_of_connection = $cluster["isp"];
                         $internetMetricCluster->attached_communities = $cluster["attached_communities"];
                         $internetMetricCluster->active_contracts = $cluster["active_contracts"];
+                        $internetMetricCluster->weekly_max_in = $cluster["weekly_max_in"];
+                        $internetMetricCluster->weekly_max_out = $cluster["weekly_max_out"];
+                        $internetMetricCluster->weekly_avg_in = $cluster["weekly_avg_in"];
+                        $internetMetricCluster->weekly_avg_out = $cluster["weekly_avg_out"];
+                        $internetMetricCluster->weekly_now_in = $cluster["weekly_now_in"];
+                        $internetMetricCluster->weekly_now_out = $cluster["weekly_now_out"];
+                        $internetMetricCluster->monthly_max_in = $cluster["monthly_max_in"];
+                        $internetMetricCluster->monthly_max_out = $cluster["monthly_max_out"];
+                        $internetMetricCluster->monthly_avg_in = $cluster["monthly_avg_in"];
+                        $internetMetricCluster->monthly_avg_out = $cluster["monthly_avg_out"];
+                        $internetMetricCluster->monthly_now_in = $cluster["monthly_now_in"];
+                        $internetMetricCluster->monthly_now_out = $cluster["monthly_now_out"];
                         $internetMetricCluster->save();
     
                     } else {
@@ -114,6 +126,18 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                         $newMetricCluster->source_of_connection = $cluster["isp"];
                         $newMetricCluster->attached_communities = $cluster["attached_communities"];
                         $newMetricCluster->active_contracts = $cluster["active_contracts"];
+                        $newMetricCluster->weekly_max_in = $cluster["weekly_max_in"];
+                        $newMetricCluster->weekly_max_out = $cluster["weekly_max_out"];
+                        $newMetricCluster->weekly_avg_in = $cluster["weekly_avg_in"];
+                        $newMetricCluster->weekly_avg_out = $cluster["weekly_avg_out"];
+                        $newMetricCluster->weekly_now_in = $cluster["weekly_now_in"];
+                        $newMetricCluster->weekly_now_out = $cluster["weekly_now_out"];
+                        $newMetricCluster->monthly_max_in = $cluster["monthly_max_in"];
+                        $newMetricCluster->monthly_max_out = $cluster["monthly_max_out"];
+                        $newMetricCluster->monthly_avg_in = $cluster["monthly_avg_in"];
+                        $newMetricCluster->monthly_avg_out = $cluster["monthly_avg_out"];
+                        $newMetricCluster->monthly_now_in = $cluster["monthly_now_in"];
+                        $newMetricCluster->monthly_now_out = $cluster["monthly_now_out"];
                        // $newMetricCluster->bandwidth_consumption = $cluster["total_bandwidth"];
                         $newMetricCluster->save();
                     }
@@ -129,6 +153,18 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                     $newMetricCluster->source_of_connection = $cluster["isp"];
                     $newMetricCluster->attached_communities = $cluster["attached_communities"];
                     $newMetricCluster->active_contracts = $cluster["active_contracts"];
+                    $newMetricCluster->weekly_max_in = $cluster["weekly_max_in"];
+                    $newMetricCluster->weekly_max_out = $cluster["weekly_max_out"];
+                    $newMetricCluster->weekly_avg_in = $cluster["weekly_avg_in"];
+                    $newMetricCluster->weekly_avg_out = $cluster["weekly_avg_out"];
+                    $newMetricCluster->weekly_now_in = $cluster["weekly_now_in"];
+                    $newMetricCluster->weekly_now_out = $cluster["weekly_now_out"];
+                    $newMetricCluster->monthly_max_in = $cluster["monthly_max_in"];
+                    $newMetricCluster->monthly_max_out = $cluster["monthly_max_out"];
+                    $newMetricCluster->monthly_avg_in = $cluster["monthly_avg_in"];
+                    $newMetricCluster->monthly_avg_out = $cluster["monthly_avg_out"];
+                    $newMetricCluster->monthly_now_in = $cluster["monthly_now_in"];
+                    $newMetricCluster->monthly_now_out = $cluster["monthly_now_out"];
                    // $newMetricCluster->bandwidth_consumption = $cluster["total_bandwidth"];
                     $newMetricCluster->save();
                 }

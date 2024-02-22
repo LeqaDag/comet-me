@@ -146,7 +146,7 @@ class RefrigeratorMaintenanceCallController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {       
+    {     
         $this->validate($request, [
             'community_id' => 'required',
             'maintenance_status_id' => 'required',
@@ -172,8 +172,15 @@ class RefrigeratorMaintenanceCallController extends Controller
         $maintenance->community_id = $request->community_id[0];
         $maintenance->date_of_call = $request->date_of_call;
         $maintenance->visit_date = $request->visit_date;
-        $maintenance->date_completed = $request->date_completed;
-        $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        if($request->date_completed) {
+
+            $maintenance->date_completed = $request->date_completed;
+            $maintenance->maintenance_status_id = 3;
+        } else if($request->date_completed == null)  {
+
+            $maintenance->date_completed = null;
+            $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        } 
         $maintenance->user_id = $request->user_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->notes = $request->notes;
@@ -258,8 +265,17 @@ class RefrigeratorMaintenanceCallController extends Controller
 
         $maintenance->date_of_call = $request->date_of_call;
         $maintenance->visit_date = $request->visit_date;
-        $maintenance->date_completed = $request->date_completed;
-        $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        if($request->date_completed) {
+
+            $maintenance->date_completed = $request->date_completed;
+            $maintenance->maintenance_status_id = 3;
+        } else if($request->date_completed == null)  {
+
+            $maintenance->date_completed = null;
+        } else {
+
+            $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        }
         $maintenance->user_id = $request->user_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->notes = $request->notes;

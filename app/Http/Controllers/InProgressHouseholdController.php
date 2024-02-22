@@ -180,7 +180,6 @@ class InProgressHouseholdController extends Controller
      */
     public function store(Request $request)
     { 
-        // dd($request->all()); 
         $existCommunityService = CommunityService::where("community_id", $request->community_id)
             ->where("service_id", 1)
             ->first();
@@ -208,9 +207,16 @@ class InProgressHouseholdController extends Controller
                 $energyUser->household_id = $request->household_id[$i];
                 $energyUser->community_id = $request->community_id;
                 $energyUser->energy_system_type_id = $request->energy_system_type_id;
+                if($request->energy_system_type_id != 2) {
+
+                    $energyUser->ground_connected = "Yes";
+                } else {
+
+                    $energyUser->ground_connected = "No";
+                }
                 $energyUser->energy_system_id = $request->energy_system_id;
                 $energyUser->meter_number = 0;
-                $energyUser->meter_case_id = 12;
+                $energyUser->meter_case_id = 12; 
                 $energyUser->save();
 
                 $community = Community::findOrFail($request->community_id);

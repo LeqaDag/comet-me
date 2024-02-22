@@ -89,14 +89,11 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
             ->where('communities.is_archived', 0)
             ->where('communities.community_status_id', 1)
             ->orWhere('communities.community_status_id', 2)
+            ->where('households.household_status_id', '!=', 4)
             ->select(
                 'households.english_name as household',
                 'communities.english_name as community_name',
-                DB::raw("CASE 
-                    WHEN households.household_status_id = 4 THEN 'DC Completed' 
-                    WHEN households.household_status_id = 3 THEN 'AC Completed' 
-                    ELSE household_statuses.status 
-                END as status"),
+                'household_statuses.status as status',
                 'compounds.english_name as compound_name',
                 'energy_system_types.name', 'households.number_of_male', 
                 'households.number_of_female', 'households.number_of_adults', 

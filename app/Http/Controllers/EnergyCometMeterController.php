@@ -191,6 +191,13 @@ class EnergyCometMeterController extends Controller
         $systemType = EnergySystemType::where('id', $energyPublic->energy_system_type_id)->first();
         $system = EnergySystem::where('id', $energyPublic->energy_system_id)->first();
         $installationType = InstallationType::where('id', $energyPublic->installation_type_id)->first();
+        $vendor = DB::table('community_vendors')
+            ->where('community_id', $energyPublic->community_id)
+            ->where('community_vendors.is_archived', 0)
+            ->join('vendor_user_names', 'community_vendors.vendor_username_id', 
+                'vendor_user_names.id')
+            ->select('vendor_user_names.name')
+            ->first();
 
         $response['energyPublic'] = $energyPublic;
         $response['energyMeterDonors'] = $energyMeterDonors;
@@ -200,6 +207,7 @@ class EnergyCometMeterController extends Controller
         $response['type'] = $systemType;
         $response['system'] = $system;
         $response['installationType'] = $installationType;
+        $response['vendor'] = $vendor;
 
         return response()->json($response);
     }
@@ -232,12 +240,13 @@ class EnergyCometMeterController extends Controller
             ->orderBy('english_name', 'ASC')
             ->get();
         $communityVendors = DB::table('community_vendors')
-            ->where('community_id', $community_id->id)
+            //->where('community_id', $community_id->id)
             ->where('community_vendors.is_archived', 0)
             ->join('vendor_user_names', 'community_vendors.vendor_username_id', 
                 '=', 'vendor_user_names.id')
             ->select('vendor_user_names.name', 'community_vendors.id as id',
                 'vendor_user_names.id as vendor_username_id')
+            ->groupBy('vendor_user_names.id')
             ->get();
 
         $publicStructures = PublicStructure::findOrFail($energyPublic->public_structure_id);

@@ -110,7 +110,7 @@ class EnergySummary implements FromCollection, WithHeadings, WithTitle, ShouldAu
                // DB::raw('group_concat(energy_system_types.name) as types'),
             ])
             ->groupBy('communities.id', 'energy_system_types.name');
-
+ 
         die($query->get());
 
         if($this->request->misc) {

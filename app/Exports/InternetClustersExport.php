@@ -45,7 +45,19 @@ class InternetClustersExport implements FromCollection, WithTitle,
                 'internet_metric_clusters.source_of_connection', 
                 'internet_metric_clusters.attached_communities', 
                 'internet_metric_clusters.active_contracts', 
-                'internet_metric_clusters.bandwidth_consumption');
+                'internet_metric_clusters.bandwidth_consumption',
+                'internet_metric_clusters.weekly_max_in', 
+                'internet_metric_clusters.weekly_max_out',
+                'internet_metric_clusters.weekly_avg_in',
+                'internet_metric_clusters.weekly_avg_out', 
+                'internet_metric_clusters.weekly_now_in', 
+                'internet_metric_clusters.weekly_now_out', 
+                'internet_metric_clusters.monthly_max_in', 
+                'internet_metric_clusters.monthly_max_out', 
+                'internet_metric_clusters.monthly_avg_in', 
+                'internet_metric_clusters.monthly_avg_out', 
+                'internet_metric_clusters.monthly_now_in', 
+                'internet_metric_clusters.monthly_now_out');
 
         $metricsData = DB::table('internet_metrics');
         $this->query = $metricsData->get();
@@ -76,7 +88,19 @@ class InternetClustersExport implements FromCollection, WithTitle,
             $row->source_of_connection,
             $row->attached_communities,
             $row->active_contracts,
-            $row->bandwidth_consumption
+            $row->bandwidth_consumption,
+            $row->weekly_max_in,
+            $row->weekly_max_out,
+            $row->weekly_avg_in,
+            $row->weekly_avg_out,
+            $row->weekly_now_in,
+            $row->weekly_now_out,
+            $row->monthly_max_in,
+            $row->monthly_max_out,
+            $row->monthly_avg_in,
+            $row->monthly_avg_out,
+            $row->monthly_now_in,
+            $row->monthly_now_out
         ];
     }
 
@@ -97,7 +121,7 @@ class InternetClustersExport implements FromCollection, WithTitle,
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:F1');
+        $sheet->setAutoFilter('A1:R1');
 
         $sheet->setCellValue('A1', 'Count/Value');
         $sheet->setCellValue('B1', 'Cluster Name');
@@ -105,11 +129,35 @@ class InternetClustersExport implements FromCollection, WithTitle,
         $sheet->setCellValue('D1', 'Attached Communities');
         $sheet->setCellValue('E1', 'Active Contracts');
         $sheet->setCellValue('F1', 'Total Bandwidth Mbps');
-
+        $sheet->setCellValue('G1', 'Weekly Max In Bandwidth Mbps');
+        $sheet->setCellValue('H1', 'Weekly Max Out Bandwidth Mbps');
+        $sheet->setCellValue('I1', 'Weekly Avg In Bandwidth Mbps');
+        $sheet->setCellValue('J1', 'Weekly Avg Out Bandwidth Mbps');
+        $sheet->setCellValue('K1', 'Weekly Now In Bandwidth Mbps');
+        $sheet->setCellValue('L1', 'Weekly Now Out Bandwidth Mbps');
+        $sheet->setCellValue('M1', 'Monthly Max In Bandwidth Mbps');
+        $sheet->setCellValue('N1', 'Monthly Max Out Bandwidth Mbps');
+        $sheet->setCellValue('O1', 'Monthly Avg In Bandwidth Mbps');
+        $sheet->setCellValue('P1', 'Monthly Avg Out Bandwidth Mbps');
+        $sheet->setCellValue('Q1', 'Monthly Now In Bandwidth Mbps');
+        $sheet->setCellValue('R1', 'Monthly Now Out Bandwidth Mbps');
+ 
         $sheet->getStyle('B1')->getAlignment()->setWrapText(true);
         $sheet->getStyle('C1')->getAlignment()->setWrapText(true);
         $sheet->getStyle('D1')->getAlignment()->setWrapText(true);
         $sheet->getStyle('E1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('G1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('H1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('I1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('J1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('K1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('L1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('M1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('N1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('O1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('P1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('Q1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('R1')->getAlignment()->setWrapText(true);
 
         $sheet->getColumnDimension('A')->setAutoSize(false)->setWidth(40);
  

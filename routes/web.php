@@ -394,3 +394,10 @@ Route::get('/delete-community-camera-photo', [App\Http\Controllers\CameraCommuni
 Route::post('camera-export', [App\Http\Controllers\CameraCommunityController::class, 'export'])->name('camera.export');
 
 Route::resource('displaced-community', App\Http\Controllers\DisplacedCommunityController::class);
+
+Route::resource('camera-component', App\Http\Controllers\CameraComponentController::class);
+Route::get('camera-component/{id}/editpage', [App\Http\Controllers\CameraComponentController::class, 'editPage']);
+Route::get('/delete-camera', [App\Http\Controllers\CameraComponentController::class, 'deleteCamera'])->name('deleteCamera');
+Route::resource('nvr-component', App\Http\Controllers\NvrComponentController::class);
+Route::get('nvr-component/{id}/editpage', [App\Http\Controllers\NvrComponentController::class, 'editPage']);
+Route::get('/delete-nvr', [App\Http\Controllers\NvrComponentController::class, 'deleteNvr'])->name('deleteNvr');

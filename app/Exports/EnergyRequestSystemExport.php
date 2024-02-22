@@ -29,6 +29,6 @@ class EnergyRequestSystemExport implements WithMultipleSheets, ShouldAutoSize
             new EnergyCompoundHousehold($this->request),
         ];
 
-        return $sheets;
+        return $sheets; 
     }
 }

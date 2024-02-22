@@ -60,7 +60,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
                 'households.phone_number', 'all_energy_meters.meter_number', 
                 'all_energy_meters.daily_limit', 'all_energy_meters.installation_date',
                     DB::raw('group_concat(donors.donor_name) as donors'),
-                ])
+                ]) 
                 ->groupBy('all_energy_meters.id');
 
        // die($query->get());
@@ -106,7 +106,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
 
     public function title(): string
     {
-        return 'Energy Holders';
+        return 'All Energy Holders';
     }
 
     /**

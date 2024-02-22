@@ -354,14 +354,18 @@ class ActionItemController extends Controller
                 ->leftJoin('grid_community_compounds', 'communities.id', '=', 'grid_community_compounds.community_id')
                 ->where('communities.community_status_id', [2, 1, 3])
                 ->where('grid_community_compounds.electricity_room', 'No')
-                ->select('communities.id', 'communities.english_name as community')
+                ->select('communities.id', 'communities.english_name as community',  
+                    'grid_community_compounds.grid',
+                    'grid_community_compounds.electricity_room')
                 ->get();
 
             $communitiesGridMissing = DB::table('communities')
                 ->leftJoin('grid_community_compounds', 'communities.id', 'grid_community_compounds.community_id')
                 ->where('communities.community_status_id', [2, 3])
                 ->where('grid_community_compounds.grid', 'No')
-                ->select('communities.id', 'communities.english_name as community')
+                ->select('communities.id', 'communities.english_name as community',  
+                    'grid_community_compounds.grid',
+                    'grid_community_compounds.electricity_room')
                 ->get();
 
             $compoundsElecticityRoomMissing = DB::table('compounds')
@@ -369,8 +373,11 @@ class ActionItemController extends Controller
                 ->leftJoin('communities', 'communities.id', 'compounds.community_id')
                 ->where('communities.community_status_id', [2, 3])
                 ->where('grid_community_compounds.electricity_room', 'No')
-                ->select('compounds.id', 'compounds.english_name as compound')
-                ->get();
+                ->select(
+                    'compounds.id', 'compounds.english_name as compound',  
+                    'grid_community_compounds.grid',
+                    'grid_community_compounds.electricity_room')
+                ->get(); 
 
             //die($compoundsElecticityRoomMissing);
             $compoundsGridMissing = DB::table('compounds')
@@ -378,7 +385,9 @@ class ActionItemController extends Controller
                 ->leftJoin('communities', 'communities.id', 'compounds.community_id')
                 ->where('communities.community_status_id', [2, 3])
                 ->where('grid_community_compounds.grid', 'No')
-                ->select('compounds.id', 'compounds.english_name as compound')
+                ->select('compounds.id', 'compounds.english_name as compound',  
+                    'grid_community_compounds.grid',
+                    'grid_community_compounds.electricity_room')
                 ->get();
 
             $communitiesNeedToCompleteElectricity = DB::table('grid_community_compounds')
@@ -393,56 +402,185 @@ class ActionItemController extends Controller
                 ->where('all_energy_meters.energy_system_type_id', [4, 1])
                 ->where('all_energy_meters.meter_number', 0)
                 ->select(
+                    'communities.id',
                     'communities.english_name as community',
-                    DB::raw('COUNT(all_energy_meters.id) as number_of_household'),
+                    DB::raw('COUNT(all_energy_meters.id) as number_of_holders'),
                     DB::raw('COUNT(communities.id) as number'),
                     )
                 ->groupBy('communities.id')
                 ->get();
 
+            $holdersMgSmgNotDCInstallations =  DB::table('all_energy_meters')
+                ->join('communities', 'communities.id', 'all_energy_meters.community_id')
+                ->leftJoin('households', 'households.id', 'all_energy_meters.household_id')
+                ->leftJoin('public_structures', 'public_structures.id', 
+                    'all_energy_meters.public_structure_id')
+                ->where('all_energy_meters.energy_system_type_id', [4, 1])
+                ->where('all_energy_meters.meter_number', 0)
+                ->select(
+                    'communities.id',
+                    'communities.english_name as community',
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                        as holder')
+                )
+                ->get();
+    
             $communitiesFbsNotDCInstallations = DB::table('all_energy_meters')
                 ->join('communities', 'communities.id', 'all_energy_meters.community_id')
                 ->where('all_energy_meters.energy_system_type_id', 2)
                 ->where('all_energy_meters.meter_number', 0)
                 ->select(
+                    'communities.id',
                     'communities.english_name as community',
-                    DB::raw('COUNT(all_energy_meters.id) as number_of_household'),
+                    DB::raw('COUNT(all_energy_meters.id) as number_of_holders'),
                     DB::raw('COUNT(communities.id) as number'),
                     )
                 ->groupBy('communities.id')
                 ->get();
 
-            $electricityNewMaintenances =  DB::table('electricity_maintenance_calls')
-                ->where('electricity_maintenance_calls.is_archived', 0)
-                ->join('electricity_maintenance_call_actions', 'electricity_maintenance_calls.id',
-                    'electricity_maintenance_call_actions.electricity_maintenance_call_id')
-                ->where('electricity_maintenance_calls.maintenance_status_id', 1)
-                ->where('electricity_maintenance_call_actions.maintenance_electricity_action_id', '!=', 75)
+            $holdersFbsNotDCInstallations =  DB::table('all_energy_meters')
+                ->join('communities', 'communities.id', 'all_energy_meters.community_id')
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.meter_number', 0)
+                ->leftJoin('households', 'households.id', 'all_energy_meters.household_id')
+                ->leftJoin('public_structures', 'public_structures.id', 
+                    'all_energy_meters.public_structure_id')
+                ->select(
+                    'communities.id',
+                    'communities.english_name as community',
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as holder'),
+                )
                 ->get();
 
-            $electricityInProgressMaintenances =  DB::table('electricity_maintenance_calls')
+
+            $electricityNewMaintenances = DB::table('electricity_maintenance_calls')
                 ->where('electricity_maintenance_calls.is_archived', 0)
+                ->join('communities', 'electricity_maintenance_calls.community_id', 'communities.id')
+                ->join('electricity_maintenance_call_actions', 'electricity_maintenance_calls.id', 
+                    'electricity_maintenance_call_actions.electricity_maintenance_call_id')
+                ->leftJoin('energy_systems', 'electricity_maintenance_calls.energy_system_id', 
+                    'energy_systems.id')
+                ->leftJoin('households', 'electricity_maintenance_calls.household_id', 'households.id')
+                ->leftJoin('public_structures', 'electricity_maintenance_calls.public_structure_id', 
+                    'public_structures.id')
+                ->leftJoin('maintenance_electricity_actions', 'maintenance_electricity_actions.id', 
+                    'electricity_maintenance_call_actions.maintenance_electricity_action_id')
+                ->where('electricity_maintenance_calls.maintenance_status_id', 1)
+                ->where('electricity_maintenance_call_actions.maintenance_electricity_action_id', '!=', 75)
+                ->select(
+                    'communities.english_name as community',
+                    'electricity_maintenance_calls.date_of_call',
+                    DB::raw('COALESCE(households.english_name, public_structures.english_name, energy_systems.name) as holder'),
+                    DB::raw('GROUP_CONCAT(DISTINCT maintenance_electricity_actions.maintenance_action_electricity_english) as maintenance_actions')
+                )
+                ->groupBy('electricity_maintenance_calls.id')
+                ->get();
+
+            $electricityInProgressMaintenances = DB::table('electricity_maintenance_calls')
+                ->where('electricity_maintenance_calls.is_archived', 0)
+                ->join('communities', 'electricity_maintenance_calls.community_id', 'communities.id')
+                ->join('electricity_maintenance_call_actions', 'electricity_maintenance_calls.id', 
+                    'electricity_maintenance_call_actions.electricity_maintenance_call_id')
+                ->leftJoin('energy_systems', 'electricity_maintenance_calls.energy_system_id', 
+                    'energy_systems.id')
+                ->leftJoin('households', 'electricity_maintenance_calls.household_id', 'households.id')
+                ->leftJoin('public_structures', 'electricity_maintenance_calls.public_structure_id', 
+                    'public_structures.id')
+                ->leftJoin('maintenance_electricity_actions', 'maintenance_electricity_actions.id', 
+                    'electricity_maintenance_call_actions.maintenance_electricity_action_id')
                 ->where('electricity_maintenance_calls.maintenance_status_id', 2)
+                ->select(
+                    'communities.english_name as community',
+                    'electricity_maintenance_calls.date_of_call',
+                    DB::raw('COALESCE(households.english_name, public_structures.english_name, energy_systems.name) as holder'),
+                    DB::raw('GROUP_CONCAT(DISTINCT maintenance_electricity_actions.maintenance_action_electricity_english) as maintenance_actions')
+                )
+                ->groupBy('electricity_maintenance_calls.id')
                 ->get();
 
             $refrigeratorNewMaintenances =  DB::table('refrigerator_maintenance_calls')
                 ->where('refrigerator_maintenance_calls.is_archived', 0)
+                ->join('communities', 'refrigerator_maintenance_calls.community_id', 'communities.id')
+                ->join('refrigerator_maintenance_call_actions', 'refrigerator_maintenance_calls.id', 
+                    'refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id')
+                ->leftJoin('households', 'refrigerator_maintenance_calls.household_id', 'households.id')
+                ->leftJoin('public_structures', 'refrigerator_maintenance_calls.public_structure_id', 
+                    'public_structures.id')
+                ->leftJoin('maintenance_refrigerator_actions', 
+                    'refrigerator_maintenance_call_actions.maintenance_refrigerator_action_id', 
+                    'maintenance_refrigerator_actions.id')
                 ->where('refrigerator_maintenance_calls.maintenance_status_id', 1)
+                ->where('refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id', '!=', 75)
+                ->select(
+                    'communities.english_name as community',
+                    'refrigerator_maintenance_calls.date_of_call',
+                    DB::raw('COALESCE(households.english_name, public_structures.english_name) as holder'),
+                    DB::raw('GROUP_CONCAT(DISTINCT maintenance_refrigerator_actions.maintenance_action_refrigerator) as maintenance_actions')
+                )
+                ->groupBy('refrigerator_maintenance_calls.id')
                 ->get();
+        
 
-            $refrigeratorInProgressMaintenances =  DB::table('refrigerator_maintenance_calls')
+            $refrigeratorInProgressMaintenances =DB::table('refrigerator_maintenance_calls')
                 ->where('refrigerator_maintenance_calls.is_archived', 0)
+                ->join('communities', 'refrigerator_maintenance_calls.community_id', 'communities.id')
+                ->join('refrigerator_maintenance_call_actions', 'refrigerator_maintenance_calls.id', 
+                    'refrigerator_maintenance_call_actions.refrigerator_maintenance_call_id')
+                ->leftJoin('households', 'refrigerator_maintenance_calls.household_id', 'households.id')
+                ->leftJoin('public_structures', 'refrigerator_maintenance_calls.public_structure_id', 
+                    'public_structures.id')
+                ->leftJoin('maintenance_refrigerator_actions', 
+                    'refrigerator_maintenance_call_actions.maintenance_refrigerator_action_id', 
+                    'maintenance_refrigerator_actions.id')
                 ->where('refrigerator_maintenance_calls.maintenance_status_id', 2)
+                ->select(
+                    'communities.english_name as community',
+                    'refrigerator_maintenance_calls.date_of_call',
+                    DB::raw('COALESCE(households.english_name, public_structures.english_name) as holder'),
+                    DB::raw('GROUP_CONCAT(DISTINCT maintenance_refrigerator_actions.maintenance_action_refrigerator) as maintenance_actions')
+                )
+                ->groupBy('refrigerator_maintenance_calls.id')
                 ->get();
 
-            $waterNewMaintenances =  DB::table('h2o_maintenance_calls')
+            $waterNewMaintenances = DB::table('h2o_maintenance_calls')
                 ->where('h2o_maintenance_calls.is_archived', 0)
+                ->join('communities', 'h2o_maintenance_calls.community_id', 'communities.id')
+                ->join('h2o_maintenance_call_actions', 'h2o_maintenance_calls.id', 
+                    'h2o_maintenance_call_actions.h2o_maintenance_call_id')
+                ->leftJoin('households', 'h2o_maintenance_calls.household_id', 'households.id')
+                ->leftJoin('public_structures', 'h2o_maintenance_calls.public_structure_id', 
+                    'public_structures.id')
+                ->leftJoin('maintenance_h2o_actions', 'h2o_maintenance_call_actions.maintenance_h2o_action_id', 
+                    'maintenance_h2o_actions.id')
                 ->where('h2o_maintenance_calls.maintenance_status_id', 1)
+                ->select(
+                    'communities.english_name as community',
+                    'h2o_maintenance_calls.date_of_call',
+                    DB::raw('COALESCE(households.english_name, public_structures.english_name) as holder'),
+                    DB::raw('GROUP_CONCAT(DISTINCT maintenance_h2o_actions.maintenance_action_h2o) as maintenance_actions')
+                )
+                ->groupBy('h2o_maintenance_calls.id')
                 ->get();
 
             $waterInProgressMaintenances =  DB::table('h2o_maintenance_calls')
                 ->where('h2o_maintenance_calls.is_archived', 0)
+                ->join('communities', 'h2o_maintenance_calls.community_id', 'communities.id')
+                ->join('h2o_maintenance_call_actions', 'h2o_maintenance_calls.id', 
+                    'h2o_maintenance_call_actions.h2o_maintenance_call_id')
+                ->leftJoin('households', 'h2o_maintenance_calls.household_id', 'households.id')
+                ->leftJoin('public_structures', 'h2o_maintenance_calls.public_structure_id', 
+                    'public_structures.id')
+                ->leftJoin('maintenance_h2o_actions', 'h2o_maintenance_call_actions.maintenance_h2o_action_id', 
+                    'maintenance_h2o_actions.id')
                 ->where('h2o_maintenance_calls.maintenance_status_id', 2)
+                ->select(
+                    'communities.english_name as community',
+                    'h2o_maintenance_calls.date_of_call',
+                    DB::raw('COALESCE(households.english_name, public_structures.english_name) as holder'),
+                    DB::raw('GROUP_CONCAT(DISTINCT maintenance_h2o_actions.maintenance_action_h2o) as maintenance_actions')
+                )
+                ->groupBy('h2o_maintenance_calls.id')
                 ->get();
       
             $missingUserEnergDonors = DB::table('all_energy_meters')
@@ -454,10 +592,11 @@ class ActionItemController extends Controller
                     'all_energy_meter_donors.all_energy_meter_id')
                 ->join('households', 'households.id', 
                     'all_energy_meters.household_id')
+                ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
                 ->whereNull('all_energy_meter_donors.all_energy_meter_id')
                 ->select(
                     'communities.english_name as community', 
-                    'households.english_name as household_name',
+                    'households.english_name as household_name', 'household_statuses.status',
                     'energy_systems.name as energy_name', 'energy_system_types.name as type')
                // ->groupBy('communities.id')
                 ->get();
@@ -525,6 +664,102 @@ class ActionItemController extends Controller
                     'communities.english_name as community', 
                     'public_structures.english_name as public')
                 ->get();
+            
+            $notYetConnectedGround  = DB::table('all_energy_meters')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.ground_connected', "No")
+                ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                ->leftJoin('households', 'all_energy_meters.household_id', 'households.id')
+                ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
+                    'public_structures.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                ->select(
+                    'communities.english_name as community',
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                        as holder'),
+                    'energy_systems.name as energy_system'
+                )
+                ->get();
+
+            $notYetSafteyCheckedFbs =  DB::table('all_energy_meters')
+                ->leftJoin('all_energy_meter_safety_checks', function($join) {
+                    $join->on('all_energy_meters.id', '=', 'all_energy_meter_safety_checks.all_energy_meter_id')
+                        ->where('all_energy_meter_safety_checks.is_archived', 0);
+                })
+                ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                ->leftJoin('households', 'all_energy_meters.household_id', 'households.id')
+                ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 'public_structures.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                ->select(
+                    'communities.english_name as community',
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) as holder'),
+                    'energy_systems.name as energy_system'
+                )
+                ->whereNull('all_energy_meter_safety_checks.all_energy_meter_id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->get();
+
+            $notYetSafteyCompletedFbs = DB::table('all_energy_meter_safety_checks')
+                ->join('all_energy_meters', 'all_energy_meters.id', 
+                    'all_energy_meter_safety_checks.all_energy_meter_id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meter_safety_checks.is_archived', 0)
+                ->whereNull('all_energy_meter_safety_checks.ph_loop')
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->where('all_energy_meters.ground_connected', "No")
+                ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                ->leftJoin('households', 'all_energy_meters.household_id', 'households.id')
+                ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
+                    'public_structures.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                ->select(
+                    'communities.english_name as community',
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                        as holder'),
+                    'energy_systems.name as energy_system'
+                )
+                ->get();
+
+            $notYetCompletedSafteyCheckedMg =  DB::table('all_energy_meter_safety_checks')
+                ->join('all_energy_meters', 'all_energy_meters.id', 
+                    'all_energy_meter_safety_checks.all_energy_meter_id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meter_safety_checks.is_archived', 0)
+                ->whereNull('all_energy_meter_safety_checks.ph_loop')
+                ->where('all_energy_meters.energy_system_type_id', '!=', 2)
+                ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                ->leftJoin('households', 'all_energy_meters.household_id', 'households.id')
+                ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
+                    'public_structures.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                ->select(
+                    'communities.english_name as community',
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                        as holder'),
+                    'energy_systems.name as energy_system'
+                )
+                ->get();
+
+            $notYetSafteyCheckedMg = DB::table('all_energy_meters')
+                ->leftJoin('all_energy_meter_safety_checks', function($join) {
+                    $join->on('all_energy_meters.id', '=', 'all_energy_meter_safety_checks.all_energy_meter_id')
+                        ->where('all_energy_meter_safety_checks.is_archived', 0);
+                })
+                ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                ->leftJoin('households', 'all_energy_meters.household_id', 'households.id')
+                ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 'public_structures.id')
+                ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                ->select(
+                    'communities.english_name as community',
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) as holder'),
+                    'energy_systems.name as energy_system'
+                )
+                ->whereNull('all_energy_meter_safety_checks.all_energy_meter_id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('all_energy_meters.energy_system_type_id', '!=', 2)
+                ->get();
 
             return view('actions.index', compact('youngHolders', 'internetManager',
                 'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
@@ -547,7 +782,11 @@ class ActionItemController extends Controller
                 'refrigeratorNewMaintenances', 'refrigeratorInProgressMaintenances',
                 'waterNewMaintenances', 'waterInProgressMaintenances', 'missingUserEnergDonors',
                 'missingEnergyPublicDonors', 'missingUserWaterDonors',
-                'missingPublicWaterDonors', 'missingUserInternetDonors', 'missingPublicInternetDonors'));
+                'missingPublicWaterDonors', 'missingUserInternetDonors', 
+                'missingPublicInternetDonors', 'holdersFbsNotDCInstallations',
+                'holdersMgSmgNotDCInstallations', 'notYetSafteyCheckedFbs', 
+                'notYetConnectedGround', 'notYetSafteyCheckedMg', 
+                'notYetCompletedSafteyCheckedMg', 'notYetSafteyCompletedFbs'));
 
         } else {
 
@@ -571,16 +810,16 @@ class ActionItemController extends Controller
 
             if($existGridCommunity) {
 
-                $existGridCommunity->electricity_room = $request->electricity_room;
-                $existGridCommunity->grid = $request->grid;
+                if($request->electricity_room) $existGridCommunity->electricity_room = $request->electricity_room;
+                if($request->grid) $existGridCommunity->grid = $request->grid;
                 $existGridCommunity->save();
 
             } else {
 
                 $gridCommunity = new GridCommunityCompound();
                 $gridCommunity->community_id = $request->community_id;
-                $gridCommunity->electricity_room = $request->electricity_room;
-                $gridCommunity->grid = $request->grid;
+                if($request->electricity_room) $gridCommunity->electricity_room = $request->electricity_room;
+                if($request->grid) $gridCommunity->grid = $request->grid;
                 $gridCommunity->save();
             }
         } else if($request->compound_id) {
@@ -590,16 +829,16 @@ class ActionItemController extends Controller
 
             if($existGridCompound) {
 
-                $existGridCompound->electricity_room = $request->electricity_room;
-                $existGridCompound->grid = $request->grid;
+                if($request->electricity_room) $existGridCompound->electricity_room = $request->electricity_room;
+                if($request->grid) $existGridCompound->grid = $request->grid;
                 $existGridCompound->save();
 
             } else {
 
                 $gridCompound = new GridCommunityCompound();
                 $gridCompound->compound_id = $request->compound_id;
-                $gridCompound->electricity_room = $request->electricity_room;
-                $gridCompound->grid = $request->grid;
+                if($request->electricity_room) $gridCompound->electricity_room = $request->electricity_room;
+                if($request->grid) $gridCompound->grid = $request->grid;
                 $gridCompound->save();
             }
         }
@@ -735,6 +974,8 @@ class ActionItemController extends Controller
         $missingEnergyUserDonors = DB::table('all_energy_meters')
             ->leftJoin('households', 'all_energy_meters.household_id', 
                 'households.id')
+            ->leftJoin('household_statuses', 'households.household_status_id', 
+                'household_statuses.id')
             ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
                 'public_structures.id')
             ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', 
@@ -750,7 +991,7 @@ class ActionItemController extends Controller
             ->select( 
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
                     as holder_name'),
-                'households.english_name', 
+                'households.english_name', 'household_statuses.status',
                 'energy_system_types.name')
             ->get();
             

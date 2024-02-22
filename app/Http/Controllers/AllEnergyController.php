@@ -50,6 +50,30 @@ class AllEnergyController extends Controller
      */
     public function index(Request $request)
     {
+        // $allEnergyMeters = AllEnergyMeter::where('is_archived', 0)
+        //     ->whereNotNull('household_id')
+        //     ->get();
+
+        // foreach($allEnergyMeters as $allEnergyMeter) {
+
+        //     $household = Household::where('id', $allEnergyMeter->household_id)->first();
+
+        //     if($household) {
+
+        //         $household->energy_service = "Yes";
+        //         $household->energy_system_status = "Served";
+        //         // if($allEnergyMeter->is_main = "Yes") {
+
+        //         //     $household->energy_meter = "Yes";
+        //         // } else {
+
+        //         //     $household->energy_meter = "No"; 
+        //         // }
+                
+        //         $household->save();
+        //     }
+        // }
+
       //  /* Comparasion between platform and vending software
         // $allEnergyMeters = AllEnergyMeter::where("is_archived", 0)->get();
         // $allVendingMeters = AllEnergyVendingMeter::get();
@@ -314,12 +338,13 @@ class AllEnergyController extends Controller
             ->orderBy('english_name', 'ASC')
             ->get();
         $communityVendors = DB::table('community_vendors')
-            ->where('community_id', $community_id->id)
+            //->where('community_id', $community_id->id)
             ->where('community_vendors.is_archived', 0)
             ->join('vendor_user_names', 'community_vendors.vendor_username_id', 
                 '=', 'vendor_user_names.id')
             ->select('vendor_user_names.name', 'community_vendors.id as id',
                 'vendor_user_names.id as vendor_username_id')
+            ->groupBy('vendor_user_names.id')
             ->get();
         
         $energySystems = EnergySystem::where('is_archived', 0)->get();
@@ -414,7 +439,7 @@ class AllEnergyController extends Controller
         $energyUser->daily_limit = $request->daily_limit;
         $energyUser->installation_date = $request->installation_date;
         if($request->installation_type_id) $energyUser->installation_type_id = $request->installation_type_id;
-        
+         
         if($request->ground_connected) $energyUser->ground_connected = $request->ground_connected;
       
         if($request->meter_active) $energyUser->meter_active = $request->meter_active;
