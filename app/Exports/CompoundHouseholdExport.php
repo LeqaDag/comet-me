@@ -27,15 +27,18 @@ class CompoundHouseholdExport implements FromCollection, WithHeadings, WithTitle
     {
         $data = DB::table('compound_households')
             ->join('communities', 'compound_households.community_id', 
-                '=', 'communities.id')
-            ->join('regions', 'communities.region_id', '=', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+               'communities.id')
+            ->join('regions', 'communities.region_id','regions.id')
+            ->join('sub_regions', 'communities.sub_region_id','sub_regions.id')
             ->join('households', 'compound_households.household_id', 
-                '=', 'households.id')
+               'households.id')
             ->join('compounds', 'compound_households.compound_id', 
-                '=', 'compounds.id')
+               'compounds.id')
+            ->leftJoin('household_statuses', 'households.household_status_id', 
+                'household_statuses.id')
             ->where('compound_households.is_archived', 0)
             ->select('households.english_name as household',
+                'household_statuses.status',
                 'communities.english_name as community_english_name',
                 'compounds.english_name as english_name', 
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
@@ -65,13 +68,13 @@ class CompoundHouseholdExport implements FromCollection, WithHeadings, WithTitle
      */
     public function headings(): array
     {
-        return ["Household", "Community", "Compound", "Region", "Sub Region", "Phone Number", 
+        return ["Household", "Status", "Community", "Compound", "Region", "Sub Region", "Phone Number", 
             "# of Male", "# of Female", "# of Children", "# of Adult"];
     }
 
     public function title(): string
     {
-        return 'Households - Sub Communities';
+        return 'Households - Compounds';
     }
 
     /**

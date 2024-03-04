@@ -363,6 +363,8 @@ Route::get('action-item/household/missing', [App\Http\Controllers\ActionItemCont
 Route::get('missing/donors/{community_id}', [App\Http\Controllers\ActionItemController::class, 'householdMissingDonors']);
 Route::get('action-item/ac-household/export', [App\Http\Controllers\ActionItemController::class, 'householdAcExport']);
 Route::get('action-item/in-progress-household/export', [App\Http\Controllers\ActionItemController::class, 'householdInProgressExport']);
+Route::post('action-item/update-action-status', [App\Http\Controllers\ActionItemController::class, 'updateActionStatus']);
+Route::post('action-item/update-action-note', [App\Http\Controllers\ActionItemController::class, 'updateActionNote']);
 
 Route::resource('public-structure', App\Http\Controllers\PublicStructureController::class);
 Route::post('public-structure-export', [App\Http\Controllers\PublicStructureController::class, 'export'])->name('public-structure.export');
@@ -401,3 +403,9 @@ Route::get('/delete-camera', [App\Http\Controllers\CameraComponentController::cl
 Route::resource('nvr-component', App\Http\Controllers\NvrComponentController::class);
 Route::get('nvr-component/{id}/editpage', [App\Http\Controllers\NvrComponentController::class, 'editPage']);
 Route::get('/delete-nvr', [App\Http\Controllers\NvrComponentController::class, 'deleteNvr'])->name('deleteNvr');
+
+Route::resource('hold-household', App\Http\Controllers\OnHoldHouseholdController::class);
+Route::get('/delete-hold-household', [App\Http\Controllers\OnHoldHouseholdController::class, 'deleteOnHoldHousehold'])->name('deleteOnHoldHousehold');
+
+Route::resource('work-plan', App\Http\Controllers\WorkPlanController::class);
+Route::get('/delete-work-plan', [App\Http\Controllers\WorkPlanController::class, 'deleteWorkPlan'])->name('deleteWorkPlan');

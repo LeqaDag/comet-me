@@ -45,6 +45,29 @@ class HouseholdMeterController extends Controller
      */
     public function index(Request $request)
     {
+        // $householdMeters = HouseholdMeter::where('is_archived', 0)->get();
+
+        // foreach($householdMeters as $householdMeter) {
+
+        //     $energyUser = AllEnergyMeter::where('id', $householdMeter->energy_user_id)->first();
+        //     if($energyUser) {
+
+        //         $existEnergyMeter = AllEnergyMeter::where('household_id', $householdMeter->household_id)->first();
+        //         if($existEnergyMeter) {
+
+        //         } else {
+
+        //             $newAllEnergyMeter = new AllEnergyMeter();
+        //             $newAllEnergyMeter->household_id = $householdMeter->household_id;
+        //             $newAllEnergyMeter->is_main = "No";
+        //             $newAllEnergyMeter->community_id = $energyUser->community_id;
+        //             $newAllEnergyMeter->energy_system_type_id = $energyUser->energy_system_type_id;
+        //             $newAllEnergyMeter->energy_system_id  = $energyUser->energy_system_id ;
+        //             $newAllEnergyMeter->save();
+        //         }
+        //     }
+        // }
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
@@ -275,13 +298,29 @@ class HouseholdMeterController extends Controller
     public function store(Request $request)
     {
         $energyUser = AllEnergyMeter::where('id', $request->energy_user_id)->first();
-        $household = Household::findOrFail($energyUser->household_id);
-        $household->household_status_id = 4;
-        $household->save();
 
         if($request->household_id) {
 
             for($i=0; $i < count($request->household_id); $i++) {
+
+                if($energyUser) {
+
+                    $household = Household::where('id', $request->household_id[$i])->first();
+                    if($energyUser->meter_number == 0) $household->household_status_id = 3;
+                   
+                    else $household->household_status_id = 4;
+                    
+                    $household->save();
+
+                    $newAllEnergyMeter = new AllEnergyMeter();
+                    $newAllEnergyMeter->household_id = $request->household_id[$i];
+                    $newAllEnergyMeter->is_main = "No";
+                    $newAllEnergyMeter->community_id = $energyUser->community_id;
+                    $newAllEnergyMeter->installation_type_id = 4;
+                    $newAllEnergyMeter->energy_system_type_id = $energyUser->energy_system_type_id;
+                    $newAllEnergyMeter->energy_system_id  = $energyUser->energy_system_id ;
+                    $newAllEnergyMeter->save();
+                }
 
                 $householdMeter = new HouseholdMeter();
                 $householdMeter->user_name = $household->english_name;
@@ -296,6 +335,20 @@ class HouseholdMeterController extends Controller
 
             for($i=0; $i < count($request->public_id); $i++) {
 
+                if($energyUser) {
+
+                    $public = PublicStructure::where('id', $request->public_id[$i])->first();
+          
+                    $newAllEnergyMeter = new AllEnergyMeter();
+                    $newAllEnergyMeter->public_structure_id = $request->public_id[$i];
+                    $newAllEnergyMeter->is_main = "No";
+                    $newAllEnergyMeter->community_id = $energyUser->community_id;
+                    $newAllEnergyMeter->installation_type_id = 4;
+                    $newAllEnergyMeter->energy_system_type_id = $energyUser->energy_system_type_id;
+                    $newAllEnergyMeter->energy_system_id = $energyUser->energy_system_id ;
+                    $newAllEnergyMeter->save();
+                }
+
                 $householdMeter = new HouseholdMeter();
                 $householdMeter->user_name = $household->english_name;
                 $householdMeter->user_name_arabic = $household->arabic_name;
@@ -304,7 +357,6 @@ class HouseholdMeterController extends Controller
                 $householdMeter->save();
             }
         }
-        
         
         return redirect()->back()->with('message', 'New Shared Holders Added Successfully!');
     }

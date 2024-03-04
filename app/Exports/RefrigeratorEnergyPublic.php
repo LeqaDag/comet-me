@@ -24,7 +24,7 @@ class RefrigeratorEnergyPublic implements FromCollection, WithHeadings, WithTitl
     * @return \Illuminate\Support\Collection
     */
     public function collection()
-    {
+    { 
         $query = DB::table('all_energy_meters')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')

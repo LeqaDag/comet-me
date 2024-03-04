@@ -28,7 +28,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
     * @return \Illuminate\Support\Collection
     */
     public function collection()  
-    {
+    { 
         $queryCommunities =  DB::table('communities')
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('community_statuses', 'communities.community_status_id', 
@@ -61,25 +61,26 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                     all_households.household_status_id = 3 THEN 1 END) as sum_DC'),
                 )
             ->groupBy('communities.english_name');
-
+ 
         $queryCompounds = DB::table('compounds')
+            ->leftJoin('grid_community_compounds', 'compounds.id',
+                'grid_community_compounds.compound_id')
             ->join('communities', 'communities.id', 'compounds.community_id')
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('community_statuses', 'communities.community_status_id', 
                 'community_statuses.id')
             ->join('compound_households', 'compound_households.compound_id', 'compounds.id')
             ->join('households', 'compound_households.household_id', 'households.id')
+            ->leftJoin('energy_system_types', 'households.energy_system_type_id', 
+                'energy_system_types.id')
             ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
-            ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
-            ->leftJoin('grid_community_compounds', 'compounds.id',
-                'grid_community_compounds.compound_id')
             ->where('communities.is_archived', 0)
-            ->where('households.household_status_id', 2)
-            ->where('communities.community_status_id', 1)
-            ->orWhere('communities.community_status_id', 2)
-            ->orWhere('communities.community_status_id', 3)
+            ->where('households.is_archived', 0)
+            ->where(function ($query) {
+                $query->where('communities.community_status_id', 2);
+            })
             ->select(
-                'compounds.english_name',
+                'compounds.english_name', 
                 'regions.english_name as region',
                 DB::raw('COUNT(CASE WHEN energy_system_types.id = 2 THEN 0 END) as sum_FBS'),
                 DB::raw('COUNT(CASE WHEN energy_system_types.id = 1 THEN 0 END) as sum_MG'),
@@ -88,8 +89,8 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'grid_community_compounds.grid',
                 DB::raw('COUNT(CASE WHEN households.household_status_id = 3 THEN 0 END) as sum_AC'),
                 DB::raw('COUNT(CASE WHEN all_energy_meters.meter_number != 0 AND 
-                    households.household_status_id = 3 THEN 1 END) as sum_DC'),
-                )
+                    households.household_status_id = 3 THEN 1 END) as sum_DC'),            
+            )
             ->groupBy('compounds.english_name');
 
         $this->misc = DB::table('households')

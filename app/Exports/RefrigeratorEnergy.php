@@ -63,7 +63,7 @@ class RefrigeratorEnergy implements FromCollection, WithHeadings, WithTitle, Sho
 
     /**
      * Write code on Method
-     *
+     * 
      * @return response()
      */
     public function headings(): array

@@ -14,7 +14,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
 {
 
     protected $request;
-
+ 
     function __construct($request) {
 
         $this->request = $request;
@@ -52,12 +52,14 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
             ->leftJoin('internet_user_donors', 'internet_users.id', 
                 'internet_user_donors.internet_user_id')
             ->leftJoin('donors as internet_donor', 'internet_user_donors.donor_id', 'internet_donor.id')
+            ->leftJoin('compound_households', 'households.id', 'compound_households.household_id')
+            ->leftJoin('compounds', 'compound_households.compound_id', 'compounds.id')
             ->where('households.is_archived', 0) 
             ->where('internet_holder_young', 0) 
             ->select('households.english_name as english_name', 
                 'households.arabic_name as arabic_name', 
                 'communities.english_name as community_name',
-                'regions.english_name as region', 'sub_regions.english_name as sub_region',
+                'regions.english_name as region', 'compounds.english_name as compound',
                 'households.phone_number', 'professions.profession_name', 
                 'number_of_male', 'number_of_female', 'number_of_children','number_of_adults', 
                 'school_students', 'household_statuses.status', 
@@ -223,7 +225,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function headings(): array
     {
-        return ["English Name", "Arabic Name", "Community", "Region", "Sub Region", 
+        return ["English Name", "Arabic Name", "Community", "Region", "Compound", 
             "Phone Number", "Profession", "# of Male", "# of Female", "# of Children", "# of Adults",
             "# of School students", "Energy System Status", "Main User", 
             "Energy System Type", "Meter Number", "Energy Donors",

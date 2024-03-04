@@ -151,7 +151,7 @@ class InternetUserController extends Controller
 
             $activeInternetCommuntiies = Community::where('internet_service', 'Yes');
             
-
+ 
             foreach($activeInternetCommuntiies->get() as $activeInternetCommuntiy) 
             {
                 $allInternetPeople+= Household::where('community_id', $activeInternetCommuntiy->id)

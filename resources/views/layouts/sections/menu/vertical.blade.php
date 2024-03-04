@@ -1,5 +1,9 @@
 
-
+<style>
+    .menu-sub .menu-sub {
+        margin-left: 20px; /* Adjust the value as needed */
+    }
+</style>
 <ul class="menu-inner py-1" id="menu">
 
     <li class="menu-item" id="home">
@@ -9,6 +13,16 @@
         </a>
     </li>
 
+    @if(Auth::guard('user')->user()->user_type_id == 1 ||
+        Auth::guard('user')->user()->user_type_id == 2)
+    <li class="menu-item" id="work-plans">
+        <a href="{{url('work-plan')}}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-list-check"></i>
+            <div>Work Plans</div>
+        </a>
+    </li>
+    @endif
+    
     <li class="menu-item" id="action-items">
         <a href="{{url('action-item')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-task"></i>
@@ -94,23 +108,36 @@
                     </a>
                 </li>
             @endif
-            <li class="menu-item" id="initial-household">
-                <a href="{{url('initial-household')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Initial Survey</div>
+            <li class="menu-item" id="in_progress_households">
+                <a class="menu-link menu-toggle">
+                    <div>In Progress</div>
                 </a>
-            </li>
-            <li class="menu-item" id="ac-household">
-                <a href="{{url('ac-household')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>AC Survey</div>
-                </a>
-            </li> 
-            <li class="menu-item" id="progress-household">
-                <a href="{{url('progress-household')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>AC Completed</div>
-                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="initial-household">
+                        <a href="{{url('initial-household')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Initial Survey</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="ac-household">
+                        <a href="{{url('ac-household')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>AC Survey</div>
+                        </a>
+                    </li> 
+                    <li class="menu-item" id="progress-household">
+                        <a href="{{url('progress-household')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>AC Completed</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="hold-household">
+                        <a href="{{url('hold-household')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>On Hold</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="menu-item" id="served-household">
                 <a href="{{url('served-household')}}" class="menu-link" >
@@ -477,7 +504,11 @@
 
         $("#all-active").addClass("active");
 
-    }  else if(last_part == "action-item") {
+    }  else if(last_part == "work-plan") {
+
+        $("#work-plans").addClass("active");
+
+    } else if(last_part == "action-item") {
 
         $("#action-items").addClass("active");
 
@@ -534,14 +565,26 @@
 
         $("#initial-household").addClass("active");
         $("#households").addClass("open");
+        $("#in_progress_households").addClass("active");
+        $("#in_progress_households").addClass("open");
     } else if(last_part == "ac-household") {
 
         $("#ac-household").addClass("active");
         $("#households").addClass("open");
+        $("#in_progress_households").addClass("active");
+        $("#in_progress_households").addClass("open");
     } else if(last_part == "progress-household") {
 
         $("#progress-household").addClass("active");
         $("#households").addClass("open");
+        $("#in_progress_households").addClass("active");
+        $("#in_progress_households").addClass("open");
+    }  else if(last_part == "hold-household") {
+
+        $("#hold-household").addClass("active");
+        $("#households").addClass("open");
+        $("#in_progress_households").addClass("active");
+        $("#in_progress_households").addClass("open");
     } else if(last_part == "served-household") {
 
         $("#served-household").addClass("active");

@@ -59,6 +59,15 @@ class CommunityController extends Controller
      */
     public function index(Request $request)
     {	
+        // $communities = Community::get();
+
+        // foreach($communities as $community) {
+
+        //     $location = "https://www.google.com/maps?q={$community->latitude},{$community->longitude}";
+        //     $community->location_gis = $location;
+        //     $community->save();
+        // }
+
         if (Auth::guard('user')->user() != null) {
 
             $regionFilter = $request->input('filter');

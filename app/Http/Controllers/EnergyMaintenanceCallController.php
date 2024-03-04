@@ -195,6 +195,7 @@ class EnergyMaintenanceCallController extends Controller
 
         $maintenance->community_id = $request->community_id[0];
         $maintenance->date_of_call = $request->date_of_call;
+        $maintenance->visit_date = $request->visit_date;
         
         if($request->date_completed) {
 
@@ -304,6 +305,7 @@ class EnergyMaintenanceCallController extends Controller
         $energyMaintenance = ElectricityMaintenanceCall::findOrFail($id);
 
         $energyMaintenance->date_of_call = $request->date_of_call;
+        $energyMaintenance->visit_date = $request->visit_date;
         if($request->date_completed) {
 
             $energyMaintenance->date_completed = $request->date_completed;

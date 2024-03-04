@@ -37,6 +37,15 @@ class EnergySafetyController extends Controller
      */
     public function index(Request $request)
     {
+        $energySafety = AllEnergyMeterSafetyCheck::get();
+
+        foreach($energySafety as $energy) {
+
+            $allEnergyMeter = AllEnergyMeter::where("id", $energy->all_energy_meter_id)->first();
+            $allEnergyMeter->ground_connected = "Yes";
+            $allEnergyMeter->save();
+        }
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
@@ -118,7 +127,6 @@ class EnergySafetyController extends Controller
 
             // 987 - 11 "FBS with no ground connected"
             $data = DB::table('all_energy_meters')
-                ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
                 ->where('all_energy_meters.is_archived', 0)
                 ->where('all_energy_meters.energy_system_type_id', 2)
                 ->select(
@@ -189,7 +197,7 @@ class EnergySafetyController extends Controller
                 ->where('all_energy_meters.is_archived', 0)
                 ->where('all_energy_meters.energy_system_type_id', 2)
                 ->count();
-
+ 
             $groundConnectedFbs = AllEnergyMeter::where("is_archived", 0)
                 ->where('all_energy_meters.energy_system_type_id', 2)
                 ->where('all_energy_meters.ground_connected', "Yes")
@@ -203,10 +211,18 @@ class EnergySafetyController extends Controller
                 ->where("n_loop", "<", 10)
                 ->count();
 
+            $totalNumberFbs = AllEnergyMeter::where("is_archived", 0)
+                ->where('all_energy_meters.energy_system_type_id', 2)
+                ->count();
+
+            $totalNumberMg = AllEnergyMeter::where("is_archived", 0)
+                ->where('all_energy_meters.energy_system_type_id', '!=', 2)
+                ->count();
+
             return view('safety.energy.index', compact('communities', 'energySystemTypes', 
                 'meterCases', 'regions', 'subRegions', 'checkDate', 'groundYes',
                 'groundNo', 'notYetChecked', 'groundConnectedFbs', 'groundNotConnectedFbs',
-                'badResultsNumber'))
+                'badResultsNumber', 'totalNumberMg', 'totalNumberFbs'))
                 ->with('energy_users', json_encode($array)
             );
         } else {
@@ -233,6 +249,9 @@ class EnergySafetyController extends Controller
                 $allEnergyMeter = AllEnergyMeter::where("household_id", $request->holder_id)
                     ->first();
            
+                $allEnergyMeter->ground_connected = "Yes";
+                $allEnergyMeter->save();
+
                 $maintenance->energy_user_id = $allEnergyMeter->id;
                 $maintenance->household_id = $allEnergyMeter->household_id;
                 $maintenance->community_id = $allEnergyMeter->community_id;
@@ -240,6 +259,9 @@ class EnergySafetyController extends Controller
                 
                 $allEnergyMeter = AllEnergyMeter::where("public_structure_id", $request->holder_id)
                     ->first();
+                $allEnergyMeter->ground_connected = "Yes";
+                $allEnergyMeter->save();
+
                 $maintenance->public_structure_id = $allEnergyMeter->public_structure_id;
                 $maintenance->community_id = $allEnergyMeter->community_id;
             }
@@ -252,11 +274,11 @@ class EnergySafetyController extends Controller
                 $allEnergyMeter->save();
             }
 
-            if($request->ground_connected) {
+            // if($request->ground_connected) {
 
-                $allEnergyMeter->ground_connected = $request->ground_connected;
-                $allEnergyMeter->save();
-            }
+            //     $allEnergyMeter->ground_connected = $request->ground_connected;
+            //     $allEnergyMeter->save();
+            // }
         } 
 
         $energySafety->visit_date = $request->visit_date;

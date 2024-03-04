@@ -213,7 +213,7 @@ class InProgressHouseholdController extends Controller
                 } else {
 
                     $energyUser->ground_connected = "No";
-                }
+                } 
                 $energyUser->energy_system_id = $request->energy_system_id;
                 $energyUser->meter_number = 0;
                 $energyUser->meter_case_id = 12; 

@@ -37,6 +37,28 @@
                     <div class="col-lg-4 col-sm-4 col-md-4 mb-4">
                         <div class="col">
                             <div class="card-body text-center">
+                                <h3 class="mb-1">{{$totalNumberFbs}}</h3>
+                                <span class="text-muted"># of FBS Families</span>
+                                <div class="primary">
+                                    <i class="bx bx-user me-1 bx-lg text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-4 col-md-4 mb-4">
+                        <div class="col">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1">{{$totalNumberMg}}</h3>
+                                <span class="text-muted"># of MG Families</span>
+                                <div class="primary">
+                                    <i class="bx bx-group me-1 bx-lg text-light"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-4 col-md-4 mb-4">
+                        <div class="col">
+                            <div class="card-body text-center">
                                 <h3 class="mb-1">{{$groundConnectedFbs}}</h3>
                                 <span class="text-muted">FBS Ground Connected</span>
                                 <div class="primary">
@@ -80,7 +102,7 @@
                                     </a>
                                 </div>
                             </div>
-                        </div> 
+                        </div>  
                     </div>
                     <div class="col-lg-4 col-sm-4 col-md-4 mb-4">
                         <div class="col">
@@ -99,7 +121,7 @@
             </div>
         </div>
     </div>
-    <!-- <div class="container mb-4">
+    <div class="container mb-4">
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -112,7 +134,7 @@
                 </div>  
             </div> 
         </div> 
-    </div>  -->
+    </div> 
 </div> 
 
 <div class="collapse multi-collapse mb-4" id="collapseEnergySafetyExport">

@@ -49,7 +49,7 @@ class CommunityGis implements FromCollection, WithHeadings, WithTitle, ShouldAut
             ->leftJoin('donors as internet_donor', 'internet_donors.donor_id', 'internet_donor.id')
             ->select(
                 'communities.english_name as english_name', 'communities.latitude', 
-                'communities.longitude', 'number_of_household', 
+                'communities.longitude', 'communities.location_gis', 'number_of_household', 
                 'communities.energy_service_beginning_year',
                 'communities.water_service_beginning_year',
                 'communities.internet_service_beginning_year', 
@@ -94,9 +94,10 @@ class CommunityGis implements FromCollection, WithHeadings, WithTitle, ShouldAut
      */
     public function headings(): array
     {
-        return ["Community Name", "Longitude", "Latitude", "Number of Households", 
-            "Energy Service Year", "Water Service Year", "Internet Service Year", 
-            "Displacement year", "Energy Donors", "Water Donors", "Internet Donors"];
+        return ["Community Name", "Latitude", "Longitude", "Location", 
+            "Number of Households", "Energy Service Year", "Water Service Year", 
+            "Internet Service Year", "Displacement year", "Energy Donors", "Water Donors", 
+            "Internet Donors"];
     }
 
 
@@ -127,7 +128,7 @@ class CommunityGis implements FromCollection, WithHeadings, WithTitle, ShouldAut
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:K1');
+        $sheet->setAutoFilter('A1:L1');
         
         return [ 
             // Style the first row as bold text.

@@ -11,7 +11,7 @@
     display: block;
 }
 
-label, table {
+label, table { 
     margin-top: 20px;
 }
 </style>
@@ -84,7 +84,11 @@ label, table {
                                     </span>
                                 </div>
                                 <div class="chart-info">
-                                    <h5 class="mb-0">{{$activeInternetCommuntiiesCount}}</h5>
+                                    <h5 class="mb-0">
+                                    @foreach($dataJson as $data)
+                                        {{$data["total_active_communities"]}}
+                                    @endforeach
+                                    </h5>
                                     <small class="text-muted">Active Communities</small>
                                 </div>
                             </div>

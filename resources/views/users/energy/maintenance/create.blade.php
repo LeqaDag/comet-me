@@ -5,7 +5,7 @@
 
 label, table {
     margin-top: 20px;
-}
+} 
 </style> 
 
 <div id="createMaintenanceLogElectricity" class="modal fade" tabindex="-1" aria-hidden="true">
@@ -148,13 +148,19 @@ label, table {
                                 @endif
                             </fieldset>
                         </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Date Of Call</label>
+                                <input type="date" name="date_of_call" class="form-control" required>
+                            </fieldset>
+                        </div>
                     </div>
 
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Date Of Call</label>
-                                <input type="date" name="date_of_call" class="form-control" required>
+                                <label class='col-md-12 control-label'>Visit Date</label>
+                                <input type="date" name="visit_date" class="form-control" required>
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">

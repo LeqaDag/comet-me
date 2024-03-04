@@ -424,7 +424,7 @@ All<span class="text-muted fw-light"> Households</span>
             @if(Auth::guard('user')->user()->user_type_id != 7 ||
                 Auth::guard('user')->user()->user_type_id != 11  )
                 <div>
-                    <p class="card-text">
+                    <p class="card-text"> 
                         <div>
                             <a type="button" class="btn btn-success" 
                                 href="{{url('household', 'create')}}" >
@@ -578,6 +578,7 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#internetServiceHousehold').html(" ");
                     $('#waterServiceHousehold').html(" ");
                     $('#energyStatusHousehold').html(" ");
+                    $('#compoundHousehold').html(" ");
 
                     $('#householdModalTitle').html(response['household'].english_name);
                     $('#englishNameHousehold').html(response['household'].english_name);
@@ -594,7 +595,8 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#waterServiceHousehold').html(response['household'].water_system_status);
                     $('#internetServiceHousehold').html(response['household'].internet_system_status);
                     $('#energyStatusHousehold').html(response['status'].status);
-                    
+                    $('#compoundHousehold').html(response['compound'].english_name);
+
                     $('#numberOfCistern').html(" ");
                     $('#numberOfCistern').html(response['cistern'].number_of_cisterns);
                     $('#volumeCistern').html(" ");

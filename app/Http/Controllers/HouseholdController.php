@@ -25,6 +25,8 @@ use App\Models\RefrigeratorHolder;
 use App\Models\RefrigeratorMaintenanceCall;
 use App\Models\Donor;
 use App\Models\EnergySystem;
+use App\Models\Compound;
+use App\Models\CompoundHousehold;
 use App\Models\EnergySystemType;
 use App\Models\PublicStructureCategory;
 use App\Models\User;
@@ -158,7 +160,7 @@ class HouseholdController extends Controller
                     //'all_energy_meters.is_main'
                     )
                 ->groupBy('households.id')
-                ->latest();
+                ->latest(); 
  
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -198,7 +200,9 @@ class HouseholdController extends Controller
 
                         else if($row->status == "Not Served") 
                         $statusLabel = "<span class='badge rounded-pill bg-label-dark'>".$row->status."</span>";
-
+                        
+                        else if($row->status == "On Hold") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-secondary'>".$row->status."</span>";
 
                         return $statusLabel;
                     })
@@ -628,7 +632,13 @@ class HouseholdController extends Controller
         $cistern = Cistern::where('household_id', $id)->first();
         $structure = Structure::where('household_id', $id)->first();
         $communityHousehold = CommunityHousehold::where('household_id', $id)->first();
+        $compoundHousehold = CompoundHousehold::where('household_id', $id)->first();
+        $compound = [];
 
+        if($communityHousehold) {
+
+            $compound = Compound::where('id', $compoundHousehold->compound_id)->first();
+        }
         $response['community'] = $community;
         $response['household'] = $household;
         $response['profession'] = $profession;
@@ -636,6 +646,7 @@ class HouseholdController extends Controller
         $response['cistern'] = $cistern;
         $response['structure'] = $structure;
         $response['communityHousehold'] = $communityHousehold;
+        $response['compound'] = $compound;
 
         return response()->json($response);
     }

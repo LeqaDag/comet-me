@@ -11,6 +11,9 @@ use App\Models\AllEnergyMeter;
 use App\Models\User;
 use App\Models\Community;
 use Carbon\Carbon;
+use App\Models\ActionItem;
+use App\Models\ActionStatus;
+use App\Models\ActionPriority;
 use App\Models\CommunityDonor;
 use App\Models\CommunityStatus;
 use App\Models\CommunityService;
@@ -296,17 +299,16 @@ class ActionItemController extends Controller
                 ->groupBy('compounds.english_name')
                 ->get(); 
 
-            $notStartedACInstallationCommunities =  DB::table('communities')
+            $notStartedACInstallationCommunities = DB::table('communities')
                 ->join('regions', 'communities.region_id', 'regions.id')
                 ->join('community_statuses', 'communities.community_status_id', 
                     'community_statuses.id')
                 ->join('households as all_households', 'all_households.community_id',
                     'communities.id')
-                ->join('energy_system_types as all_energy_types', 'all_energy_types.id',
+                ->leftJoin('energy_system_types as all_energy_types', 'all_energy_types.id',
                     'all_households.energy_system_type_id')
                 ->where('communities.is_archived', 0)
-                ->where('communities.community_status_id', 1)
-                ->orWhere('communities.community_status_id', 2)
+                ->where('communities.community_status_id', 2)
                 ->whereNotExists(function ($query) {
                     $query->select(DB::raw(1))
                         ->from('compounds')
@@ -314,7 +316,6 @@ class ActionItemController extends Controller
                 })
                 ->select( 
                     'communities.english_name', 'communities.id',
-                    
                     DB::raw('COUNT(CASE WHEN all_households.household_status_id = 2 
                         THEN 1 ELSE NULL END) as number'),
                     DB::raw('SUM(CASE WHEN all_households.household_status_id IN 
@@ -323,45 +324,50 @@ class ActionItemController extends Controller
                 ->groupBy('communities.english_name')
                 ->get();
 
-            
             $notStartedACInstallationCompounds = DB::table('compounds')
                 ->join('communities', 'communities.id', 'compounds.community_id')
                 ->join('regions', 'communities.region_id', 'regions.id')
-                ->join('community_statuses', 'communities.community_status_id', 'community_statuses.id')
+                ->join('community_statuses', 'communities.community_status_id', 
+                    'community_statuses.id')
                 ->join('compound_households', 'compound_households.compound_id', 'compounds.id')
                 ->join('households', 'compound_households.household_id', 'households.id')
-                ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
+                ->leftJoin('energy_system_types', 'households.energy_system_type_id', 
+                    'energy_system_types.id')
                 ->where('communities.is_archived', 0)
                 ->where(function ($query) {
-                    $query->where('communities.community_status_id', 2)
-                        ->orWhere('communities.community_status_id', 3);
+                    $query->where('communities.community_status_id', 2);
                 })
                 ->select(
+                    'compounds.id',
                     'compounds.english_name', 
-                    DB::raw('COUNT(CASE WHEN households.household_status_id = 2 
-                        THEN 1 ELSE NULL END) as number'),
-                    DB::raw('SUM(CASE WHEN households.household_status_id IN 
-                        (2, 3) THEN 1 ELSE 0 END) as number_of_households')
+                    DB::raw('COUNT(CASE WHEN households.household_status_id = 2 THEN 1 ELSE NULL END) as number'),
+                    DB::raw('SUM(CASE WHEN households.household_status_id IN (2, 3) THEN 1 ELSE 0 END) as number_of_households')
                 )
                 ->groupBy('compounds.english_name')
+                ->havingRaw('number > 0') // Exclude records where the number is zero
                 ->get();
 
+          //  die($notStartedACInstallationCompounds);
 
             $totalNotStartedAC = $notStartedACInstallationCommunities->count() +
                 $notStartedACInstallationCompounds->count();
 
             $communitiesElecticityRoomMissing = DB::table('communities')
-                ->leftJoin('grid_community_compounds', 'communities.id', '=', 'grid_community_compounds.community_id')
-                ->where('communities.community_status_id', [2, 1, 3])
+                ->leftJoin('grid_community_compounds', 'communities.id', 
+                    'grid_community_compounds.community_id')
+                ->leftJoin('households', 'communities.id', 'households.community_id')  
                 ->where('grid_community_compounds.electricity_room', 'No')
+                ->where('households.household_status_id', 3)
                 ->select('communities.id', 'communities.english_name as community',  
                     'grid_community_compounds.grid',
                     'grid_community_compounds.electricity_room')
                 ->get();
 
             $communitiesGridMissing = DB::table('communities')
-                ->leftJoin('grid_community_compounds', 'communities.id', 'grid_community_compounds.community_id')
-                ->where('communities.community_status_id', [2, 3])
+                ->leftJoin('grid_community_compounds', 'communities.id', 
+                    'grid_community_compounds.community_id')
+                ->leftJoin('households', 'communities.id', 'households.community_id')  
+                ->where('households.household_status_id', 3)
                 ->where('grid_community_compounds.grid', 'No')
                 ->select('communities.id', 'communities.english_name as community',  
                     'grid_community_compounds.grid',
@@ -371,23 +377,27 @@ class ActionItemController extends Controller
             $compoundsElecticityRoomMissing = DB::table('compounds')
                 ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
                 ->leftJoin('communities', 'communities.id', 'compounds.community_id')
-                ->where('communities.community_status_id', [2, 3])
+                ->leftJoin('households', 'communities.id', 'households.community_id')  
+                ->where('households.household_status_id', 3)
                 ->where('grid_community_compounds.electricity_room', 'No')
                 ->select(
                     'compounds.id', 'compounds.english_name as compound',  
                     'grid_community_compounds.grid',
                     'grid_community_compounds.electricity_room')
+                ->groupBy('compounds.id')
                 ->get(); 
 
             //die($compoundsElecticityRoomMissing);
             $compoundsGridMissing = DB::table('compounds')
                 ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
                 ->leftJoin('communities', 'communities.id', 'compounds.community_id')
-                ->where('communities.community_status_id', [2, 3])
+                ->leftJoin('households', 'communities.id', 'households.community_id')  
+                ->where('households.household_status_id', 3)
                 ->where('grid_community_compounds.grid', 'No')
                 ->select('compounds.id', 'compounds.english_name as compound',  
                     'grid_community_compounds.grid',
                     'grid_community_compounds.electricity_room')
+                ->groupBy('compounds.id')
                 ->get();
 
             $communitiesNeedToCompleteElectricity = DB::table('grid_community_compounds')
@@ -399,8 +409,19 @@ class ActionItemController extends Controller
 
             $communitiesMgSmgNotDCInstallations = DB::table('all_energy_meters')
                 ->join('communities', 'communities.id', 'all_energy_meters.community_id')
-                ->where('all_energy_meters.energy_system_type_id', [4, 1])
-                ->where('all_energy_meters.meter_number', 0)
+                ->where(function($query) {
+                    $query->where('all_energy_meters.is_archived', 0)
+                        ->where('all_energy_meters.energy_system_type_id', '!=', 2)
+                        ->where('all_energy_meters.meter_number', 0)
+                        ->where('communities.community_status_id', 2);
+                })
+                ->orWhere(function($query) {
+                    $query->where('all_energy_meters.is_archived', 0)
+                        ->where('all_energy_meters.energy_system_type_id', '!=', 2)
+                        ->where('all_energy_meters.is_main', 'No')
+                        ->whereNull('all_energy_meters.meter_number')
+                        ->where('communities.community_status_id', 2);
+                })
                 ->select(
                     'communities.id',
                     'communities.english_name as community',
@@ -409,21 +430,34 @@ class ActionItemController extends Controller
                     )
                 ->groupBy('communities.id')
                 ->get();
-
+ 
             $holdersMgSmgNotDCInstallations =  DB::table('all_energy_meters')
                 ->join('communities', 'communities.id', 'all_energy_meters.community_id')
                 ->leftJoin('households', 'households.id', 'all_energy_meters.household_id')
                 ->leftJoin('public_structures', 'public_structures.id', 
                     'all_energy_meters.public_structure_id')
-                ->where('all_energy_meters.energy_system_type_id', [4, 1])
-                ->where('all_energy_meters.meter_number', 0)
+                ->where(function($query) {
+                    $query->where('all_energy_meters.is_archived', 0)
+                        ->where('all_energy_meters.energy_system_type_id', '!=', 2)
+                        ->where('all_energy_meters.meter_number', 0)
+                        ->where('communities.community_status_id', 2);
+                })
+                ->orWhere(function($query) {
+                    $query->where('all_energy_meters.is_archived', 0)
+                        ->where('all_energy_meters.energy_system_type_id', '!=', 2)
+                        ->where('all_energy_meters.is_main', 'No')
+                        ->whereNull('all_energy_meters.meter_number')
+                        ->where('communities.community_status_id', 2);
+                })
                 ->select(
                     'communities.id',
                     'communities.english_name as community',
+                    'all_energy_meters.is_main',
                     DB::raw('IFNULL(households.english_name, public_structures.english_name) 
                         as holder')
                 )
                 ->get();
+            
     
             $communitiesFbsNotDCInstallations = DB::table('all_energy_meters')
                 ->join('communities', 'communities.id', 'all_energy_meters.community_id')
@@ -699,7 +733,7 @@ class ActionItemController extends Controller
                 ->whereNull('all_energy_meter_safety_checks.all_energy_meter_id')
                 ->where('all_energy_meters.is_archived', 0)
                 ->where('all_energy_meters.energy_system_type_id', 2)
-                ->get();
+                ->get(); 
 
             $notYetSafteyCompletedFbs = DB::table('all_energy_meter_safety_checks')
                 ->join('all_energy_meters', 'all_energy_meters.id', 
@@ -761,32 +795,77 @@ class ActionItemController extends Controller
                 ->where('all_energy_meters.energy_system_type_id', '!=', 2)
                 ->get();
 
-            return view('actions.index', compact('youngHolders', 'internetManager',
-                'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
-                'missingMaleNumbers', 'missingFemaleNumbers', 'missingChildrenNumbers',
-                'users', 'missingEnergySystems', 'acHouseholds', 'internetUsers',
-                'internetDataApi', 'missingCommunityDonors', 'communitiesAC',
-                'newCommunityFbs', 'newCommunityMgExtension', 'newEnergyHolders',
-                'missingCommunityRepresentatives', 'communityWaterService', 
-                'communityWaterServiceYear', 'communityInternetService', 'waterIncidents',
-                'communityInternetServiceYear', 'missingSchoolDetails', 'fbsIncidents',
-                'inProgressHouseholdsAcCommunity', 'newEnergyUsers', 'mgIncidents',
-                'networkIncidents', 'internetHolderIncidents', 'notStartedACSurveyCommunities',
-                'notStartedACInstallationCommunities', 'miscRequested', 'queryCompounds',
-                'notStartedACInstallationCompounds', 'totalNotStartedAC',
-                'communitiesGridMissing', 'compoundsGridMissing', 
-                'communitiesNeedToCompleteElectricity', 'communitiesElecticityRoomMissing',
-                'compoundsElecticityRoomMissing', 'communitiesFbsNotDCInstallations',
-                'communitiesMgSmgNotDCInstallations',
-                'electricityNewMaintenances', 'electricityInProgressMaintenances',
-                'refrigeratorNewMaintenances', 'refrigeratorInProgressMaintenances',
-                'waterNewMaintenances', 'waterInProgressMaintenances', 'missingUserEnergDonors',
-                'missingEnergyPublicDonors', 'missingUserWaterDonors',
-                'missingPublicWaterDonors', 'missingUserInternetDonors', 
-                'missingPublicInternetDonors', 'holdersFbsNotDCInstallations',
-                'holdersMgSmgNotDCInstallations', 'notYetSafteyCheckedFbs', 
-                'notYetConnectedGround', 'notYetSafteyCheckedMg', 
-                'notYetCompletedSafteyCheckedMg', 'notYetSafteyCompletedFbs'));
+            $actionItems = ActionItem::where('is_archived', 0)->get();
+
+            // Group action items by user_id
+            $groupedActionItems = $actionItems->groupBy('user_id');
+            $actionStatuses = ActionStatus::all();
+            $actionPriorities = ActionPriority::all();
+
+            if(Auth::guard('user')->user()->user_type_id == 1 || 
+                Auth::guard('user')->user()->user_type_id == 2) {
+
+                    return view('actions.admin.index', compact('actionStatuses', 'actionPriorities',
+                    'youngHolders', 'internetManager',
+                    'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
+                    'missingMaleNumbers', 'missingFemaleNumbers', 'missingChildrenNumbers',
+                    'users', 'missingEnergySystems', 'acHouseholds', 'internetUsers',
+                    'internetDataApi', 'missingCommunityDonors', 'communitiesAC',
+                    'newCommunityFbs', 'newCommunityMgExtension', 'newEnergyHolders',
+                    'missingCommunityRepresentatives', 'communityWaterService', 
+                    'communityWaterServiceYear', 'communityInternetService', 'waterIncidents',
+                    'communityInternetServiceYear', 'missingSchoolDetails', 'fbsIncidents',
+                    'inProgressHouseholdsAcCommunity', 'newEnergyUsers', 'mgIncidents',
+                    'networkIncidents', 'internetHolderIncidents', 'notStartedACSurveyCommunities',
+                    'notStartedACInstallationCommunities', 'miscRequested', 'queryCompounds',
+                    'notStartedACInstallationCompounds', 'totalNotStartedAC',
+                    'communitiesGridMissing', 'compoundsGridMissing', 
+                    'communitiesNeedToCompleteElectricity', 'communitiesElecticityRoomMissing',
+                    'compoundsElecticityRoomMissing', 'communitiesFbsNotDCInstallations',
+                    'communitiesMgSmgNotDCInstallations',
+                    'electricityNewMaintenances', 'electricityInProgressMaintenances',
+                    'refrigeratorNewMaintenances', 'refrigeratorInProgressMaintenances',
+                    'waterNewMaintenances', 'waterInProgressMaintenances', 'missingUserEnergDonors',
+                    'missingEnergyPublicDonors', 'missingUserWaterDonors',
+                    'missingPublicWaterDonors', 'missingUserInternetDonors', 
+                    'missingPublicInternetDonors', 'holdersFbsNotDCInstallations',
+                    'holdersMgSmgNotDCInstallations', 'notYetSafteyCheckedFbs', 
+                    'notYetConnectedGround', 'notYetSafteyCheckedMg', 
+                    'notYetCompletedSafteyCheckedMg', 'notYetSafteyCompletedFbs'),
+                    ['groupedActionItems' => $groupedActionItems]
+                );
+            } else {
+
+                return view('actions.users.index', compact('actionStatuses', 'actionPriorities',
+                    'youngHolders', 'internetManager',
+                    'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
+                    'missingMaleNumbers', 'missingFemaleNumbers', 'missingChildrenNumbers',
+                    'users', 'missingEnergySystems', 'acHouseholds', 'internetUsers',
+                    'internetDataApi', 'missingCommunityDonors', 'communitiesAC',
+                    'newCommunityFbs', 'newCommunityMgExtension', 'newEnergyHolders',
+                    'missingCommunityRepresentatives', 'communityWaterService', 
+                    'communityWaterServiceYear', 'communityInternetService', 'waterIncidents',
+                    'communityInternetServiceYear', 'missingSchoolDetails', 'fbsIncidents',
+                    'inProgressHouseholdsAcCommunity', 'newEnergyUsers', 'mgIncidents',
+                    'networkIncidents', 'internetHolderIncidents', 'notStartedACSurveyCommunities',
+                    'notStartedACInstallationCommunities', 'miscRequested', 'queryCompounds',
+                    'notStartedACInstallationCompounds', 'totalNotStartedAC',
+                    'communitiesGridMissing', 'compoundsGridMissing', 
+                    'communitiesNeedToCompleteElectricity', 'communitiesElecticityRoomMissing',
+                    'compoundsElecticityRoomMissing', 'communitiesFbsNotDCInstallations',
+                    'communitiesMgSmgNotDCInstallations',
+                    'electricityNewMaintenances', 'electricityInProgressMaintenances',
+                    'refrigeratorNewMaintenances', 'refrigeratorInProgressMaintenances',
+                    'waterNewMaintenances', 'waterInProgressMaintenances', 'missingUserEnergDonors',
+                    'missingEnergyPublicDonors', 'missingUserWaterDonors',
+                    'missingPublicWaterDonors', 'missingUserInternetDonors', 
+                    'missingPublicInternetDonors', 'holdersFbsNotDCInstallations',
+                    'holdersMgSmgNotDCInstallations', 'notYetSafteyCheckedFbs', 
+                    'notYetConnectedGround', 'notYetSafteyCheckedMg', 
+                    'notYetCompletedSafteyCheckedMg', 'notYetSafteyCompletedFbs'),
+                    ['groupedActionItems' => $groupedActionItems]
+                );
+            }
 
         } else {
 
@@ -803,47 +882,17 @@ class ActionItemController extends Controller
      */
     public function store(Request $request)
     { 
-        if($request->community_id) {
+        $actionItem = new ActionItem();
+        $actionItem->task = $request->task;
+        $actionItem->action_status_id = $request->action_status_id;
+        $actionItem->action_priority_id = $request->action_priority_id;
+        $actionItem->date = $request->date;
+        $actionItem->due_date = $request->due_date;
+        $actionItem->notes = $request->notes;
+        $actionItem->user_id = Auth::guard('user')->user()->id;
+        $actionItem->save();
 
-            $existGridCommunity = GridCommunityCompound::where('community_id', $request->community_id)
-                ->first();
-
-            if($existGridCommunity) {
-
-                if($request->electricity_room) $existGridCommunity->electricity_room = $request->electricity_room;
-                if($request->grid) $existGridCommunity->grid = $request->grid;
-                $existGridCommunity->save();
-
-            } else {
-
-                $gridCommunity = new GridCommunityCompound();
-                $gridCommunity->community_id = $request->community_id;
-                if($request->electricity_room) $gridCommunity->electricity_room = $request->electricity_room;
-                if($request->grid) $gridCommunity->grid = $request->grid;
-                $gridCommunity->save();
-            }
-        } else if($request->compound_id) {
-
-            $existGridCompound = GridCommunityCompound::where('compound_id', $request->compound_id)
-                ->first();
-
-            if($existGridCompound) {
-
-                if($request->electricity_room) $existGridCompound->electricity_room = $request->electricity_room;
-                if($request->grid) $existGridCompound->grid = $request->grid;
-                $existGridCompound->save();
-
-            } else {
-
-                $gridCompound = new GridCommunityCompound();
-                $gridCompound->compound_id = $request->compound_id;
-                if($request->electricity_room) $gridCompound->electricity_room = $request->electricity_room;
-                if($request->grid) $gridCompound->grid = $request->grid;
-                $gridCompound->save();
-            }
-        }
-
-        return redirect()->back();
+        return redirect()->back()->with('message', 'New Action Item Added Successfully!');
     }
 
 
@@ -999,5 +1048,37 @@ class ActionItemController extends Controller
             'community' => $community,
             'html' => $missingEnergyUserDonors
         ]);
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function updateActionStatus(Request $request)
+    {
+        $actionItemId = $request->input('actionItemId');
+        $newStatusId = $request->input('newStatusId');
+
+        $actionItem = ActionItem::findOrFail($actionItemId);
+        $actionItem->action_status_id = $newStatusId;
+        $actionItem->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function updateActionNote(Request $request)
+    {
+        $actionItemId = $request->input('actionItemId');
+        $newNotes = $request->input('newNotes');
+
+        $actionItem = ActionItem::findOrFail($actionItemId);
+        $actionItem->notes = $newNotes;
+        $actionItem->save();
+
+        return response()->json(['success' => true]);
     }
 }
