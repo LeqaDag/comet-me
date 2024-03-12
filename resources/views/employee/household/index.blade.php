@@ -579,7 +579,7 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#waterServiceHousehold').html(" ");
                     $('#energyStatusHousehold').html(" ");
                     $('#compoundHousehold').html(" ");
-
+ 
                     $('#householdModalTitle').html(response['household'].english_name);
                     $('#englishNameHousehold').html(response['household'].english_name);
                     $('#arabicNameHousehold').html(response['household'].arabic_name);

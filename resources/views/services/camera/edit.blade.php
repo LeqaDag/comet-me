@@ -18,7 +18,14 @@ label, table {
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> 
-        {{$cameraCommunity->Community->english_name}}
+    @if($cameraCommunity->community_id)
+
+        {{$cameraCommunity->Community->english_name}} 
+        @else @if($cameraCommunity->repository_id)
+
+        {{$cameraCommunity->Repository->name}} 
+        @endif
+    @endif
     <span class="text-muted fw-light">Information </span> 
 </h4>
 
@@ -31,11 +38,21 @@ label, table {
                 @method('PATCH')
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Community</label>
-                            <input type="text" value="{{$cameraCommunity->Community->english_name}}"
-                                class="form-control" disabled>
-                        </fieldset>
+                        @if($cameraCommunity->community_id)
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Community</label>
+                                <input type="text" value="{{$cameraCommunity->Community->english_name}}"
+                                    class="form-control" disabled>
+                            </fieldset>
+                        @else @if($cameraCommunity->repository_id)
+
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Repository</label>
+                                <input type="text" value="{{$cameraCommunity->Repository->name}}"
+                                    class="form-control" disabled>
+                            </fieldset>
+                        @endif
+                        @endif
                     </div> 
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
@@ -45,6 +62,7 @@ label, table {
                         </fieldset>
                     </div>
                 </div>
+                @if($cameraCommunity->community_id)
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
@@ -72,6 +90,7 @@ label, table {
                         </fieldset>
                     </div> 
                 </div>
+                @endif
                 <hr>
 
                 <div class="row" style="margin-top:12px">

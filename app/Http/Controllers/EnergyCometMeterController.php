@@ -70,6 +70,10 @@ class EnergyCometMeterController extends Controller
         
         if (Auth::guard('user')->user() != null) {
 
+            $communityFilter = $request->input('community_filter');
+            $typeFilter = $request->input('type_filter');
+            $dateFilter = $request->input('date_filter');
+
             if ($request->ajax()) {
 
                 $dataPublic = DB::table('all_energy_meters')
@@ -79,17 +83,31 @@ class EnergyCometMeterController extends Controller
                     ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
                     ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
                     ->where('all_energy_meters.is_archived', 0)
-                    ->where('public_structures.comet_meter', 1)
-                    ->select('all_energy_meters.meter_number', 
-                        'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
-                        'all_energy_meters.updated_at as updated_at', 
-                        'communities.english_name as community_name',
-                        'public_structures.english_name as public_name',
-                        'energy_systems.name as energy_name', 
-                        'energy_system_types.name as energy_type_name',)
-                    ->latest(); 
+                    ->where('public_structures.comet_meter', 1);
     
-                 
+                if($communityFilter != null) {
+
+                    $dataPublic->where('communities.id', $communityFilter);
+                }
+                if ($typeFilter != null) {
+
+                    $dataPublic->where('all_energy_meters.installation_type_id', $typeFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $dataPublic->where('all_energy_meters.installation_date', '>=', $dateFilter);
+                }
+
+                $dataPublic->select(
+                    'all_energy_meters.meter_number', 
+                    'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
+                    'all_energy_meters.updated_at as updated_at', 
+                    'communities.english_name as community_name',
+                    'public_structures.english_name as public_name',
+                    'energy_systems.name as energy_name', 
+                    'energy_system_types.name as energy_type_name',)
+                ->latest(); 
+
                 return Datatables::of($dataPublic)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

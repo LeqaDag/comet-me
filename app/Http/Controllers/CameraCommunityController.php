@@ -18,8 +18,10 @@ use App\Models\NvrCommunityType;
 use App\Models\CameraCommunityPhoto;
 use App\Models\Camera;
 use App\Models\NvrCamera;
+use App\Models\Region;
 use App\Models\Household;
 use App\Models\SubRegion;
+use App\Models\Repository;
 use App\Exports\CameraCommunityExport;
 use Carbon\Carbon;
 use DataTables;
@@ -41,28 +43,48 @@ class CameraCommunityController extends Controller
                 ->orderBy('english_name', 'ASC')
                 ->get();
 
+            $communityFilter = $request->input('community_filter');
+            $regionFilter = $request->input('region_filter');
+            $dateFilter = $request->input('date_filter');
+
             if ($request->ajax()) {
                 
                 $data = DB::table('camera_communities')
-                    ->join('communities', 'camera_communities.community_id', 'communities.id')
-                    ->join('regions', 'communities.region_id', 'regions.id')
+                    ->leftJoin('communities', 'camera_communities.community_id', 'communities.id')
+                    ->leftJoin('regions', 'communities.region_id', 'regions.id')
+                    ->leftJoin('sub_regions', 'communities.region_id', 'regions.id')
                     ->leftJoin('households', 'camera_communities.household_id', 'households.id')
+                    ->leftJoin('repositories', 'camera_communities.repository_id', 'repositories.id')
+                    ->leftJoin('regions as repository_regions', 'repositories.region_id', 
+                        'repository_regions.id')
                     ->leftJoin('camera_community_types', 'camera_communities.id', 
                         'camera_community_types.camera_community_id')
                     ->leftJoin('nvr_community_types', 'camera_communities.id', 
                         'nvr_community_types.camera_community_id')
-                    ->where('camera_communities.is_archived', 0)
-                    ->select(
-                        'communities.english_name as community',
-                        'households.english_name as english_name',
-                        'camera_communities.id as id', 'camera_communities.created_at as created_at', 
-                        'camera_communities.updated_at as updated_at',
-                        'regions.english_name as region',
-                        DB::raw('SUM(DISTINCT camera_community_types.number) as camera_number'),
-                        DB::raw('SUM(DISTINCT nvr_community_types.number) as nvr_number')
-                    )
-                    ->groupBy('camera_communities.id')
-                    ->latest();   
+                    ->where('camera_communities.is_archived', 0);
+                    
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($regionFilter != null) {
+
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('camera_communities.date', '>=', $dateFilter);
+                }
+
+                $data->select(
+                    DB::raw('IFNULL(communities.english_name, repositories.name) as name'),
+                    'households.english_name',
+                    'camera_communities.id as id', 'camera_communities.created_at as created_at', 
+                    'camera_communities.updated_at as updated_at',
+                    DB::raw('IFNULL(regions.english_name, repository_regions.english_name) as region'),
+                    DB::raw('SUM(DISTINCT camera_community_types.number) as camera_number'),
+                    DB::raw('SUM(DISTINCT nvr_community_types.number) as nvr_number')
+                )->groupBy('camera_communities.id')->latest();  
  
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -89,7 +111,8 @@ class CameraCommunityController extends Controller
                                     ->orWhere('communities.english_name', 'LIKE', "%$search%")
                                     ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                     ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
-                                    ->orWhere('regions.english_name', 'LIKE', "%$search%");
+                                    ->orWhere('regions.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('repositories.name', 'LIKE', "%$search%");
                             });
                         }
                     })
@@ -98,12 +121,14 @@ class CameraCommunityController extends Controller
             }
 
             $donors = Donor::where('is_archived', 0)->get();
+            $regions = Region::where('is_archived', 0)->get();
             $subRegions = SubRegion::where('is_archived', 0)->get();
             $cameras = Camera::all();
             $nvrCameras = NvrCamera::all();
+            $repositories = Repository::all();
 
             return view('services.camera.index', compact('communities', 'cameras', 'subRegions',
-                'nvrCameras'));
+                'nvrCameras', 'repositories', 'regions'));
 
         } else {
 
@@ -126,12 +151,19 @@ class CameraCommunityController extends Controller
         ]);
 
         $cameraCommunity = new CameraCommunity();
-        $cameraCommunity->community_id = $request->community_id;
+
+        if($request->community_id) {
+
+            $cameraCommunity->community_id = $request->community_id;
+        } else if($request->repository_id ) {
+
+            $cameraCommunity->repository_id = $request->repository_id;
+        }
+       
         $cameraCommunity->date = $request->date;
         $cameraCommunity->notes = $request->notes;
         if($request->household_id) $cameraCommunity->household_id = $request->household_id;
         $cameraCommunity->save();
-
 
         foreach ($validatedData['camera_id'] as $index => $cameraId) {
             $cameraCommunityType = new CameraCommunityType(); 

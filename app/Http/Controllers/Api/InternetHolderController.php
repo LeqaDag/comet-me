@@ -58,11 +58,13 @@ class InternetHolderController extends Controller
                     ->where("arabic_name", $holder["holder_full_name"])
                     ->first();
                 
-                if($community == null) 
                 $internetUser = new InternetUser();
                 $internetUser->internet_status_id = 1;
                 $internetUser->start_date = $holder["created_on"];
                 $internetUser->active = $holder["active"];
+                $internetUser->last_purchase_date = $holder["last_purchase_date"];
+                $internetUser->expired_gt_than_30d = $holder["expired_gt_than_30d"];
+                $internetUser->expired_gt_than_60d = $holder["expired_gt_than_60d"];
                 $internetUser->is_expire = $holder["is_expire"];
                 $internetUser->community_id = $community->id;
                 
@@ -74,7 +76,14 @@ class InternetHolderController extends Controller
                     $existInternetHolder = InternetUser::where("household_id", $household->id)->first();
                     if($existInternetHolder) {
 
+                        $existInternetHolder->is_expire = $holder["is_expire"];
+                        $existInternetHolder->active = $holder["active"];
+                        $existInternetHolder->last_purchase_date = $holder["last_purchase_date"];
+                        $existInternetHolder->expired_gt_than_30d = $holder["expired_gt_than_30d"];
+                        $existInternetHolder->expired_gt_than_60d = $holder["expired_gt_than_60d"];
+                        $existInternetHolder->save();
                     } else {
+
                         $household->internet_system_status = "Served";
                         $household->save();
                         $internetUser->household_id = $household->id;
@@ -85,6 +94,12 @@ class InternetHolderController extends Controller
                     $existInternetPublic = InternetUser::where("public_structure_id", $public->id)->first();
                     if($existInternetPublic) {
 
+                        $existInternetPublic->is_expire = $holder["is_expire"];
+                        $existInternetPublic->active = $holder["active"];
+                        $existInternetPublic->last_purchase_date = $holder["last_purchase_date"];
+                        $existInternetPublic->expired_gt_than_30d = $holder["expired_gt_than_30d"];
+                        $existInternetPublic->expired_gt_than_60d = $holder["expired_gt_than_60d"];
+                        $existInternetPublic->save();
                     } else {
                          
                         $internetUser->public_structure_id = $public->id;

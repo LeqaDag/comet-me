@@ -798,7 +798,8 @@ class ActionItemController extends Controller
             $actionItems = ActionItem::where('is_archived', 0)->get();
 
             // Group action items by user_id
-            $groupedActionItems = $actionItems->groupBy('user_id');
+            $groupedActionItems = $actionItems->where('action_status_id', '!=', 4)
+                ->groupBy('user_id');
             $actionStatuses = ActionStatus::all();
             $actionPriorities = ActionPriority::all();
 
@@ -1061,9 +1062,14 @@ class ActionItemController extends Controller
 
         $actionItem = ActionItem::findOrFail($actionItemId);
         $actionItem->action_status_id = $newStatusId;
-        $actionItem->save();
+        $actionItem->save(); 
 
-        return response()->json(['success' => true]);
+        return response()->json(
+            [
+                'success' => true,
+                'status' => $request->input('newStatusId')
+            ]
+        );
     }
 
     /**

@@ -17,7 +17,7 @@ use App\Models\MaintenanceRefrigeratorAction;
 use App\Models\MaintenanceStatus;
 use App\Models\MaintenanceType;
 use App\Models\PublicStructure;
-use App\Models\PublicStructureCategory;
+use App\Models\PublicStructureCategory; 
 use App\Exports\RefrigeratorMaintenanceExport;
 use Auth;
 use DB;
@@ -34,6 +34,10 @@ class RefrigeratorMaintenanceCallController extends Controller
      */
     public function index(Request $request)
     {	
+        $communityFilter = $request->input('community_filter');
+        $publicFilter = $request->input('public_filter');
+        $dateFilter = $request->input('date_filter');
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
@@ -52,16 +56,35 @@ class RefrigeratorMaintenanceCallController extends Controller
                     ->leftJoin('maintenance_refrigerator_actions', 
                         'refrigerator_maintenance_call_actions.maintenance_refrigerator_action_id', 
                         '=', 'maintenance_refrigerator_actions.id')
-                    ->where('refrigerator_maintenance_calls.is_archived', 0)
-                    ->select('refrigerator_maintenance_calls.id as id', 
+                    ->where('refrigerator_maintenance_calls.is_archived', 0);
+
+                
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($publicFilter != null) {
+
+                    $data->where("public_structures.public_structure_category_id1", $publicFilter)
+                        ->orWhere("public_structures.public_structure_category_id2", $publicFilter)
+                        ->orWhere("public_structures.public_structure_category_id3", $publicFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('refrigerator_maintenance_calls.date_completed', '>=', $dateFilter);
+                }
+
+                $data->select(
+                        'refrigerator_maintenance_calls.id as id', 
                         'households.english_name as household_name', 
                         'date_of_call', 'date_completed', 'refrigerator_maintenance_calls.notes',
                         'maintenance_types.type', 'maintenance_statuses.name', 
                         'communities.english_name as community_name',
                         'refrigerator_maintenance_calls.created_at as created_at',
                         'refrigerator_maintenance_calls.updated_at as updated_at',
-                        'users.name as user_name', 'public_structures.english_name as public_name')
-                    ->latest();
+                        'users.name as user_name', 'public_structures.english_name as public_name'
+                    )->latest();
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

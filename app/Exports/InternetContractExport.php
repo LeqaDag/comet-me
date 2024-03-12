@@ -26,6 +26,9 @@ WithStyles
     */
     public function collection()
     {
+        $maxDateFrom = DB::table('internet_metrics')->max('date_from');
+        $maxDateTo = DB::table('internet_metrics')->max('date_to');
+
         $data = DB::table('internet_users')
             ->join('communities', 'internet_users.community_id', 'communities.id')
             ->leftJoin('households', 'internet_users.household_id', 'households.id')
@@ -40,7 +43,7 @@ WithStyles
             ->join('internet_metrics', 'internet_metric_clusters.internet_metric_id', 
                 'internet_metrics.id')
             ->where('internet_users.is_archived', 0)
-            ->whereRaw('internet_users.start_date BETWEEN internet_metrics.date_from AND internet_metrics.date_to')
+            ->whereRaw('internet_users.start_date BETWEEN ? AND ?', [$maxDateFrom, $maxDateTo])
             ->select(
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) as exported_value'),
                 'communities.english_name as community_name',
@@ -79,7 +82,7 @@ WithStyles
 
     public function title(): string
     {
-        return 'Period - Contract Holders';
+        return 'New Holders Since Last Report';
     }
 
     /**

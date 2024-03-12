@@ -10,7 +10,7 @@
 
 <div id="createCommunityCamera" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content"> 
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
                     Create New Installed Camera
@@ -24,6 +24,9 @@
                     action="{{url('camera')}}">
                     @csrf
 
+                    <div class="row" style="margin-top:12px">
+                        <h6>Select Community or Repository</h6>
+                    </div>
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
@@ -41,13 +44,24 @@
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Repository</label>
+                                <select class="selectpicker form-control" id="RepositoryCamera"
+                                    data-live-search="true" name="repository_id" required>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($repositories as $repository)
+                                    <option value="{{$repository->id}}">
+                                        {{$repository->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div> 
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Installation</label>
                                 <input type="date" name="date" class="form-control">
                             </fieldset>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Responsible?</label>
@@ -174,6 +188,7 @@ $(document).ready(function() {
     $(document).on('change', '#communityCamera', function () {
 
         $('#householdResponsible').empty();
+
         community_id = $(this).val();
         $.ajax({
             url: "progress-household/household/get_by_community/" +  community_id,

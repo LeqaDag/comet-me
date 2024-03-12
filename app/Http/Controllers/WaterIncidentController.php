@@ -42,8 +42,11 @@ class WaterIncidentController extends Controller
      */
     public function index(Request $request)
     { 
-
         if (Auth::guard('user')->user() != null) {
+
+            $communityFilter = $request->input('community_filter');
+            $typeFilter = $request->input('incident_filter');
+            $dateFilter = $request->input('date_filter');
 
             if ($request->ajax()) {
 
@@ -60,19 +63,35 @@ class WaterIncidentController extends Controller
                     ->leftJoin('incident_statuses', 
                         'h2o_incident_statuses.incident_status_id', 
                         '=', 'incident_statuses.id')
-                    ->where('h2o_system_incidents.is_archived', 0)
-                    ->select(['h2o_system_incidents.date', 'h2o_system_incidents.year',
-                        'h2o_system_incidents.id as id', 'h2o_system_incidents.created_at as created_at', 
-                        'h2o_system_incidents.updated_at as updated_at', 
-                        'communities.english_name as community_name', 
-                        'households.english_name as household_name',
-                        'public_structures.english_name as public_name', 
-                        'incidents.english_name as incident',
-                        DB::raw('group_concat(DISTINCT incident_statuses.name) as incident_status'),
-                        'h2o_system_incidents.notes'])
-                    ->orderBy('h2o_system_incidents.date', 'desc')
-                    ->groupBy('h2o_system_incidents.id'); 
-    
+                    ->where('h2o_system_incidents.is_archived', 0);
+
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($typeFilter != null) {
+
+                    $data->where('h2o_system_incidents.incident_id', $typeFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('h2o_system_incidents.date', '>=', $dateFilter);
+                }
+                
+                $data->select([
+                    'h2o_system_incidents.date', 'h2o_system_incidents.year',
+                    'h2o_system_incidents.id as id', 'h2o_system_incidents.created_at as created_at', 
+                    'h2o_system_incidents.updated_at as updated_at', 
+                    'communities.english_name as community_name', 
+                    'households.english_name as household_name',
+                    'public_structures.english_name as public_name', 
+                    'incidents.english_name as incident',
+                    DB::raw('group_concat(DISTINCT incident_statuses.name) as incident_status'),
+                    'h2o_system_incidents.notes'
+                ])
+                ->orderBy('h2o_system_incidents.date', 'desc')
+                ->groupBy('h2o_system_incidents.id'); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

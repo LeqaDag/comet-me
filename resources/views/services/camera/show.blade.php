@@ -8,7 +8,14 @@
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">
-        {{$cameraCommunity->Community->english_name}} 
+        @if($cameraCommunity->community_id)
+
+            {{$cameraCommunity->Community->english_name}} 
+        @else @if($cameraCommunity->repository_id)
+
+            {{$cameraCommunity->Repository->name}} 
+        @endif
+        @endif
     </span> Information 
 </h4>
 
@@ -16,6 +23,7 @@
     <div class="card">
         <div class="card-body">
             <ul class="timeline timeline-dashed mt-4">
+            @if($cameraCommunity->community_id)
                 <li class="timeline-item timeline-item-primary mb-4">
                     <span class="timeline-indicator timeline-indicator-primary">
                         <i class="bx bx-home"></i>
@@ -23,7 +31,7 @@
                     <div class="timeline-event">
                         <div class="timeline-header border-bottom mb-3">
                             <h6 class="mb-0">
-                            {{$cameraCommunity->Community->english_name}}  -  
+                                {{$cameraCommunity->Community->english_name}} -  
                                 <span class="text-primary">Details</span>
                             </h6>
                         </div>
@@ -35,7 +43,9 @@
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1"># of People</small>
                                             <h6 class="mb-0">
+                                                @if($cameraCommunity->community_id)
                                                 {{$cameraCommunity->Community->number_of_people}}
+                                                @endif
                                             </h6>
                                         </div>
                                     </li>
@@ -44,7 +54,9 @@
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1"># of Households</small>
                                             <h6 class="mb-0">
+                                                @if($cameraCommunity->community_id)
                                                 {{$cameraCommunity->Community->number_of_household}}
+                                                @endif
                                             </h6>
                                         </div>
                                     </li>
@@ -57,7 +69,9 @@
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1">Responsible Household</small>
                                             <h6 class="mb-0">
+                                                @if($cameraCommunity->household_id)
                                                 {{$cameraCommunity->Household->english_name}}
+                                                @endif
                                             </h6>
                                         </div>
                                     </li>
@@ -66,7 +80,7 @@
                         </div>
                     </div>
                 </li>
-
+            @endif 
                 <li class="timeline-item timeline-item-info mb-4">
                     <span class="timeline-indicator timeline-indicator-info">
                         <i class="bx bx-error"></i>

@@ -409,3 +409,20 @@ Route::get('/delete-hold-household', [App\Http\Controllers\OnHoldHouseholdContro
 
 Route::resource('work-plan', App\Http\Controllers\WorkPlanController::class);
 Route::get('/delete-work-plan', [App\Http\Controllers\WorkPlanController::class, 'deleteWorkPlan'])->name('deleteWorkPlan');
+Route::resource('internet-maintenance', App\Http\Controllers\InternetMaintenanceCallController::class);
+Route::post('internet-maintenance-export', [App\Http\Controllers\InternetMaintenanceCallController::class, 'export'])->name('internet-maintenance.export');
+Route::resource('internet-issue', App\Http\Controllers\InternetIssueController::class);
+Route::resource('internet-action', App\Http\Controllers\InternetActionController::class);
+Route::get('/delete-internet-issue', [App\Http\Controllers\InternetIssueController::class, 'deleteInternetIssue'])->name('deleteInternetIssue');
+Route::post('internet-issue-export', [App\Http\Controllers\InternetIssueController::class, 'export'])->name('internet-issue.export');
+Route::post('internet-action-export', [App\Http\Controllers\InternetActionController::class, 'export'])->name('internet-action.export');
+Route::get('/delete-internet-action', [App\Http\Controllers\InternetActionController::class, 'deleteInternetAction'])->name('deleteInternetAction');
+Route::get('/internet-action/get/{id}', [App\Http\Controllers\InternetActionController::class, 'getInternetAction']);
+Route::get('/internet-issue/get/{id}', [App\Http\Controllers\InternetIssueController::class, 'getInternetIssue']);
+
+Route::get('internet_user/get_by_community/{community_id}', [App\Http\Controllers\InternetMaintenanceCallController::class, 'getHouseholdByCommunity']);
+Route::get('internet_public/get_by_community/{community_id}', [App\Http\Controllers\InternetMaintenanceCallController::class, 'getPublicByCommunity']);
+Route::get('internet-maintenance/get_actions/{issue_id}', [App\Http\Controllers\InternetMaintenanceCallController::class, 'getActions']);
+Route::get('/delete-internet-maintenance', [App\Http\Controllers\InternetMaintenanceCallController::class, 'deleteInternetMaintenance'])->name('deleteInternetMaintenance');
+Route::get('/delete-internet-maintenance-user', [App\Http\Controllers\InternetMaintenanceCallController::class, 'deletePerformedInternetUser'])->name('deletePerformedInternetUser');
+Route::get('/delete-internet-maintenance-action', [App\Http\Controllers\InternetMaintenanceCallController::class, 'deleteInternetAction'])->name('deleteInternetAction');

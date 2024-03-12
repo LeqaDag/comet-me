@@ -48,6 +48,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
 
         $exist = InternetMetric::where("date_from", $date_from)->first();
 
+
         if($exist) {
 
             $exist->date_to = $date_to;
@@ -67,7 +68,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
             $exist->save();
 
         } else {
-
+ 
             $internetMetric = new InternetMetric();
             $internetMetric->date_from = $date_from;
             $internetMetric->date_to = $date_to;
@@ -97,10 +98,13 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                 if($internetCluster) {
 
                     $internetMetricCluster = InternetMetricCluster::where("internet_cluster_id", 
-                        $internetCluster->id)->first();
+                        $internetCluster->id)
+                        ->where("internet_metric_id", $lastInsertedMetric->id)
+                        ->first();
         
+                        
                     if($internetMetricCluster) {
-        
+                       
                         $internetMetricCluster->source_of_connection = $cluster["isp"];
                         $internetMetricCluster->attached_communities = $cluster["attached_communities"];
                         $internetMetricCluster->active_contracts = $cluster["active_contracts"];
@@ -117,7 +121,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                         $internetMetricCluster->monthly_now_in = $cluster["monthly_now_in"];
                         $internetMetricCluster->monthly_now_out = $cluster["monthly_now_out"];
                         $internetMetricCluster->save();
-    
+                        
                     } else {
         
                         $newMetricCluster = new InternetMetricCluster();
@@ -141,9 +145,10 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                        // $newMetricCluster->bandwidth_consumption = $cluster["total_bandwidth"];
                         $newMetricCluster->save();
                     }
+
                 } else {
 
-                    $newCluster = new InternetCluster();
+                    $internetCluster = new InternetCluster();
                     $internetCluster->name = $cluster["cluster_name"];
                     $internetCluster->save();
     

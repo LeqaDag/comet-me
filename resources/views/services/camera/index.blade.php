@@ -130,6 +130,53 @@ All<span class="text-muted fw-light"> Installed Cameras</span>
 
 <div class="container"> 
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter ByRegion</label>
+                        <select class="selectpicker form-control" 
+                            data-live-search="true" id="filterByRegion"
+                            name="sub_region" required>
+                            <option disabled selected>Choose Sub Region...</option>
+                            @foreach($regions as $region)
+                            <option value="{{$region->id}}">
+                                {{$region->english_name}}
+                            </option>
+                            @endforeach
+                        </select>
+                    </fieldset>
+                </div> 
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Installation date from</label>
+                        <input type="date" class="form-control" name="date_from"
+                        id="filterByDateFrom">
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id != 7 ||
                 Auth::guard('user')->user()->user_type_id != 11 ||
@@ -168,19 +215,25 @@ All<span class="text-muted fw-light"> Installed Cameras</span>
 
 
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-camera').DataTable({
+    var table;
+
+    function DataTableContent() {
+
+        table = $('.data-table-camera').DataTable({
             processing: true,
             serverSide: true, 
             ajax: {
                 url: "{{ route('camera.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.community_filter = $('#filterByCommunity').val();
+                    d.region_filter = $('#filterByRegion').val();
+                    d.date_filter = $('#filterByDateFrom').val();
                 }
             },
             columns: [
-                {data: 'community', name: 'community'},
+                {data: 'name', name: 'name'},
                 {data: 'region', name: 'region'},
                 {data: 'english_name', name: 'english_name'},
                 {data: 'camera_number', name: 'camera_number'},
@@ -188,6 +241,35 @@ All<span class="text-muted fw-light"> Installed Cameras</span>
                 {data: 'action' }
             ]
         }); 
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByDateFrom').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#filterByDateFrom').val(' ');
+            if ($.fn.DataTable.isDataTable('.data-table-camera')) {
+                $('.data-table-camera').DataTable().destroy();
+            }
+            DataTableContent();
+        });
 
         // Clear Filters for Export
         $('#clearCameraFiltersButton').on('click', function() {

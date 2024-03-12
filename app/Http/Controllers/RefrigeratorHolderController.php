@@ -71,17 +71,38 @@ class RefrigeratorHolderController extends Controller
         //     $holder->save();
         // }
 
+        $communityFilter = $request->input('community_filter');
+        $publicFilter = $request->input('public_filter');
+        $dateFilter = $request->input('date_filter');
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
 
                 $data = DB::table('refrigerator_holders')
-                    ->join('communities', 'refrigerator_holders.community_id', '=', 'communities.id')
-                    ->leftJoin('households', 'refrigerator_holders.household_id', '=', 'households.id')
+                    ->join('communities', 'refrigerator_holders.community_id', 'communities.id')
+                    ->leftJoin('households', 'refrigerator_holders.household_id', 'households.id')
                     ->leftJoin('public_structures', 'refrigerator_holders.public_structure_id', 
-                        '=', 'public_structures.id')
-                    ->where('refrigerator_holders.is_archived', 0)
-                    ->select('refrigerator_holders.refrigerator_type_id', 'refrigerator_holders.date',
+                        'public_structures.id')
+                    ->where('refrigerator_holders.is_archived', 0);
+    
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($publicFilter != null) {
+
+                    $data->where("public_structures.public_structure_category_id1", $publicFilter)
+                        ->orWhere("public_structures.public_structure_category_id2", $publicFilter)
+                        ->orWhere("public_structures.public_structure_category_id3", $publicFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('refrigerator_holders.date', '>=', $dateFilter);
+                }
+
+                $data->select(
+                        'refrigerator_holders.refrigerator_type_id', 'refrigerator_holders.date',
                         'refrigerator_holders.id as id', 'refrigerator_holders.created_at as created_at', 
                         'refrigerator_holders.updated_at as updated_at', 
                         'communities.english_name as community_name',
@@ -89,9 +110,10 @@ class RefrigeratorHolderController extends Controller
                         'public_structures.english_name as public_name',
                         'refrigerator_holders.payment', 'refrigerator_holders.is_paid', 
                         'refrigerator_holders.status', 
-                        'refrigerator_holders.year')
+                        'refrigerator_holders.year'
+                    )
                     ->latest(); 
-    
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

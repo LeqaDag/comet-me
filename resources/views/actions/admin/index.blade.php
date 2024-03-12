@@ -7,7 +7,7 @@
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-2">
     <a class="text-primary">
-        <span class="text-muted fw-light">Action Items /</span> Team Work Plan
+        <span class="text-muted fw-light">Teams /</span> Action Items
     </a>
 </h4>
 
@@ -115,7 +115,7 @@
         href="#actionPlanTab" 
         aria-expanded="false" 
         aria-controls="actionPlanTab">
-        <span class="text-muted fw-light">Action Items /</span> Work Plan
+        <span class="text-muted fw-light">Projects /</span> Work Plan Progress
     </a>
 </h4>
 
@@ -137,6 +137,17 @@
     @endphp
     @include('actions.admin.user_tasks')
 </div>
+
+<hr>
+
+<h4 class="py-3 breadcrumb-wrapper mb-2">
+    <a data-toggle="collapse" class="text-primary" 
+        href="#actionPlanTab" 
+        aria-expanded="false" 
+        aria-controls="actionPlanTab">
+        <span class="text-muted fw-light">Platform /</span> Internal
+    </a>
+</h4>
 
 <div class="container mb-4">
     @php

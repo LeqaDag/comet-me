@@ -40,11 +40,28 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Community</label>
+                            <select class="selectpicker form-control" name="community_id" data-live-search="true">
+                                <option selected disabled>{{$energyUser->Community->english_name}}</option>
+                                @foreach($communities as $community)
+                                <option value="{{$community->id}}">
+                                    {{$community->english_name}}
+                                </option>
+                                
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div> 
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Meter Number</label>
                             <input type="text" class="form-control" name="meter_number"
                                 value="{{$energyUser->meter_number}}"> 
                         </fieldset>
                     </div> 
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Daily limit</label> 
@@ -52,9 +69,6 @@
                                 value="{{$energyUser->daily_limit}}"> 
                         </fieldset> 
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Installation date</label>
@@ -62,6 +76,9 @@
                             value="{{$energyUser->installation_date}}"> 
                         </fieldset>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Meter Active</label> 
@@ -74,9 +91,6 @@
                             </select> 
                         </fieldset> 
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label' for="region_id">Meter Case</label>
@@ -92,6 +106,8 @@
                             </select> 
                         </fieldset> 
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Vendor Name</label> 
@@ -111,8 +127,6 @@
                             </select> 
                         </fieldset> 
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New/Old Community</label> 
@@ -128,6 +142,9 @@
                             </select> 
                         </fieldset> 
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Energy System</label> 
@@ -141,9 +158,6 @@
                             </select> 
                         </fieldset> 
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Ground Connected</label> 

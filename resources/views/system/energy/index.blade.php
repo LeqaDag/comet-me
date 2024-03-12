@@ -154,6 +154,62 @@ label, table {
 
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By System Type</label>
+                        <select name="energy_type_id" id="filterByType"
+                            class="selectpicker form-control" data-live-search="true">
+                            <option disabled selected>Search System Type</option>
+                            @foreach($energyTypes as $energyType)
+                                <option value="{{$energyType->id}}">
+                                    {{$energyType->name}}
+                                </option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Installation Year</label>
+                        <select name="year_from" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByYear">
+                            <option disabled selected>Filter by Year</option>
+                            @php
+                                $startYear = 2010; // C
+                                $currentYear = date("Y");
+                            @endphp
+                            @for ($year = $currentYear; $year >= $startYear; $year--)
+                                <option value="{{ $year }}">{{ $year }}</option>
+                            @endfor
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 || 
                 Auth::guard('user')->user()->user_type_id == 2 ||
@@ -188,15 +244,19 @@ label, table {
 
 <script type="text/javascript">
 
-    $(function () {
+    var table;
 
-        var table = $('.data-table-energy-system').DataTable({
+    function DataTableContent() {
+        table = $('.data-table-energy-system').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('energy-system.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.community_filter = $('#filterByCommunity').val();
+                    d.type_filter = $('#filterByType').val();
+                    d.year_filter = $('#filterByYear').val();
                 }
             },
             columns: [
@@ -206,6 +266,34 @@ label, table {
                 {data: 'total_rated_power', name: 'total_rated_power'},
                 {data: 'action'},
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByYear').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByType').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-energy-system')) {
+                $('.data-table-energy-system').DataTable().destroy();
+            }
+            DataTableContent();
         });
     });
 

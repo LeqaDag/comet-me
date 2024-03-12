@@ -164,9 +164,13 @@ class AllEnergyController extends Controller
         //     $energyUser->save();
         // }
 
+        $communityFilter = $request->input('community_filter');
+        $typeFilter = $request->input('type_filter');
+        $dateFilter = $request->input('date_filter');
+
         if (Auth::guard('user')->user() != null) {
 
-            if ($request->ajax()) {
+            if ($request->ajax()) { 
  
                 $data = DB::table('all_energy_meters')
                     ->join('communities', 'all_energy_meters.community_id', 'communities.id')
@@ -178,19 +182,34 @@ class AllEnergyController extends Controller
                         'all_energy_meters.id')
                     ->leftJoin('households as shared_households', 'shared_households.id', 
                         'household_meters.household_id')
-                    ->where('all_energy_meters.is_archived', 0)
-                    ->select('all_energy_meters.meter_number', 'all_energy_meters.meter_active',
-                        'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
-                        'all_energy_meters.updated_at as updated_at', 
-                        'communities.english_name as community_name',
-                        'households.english_name as household_name',
-                        'energy_systems.name as energy_name', 
-                        'energy_system_types.name as energy_type_name',
-                        'meter_cases.meter_case_name_english',
-                        'all_energy_meters.is_main')
-                    ->latest()
-                    ->distinct();
+                    ->where('all_energy_meters.is_archived', 0);
     
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($typeFilter != null) {
+
+                    $data->where('all_energy_meters.installation_type_id', $typeFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('all_energy_meters.installation_date', '>=', $dateFilter);
+                }
+
+                $data->select(
+                    'all_energy_meters.meter_number', 'all_energy_meters.meter_active',
+                    'all_energy_meters.id as id', 'all_energy_meters.created_at as created_at', 
+                    'all_energy_meters.updated_at as updated_at', 
+                    'communities.english_name as community_name',
+                    'households.english_name as household_name',
+                    'energy_systems.name as energy_name', 
+                    'energy_system_types.name as energy_type_name',
+                    'meter_cases.meter_case_name_english',
+                    'all_energy_meters.is_main')
+                ->latest()
+                ->distinct();
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -447,6 +466,10 @@ class AllEnergyController extends Controller
         if($request->vendor_username_id) $energyUser->vendor_username_id = $request->vendor_username_id;
 
         if($request->energy_system_id) $energyUser->energy_system_id = $request->energy_system_id;
+        
+        if($request->meter_case_id) $energyUser->meter_case_id = $request->meter_case_id;
+        
+        if($request->community_id) $energyUser->community_id = $request->community_id;
 
         if($request->meter_case_id == 1 || $request->meter_case_id == 2 ||
             $request->meter_case_id == 3 || $request->meter_case_id == 4 ||
@@ -598,7 +621,7 @@ class AllEnergyController extends Controller
         
         if($user) {
 
-            $user->delete();
+            $user->delete(); 
 
             if($sharedMeters) {
                 foreach($sharedMeters as $sharedMeter) {

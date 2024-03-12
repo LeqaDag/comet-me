@@ -40,20 +40,40 @@ class DonorController extends Controller
             $donors = Donor::paginate();
             $services = ServiceType::where('is_archived', 0)->get();
         
+            $communityFilter = $request->input('community_filter');
+            $serviceFilter = $request->input('service_filter');
+            $donorFilter = $request->input('donor_filter');
+
             if ($request->ajax()) {
+
                 $data = DB::table('community_donors')
                     ->join('communities', 'community_donors.community_id', '=', 'communities.id')
                     ->join('donors', 'community_donors.donor_id', '=', 'donors.id')
                     ->join('service_types', 'community_donors.service_id', '=', 'service_types.id')
-                    ->where('community_donors.is_archived', 0)
-                    ->select('communities.english_name as english_name', 
-                        'communities.arabic_name as arabic_name',
-                        'community_donors.id as id', 'community_donors.created_at as created_at', 
-                        'community_donors.updated_at as updated_at',
-                        'donors.donor_name as donor_name',
-                        'service_types.service_name as service_name')
-                    ->latest(); 
+                    ->where('community_donors.is_archived', 0);
                     
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($serviceFilter != null) {
+
+                    $data->where('service_types.id', $serviceFilter);
+                }
+                if ($donorFilter != null) {
+
+                    $data->where('donors.id',  $donorFilter);
+                }
+
+                $data->select(
+                    'communities.english_name as english_name', 
+                    'communities.arabic_name as arabic_name',
+                    'community_donors.id as id', 'community_donors.created_at as created_at', 
+                    'community_donors.updated_at as updated_at',
+                    'donors.donor_name as donor_name',
+                    'service_types.service_name as service_name'
+                )->latest(); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

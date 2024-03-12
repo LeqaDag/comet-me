@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
 use Route;
-use App\Models\AllEnergyMeter;
+use App\Models\AllEnergyMeter; 
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
@@ -70,23 +70,42 @@ class HouseholdMeterController extends Controller
 
         if (Auth::guard('user')->user() != null) {
 
+            $communityFilter = $request->input('community_filter');
+            $typeFilter = $request->input('type_filter');
+            $dateFilter = $request->input('date_filter');
+
             if ($request->ajax()) {
 
                 $data = DB::table('household_meters')
-                    ->join('all_energy_meters', 'household_meters.energy_user_id', '=', 'all_energy_meters.id')
-                    ->leftJoin('households', 'household_meters.household_id', '=', 'households.id')
+                    ->join('all_energy_meters', 'household_meters.energy_user_id', 'all_energy_meters.id')
+                    ->leftJoin('households', 'household_meters.household_id', 'households.id')
                     ->leftJoin('public_structures', 'household_meters.public_structure_id', 
                         'public_structures.id')
-                    ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
-                    ->where('household_meters.is_archived', 0)
-                    ->select('communities.english_name as community_name',
-                        'household_meters.id as id', 'household_meters.created_at',
-                        'household_meters.updated_at',
-                        DB::raw('IFNULL(households.english_name, public_structures.english_name) 
-                        as household_name'),
-                        'household_meters.user_name', 'household_meters.user_name_arabic')
-                    ->latest(); 
+                    ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                    ->where('household_meters.is_archived', 0);
      
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($typeFilter != null) {
+
+                    $data->where('all_energy_meters.installation_type_id', $typeFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('all_energy_meters.installation_date', '>=', $dateFilter);
+                }
+                
+                $data->select(
+                    'communities.english_name as community_name',
+                    'household_meters.id as id', 'household_meters.created_at',
+                    'household_meters.updated_at',
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as household_name'),
+                    'household_meters.user_name', 'household_meters.user_name_arabic')
+                ->latest(); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

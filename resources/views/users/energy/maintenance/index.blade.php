@@ -108,6 +108,52 @@
 <div class="container">
     <div class="card my-2">
         <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Public</label>
+                        <select name="public" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByPublic">
+                            <option disabled selected>Search Public Structure</option>
+                            @foreach($publicCategories as $publicCategory)
+                            <option value="{{$publicCategory->id}}">
+                                {{$publicCategory->name}}
+                            </option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Completed Date from</label>
+                        <input type="date" class="form-control" name="date_from"
+                        id="filterByDateFrom">
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="card-header">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
                 Auth::guard('user')->user()->user_type_id == 2 ||
                 Auth::guard('user')->user()->user_type_id == 4 ||
@@ -159,21 +205,21 @@
     </div>
 </div> 
 
-<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js" type="text/javascript"></script>
-<script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js" type="text/javascript"></script>
-<script src="https://cdn.datatables.net/buttons/1.6.5/js/dataTables.buttons.min.js" type="text/javascript"></script>
-
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-energy-maintenance').DataTable({
+    var table;
+    function DataTableContent() {
+        table = $('.data-table-energy-maintenance').DataTable({
             dom: "Blfrtip",
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('energy-maintenance.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.community_filter = $('#filterByCommunity').val();
+                    d.public_filter = $('#filterByPublic').val();
+                    d.date_filter = $('#filterByDateFrom').val();
                 }
             },
             columns: [
@@ -184,6 +230,35 @@
                 {data: 'name', name: 'name'},
                 {data: 'action'},
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByPublic').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByDateFrom').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#filterByDateFrom').val(' ');
+            if ($.fn.DataTable.isDataTable('.data-table-energy-maintenance')) {
+                $('.data-table-energy-maintenance').DataTable().destroy();
+            }
+            DataTableContent();
         });
     });
         

@@ -46,6 +46,10 @@ class EnergyMaintenanceCallController extends Controller
      */
     public function index(Request $request)
     {	
+        $communityFilter = $request->input('community_filter');
+        $publicFilter = $request->input('public_filter');
+        $dateFilter = $request->input('date_filter');
+
         if (Auth::guard('user')->user() != null) {
  
             if ($request->ajax()) {
@@ -63,8 +67,26 @@ class EnergyMaintenanceCallController extends Controller
                     ->join('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
                         '=', 'maintenance_statuses.id')
                     ->join('users', 'electricity_maintenance_calls.user_id', '=', 'users.id')
-                    ->where('electricity_maintenance_calls.is_archived', 0)
-                    ->select('electricity_maintenance_calls.id as id', 
+                    ->where('electricity_maintenance_calls.is_archived', 0);
+
+
+                    if($communityFilter != null) {
+
+                        $data->where('communities.id', $communityFilter);
+                    }
+                    if ($publicFilter != null) {
+    
+                        $data->where("public_structures.public_structure_category_id1", $publicFilter)
+                            ->orWhere("public_structures.public_structure_category_id2", $publicFilter)
+                            ->orWhere("public_structures.public_structure_category_id3", $publicFilter);
+                    }
+                    if ($dateFilter != null) {
+    
+                        $data->where('electricity_maintenance_calls.date_completed', '>=', $dateFilter);
+                    }
+
+                    $data->select(
+                        'electricity_maintenance_calls.id as id', 
                         'households.english_name as household_name', 
                         'date_of_call', 'date_completed', 'electricity_maintenance_calls.notes',
                         'maintenance_types.type', 'maintenance_statuses.name', 
@@ -72,8 +94,9 @@ class EnergyMaintenanceCallController extends Controller
                         'electricity_maintenance_calls.created_at as created_at',
                         'electricity_maintenance_calls.updated_at as updated_at',
                         'users.name as user_name', 'public_structures.english_name as public_name',
-                        'energy_systems.name as energy_name')
-                    ->latest();
+                        'energy_systems.name as energy_name'
+                    )->latest();
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

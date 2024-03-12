@@ -14,7 +14,7 @@ class AllEnergyExport implements WithMultipleSheets, ShouldAutoSize
 
     protected $request;
 
-    function __construct($request) {
+    function __construct($request) { 
         $this->request = $request;
     }
  
@@ -28,7 +28,7 @@ class AllEnergyExport implements WithMultipleSheets, ShouldAutoSize
             new EnergyHolders($this->request),
             new HouseholdMeters($this->request),
             new ActiveEnergyUsers($this->request),
-            // new EnergyUsers($this->request),
+           // new EnergyUsers($this->request),
             // new PublicMeters($this->request)
           //  new VendingMeters($this->request)
         ];

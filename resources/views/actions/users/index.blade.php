@@ -71,7 +71,7 @@
                                 </thead>
                                 <tbody id="actionItemsBody">
                                     @foreach($userActionItems as $actionItem)
-                                        <tr>
+                                        <tr id="actionItemRow_{{ $actionItem->id }}">
                                             <td>{{$actionItem->task}}</td>
                                             <td style="width:200px">
                                                 <select name="action_status_id" class="selectpicker form-control action-status" 
@@ -184,15 +184,40 @@
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'The status updated successfully!',
-                        showDenyButton: false,
-                        showCancelButton: false,
-                        confirmButtonText: 'Okay!'
-                    }).then((result) => {
-                        
-                    });
+
+                    if(response.status != 4) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'The status updated successfully!',
+                            showDenyButton: false,
+                            showCancelButton: false,
+                            confirmButtonText: 'Okay!'
+                        }).then((result) => {
+                            
+                        }); 
+                    } else if(response.status == 4) {
+
+                        Swal.fire({
+                            title: "Great Job!",
+                            width: 600,
+                            padding: "3em",
+                            color: "#716add",
+                            html: `
+                                <div style="
+                                    background: rgba(0,0,123,0.4) url('/images/well.gif') left top repeat;
+                                    width: 100%;
+                                    height: 100%;
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    z-index: 9999;
+                                "></div>
+                                </div>
+                            `,
+                        });
+
+                        $('#actionItemRow_' + actionItemId).remove();
+                    }
                 },
                 error: function (error) {
                     // Handle error, if needed

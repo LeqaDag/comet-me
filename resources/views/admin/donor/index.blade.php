@@ -180,6 +180,59 @@
 
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Donor</label>
+                        <select name="" id="filterByDonor"
+                            class="selectpicker form-control" data-live-search="true">
+                            <option disabled selected>Filter By Donor</option>
+                            @foreach($donors as $donor)
+                            <option value="{{$donor->id}}">
+                                {{$donor->donor_name}}
+                            </option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Service</label>
+                        <select name="" id="filterByService"
+                            class="selectpicker form-control" data-live-search="true">
+                            <option disabled selected>Filter By Service</option>
+                            @foreach($services as $service)
+                            <option value="{{$service->id}}">
+                                {{$service->service_name}}
+                            </option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             <p class="card-text">
             @if(Auth::guard('user')->user()->user_type_id == 1)
@@ -221,6 +274,8 @@
 </div>
 
 <script type="text/javascript">
+
+
     $(function () {
 
         var analyticsWater = <?php echo $donorsWaterData; ?>;
@@ -280,25 +335,57 @@
              chartGridUser.draw(dataGridDonor, optionsGridDonor);
         }
 
-        // DataTable
-        var table = $('.data-table-donors').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "{{ route('donor.index') }}",
-                data: function (d) {
-                    d.search = $('input[type="search"]').val()
-                }
-            },
-            columns: [
-                {data: 'donor_name', name: 'donor_name'},
-                {data: 'english_name', name: 'english_name'},
-                {data: 'service_name', service_name: 'name'},
-                { data: 'action' }
-            ],
-            
+        var table;
+
+        function DataTableContent() {
+            // DataTable
+            table = $('.data-table-donors').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('donor.index') }}",
+                    data: function (d) {
+                        d.search = $('input[type="search"]').val();
+                        d.community_filter = $('#filterByCommunity').val();
+                        d.service_filter = $('#filterByService').val();
+                        d.donor_filter = $('#filterByDonor').val();
+                    }
+                },
+                columns: [
+                    {data: 'donor_name', name: 'donor_name'},
+                    {data: 'english_name', name: 'english_name'},
+                    {data: 'service_name', service_name: 'name'},
+                    { data: 'action' }
+                ],
+                
+            });
+        }
+        
+        DataTableContent();
+
+        $('#filterByDonor').on('change', function() {
+            table.ajax.reload(); 
         });
-         
+
+        $('#filterByService').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-donors')) {
+                $('.data-table-donors').DataTable().destroy();
+            }
+            DataTableContent();
+        });
+
         // Clear Filters for Export
         $('#clearDonorFiltersButton').on('click', function() {
 

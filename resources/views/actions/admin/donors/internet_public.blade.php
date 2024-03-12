@@ -22,12 +22,15 @@
                             </thead>
                             <tbody>
                             @foreach($missingPublicInternetDonors as $missing)
+
                                 <tr> 
                                     <td class="text-center">
                                     {{ $missing->public }}
                                     </td>
                                     <td class="text-center">
-                                    {{ $missing->english_name }}
+                                    
+                
+                                    
                                     </td>
                                 </tr>
                             @endforeach

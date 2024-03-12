@@ -118,6 +118,52 @@
 
 <div class="container mb-4">
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
+                        <select name="type" id="filterByType" 
+                            class="selectpicker form-control" >
+                            <option disabled selected>Choose one...</option>
+                            @foreach($installationTypes as $installationType)
+                                <option value="{{$installationType->id}}">
+                                    {{$installationType->type}}
+                                </option>
+                            @endforeach
+                        </select>
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Installation date from</label>
+                        <input type="date" class="form-control" name="date_from"
+                        id="filterByDateFrom">
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
                 Auth::guard('user')->user()->user_type_id == 2 ||
@@ -154,15 +200,20 @@
 
 <script type="text/javascript">
 
-    $(function () {
+    var table;
 
-        var table = $('.data-table-energy-comet-meters').DataTable({
+    function DataTableContent() {
+
+        table = $('.data-table-energy-comet-meters').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('comet-meter.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.community_filter = $('#filterByCommunity').val();
+                    d.type_filter = $('#filterByType').val();
+                    d.date_filter = $('#filterByDateFrom').val();
                 }
             },
             columns: [
@@ -173,6 +224,35 @@
                 {data: 'energy_type_name', name: 'energy_type_name'},
                 {data: 'action'}
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByType').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByDateFrom').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#filterByDateFrom').val(' ');
+            if ($.fn.DataTable.isDataTable('.data-table-energy-comet-meters')) {
+                $('.data-table-energy-comet-meters').DataTable().destroy();
+            }
+            DataTableContent();
         });
 
         // Clear Filters for Export

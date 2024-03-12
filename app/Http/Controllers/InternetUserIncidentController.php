@@ -41,6 +41,10 @@ class InternetUserIncidentController extends Controller
     {
         if (Auth::guard('user')->user() != null) {
  
+            $communityFilter = $request->input('community_filter');
+            $typeFilter = $request->input('incident_filter');
+            $dateFilter = $request->input('date_filter');
+
             if ($request->ajax()) {
 
                 $data = DB::table('internet_user_incidents')
@@ -51,17 +55,33 @@ class InternetUserIncidentController extends Controller
                     ->join('internet_incident_statuses', 
                         'internet_user_incidents.internet_incident_status_id', 
                         '=', 'internet_incident_statuses.id')
-                    ->where('internet_user_incidents.is_archived', 0)
-                    ->select('internet_user_incidents.date', 'internet_user_incidents.year',
-                        'internet_user_incidents.id as id', 'internet_user_incidents.created_at as created_at', 
-                        'internet_user_incidents.updated_at as updated_at', 
-                        'communities.english_name as community_name', 
-                        'households.english_name as household_name',
-                        'incidents.english_name as incident', 
-                        'internet_incident_statuses.name',
-                        'internet_user_incidents.notes')
-                    ->orderBy('internet_user_incidents.date', 'desc'); 
+                    ->where('internet_user_incidents.is_archived', 0);
     
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($typeFilter != null) {
+
+                    $data->where('internet_user_incidents.incident_id', $typeFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('internet_user_incidents.date', '>=', $dateFilter);
+                }
+
+                $data->select(
+                    'internet_user_incidents.date', 'internet_user_incidents.year',
+                    'internet_user_incidents.id as id', 
+                    'internet_user_incidents.created_at as created_at', 
+                    'internet_user_incidents.updated_at as updated_at', 
+                    'communities.english_name as community_name', 
+                    'households.english_name as household_name',
+                    'incidents.english_name as incident', 
+                    'internet_incident_statuses.name',
+                    'internet_user_incidents.notes'
+                )->orderBy('internet_user_incidents.date', 'desc'); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

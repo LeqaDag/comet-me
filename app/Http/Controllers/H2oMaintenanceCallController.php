@@ -44,6 +44,10 @@ class H2oMaintenanceCallController extends Controller
      */
     public function index(Request $request)
     {	
+        $communityFilter = $request->input('community_filter');
+        $publicFilter = $request->input('public_filter');
+        $dateFilter = $request->input('date_filter');
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
@@ -58,17 +62,33 @@ class H2oMaintenanceCallController extends Controller
                     ->join('maintenance_statuses', 'h2o_maintenance_calls.maintenance_status_id', 
                         '=', 'maintenance_statuses.id')
                     ->join('users', 'h2o_maintenance_calls.user_id', '=', 'users.id')
-                    ->where('h2o_maintenance_calls.is_archived', 0)
-                    ->select('h2o_maintenance_calls.id as id', 
-                        'households.english_name as household_name', 
-                        'date_of_call', 'date_completed', 'h2o_maintenance_calls.notes',
-                        'maintenance_types.type', 'maintenance_statuses.name', 
-                        'communities.english_name as community_name',
-                        'h2o_maintenance_calls.created_at as created_at',
-                        'h2o_maintenance_calls.updated_at as updated_at',
-                        'users.name as user_name', 
-                        'public_structures.english_name as public_name')
-                    ->orderBy('h2o_maintenance_calls.date_of_call', 'DESC');
+                    ->where('h2o_maintenance_calls.is_archived', 0);
+
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($publicFilter != null) {
+
+                    $data->where("public_structures.public_structure_category_id1", $publicFilter)
+                        ->orWhere("public_structures.public_structure_category_id2", $publicFilter)
+                        ->orWhere("public_structures.public_structure_category_id3", $publicFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('h2o_maintenance_calls.date_completed', '>=', $dateFilter);
+                }
+
+                $data->select('h2o_maintenance_calls.id as id', 
+                    'households.english_name as household_name', 
+                    'date_of_call', 'date_completed', 'h2o_maintenance_calls.notes',
+                    'maintenance_types.type', 'maintenance_statuses.name', 
+                    'communities.english_name as community_name',
+                    'h2o_maintenance_calls.created_at as created_at',
+                    'h2o_maintenance_calls.updated_at as updated_at',
+                    'users.name as user_name', 
+                    'public_structures.english_name as public_name')
+                ->orderBy('h2o_maintenance_calls.date_of_call', 'DESC');
 
                 return Datatables::of($data)
                     ->addIndexColumn()

@@ -43,6 +43,10 @@ class MgIncidentController extends Controller
     {
         if (Auth::guard('user')->user() != null) {
 
+            $communityFilter = $request->input('community_filter');
+            $typeFilter = $request->input('incident_filter');
+            $dateFilter = $request->input('date_filter');
+
             if ($request->ajax()) {
 
                 $data = DB::table('mg_incidents')
@@ -51,17 +55,32 @@ class MgIncidentController extends Controller
                     ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
                     ->join('incident_status_mg_systems', 'mg_incidents.incident_status_mg_system_id', 
                         '=', 'incident_status_mg_systems.id')
-                    ->where('mg_incidents.is_archived', 0)
-                    ->select('mg_incidents.date', 'mg_incidents.year',
-                        'mg_incidents.id as id', 'mg_incidents.created_at as created_at', 
-                        'mg_incidents.updated_at as updated_at', 
-                        'communities.english_name as community_name',
-                        'incidents.english_name as incident',
-                        'energy_systems.name as energy_name', 
-                        'incident_status_mg_systems.name as mg_status',
-                        'mg_incidents.notes')
-                    ->latest(); 
+                    ->where('mg_incidents.is_archived', 0);
     
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($typeFilter != null) {
+
+                    $data->where('mg_incidents.incident_id', $typeFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('mg_incidents.date', '>=', $dateFilter);
+                }
+
+                $data
+                ->select('mg_incidents.date', 'mg_incidents.year',
+                    'mg_incidents.id as id', 'mg_incidents.created_at as created_at', 
+                    'mg_incidents.updated_at as updated_at', 
+                    'communities.english_name as community_name',
+                    'incidents.english_name as incident',
+                    'energy_systems.name as energy_name', 
+                    'incident_status_mg_systems.name as mg_status',
+                    'mg_incidents.notes')
+                ->latest(); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

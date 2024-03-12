@@ -36,7 +36,8 @@ All<span class="text-muted fw-light"> Requested Households</span>
     <div class="card my-2">
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id != 7 ||
-                Auth::guard('user')->user()->user_type_id != 11  )
+                Auth::guard('user')->user()->user_type_id != 11 ||
+                Auth::guard('user')->user()->user_type_id != 8 )
                 <div>
                     <p class="card-text">
                         <div>

@@ -43,6 +43,10 @@ class FbsIncidentController extends Controller
     {
         if (Auth::guard('user')->user() != null) {
  
+            $communityFilter = $request->input('community_filter');
+            $typeFilter = $request->input('incident_filter');
+            $dateFilter = $request->input('date_filter');
+
             if ($request->ajax()) {
 
                 $data = DB::table('fbs_user_incidents')
@@ -58,19 +62,34 @@ class FbsIncidentController extends Controller
                     ->leftJoin('incident_status_small_infrastructures', 
                         'fbs_incident_statuses.incident_status_small_infrastructure_id', 
                         '=', 'incident_status_small_infrastructures.id')
-                    ->where('fbs_user_incidents.is_archived', 0)
-                    ->select('fbs_user_incidents.date', 'fbs_user_incidents.year',
-                        'fbs_user_incidents.id as id', 'fbs_user_incidents.created_at as created_at', 
-                        'fbs_user_incidents.updated_at as updated_at', 
-                        'communities.english_name as community_name', 
-                        'households.english_name as household_name',
-                        'public_structures.english_name as public_name',
-                        'incidents.english_name as incident', 
-                        DB::raw('group_concat(DISTINCT incident_status_small_infrastructures.name) as fbs_status'),
-                        'fbs_user_incidents.notes')
-                    ->orderBy('fbs_user_incidents.date', 'desc')
-                    ->groupBy('fbs_user_incidents.id'); 
-    
+                    ->where('fbs_user_incidents.is_archived', 0);
+
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($typeFilter != null) {
+
+                    $data->where('fbs_user_incidents.incident_id', $typeFilter);
+                }
+                if ($dateFilter != null) {
+
+                    $data->where('fbs_user_incidents.date', '>=', $dateFilter);
+                }
+
+                $data->select(
+                    'fbs_user_incidents.date', 'fbs_user_incidents.year',
+                    'fbs_user_incidents.id as id', 'fbs_user_incidents.created_at as created_at', 
+                    'fbs_user_incidents.updated_at as updated_at', 
+                    'communities.english_name as community_name', 
+                    'households.english_name as household_name',
+                    'public_structures.english_name as public_name',
+                    'incidents.english_name as incident', 
+                    DB::raw('group_concat(DISTINCT incident_status_small_infrastructures.name) as fbs_status'),
+                    'fbs_user_incidents.notes'
+                )->orderBy('fbs_user_incidents.date', 'desc')
+                ->groupBy('fbs_user_incidents.id'); 
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

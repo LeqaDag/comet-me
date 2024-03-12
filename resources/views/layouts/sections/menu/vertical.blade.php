@@ -100,7 +100,9 @@
                 </a>
             </li>
             @if(Auth::guard('user')->user()->user_type_id == 1 || 
-                Auth::guard('user')->user()->user_type_id == 3)
+                Auth::guard('user')->user()->user_type_id == 2 || 
+                Auth::guard('user')->user()->user_type_id == 3 || 
+                Auth::guard('user')->user()->user_type_id == 4)
                 <li class="menu-item" id="requested-household">
                     <a href="{{url('requested-household')}}" class="menu-link" >
                         <i class=""></i>
@@ -161,7 +163,8 @@
         </a>
     </li>
 
-    @if(Auth::guard('user')->user()->user_type_id == 1 || Auth::guard('user')->user()->user_type_id == 2)
+    @if(Auth::guard('user')->user()->user_type_id == 1 ||
+     Auth::guard('user')->user()->user_type_id == 2)
     <li class="menu-item" id="energy-request">
         <a href="{{url('energy-request')}}" class="menu-link" >
             <i class="menu-icon tf-icons bx bx-check-square"></i>
@@ -313,6 +316,32 @@
                     <div>Water Maintenance</div>
                 </a>
             </li>
+            <li class="menu-item" id="internet-maintenance-tab">
+                <a class="menu-link menu-toggle">
+                    <div>Internet Maintenance</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="internet-maintenance">
+                        <a href="{{url('internet-maintenance')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>All Maintenance</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="internet-issue">
+                        <a href="{{url('internet-issue')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Issues</div>
+                        </a>
+                    </li> 
+                    <li class="menu-item" id="internet-action">
+                        <a href="{{url('internet-action')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Actions</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li class="menu-item" id="energy-safety">
                 <a href="{{url('energy-safety')}}" class="menu-link" >
                     <i class=""></i>
@@ -671,6 +700,24 @@
 
         $("#water-maintenance").addClass("active");
         $("#maintenance").addClass("open");
+    }  else if(last_part == "internet-maintenance") {
+
+        $("#internet-maintenance").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#internet-maintenance-tab").addClass("active");
+        $("#internet-maintenance-tab").addClass("open");
+    }   else if(last_part == "internet-issue") {
+
+        $("#internet-issue").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#internet-maintenance-tab").addClass("active");
+        $("#internet-maintenance-tab").addClass("open");
+    }   else if(last_part == "internet-action") {
+
+        $("#internet-action").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#internet-maintenance-tab").addClass("active");
+        $("#internet-maintenance-tab").addClass("open");
     } else if(last_part == "energy-safety") {
 
         $("#energy-safety").addClass("active");

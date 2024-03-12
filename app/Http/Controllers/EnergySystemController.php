@@ -83,18 +83,38 @@ class EnergySystemController extends Controller
     {	
         if (Auth::guard('user')->user() != null) {
 
+            $communityFilter = $request->input('community_filter');
+            $typeFilter = $request->input('type_filter');
+            $yearFilter = $request->input('year_filter');
+
             if ($request->ajax()) {
 
                 $data = DB::table('energy_systems')
                     ->join('energy_system_types', 'energy_systems.energy_system_type_id', 
                         '=', 'energy_system_types.id')
-                    ->where('energy_systems.is_archived', 0)
-                    ->select('energy_systems.id as id', 'energy_systems.created_at',
-                        'energy_systems.updated_at', 'energy_systems.name',
-                        'energy_systems.installation_year', 'energy_systems.upgrade_year1',
-                        'energy_system_types.name as type',
-                        'energy_systems.total_rated_power')
-                    ->latest();
+                    ->where('energy_systems.is_archived', 0);
+
+                if($communityFilter != null) {
+
+                    $data->where('energy_systems.community_id', $communityFilter);
+                }
+                if ($typeFilter != null) {
+
+                    $data->where('energy_system_types.id', $typeFilter);
+                }
+                if ($yearFilter != null) {
+
+                    $data->where('energy_systems.installation_year', '>=', $yearFilter);
+                }
+
+                $data
+                ->select('energy_systems.id as id', 'energy_systems.created_at',
+                    'energy_systems.updated_at', 'energy_systems.name',
+                    'energy_systems.installation_year', 'energy_systems.upgrade_year1',
+                    'energy_system_types.name as type',
+                    'energy_systems.total_rated_power')
+                ->latest();
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {

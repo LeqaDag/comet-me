@@ -16,7 +16,7 @@ class EnergySummary implements FromCollection, WithHeadings, WithTitle, ShouldAu
     protected $request; 
 
     function __construct($request) {
-        $this->request = $request;
+        $this->request = $request; 
     }
 
     /**

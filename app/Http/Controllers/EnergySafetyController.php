@@ -48,30 +48,50 @@ class EnergySafetyController extends Controller
 
         if (Auth::guard('user')->user() != null) {
 
+            $communityFilter = $request->input('community_filter');
+            $regionFilter = $request->input('region_filter');
+            $typeFilter = $request->input('type_filter');
+
             if ($request->ajax()) {
 
                 $data = DB::table('all_energy_meter_safety_checks')
                     ->join('all_energy_meters', 'all_energy_meters.id', 
                         '=', 'all_energy_meter_safety_checks.all_energy_meter_id')
-                    ->join('communities', 'all_energy_meters.community_id', '=', 'communities.id')
-                    ->leftJoin('households', 'all_energy_meters.household_id', '=', 'households.id')
+                    ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                    ->join('regions', 'communities.region_id', 'regions.id')
+                    ->leftJoin('households', 'all_energy_meters.household_id', 'households.id')
                     ->LeftJoin('public_structures', 'all_energy_meters.public_structure_id', 
                         'public_structures.id')
-                    ->join('energy_systems', 'all_energy_meters.energy_system_id', '=', 'energy_systems.id')
-                    ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', '=', 'energy_system_types.id')
-                    ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
-                    ->where('all_energy_meter_safety_checks.is_archived', 0)
-                    ->select('all_energy_meters.meter_number', 
-                        'all_energy_meters.ground_connected',
-                        'all_energy_meter_safety_checks.id as id', 
-                        'all_energy_meter_safety_checks.created_at as created_at', 
-                        'all_energy_meter_safety_checks.updated_at as updated_at', 
-                        'communities.english_name as community_name',
-                        'households.english_name as household_name',
-                        'public_structures.english_name as public_name',
-                        'energy_system_types.name as energy_type_name',
-                        'meter_cases.meter_case_name_english')
-                    ->latest(); 
+                    ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+                    ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
+                    ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
+                    ->where('all_energy_meter_safety_checks.is_archived', 0);
+
+                if ($regionFilter != null) {
+
+                    $data->where("regions.id", $regionFilter);
+                }
+                if($communityFilter != null) {
+
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($typeFilter != null) {
+
+                    $data->where('energy_system_types.id', $typeFilter);
+                }
+
+                $data->select(
+                    'all_energy_meters.meter_number', 
+                    'all_energy_meters.ground_connected',
+                    'all_energy_meter_safety_checks.id as id', 
+                    'all_energy_meter_safety_checks.created_at as created_at', 
+                    'all_energy_meter_safety_checks.updated_at as updated_at', 
+                    'communities.english_name as community_name',
+                    'households.english_name as household_name',
+                    'public_structures.english_name as public_name',
+                    'energy_system_types.name as energy_type_name',
+                    'meter_cases.meter_case_name_english')
+                ->latest(); 
     
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -136,7 +156,7 @@ class EnergySafetyController extends Controller
                 ->get();
               
             // $data1= DB::table('all_energy_meters')
-            //     ->join('meter_cases', 'all_energy_meters.meter_case_id', '=', 'meter_cases.id')
+            //     ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
             //     ->where('all_energy_meters.is_archived', 0)
             //     ->where('all_energy_meters.energy_system_type_id', 2)
             //     ->select(

@@ -49,6 +49,7 @@ use Auth;
 use Route;
 use DB;
 use Excel;
+use Artisan;
 use PDF;
 
 class HomeController extends Controller
@@ -70,6 +71,8 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+        Artisan::call('schedule:run');
+
         // $communities = DB::table("internet_users")
         //     ->join("communities", "internet_users.community_id", "communities.id")
         //     ->groupBy("communities.id")

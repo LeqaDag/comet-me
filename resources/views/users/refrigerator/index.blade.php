@@ -110,6 +110,52 @@
 
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Public</label>
+                        <select name="public" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByPublic">
+                            <option disabled selected>Search Public Structure</option>
+                            @foreach($publicCategories as $publicCategory)
+                            <option value="{{$publicCategory->id}}">
+                                {{$publicCategory->name}}
+                            </option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Date from</label>
+                        <input type="date" class="form-control" name="date_from"
+                        id="filterByDateFrom">
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||  
                 Auth::guard('user')->user()->user_type_id == 2 ||
@@ -124,7 +170,7 @@
             </div>
             @endif
 
-            @if(Auth::guard('user')->user()->user_type_id == 1)
+            <!-- @if(Auth::guard('user')->user()->user_type_id == 1)
             <div>
                 <form action="{{route('refrigerator.import')}}" method="POST" 
                     enctype="multipart/form-data">
@@ -140,7 +186,7 @@
                     </div>
                 </form>
             <div>
-            @endif
+            @endif -->
             <table id="refrigeratorTable" class="table table-striped data-table-refrigerators my-2">
                 <thead>
                     <tr>
@@ -159,16 +205,20 @@
 </div>
 
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-refrigerators').DataTable({
+    var table;
+    function DataTableContent() {
+        table = $('.data-table-refrigerators').DataTable({
             
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('refrigerator-user.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.community_filter = $('#filterByCommunity').val();
+                    d.public_filter = $('#filterByPublic').val();
+                    d.date_filter = $('#filterByDateFrom').val();
                 }
             },
             dom: 'Blfrtip',
@@ -196,6 +246,35 @@
                 {data: 'refrigerator_type_id', name: 'refrigerator_type_id'},
                 {data: 'action'}
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByPublic').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByDateFrom').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#filterByDateFrom').val(' ');
+            if ($.fn.DataTable.isDataTable('.data-table-refrigerators')) {
+                $('.data-table-refrigerators').DataTable().destroy();
+            }
+            DataTableContent();
         });
 
         // Clear Filters for Export

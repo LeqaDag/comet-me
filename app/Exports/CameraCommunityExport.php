@@ -26,9 +26,14 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
     public function collection()
     { 
         $query = DB::table('camera_communities')
-            ->join('communities', 'camera_communities.community_id', 'communities.id')
-            ->join('regions', 'communities.region_id', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+            ->leftJoin('communities', 'camera_communities.community_id', 'communities.id')
+            ->leftJoin('regions', 'communities.region_id', 'regions.id')
+            ->leftJoin('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->leftJoin('repositories', 'camera_communities.repository_id', 'repositories.id') 
+            ->leftJoin('regions as repository_regions', 'repositories.region_id', 
+                'repository_regions.id') 
+            ->leftJoin('sub_regions as repository_sub_regions', 'repositories.sub_region_id', 
+                'repository_sub_regions.id')
             ->leftJoin('households', 'camera_communities.household_id', 'households.id')
             ->leftJoin('camera_community_types', 'camera_communities.id', 
                 'camera_community_types.camera_community_id')
@@ -38,8 +43,9 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
             ->leftJoin('nvr_cameras', 'nvr_community_types.nvr_camera_id', 'nvr_cameras.id')
             ->where('camera_communities.is_archived', 0)
             ->select([
-                'communities.english_name as community_name',
-                'regions.english_name as region', 'sub_regions.english_name as sub_region',
+                DB::raw('IFNULL(communities.english_name, repositories.name) as name'),
+                DB::raw('IFNULL(regions.english_name, repository_regions.english_name) as region'),
+                DB::raw('IFNULL(sub_regions.english_name, repository_sub_regions.english_name) as sub_region'),
                 'camera_communities.date',
                 'households.english_name as english_name',
                 DB::raw('SUM(DISTINCT camera_community_types.number) as camera_number'),
@@ -55,7 +61,8 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
 
         if($this->request->sub_region) {
 
-            $query->where("sub_regions.id", $this->request->sub_region);
+            $query->where("sub_regions.id", $this->request->sub_region)
+                ->orWhere("repository_sub_regions.id", $this->request->sub_region);
         }
         if($this->request->community) {
 
