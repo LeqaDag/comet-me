@@ -20,6 +20,7 @@ use App\Models\H2oUser;
 use App\Models\EnergySystem;
 use App\Models\ElectricityMaintenanceCall;
 use App\Models\ElectricityMaintenanceCallAction;
+use App\Models\EnergyMaintenanceAction;
 use App\Models\ElectricityMaintenanceCallUser;
 use App\Models\Household;
 use App\Models\WaterUser;
@@ -46,6 +47,24 @@ class EnergyMaintenanceCallController extends Controller
      */
     public function index(Request $request)
     {	
+        // 75 -> 16 / 24 -> 52 / 40 -> 42 / 14 -> 4
+        // 11 -> 8 / 13 -> 1 / 17 -> 79 / 39 -> 17
+        // 27 -> 41 / 12 -> 56 / 43 -> 19 / 57 -> 44
+        // 19 -> 15 / 72 -> 22 / 18 -> 12 / 77 -> 7
+        // 78 -> 48 / 20 -> 5 / 16 -> 5 / 30 -> 32
+        // 79 -> 80 / 80 -> 39 / 8 -> 10 / 7 -> 42
+        // 48 -> 24 / 36 -> 31 / 9 -> 81 / 76 -> 82
+        // 15 -> 83 /  21 -> 84 / 1 -> 85 / 54 -> 86
+        // 34 & 10 -> 8 / 45 -> 35 / 4 -> 88
+        // 52 -> 89 / 38-> 11
+        // $actions = ElectricityMaintenanceCallAction::where('maintenance_electricity_action_id', 
+        //     52)->get();
+        // foreach($actions as $action) {
+
+        //     $action->energy_maintenance_action_id = 89;
+        //     $action->save();
+        // }
+
         $communityFilter = $request->input('community_filter');
         $publicFilter = $request->input('public_filter');
         $dateFilter = $request->input('date_filter');
@@ -158,14 +177,12 @@ class EnergyMaintenanceCallController extends Controller
                 ->get();
             $publicCategories = PublicStructureCategory::where('is_archived', 0)->get(); 
     
-            $userActions = MaintenanceElectricityAction::where('is_archived', 0)
-                ->where("system_user", 1)
-                ->orWhere("system_user", 3)
+            $userActions = EnergyMaintenanceAction::where("energy_maintenance_issue_type_id", 2)
+                ->orWhere("energy_maintenance_issue_type_id", 3)
                 ->get();
 
-            $systemActions = MaintenanceElectricityAction::where('is_archived', 0)
-                ->where("system_user", 2)
-                ->orWhere("system_user", 3)
+            $systemActions = EnergyMaintenanceAction::where("energy_maintenance_issue_type_id", 1)
+                ->orWhere("energy_maintenance_issue_type_id", 3)
                 ->get();
 
             return view('users.energy.maintenance.index', compact('maintenanceTypes', 
@@ -190,7 +207,7 @@ class EnergyMaintenanceCallController extends Controller
             'community_id' => 'required',
             'maintenance_status_id' => 'required',
             'maintenance_type_id' => 'required',
-            'maintenance_electricity_action_id' => 'required',
+            'energy_maintenance_action_id' => 'required',
             'user_id' => 'required'
         ]);
   
@@ -239,11 +256,11 @@ class EnergyMaintenanceCallController extends Controller
 
         $maintenanceId = $maintenance->id;
 
-        if($request->maintenance_electricity_action_id) {
-            for($i=0; $i < count($request->maintenance_electricity_action_id); $i++) {
+        if($request->energy_maintenance_action_id) {
+            for($i=0; $i < count($request->energy_maintenance_action_id); $i++) {
 
                 $electricityMaintenanceCallAction = new ElectricityMaintenanceCallAction();
-                $electricityMaintenanceCallAction->maintenance_electricity_action_id = $request->maintenance_electricity_action_id[$i];
+                $electricityMaintenanceCallAction->energy_maintenance_action_id = $request->energy_maintenance_action_id[$i];
                 $electricityMaintenanceCallAction->electricity_maintenance_call_id = $maintenanceId;
                 $electricityMaintenanceCallAction->save();
             }
@@ -273,6 +290,7 @@ class EnergyMaintenanceCallController extends Controller
     {
         $energyMaintenance = ElectricityMaintenanceCall::findOrFail($id);
         $maintenanceElectricityActions = "";
+        $allEnergyActions = "";
 
         if($energyMaintenance->household_id || $energyMaintenance->public_structure_id) {
 
@@ -280,10 +298,18 @@ class EnergyMaintenanceCallController extends Controller
                 ->where("system_user", 1)
                 ->orWhere("system_user", 3)
                 ->get();
+
+            $allEnergyActions = EnergyMaintenanceAction::where("energy_maintenance_issue_type_id", 2)
+                ->orWhere("energy_maintenance_issue_type_id", 3)
+                ->get();
         } else if($energyMaintenance->energy_system_id) {
             $maintenanceElectricityActions = MaintenanceElectricityAction::where('is_archived', 0)
                 ->where("system_user", 2)
                 ->orWhere("system_user", 3)
+                ->get();
+
+            $allEnergyActions = EnergyMaintenanceAction::where("energy_maintenance_issue_type_id", 1)
+                ->orWhere("energy_maintenance_issue_type_id", 3)
                 ->get();
         } 
 
@@ -312,9 +338,22 @@ class EnergyMaintenanceCallController extends Controller
                 'maintenance_electricity_actions.maintenance_action_electricity')
             ->get();
 
+        $energyMaintanceActions = DB::table('electricity_maintenance_call_actions')
+            ->join('electricity_maintenance_calls', 'electricity_maintenance_calls.id',
+                'electricity_maintenance_call_actions.electricity_maintenance_call_id')
+            ->join('energy_maintenance_actions', 'energy_maintenance_actions.id',
+                'electricity_maintenance_call_actions.energy_maintenance_action_id')
+            ->where('electricity_maintenance_calls.id', 
+                $energyMaintenance->id)
+            ->where('electricity_maintenance_call_actions.is_archived', 0)
+            ->select('electricity_maintenance_call_actions.id', 
+                'energy_maintenance_actions.english_name')
+            ->get();
+
         return view('users.energy.maintenance.edit', compact('energyMaintenance', 
             'maintenanceTypes', 'maintenanceStatuses', 'maintenanceElectricityActions', 
-            'users', 'performedUsers', 'energyActions'));
+            'users', 'performedUsers', 'energyActions', 'energyMaintanceActions',
+            'allEnergyActions'));
     }
 
     /**
@@ -350,7 +389,7 @@ class EnergyMaintenanceCallController extends Controller
                 for($i=0; $i < count($request->actions); $i++) {
     
                     $energyMaintenanceCallAction = new ElectricityMaintenanceCallAction();
-                    $energyMaintenanceCallAction->maintenance_electricity_action_id = $request->actions[$i];
+                    $energyMaintenanceCallAction->energy_maintenance_action_id = $request->actions[$i];
                     $energyMaintenanceCallAction->electricity_maintenance_call_id = $maintenanceId;
                     $energyMaintenanceCallAction->save();
                 }
@@ -362,7 +401,7 @@ class EnergyMaintenanceCallController extends Controller
                 for($i=0; $i < count($request->new_actions); $i++) {
     
                     $energyMaintenanceCallAction = new ElectricityMaintenanceCallAction();
-                    $energyMaintenanceCallAction->maintenance_electricity_action_id = $request->new_actions[$i];
+                    $energyMaintenanceCallAction->energy_maintenance_action_id = $request->new_actions[$i];
                     $energyMaintenanceCallAction->electricity_maintenance_call_id = $maintenanceId;
                     $energyMaintenanceCallAction->save();
                 }
@@ -406,12 +445,11 @@ class EnergyMaintenanceCallController extends Controller
     {
         $id = $request->id;
 
-        $energyMaintenance = ElectricityMaintenanceCallAction::find($id);
+        $energyMaintenance = EnergyMaintenanceAction::find($id);
 
         if($energyMaintenance) {
 
-            $energyMaintenance->is_archived = 1;
-            $energyMaintenance->save();
+            $energyMaintenance->delete();
             
             $response['success'] = 1;
             $response['msg'] = 'Energy Maintenance Action Deleted successfully'; 
@@ -562,14 +600,16 @@ class EnergyMaintenanceCallController extends Controller
             ->select('electricity_maintenance_call_users.id', 'users.name')
             ->get();
 
-        $energyActions = DB::table('electricity_maintenance_call_actions')
+        $energyActions =  DB::table('electricity_maintenance_call_actions')
             ->join('electricity_maintenance_calls', 'electricity_maintenance_calls.id',
                 'electricity_maintenance_call_actions.electricity_maintenance_call_id')
-            ->join('maintenance_electricity_actions', 'maintenance_electricity_actions.id',
-                'electricity_maintenance_call_actions.maintenance_electricity_action_id')
+            ->join('energy_maintenance_actions', 'energy_maintenance_actions.id',
+                'electricity_maintenance_call_actions.energy_maintenance_action_id')
             ->where('electricity_maintenance_calls.id', 
                 $energyMaintenance->id)
             ->where('electricity_maintenance_call_actions.is_archived', 0)
+            ->select('electricity_maintenance_call_actions.id', 
+                'energy_maintenance_actions.arabic_name')
             ->get();
 
         $response['community'] = $community;

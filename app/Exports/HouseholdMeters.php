@@ -45,7 +45,9 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
             ->where('household_meters.is_archived', 0)
             ->select([
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
-                as household_name'),
+                    as household_name'),
+                DB::raw('IFNULL(households.arabic_name, public_structures.arabic_name) 
+                    as household_name_arabic'),
                 'household_meters.user_name', 'installation_types.type',
                 'meter_cases.meter_case_name_english',  
                 'communities.english_name as community_name',
@@ -83,7 +85,8 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function headings(): array
     {
-        return ["Shared Holder", "Main User", "Installation Type", "Meter Case",
+        return ["Shared Holder", "Shared Holder Arabic",
+            "Main User", "Installation Type", "Meter Case",
             "Community", "Region", "Sub Region", "Number of male", "Number of Female", 
             "Number of adults", "Number of children", "Phone number", "Donors"];
     }

@@ -11,7 +11,7 @@
 
     label {
         margin-top: 20px;
-    } 
+    }  
 </style>
 
 @section('content')
@@ -174,21 +174,21 @@
 
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                        <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
+                        <label class='col-md-12 control-label'>Old Action</label>
                     </div>
                 </div>
                 @if(count($energyActions) > 0)
-                    <table id="energyActionsTable" 
+                    <table id="" 
                         class="table table-striped data-h2o-actions-donors my-2">  
                         <tbody>
                             @foreach($energyActions as $energyAction)
-                            <tr id="energyActionRow">
+                            <tr id="">
                                 <td class="text-center">
                                     {{$energyAction->maintenance_action_electricity}}
                                 </td>
                                 <td class="text-center">
-                                    <a class="btn deleteEnergyAction" 
-                                        id="deleteEnergyAction" data-id="{{$energyAction->id}}">
+                                    <a class="btn " 
+                                        id="" data-id="{{$energyAction->id}}">
                                         <i class="fa fa-trash text-danger"></i>
                                     </a>
                                 </td>
@@ -233,6 +233,67 @@
                 @endif
 
                 <hr>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
+                    </div>
+                </div>
+                @if(count($energyMaintanceActions) > 0)
+                    <table id="energyActionsTable" 
+                        class="table table-striped data-h2o-actions-donors my-2">  
+                        <tbody>
+                            @foreach($energyMaintanceActions as $energyMaintanceAction)
+                            <tr id="energyActionRow">
+                                <td class="text-center">
+                                    {{$energyMaintanceAction->english_name}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteEnergyAction" 
+                                        id="deleteEnergyAction" data-id="{{$energyMaintanceAction->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add more actions</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="actions[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($allEnergyActions as $allEnergyAction)
+                                        <option value="{{$allEnergyAction->id}}">
+                                            {{$allEnergyAction->arabic_name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Actions</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_actions[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($allEnergyActions as $allEnergyAction)
+                                        <option value="{{$allEnergyAction->id}}">
+                                            {{$allEnergyAction->arabic_name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <label class='col-md-12 control-label'>Performed By:</label>

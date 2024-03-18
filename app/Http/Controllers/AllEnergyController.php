@@ -18,6 +18,8 @@ use App\Models\CommunityDonor;
 use App\Models\CommunityVendor;
 use App\Models\CommunityService;
 use App\Models\Donor;
+use App\Models\DisplacedHousehold;
+use App\Models\DisplacedHouseholdStatus;
 use App\Models\EnergyDonor;
 use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
@@ -453,6 +455,23 @@ class AllEnergyController extends Controller
     public function update(Request $request, $id)
     {
         $energyUser = AllEnergyMeter::find($id);
+
+        if($energyUser->household_id) {
+
+            $displacedHousehold = DisplacedHousehold::where('household_id', 
+                $energyUser->household_id)->first();
+            if($request->community_id) {
+
+                $community = Community::findOrFail($request->community_id);
+                $displacedHousehold->new_community_id = $request->community_id;
+                $displacedHousehold->sub_region_id = $community->sub_region_id;
+            }
+            if($request->energy_system_id) $displacedHousehold->new_energy_system_id = $request->energy_system_id;
+            if($request->meter_number) $displacedHousehold->new_meter_number = $request->meter_number;
+            $displacedHousehold->displaced_household_status_id = 4;
+            $displacedHousehold->system_retrieved = "Yes";
+            $displacedHousehold->save();
+        }
 
         $energyUser->meter_number = $request->meter_number;
         $energyUser->daily_limit = $request->daily_limit;

@@ -12,11 +12,17 @@ class DisplacedHousehold extends Model
     protected $fillable = ['old_community_id', 'household_id', 'new_community_id',
         'old_energy_system_id', 'new_energy_system_id'];
 
+    public function DisplacedHouseholdStatus()
+    {
+        
+        return $this->belongsTo(DisplacedHouseholdStatus::class, 'displaced_household_status_id', 'id');
+    }
+
     public function OldCommunity()
     {
         
         return $this->belongsTo(Community::class, 'old_community_id', 'id');
-    }
+    } 
 
     public function NewCommunity()
     {

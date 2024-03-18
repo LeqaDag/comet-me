@@ -199,7 +199,7 @@
             method: 'GET',
             data: {id: id},
             success: function (data) {
-
+ 
                 $('#issueId').val(data.id);
                 $('#issueEnglishName').val(data.english_name);
                 $('#issueArabicName').val(data.arabic_name);

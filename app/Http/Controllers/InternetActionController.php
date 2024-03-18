@@ -136,7 +136,7 @@ class InternetActionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function deleteInternetAction(Request $request)
+    public function deleteInternetMainAction(Request $request)
     {
         $id = $request->id;
 
@@ -144,7 +144,7 @@ class InternetActionController extends Controller
 
         if($internetAction) {
 
-            $internetAction->delete();
+            $internetAction->delete(); 
 
             $response['success'] = 1;
             $response['msg'] = 'Internet Action Deleted successfully'; 

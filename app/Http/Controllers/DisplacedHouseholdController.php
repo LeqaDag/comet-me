@@ -17,6 +17,7 @@ use App\Models\Household;
 use App\Models\HouseholdMeter;
 use App\Models\HouseholdStatus;
 use App\Models\DisplacedHousehold;
+use App\Models\DisplacedHouseholdStatus;
 use App\Models\EnergySystemType;
 use App\Models\EnergySystem;
 use App\Models\SubRegion;
@@ -35,16 +36,27 @@ class DisplacedHouseholdController extends Controller
      */
     public function index(Request $request)
     {	
-        $displacedHouseholds = DisplacedHousehold::where('old_community_id', 182)
+        $displacedHouseholds = DisplacedHousehold::where('is_archived', 0)
+            ->where('old_community_id', 87)
             ->get();
 
         foreach($displacedHouseholds as $displacedHousehold) {
 
             //$household = Household::where("english_name", $displacedHousehold->household_name)->first();
-            $displacedHousehold->old_energy_system_id = 99;
+            //$displacedHousehold->displaced_household_status_id = 1;
+
+            $allEnergyMeter = AllEnergyMeter::where('household_id', $displacedHousehold->household_id)->first();
+            if($allEnergyMeter) {
+
+                $displacedHousehold->new_energy_system_id =  $allEnergyMeter->energy_system_id;
+                $displacedHousehold->new_meter_number =  $allEnergyMeter->meter_number;
+                $displacedHousehold->displaced_household_status_id = 4;
+            }
             $displacedHousehold->save();
             
         }
+
+
 
         $oldCommunityFilter = $request->input('filter');
         $newCommunityFilter = $request->input('second_filter');
@@ -129,6 +141,7 @@ class DisplacedHouseholdController extends Controller
             $donors = Donor::where('is_archived', 0)->get();
             $householdStatuses = HouseholdStatus::where('is_archived', 0)->get();
             $subRegions = SubRegion::where('is_archived', 0)->get();
+            $displacedStatuses = DisplacedHouseholdStatus::all();
 
             $dataHouseholdsByOldCommunity = DB::table('displaced_households')
                 ->join('communities', 'displaced_households.old_community_id', 'communities.id')
@@ -146,7 +159,7 @@ class DisplacedHouseholdController extends Controller
             }
 
             return view('employee.household.displaced.index', compact('communities', 
-                'energySystemTypes', 'subRegions'))
+                'energySystemTypes', 'subRegions', 'displacedStatuses'))
                 ->with('oldCommunityHouseholdsData', json_encode($arrayHouseholdsByOldCommunity));
 
         } else {
@@ -167,7 +180,7 @@ class DisplacedHouseholdController extends Controller
 
         $oldCommunity = Community::findOrFail($request->old_community_id);
 
-        if($oldCommunity) {
+        if($oldCommunity) { 
 
             $oldCommunity->community_status_id = 5;
             $oldCommunity->save();
@@ -256,6 +269,8 @@ class DisplacedHouseholdController extends Controller
                     $displacedHousehold->displacement_date = $request->displacement_date;
                     $displacedHousehold->system_retrieved = $request->system_retrieved;
                     $displacedHousehold->notes = $request->notes;
+                    if($request->displaced_household_status_id) 
+                    $displacedHousehold->displaced_household_status_id = $request->displaced_household_status_id;
                     $displacedHousehold->save();
                 }
             } else {
@@ -334,6 +349,8 @@ class DisplacedHouseholdController extends Controller
                     $displacedHousehold->displacement_date = $request->displacement_date;
                     $displacedHousehold->system_retrieved = $request->system_retrieved;
                     $displacedHousehold->notes = $request->notes;
+                    if($request->displaced_household_status_id) 
+                    $displacedHousehold->displaced_household_status_id = $request->displaced_household_status_id;
                     $displacedHousehold->save();
                 }
             }
@@ -361,7 +378,7 @@ class DisplacedHouseholdController extends Controller
             ->select("households.english_name")
             ->get();
         }
-        
+
         return view('employee.household.displaced.show', compact('displacedHousehold', 
             'sharedHouseholds'));
     }
@@ -394,9 +411,10 @@ class DisplacedHouseholdController extends Controller
         $subRegions = SubRegion::where('is_archived', 0)->get();
         $displacedHousehold = DisplacedHousehold::findOrFail($id);
         $energySystems = EnergySystem::where('is_archived', 0)->get();
+        $displacedStatuses = DisplacedHouseholdStatus::all();
 
         return view('employee.household.displaced.edit', compact('communities', 'subRegions',
-            'displacedHousehold', 'energySystems'));
+            'displacedHousehold', 'energySystems', 'displacedStatuses'));
     }
 
       /**
@@ -471,6 +489,10 @@ class DisplacedHouseholdController extends Controller
         if($request->displacement_date) $displacedHousehold->displacement_date = $request->displacement_date;
         if($request->system_retrieved) $displacedHousehold->system_retrieved = $request->system_retrieved;
         if($request->notes) $displacedHousehold->notes = $request->notes;
+        if($request->displaced_household_status_id) {
+
+            $displacedHousehold->displaced_household_status_id = $request->displaced_household_status_id;
+        }
         $displacedHousehold->save();
 
         return redirect('/displaced-household')->with('message', 'Displaced Household Updated Successfully!');

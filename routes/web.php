@@ -416,7 +416,7 @@ Route::resource('internet-action', App\Http\Controllers\InternetActionController
 Route::get('/delete-internet-issue', [App\Http\Controllers\InternetIssueController::class, 'deleteInternetIssue'])->name('deleteInternetIssue');
 Route::post('internet-issue-export', [App\Http\Controllers\InternetIssueController::class, 'export'])->name('internet-issue.export');
 Route::post('internet-action-export', [App\Http\Controllers\InternetActionController::class, 'export'])->name('internet-action.export');
-Route::get('/delete-internet-action', [App\Http\Controllers\InternetActionController::class, 'deleteInternetAction'])->name('deleteInternetAction');
+Route::get('/delete-internet-action', [App\Http\Controllers\InternetActionController::class, 'deleteInternetMainAction'])->name('deleteInternetMainAction');
 Route::get('/internet-action/get/{id}', [App\Http\Controllers\InternetActionController::class, 'getInternetAction']);
 Route::get('/internet-issue/get/{id}', [App\Http\Controllers\InternetIssueController::class, 'getInternetIssue']);
 
@@ -426,3 +426,14 @@ Route::get('internet-maintenance/get_actions/{issue_id}', [App\Http\Controllers\
 Route::get('/delete-internet-maintenance', [App\Http\Controllers\InternetMaintenanceCallController::class, 'deleteInternetMaintenance'])->name('deleteInternetMaintenance');
 Route::get('/delete-internet-maintenance-user', [App\Http\Controllers\InternetMaintenanceCallController::class, 'deletePerformedInternetUser'])->name('deletePerformedInternetUser');
 Route::get('/delete-internet-maintenance-action', [App\Http\Controllers\InternetMaintenanceCallController::class, 'deleteInternetAction'])->name('deleteInternetAction');
+
+Route::resource('energy-issue', App\Http\Controllers\EnergyIssueController::class);
+Route::post('energy-issue-export', [App\Http\Controllers\EnergyIssueController::class, 'export'])->name('energy-issue.export');
+Route::get('/delete-energy-issue', [App\Http\Controllers\EnergyIssueController::class, 'deleteEnergyIssue'])->name('deleteEnergyIssue');
+Route::get('/energy-issue/get/{id}', [App\Http\Controllers\EnergyIssueController::class, 'getEnergyIssue']);
+
+
+Route::resource('energy-action', App\Http\Controllers\EnergyActionController::class);
+Route::post('energy-action-export', [App\Http\Controllers\EnergyActionController::class, 'export'])->name('energy-action.export');
+Route::get('/delete-energy-action', [App\Http\Controllers\EnergyActionController::class, 'deleteEnergyMainAction'])->name('deleteEnergyMainAction');
+Route::get('/energy-action/get/{id}', [App\Http\Controllers\EnergyActionController::class, 'getEnergyIssue']);

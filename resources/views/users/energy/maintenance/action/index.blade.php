@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'internet actions')
+@section('title', 'energy actions')
 
 @include('layouts.all')
 
@@ -8,14 +8,14 @@
 
 <p>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
-        data-target="#collapseInternetActionsExport" aria-expanded="false" 
-        aria-controls="collapseInternetActionsExport">
+        data-target="#collapseEnergyActionsExport" aria-expanded="false" 
+        aria-controls="collapseEnergyActionsExport">
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button>
 </p> 
 
-<div class="collapse multi-collapse mb-4" id="collapseInternetActionsExport">
+<div class="collapse multi-collapse mb-4" id="collapseEnergyActionsExport">
     <div class="container mb-4">
         <div class="row">
             <div class="col-md-12">
@@ -24,13 +24,13 @@
                         <div class="row">
                             <div class="col-xl-10 col-lg-10 col-md-10">
                                 <h5>
-                                Export Internet Actions Report
+                                Export Energy Actions Report
                                     <i class='fa-solid fa-file-excel text-info'></i>
                                 </h5>
                             </div>
                             <div class="col-xl-2 col-lg-2 col-md-2">
                                 <fieldset class="form-group">
-                                    <button class="" id="clearInternetActionFiltersButton">
+                                    <button class="" id="clearEnergyActionFiltersButton">
                                     <i class='fa-solid fa-eraser'></i>
                                         Clear Filters
                                     </button>
@@ -39,18 +39,18 @@
                         </div>
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
-                        action="{{ route('internet-action.export') }}">
+                        action="{{ route('energy-action.export') }}">
                         @csrf
                         <div class="card-body"> 
                             <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <select name="internet_issue_id" class="selectpicker form-control"
+                                        <select name="energy_maintenance_issue_id" class="selectpicker form-control"
                                             data-live-search="true">
                                             <option disabled selected>Search Issue</option>
-                                            @foreach($internetIssues as $internetIssue)
-                                                <option value="{{$internetIssue->id}}">
-                                                    {{$internetIssue->english_name}}
+                                            @foreach($energyIssues as $energyIssue)
+                                                <option value="{{$energyIssue->id}}">
+                                                    {{$energyIssue->english_name}}
                                                 </option>
                                             @endforeach
                                         </select> 
@@ -58,12 +58,12 @@
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <select name="internet_issue_type_id" class="selectpicker form-control"
+                                        <select name="energy_maintenance_issue_type_id" class="selectpicker form-control"
                                             data-live-search="true">
                                             <option disabled selected>Search Issue Type</option>
-                                            @foreach($internetIssueTypes as $internetIssueType)
-                                                <option value="{{$internetIssueType->id}}">
-                                                    {{$internetIssueType->type}}
+                                            @foreach($energyIssueTypes as $energyIssueType)
+                                                <option value="{{$energyIssueType->id}}">
+                                                    {{$energyIssueType->name}}
                                                 </option>
                                             @endforeach
                                         </select> 
@@ -87,7 +87,7 @@
 </div> 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Internet Issues 
+  <span class="text-muted fw-light">All </span> Energy Actions 
 </h4>
  
 @if(session()->has('message'))
@@ -98,27 +98,63 @@
     </div>
 @endif
 
-@include('users.internet.maintenance.action.edit')
-
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Issue</label>
+                        <select class="selectpicker form-control" 
+                            data-live-search="true" id="filterByIssue">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($energyIssues as $energyIssue)
+                                <option value="{{$energyIssue->id}}">{{$energyIssue->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Issue Type</label>
+                        <select class="selectpicker form-control" 
+                            data-live-search="true" id="filterByIssueType">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($energyIssueTypes as $energyIssueType)
+                                <option value="{{$energyIssueType->id}}">{{$energyIssueType->name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
         <div class="card-body">
             <div class="card-header">
 
                 @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                    Auth::guard('user')->user()->user_type_id == 10 ||
-                    Auth::guard('user')->user()->user_type_id == 6 )
+                    Auth::guard('user')->user()->user_type_id == 7 ||
+                    Auth::guard('user')->user()->user_type_id == 4 )
                     <div style="margin-top:18px">
                         <button type="button" class="btn btn-success" 
-                            data-bs-toggle="modal" data-bs-target="#createActionInternet">
-                            Create New Internet Action	
+                            data-bs-toggle="modal" data-bs-target="#createActionEnergy">
+                            Create New Energy Action	
                         </button>
-                        @include('users.internet.maintenance.action.create')
+                        @include('users.energy.maintenance.action.create')
                     </div>
                 @endif
             </div>
 
-            <table id="actionInternetTable" class="table table-striped data-table-internet-action my-2">
+            <table id="actionEnergyTable" class="table table-striped data-table-energy-action my-2">
                 <thead>
                     <tr>
                         <th class="text-center">English Name</th>
@@ -136,29 +172,57 @@
 </div> 
 
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-internet-action').DataTable({
+    var table;
+    function DataTableContent() {
+
+        table = $('.data-table-energy-action').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{route('internet-action.index')}}",
+                url: "{{route('energy-action.index')}}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.issue_filter = $('#filterByIssue').val();
+                    d.issue_type_filter = $('#filterByIssueType').val();
                 }
             },
             columns: [
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'issue', name: 'issue'},
-                {data: 'type', name: 'type'},
+                {data: 'name', name: 'name'},
                 {data: 'action'},
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+        
+        $('#filterByIssue').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByIssueType').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#filterByInstallationDate').val(' ');
+            if ($.fn.DataTable.isDataTable('.data-table-energy-action')) {
+                $('.data-table-energy-action').DataTable().destroy();
+            }
+            DataTableContent();
         });
     });
 
     // Delete record
-    $('#actionInternetTable').on('click', '.deleteInternetAction',function() {
+    $('#actionEnergyTable').on('click', '.deleteEnergyAction',function() {
         var id = $(this).data('id');
 
         Swal.fire({ 
@@ -170,7 +234,7 @@
 
             if(result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('deleteInternetMainAction') }}",
+                    url: "{{ route('deleteEnergyMainAction') }}",
                     type: 'get',
                     data: {id: id},
                     success: function(response) {
@@ -183,7 +247,7 @@
                                 showCancelButton: false,
                                 confirmButtonText: 'Okay!'
                             }).then((result) => {
-                                $('#actionInternetTable').DataTable().draw();
+                                $('#actionEnergyTable').DataTable().draw();
                             });
                         } else {
 
@@ -199,38 +263,20 @@
     });
 
     // Clear Filters for Export
-    $('#clearInternetActionFiltersButton').on('click', function() {
+    $('#clearEnergyActionFiltersButton').on('click', function() {
 
         $('.selectpicker').prop('selectedIndex', 0);
         $('.selectpicker').selectpicker('refresh');
     });
 
     // View update
-    $('#actionInternetTable').on('click', '.updateInternetAction',function() {
+    $('#actionEnergyTable').on('click', '.updateEnergyAction',function() {
         var id = $(this).data('id');
 
-        $.ajax({
-            url: '/internet-action/get/' + id,
-            method: 'GET',
-            data: {id: id},
-            success: function (data) {
-                
-                $('#actionId').val(data.id);
-                $('#actionEnglishName').val(data.english_name);
-                $('#actionArabicName').val(data.arabic_name);
-                $('#actionNotes').val(data.notes);
-                
-                $('#updateInternetActionModal').modal('show');
-                
-                var form = $('#updateActionForm');
-
-                form.attr('action', form.attr('action').replace('__ID__', id));
-
-            },
-            error: function (error) {
-                console.log('Error fetching record details: ', error);
-            }
-        });
+        var url = window.location.href; 
+        
+        url = url +'/'+ id +'/edit';
+        window.open(url, "_self"); 
     });
 
 </script>

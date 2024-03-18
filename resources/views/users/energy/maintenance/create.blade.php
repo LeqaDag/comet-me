@@ -103,8 +103,8 @@ label, table {
                                     
                                 </select>
 
-                                @if ($errors->has('maintenance_electricity_action_id'))
-                                    <span class="error">{{ $errors->first('maintenance_electricity_action_id') }}</span>
+                                @if ($errors->has('energy_maintenance_action_id'))
+                                    <span class="error">{{ $errors->first('energy_maintenance_action_id') }}</span>
                                 @endif
                             </fieldset>
                         </div>
@@ -112,19 +112,19 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6" id="maintenanceElectricityActionSystem">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
-                                <select name="maintenance_electricity_action_id[]" 
+                                <select name="energy_maintenance_action_id[]" 
                                     class="selectpicker form-control" data-live-search="true"
                                     id="actionSystemSelect" multiple>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($systemActions as $systemAction) 
                                         <option value="{{$systemAction->id}}">
-                                            {{$systemAction->maintenance_action_electricity}}
+                                            {{$systemAction->arabic_name}}
                                         </option>
                                     @endforeach
                                 </select>
 
-                                @if ($errors->has('maintenance_electricity_action_id'))
-                                    <span class="error">{{ $errors->first('maintenance_electricity_action_id') }}</span>
+                                @if ($errors->has('energy_maintenance_action_id'))
+                                    <span class="error">{{ $errors->first('energy_maintenance_action_id') }}</span>
                                 @endif
                             </fieldset>
                         </div>
@@ -133,18 +133,18 @@ label, table {
                             style="display:none">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Electricity Action</label>
-                                <select name="maintenance_electricity_action_id[]" multiple
+                                <select name="energy_maintenance_action_id[]" multiple
                                     class="selectpicker form-control" data-live-search="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($userActions as $userAction) 
                                         <option value="{{$userAction->id}}">
-                                            {{$userAction->maintenance_action_electricity}}
+                                            {{$userAction->arabic_name}}
                                         </option>
                                     @endforeach
                                 </select>
 
-                                @if ($errors->has('maintenance_electricity_action_id'))
-                                    <span class="error">{{ $errors->first('maintenance_electricity_action_id') }}</span>
+                                @if ($errors->has('energy_maintenance_action_id'))
+                                    <span class="error">{{ $errors->first('energy_maintenance_action_id') }}</span>
                                 @endif
                             </fieldset>
                         </div>

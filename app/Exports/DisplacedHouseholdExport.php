@@ -12,7 +12,7 @@ use DB;
 
 class DisplacedHouseholdExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
 {
-
+ 
     protected $request;
 
     function __construct($request) {
@@ -35,9 +35,12 @@ class DisplacedHouseholdExport implements FromCollection, WithHeadings, WithTitl
                 'displaced_households.old_energy_system_id')
             ->leftJoin('energy_systems as new_energy_systems', 'new_energy_systems.id', 
                 'displaced_households.new_energy_system_id')
+            ->leftJoin('displaced_household_statuses', 'displaced_household_statuses.id', 
+                'displaced_households.displaced_household_status_id')
             ->leftJoin('sub_regions', 'displaced_households.sub_region_id', 'sub_regions.id')
             ->where('displaced_households.is_archived', 0)
             ->select('households.english_name as english_name',  
+                'displaced_household_statuses.name',
                 'old_communities.english_name as old_community_name',
                 'new_communities.english_name as new_community_name',
                 'displaced_households.old_meter_number',
@@ -79,7 +82,7 @@ class DisplacedHouseholdExport implements FromCollection, WithHeadings, WithTitl
      */
     public function headings(): array
     {
-        return ["Household", "Old Community", "New Community", "Old Meter Number", 
+        return ["Household", "Status", "Old Community", "New Community", "Old Meter Number", 
             "New Meter Number", "Old Energy System", "New Energy System", "Area", 
             "New Place", "Date of displacement", "Notes", "System Retrieved"];
     }

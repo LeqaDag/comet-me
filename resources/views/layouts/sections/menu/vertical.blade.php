@@ -298,11 +298,30 @@
             <div>Maintenance and Monitoring</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item" id="energy-maintenance">
-                <a href="{{url('energy-maintenance')}}" class="menu-link" >
-                    <i class=""></i>
+            <li class="menu-item" id="energy-maintenance-tab">
+                <a class="menu-link menu-toggle">
                     <div>Electricity Maintenance</div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="energy-maintenance">
+                        <a href="{{url('energy-maintenance')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>All Maintenance</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="energy-issue">
+                        <a href="{{url('energy-issue')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Issues</div>
+                        </a>
+                    </li> 
+                    <li class="menu-item" id="energy-action">
+                        <a href="{{url('energy-action')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Actions</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="menu-item" id="refrigerator-maintenance">
                 <a href="{{url('refrigerator-maintenance')}}" class="menu-link" >
@@ -692,6 +711,20 @@
 
         $("#energy-maintenance").addClass("active");
         $("#maintenance").addClass("open");
+        $("#energy-maintenance-tab").addClass("active");
+        $("#energy-maintenance-tab").addClass("open");
+    }   else if(last_part == "energy-issue") {
+
+        $("#energy-issue").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#energy-maintenance-tab").addClass("active");
+        $("#energy-maintenance-tab").addClass("open");
+    }   else if(last_part == "energy-action") {
+
+        $("#energy-action").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#energy-maintenance-tab").addClass("active");
+        $("#energy-maintenance-tab").addClass("open");
     } else if(last_part == "refrigerator-maintenance") {
 
         $("#refrigerator-maintenance").addClass("active");

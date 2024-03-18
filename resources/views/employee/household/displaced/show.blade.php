@@ -143,6 +143,14 @@
                                     {{$displacedHousehold->system_retrieved}}
                                 </span>
                             </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Displaced Status</p>
+                                <span class="text-muted">
+                                    @if($displacedHousehold->displaced_household_status_id)
+                                    {{$displacedHousehold->DisplacedHouseholdStatus->name}}
+                                    @endif
+                                </span>
+                            </div>
                             <div>
                                 <p class="mb-0">Shared Households</p>
                                 @if(count($sharedHouseholds) > 0)

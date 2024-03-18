@@ -369,7 +369,7 @@
                 $("#maintenanceAction").html(" ");
                 for (var i = 0; i < response['energyActions'].length; i++) {
                     $("#maintenanceAction").append(
-                        '<ul><li>'+ response['energyActions'][i].maintenance_action_electricity +'</li> </ul>');
+                        '<ul><li>'+ response['energyActions'][i].arabic_name +'</li> </ul>');
                 }
 
                 $("#maintenancePerformedBy").html(" ");

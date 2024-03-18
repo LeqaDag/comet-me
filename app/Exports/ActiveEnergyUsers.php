@@ -48,6 +48,8 @@ class ActiveEnergyUsers implements FromCollection, WithHeadings, WithTitle, Shou
             ->select([
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
                     as exported_value'),
+                DB::raw('IFNULL(households.arabic_name, public_structures.arabic_name) 
+                    as exported_value_arabic'),
                 'all_energy_meters.is_main',
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region', 
@@ -90,11 +92,11 @@ class ActiveEnergyUsers implements FromCollection, WithHeadings, WithTitle, Shou
      */
     public function headings(): array
     {
-        return ["Energy Holder (User/Public)", "Main Holder", "Community", 
-            "Region", "Sub Region", "Meter Case", "Energy System", "Energy System Type", 
-            "Connected Ground", "Number of male", "Number of Female", "Number of adults", 
-            "Number of children", "Phone number", "Meter Number", "Daily Limit", 
-            "Installation Date", "Donors"];
+        return ["Energy Holder (User/Public)", "Energy Holder (User/Public) Arabic",
+            "Main Holder", "Community", "Region", "Sub Region", "Meter Case", "Energy System", 
+            "Energy System Type", "Connected Ground", "Number of male", "Number of Female", 
+            "Number of adults",  "Number of children", "Phone number", "Meter Number", 
+            "Daily Limit", "Installation Date", "Donors"];
     }
 
     public function title(): string

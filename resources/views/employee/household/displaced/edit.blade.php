@@ -84,7 +84,11 @@ label, table {
                             <select class="selectpicker form-control" 
                                 data-live-search="true" 
                                 name="new_energy_system_id" required>
-                                <option disabled selected>Choose one...</option>
+                                @if($displacedHousehold->new_energy_system_id)
+                                    <option disabled selected>
+                                        {{$displacedHousehold->NewEnergySystem->name}}
+                                    </option>
+                                @endif
                                 @foreach($energySystems as $energySystem)
                                 <option value="{{$energySystem->id}}">
                                     {{$energySystem->name}}
@@ -169,6 +173,25 @@ label, table {
                                 <option value="No">No</option>
                                 <option value="Destroyed">Destroyed</option>
                             @endif
+                            </select>
+                        </fieldset>
+                    </div> 
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Household Status</label>
+                            <select class="selectpicker form-control" 
+                                data-live-search="true" 
+                                name="displaced_household_status_id" required>
+                                @if($displacedHousehold->displaced_household_status_id)
+                                    <option disabled selected>
+                                        {{$displacedHousehold->DisplacedHouseholdStatus->name}}
+                                    </option>
+                                @endif
+                                @foreach($displacedStatuses as $displacedStatus)
+                                <option value="{{$displacedStatus->id}}">
+                                    {{$displacedStatus->name}}
+                                </option>
+                                @endforeach
                             </select>
                         </fieldset>
                     </div> 

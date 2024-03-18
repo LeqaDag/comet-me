@@ -113,6 +113,21 @@ label, table {
                                 </select>
                             </fieldset>
                         </div> 
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Household Status</label>
+                                <select class="selectpicker form-control" 
+                                    data-live-search="true" 
+                                    name="displaced_household_status_id" required>
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($displacedStatuses as $displacedStatus)
+                                    <option value="{{$displacedStatus->id}}">
+                                        {{$displacedStatus->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div> 
                     </div>
 
                     <div class="row">

@@ -41,9 +41,8 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
                'maintenance_types.id')
             ->join('electricity_maintenance_call_actions', 'electricity_maintenance_calls.id', 
                 'electricity_maintenance_call_actions.electricity_maintenance_call_id')
-            ->leftJoin('maintenance_electricity_actions', 
-                'electricity_maintenance_call_actions.maintenance_electricity_action_id', 
-                'maintenance_electricity_actions.id')
+            ->leftJoin('energy_maintenance_actions', 'energy_maintenance_actions.id',
+                'electricity_maintenance_call_actions.energy_maintenance_action_id')
             ->leftJoin('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
                'maintenance_statuses.id')
             ->leftJoin('electricity_maintenance_call_users', 'electricity_maintenance_calls.id', 
@@ -58,8 +57,8 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'recipients.name as recipient_name',
                 'maintenance_statuses.name', 'maintenance_types.type',
-                DB::raw('group_concat(DISTINCT maintenance_electricity_actions.maintenance_action_electricity)'),
-                DB::raw('group_concat(DISTINCT maintenance_electricity_actions.maintenance_action_electricity_english)'),
+                DB::raw('group_concat(DISTINCT energy_maintenance_actions.english_name)'),
+                DB::raw('group_concat(DISTINCT energy_maintenance_actions.arabic_name)'),
                 'date_of_call', 'date_completed', 
                 DB::raw('group_concat(DISTINCT performed_users.name)'),
                 'electricity_maintenance_calls.notes'
