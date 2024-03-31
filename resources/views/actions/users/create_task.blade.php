@@ -13,7 +13,7 @@
 
     .control-label {
         font-size:14px;
-    }
+    } 
 </style>
 
 <div id="createUserActionItem" class="modal fade" tabindex="-1" aria-hidden="true">
@@ -43,7 +43,7 @@
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Status</label>
                                 <select name="action_status_id" class="selectpicker form-control" 
-                                    data-live-search="true" id="action_status_id" required>
+                                    data-live-search="true"  id="action_status_id" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($actionStatuses as $actionStatus)
                                     <option value="{{$actionStatus->id}}">
@@ -52,6 +52,7 @@
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="action_status_id_error" style="color: red;"></div>
                         </div>
                     </div>
 
@@ -69,11 +70,12 @@
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="action_priority_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Start Date</label>
-                                <input type="date" name="date" id="startDate" class="form-control">
+                                <input type="date" name="date" id="startDate" class="form-control" required>
                             </fieldset>
                         </div>
                     </div>
@@ -118,6 +120,21 @@
             var startDate = $("#startDate").val();
             var endDate = $("#endDate").val();
             var notes = $("#notes").val();
+
+            if (statusId == null) {
+
+                $('#action_status_id_error').html('Please select a status!'); 
+                return false;
+            }
+            if (priorityId == null) {
+
+                $('#action_priority_id_error').html('Please select a Priority!'); 
+                return false;
+            }
+
+            $(this).addClass('was-validated');  
+            $('#action_status_id_error').empty();
+            $('#action_priority_id_error').empty();
 
             $.ajax({
                 type: 'POST',

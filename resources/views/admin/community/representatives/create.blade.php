@@ -25,15 +25,16 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('representative')}}">
+                <form method="POST" enctype='multipart/form-data' id="representativeForm"
+                    action="{{url('representative')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select name="community_id" id="communityChangesRep" 
-                                    class="selectpicker form-control"
-                                    data-live-search="true" >
+                                    class="selectpicker form-control" data-live-search="true" 
+                                    required data-parsley-required="true"> 
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -42,16 +43,19 @@
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div>
 
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Household</label>
-                                <select name="household_id" id="selectedHouseholdRep" 
-                                    class="form-control" disabled>
+                                <select name="household_id" id="selectedHouseholdRepor" 
+                                    class="selectpicker form-control" required disabled
+                                    data-live-search="true" data-parsley-required="true">
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
+                            <div id="household_id_error" style="color: red;"></div>
                         </div>
 
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
@@ -67,13 +71,16 @@
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Role</label>
-                                <select name="community_role_id" class="form-control">
+                                <select name="community_role_id" data-live-search="true" 
+                                    class="selectpicker form-control" required 
+                                    data-parsley-required="true" id="community_role_id">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communityRoles as $communityRoles)
                                     <option value="{{$communityRoles->id}}">{{$communityRoles->role}}</option>
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_role_id_error" style="color: red;"></div>
                         </div>
                     </div>
                 </div>
@@ -97,13 +104,61 @@
             method: 'GET',
             success: function(data) {
                 
-                $('#selectedHouseholdRep').prop('disabled', false);
-                $('#selectedHouseholdRep').html(data.html);
+                $('#selectedHouseholdRepor').prop('disabled', false);
+
+                var select = $('#selectedHouseholdRepor'); 
+
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
+        }); 
+    });
+
+    $(document).ready(function () {
+
+        $('#representativeForm').on('submit', function (event) {
+
+            var communityValue = $('#communityChangesRep').val();
+            var roleValue = $('#community_role_id').val();
+            var householdValue = $('#selectedHouseholdRepor').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+            
+            if (householdValue == null) {
+
+                $('#household_id_error').html('Please select a household!'); 
+                return false;
+            } else if (householdValue != null){
+
+                $('#household_id_error').empty();
+            }
+
+            if (roleValue == null) {
+
+                $('#community_role_id_error').html('Please select a role!'); 
+                return false;
+            } else if (roleValue != null) {
+
+                $('#community_role_id_error').empty();
+            }
+            
+            $(this).addClass('was-validated');  
+            $('#community_id_error').empty();
+            $('#community_role_id_error').empty();
+            $('#household_id_error').empty();
+
+            this.submit();
         });
     });
 
-    $(document).on('change', '#selectedHouseholdRep', function () {
+    $(document).on('change', '#selectedHouseholdRepor', function () {
         household_id = $(this).val();
    
         $.ajax({

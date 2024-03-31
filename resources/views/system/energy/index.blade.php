@@ -231,7 +231,7 @@ label, table {
                         <th class="text-center">Energy Name</th>
                         <th class="text-center">Type</th>
                         <th class="text-center">Installtion Year</th>
-                        <th class="text-center">Rated Ssolar Power (kW)</th>
+                        <th class="text-center">Rated Solar Power (kW)</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>

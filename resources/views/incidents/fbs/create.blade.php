@@ -20,7 +20,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' 
+                <form method="POST" enctype='multipart/form-data' id="fbsIncidentForm"
                     action="{{url('fbs-incident')}}">
                     @csrf
 
@@ -38,14 +38,16 @@
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy User/ Public</label>
-                                <select id="chooseUserOrPublic" class="form-control" 
-                                    name="public_user" disabled>
+                                <select id="chooseUserOrPublic" class="selectpicker form-control" 
+                                    name="public_user" data-live-search="true" disabled>
                                 </select>
                             </fieldset>
+                            <div id="public_user_error" style="color: red;"></div>
                         </div>
                     </div>
 
@@ -53,16 +55,18 @@
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy Holder</label>
-                                <select name="energy_user_id" class="form-control" 
+                                <select name="energy_user_id" class="selectpicker form-control" 
                                     id="energyUserSelectedFbs" disabled>
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
+                            <div id="energy_user_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Incident Type</label>
-                                <select name="incident_id" class="form-control" required>
+                                <select name="incident_id" class="selectpicker form-control" 
+                                    required id="incidentFbsType">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($incidents as $incident)
                                     <option value="{{$incident->id}}">
@@ -71,6 +75,7 @@
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="incident_id_error" style="color: red;"></div>
                         </div>
                     </div>
                   
@@ -78,7 +83,7 @@
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Incident</label>
-                                <input type="date" name="date" class="form-control">
+                                <input type="date" name="date" class="form-control" required>
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -95,7 +100,7 @@
                                 <label class='col-md-12 control-label'>Incident FBS Status</label>
                                 <select name="incident_status_small_infrastructure_id[]" 
                                     class="selectpicker form-control" data-live-search="true"
-                                    multiple>
+                                    multiple id="incidentFbsStatus">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($fbsIncidents as $fbsIncident)
                                     <option value="{{$fbsIncident->id}}">
@@ -104,11 +109,12 @@
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="incident_status_small_infrastructure_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Equipment Damaged</label>
-                                <select name="incident_equipment_id[]" multiple
+                                <select name="incident_equipment_id[]" multiple id="equipmentDamaged"
                                     class="selectpicker form-control" data-live-search="true" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($incidentEquipments as $incidentEquipment)
@@ -118,6 +124,7 @@
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="incident_equipment_id_error" style="color: red;"></div>
                         </div>
                     </div>
                     <div class="row">
@@ -172,8 +179,8 @@ $(document).ready(function() {
         $('#energyUserSelectedFbs').empty();
         community_id = $(this).val();
         $('#chooseUserOrPublic').prop('disabled', false);
-        $('#chooseUserOrPublic').html(" ");
-        $('#chooseUserOrPublic').append('<option disabled selected>Choose one...</option><option value="user">User</option><option value="public">Public Structure</option>');
+        $('#chooseUserOrPublic').html('<option disabled selected>Choose one...</option><option value="user">User</option><option value="public">Public Structure</option>');
+        $('#chooseUserOrPublic').selectpicker('refresh');
         UserOrPublic(community_id);
     });
 
@@ -188,8 +195,10 @@ $(document).ready(function() {
                     url: "energy_user/get_by_community/" +  community_id,
                     method: 'GET',
                     success: function(data) {
-                        $('#energyUserSelectedFbs').prop('disabled', false);
-                        $('#energyUserSelectedFbs').html(data.html);
+                        var select = $('#energyUserSelectedFbs');
+                        select.prop('disabled', false); 
+                        select.html(data.html);
+                        select.selectpicker('refresh');
                     }
                 });
                 
@@ -199,13 +208,90 @@ $(document).ready(function() {
                     url: "energy_public/get_by_community/" + community_id,
                     method: 'GET',
                     success: function(data) {
-                        $('#energyUserSelectedFbs').prop('disabled', false);
-                        $('#energyUserSelectedFbs').html(data.html);
+                        var select = $('#energyUserSelectedFbs');
+                        select.prop('disabled', false); 
+                        select.html(data.html);
+                        select.selectpicker('refresh');
                     }
                 });
             }
         });
     }
-});
+
+    $('#fbsIncidentForm').on('submit', function (event) {
+
+        var communityValue = $('#fbsSelectedCommuntiy').val();
+        var userOrPublicValue = $('#chooseUserOrPublic').val();
+        var energyValue = $('#energyUserSelectedFbs').val();
+        var incidentTypeValue = $('#incidentFbsType').val();
+        var incidentStatusValue = $('#incidentFbsStatus').val();
+        var equipmentValue = $('#equipmentDamaged').val();
+
+        if (communityValue == null) {
+
+            $('#community_id_error').html('Please select a community!'); 
+            return false;
+        } else if (communityValue != null){
+
+            $('#community_id_error').empty();
+        }
+
+        if (userOrPublicValue == null) {
+
+            $('#public_user_error').html('Please select an option!'); 
+            return false;
+        } else if (userOrPublicValue != null){
+
+            $('#public_user_error').empty();
+        }
+
+        if (energyValue == null) {
+
+            $('#energy_user_id_error').html('Please select a holder!'); 
+            return false;
+        } else if (energyValue != null){
+
+            $('#energy_user_id_error').empty();
+        }
+
+        if (incidentTypeValue == null) {
+
+            $('#incident_id_error').html('Please select a type!'); 
+            return false;
+        } else if (incidentTypeValue != null){
+
+            $('#incident_id_error').empty();
+        }
+
+        if (!incidentStatusValue || incidentStatusValue.length === 0) {
+
+            $('#incident_status_small_infrastructure_id_error').html('Please select a status!'); 
+            return false;
+        } else {
+
+            $('#incident_status_small_infrastructure_id_error').empty();
+        }
+
+        if (!equipmentValue || equipmentValue.length === 0) {
+
+            $('#incident_equipment_id_error').html('Please select at least one equipment!');
+            return false;
+        } else {
+
+            $('#incident_equipment_id_error').empty();
+        }
+
+        $(this).addClass('was-validated');  
+        $('#energy_user_id_error').empty();  
+        $('#public_user_error').empty();
+        $('#community_id_error').empty();
+        $('#incident_id_error').empty();
+        $('#incident_status_small_infrastructure_id_error').empty();
+        $('#incident_equipment_id_error').empty();
+
+        this.submit();
+        });
+
+    });
 
 </script>

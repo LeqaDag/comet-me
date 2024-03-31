@@ -113,7 +113,7 @@ class WaterPublicStructureController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    { 
         $publicStructure = PublicStructure::findOrFail($request->public_structure_id);
 
         $h2oSharedPublicStructure = new H2oSharedPublicStructure();
@@ -172,10 +172,10 @@ class WaterPublicStructureController extends Controller
 
         if (!$request->community_id) {
 
-            $html = '<option value="">Choose One...</option>';
+            $html = '<option selected disabled>Choose One...</option>';
         } else {
 
-            $html = '<option selected>Choose One...</option>';
+            $html = '<option selected disabled>Choose One...</option>';
             $h2oPublics = DB::table('h2o_public_structures')
                 ->join('communities', 'h2o_public_structures.community_id', 'communities.id')
                 ->join('public_structures', 'h2o_public_structures.public_structure_id', 'public_structures.id')

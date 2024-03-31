@@ -179,17 +179,19 @@ class RefrigeratorMaintenanceCallController extends Controller
         ]);
 
         $maintenance = new RefrigeratorMaintenanceCall();
-        if($request->household_id) {
+        $maintenance->maintenance_status_id = $request->maintenance_status_id;
+        
+        if($request->public_user == "user") {
 
-            $maintenance->household_id = $request->household_id;
-            $household = Household::where("id", $request->household_id)->first();
+            $maintenance->household_id = $request->holder_id;
+            $household = Household::where("id", $request->holder_id)->first();
             $household->phone_number = $request->phone_number;
             $household->save();
         }
-        
-        if($request->public_structure_id) {
 
-            $maintenance->public_structure_id = $request->public_structure_id;
+        if($request->public_user == "public") {
+
+            $maintenance->public_structure_id = $request->holder_id;
         }
 
         $maintenance->community_id = $request->community_id[0];
@@ -369,7 +371,6 @@ class RefrigeratorMaintenanceCallController extends Controller
         $id = $request->id;
 
         $maintenance = RefrigeratorMaintenanceCall::find($id);
-        $maintenanceActions = RefrigeratorMaintenanceCallAction::where('', $householdId)->get();
 
         if($maintenance) {
 

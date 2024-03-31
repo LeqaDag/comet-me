@@ -82,22 +82,22 @@ class ImportEnergyMaintenance implements ToModel, WithHeadingRow
         // $meterVending->save();
         // end vending 
        
-        // payment report
-        $energyUser = new EnergyUser();
-        $energyUser->meter_number =  $row["meter_number"];
-        $energyUser->receipt_number =  $row["receipt_number"];
-        $energyUser->kwh =  $row["kwh"];
-        $energyUser->payment_date =  $row["payment_date"];
-        $energyUser->amount =  $row["amount"];
+        // payment report 
+        // $energyUser = new EnergyUser();
+        // $energyUser->meter_number =  $row["meter_number"];
+        // $energyUser->receipt_number =  $row["receipt_number"];
+        // $energyUser->kwh =  $row["kwh"];
+        // $energyUser->payment_date =  $row["payment_date"];
+        // $energyUser->amount =  $row["amount"];
 
-        $allEnergyMeter = AllEnergyMeter::where("meter_number", $row["meter_number"])->first();
+        // $allEnergyMeter = AllEnergyMeter::where("meter_number", $row["meter_number"])->first();
 
-        if($allEnergyMeter) {
+        // if($allEnergyMeter) {
 
-            $energyUser->all_energy_meter_id = $allEnergyMeter->id;
-            $energyUser->community_id = $allEnergyMeter->community_id;
-            $energyUser->save();
-        }
+        //     $energyUser->all_energy_meter_id = $allEnergyMeter->id;
+        //     $energyUser->community_id = $allEnergyMeter->community_id;
+        //     $energyUser->save();
+        // }
 
 
 

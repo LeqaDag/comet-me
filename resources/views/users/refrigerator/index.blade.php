@@ -123,7 +123,7 @@
                             @endforeach
                         </select> 
                     </fieldset>
-                </div>
+                </div> 
                 <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Filter By Public</label>
@@ -136,6 +136,13 @@
                             </option>
                             @endforeach
                         </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Meter Number</label>
+                        <input type="text" class="form-control" name="meter_number"
+                        id="filterByMeterNumber" placeholder="Enter Meter Number ...">
                     </fieldset>
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-3">
@@ -219,6 +226,7 @@
                     d.community_filter = $('#filterByCommunity').val();
                     d.public_filter = $('#filterByPublic').val();
                     d.date_filter = $('#filterByDateFrom').val();
+                    d.meter_filter = $('#filterByMeterNumber').val();
                 }
             },
             dom: 'Blfrtip',
@@ -265,12 +273,17 @@
             table.ajax.reload(); 
         });
 
+        $('#filterByMeterNumber').on('change', function() {
+            table.ajax.reload(); 
+        });
+
         // Clear Filter
         $('#clearFiltersButton').on('click', function() {
 
             $('.selectpicker').prop('selectedIndex', 0);
             $('.selectpicker').selectpicker('refresh');
             $('#filterByDateFrom').val(' ');
+            $('#filterByMeterNumber').val(' ');
             if ($.fn.DataTable.isDataTable('.data-table-refrigerators')) {
                 $('.data-table-refrigerators').DataTable().destroy();
             }

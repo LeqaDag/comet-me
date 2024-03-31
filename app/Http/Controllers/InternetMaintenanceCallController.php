@@ -43,7 +43,7 @@ class InternetMaintenanceCallController extends Controller
             $publicFilter = $request->input('public_filter');
             $dateFilter = $request->input('date_filter');
 
-            if ($request->ajax()) {
+            if ($request->ajax()) { 
 
                 $data = DB::table('internet_maintenance_calls')
                     ->join('internet_users', 'internet_maintenance_calls.internet_user_id', 
@@ -179,19 +179,19 @@ class InternetMaintenanceCallController extends Controller
 
         $maintenance = new InternetMaintenanceCall();
 
-        if($request->household_id) {
+        if($request->public_user == "user") {
 
-            $internetHolder = InternetUser::where("household_id", $request->household_id)->first();
-            $maintenance->internet_user_id = $internetHolder->id;
-        }
-        
-        if($request->public_structure_id) {
-
-            $internetHolder = InternetUser::where("public_structure_id", $request->public_structure_id)->first();
-            $maintenance->internet_user_id = $internetHolder->id;
+            $internetUser = InternetUser::where('household_id', $request->internet_user_id)->first();
+            $maintenance->internet_user_id = $internetUser->id;
         }
 
-        $maintenance->community_id = $request->community_id[0];
+        if($request->public_user == "public") {
+
+            $internetUser = InternetUser::where('public_structure_id', $request->internet_user_id)->first();
+            $maintenance->internet_user_id = $internetUser->id;
+        }
+
+        $maintenance->community_id = $request->community_id;
         $maintenance->date_of_call = $request->date_of_call;
         $maintenance->visit_date = $request->visit_date;
         if($request->date_completed) {

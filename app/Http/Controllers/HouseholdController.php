@@ -517,10 +517,10 @@ class HouseholdController extends Controller
 
         if (!$request->community_id) {
 
-            $html = '<option value="">Choose One...</option>';
+            $html = '<option selected disabled>Choose One...</option>';
         } else {
 
-            $html = '<option selected>Choose One...</option>';
+            $html = '<option selected disabled>Choose One...</option>';
             $households = Household::where('community_id', $request->community_id)
                 ->orderBy('english_name', 'ASC')
                 ->where('is_archived', 0)

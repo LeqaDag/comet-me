@@ -382,7 +382,7 @@ class CommunityController extends Controller
         $community->demolition = $request->demolition;
         $community->land_status = $request->land_status;
         $community->lawyer = $request->lawyer;
-        $community->energy_source = $request->energy_source; 
+        $community->energy_source = $request->energy_source;  
         $community->latitude = $request->latitude; 
         $community->longitude = $request->longitude;
         $community->notes = $request->notes;

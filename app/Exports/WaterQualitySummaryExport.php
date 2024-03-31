@@ -16,7 +16,7 @@ use DB;
 
 class WaterQualitySummaryExport implements FromCollection, WithHeadings, WithStyles, 
     ShouldAutoSize, WithEvents, WithCustomStartCell
-{
+{ 
     private $phAverage = 0, $fciAverage = 0, $ecAverage = 0, $phMax = 0, $phMin = 0, $fciMax = 0,
         $fciMin = 0, $ecMax = 0, $ecMin = 0, $phMode = 0, $fciMode = 0, $ecMode = 0;
         

@@ -22,7 +22,8 @@
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" action="{{url('energy-system')}}" enctype="multipart/form-data" >
+            <form method="POST" action="{{url('energy-system')}}" id="energySystemForm"
+                enctype="multipart/form-data" >
                 @csrf
                 <div class="row">
                     <h6>General Details</h6> 
@@ -32,23 +33,21 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Community</label>
                             <select class="selectpicker form-control" name="community_id" 
-                                data-live-search="true" 
+                                data-live-search="true" id="communitySelected"
                                 required>
                                 <option disabled selected>Choose one...</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->id}}">{{$community->english_name}}</option>
                                 @endforeach
                             </select>
-                            @if ($errors->has('community_id'))
-                                <span class="error">{{ $errors->first('community_id') }}</span>
-                            @endif
                         </fieldset>
+                        <div id="community_id_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Energy System Type</label>
                             <select name="energy_system_type_id" class="selectpicker form-control"
-                                data-live-search="true">
+                                data-live-search="true" id="energySystemTypeSelected">
                                 <option disabled selected>Choose one...</option>
                                 @foreach($energyTypes as $energyType)
                                     <option value="{{$energyType->id}}">
@@ -57,22 +56,23 @@
                                 @endforeach
                             </select>
                         </fieldset>
+                        <div id="energy_system_type_id_error" style="color: red;"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Name</label>
-                            <input type="text" name="name" 
+                            <input type="text" name="name" required
                             class="form-control">
                         </fieldset>
-                    </div>
+                    </div> 
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Installation Year</label>
-                            <input type="number" name="installation_year" 
+                            <input type="number" name="installation_year" required
                             class="form-control">
-                        </fieldset>
+                        </fieldset> 
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
@@ -135,6 +135,46 @@
                 </div>
 
                 <hr>
+                
+                <div class="row">
+                    <h6>battery Mounts</h6>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <table class="table table-bordered" id="addRemoveBatteryMount">
+                            <tr>
+                                <th>Battery Mount Models</th>
+                                <th>Units</th>
+                                <th>Options</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <select name="battery_mount_id[]" class="selectpicker form-control"
+                                        multiple data-live-search="true">
+                                        <option disabled selected>Choose one...</option>
+                                        @foreach($batteryMounts as $batteryMount)
+                                            <option value="{{$batteryMount->id}}">
+                                                {{$batteryMount->model}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="units[0][subject]" class="form-control"
+                                        data-id="0">
+                                </td>
+                                <td>
+                                    <button type="button" name="add" id="addRemoveBatteryMountButton" 
+                                        class="btn btn-outline-primary">
+                                        Add Battery Mount Units
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <hr>
 
                 <div class="row">
                     <h6>Solar Panels</h6> 
@@ -165,6 +205,45 @@
                                 </td>
                                 <td>
                                     <button type="button" name="add" id="addRemovePvButton" 
+                                        class="btn btn-outline-primary">
+                                        Add PV Units
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+
+                <div class="row">
+                    <h6>Solar Panel Mounts</h6> 
+                </div>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <table class="table table-bordered" id="addRemovePvMount">
+                            <tr>
+                                <th>PV Mount Models</th>
+                                <th>Units</th>
+                                <th>Options</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <select name="pv_mount_id[]" class="selectpicker form-control"
+                                        multiple data-live-search="true">
+                                        <option disabled selected>Choose one...</option>
+                                        @foreach($pvMounts as $pvMount)
+                                            <option value="{{$pvMount->id}}">
+                                                {{$pvMount->model}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="units[0][subject]" class="form-control"
+                                        data-id="0">
+                                </td>
+                                <td>
+                                    <button type="button" name="add" id="addRemovePvMountButton" 
                                         class="btn btn-outline-primary">
                                         Add PV Units
                                     </button>
@@ -703,8 +782,44 @@
 </div>
 <script>
 
+    $(document).ready(function() {
+
+        $('#energySystemForm').on('submit', function (event) {
+
+            var communityValue = $('#communitySelected').val();
+            var energyTypeValue = $('#energySystemTypeSelected').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null) {
+
+                $('#community_id_error').empty();
+            }
+
+            if (energyTypeValue == null) {
+
+                $('#energy_system_type_id_error').html('Please select a type!'); 
+                return false;
+            } else  if (energyTypeValue != null) {
+
+                $('#energy_system_type_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#energy_system_type_id_error').empty();
+            $('#community_id_error').empty();
+
+            this.submit();
+        });
+    });
+
+
     var battery_counter = 0;
+    var battery_mount_counter = 0;
     var pv_counter = 0;
+    var pv_mount_counter = 0;
     var controller_counter = 0;
     var inverter_counter = 0;
     var relay_driver_counter = 0;
@@ -734,6 +849,21 @@
         $(this).parents('tr').remove();
     });
 
+    // Battery Mount
+    $(document).on('click', '#addRemoveBatteryMountButton', function () {
+
+        ++battery_mount_counter;
+        $("#addRemoveBatteryMount").append('<tr><td></td>' +
+            '<td><input class="form-control" data-id="'+ battery_mount_counter +'" name="units[][subject]"></td>' +
+            '<td><button type="button"' +
+            'class="btn btn-outline-danger removeBatteryMount">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.removeBatteryMount', function () {
+        $(this).parents('tr').remove();
+    });
+
     // PV
     $(document).on('click', '#addRemovePvButton', function () {
 
@@ -746,6 +876,21 @@
         );
     });
     $(document).on('click', '.removePv', function () {
+        $(this).parents('tr').remove();
+    });
+
+    // PV Mount
+    $(document).on('click', '#addRemovePvMountButton', function () {
+
+        ++pv_mount_counter;
+        $("#addRemovePvMount").append('<tr><td></td>' +
+            '<td><input class="form-control" data-id="'+ pv_mount_counter +'"' +
+            'name="units[][subject]"></td><td><button type="button"' +
+            'class="btn btn-outline-danger removePvMount">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.removePvMount', function () {
         $(this).parents('tr').remove();
     });
    

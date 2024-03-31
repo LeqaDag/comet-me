@@ -6,7 +6,7 @@
 label, table {
     margin-top: 20px;
 }
-</style> 
+</style>  
 
 <div id="createInternetNetworkIncident" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -20,7 +20,7 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype="multipart/form-data"
+                <form method="POST" enctype="multipart/form-data" id="networkIncidentForm"
                     action="{{url('incident-network')}}">
                     @csrf
 
@@ -28,7 +28,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
-                                <select class="selectpicker form-control"  name="community_id"
+                                <select class="selectpicker form-control" name="community_id"
                                     id="internetSelectedCommuntiy" data-live-search="true" 
                                     required>
                                     <option disabled selected>Choose one...</option>
@@ -39,11 +39,13 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Areas Affected</label>
-                                <select name="affected_community_id[]" class="selectpicker form-control" 
+                                <select name="affected_community_id[]" id="areaAffected"
+                                    class="selectpicker form-control" 
                                     multiple data-live-search="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
@@ -53,6 +55,7 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="affected_community_id_error" style="color: red;"></div>
                         </div>
                     </div>
 
@@ -60,7 +63,8 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Incident Type</label>
-                                <select name="incident_id" class="form-control" required>
+                                <select name="incident_id" class="selectpicker form-control" 
+                                    id="incidentNetworkType" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($incidents as $incident)
                                     <option value="{{$incident->id}}">
@@ -69,11 +73,13 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="incident_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Internet Incident Status</label>
-                                <select name="internet_incident_status_id" class="form-control" >
+                                <select name="internet_incident_status_id" id="incidentNetworkStatus"
+                                    class="selectpicker form-control" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($internetIncidentStatuses as $internetIncidentStatus)
                                     <option value="{{$internetIncidentStatus->id}}">
@@ -82,6 +88,7 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="internet_incident_status_id_error" style="color: red;"></div>
                         </div>
                     </div>
                   
@@ -89,7 +96,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Incident</label>
-                                <input type="date" name="date" class="form-control">
+                                <input type="date" name="date" class="form-control" required>
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -105,7 +112,8 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Equipment Damaged</label>
                                 <select name="incident_equipment_id[]" multiple
-                                    class="selectpicker form-control" data-live-search="true" >
+                                    class="selectpicker form-control" data-live-search="true"
+                                    id="equipmentDamaged">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($incidentEquipments as $incidentEquipment)
                                     <option value="{{$incidentEquipment->id}}">
@@ -114,6 +122,7 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="incident_equipment_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
@@ -182,4 +191,69 @@ label, table {
         });
     });
 
+    $(document).ready(function() {
+
+        $('#networkIncidentForm').on('submit', function (event) {
+
+            var communityValue = $('#internetSelectedCommuntiy').val();
+            var areaAffectedValue = $('#areaAffected').val();
+            var incidentTypeValue = $('#incidentNetworkType').val();
+            var incidentStatusValue = $('#incidentNetworkStatus').val();
+            var equipmentValue = $('#equipmentDamaged').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            if (!areaAffectedValue || areaAffectedValue.length === 0) {
+
+                $('#affected_community_id_error').html('Please select an area!'); 
+                return false;
+            } else {
+
+                $('#affected_community_id_error').empty();
+            }
+
+            if (incidentTypeValue == null) {
+
+                $('#incident_id_error').html('Please select a type!'); 
+                return false;
+            } else if (incidentTypeValue != null){
+
+                $('#incident_id_error').empty();
+            }
+
+            if (incidentStatusValue == null) {
+
+                $('#internet_incident_status_id_error').html('Please select a status!'); 
+                return false;
+            } else if (incidentStatusValue != null) {
+
+                $('#internet_incident_status_id_error').empty();
+            }
+
+            if (!equipmentValue || equipmentValue.length === 0) {
+
+                $('#incident_equipment_id_error').html('Please select at least one equipment!');
+                return false;
+            } else {
+
+                $('#incident_equipment_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#affected_community_id_error').empty();
+            $('#community_id_error').empty();
+            $('#incident_id_error').empty();
+            $('#internet_incident_status_id_error').empty();
+            $('#incident_equipment_id_error').empty();
+
+            this.submit();
+        });
+    });
 </script>

@@ -36,12 +36,12 @@
                                     <td>
                                         <input type="text" name="camera_models[0][subject]" 
                                             placeholder="Model" class="target_point form-control" 
-                                            data-id="0"/>
+                                            data-id="0" required/>
                                         </td>
                                     <td>
                                         <input type="text" name="camera_brands[0][subject]" 
                                         placeholder="Brand" class="target_point form-control" 
-                                        data-id="0"/>
+                                        data-id="0" required/>
                                     </td>
                                     <td>
                                         <button type="button" name="add" id="addRemoveNewCameraButton" 
@@ -71,8 +71,8 @@ $(document).ready(function() {
     $(document).on('click', '#addRemoveNewCameraButton', function () {
         ++j;
         $("#addCameraButton").append('<tr>' +
-            '<td><input class="form-control" data-id="' + j + '" name="camera_models[' + j + '][subject]" placeholder="Model"></td>' +
-            '<td><input class="form-control" data-id="' + j + '" name="camera_brands[' + j + '][subject]" placeholder="Brand"></td>' +
+            '<td><input class="form-control" data-id="' + j + '" name="camera_models[' + j + '][subject]" placeholder="Model" required></td>' +
+            '<td><input class="form-control" data-id="' + j + '" name="camera_brands[' + j + '][subject]" placeholder="Brand" required></td>' +
             '<td><button type="button" class="btn btn-outline-danger removeCamera">Delete</button></td>' +
             '</tr>'
         );

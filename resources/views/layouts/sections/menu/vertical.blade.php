@@ -430,6 +430,24 @@
         </ul>
     </li>
 
+    @if(Auth::guard('user')->user()->user_type_id == 1 ||
+        Auth::guard('user')->user()->user_type_id == 2)
+    <li class="menu-item" id="costs">
+        <a class="menu-link menu-toggle">
+            <i class="menu-icon tf-icons bx bx-shekel"></i>
+            <div>Costs</div>
+        </a>
+        <ul class="menu-sub">
+            <li class="menu-item" id="energy-cost">
+                <a href="{{url('energy-cost')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Energy Cost</div>
+                </a>
+            </li>
+        </ul>
+    </li>
+    @endif
+    
     <li class="menu-item" id="incidents">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-error-alt"></i>
@@ -769,6 +787,10 @@
 
         $("#energy-system").addClass("active");
         $("#systems").addClass("open");
+    }  else if(last_part == "energy-cost") {
+
+        $("#energy-cost").addClass("active");
+        $("#costs").addClass("open");
     } else if(last_part == "water-system") {
 
         $("#water-system").addClass("active");

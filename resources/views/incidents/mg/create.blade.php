@@ -25,7 +25,7 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' 
+                <form method="POST" enctype='multipart/form-data' id="mgIncidentForm"
                     action="{{url('mg-incident')}}">
                     @csrf
 
@@ -44,14 +44,16 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy System</label>
-                                <select name="energy_system_id" class="form-control" 
+                                <select name="energy_system_id" class="selectpicker form-control" 
                                     id="energySystemMgIncident" required disabled>
                                 </select>
                             </fieldset>
+                            <div id="energy_system_id_error" style="color: red;"></div>
                         </div>
                     </div>
 
@@ -59,7 +61,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Incident Type</label>
-                                <select name="incident_id" class="form-control" 
+                                <select name="incident_id" class="selectpicker form-control" 
                                     id="incidentMgType" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($incidents as $incident)
@@ -69,14 +71,16 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="incident_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Incident MG Status</label>
                                 <select name="incident_status_mg_system_id" disabled
-                                    class="form-control" id="incidentMgStatus" required>
+                                    class="selectpicker form-control" id="incidentMgStatus" required>
                                 </select>
                             </fieldset>
+                            <div id="incident_status_mg_system_id_error" style="color: red;"></div>
                         </div>
                     </div>
                   
@@ -84,7 +88,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Incident</label>
-                                <input type="date" name="date" class="form-control">
+                                <input type="date" name="date" class="form-control" required>
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -100,7 +104,8 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Equipment Damaged</label>
                                 <select name="incident_equipment_id[]" multiple
-                                    class="selectpicker form-control" data-live-search="true" >
+                                    class="selectpicker form-control" data-live-search="true"
+                                    id="equipmentDamaged">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($incidentEquipments as $incidentEquipment)
                                     <option value="{{$incidentEquipment->id}}">
@@ -109,6 +114,7 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="incident_equipment_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <label class='col-md-12 control-label'>Households Affected</label>
@@ -159,9 +165,11 @@ label, table {
             url: "mg-incident/get_system_by_community/" + community_id,
             method: 'GET',
             success: function(data) {
-                console.log(data.html);
-                $('#energySystemMgIncident').prop('disabled', false);
-                $('#energySystemMgIncident').html(data.html);
+               
+                var select = $('#energySystemMgIncident');
+                select.prop('disabled', false); 
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
         });
  
@@ -188,10 +196,79 @@ label, table {
             url: "mg-incident/get_by_type/" + incident_type_id,
             method: 'GET',
             success: function(data) {
-                console.log(data.html);
-                $('#incidentMgStatus').prop('disabled', false);
-                $('#incidentMgStatus').html(data.html);
+                
+                var select = $('#incidentMgStatus');
+                select.prop('disabled', false); 
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
         });
     });
+
+    $(document).ready(function () {
+
+        $('#mgIncidentForm').on('submit', function (event) {
+
+            var communityValue = $('#communityMgIncident').val();
+            var energyValue = $('#energySystemMgIncident').val();
+            var incidentTypeValue = $('#incidentMgType').val();
+            var incidentStatusValue = $('#incidentMgStatus').val();
+            var equipmentValue = $('#equipmentDamaged').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            if (energyValue == null) {
+
+                $('#energy_system_id_error').html('Please select an energy system!'); 
+                return false;
+            } else if (energyValue != null){
+
+                $('#energy_system_id_error').empty();
+            }
+
+            if (incidentTypeValue == null) {
+
+                $('#incident_id_error').html('Please select a type!'); 
+                return false;
+            } else if (incidentTypeValue != null){
+
+                $('#incident_id_error').empty();
+            }
+
+            if (incidentStatusValue == null) {
+
+                $('#incident_status_mg_system_id_error').html('Please select a status!'); 
+                return false;
+            } else if (incidentStatusValue != null){
+
+                $('#incident_status_mg_system_id_error').empty();
+            }
+
+            if (!equipmentValue || equipmentValue.length === 0) {
+
+                $('#incident_equipment_id_error').html('Please select at least one equipment!');
+                return false;
+            } else {
+
+                $('#incident_equipment_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#energy_system_id_error').empty(); 
+            $('#community_id_error').empty();
+            $('#incident_id_error').empty();
+            $('#incident_status_mg_system_id_error').empty();
+            $('#incident_equipment_id_error').empty();
+
+            this.submit();
+        });
+    });
+
 </script>

@@ -15,7 +15,7 @@
 
     label, table {
         margin-top: 20px;
-    } 
+    }  
 
 </style>
 
@@ -27,7 +27,8 @@
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" action="{{url('internet-system')}}" enctype="multipart/form-data" >
+            <form method="POST" action="{{url('internet-system')}}" id="internetSystemForm"
+                enctype="multipart/form-data" >
                 @csrf
                 <div class="row">
                     <h6>General Details</h6> 
@@ -37,23 +38,21 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Community</label>
                             <select class="selectpicker form-control" name="community_id" 
-                                data-live-search="true" 
+                                data-live-search="true" id="communitySelected"
                                 required>
                                 <option disabled selected>Choose one...</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->id}}">{{$community->english_name}}</option>
                                 @endforeach
                             </select>
-                            @if ($errors->has('community_id'))
-                                <span class="error">{{ $errors->first('community_id') }}</span>
-                            @endif
                         </fieldset>
+                        <div id="community_id_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Internet System Type</label>
                             <select name="internet_system_type_id[]" class="selectpicker form-control"
-                                data-live-search="true" multiple>
+                                data-live-search="true" multiple id="internetSystemTypeSelected">
                                 <option disabled selected>Choose one...</option>
                                 @foreach($internetSystemTypes as $internetSystemType)
                                     <option value="{{$internetSystemType->id}}">
@@ -62,12 +61,13 @@
                                 @endforeach
                             </select>
                         </fieldset>
+                        <div id="internet_system_type_id_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Name</label>
                             <input type="text" name="system_name" 
-                            class="form-control">
+                            class="form-control" required>
                         </fieldset>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Start Year</label>
                             <input type="number" name="start_year" 
-                            class="form-control">
+                            class="form-control" required>
                         </fieldset>
                     </div>
                     <div class="col-xl-8 col-lg-8 col-md-8 mb-1">
@@ -378,9 +378,41 @@
     </div>
 </div>
 
-@endsection
-
 <script>
+
+    $(document).ready(function() {
+
+        $('#internetSystemForm').on('submit', function (event) {
+
+            var communityValue = $('#communitySelected').val();
+            var internetTypeValue = $('#internetSystemTypeSelected').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            if (!internetTypeValue || internetTypeValue.length === 0) {
+
+                $('#internet_system_type_id_error').html('Please select at least one type!'); 
+                return false;
+            } else {
+
+                $('#internet_system_type_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#internet_system_type_id_error').empty();
+            $('#community_id_error').empty();
+
+            this.submit();
+        });
+    });
+
 
     var router_counter = 0;
     var switch_counter = 0;
@@ -496,3 +528,4 @@
     });
 
 </script>
+@endsection

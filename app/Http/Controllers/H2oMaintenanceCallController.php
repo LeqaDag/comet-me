@@ -179,17 +179,19 @@ class H2oMaintenanceCallController extends Controller
         ]);
 
         $maintenance = new H2oMaintenanceCall();
-        if($request->household_id) {
-
-            $maintenance->household_id = $request->household_id;
-        }
+        $maintenance->maintenance_status_id = $request->maintenance_status_id;
         
-        if($request->public_structure_id) {
+        if($request->public_user == "user") {
 
-            $maintenance->public_structure_id = $request->public_structure_id;
+            $maintenance->household_id = $request->all_water_holder_id;
         }
 
-        $maintenance->community_id = $request->community_id[0];
+        if($request->public_user == "public") {
+
+            $maintenance->public_structure_id = $request->all_water_holder_id;
+        }
+
+        $maintenance->community_id = $request->community_id;
         $maintenance->date_of_call = $request->date_of_call;
         if($request->date_completed) {
 
@@ -200,7 +202,7 @@ class H2oMaintenanceCallController extends Controller
             $maintenance->date_completed = null;
         } else {
 
-            $energyMaintenance->maintenance_status_id = $request->maintenance_status_id;
+            $maintenance->maintenance_status_id = $request->maintenance_status_id;
         }
         $maintenance->user_id = $request->user_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;

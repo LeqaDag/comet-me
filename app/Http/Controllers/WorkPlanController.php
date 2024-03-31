@@ -206,7 +206,7 @@ class WorkPlanController extends Controller
         $actionItem->save(); 
 
         $user = User::findOrFail($request->user_id);
-        try {
+        try { 
             $details = [
                 'title' => 'Your Action Item',
                 'name' => $user->name,

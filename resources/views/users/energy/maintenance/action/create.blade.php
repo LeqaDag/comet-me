@@ -20,20 +20,22 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' 
+                <form method="POST" enctype='multipart/form-data' id="energyActionForm"
                     action="{{url('energy-action')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>English Name</label>
-                                <input type="text" name="english_name" class="form-control"> 
+                                <input type="text" name="english_name" class="form-control"
+                                required> 
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Arabic Name</label>
-                                <input type="text" name="arabic_name" class="form-control"> 
+                                <input type="text" name="arabic_name" class="form-control"
+                                required> 
                             </fieldset>
                         </div> 
                     </div>
@@ -43,7 +45,8 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy Issue</label>
                                 <select name="energy_maintenance_issue_id" data-live-search="true"
-                                    class="selectpicker form-control" required>
+                                    class="selectpicker form-control" required
+                                    id="energyIssueValue">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($energyIssues as $energyIssue)
                                     <option value="{{$energyIssue->id}}">
@@ -52,12 +55,14 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="energy_maintenance_issue_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy Issue Type</label>
                                 <select name="energy_maintenance_issue_type_id" 
-                                    data-live-search="true" class="selectpicker form-control" required>
+                                    id="energyIssueTypeValue" data-live-search="true" 
+                                    class="selectpicker form-control" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($energyIssueTypes as $energyIssueType)
                                     <option value="{{$energyIssueType->id}}">
@@ -66,6 +71,7 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="energy_maintenance_issue_type_id_error" style="color: red;"></div>
                         </div>
                     </div>
 
@@ -87,3 +93,38 @@ label, table {
         </div>
     </div>
 </div>
+<script>
+
+    $(document).ready(function() {
+
+        $('#energyActionForm').on('submit', function (event) {
+
+            var issueValue = $('#energyIssueValue').val();
+            var issueTypeValue = $('#energyIssueTypeValue').val();
+
+            if (issueValue == null) {
+
+                $('#energy_maintenance_issue_id_error').html('Please select an issue!'); 
+                return false;
+            } else if (issueValue != null){
+
+                $('#energy_maintenance_issue_id_error').empty();
+            }
+
+            if (issueTypeValue == null) {
+
+                $('#energy_maintenance_issue_type_id_error').html('Please select an issue type!'); 
+                return false;
+            } else if (issueTypeValue != null){
+
+                $('#energy_maintenance_issue_type_id_error').empty();
+            }
+
+            $(this).addClass('was-validated'); 
+            $('#energy_maintenance_issue_id_error').empty();
+            $('#energy_maintenance_issue_type_id_error').empty();
+            
+            this.submit();
+        });
+    });
+</script>

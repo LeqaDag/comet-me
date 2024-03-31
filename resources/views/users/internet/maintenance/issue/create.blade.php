@@ -20,29 +20,32 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' 
+                <form method="POST" enctype='multipart/form-data' id="internetIssueForm"
                     action="{{url('internet-issue')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>English Name</label>
-                                <input type="text" name="english_name" class="form-control"> 
+                                <input type="text" name="english_name" class="form-control"
+                                required> 
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Arabic Name</label>
-                                <input type="text" name="arabic_name" class="form-control"> 
+                                <input type="text" name="arabic_name" class="form-control"
+                                required> 
                             </fieldset>
                         </div> 
                     </div>
-                    
+                     
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Issue Type</label>
-                                <select name="internet_issue_type_id" class="form-control" required>
+                                <select name="internet_issue_type_id" id="internetIssueValue"
+                                    class="selectpicker form-control" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($internetIssueTypes as $internetIssueType)
                                     <option value="{{$internetIssueType->id}}">
@@ -51,6 +54,7 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="internet_issue_type_id_error" style="color: red;"></div>
                         </div>
                     </div>
 
@@ -72,3 +76,27 @@ label, table {
         </div>
     </div>
 </div>
+<script>
+
+    $(document).ready(function() {
+
+        $('#internetIssueForm').on('submit', function (event) {
+
+            var issueValue = $('#internetIssueValue').val();
+
+            if (issueValue == null) {
+
+                $('#internet_issue_type_id_error').html('Please select an issue type!'); 
+                return false;
+            } else if (issueValue != null){
+
+                $('#internet_issue_type_id_error').empty();
+            }
+
+            $(this).addClass('was-validated'); 
+            $('#internet_issue_type_id_error').empty();
+
+            this.submit();
+        });
+    });
+</script>

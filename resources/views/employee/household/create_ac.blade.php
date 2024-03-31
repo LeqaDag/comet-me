@@ -1,7 +1,3 @@
-@php
-  $pricingModal = true;
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'AC households')
@@ -16,9 +12,7 @@
     label, table {
         margin-top: 20px;
     }
-
 </style>
-
 
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -28,29 +22,26 @@
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" action="{{url('ac-household')}}" enctype="multipart/form-data" >
+            <form method="POST" action="{{url('ac-household')}}" id="acHouseholdForm"
+                enctype="multipart/form-data" >
                 @csrf
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Father/Husband Name</label>
-                            <input type="text" name="english_name" 
+                            <input type="text" name="english_name" data-parsley-required="true" 
                             placeholder="Write in English" value="{{old('english_name')}}"
-                            class="form-control" required>
-                            @if ($errors->has('english_name'))
-                                <span class="error">{{ $errors->first('english_name') }}</span>
-                            @endif
+                            class="form-control" required id="englishNameValue">
                         </fieldset>
-                    </div>
+                    </div> 
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Father/Husband Name</label>
                             <input type="text" name="arabic_name" placeholder="Write in Arabic"
-                            class="form-control" value="{{old('arabic_name')}}" required>
-                            @if ($errors->has('arabic_name'))
-                                <span class="error">{{ $errors->first('arabic_name') }}</span>
-                            @endif
+                            class="form-control" value="{{old('arabic_name')}}"
+                            data-parsley-required="true" id="arabicNameValue" required>
                         </fieldset>
+                        <div id="arabic_name_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
@@ -59,7 +50,6 @@
                             class="form-control">
                         </fieldset>
                     </div>
-                    
                 </div>
 
                 <div class="row">
@@ -76,10 +66,8 @@
                                 @endforeach
                                 <option value="other" id="selectedOtherProfession" style="color:red">Other</option>
                             </select>
-                            @if ($errors->has('profession_id'))
-                                <span class="error">{{ $errors->first('profession_id') }}</span>
-                            @endif
                         </fieldset>
+                        <div id="profession_id_error" style="color: red;"></div>
                         @include('employee.household.profession')
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -103,10 +91,8 @@
                                 @endforeach
                                 <option value="other" id="selectedOtherCommunity" style="color:red">Other</option>
                             </select>
-                            @if ($errors->has('community_id'))
-                                <span class="error">{{ $errors->first('community_id') }}</span>
-                            @endif
                         </fieldset>
+                        <div id="community_id_error" style="color: red;"></div>
                     </div>
                 </div>
 
@@ -269,11 +255,7 @@
     </div>
 </div>
 
-@endsection
-
 <script>
-
-
     $(document).on('change', '#selectedProfession', function () {
         
         selectedValue = $(this).val();
@@ -324,4 +306,40 @@
             });
         }
     });
+
+    $(document).ready(function () {
+
+        $('#acHouseholdForm').on('submit', function (event) {
+
+            var communityValue = $('#selectedCommunity').val();
+            var professionValue = $('#selectedProfession').val();
+
+            if (professionValue == null) {
+
+                $('#profession_id_error').html('Please select a profession!'); 
+                return false;
+            } else if (professionValue != null){
+
+                $('#profession_id_error').empty();
+            }
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            $(this).addClass('was-validated'); 
+            $('#profession_id_error').empty(); 
+            $('#community_id_error').empty();
+
+            this.submit();
+        });
+    });
+
 </script>
+@endsection
+

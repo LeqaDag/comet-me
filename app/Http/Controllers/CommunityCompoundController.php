@@ -186,24 +186,31 @@ class CommunityCompoundController extends Controller
      */
     public function store(Request $request)
     {
-        for($i=0; $i < count($request->household_id); $i++) {
+        if($request->household_id) {
 
-            $compoundHousehold = new CompoundHousehold();
-            $compoundHousehold->household_id = $request->household_id[$i];
-            $compoundHousehold->compound_id = $request->compound_id;
-            $compoundHousehold->community_id = $request->community_id;
-            $compoundHousehold->energy_system_type_id = $request->energy_system_type_id;
-            $compoundHousehold->save();
+            for($i=0; $i < count($request->household_id); $i++) {
 
-            $household = Household::findOrFail($request->household_id[$i]);
-            if($request->energy_system_type_id) {
-                
-                $household->energy_system_type_id = $request->energy_system_type_id;
-                $household->save();
-            }
-        }
+                $compoundHousehold = new CompoundHousehold();
+                $compoundHousehold->household_id = $request->household_id[$i];
+                $compoundHousehold->compound_id = $request->compound_id;
+                $compoundHousehold->community_id = $request->community_id;
+                $compoundHousehold->energy_system_type_id = $request->energy_system_type_id;
+                $compoundHousehold->save();
+
+                $household = Household::findOrFail($request->household_id[$i]);
+                if($request->energy_system_type_id) {
+                    
+                    $household->energy_system_type_id = $request->energy_system_type_id;
+                    $household->save();
+                }
+            } 
        
-        return redirect()->back()->with('message', 'New Compound Households Added Successfully!');
+            return redirect()->back()->with('message', 'New Compound Households Added Successfully!');
+        } else {
+
+            return redirect()->back()->with('error', 'You missed up selecting households!');
+        }
+            
     }
 
     /**

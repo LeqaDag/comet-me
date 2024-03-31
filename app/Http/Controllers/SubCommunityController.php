@@ -50,7 +50,10 @@ class SubCommunityController extends Controller
      */
     public function store(Request $request)
     {
-        $subCommunity = SubCommunity::create($request->all());
+        $subCommunity = new SubCommunity();
+        $subCommunity->english_name = $request->english_name;
+        $subCommunity->arabic_name = $request->arabic_name;
+        $subCommunity->community_id = $request->community_id;
         $subCommunity->save();
 
         return redirect()->back()->with('message', 'New Sub Community Added Successfully!');

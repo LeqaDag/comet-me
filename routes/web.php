@@ -153,6 +153,8 @@ Route::get('/delete-energy-system', [App\Http\Controllers\EnergySystemController
 Route::post('energy-system-export', [App\Http\Controllers\EnergySystemController::class, 'export'])->name('energy-system.export');
 
 Route::get('/delete-energy-system-battery', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBattery'])->name('deleteEnergySystemBattery');
+Route::get('/delete-energy-system-battery-mount', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBatteryMount'])->name('deleteEnergySystemBatteryMount');
+Route::get('/delete-energy-system-pv-mount', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemPvMount'])->name('deleteEnergySystemPvMount');
 Route::get('/delete-energy-system-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemPv'])->name('deleteEnergySystemPv');
 Route::get('/delete-energy-system-controller', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemController'])->name('deleteEnergySystemController');
 Route::get('/delete-energy-system-mcb-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbPv'])->name('deleteEnergySystemMcbPv');
@@ -268,11 +270,12 @@ Route::get('chart/service/{service_id}/{region_id}', [App\Http\Controllers\Chart
 Route::resource('energy-maintenance', App\Http\Controllers\EnergyMaintenanceCallController::class);
 Route::get('/delete-energy-maintenance', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deleteMaintenanceEnergy'])->name('deleteMaintenanceEnergy');
 Route::post('energy-maintenance-export', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'export'])->name('energy-maintenance.export');
-Route::get('energy-maintenance/get_system/{system}/{mg}/{community_id}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getMaintenanceAction']);
+Route::get('energy-maintenance/get_holder/{flag}/{community_id}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getAgent']); 
 Route::get('/delete-energy-performed', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deletePerformedEnergyUsers'])->name('deletePerformedEnergyUsers');
 Route::get('energy-maintenance/get_energy/{community_id}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getEnergySystem'])->name('getEnergySystem');
 Route::post('energy-maintenance-import', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'import'])->name('energy-maintenance.import');
 Route::get('/delete-maintenance-action', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'deleteEnergyAction'])->name('deleteEnergyAction');
+Route::get('energy-maintenance/get_actions/{issue_id}', [App\Http\Controllers\EnergyMaintenanceCallController::class, 'getActionsByIssue']); 
 
 Route::resource('energy-safety', App\Http\Controllers\EnergySafetyController::class);
 Route::get('/delete-energy-safety', [App\Http\Controllers\EnergySafetyController::class, 'deleteEnergySafety'])->name('deleteEnergySafety');
@@ -293,7 +296,7 @@ Route::get('refrigerator-user/household/{id}', [App\Http\Controllers\Refrigerato
 Route::resource('refrigerator-maintenance', App\Http\Controllers\RefrigeratorMaintenanceCallController::class);
 Route::get('/delete-refrigerator-maintenance', [App\Http\Controllers\RefrigeratorMaintenanceCallController::class, 'deleteRefrigerator'])->name('deleteRefrigerator');
 Route::post('refrigerator-maintenance-export', [App\Http\Controllers\RefrigeratorMaintenanceCallController::class, 'export'])->name('refrigerator-maintenance.export');
-Route::get('refrigerator-user/get_by_community/{community_id}', [App\Http\Controllers\RefrigeratorHolderController::class, 'getHouseholdByCommunity']);
+Route::get('refrigerator-user/get_by_community/{community_id}/{flag}', [App\Http\Controllers\RefrigeratorHolderController::class, 'getHouseholdByCommunity']);
 Route::get('refrigerator-public/get_by_community/{community_id}', [App\Http\Controllers\RefrigeratorHolderController::class, 'getPublicByCommunity']);
 Route::get('/delete-refrigerator-action', [App\Http\Controllers\RefrigeratorMaintenanceCallController::class, 'deleteRefrigeratorAction'])->name('deleteRefrigeratorAction');
 Route::get('/delete-refrigerator-performed', [App\Http\Controllers\RefrigeratorMaintenanceCallController::class, 'deletePerformedRefrigeratorUsers'])->name('deletePerformedRefrigeratorUsers');
@@ -326,7 +329,7 @@ Route::get('/delete-water-status', [App\Http\Controllers\WaterIncidentController
 Route::resource('incident-network', App\Http\Controllers\InternetNetworkIncidentController::class);
 Route::resource('incident-internet-user', App\Http\Controllers\InternetUserIncidentController::class);
 Route::post('incident-internet-user-export', [App\Http\Controllers\InternetUserIncidentController::class, 'export'])->name('incident-internet-user.export');
-Route::get('incident-internet-user/get_by_community/{community_id}', [App\Http\Controllers\InternetUserIncidentController::class, 'getInternetUsersByCommunity']);
+Route::get('incident-internet-user/get_by_community/{community_id}/{flag}', [App\Http\Controllers\InternetUserIncidentController::class, 'getInternetUsersByCommunity']);
 Route::get('/delete-internet-user-equipment', [App\Http\Controllers\InternetUserIncidentController::class, 'deleteIncidentEquipment'])->name('deleteIncidentEquipment');
 Route::get('/delete-incident-internet-user', [App\Http\Controllers\InternetUserIncidentController::class, 'deleteInternetUserIncident'])->name('deleteInternetUserIncident');
 Route::get('/delete-incident-network', [App\Http\Controllers\InternetNetworkIncidentController::class, 'deleteInternetNetworkIncident'])->name('deleteInternetNetworkIncident');
@@ -437,3 +440,7 @@ Route::resource('energy-action', App\Http\Controllers\EnergyActionController::cl
 Route::post('energy-action-export', [App\Http\Controllers\EnergyActionController::class, 'export'])->name('energy-action.export');
 Route::get('/delete-energy-action', [App\Http\Controllers\EnergyActionController::class, 'deleteEnergyMainAction'])->name('deleteEnergyMainAction');
 Route::get('/energy-action/get/{id}', [App\Http\Controllers\EnergyActionController::class, 'getEnergyIssue']);
+
+Route::resource('energy-cost', App\Http\Controllers\EnergyCostController::class); 
+Route::get('energy-cost/{id}/editpage', [App\Http\Controllers\EnergyCostController::class, 'editPage']);
+Route::post('energy-cost-export', [App\Http\Controllers\EnergyCostController::class, 'export'])->name('energy-cost.export');

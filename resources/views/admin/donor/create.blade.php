@@ -28,7 +28,7 @@
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Name</label>
                                 <input type="text" name="donor_name" 
-                                class="form-control">
+                                class="form-control" required>
                             </fieldset>
                         </div>
                     </div>

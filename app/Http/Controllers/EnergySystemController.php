@@ -15,7 +15,7 @@ use App\Models\CommunityRole;
 use App\Models\Compound;
 use App\Models\Donor;
 use App\Models\EnergySystem;
-use App\Models\EnergyBattery;
+use App\Models\EnergyBattery; 
 use App\Models\EnergyPv;
 use App\Models\EnergyAirConditioner;
 use App\Models\EnergyBatteryStatusProcessor;
@@ -35,8 +35,12 @@ use App\Models\EnergyRemoteControlCenter;
 use App\Models\EnergySystemType;
 use App\Models\EnergySystemRelayDriver;
 use App\Models\EnergySystemBattery;
+use App\Models\EnergyBatteryMount;
+use App\Models\EnergySystemBatteryMount;
 use App\Models\EnergySystemMonitoring;
 use App\Models\EnergySystemPv;
+use App\Models\EnergyPvMount;
+use App\Models\EnergySystemPvMount;
 use App\Models\EnergySystemChargeController;
 use App\Models\EnergySystemWindTurbine;
 use App\Models\EnergySystemGenerator;
@@ -195,11 +199,15 @@ class EnergySystemController extends Controller
         $batteries = EnergyBattery::where('is_archived', 0)
             ->orderBy('battery_model', 'ASC')
             ->get();
+        $batteryMounts= EnergyBatteryMount::orderBy('model', 'ASC')
+            ->get();
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();
         $pvs = EnergyPv::where('is_archived', 0)
             ->orderBy('pv_model', 'ASC')
+            ->get();
+        $pvMounts= EnergyPvMount::orderBy('model', 'ASC')
             ->get();
         $controllers = EnergyChargeController::where('is_archived', 0)
             ->orderBy('charge_controller_model', 'ASC')
@@ -245,7 +253,7 @@ class EnergySystemController extends Controller
         return view('system.energy.create', compact('batteries', 'communities', 'controllers',
             'pvs', 'mcbPvs', 'mcbInventors', 'mcbControllers', 'turbines', 'generators',
             'loggers', 'loadRelaies', 'relayDrivers', 'inverters', 'bsps', 'rccs',
-            'energyTypes', 'airConditioners'));
+            'energyTypes', 'airConditioners', 'batteryMounts', 'pvMounts'));
     }
 
     /**
@@ -265,7 +273,7 @@ class EnergySystemController extends Controller
         $energySystem->energy_system_type_id = $request->energy_system_type_id;
         $energySystem->notes = $request->notes;
         $energySystem->save();
- 
+  
         // Battery
         if($request->battery_id) {
             for($i=0; $i < count($request->battery_id); $i++) {
@@ -278,6 +286,18 @@ class EnergySystemController extends Controller
             }
         }
 
+        // Battery Mount
+        if($request->battery_mount_id) {
+            for($i=0; $i < count($request->battery_mount_id); $i++) {
+
+                $batterySystemMount = new EnergySystemBatteryMount();
+                $batterySystemMount->energy_battery_mount_id = $request->battery_mount_id[$i];
+                $batterySystemMount->unit = $request->units[$i]["subject"];
+                $batterySystemMount->energy_system_id = $energySystem->id;
+                $batterySystemMount->save();
+            }
+        }
+
         // Solar Panel
         if($request->pv_id) {
             for($i=0; $i < count($request->pv_id); $i++) {
@@ -287,6 +307,18 @@ class EnergySystemController extends Controller
                 $pvSystem->pv_units = $request->pv_units[$i]["subject"];
                 $pvSystem->energy_system_id = $energySystem->id;
                 $pvSystem->save();
+            }
+        }
+
+        // Solar Panel Mount
+        if($request->pv_mount_id) {
+            for($i=0; $i < count($request->pv_mount_id); $i++) {
+
+                $pvSystemMount = new EnergySystemPvMount();
+                $pvSystemMount->energy_pv_mount_id = $request->pv_mount_id[$i];
+                $pvSystemMount->unit = $request->units[$i]["subject"];
+                $pvSystemMount->energy_system_id = $energySystem->id;
+                $pvSystemMount->save();
             }
         }
 
@@ -474,12 +506,16 @@ class EnergySystemController extends Controller
         $energySystem = EnergySystem::findOrFail($id);
         $batteries = EnergyBattery::where('is_archived', 0)
             ->orderBy('battery_model', 'ASC')
+            ->get();  
+        $batteryMounts= EnergyBatteryMount::orderBy('model', 'ASC')
             ->get();
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();
         $pvs = EnergyPv::where('is_archived', 0)
             ->orderBy('pv_model', 'ASC')
+            ->get();
+        $pvMounts= EnergyPvMount::orderBy('model', 'ASC')
             ->get();
         $controllers = EnergyChargeController::where('is_archived', 0)
             ->orderBy('charge_controller_model', 'ASC')
@@ -534,6 +570,17 @@ class EnergySystemController extends Controller
                 'energy_system_batteries.id')
             ->get(); 
 
+        $battaryMountSystems = DB::table('energy_system_battery_mounts')
+            ->join('energy_systems', 'energy_system_battery_mounts.energy_system_id', 
+                'energy_systems.id')
+            ->join('energy_battery_mounts', 'energy_system_battery_mounts.energy_battery_mount_id', 
+                'energy_battery_mounts.id')
+            ->where('energy_system_battery_mounts.energy_system_id', $id)
+            ->select('energy_system_battery_mounts.unit', 'energy_battery_mounts.model', 
+                'energy_battery_mounts.brand', 'energy_systems.name', 
+                'energy_system_battery_mounts.id')
+            ->get(); 
+
         $pvSystems = DB::table('energy_system_pvs')
             ->join('energy_systems', 'energy_system_pvs.energy_system_id', 
                 '=', 'energy_systems.id')
@@ -543,6 +590,17 @@ class EnergySystemController extends Controller
             ->select('energy_system_pvs.pv_units', 'energy_pvs.pv_model', 
                 'energy_pvs.pv_brand', 'energy_systems.name', 
                 'energy_system_pvs.id')
+            ->get(); 
+
+        $pvMountSystems = DB::table('energy_system_pv_mounts')
+            ->join('energy_systems', 'energy_system_pv_mounts.energy_system_id', 
+                'energy_systems.id')
+            ->join('energy_pv_mounts', 'energy_system_pv_mounts.energy_pv_mount_id', 
+                'energy_pv_mounts.id')
+            ->where('energy_system_pv_mounts.energy_system_id', $id)
+            ->select('energy_system_pv_mounts.unit', 'energy_pv_mounts.model', 
+                'energy_pv_mounts.brand', 'energy_systems.name', 
+                'energy_system_pv_mounts.id')
             ->get(); 
 
         $controllerSystems = DB::table('energy_system_charge_controllers')
@@ -704,7 +762,9 @@ class EnergySystemController extends Controller
             'energyTypes', 'energySystem', 'battarySystems', 'pvSystems', 'controllerSystems',
             'inverterSystems', 'relayDriverSystems', 'loadRelaySystems', 'bspSystems',
             'rccSystems', 'loggerSystems', 'generatorSystems', 'turbineSystems', 'pvMcbSystems',
-            'controllerMcbSystems', 'inventerMcbSystems', 'airConditioners', 'airConditionerSystems'));
+            'controllerMcbSystems', 'inventerMcbSystems', 'airConditioners', 
+            'airConditionerSystems', 'batteryMounts', 'pvMounts', 'battaryMountSystems',
+            'pvMountSystems'));
     }
 
     /**
@@ -743,6 +803,18 @@ class EnergySystemController extends Controller
             }
         }
 
+        // Battery Mount
+        if($request->battery_mount_id) {
+            for($i=0; $i < count($request->battery_mount_id); $i++) {
+
+                $batterySystemMount = new EnergySystemBatteryMount();
+                $batterySystemMount->energy_battery_mount_id = $request->battery_mount_id[$i];
+                $batterySystemMount->unit = $request->units[$i]["subject"];
+                $batterySystemMount->energy_system_id = $energySystem->id;
+                $batterySystemMount->save();
+            }
+        }
+
         // Solar Panel
         if($request->pv_id) {
             for($i=0; $i < count($request->pv_id); $i++) {
@@ -752,6 +824,18 @@ class EnergySystemController extends Controller
                 $pvSystem->pv_units = $request->pv_units[$i]["subject"];
                 $pvSystem->energy_system_id = $energySystem->id;
                 $pvSystem->save();
+            }
+        }
+
+        // Solar Panel Mount
+        if($request->pv_mount_id) {
+            for($i=0; $i < count($request->pv_mount_id); $i++) {
+
+                $pvSystemMount = new EnergySystemPvMount();
+                $pvSystemMount->energy_pv_mount_id = $request->pv_mount_id[$i];
+                $pvSystemMount->unit = $request->units[$i]["subject"];
+                $pvSystemMount->energy_system_id = $energySystem->id;
+                $pvSystemMount->save();
             }
         }
 

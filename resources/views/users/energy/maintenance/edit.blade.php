@@ -26,6 +26,10 @@
     @else @if($energyMaintenance->public_structure_id)
 
         {{$energyMaintenance->PublicStructure->english_name}}
+    @else @if($energyMaintenance->energy_turbine_community_id)
+
+        {{$energyMaintenance->EnergyTurbineCommunity->name}}
+    @endif
     @endif
     @endif
     @endif
@@ -70,6 +74,13 @@
                             <label class='col-md-12 control-label'>Energy Public</label>
                             <input type="text" value="{{$energyMaintenance->PublicStructure->english_name}}" 
                                 class="form-control" disabled>
+
+                        @else @if($energyMaintenance->energy_turbine_community_id)
+
+                            <label class='col-md-12 control-label'>Energy Turbine</label>
+                            <input type="text" value="{{$energyMaintenance->EnergyTurbineCommunity->name}}" 
+                                class="form-control" disabled>
+                        @endif
                         @endif
                         @endif
                         @endif
@@ -170,68 +181,6 @@
                         </fieldset>
                     </div>
                 </div>
-                <hr>
-
-                <div class="row">
-                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                        <label class='col-md-12 control-label'>Old Action</label>
-                    </div>
-                </div>
-                @if(count($energyActions) > 0)
-                    <table id="" 
-                        class="table table-striped data-h2o-actions-donors my-2">  
-                        <tbody>
-                            @foreach($energyActions as $energyAction)
-                            <tr id="">
-                                <td class="text-center">
-                                    {{$energyAction->maintenance_action_electricity}}
-                                </td>
-                                <td class="text-center">
-                                    <a class="btn " 
-                                        id="" data-id="{{$energyAction->id}}">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Add more actions</label>
-                                <select class="selectpicker form-control" 
-                                    multiple data-live-search="true" name="actions[]">
-                                    <option selected disabled>Choose one...</option>
-                                    @foreach($maintenanceElectricityActions as $maintenanceElectricityAction)
-                                        <option value="{{$maintenanceElectricityAction->id}}">
-                                            {{$maintenanceElectricityAction->maintenance_action_electricity}}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </fieldset>
-                        </div>
-                    </div>
-                @else 
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Add Actions</label>
-                                <select class="selectpicker form-control" 
-                                    multiple data-live-search="true" name="new_actions[]">
-                                    <option selected disabled>Choose one...</option>
-                                    @foreach($maintenanceElectricityActions as $maintenanceElectricityAction)
-                                        <option value="{{$maintenanceElectricityAction->id}}">
-                                            {{$maintenanceElectricityAction->maintenance_action_electricity}}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </fieldset>
-                        </div>
-                    </div>
-                @endif
-
                 <hr>
 
                 <div class="row">

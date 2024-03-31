@@ -19,7 +19,7 @@
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> {{$energySystem->name}}
     <span class="text-muted fw-light">Information </span> 
-</h4>
+</h4> 
 
 <div class="card">
     <div class="card-content collapse show">
@@ -230,6 +230,111 @@
 
                 <hr style="margin-top:30px">
                 <div class="row">
+                    <h6>battery Mounts</h6>
+                </div>
+                @if(count($battaryMountSystems) > 0)
+
+                    <table id="energySystemBatteryMountTable" class="table table-striped my-2">
+                        <tbody>
+                            @foreach($battaryMountSystems as $battaryMountSystem)
+                            <tr id="battaryMountSystemsRow">
+                                <td class="text-center">
+                                    {{$battaryMountSystem->model}}
+                                </td>
+                                <td class="text-center">
+                                    {{$battaryMountSystem->unit}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteEnergySystemBatteryMount" 
+                                        id="deleteEnergySystemBatteryMount"
+                                        data-id="{{$battaryMountSystem->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <span>Add More battery Mount</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                            <table class="table table-bordered" id="addRemoveBatteryMount">
+                                <tr>
+                                    <th>Battery Mount Models</th>
+                                    <th>Units</th>
+                                    <th>Options</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="battery_mount_id[]" class="selectpicker form-control"
+                                            multiple data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($batteryMounts as $batteryMount)
+                                                <option value="{{$batteryMount->id}}">
+                                                    {{$batteryMount->model}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="units[0][subject]" class="form-control"
+                                            data-id="0">
+                                    </td>
+                                    <td>
+                                        <button type="button" name="add" id="addRemoveBatteryMountButton" 
+                                            class="btn btn-outline-primary">
+                                            Add Battery Mount Units
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                @else
+                    <div class="row">
+                        <h6>Add New battery Mounts</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                            <table class="table table-bordered" id="addRemoveBatteryMount">
+                                <tr>
+                                    <th>Battery Mount Models</th>
+                                    <th>Units</th>
+                                    <th>Options</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="battery_mount_id[]" class="selectpicker form-control"
+                                            multiple data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($batteryMounts as $batteryMount)
+                                                <option value="{{$batteryMount->id}}">
+                                                    {{$batteryMount->model}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="units[0][subject]" class="form-control"
+                                            data-id="0">
+                                    </td>
+                                    <td>
+                                        <button type="button" name="add" id="addRemoveBatteryMountButton" 
+                                            class="btn btn-outline-primary">
+                                            Add Battery Mount Units
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+
+                <hr style="margin-top:30px">
+                <div class="row">
                     <h6>Solar Panels</h6>
                 </div>
                 @if(count($pvSystems) > 0)
@@ -323,6 +428,111 @@
                                     </td>
                                     <td>
                                         <button type="button" name="add" id="addRemovePvButton" 
+                                            class="btn btn-outline-primary">
+                                            Add PV Units
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+
+                <hr style="margin-top:30px">
+                <div class="row">
+                    <h6>Solar Panel Mounts</h6>
+                </div>
+                @if(count($pvMountSystems) > 0)
+
+                    <table id="energySystemPvMountTable" class="table table-striped my-2">
+                        <tbody>
+                            @foreach($pvMountSystems as $pvMountSystem)
+                            <tr id="pvMountSystemsRow">
+                                <td class="text-center">
+                                    {{$pvMountSystem->model}}
+                                </td>
+                                <td class="text-center">
+                                    {{$pvMountSystem->unit}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteEnergySystemPvMount" 
+                                        id="deleteEnergySystemPvMount"
+                                        data-id="{{$pvMountSystem->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <span>Add More Solar Panel Mount</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                            <table class="table table-bordered" id="addRemovePvMount">
+                                <tr>
+                                    <th>PV Mount Models</th>
+                                    <th>Units</th>
+                                    <th>Options</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="pv_mount_id[]" class="selectpicker form-control"
+                                            multiple data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($pvMounts as $pvMount)
+                                                <option value="{{$pvMount->id}}">
+                                                    {{$pvMount->model}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="units[0][subject]" class="form-control"
+                                            data-id="0">
+                                    </td>
+                                    <td>
+                                        <button type="button" name="add" id="addRemovePvMountButton" 
+                                            class="btn btn-outline-primary">
+                                            Add PV Units
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                @else
+                    <div class="row">
+                        <h6>Add New Solar Panel Mounts</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                            <table class="table table-bordered" id="addRemovePvMount">
+                                <tr>
+                                    <th>PV Mount Models</th>
+                                    <th>Units</th>
+                                    <th>Options</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="pv_mount_id[]" class="selectpicker form-control"
+                                            multiple data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($pvMounts as $pvMount)
+                                                <option value="{{$pvMount->id}}">
+                                                    {{$pvMount->model}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="units[0][subject]" class="form-control"
+                                            data-id="0">
+                                    </td>
+                                    <td>
+                                        <button type="button" name="add" id="addRemovePvMountButton" 
                                             class="btn btn-outline-primary">
                                             Add PV Units
                                         </button>
@@ -1756,6 +1966,44 @@
         });
     });
 
+    // delete energy system battery mount
+    $('#energySystemBatteryMountTable').on('click', '.deleteEnergySystemBatteryMount',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this battery mount?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemBatteryMount') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
     // delete energy system pv
     $('#energySystemPvTable').on('click', '.deleteEnergySystemPv',function() {
         var id = $(this).data('id');
@@ -1770,6 +2018,44 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemPv') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // delete energy system pv
+    $('#energySystemPvMountTable').on('click', '.deleteEnergySystemPvMount',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Solar Panel Mount?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemPvMount') }}",
                     type: 'get',
                     data: {id: id},
                     success: function(response) {
@@ -2289,7 +2575,9 @@
     });
 
     var battery_counter = 0;
+    var battery_mount_counter = 0;
     var pv_counter = 0;
+    var pv_mount_counter = 0;
     var controller_counter = 0;
     var inverter_counter = 0;
     var relay_driver_counter = 0;
@@ -2319,6 +2607,22 @@
         $(this).parents('tr').remove();
     });
 
+
+    // Battery Mount
+    $(document).on('click', '#addRemoveBatteryMountButton', function () {
+
+        ++battery_mount_counter;
+        $("#addRemoveBatteryMount").append('<tr><td></td>' +
+            '<td><input class="form-control" data-id="'+ battery_mount_counter +'" name="units[][subject]"></td>' +
+            '<td><button type="button"' +
+            'class="btn btn-outline-danger removeBatteryMount">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.removeBatteryMount', function () {
+        $(this).parents('tr').remove();
+    });
+
     // PV
     $(document).on('click', '#addRemovePvButton', function () {
 
@@ -2331,6 +2635,21 @@
         );
     });
     $(document).on('click', '.removePv', function () {
+        $(this).parents('tr').remove();
+    });
+
+    // PV Mount
+    $(document).on('click', '#addRemovePvMountButton', function () {
+
+        ++pv_mount_counter;
+        $("#addRemovePvMount").append('<tr><td></td>' +
+            '<td><input class="form-control" data-id="'+ pv_mount_counter +'"' +
+            'name="units[][subject]"></td><td><button type="button"' +
+            'class="btn btn-outline-danger removePvMount">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.removePvMount', function () {
         $(this).parents('tr').remove();
     });
    

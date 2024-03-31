@@ -33,8 +33,10 @@ use App\Models\EnergyRemoteControlCenter;
 use App\Models\EnergySystemType;
 use App\Models\EnergySystemRelayDriver;
 use App\Models\EnergySystemBattery;
+use App\Models\EnergySystemBatteryMount;
 use App\Models\EnergySystemMonitoring; 
 use App\Models\EnergySystemPv;
+use App\Models\EnergySystemPvMount;
 use App\Models\EnergySystemChargeController;
 use App\Models\EnergySystemRemoteControlCenter;
 use App\Models\EnergySystemWindTurbine;
@@ -282,6 +284,31 @@ class EnergyComponentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function deleteEnergySystemBatteryMount(Request $request)
+    {
+        $id = $request->id;
+
+        $energyBattery = EnergySystemBatteryMount::find($id);
+
+        if($energyBattery->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Battery Mount System Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function deleteEnergySystemPv(Request $request)
     {
         $id = $request->id;
@@ -292,6 +319,31 @@ class EnergyComponentController extends Controller
 
             $response['success'] = 1;
             $response['msg'] = 'Pv System Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemPvMount(Request $request)
+    {
+        $id = $request->id;
+
+        $energyPv = EnergySystemPvMount::find($id);
+
+        if($energyPv->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Pv Mount System Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

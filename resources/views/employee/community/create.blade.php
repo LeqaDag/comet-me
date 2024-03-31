@@ -21,7 +21,7 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('community')}}">
+                <form method="POST" enctype='multipart/form-data' id="communityForm">
                     @csrf
                     <hr>
                     <div class="row" style="margin-top:12px">
@@ -50,13 +50,14 @@ label, table {
                             </fieldset>
                         </div>
                     </div>
-
                     <div class="row">
+
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Region</label>
                                 <select name="region_id" id="selectedRegion" 
-                                    class="selectpicker form-control" data-live-search="true"  required>
+                                    class="selectpicker form-control" data-live-search="true" 
+                                        required data-parsley-required="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($regions as $region)
                                     <option value="{{$region->id}}">
@@ -65,22 +66,25 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="region_id_error" style="color: red;"></div>
                         </div> 
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Sub Region</label>
                                 <select name="sub_region_id" id="selectedSubRegions" 
-                                class="form-control"  disabled required>
+                                class="selectpicker form-control" disabled 
+                                    required data-parsley-required="true">
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
+                            <div id="sub_region_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Products type</label>
                                 <select name="product_type_id" id="product_type_id" 
                                     class="selectpicker form-control" data-live-search="true"  
-                                    multiple >
+                                    multiple>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($products as $product)
                                         <option value="{{$product->id}}">{{$product->name}}</option>
@@ -89,27 +93,30 @@ label, table {
                             </fieldset>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Fallah</label>
-                                <select name="is_fallah" class="form-control">
+                                <select name="is_fallah" class="selectpicker form-control" 
+                                    id="is_fallah" required data-parsley-required="true">
                                     <option disabled selected>Choose one...</option>
                                     <option value="yes">Yes</option>
                                     <option value="no">No</option>
                                 </select>
+                                <div id="is_fallah_error" style="color: red;"></div>
                             </fieldset> 
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Bedouin</label>
-                                <select name="is_bedouin" class="form-control">
+                                <select name="is_bedouin" id="is_bedouin" required
+                                    class="selectpicker form-control" data-parsley-required="true">
                                     <option disabled selected>Choose one...</option>
                                     <option value="yes">Yes</option>
                                     <option value="no">No</option>
                                 </select>
                             </fieldset>
+                            <div id="is_bedouin_error" style="color: red;"></div>
                         </div>
 
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
@@ -123,7 +130,6 @@ label, table {
                             </fieldset>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
@@ -181,7 +187,6 @@ label, table {
                             </fieldset>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
@@ -253,8 +258,6 @@ label, table {
                             </fieldset>
                         </div> -->
                     </div>
-
-
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-12 mb-1" id="percentageQuestion1Div">
                             <fieldset class="form-group">
@@ -264,7 +267,6 @@ label, table {
                             </fieldset>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
@@ -343,6 +345,64 @@ label, table {
 
 <script>
    
+    $(document).ready(function () {
+
+        $('#communityForm').on('submit', function (event) {
+
+            var regionValue = $('#selectedRegion').val();
+            var subRegionValue = $('#selectedSubRegions').val();
+            var fallahValue = $('#is_fallah').val();
+            var bedouinValue = $('#is_bedouin').val();
+
+            if (regionValue == null) {
+
+                $('#region_id_error').html('Please select a region!'); 
+                return false;
+            } else if (regionValue != null){
+
+                $('#region_id_error').empty();
+            }
+            if (subRegionValue == null) {
+
+                $('#sub_region_id_error').html('Please select a sub region!'); 
+                return false;
+            } else if (subRegionValue != null) {
+
+                $('#sub_region_id_error').empty();
+            }
+            if (fallahValue == null) {
+
+                $('#is_fallah_error').html('Please select an option!'); 
+                return false;
+            } else if (fallahValue != null) {
+
+                $('#is_fallah_error').empty();
+            }
+            if (bedouinValue == null) {
+
+                $('#is_bedouin_error').html('Please select an option!'); 
+                return false;
+            } else if (bedouinValue != null) {
+
+                $('#is_bedouin_error').empty();
+            }
+            
+            $(this).addClass('was-validated');  
+            $('#region_id_error').empty();
+            $('#sub_region_id_error').empty();
+            $('#is_fallah_error').empty();
+            $('#is_bedouin_error').empty();
+
+            $.ajax({ 
+                url: "community",
+                method: 'POST',
+                success: function(data) {
+                    window.location.reload();
+                }
+            }); 
+        });
+    }); 
+
    $(document).on('change', '#publicStructures', function () {
         publicStructure = $(this).val();
 
@@ -362,8 +422,10 @@ label, table {
             url: "community/get_by_region/" + region_id,
             method: 'GET',
             success: function(data) {
-                $('#selectedSubRegions').prop('disabled', false);
-                $('#selectedSubRegions').html(data.html);
+                var select = $('#selectedSubRegions');
+                select.prop('disabled', false); 
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
         });
 
@@ -399,4 +461,5 @@ label, table {
         $(this).parents('tr').remove();
     });
 
+    
 </script>

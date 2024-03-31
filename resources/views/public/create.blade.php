@@ -12,15 +12,16 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('public-structure')}}">
+                <form method="POST" enctype='multipart/form-data' id="publicStructureForm" 
+                    action="{{url('public-structure')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
-                                <select name="community_id" id="selectedRegion" 
+                                <select name="community_id" id="selectedCommunity" 
                                     class="selectpicker form-control" data-live-search="true"  
-                                        required>
+                                    data-parsley-required="true" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -29,6 +30,7 @@
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div> 
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
@@ -118,6 +120,26 @@
 
 <script>
    
- 
+    $(document).ready(function () {
+
+        $('#publicStructureForm').on('submit', function (event) {
+
+            var communityValue = $('#selectedCommunity').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#community_id_error').empty();
+
+            this.submit();
+        });
+    });
 
 </script>

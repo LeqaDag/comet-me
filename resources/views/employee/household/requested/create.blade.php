@@ -1,7 +1,3 @@
-@php
-  $pricingModal = true;
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'requested households')
@@ -27,7 +23,8 @@
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" action="{{url('requested-household')}}" enctype="multipart/form-data" >
+            <form method="POST" action="{{url('requested-household')}}" id="requstedHouseholdForm"
+                enctype="multipart/form-data" >
                 @csrf
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -79,14 +76,15 @@
                                 <span class="error">{{ $errors->first('profession_id') }}</span>
                             @endif
                         </fieldset>
+                        <div id="profession_id_error" style="color: red;"></div>
                         @include('employee.household.profession')
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Recommendede Energy System</label>
+                            <label class='col-md-12 control-label'>Recommended Energy System</label>
                             <select name="recommendede_energy_system_id" 
-                                class="selectpicker form-control"
-                                    data-live-search="true" required>
+                                class="selectpicker form-control" id="recommendedValue"
+                                data-live-search="true" required>
                                 <option disabled selected>Choose one...</option>
                                 @foreach($energySystems as $energySystem)
                                 <option value="{{$energySystem->id}}">
@@ -95,6 +93,7 @@
                                 @endforeach
                             </select>
                         </fieldset>
+                        <div id="recommendede_energy_system_id_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
@@ -114,6 +113,7 @@
                                 <span class="error">{{ $errors->first('community_id') }}</span>
                             @endif
                         </fieldset>
+                        <div id="community_id_error" style="color: red;"></div>
                     </div>
                 </div> 
 
@@ -270,11 +270,7 @@
     </div>
 </div>
 
-@endsection
-
 <script>
-
-
     $(document).on('change', '#selectedProfession', function () {
         
         selectedValue = $(this).val();
@@ -330,4 +326,49 @@
 
         $('#electricitySourceShared').prop('disabled', false);
     });
+
+    $(document).ready(function () {
+
+        $('#requstedHouseholdForm').on('submit', function (event) {
+
+            var communityValue = $('#selectedCommunity').val();
+            var professionValue = $('#selectedProfession').val();
+            var recommendedValue = $('#recommendedValue').val();
+
+            if (professionValue == null) {
+
+                $('#profession_id_error').html('Please select a profession!'); 
+                return false;
+            } else if (professionValue != null){
+
+                $('#profession_id_error').empty();
+            }
+
+            if (recommendedValue == null) {
+
+                $('#recommendede_energy_system_id_error').html('Please select a value!'); 
+                return false;
+            } else if (recommendedValue != null){
+
+                $('#recommendede_energy_system_id_error').empty();
+            }
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            $(this).addClass('was-validated'); 
+            $('#profession_id_error').empty(); 
+            $('#community_id_error').empty();
+            $('#recommendede_energy_system_id_error').empty();
+
+            this.submit();
+        });
+    });
 </script>
+@endsection

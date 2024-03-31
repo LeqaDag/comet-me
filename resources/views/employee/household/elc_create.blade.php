@@ -25,14 +25,16 @@ label {
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" enctype='multipart/form-data' action="{{url('progress-household')}}">
+            <form method="POST" enctype='multipart/form-data' id="elecUserForm" 
+                action="{{url('progress-household')}}">
                 @csrf
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New/Old Community</label>
                             <select name="misc" id="selectedUserMisc" data-live-search="true"
-                                class="selectpicker form-control" required>
+                                class="selectpicker form-control" data-parsley-required="true" 
+                                required>
                                 <option disabled selected>Choose one...</option>
                                 @foreach($installationTypes as $installationType)
                                     <option value="{{$installationType->id}}">
@@ -41,6 +43,7 @@ label {
                                 @endforeach
                             </select>
                         </fieldset>
+                        <div id="misc_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
@@ -48,9 +51,10 @@ label {
                             <select class="selectpicker form-control"
                                 data-live-search="true" 
                                 name="community_id" id="selectedUserCommunity"
-                                required>
+                                data-parsley-required="true">
                             </select>
                         </fieldset>
+                        <div id="community_id_error" style="color: red;"></div>
                     </div>
                 </div>
                 <div class="row">
@@ -63,6 +67,7 @@ label {
                                 <option disabled selected>Choose one...</option>
                             </select>
                         </fieldset>
+                        <div id="household_id_error" style="color: red;"></div>
                     </div>
 
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -82,7 +87,7 @@ label {
                 <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Energy System Type</label>
-                        <select name="energy_system_type_id" 
+                        <select name="energy_system_type_id" data-parsley-required="true"
                             class="form-control" id="selectedEnergySystemType">
                             <option disabled selected>Choose one...</option>
                             @foreach($energySystemTypes as $energySystemType)
@@ -92,15 +97,17 @@ label {
                             @endforeach
                         </select>
                     </fieldset>
+                    <div id="energy_system_type_id_error" style="color: red;"></div>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Energy System</label>
                         <select name="energy_system_id" id="selectedEnergySystem" 
-                            class="form-control" disabled required>
+                            class="form-control" data-parsley-required="true" disabled>
                             <option disabled selected>Choose one...</option>
                         </select>
                     </fieldset>
+                    <div id="energy_system_id_error" style="color: red;"></div>
                 </div>
             </div>
                 <div class="row" style="margin-top:20px">
@@ -256,7 +263,6 @@ label {
 
 <script>
    
-    
     $(document).on('change', '#selectedUserMisc', function () {
 
         installation_type = $(this).val();
@@ -322,6 +328,72 @@ label {
             }
         });
     }
+
+    $(document).ready(function () {
+
+        $('#elecUserForm').on('submit', function (event) {
+
+            var miscValue = $('#selectedUserMisc').val();
+            var communityValue = $('#selectedUserCommunity').val();
+            var householdValue = $('#selectedUserHousehold').val();
+            var energyTypeValue = $('#selectedEnergySystemType').val();
+            var energyValue = $('#selectedEnergySystem').val();
+
+            if (miscValue == null) {
+
+                $('#misc_error').html('Please select an option!'); 
+                return false;
+            } else if (miscValue != null){
+
+                $('#misc_error').empty();
+            }
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            if (!householdValue || householdValue.length === 0) {
+
+                $('#household_id_error').html('Please select at least one household!');
+                return false;
+            } else {
+
+                $('#household_id_error').empty();
+            }
+
+            if (energyTypeValue == null) {
+
+                $('#energy_system_type_id_error').html('Please select a Energy System Type!'); 
+                return false;
+            } else if (energyTypeValue != null){
+
+                $('#energy_system_type_id_error').empty();
+            } 
+
+            if (energyValue == null) {
+
+                $('#energy_system_id_error').html('Please select an Energy System!'); 
+                return false;
+            } else if (energyValue != null){
+
+                $('#energy_system_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#misc_error').empty(); 
+            $('#community_id_error').empty();
+            $('#household_id_error').empty();
+            $('#energy_system_type_id_error').empty();
+            $('#energy_system_id_error').empty();
+
+            this.submit();
+        });
+    });
 
     $(function() {
 

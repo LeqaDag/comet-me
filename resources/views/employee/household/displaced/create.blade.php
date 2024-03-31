@@ -20,7 +20,7 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' 
+                <form method="POST" enctype='multipart/form-data' id="displacedHouseholdForm"
                     action="{{url('displaced-household')}}">
                     @csrf
 
@@ -28,9 +28,9 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Old Community</label>
-                                <select class="selectpicker form-control" 
+                                <select class="selectpicker form-control" required
                                     data-live-search="true" id="communityDisplaced"
-                                    name="old_community_id" required>
+                                    name="old_community_id" data-parsley-required="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -39,12 +39,17 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="old_community_id_error" style="color: red;"></div>
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
-                            <label class='col-md-12 control-label'>Displaced Households</label>
-                            <select name="households[]" multiple id="selectedHousehold"
-                                class="selectpicker form-control" data-live-search="true">
-                            </select>
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Displaced Households</label>
+                                <select name="households[]" multiple id="selectedHousehold"
+                                    class="selectpicker form-control" data-live-search="true"
+                                    data-parsley-required="true">
+                                </select>
+                            </fieldset>
+                            <div id="households_error" style="color: red;"></div>
                         </div>
                     </div>
                     <div class="row">
@@ -159,7 +164,7 @@ label, table {
             url: "displaced-household/get_system_by_community/" + community_id,
             method: 'GET',
             success: function(data) {
-                console.log(data.html);
+
                 $('#oldEnergySystem').prop('disabled', false);
                 $('#oldEnergySystem').html(data.html);
             }
@@ -178,6 +183,39 @@ label, table {
             error: function(xhr, status, error) {
                 console.error(error);
             }
+        });
+    });
+
+    $(document).ready(function () {
+
+        $('#displacedHouseholdForm').on('submit', function (event) {
+
+            var communityValue = $('#communityDisplaced').val();
+            var householdValue = $('#selectedHousehold').val();
+
+            if (communityValue == null) {
+
+                $('#old_community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#old_community_id_error').empty();
+            }
+
+            if (!householdValue || householdValue.length === 0) {
+
+                $('#households_error').html('Please select at least one household!');
+                return false;
+            } else {
+
+                $('#households_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#households_error').empty(); 
+            $('#old_community_id_error').empty();
+
+            this.submit();
         });
     });
 </script>

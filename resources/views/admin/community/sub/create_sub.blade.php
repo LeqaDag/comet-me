@@ -17,7 +17,8 @@ label, table {
                 <h4 class="modal-title">Create Sub Community</h4>
                 <button type="button" class="close" data-bs-dismiss="modal">&times;</button> 
             </div>
-            <form method="POST" enctype='multipart/form-data' action="{{url('sub-community')}}">
+            <form method="POST" enctype='multipart/form-data' id="subCommunityForm"
+                action="{{url('sub-community')}}">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
@@ -32,7 +33,7 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Arabic Name</label> 
                                 <input type="text" class="form-control" name="arabic_name" 
-                                    placeholder="Enter Arabic Name"> 
+                                    placeholder="Enter Arabic Name" required> 
                             </fieldset> 
                         </div>
                     </div>
@@ -41,8 +42,9 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
-                                <select name="community_id" class="selectpicker form-control"
-                                    data-live-search="true" >
+                                <select name="community_id" id="community_id"
+                                    class="selectpicker form-control" data-live-search="true" 
+                                    required data-parsley-required="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                         <option value="{{$community->id}}">
@@ -51,6 +53,7 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div>
                     </div>
                 </div>
@@ -62,3 +65,33 @@ label, table {
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+
+        $('#subCommunityForm').on('submit', function (event) {
+
+            var communityValue = $('#community_id').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null) {
+
+                $('#community_id_error').empty();
+            }
+            
+            $(this).addClass('was-validated');  
+            $('#community_id_error').empty();
+
+            $.ajax({ 
+                url: "sub-community",
+                method: 'POST',
+                success: function(data) {
+                   
+                }
+            });
+        });
+    });
+</script>

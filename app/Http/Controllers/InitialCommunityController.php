@@ -102,7 +102,9 @@ class InitialCommunityController extends Controller
                     ->make(true);
             }
     
-            $communityRecords = Community::where("community_status_id", "1")->count();
+            $communityRecords = Community::where("community_status_id", "1")
+                ->where("is_archived", 0)
+                ->count();
             $regions = Region::where('is_archived', 0)->get();
             $subregions = SubRegion::where('is_archived', 0)->get();
             $products = ProductType::where('is_archived', 0)->get();

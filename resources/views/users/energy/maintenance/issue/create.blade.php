@@ -20,20 +20,22 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' 
+                <form method="POST" enctype='multipart/form-data' id="energyIssueForm"
                     action="{{url('energy-issue')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>English Name</label>
-                                <input type="text" name="english_name" class="form-control"> 
+                                <input type="text" name="english_name" class="form-control"
+                                required> 
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Arabic Name</label>
-                                <input type="text" name="arabic_name" class="form-control"> 
+                                <input type="text" name="arabic_name" class="form-control"
+                                required> 
                             </fieldset>
                         </div> 
                     </div>

@@ -607,10 +607,10 @@ class WaterUserController extends Controller
       
         if (!$community_id) {
 
-            $html = '<option value="">Choose One...</option>';
+            $html = '<option disabled selected>Choose One...</option>';
         } else {
 
-            $html = '<option value="">Select...</option>';
+            $html = '<option disabled selected>Select...</option>';
             $publics = DB::table('public_structures')
                 ->where("public_structures.community_id", $community_id)
                 ->select('public_structures.id', 'public_structures.english_name')

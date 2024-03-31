@@ -17,8 +17,15 @@
 </style>
 
 @section('content')
-<h4 class="py-3 breadcrumb-wrapper mb-4">
-    <span class="text-muted fw-light">Edit </span> {{$internetIncident->InternetUser->Household->english_name}}
+<h4 class="py-3 breadcrumb-wrapper mb-4"> 
+    <span class="text-muted fw-light">Edit </span>
+    
+    @if($internetIncident->InternetUser->household_id)
+            {{$internetIncident->InternetUser->Household->english_name}} 
+        @else @if($internetIncident->InternetUser->public_structure_id)
+            {{$internetIncident->InternetUser->PublicStructure->english_name}} 
+        @endif
+    @endif
     <span class="text-muted fw-light">Information </span> 
 </h4>
 
@@ -45,12 +52,17 @@
                     </div> 
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Internet User</label>
+                            <label class='col-md-12 control-label'>Internet Holder</label>
                             <select name="internet_user_id" class="form-control" 
                                  disabled>
                                 @if($internetIncident->internet_user_id)
                                     <option value="{{$internetIncident->internet_user_id}}">
-                                        {{$internetIncident->InternetUser->Household->english_name}}
+                                    @if($internetIncident->InternetUser->household_id)
+                                            {{$internetIncident->InternetUser->Household->english_name}} 
+                                        @else @if($internetIncident->InternetUser->public_structure_id)
+                                            {{$internetIncident->InternetUser->PublicStructure->english_name}} 
+                                        @endif
+                                    @endif                           
                                     </option>
                                 @endif
                             </select>

@@ -564,10 +564,10 @@ class MgIncidentController extends Controller
 
         if (!$request->community_id) {
 
-            $html = '<option value="">Choose One...</option>';
+            $html = '<option disabled selected>Choose One...</option>';
         } else {
 
-            $html = '<option selected>Choose One...</option>';
+            $html = '<option disabled selected>Choose One...</option>';
             $households = Household::where('community_id', $request->community_id)
                 ->where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')

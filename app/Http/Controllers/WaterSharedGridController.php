@@ -119,10 +119,10 @@ class WaterSharedGridController extends Controller
 
         if (!$request->community_id) {
 
-            $html = '<option value="">Choose One...</option>';
+            $html = '<option disabled selected>Choose One...</option>';
         } else {
 
-            $html = '<option selected>Choose One...</option>';
+            $html = '<option disabled selected>Choose One...</option>';
             $gridUsers = DB::table('grid_users')
                 ->join('communities', 'grid_users.community_id', 'communities.id')
                 ->join('households', 'grid_users.household_id', 'households.id')

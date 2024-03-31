@@ -20,14 +20,15 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('community-donor')}}">
+                <form method="POST" enctype='multipart/form-data' id="communityDonorForm"
+                    action="{{url('community-donor')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select name="community_id" class="selectpicker form-control" 
-                                    data-live-search="true" >
+                                    data-live-search="true" id="selectedCommunity">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -36,11 +37,13 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Service Type</label>
-                                <select name="service_id" class="form-control" >
+                                <select name="service_id" class="selectpicker form-control"
+                                    data-live-search="true" id="serviceSelected">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($services as $service)
                                     <option value="{{$service->id}}">
@@ -49,12 +52,13 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="service_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Donor</label>
                                 <select name="donor_id[]" class="selectpicker form-control" 
-                                    data-live-search="true" multiple>
+                                    data-live-search="true" multiple id="donorsSelected">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($donors as $donor)
                                     <option value="{{$donor->id}}">
@@ -63,6 +67,7 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="donor_id_error" style="color: red;"></div>
                         </div>
                     </div>
                 </div>
@@ -74,5 +79,50 @@ label, table {
         </div>
     </div>
 </div>
+<script>
 
+    $(document).ready(function () {
+
+        $('#communityDonorForm').on('submit', function (event) {
+
+            var communityValue = $('#selectedCommunity').val();
+            var serviceValue = $('#serviceSelected').val();
+            var donorValue = $('#donorsSelected').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            if (serviceValue == null) {
+
+                $('#service_id_error').html('Please select a service!'); 
+                return false;
+            } else if (serviceValue != null){
+
+                $('#service_id_error').empty();
+            }
+
+            if (!donorValue || donorValue.length === 0) {
+
+                $('#donor_id_error').html('Please select at least one donor!');
+                return false;
+            } else {
+
+                $('#donor_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#service_id_error').empty(); 
+            $('#community_id_error').empty();
+            $('#donor_id_error').empty();
+
+            this.submit();
+        });
+    });
+</script>
 

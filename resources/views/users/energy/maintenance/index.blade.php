@@ -70,11 +70,23 @@
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
+                                        <select name="issue" class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Issue</option>
+                                            @foreach($energyIssues as $energyIssue)
+                                            <option value="{{$energyIssue->id}}">
+                                                {{$energyIssue->english_name}}
+                                            </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
                                         <input type="date" name="date" id="energyMaintenanceDate"
                                         class="form-control" title="Completed Data from"> 
                                     </fieldset>
                                 </div>
-                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                <div class="col-xl-3 col-lg-3 col-md-3" style="margin-top:12px">
                                     <fieldset class="form-group">
                                         <button class="btn btn-info" type="submit">
                                             <i class='fa-solid fa-file-excel'></i>
@@ -137,6 +149,20 @@
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Issue</label>
+                        <select id="filterByIssue" class="selectpicker form-control" 
+                            data-live-search="true">
+                            <option disabled selected>Search Issue</option>
+                            @foreach($energyIssues as $energyIssue)
+                            <option value="{{$energyIssue->id}}">
+                                {{$energyIssue->english_name}}
+                            </option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Completed Date from</label>
                         <input type="date" class="form-control" name="date_from"
                         id="filterByDateFrom">
@@ -161,11 +187,11 @@
                 <div style="margin-top:18px">
                     <button type="button" class="btn btn-success" 
                         data-bs-toggle="modal" data-bs-target="#createMaintenanceLogElectricity">
-                        Create New Maintenance Call	
+                        Create New Maintenancne Call	
                     </button>
                     @include('users.energy.maintenance.create')
                 </div>
-                <hr>
+                <hr> 
                 <div>
                     <form action="{{route('energy-maintenance.import')}}" method="POST" 
                         enctype="multipart/form-data">
@@ -180,7 +206,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4">
                                 <button class="btn btn-success" type="submit">Import File</button>
                             </div>
-
+ 
                         </div>
                     </form>
                 <div>
@@ -220,6 +246,7 @@
                     d.community_filter = $('#filterByCommunity').val();
                     d.public_filter = $('#filterByPublic').val();
                     d.date_filter = $('#filterByDateFrom').val();
+                    d.issue_filter = $('#filterByIssue').val();
                 }
             },
             columns: [
@@ -246,6 +273,10 @@
         });
 
         $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByIssue').on('change', function() {
             table.ajax.reload(); 
         });
 
@@ -337,14 +368,37 @@
                     $('#energyModalTitle').html(response['household'].english_name);
                     $('#englishNameUser').html(response['household'].english_name);
 
+                    $("#energyHolderIcon").removeClass('bx bx-building bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-bulb bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-cuboid bx-sm me-3');
+                    $("#energyHolderIcon").addClass('bx bx-user bx-sm me-3');
                  } else if(response['public']) {
 
                     $('#energyModalTitle').html(response['public'].english_name);
                     $('#englishNameUser').html(response['public'].english_name);
+
+                    $("#energyHolderIcon").removeClass('bx bx-user bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-bulb bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-cuboid bx-sm me-3');
+                    $("#energyHolderIcon").addClass('bx bx-building bx-sm me-3');
                 } else if(response['energySystem']) {
 
                     $('#energyModalTitle').html(response['energySystem'].name);
                     $('#englishNameUser').html(response['energySystem'].name);
+
+                    $("#energyHolderIcon").removeClass('bx bx-user bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-building bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-cuboid bx-sm me-3');
+                    $("#energyHolderIcon").addClass('bx bx-bulb bx-sm me-3');
+                } else if(response['turbine']) {
+
+                    $('#energyModalTitle').html(response['turbine'].name);
+                    $('#englishNameUser').html(response['turbine'].name);
+
+                    $("#energyHolderIcon").removeClass('bx bx-user bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-building bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-bulb bx-sm me-3');
+                    $("#energyHolderIcon").addClass('bx bx-cuboid bx-sm me-3');
                 }
 
                 $('#communityUser').html('');
@@ -370,7 +424,7 @@
                 for (var i = 0; i < response['energyActions'].length; i++) {
                     $("#maintenanceAction").append(
                         '<ul><li>'+ response['energyActions'][i].arabic_name +'</li> </ul>');
-                }
+                } 
 
                 $("#maintenancePerformedBy").html(" ");
                 for (var i = 0; i < response['performedUsers'].length; i++) {

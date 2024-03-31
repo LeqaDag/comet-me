@@ -26,14 +26,15 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('water-public')}}">
+                <form method="POST" enctype='multipart/form-data' id="waterSharedPublicForm"
+                    action="{{url('water-public')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select name="community_id[]" id="communityChanges" 
-                                    class="selectpicker form-control" 
+                                    class="selectpicker form-control" required
                                     data-live-search="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
@@ -41,26 +42,29 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div>
 
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Water System Holder</label>
                                 <select name="h2o_public_structure_id" id="selectedPublicHolder" 
-                                    class="form-control" disabled>
+                                    class="selectpicker form-control" disabled data-live-search="true">
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
+                            <div id="h2o_public_structure_id_error" style="color: red;"></div>
                         </div>
 
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Shared Public Structure</label>
                                 <select name="public_structure_id" id="selectedPublic" 
-                                    class="form-control" disabled>
+                                    class="selectpicker form-control" data-live-search="true" disabled>
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
+                            <div id="public_structure_id_error" style="color: red;"></div>
                         </div>
 
                     </div>
@@ -82,8 +86,11 @@ label, table {
             url: "water-public/get_by_community/" + community_id,
             method: 'GET',
             success: function(data) {
-                $('#selectedPublicHolder').prop('disabled', false);
-                $('#selectedPublicHolder').html(data.html);
+
+                var select = $('#selectedPublicHolder');
+                select.prop('disabled', false); 
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
         });
 
@@ -91,9 +98,57 @@ label, table {
             url: "public/get_by_community/" + community_id,
             method: 'GET',
             success: function(data) {
-                $('#selectedPublic').prop('disabled', false);
-                $('#selectedPublic').html(data.html);
+
+                var select = $('#selectedPublic');
+                select.prop('disabled', false); 
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
+        });
+    });
+
+    $(document).ready(function() {
+
+        $('#waterSharedPublicForm').on('submit', function (event) {
+
+            var communityValue = $('#communityChanges').val();
+            var publicValue = $('#selectedPublicHolder').val();
+            var sharedValue = $('#selectedPublic').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            if (publicValue == null) {
+
+                $('#h2o_public_structure_id_error').html('Please select a holder!'); 
+                return false;
+            } else if (publicValue != null){
+
+                $('#h2o_public_structure_id_error').empty();
+            }
+
+            if (sharedValue == null) {
+
+                $('#public_structure_id_error').html('Please select a shared Public!'); 
+                return false;
+            } else if (sharedValue != null){
+
+                $('#public_structure_id_error').empty();
+            }
+
+
+            $(this).addClass('was-validated');  
+            $('#public_structure_id_error').empty();  
+            $('#h2o_public_structure_id_error').empty();
+            $('#community_id_error').empty();
+
+            this.submit();
         });
     });
 </script>

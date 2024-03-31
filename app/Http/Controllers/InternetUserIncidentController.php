@@ -48,13 +48,15 @@ class InternetUserIncidentController extends Controller
             if ($request->ajax()) {
 
                 $data = DB::table('internet_user_incidents')
-                    ->join('communities', 'internet_user_incidents.community_id', '=', 'communities.id')
-                    ->join('internet_users', 'internet_user_incidents.internet_user_id', '=', 'internet_users.id')
-                    ->join('households', 'internet_users.household_id', '=', 'households.id')
-                    ->join('incidents', 'internet_user_incidents.incident_id', '=', 'incidents.id')
+                    ->join('communities', 'internet_user_incidents.community_id', 'communities.id')
+                    ->join('internet_users', 'internet_user_incidents.internet_user_id', 'internet_users.id')
+                    ->leftJoin('households', 'internet_users.household_id', 'households.id')
+                    ->leftJoin('public_structures', 'internet_users.public_structure_id', 
+                        'public_structures.id')
+                    ->join('incidents', 'internet_user_incidents.incident_id', 'incidents.id')
                     ->join('internet_incident_statuses', 
                         'internet_user_incidents.internet_incident_status_id', 
-                        '=', 'internet_incident_statuses.id')
+                        'internet_incident_statuses.id')
                     ->where('internet_user_incidents.is_archived', 0);
     
                 if($communityFilter != null) {
@@ -77,6 +79,7 @@ class InternetUserIncidentController extends Controller
                     'internet_user_incidents.updated_at as updated_at', 
                     'communities.english_name as community_name', 
                     'households.english_name as household_name',
+                    'public_structures.english_name as public_name', 
                     'incidents.english_name as incident', 
                     'internet_incident_statuses.name',
                     'internet_user_incidents.notes'
@@ -100,6 +103,13 @@ class InternetUserIncidentController extends Controller
                         } else return $viewButton;
        
                     })
+                    ->addColumn('holder', function($row) {
+
+                        if($row->household_name != null) $holder = $row->household_name;
+                        else if($row->public_name != null) $holder = $row->public_name;
+
+                        return $holder;
+                    })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request) {
@@ -109,12 +119,14 @@ class InternetUserIncidentController extends Controller
                                 ->orWhere('internet_incident_statuses.name', 'LIKE', "%$search%")
                                 ->orWhere('households.english_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
+                                ->orWhere('public_structures.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('internet_user_incidents.date', 'LIKE', "%$search%")
                                 ->orWhere('incidents.english_name', 'LIKE', "%$search%");
                             });
                         }
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'holder'])
                     ->make(true);
             }
     
@@ -159,8 +171,18 @@ class InternetUserIncidentController extends Controller
         }
 
         $internetIncident->community_id = $request->community_id;
-        $internetUser = InternetUser::where('household_id', $request->internet_user_id)->first();
-        $internetIncident->internet_user_id = $internetUser->id;
+        if($request->public_user == "user") { 
+
+            $internetUser = InternetUser::where('household_id', $request->internet_user_id)->first();
+            $internetIncident->internet_user_id = $internetUser->id;
+        }
+
+        if($request->public_user == "public") {
+
+            $internetUser = InternetUser::where('public_structure_id', $request->internet_user_id)->first();
+            $internetIncident->internet_user_id = $internetUser->id;
+        }
+
         $internetIncident->incident_id = $request->incident_id;
         $internetIncident->internet_incident_status_id = $request->internet_incident_status_id;
         $internetIncident->response_date = $request->response_date;
@@ -430,42 +452,41 @@ class InternetUserIncidentController extends Controller
     }
 
     /**
-     * Get internet users by community_id.
+     * Get resources from storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getInternetUsersByCommunity(Request $request)
+    public function getInternetUsersByCommunity($community_id, $flag)
     {
-        $internetUsers = DB::table('internet_users')
-            ->join('communities', 'internet_users.community_id', 'communities.id')
-            ->join('households', 'internet_users.household_id', 'households.id')
-            ->where('internet_users.community_id', $request->community_id)
-            ->where('internet_users.is_archived', 0)
-            ->orderBy('households.english_name', 'ASC')
-            ->select('households.id as id', 'households.english_name')
-            ->get();
+        $html = "<option disabled selected>Choose one...</option>";
 
-        if (!$request->community_id) {
+        if($flag == "user") {
 
-            $html = '<option value="">Choose One...</option>';
-        } else {
-
-            $html = '<option disabled selected>Choose One...</option>';
-            $internetUsers = DB::table('internet_users')
+            $households = DB::table('internet_users')
                 ->join('communities', 'internet_users.community_id', 'communities.id')
                 ->join('households', 'internet_users.household_id', 'households.id')
-                ->where('internet_users.community_id', $request->community_id)
+                ->where('internet_users.community_id', $community_id)
                 ->where('internet_users.is_archived', 0)
                 ->orderBy('households.english_name', 'ASC')
                 ->select('households.id as id', 'households.english_name')
                 ->get();
-
-            foreach ($internetUsers as $internetUser) {
-                $html .= '<option value="'.$internetUser->id.'">'.$internetUser->english_name.'</option>';
-            }
+        } else if($flag == "public") {
+ 
+            $households = DB::table('internet_users')
+                ->join('communities', 'internet_users.community_id', 'communities.id')
+                ->join('public_structures', 'internet_users.public_structure_id', 'public_structures.id')
+                ->where('internet_users.community_id', $community_id)
+                ->where('internet_users.is_archived', 0)
+                ->orderBy('public_structures.english_name', 'ASC')
+                ->select('public_structures.id as id', 'public_structures.english_name')
+                ->get();
         }
 
+        foreach ($households as $household) {
+            $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+        }
+        
         return response()->json(['html' => $html]);
     }
 

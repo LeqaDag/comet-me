@@ -16,7 +16,7 @@ class ElectricityMaintenanceCall extends Model
     {
         return $this->belongsTo(Community::class, 'community_id', 'id');
     }
-
+ 
     public function User()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
@@ -25,6 +25,11 @@ class ElectricityMaintenanceCall extends Model
     public function EnergySystem()
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id', 'id');
+    }
+
+    public function EnergyTurbineCommunity()
+    {
+        return $this->belongsTo(EnergyTurbineCommunity::class, 'energy_turbine_community_id', 'id');
     }
 
     public function MaintenanceType()

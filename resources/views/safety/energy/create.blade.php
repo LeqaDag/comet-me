@@ -22,7 +22,8 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('energy-safety')}}">
+                <form method="POST" enctype='multipart/form-data' id="safteyChecksForm"
+                    action="{{url('energy-safety')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
@@ -37,26 +38,30 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div>
+
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>User/Public Structure</label>
                                 <select name="public_user" id="userPublicSelectedSaftey" 
-                                    class="form-control" disabled required>
+                                    class="selectpicker form-control" disabled required>
                                     <option disabled selected>Choose one...</option>
                                     <option value="user">Energy User</option> 
                                     <option value="public">Public Structure</option>
                                 </select>
                             </fieldset>
+                            <div id="public_user_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Meter Holder</label>
-                                <select name="holder_id" id="selectedHolder" 
-                                    class="form-control" disabled>
+                                <select name="holder_id" id="selectedHolder" required
+                                    class="selectpicker form-control" disabled>
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
+                            <div id="holder_id_error" style="color: red;"></div>
                         </div>
                     </div>
                     <div class="row">
@@ -85,7 +90,7 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Visit Date</label>
                                 <input type="date" name="visit_date" 
-                                    class="form-control">
+                                    class="form-control" required>
                             </fieldset>
                         </div>  
                     </div>
@@ -199,22 +204,13 @@ label, table {
 <script>
     
     $(document).on('change', '#communitySafetyCheck', function () {
+
         community_id = $(this).val();
    
+        $('#selectedHolder').empty();
         $('#userPublicSelectedSaftey').prop('disabled', false);
-
-        publicUser = $('#userPublicSelectedSaftey').val();
-        if(publicUser == "user") {
-            
-            EnergyUser(community_id);
-            
-        } else if(publicUser == "public") {
-
-            $('#selectedWaterHolder').prop('disabled', true);
-
-            EnergyPublic(community_id);
-        }
-
+        $('#userPublicSelectedSaftey').html('<option disabled selected>Choose one...</option><option value="user">User</option><option value="public">Public Structure</option>');
+        $('#userPublicSelectedSaftey').selectpicker('refresh');
         UserOrPublic(community_id);
     });
 
@@ -225,13 +221,30 @@ label, table {
             
             if(publicUser == "user") {
             
-                EnergyUser(community_id);
-                
+                $.ajax({
+                    url: "energy_user/get_by_community/" + community_id,
+                    method: 'GET',
+                    success: function(data) {
+
+                        var select = $('#selectedHolder');
+                        select.prop('disabled', false); 
+                        select.html(data.html);
+                        select.selectpicker('refresh');
+                    }
+                });
             } else if(publicUser == "public") {
 
-                $('#selectedWaterHolder').prop('disabled', true);
-
-                EnergyPublic(community_id);
+                $.ajax({
+                    url: "energy_public/get_by_community/" + community_id,
+                    method: 'GET',
+                    success: function(data) {
+                
+                        var select = $('#selectedHolder');
+                        select.prop('disabled', false); 
+                        select.html(data.html);
+                        select.selectpicker('refresh');
+                    }
+                });
             }
         });
     }
@@ -243,30 +256,6 @@ label, table {
        
         GroundConnected(holder_id, publicUser);
     });
-
-    function EnergyUser(community_id) {
-        
-        $.ajax({
-            url: "energy_user/get_by_community/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedHolder').prop('disabled', false);
-                $('#selectedHolder').html(data.html);
-            }
-        });
-    }
-
-    function EnergyPublic(community_id) {
-        
-        $.ajax({
-            url: "energy_public/get_by_community/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedHolder').prop('disabled', false);
-                $('#selectedHolder').html(data.html);
-            }
-        });
-    }
 
     function GroundConnected(holder_id, publicUser) {
 
@@ -295,5 +284,49 @@ label, table {
             }
         });
     }
+
+    $(document).ready(function() {
+
+        $('#safteyChecksForm').on('submit', function (event) {
+
+            var communityValue = $('#communitySafetyCheck').val();
+            var userOrPublicValue = $('#userPublicSelectedSaftey').val();
+            var holderValue = $('#selectedHolder').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            if (userOrPublicValue == null) {
+
+                $('#public_user_error').html('Please select an option!'); 
+                return false;
+            } else if (userOrPublicValue != null){
+
+                $('#public_user_error').empty();
+            }
+
+            if (holderValue == null) {
+
+                $('#holder_id_error').html('Please select a holder!'); 
+                return false;
+            } else if (holderValue != null){
+
+                $('#holder_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#holder_id_error').empty();  
+            $('#public_user_error').empty();
+            $('#community_id_error').empty();
+
+            this.submit();
+        });
+    });
 
 </script>

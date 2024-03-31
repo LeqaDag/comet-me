@@ -8,7 +8,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
-use Route;
+use Route; 
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
@@ -265,10 +265,22 @@ class SubCommunityHouseholdController extends Controller
      */
     public function store(Request $request)
     {
-        $subCommunity = SubCommunityHousehold::create($request->all());
-        $subCommunity->save();
+        if($request->household_id) {
 
-        return redirect()->back()->with('message', 'New Sub Community Household Added Successfully!');
+            for($i=0; $i < count($request->household_id); $i++) {
+
+                $subCommunity = new SubCommunityHousehold();
+                $subCommunity->community_id = $request->community_id;
+                $subCommunity->household_id = $request->household_id[$i];
+                $subCommunity->sub_community_id = $request->sub_community_id;
+                $subCommunity->save(); 
+            } 
+
+            return redirect()->back()->with('message', 'New Sub Community Household Added Successfully!');
+        } else {
+
+            return redirect()->back()->with('error', 'You missed up selecting households!');
+        }
     }
 
     /**

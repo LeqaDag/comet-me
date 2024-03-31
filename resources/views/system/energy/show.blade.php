@@ -69,7 +69,7 @@
             <div class="row">
                 <div class="col-xl-4 col-lg-4 col-md-4">
                     <h6>
-                        Rated Ssolar Power (kW): 
+                        Rated Solar Power (kW): 
                         <span class="spanDetails">
                             {{$energySystem->total_rated_power}}
                         </span>

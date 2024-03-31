@@ -325,10 +325,16 @@
                 $('#englishNameUser').html('');
                 if(response['household']) {
 
+                    $("#holderIcon").removeClass('bx bx-building bx-sm me-3');
+                    $("#holderIcon").addClass('bx bx-user bx-sm me-3');
+
                     $('#refrigeratorModalTitle').html(response['household'].english_name);
                     $('#englishNameUser').html(response['household'].english_name);
 
                 } else if(response['public']) {
+
+                    $("#holderIcon").removeClass('bx bx-user bx-sm me-3');
+                    $("#holderIcon").addClass('bx bx-building bx-sm me-3');
 
                     $('#refrigeratorModalTitle').html(response['public'].english_name);
                     $('#englishNameUser').html(response['public'].english_name);

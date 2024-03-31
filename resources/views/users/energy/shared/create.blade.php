@@ -12,7 +12,7 @@ label, table {
     font-weight: bold;
 }
 </style>
-
+ 
 <div id="createHouseholdMeter" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -25,7 +25,8 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('household-meter')}}">
+                <form method="POST" enctype='multipart/form-data' id="sharedHolderForm"
+                    action="{{url('household-meter')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -41,21 +42,20 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy Meter</label>
-                                <select name="energy_user_id" id="selectedEnergyUser" 
-                                    class="form-control" disabled required>
+                                <select name="energy_user_id" id="selectedEnergyUser" disabled
+                                    class="selectpicker form-control" data-live-search="true"
+                                    data-parsley-required="true" required>
                                     <option disabled selected>Choose one...</option>
-                                    @foreach($households as $household)
-                                    <option value="{{$household->id}}">
-                                        {{$household->english_name}}
-                                    </option>
-                                    @endforeach
                                 </select>
                             </fieldset>
+                            <div id="energy_user_id_error" style="color: red;"></div>
                         </div>
+                        <div id="shared_error" style="color: red;"></div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Households "Shared"</label>
@@ -86,7 +86,7 @@ label, table {
         </div>
     </div>
 </div>
-
+ 
 <script>
 
     $(document).on('change', '#communitySharedUser', function () {
@@ -97,8 +97,11 @@ label, table {
             method: 'GET',
             success: function(data) { 
 
-                $('#selectedEnergyUser').prop('disabled', false);
-                $('#selectedEnergyUser').html(data.html);
+                var select = $('#selectedEnergyUser'); 
+                select.prop('disabled', false);
+
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
         });
 
@@ -146,4 +149,47 @@ label, table {
         });
     });
 
+    $(document).ready(function () {
+ 
+        $('#sharedHolderForm').on('submit', function (event) {
+
+            var communityMain = $('#communitySharedUser').val();
+            var mainUser = $('#selectedEnergyUser').val();
+            var householdValue = $('#selectedAllHousehold').val();
+            var publicValue = $('#selectedAllPublic').val();
+
+            if (communityMain == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityMain != null) {
+
+                $('#community_id_error').empty();
+            }
+
+            if (mainUser == null) {
+
+                $('#energy_user_id_error').html('Please select a user!');
+                return false;
+            } else if (mainUser != null) {
+
+                $('#energy_user_id_error').empty();
+            }
+            
+            if (householdValue == null && publicValue == null) {
+
+                $('#shared_error').html('Please select a household or public!');
+                return false;
+            } else {
+
+                $('#shared_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#community_id_error').empty();  
+            $('#energy_user_id_error').empty(); 
+
+            this.submit();
+        });
+    });
 </script>

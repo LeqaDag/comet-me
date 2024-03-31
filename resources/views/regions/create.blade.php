@@ -21,7 +21,7 @@
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Arabic Name</label> 
                                 <input type="text" class="form-control" name="arabic_name" 
-                                    placeholder="Enter Arabic Name"> 
+                                    placeholder="Enter Arabic Name" required> 
                             </fieldset> 
                         </div>
                     </div>

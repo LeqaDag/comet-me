@@ -12,7 +12,7 @@ use DB;
 
 class WaterQualityResultExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
     WithStyles
-{
+{ 
     protected $request;
 
     function __construct($request) {

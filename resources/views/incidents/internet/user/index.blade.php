@@ -271,7 +271,7 @@
                 }
             ],
             columns: [
-                {data: 'household_name', name: 'household_name'},
+                {data: 'holder', name: 'holder'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'incident', name: 'incident'},
                 {data: 'date', name: 'date'},

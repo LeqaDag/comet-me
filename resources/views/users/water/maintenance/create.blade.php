@@ -7,7 +7,7 @@ label, table {
     margin-top: 20px;
 }
 </style>
-
+ 
 <div id="createMaintenanceLogWater" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -20,7 +20,7 @@ label, table {
                 </button> 
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' 
+                <form method="POST" enctype='multipart/form-data' id="waterMaintenanceForm"
                     action="{{url('water-maintenance')}}">
                     @csrf
 
@@ -30,7 +30,7 @@ label, table {
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select class="selectpicker form-control" 
                                     data-live-search="true" id="selectedUserCommunity"
-                                    name="community_id[]" required>
+                                    name="community_id" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -38,36 +38,36 @@ label, table {
                                     </option>
                                     @endforeach
                                 </select>
-                                @if ($errors->has('community_id'))
-                                    <span class="error">{{ $errors->first('community_id') }}</span>
-                                @endif
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Water User</label>
-                                <select name="household_id" class="form-control"
-                                        id="selectedWaterUser" disabled>
-                                    <option disabled selected>Choose one...</option>
+                                <label class='col-md-12 control-label'>Water User/ Public</label>
+                                <select id="chooseUserOrPublic" class="selectpicker form-control" 
+                                    name="public_user" disabled>
                                 </select>
                             </fieldset>
+                            <div id="public_user_error" style="color: red;"></div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Public Structure</label>
-                                <select class="form-control" id="selectedWaterPublic"
-                                    name="public_structure_id"disabled>
+                                <label class='col-md-12 control-label'>Water Holder</label>
+                                <select name="all_water_holder_id" class="selectpicker form-control"
+                                        id="selectedWaterHolder" disabled>
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
-                        </div> 
+                            <div id="all_water_holder_id_error" style="color: red;"></div>
+                        </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance Type</label>
-                                <select name="maintenance_type_id" class="form-control" required>
+                                <select name="maintenance_type_id" class="selectpicker form-control" 
+                                    id="maintenanceWaterType" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($maintenanceTypes as $maintenanceType)
                                     <option value="{{$maintenanceType->id}}">
@@ -75,18 +75,40 @@ label, table {
                                     </option>
                                     @endforeach
                                 </select>
-                                @if ($errors->has('maintenance_type_id'))
-                                    <span class="error">{{ $errors->first('maintenance_type_id') }}</span>
-                                @endif
                             </fieldset>
+                            <div id="maintenance_type_id_error" style="color: red;"></div>
                         </div>
                     </div>
                     
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Maintenance Status</label>
+                                <select name="maintenance_status_id" id="maintenanceWaterStatus"
+                                    class="selectpicker form-control">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($maintenanceStatuses as $maintenanceStatus)
+                                    <option value="{{$maintenanceStatus->id}}">
+                                        {{$maintenanceStatus->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                            <div id="maintenance_status_id_error" style="color: red;"></div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Call</label>
                                 <input type="date" name="date_of_call" class="form-control" required>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Visit Date</label>
+                                <input type="date" name="visit_date" class="form-control">
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -100,24 +122,8 @@ label, table {
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Maintenance Status</label>
-                                <select name="maintenance_status_id" class="form-control" >
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($maintenanceStatuses as $maintenanceStatus)
-                                    <option value="{{$maintenanceStatus->id}}">
-                                        {{$maintenanceStatus->name}}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                @if ($errors->has('maintenance_status_id'))
-                                    <span class="error">{{ $errors->first('maintenance_status_id') }}</span>
-                                @endif
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Maintenance H2O Action</label>
-                                <select name="maintenance_h2o_action_id[]" 
+                                <select name="maintenance_h2o_action_id[]" id="selectedWaterActions"
                                     class="selectpicker form-control" multiple
                                     data-live-search="true">
                                     <option disabled selected>Choose one...</option>
@@ -128,29 +134,25 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
-                            @if ($errors->has('maintenance_h2o_action_id'))
-                                <span class="error">{{ $errors->first('maintenance_h2o_action_id') }}</span>
-                            @endif
+                            <div id="maintenance_h2o_action_id_error" style="color: red;"></div>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Recipient</label>
-                                <select name="user_id" class="form-control">
+                                <select name="user_id" class="selectpicker form-control"
+                                 id="maintenanceUser"data-live-search="true" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($users as $user)
                                     <option value="{{$user->id}}">
                                         {{$user->name}}
                                     </option>
-                                    @endforeach
+                                    @endforeach 
                                 </select>
-                                @if ($errors->has('user_id'))
-                                    <span class="error">{{ $errors->first('user_id') }}</span>
-                                @endif
                             </fieldset>
+                            <div id="user_id_error" style="color: red;"></div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Performed By</label>
@@ -192,37 +194,134 @@ label, table {
 <script>
 
     $(document).on('change', '#selectedUserCommunity', function () {
+
         community_id = $(this).val();
-
-        $('#selectedWaterUser').prop('disabled', false);
-        $('#selectedWaterPublic').prop('disabled', false);
-        getUserByCommunity(community_id);
-        getPublicByCommunity(community_id);
-
+        $('#selectedWaterHolder').empty();
+        $('#chooseUserOrPublic').prop('disabled', false);
+        $('#chooseUserOrPublic').html('<option disabled selected>Choose one...</option><option value="user">User</option><option value="public">Public Structure</option>');
+        $('#chooseUserOrPublic').selectpicker('refresh');
+        UserOrPublic(community_id);
     });
 
-    function getUserByCommunity(community_id) {
-    
-        $.ajax({
-            url: "water_user/get_by_community/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedWaterUser').prop('disabled', false);
-                $('#selectedWaterUser').html(data.html);
-            }
-        });
-    } 
+    function UserOrPublic(community_id) {
+        $(document).on('change', '#chooseUserOrPublic', function () {
+            publicUser = $('#chooseUserOrPublic').val();
+            
+            if(publicUser == "user") {
+            
+                $.ajax({
+                    url: "water_holder/get_by_community/" + community_id + "/" + publicUser,
+                    method: 'GET',
+                    success: function(data) {
+                        var select = $('#selectedWaterHolder');
+                        select.prop('disabled', false); 
+                        select.html(data.html);
+                        select.selectpicker('refresh');
+                    }
+                });
+                
+            } else if(publicUser == "public") {
 
-    function getPublicByCommunity(community_id) {
-        
-        $.ajax({
-            url: "water_public/get_by_community/" + community_id,
-            method: 'GET',
-            success: function(data) {
-                $('#selectedWaterPublic').prop('disabled', false);
-                $('#selectedWaterPublic').html(data.html);
+                $.ajax({
+                    url: "water_holder/get_by_community/" + community_id + "/" + publicUser,
+                    method: 'GET',
+                    success: function(data) {
+                        var select = $('#selectedWaterHolder');
+                        select.prop('disabled', false); 
+                        select.html(data.html);
+                        select.selectpicker('refresh');
+                    }
+                });
             }
         });
     }
+
+    $(document).ready(function() {
+        $('#waterMaintenanceForm').on('submit', function (event) {
+
+            var communityValue = $('#selectedUserCommunity').val();
+            var userOrPublicValue = $('#chooseUserOrPublic').val();
+            var waterValue = $('#selectedWaterHolder').val();
+            var maintenanceTypeValue = $('#maintenanceWaterType').val();
+            var maintenanceStatusValue = $('#maintenanceWaterStatus').val();
+            var actionValue = $('#selectedWaterActions').val();
+            var maintenanceUser = $('#maintenanceUser').val();
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            if (userOrPublicValue == null) {
+
+                $('#public_user_error').html('Please select an option!'); 
+                return false;
+            } else if (userOrPublicValue != null){
+
+                $('#public_user_error').empty();
+            }
+
+            if (waterValue == null) {
+
+                $('#all_water_holder_id_error').html('Please select a holder!'); 
+                return false;
+            } else if (waterValue != null){
+
+                $('#all_water_holder_id_error').empty();
+            }
+
+            if (maintenanceTypeValue == null) {
+
+                $('#maintenance_type_id_error').html('Please select a type!'); 
+                return false;
+            } else if (maintenanceTypeValue != null){
+
+                $('#maintenance_type_id_error').empty();
+            }
+
+            if (maintenanceStatusValue == null) {
+
+                $('#maintenance_status_id_error').html('Please select a status!'); 
+                return false;
+            } else if (maintenanceStatusValue != null){
+
+                $('#maintenance_status_id_error').empty();
+            }
+
+            if (!actionValue || actionValue.length === 0) {
+
+                $('#maintenance_h2o_action_id_error').html('Please select at least one action!');
+                return false;
+            } else {
+
+                $('#maintenance_h2o_action_id_error').empty();
+            }
+
+            if (maintenanceUser == null) {
+
+                $('#user_id_error').html('Please select a user!'); 
+                return false;
+            } else if (maintenanceUser != null){
+
+                $('#user_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#all_water_holder_id_error').empty();  
+            $('#public_user_error').empty();
+            $('#community_id_error').empty();
+            $('#maintenance_type_id_error').empty();
+            $('#internet_incident_status_id_error').empty();
+            $('#internet_issues_error').empty();
+            $('#user_id_error').empty();
+            $('#maintenance_h2o_action_id_error').empty();
+
+            this.submit();
+        });
+    });
 
 </script>

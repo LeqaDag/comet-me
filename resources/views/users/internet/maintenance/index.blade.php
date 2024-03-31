@@ -323,7 +323,7 @@
                 $('#internetMaintenanceModalTitle').html('');
                 $('#englishNameInternetHolder').html('');
                 if(response['household']) {
-
+ 
                     $("#internetHolderIcon").removeClass('bx bx-building bx-sm me-3');
                     $("#internetHolderIcon").addClass('bx bx-user bx-sm me-3');
 

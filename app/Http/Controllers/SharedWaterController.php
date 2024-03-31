@@ -117,10 +117,10 @@ class SharedWaterController extends Controller
 
         if (!$request->community_id) {
 
-            $html = '<option value="">Choose One...</option>';
+            $html = '<option selected disabled>Choose One...</option>';
         } else {
 
-            $html = '<option selected>Choose One...</option>';
+            $html = '<option disabled selected>Choose One...</option>';
             $h2oUsers =  DB::table('h2o_users')
                 ->join('communities', 'h2o_users.community_id', 'communities.id')
                 ->join('households', 'h2o_users.household_id', 'households.id')

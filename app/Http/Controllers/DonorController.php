@@ -260,10 +260,11 @@ class DonorController extends Controller
      */
     public function store(Request $request)
     {
-        $donor = Donor::create($request->all());
+        $donor = new Donor();
+        $donor->donor_name = $request->donor_name;
         $donor->save();
 
-        return redirect()->back();
+        return redirect()->back()->with('message', 'New Donor Inserted Successfully!');
     }
 
     /**

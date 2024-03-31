@@ -73,6 +73,7 @@ class RefrigeratorHolderController extends Controller
 
         $communityFilter = $request->input('community_filter');
         $publicFilter = $request->input('public_filter');
+        $meterFilter = $request->input('meter_filter');
         $dateFilter = $request->input('date_filter');
 
         if (Auth::guard('user')->user() != null) {
@@ -95,6 +96,15 @@ class RefrigeratorHolderController extends Controller
                     $data->where("public_structures.public_structure_category_id1", $publicFilter)
                         ->orWhere("public_structures.public_structure_category_id2", $publicFilter)
                         ->orWhere("public_structures.public_structure_category_id3", $publicFilter);
+                }
+                if($meterFilter != null) {
+
+                    $data->leftJoin('all_energy_meters as energy_users', 'energy_users.household_id', 
+                        'households.id')
+                        ->leftJoin('all_energy_meters', 'all_energy_meters.public_structure_id', 
+                            'public_structures.id')
+                        ->where('all_energy_meters.meter_number', $meterFilter)
+                        ->orWhere('energy_users.meter_number', $meterFilter);
                 }
                 if ($dateFilter != null) {
 
@@ -362,33 +372,34 @@ class RefrigeratorHolderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getHouseholdByCommunity($community_id)
+    public function getHouseholdByCommunity($community_id, $flag)
     {
-        $households = DB::table('refrigerator_holders')
-            ->join('households', 'refrigerator_holders.household_id', '=', 'households.id')
-            ->where("refrigerator_holders.community_id", $community_id)
-            ->orderBy('households.english_name', 'ASC')
-            ->select('households.id', 'households.english_name')
-            ->get();
- 
-        if (!$community_id) {
+        $html = "<option disabled selected>Choose one...</option>";
 
-            $html = '<option value="">Choose One...</option>';
-        } else {
+        if($flag == "user") {
 
-            $html = '<option value="">Choose One...</option>';
             $households = DB::table('refrigerator_holders')
-                ->join('households', 'refrigerator_holders.household_id', '=', 'households.id')
+                ->join('households', 'refrigerator_holders.household_id', 'households.id')
                 ->where("refrigerator_holders.community_id", $community_id)
+                ->where('refrigerator_holders.is_archived', 0)
                 ->orderBy('households.english_name', 'ASC')
                 ->select('households.id', 'households.english_name')
                 ->get();
-
-            foreach ($households as $household) {
-                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
-            }
+        } else if($flag == "public") {
+ 
+            $households = DB::table('refrigerator_holders')
+                ->join('public_structures', 'refrigerator_holders.public_structure_id', 'public_structures.id')
+                ->where('refrigerator_holders.community_id', $community_id)
+                ->where('refrigerator_holders.is_archived', 0)
+                ->orderBy('public_structures.english_name', 'ASC')
+                ->select('public_structures.id as id', 'public_structures.english_name')
+                ->get();
         }
 
+        foreach ($households as $household) {
+            $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+        }
+        
         return response()->json(['html' => $html]);
     }
 

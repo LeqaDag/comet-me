@@ -119,6 +119,14 @@ label, table {
     </div>
 @endif
 
+@if(session()->has('error'))
+    <div class="row">
+        <div class="alert alert-danger">
+            {{ session()->get('error') }}
+        </div>
+    </div>
+@endif
+
 <div class="container">
     <div class="card my-2">
         <div class="card-header">

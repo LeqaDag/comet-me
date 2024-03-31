@@ -65,7 +65,7 @@ class WaterIncidentController extends Controller
                         '=', 'incident_statuses.id')
                     ->where('h2o_system_incidents.is_archived', 0);
 
-                if($communityFilter != null) {
+                if($communityFilter != null) { 
 
                     $data->where('communities.id', $communityFilter);
                 }
@@ -132,7 +132,7 @@ class WaterIncidentController extends Controller
                             });
                         }
                     })
-                    ->rawColumns(['action', 'holder'])
+                    ->rawColumns(['action', 'holder']) 
                     ->make(true);
             }
     
@@ -564,6 +564,7 @@ class WaterIncidentController extends Controller
         return response()->json($response); 
     }
 
+    
     /**
      * 
      * @return \Illuminate\Support\Collection

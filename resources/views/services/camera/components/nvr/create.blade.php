@@ -36,12 +36,12 @@
                                     <td>
                                         <input type="text" name="nvr_models[0][subject]" 
                                             placeholder="Model" class="target_point form-control" 
-                                            data-id="0"/>
+                                            data-id="0" required/>
                                         </td>
                                     <td>
                                         <input type="text" name="nvr_brands[0][subject]" 
                                         placeholder="Brand" class="target_point form-control" 
-                                        data-id="0"/>
+                                        data-id="0" required/>
                                     </td>
                                     <td>
                                         <button type="button" name="add" id="addRemoveNewNvrButton" 
@@ -71,8 +71,8 @@ $(document).ready(function() {
     $(document).on('click', '#addRemoveNewNvrButton', function () {
         ++j;
         $("#addNvrButton").append('<tr>' +
-            '<td><input class="form-control" data-id="' + j + '" name="nvr_models[' + j + '][subject]" placeholder="Model"></td>' +
-            '<td><input class="form-control" data-id="' + j + '" name="nvr_brands[' + j + '][subject]" placeholder="Brand"></td>' +
+            '<td><input required class="form-control" data-id="' + j + '" name="nvr_models[' + j + '][subject]" placeholder="Model"></td>' +
+            '<td><input required class="form-control" data-id="' + j + '" name="nvr_brands[' + j + '][subject]" placeholder="Brand"></td>' +
             '<td><button type="button" class="btn btn-outline-danger removeNvr">Delete</button></td>' +
             '</tr>'
         );

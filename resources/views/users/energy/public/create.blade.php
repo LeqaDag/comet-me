@@ -20,14 +20,16 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('energy-public')}}">
+                <form method="POST" enctype='multipart/form-data' id="elecPublicForm"
+                    action="{{url('energy-public')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>New/Old Community</label>
-                                <select name="installation_type_id" 
-                                    class="form-control" required>
+                                <select name="installation_type_id" id="selectedUserMisc"
+                                    data-live-search="true" class="selectpicker form-control" 
+                                    data-parsley-required="true" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($installationTypes as $installationType)
                                         <option value="{{$installationType->id}}">
@@ -36,13 +38,14 @@ label, table {
                                     @endforeach
                                 </select> 
                             </fieldset>
+                            <div id="misc_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select name="community_id" id="selectedPublicCommunity" 
                                     class="selectpicker form-control" 
-                                    data-live-search="true" required>
+                                    data-live-search="true" data-live-search="true" required>
                                     <option disabled selected>Choose one...</option>
                                     @foreach($communities as $community)
                                     <option value="{{$community->id}}">
@@ -51,15 +54,18 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="community_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Structure</label>
                                 <select name="public_structure_id" id="selectedPublicStructure" 
-                                class="form-control" disabled required>
+                                    class="selectpicker form-control" disabled required
+                                    data-live-search="true">
                                     <option disabled selected>Choose one...</option>
                                 </select>
                             </fieldset>
+                            <div id="public_structure_id_error" style="color: red;"></div>
                         </div>
                     </div> 
 
@@ -67,8 +73,8 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy System Type</label>
-                                <select name="energy_system_type_id" 
-                                    class="form-control" id="selectedEnergySystemType">
+                                <select name="energy_system_type_id" data-live-search="true"
+                                    class="selectpicker form-control" id="selectedEnergySystemType">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($energySystemTypes as $energySystemType)
                                         <option value="{{$energySystemType->id}}">
@@ -77,12 +83,13 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="energy_system_type_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy System</label>
                                 <select name="energy_system_id" id="selectedEnergySystemPublic"
-                                    class="form-control" disabled required>
+                                    class="selectpicker form-control" disabled >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($energySystems as $energySystem)
                                         <option value="{{$energySystem->id}}">
@@ -91,11 +98,12 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="energy_system_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Meter Case</label>
-                                <select name="meter_case_id" 
+                                <select name="meter_case_id" id="meterCaseValue"
                                     class="selectpicker form-control"  data-live-search="true" >
                                     <option disabled selected>Choose one...</option>
                                     @foreach($meters as $meter)
@@ -105,6 +113,7 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
+                            <div id="meter_case_id_error" style="color: red;"></div>
                         </div>
                     </div>
 
@@ -112,19 +121,19 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Meter Number</label>
-                                <input type="number" name="meter_number" class="form-control">
+                                <input type="number" name="meter_number" class="form-control" required>
                             </fieldset>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Daily Limit</label>
-                                <input type="text" name="daily_limit" class="form-control">
+                                <input type="text" name="daily_limit" class="form-control" required>
                             </fieldset>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Installation Date</label>
-                                <input type="date" name="installation_date" class="form-control">
+                                <input type="date" name="installation_date" class="form-control"required>
                             </fieldset>
                         </div>
                     </div>
@@ -156,8 +165,11 @@ label, table {
             url: "energy-public/get_by_community/" + community_id+ "/" + 0,
             method: 'GET',
             success: function(data) {
-                $('#selectedPublicStructure').prop('disabled', false);
-                $('#selectedPublicStructure').html(data.html);
+                
+                var select = $('#selectedPublicStructure'); 
+                select.prop('disabled', false);
+                select.html(data.html);
+                select.selectpicker('refresh');
                 
                 $('#selectedSharedMeter').prop('disabled', false);
                 $(document).on('change', '#selectedSharedMeter', function () {
@@ -203,10 +215,90 @@ label, table {
             url: "energy_public/get_by_energy_type/" + community_id + "/" + energy_type_id,
             method: 'GET',
             success: function(data) {
-                $('#selectedEnergySystemPublic').prop('disabled', false);
-                $('#selectedEnergySystemPublic').html(data.html);
+
+                var select = $('#selectedEnergySystemPublic'); 
+                select.prop('disabled', false);
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
         });
     }
+
+    $(document).ready(function () {
+
+        $('#elecPublicForm').on('submit', function (event) {
+
+            var miscValue = $('#selectedUserMisc').val();
+            var communityValue = $('#selectedPublicCommunity').val();
+            var publicValue = $('#selectedPublicStructure').val();
+            var energyTypeValue = $('#selectedEnergySystemType').val();
+            var energyValue = $('#selectedEnergySystemPublic').val();
+            var meterCaseValue = $('#meterCaseValue').val();
+
+            if (miscValue == null) {
+
+                $('#misc_error').html('Please select an option!'); 
+                return false;
+            } else if (miscValue != null){
+
+                $('#misc_error').empty();
+            }
+
+            if (communityValue == null) {
+
+                $('#community_id_error').html('Please select a community!'); 
+                return false;
+            } else if (communityValue != null){
+
+                $('#community_id_error').empty();
+            }
+
+            if (!publicValue || publicValue.length === 0) {
+
+                $('#public_structure_id_error').html('Please select a public structure!');
+                return false;
+            } else {
+
+                $('#public_structure_id_error').empty();
+            }
+
+            if (energyTypeValue == null) {
+
+                $('#energy_system_type_id_error').html('Please select a Energy System Type!'); 
+                return false;
+            } else if (energyTypeValue != null){
+
+                $('#energy_system_type_id_error').empty();
+            } 
+
+            if (energyValue == null) {
+
+                $('#energy_system_id_error').html('Please select an Energy System!'); 
+                return false;
+            } else if (energyValue != null){
+
+                $('#energy_system_id_error').empty();
+            }
+
+            if (meterCaseValue == null) {
+
+                $('#meter_case_id_error').html('Please select a case!'); 
+                return false;
+            } else if (meterCaseValue != null){
+
+                $('#meter_case_id_error').empty();
+            }
+
+            $(this).addClass('was-validated');  
+            $('#misc_error').empty(); 
+            $('#community_id_error').empty();
+            $('#public_structure_id_error').empty();
+            $('#energy_system_type_id_error').empty();
+            $('#energy_system_id_error').empty();
+            $('#meter_case_id_error').empty();
+
+            this.submit();
+        });
+    });
 
 </script>
