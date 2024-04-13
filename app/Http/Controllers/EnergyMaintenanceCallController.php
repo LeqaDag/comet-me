@@ -276,7 +276,7 @@ class EnergyMaintenanceCallController extends Controller
 
             $maintenance->maintenance_status_id = $request->maintenance_status_id;
         } 
-
+ 
         $maintenance->user_id = $request->user_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
         $maintenance->last_hour = $request->last_hour;

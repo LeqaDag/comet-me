@@ -359,7 +359,7 @@
         $.ajax({
             url: 'energy-maintenance/' + id,
             type: 'get',
-            dataType: 'json',
+            dataType: 'json', 
             success: function(response) {
                 $('#energyModalTitle').html('');
                 $('#englishNameUser').html('');

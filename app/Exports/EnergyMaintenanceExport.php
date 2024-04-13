@@ -70,6 +70,8 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
                 DB::raw('group_concat(DISTINCT energy_maintenance_actions.arabic_name)'),
                 'date_of_call', 'date_completed', 
                 DB::raw('group_concat(DISTINCT performed_users.name)'),
+                'electricity_maintenance_calls.last_hour', 'electricity_maintenance_calls.run_hour', 
+                'electricity_maintenance_calls.run_performed_hour',
                 'electricity_maintenance_calls.notes'
             ])
             ->groupBy('electricity_maintenance_calls.id');
@@ -102,7 +104,7 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
     {
         return ["Agent", "Community", "Region", "Sub Region", "Recipient", "Status", "Type", 
             "Issue", "Action in Arabic", "Action in English", "Call Date", "Completed Date", 
-            "Performed By", "Notes"];
+            "Performed By", "Last Run hours", "Run hours", "Run hours to do maintenance", "Notes"];
     }
 
     public function title(): string
@@ -117,7 +119,7 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:M1');
+        $sheet->setAutoFilter('A1:Q1');
 
         return [
             // Style the first row as bold text.
