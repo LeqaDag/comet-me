@@ -84,7 +84,7 @@
                                                     <i class="bx bx-calendar-week bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
                                                         <small class="text-muted mb-1">Visit Date</small>
-                                                        <h6 class="mb-0" id="visitDateInternetMaintenance"></h6>
+                                                        <h6 class="mb-0" id="visitDateMaintenance"></h6>
                                                     </div>
                                                 </li>
                                                 <li class="d-flex justify-content-start align-items-center text-info mb-3">
@@ -99,6 +99,18 @@
                                                     <div class="ps-3 border-start">
                                                         <small class="text-muted mb-1">Actions</small>
                                                         <h6 class="mb-0" id="maintenanceAction"></h6>
+                                                    </div>
+                                                </li>
+                                                <li class="d-flex justify-content-start align-items-center text-dark mb-3"
+                                                    >
+                                                    <i class="bx bx-analyse bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start" >
+                                                        <small class="text-muted mb-1">Last Run Hours</small>
+                                                        <h6 class="mb-0" id="lastHourGenerator"></h6> <br>
+                                                        <small class="text-muted mb-1">Run Hours</small>
+                                                        <h6 class="mb-0" id="runHourGenerator"></h6> <br>
+                                                        <small class="text-muted mb-1">Run Hours to perform maintenance</small>
+                                                        <h6 class="mb-0" id="runPerformedHourGenerator"></h6> <br>
                                                     </div>
                                                 </li>
                                             </ul>

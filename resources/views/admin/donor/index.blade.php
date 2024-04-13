@@ -245,10 +245,9 @@
 
                     <button type="button" class="btn btn-success" 
                         data-bs-toggle="modal" data-bs-target="#createCommunityDonor">
-                        Create New Community Donor	
+                        Create New Compound/Community Donor	
                     </button>
                     @include('admin.donor.community.create')
-
                 </div>
             @endif
             </p>
@@ -256,7 +255,7 @@
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Community</th>
+                        <th>Community / Compound</th>
                         <th>Service</th>
                         @if(Auth::guard('user')->user()->user_type_id == 1)
                             <th>Options</th>
@@ -353,7 +352,7 @@
                 },
                 columns: [
                     {data: 'donor_name', name: 'donor_name'},
-                    {data: 'english_name', name: 'english_name'},
+                    {data: 'value', name: 'value'},
                     {data: 'service_name', service_name: 'name'},
                     { data: 'action' }
                 ],

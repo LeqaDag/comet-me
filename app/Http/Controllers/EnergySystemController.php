@@ -17,7 +17,7 @@ use App\Models\Donor;
 use App\Models\EnergySystem;
 use App\Models\EnergyBattery; 
 use App\Models\EnergyPv;
-use App\Models\EnergyAirConditioner;
+use App\Models\EnergyAirConditioner; 
 use App\Models\EnergyBatteryStatusProcessor;
 use App\Models\EnergyBatteryTemperatureSensor;
 use App\Models\EnergyChargeController;
@@ -40,6 +40,7 @@ use App\Models\EnergySystemBatteryMount;
 use App\Models\EnergySystemMonitoring;
 use App\Models\EnergySystemPv;
 use App\Models\EnergyPvMount;
+use App\Models\EnergySystemCycle;
 use App\Models\EnergySystemPvMount;
 use App\Models\EnergySystemChargeController;
 use App\Models\EnergySystemWindTurbine;
@@ -177,8 +178,11 @@ class EnergySystemController extends Controller
                 ->orderBy('name', 'ASC')
                 ->get();
         
+            $energyCycles = EnergySystemCycle::orderBy('name', 'ASC')
+                ->get();
+
             return view('system.energy.index', compact('communities', 'donors', 'services',
-                'energyTypes'))
+                'energyTypes', 'energyCycles'))
             ->with(
                 'energySystemData', json_encode($arrayEnergySystem)
             );
@@ -249,11 +253,13 @@ class EnergySystemController extends Controller
             ->orderBy('model', 'ASC') 
             ->get();
         $energyTypes = EnergySystemType::where('is_archived', 0)->get();
+        $energyCycles = EnergySystemCycle::orderBy('name', 'ASC')
+            ->get();
 
         return view('system.energy.create', compact('batteries', 'communities', 'controllers',
             'pvs', 'mcbPvs', 'mcbInventors', 'mcbControllers', 'turbines', 'generators',
             'loggers', 'loadRelaies', 'relayDrivers', 'inverters', 'bsps', 'rccs',
-            'energyTypes', 'airConditioners', 'batteryMounts', 'pvMounts'));
+            'energyTypes', 'airConditioners', 'batteryMounts', 'pvMounts', 'energyCycles'));
     }
 
     /**
@@ -269,7 +275,7 @@ class EnergySystemController extends Controller
         if($request->community_id) $energySystem->community_id = $request->community_id;
         $energySystem->name = $request->name;
         $energySystem->installation_year = $request->installation_year;
-        $energySystem->cycle_year = $request->cycle_year;
+        if($request->energy_system_cycle_id) $energySystem->energy_system_cycle_id = $request->energy_system_cycle_id;
         $energySystem->energy_system_type_id = $request->energy_system_type_id;
         $energySystem->notes = $request->notes;
         $energySystem->save();
@@ -526,6 +532,9 @@ class EnergySystemController extends Controller
         $bsps = EnergyBatteryStatusProcessor::where('is_archived', 0)
             ->orderBy('model', 'ASC')
             ->get();
+        $btss = EnergyBatteryTemperatureSensor::where('is_archived', 0)
+            ->orderBy('BTS_model', 'ASC')
+            ->get();
         $inverters = EnergyInverter::where('is_archived', 0)
             ->orderBy('inverter_model', 'ASC')
             ->get();
@@ -756,15 +765,30 @@ class EnergySystemController extends Controller
                 'energy_system_air_conditioners.id')
             ->get();
 
+        $btsSystems = DB::table('energy_system_battery_temperature_sensors')
+            ->join('energy_systems', 'energy_system_battery_temperature_sensors.energy_system_id', 
+                'energy_systems.id')
+            ->join('energy_battery_temperature_sensors', 'energy_battery_temperature_sensors.id',
+                'energy_system_battery_temperature_sensors.energy_battery_temperature_sensor_id')
+            ->where('energy_system_battery_temperature_sensors.energy_system_id', '=', $id)
+            ->select('energy_system_battery_temperature_sensors.bts_units', 
+                'energy_battery_temperature_sensors.BTS_model', 
+                'energy_battery_temperature_sensors.BTS_brand', 'energy_systems.name', 
+                'energy_system_battery_temperature_sensors.id')
+            ->get();
+
+        $energyCycles = EnergySystemCycle::orderBy('name', 'ASC')
+            ->get();
+
         return view('system.energy.edit', compact('batteries', 'communities', 'controllers',
             'pvs', 'mcbPvs', 'mcbInventors', 'mcbControllers', 'turbines', 'generators',
-            'loggers', 'loadRelaies', 'relayDrivers', 'inverters', 'bsps', 'rccs',
+            'loggers', 'loadRelaies', 'relayDrivers', 'inverters', 'bsps', 'rccs', 'btss',
             'energyTypes', 'energySystem', 'battarySystems', 'pvSystems', 'controllerSystems',
             'inverterSystems', 'relayDriverSystems', 'loadRelaySystems', 'bspSystems',
             'rccSystems', 'loggerSystems', 'generatorSystems', 'turbineSystems', 'pvMcbSystems',
             'controllerMcbSystems', 'inventerMcbSystems', 'airConditioners', 
             'airConditionerSystems', 'batteryMounts', 'pvMounts', 'battaryMountSystems',
-            'pvMountSystems'));
+            'pvMountSystems', 'btsSystems', 'energyCycles'));
     }
 
     /**
@@ -780,7 +804,7 @@ class EnergySystemController extends Controller
  
         if($request->name) $energySystem->name = $request->name;
         if($request->installation_year) $energySystem->installation_year = $request->installation_year;
-        if($request->cycle_year) $energySystem->cycle_year = $request->cycle_year;
+        if($request->energy_system_cycle_id) $energySystem->energy_system_cycle_id = $request->energy_system_cycle_id;
         if($request->upgrade_year1) $energySystem->upgrade_year1 = $request->upgrade_year1;
         if($request->upgrade_year2) $energySystem->upgrade_year2 = $request->upgrade_year2;
         if($request->total_rated_power == null) $energySystem->total_rated_power = null;
@@ -910,6 +934,18 @@ class EnergySystemController extends Controller
                 $bspSystem->save();
             }
         }
+        
+        // BTS
+        if($request->bts_id) {
+            for($i=0; $i < count($request->bts_id); $i++) {
+
+                $bspSystem = new  EnergySystemBatteryTemperatureSensor();
+                $bspSystem->energy_battery_temperature_sensor_id = $request->bts_id[$i];
+                $bspSystem->bts_units = $request->bts_units[$i]["subject"];
+                $bspSystem->energy_system_id = $energySystem->id;
+                $bspSystem->save();
+            }
+        }
 
         // Remote Control Center
         if($request->rcc_id) {
@@ -1030,6 +1066,28 @@ class EnergySystemController extends Controller
             ->select('energy_system_batteries.battery_units', 'energy_batteries.battery_model', 
                 'energy_batteries.battery_brand', 'energy_systems.name', 
                 'energy_system_batteries.id')
+            ->get(); 
+
+        $battaryMountSystems = DB::table('energy_system_battery_mounts')
+            ->join('energy_systems', 'energy_system_battery_mounts.energy_system_id', 
+                'energy_systems.id')
+            ->join('energy_battery_mounts', 'energy_system_battery_mounts.energy_battery_mount_id', 
+                'energy_battery_mounts.id')
+            ->where('energy_system_battery_mounts.energy_system_id', $id)
+            ->select('energy_system_battery_mounts.unit', 'energy_battery_mounts.model', 
+                'energy_battery_mounts.brand', 'energy_systems.name', 
+                'energy_system_battery_mounts.id')
+            ->get(); 
+
+        $pvMountSystems = DB::table('energy_system_pv_mounts')
+            ->join('energy_systems', 'energy_system_pv_mounts.energy_system_id', 
+                'energy_systems.id')
+            ->join('energy_pv_mounts', 'energy_system_pv_mounts.energy_pv_mount_id', 
+                'energy_pv_mounts.id')
+            ->where('energy_system_pv_mounts.energy_system_id', $id)
+            ->select('energy_system_pv_mounts.unit', 'energy_pv_mounts.model', 
+                'energy_pv_mounts.brand', 'energy_systems.name', 
+                'energy_system_pv_mounts.id')
             ->get(); 
 
         $pvSystems = DB::table('energy_system_pvs')
@@ -1199,7 +1257,8 @@ class EnergySystemController extends Controller
         return view('system.energy.show', compact('energySystem', 'battarySystems', 'pvSystems', 
             'controllerSystems', 'inverterSystems', 'relayDriverSystems', 'loadRelaySystems', 
             'bspSystems', 'rccSystems', 'loggerSystems', 'generatorSystems', 'turbineSystems', 
-            'pvMcbSystems', 'controllerMcbSystems', 'inventerMcbSystems', 'airConditionerSystems'));
+            'pvMcbSystems', 'controllerMcbSystems', 'inventerMcbSystems', 'airConditionerSystems',
+            'battaryMountSystems', 'pvMountSystems'));
     }
 
     /**

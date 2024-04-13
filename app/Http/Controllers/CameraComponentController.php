@@ -72,7 +72,7 @@ class CameraComponentController extends Controller
             }
 
             $cameras = Camera::all();
-            $nvrCameras = NvrCamera::all();
+            $nvrCameras = NvrCamera::all(); 
 
             return view('services.camera.components.index', compact('cameras', 'nvrCameras'));
 

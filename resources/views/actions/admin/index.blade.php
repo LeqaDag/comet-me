@@ -108,13 +108,40 @@
     @endif
 </div>
 
+@if(Auth::guard('user')->user()->user_type_id == 1 ||
+    Auth::guard('user')->user()->user_type_id == 2)
 <hr>
-
 <h4 class="py-3 breadcrumb-wrapper mb-2">
     <a data-toggle="collapse" class="text-primary" 
-        href="#actionPlanTab" 
+        href="#projectCostsTab" 
         aria-expanded="false" 
-        aria-controls="actionPlanTab">
+        aria-controls="projectCostsTab">
+        <span class="text-muted fw-light">Projects /</span> Costs
+    </a>
+</h4>
+
+<div class="container mb-4">
+    <div class="user-tasks">
+        <div class="d-flex flex-wrap mb-4">
+            <form method="POST" enctype='multipart/form-data' 
+                action="{{ route('energy-cost.export') }}">
+                @csrf
+                <button class=" btn-warning" type="submit">
+                    <i class='fa-solid fa-file-excel'></i>
+                    Export Energy Installation Cost File
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+
+<hr>
+<h4 class="py-3 breadcrumb-wrapper mb-2">
+    <a data-toggle="collapse" class="text-primary" 
+        href="#" 
+        aria-expanded="false" 
+        aria-controls="">
         <span class="text-muted fw-light">Projects /</span> Work Plan Progress
     </a>
 </h4>
@@ -142,9 +169,9 @@
 
 <h4 class="py-3 breadcrumb-wrapper mb-2">
     <a data-toggle="collapse" class="text-primary" 
-        href="#actionPlanTab" 
+        href="#" 
         aria-expanded="false" 
-        aria-controls="actionPlanTab">
+        aria-controls="">
         <span class="text-muted fw-light">Platform /</span> Internal
     </a>
 </h4>

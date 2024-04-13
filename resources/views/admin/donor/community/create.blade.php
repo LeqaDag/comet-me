@@ -13,17 +13,18 @@ label, table {
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
-                    Create New Community Donor
+                    Create New Compound/Community Donor
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
                 </button>
-            </div>
+            </div> 
             <div class="modal-body">
                 <form method="POST" enctype='multipart/form-data' id="communityDonorForm"
                     action="{{url('community-donor')}}">
                     @csrf
                     <div class="row">
+                        <div id="community_compound_error" style="color: red;"></div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
@@ -37,7 +38,15 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
-                            <div id="community_id_error" style="color: red;"></div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Compound</label>
+                                <select name="compound_id" class="selectpicker form-control" 
+                                    data-live-search="true" id="selectedCompound" disabled>
+                                    <option disabled selected>Choose one...</option>
+                                </select> 
+                            </fieldset>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
@@ -81,21 +90,41 @@ label, table {
 </div>
 <script>
 
+    $(document).on('change', '#selectedCommunity', function () {
+        community_id = $(this).val();
+   
+        $.ajax({
+            url: "community-compound/get_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                
+                var select = $('#selectedCompound'); 
+                select.prop('disabled', false);
+                select.html(data.htmlCompounds);
+                select.selectpicker('refresh');
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+        });
+    });
+
     $(document).ready(function () {
 
         $('#communityDonorForm').on('submit', function (event) {
 
             var communityValue = $('#selectedCommunity').val();
+            var compoundValue = $('#selectedCompound').val();
             var serviceValue = $('#serviceSelected').val();
             var donorValue = $('#donorsSelected').val();
 
-            if (communityValue == null) {
+            if (communityValue == null && compoundValue == null) {
 
-                $('#community_id_error').html('Please select a community!'); 
+                $('#community_compound_error').html('Please select a compound or community!');
                 return false;
-            } else if (communityValue != null){
+            } else {
 
-                $('#community_id_error').empty();
+                $('#community_compound_error').empty();
             }
 
             if (serviceValue == null) {
@@ -118,7 +147,7 @@ label, table {
 
             $(this).addClass('was-validated');  
             $('#service_id_error').empty(); 
-            $('#community_id_error').empty();
+            $('#community_compound_error').empty();
             $('#donor_id_error').empty();
 
             this.submit();

@@ -17,7 +17,7 @@ label, table {
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
-                </button>
+                </button> 
             </div>
             <div class="modal-body"> 
                 <form method="POST" enctype='multipart/form-data' id="energyMaintenanceForm"
@@ -44,7 +44,7 @@ label, table {
 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>MG system/ User / Turbine?</label>
+                                <label class='col-md-12 control-label'>MG system/ User / Turbine / Generator?</label>
                                 <select name="flag" class="form-control"
                                     id="mgSystemOrFbsOrTurbine" disabled>
                                     <option selected>Choose one...</option>
@@ -182,6 +182,29 @@ label, table {
                         </div>
                     </div> 
                   
+                    <div id="generatorDetailsDiv" style="visibility:none; display:none;">
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Last Run Hours</label>
+                                    <input type="text" name="last_hour" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Run Hours</label>
+                                    <input type="text" name="run_hour" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Run Hours to perform maintenance</label>
+                                    <input type="text" name="run_performed_hour" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
@@ -208,7 +231,7 @@ label, table {
         community_id = $(this).val();
         $('#selectedEnergyHolder').empty();
         $('#mgSystemOrFbsOrTurbine').prop('disabled', false);
-        $('#mgSystemOrFbsOrTurbine').html('<option disabled selected>Choose one...</option><option value="system">MG System</option><option value="fbs_user">FBS User</option><option value="mg_user">MG User</option><option value="fbs_public">FBS Public</option><option value="mg_public">MG Public</option><option value="turbine">Turbine</option>');
+        $('#mgSystemOrFbsOrTurbine').html('<option disabled selected>Choose one...</option><option value="system">MG System</option><option value="fbs_user">FBS User</option><option value="mg_user">MG User</option><option value="fbs_public">FBS Public</option><option value="mg_public">MG Public</option><option value="turbine">Turbine</option><option value="generator">Generator</option>');
         $('#mgSystemOrFbsOrTurbine').selectpicker('refresh');
         UserOrSystemOrTurbine(community_id);
     });
@@ -229,7 +252,32 @@ label, table {
                     select.html(data.html);
                     select.selectpicker('refresh');
                 }
-            });
+            }); 
+
+            var maintenanceTarget = $("#mgSystemOrFbsOrTurbine").val();
+            if(maintenanceTarget == "generator") {
+
+                $("#generatorDetailsDiv").css("display", "block");
+                $("#generatorDetailsDiv").css("visibility", "visible");
+            } else {
+
+                $("#generatorDetailsDiv").css("display", "none");
+                $("#generatorDetailsDiv").css("visibility", "none");
+            }
+
+            // var selectIssue = $('#selectedEnergyActions'); 
+
+            // if(maintenanceTarget == "turbine") {
+
+            //     selectIssue.prop('disabled', false);
+            //     selectIssue.html("<option value='9'>مشاكل التوربين</option>");
+            //     selectIssue.selectpicker('refresh');
+            // } else if(maintenanceTarget == "generator") {
+
+            //     selectIssue.prop('disabled', false);
+            //     selectIssue.html("<option value='10'> مشاكل المولدات</option>");
+            //     selectIssue.selectpicker('refresh');
+            // }  
         });
     }
 

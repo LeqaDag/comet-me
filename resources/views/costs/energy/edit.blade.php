@@ -12,8 +12,7 @@
     label, table {
         margin-top: 20px;
     } 
-
-</style>
+</style> 
 
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -56,7 +55,7 @@
                         </fieldset>
                     </div>
                 </div>
-                <hr>
+                <br>
 
                 @if($gridRoom)
                 <div class="row">
@@ -113,7 +112,7 @@
                 </div>
                 @endif
 
-                <hr>
+                <br>
                 @if(count($battarySystems) > 0)
                 <div class="row">
                     <h6>Battery Costs</h6> 
@@ -146,7 +145,7 @@
                 @endforeach
                 @endif
 
-                <hr>
+                <br>
                 @if(count($battaryMountSystems) > 0)
                 <div class="row">
                     <h6>Battery Mount Costs</h6> 
@@ -180,7 +179,7 @@
                 @endif
 
                 @if(count($pvSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>PV Costs</h6> 
                 </div>
@@ -213,7 +212,7 @@
                 @endif
 
                 @if(count($pvMountSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>PV Mount Costs</h6> 
                 </div>
@@ -246,7 +245,7 @@
                 @endif
 
                 @if(count($controllerSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Charge Controller Costs</h6> 
                 </div>
@@ -279,7 +278,7 @@
                 @endif
 
                 @if(count($inverterSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Inverter Costs</h6> 
                 </div>
@@ -312,7 +311,7 @@
                 @endif
 
                 @if(count($relayDriverSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Relay Driver Costs</h6> 
                 </div>
@@ -346,7 +345,7 @@
 
 
                 @if(count($loadRelaySystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Load Relay Costs</h6> 
                 </div>
@@ -380,7 +379,7 @@
 
 
                 @if(count($bspSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>BSP Costs</h6> 
                 </div>
@@ -412,9 +411,42 @@
                 @endforeach
                 @endif
 
+                @if(count($btsSystems) > 0)
+                <br>
+                <div class="row">
+                    <h6>BTS Costs</h6> 
+                </div>
+                @foreach($btsSystems as $btsSystem)
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>BTS Model</label>
+                            <input class="form-control" type="text" disabled
+                                value="{{$btsSystem->BTS_model}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>BTS Units</label>
+                            <input class="form-control" type="text" disabled
+                                value="{{$btsSystem->bts_units}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>bts Cost</label>
+                            <input class="form-control" type="text" name="bts_costs[]"
+                                value="{{$btsSystem->cost}}">
+                            <input type="hidden" name="bts_ids[]" value="{{ $btsSystem->id }}">
+                        </fieldset>
+                    </div>
+                </div>
+                @endforeach
+                @endif
+
 
                 @if(count($rccSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>RCC Costs</h6> 
                 </div>
@@ -448,7 +480,7 @@
 
 
                 @if(count($loggerSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Monitoring Costs</h6> 
                 </div>
@@ -481,7 +513,7 @@
                 @endif
 
                 @if(count($generatorSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Generator Costs</h6> 
                 </div>
@@ -514,7 +546,7 @@
                 @endif
 
                 @if(count($turbineSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Wind Turbine Costs</h6> 
                 </div>
@@ -547,7 +579,7 @@
                 @endif
 
                 @if(count($pvMcbSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>PV MCB Costs</h6> 
                 </div>
@@ -580,7 +612,7 @@
                 @endif
 
                 @if(count($controllerMcbSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Controller Mcb Costs</h6> 
                 </div>
@@ -613,7 +645,7 @@
                 @endif
 
                 @if(count($inventerMcbSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Inventer Mcb Costs</h6> 
                 </div>
@@ -646,7 +678,7 @@
                 @endif
 
                 @if(count($airConditionerSystems) > 0)
-                <hr>
+                <br>
                 <div class="row">
                     <h6>Air Conditioner Costs</h6> 
                 </div>
@@ -678,7 +710,7 @@
                 @endforeach
                 @endif
 
-                <hr>
+                <br>
               
                 <div class="row">
                     <h6>House Wiring Costs</h6> 
@@ -703,6 +735,154 @@
                                 value="{{$houseWiringSystem->cost}}">
                             @else
                             <input class="form-control" type="text" name="wiring_cost">
+                            @endif
+                        </fieldset>
+                    </div>
+                </div>
+
+                @if($energySystem->energy_system_type_id == 2)
+                <br>
+                <div class="row">
+                    <h6>FBS Wiring Costs</h6> 
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>FBS Wiring Units</label>
+                            @if($fbsWiringSystem)
+                            <input class="form-control" type="text" name="fbs_wiring_unit"
+                                value="{{$fbsWiringSystem->unit}}">
+                            @else
+                            <input class="form-control" type="text" name="fbs_wiring_unit">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>FBS Wiring Cost</label>
+                            @if($fbsWiringSystem)
+                            <input class="form-control" type="text" name="fbs_wiring_cost"
+                                value="{{$fbsWiringSystem->cost}}">
+                            @else
+                            <input class="form-control" type="text" name="fbs_wiring_cost">
+                            @endif
+                        </fieldset>
+                    </div>
+                </div>
+
+                <br>
+                <div class="row">
+                    <h6>FBS Locks Costs</h6> 
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>FBS Locks Units</label>
+                            @if($fbsLockSystem)
+                            <input class="form-control" type="text" name="fbs_lock_unit"
+                                value="{{$fbsLockSystem->unit}}">
+                            @else
+                            <input class="form-control" type="text" name="fbs_lock_unit">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>FBS Locks Cost</label>
+                            @if($fbsLockSystem)
+                            <input class="form-control" type="text" name="fbs_lock_cost"
+                                value="{{$fbsLockSystem->cost}}">
+                            @else
+                            <input class="form-control" type="text" name="fbs_lock_cost">
+                            @endif
+                        </fieldset>
+                    </div>
+                </div>
+
+                <br>
+                <div class="row">
+                    <h6>FBS Fans Costs</h6> 
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>FBS Fans Units</label>
+                            @if($fbsFanSystem)
+                            <input class="form-control" type="text" name="fbs_fan_unit"
+                                value="{{$fbsFanSystem->unit}}">
+                            @else
+                            <input class="form-control" type="text" name="fbs_fan_unit">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>FBS Fans Cost</label>
+                            @if($fbsFanSystem)
+                            <input class="form-control" type="text" name="fbs_fan_cost"
+                                value="{{$fbsFanSystem->cost}}">
+                            @else
+                            <input class="form-control" type="text" name="fbs_fan_cost">
+                            @endif
+                        </fieldset>
+                    </div>
+                </div>
+
+
+                <br>
+                <div class="row">
+                    <h6>FBS Cabinet Costs</h6> 
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>FBS Cabinet Units</label>
+                            @if($fbsCabinetSystem)
+                            <input class="form-control" type="text" name="fbs_cabinet_unit"
+                                value="{{$fbsCabinetSystem->unit}}">
+                            @else
+                            <input class="form-control" type="text" name="fbs_cabinet_unit">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>FBS Cabinet Cost</label>
+                            @if($fbsCabinetSystem)
+                            <input class="form-control" type="text" name="fbs_cabinet_cost"
+                                value="{{$fbsCabinetSystem->cost}}">
+                            @else
+                            <input class="form-control" type="text" name="fbs_cabinet_cost">
+                            @endif
+                        </fieldset>
+                    </div>
+                </div>
+                @endif
+                <br>
+              
+                <div class="row">
+                    <h6>Refrigerator Costs</h6> 
+                </div> 
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Refrigerator Units</label>
+                            @if($refrigeratorCostSystem)
+                            <input class="form-control" type="text" name="refrigerator_unit"
+                                value="{{$refrigeratorCostSystem->unit}}">
+                            @else
+                            <input class="form-control" type="text" name="refrigerator_unit">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Refrigerator Cost</label>
+                            @if($refrigeratorCostSystem)
+                            <input class="form-control" type="text" name="refrigerator_cost"
+                                value="{{$refrigeratorCostSystem->cost}}">
+                            @else
+                            <input class="form-control" type="text" name="refrigerator_cost">
                             @endif
                         </fieldset>
                     </div>

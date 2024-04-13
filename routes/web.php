@@ -169,6 +169,7 @@ Route::get('/delete-energy-system-rcc', [App\Http\Controllers\EnergyComponentCon
 Route::get('/delete-energy-system-mcb-controller', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbController'])->name('deleteEnergySystemMcbController');
 Route::get('/delete-energy-system-mcb-inventer', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbInverter'])->name('deleteEnergySystemMcbInverter');
 Route::get('/delete-energy-system-air', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemAirConditioner'])->name('deleteEnergySystemAirConditioner');
+Route::get('/delete-energy-system-bts', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBts'])->name('deleteEnergySystemBts');
 
 Route::resource('water-system', App\Http\Controllers\WaterSystemController::class);
 Route::get('water_user/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getWaterUserByCommunity']);
@@ -400,7 +401,7 @@ Route::post('camera-export', [App\Http\Controllers\CameraCommunityController::cl
 
 Route::resource('displaced-community', App\Http\Controllers\DisplacedCommunityController::class);
 
-Route::resource('camera-component', App\Http\Controllers\CameraComponentController::class);
+Route::resource('camera-component', App\Http\Controllers\CameraComponentController::class); 
 Route::get('camera-component/{id}/editpage', [App\Http\Controllers\CameraComponentController::class, 'editPage']);
 Route::get('/delete-camera', [App\Http\Controllers\CameraComponentController::class, 'deleteCamera'])->name('deleteCamera');
 Route::resource('nvr-component', App\Http\Controllers\NvrComponentController::class);
@@ -444,3 +445,11 @@ Route::get('/energy-action/get/{id}', [App\Http\Controllers\EnergyActionControll
 Route::resource('energy-cost', App\Http\Controllers\EnergyCostController::class); 
 Route::get('energy-cost/{id}/editpage', [App\Http\Controllers\EnergyCostController::class, 'editPage']);
 Route::post('energy-cost-export', [App\Http\Controllers\EnergyCostController::class, 'export'])->name('energy-cost.export');
+Route::resource('donor-cost', App\Http\Controllers\EnergyDonorCostController::class); 
+Route::get('/delete-donor-cost', [App\Http\Controllers\EnergyDonorCostController::class, 'deleteEnergyDonorCost'])->name('deleteEnergyDonorCost');
+Route::get('donor-cost/{id}/editpage', [App\Http\Controllers\EnergyDonorCostController::class, 'editPage']);
+
+Route::resource('energy-generator-turbine', App\Http\Controllers\EnergyGeneratorTurbineController::class); 
+Route::get('/delete-generator-community', [App\Http\Controllers\EnergyGeneratorTurbineController::class, 'deleteEnergyGenerator'])->name('deleteEnergyGenerator');
+Route::resource('energy-turbine', App\Http\Controllers\EnergyTurbineController::class); 
+Route::get('/delete-energy-turbine', [App\Http\Controllers\EnergyTurbineController::class, 'deleteEnergyTurbine'])->name('deleteEnergyTurbine');

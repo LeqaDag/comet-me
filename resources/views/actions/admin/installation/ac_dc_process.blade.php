@@ -136,7 +136,7 @@
             </ul>
             <div class="collapse multi-collapse container mb-4" 
                 id="notYetCompletedElectricityRoomTab">
-
+ 
                 @if(count($communitiesElecticityRoomMissing) > 0 ||
                     count($compoundsElecticityRoomMissing) > 0)
                     <p>You've got {{$communitiesElecticityRoomMissing->count()

@@ -23,4 +23,10 @@ class EnergySystem extends Model
         
         return $this->belongsTo(EnergySystemType::class, 'energy_system_type_id', 'id');
     }
+
+    public function EnergySystemCycle()
+    {
+        
+        return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
+    }
 }

@@ -15,6 +15,7 @@ use App\Models\AllWaterHolder;
 use App\Models\AllWaterHolderDonor;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\Compound;
 use App\Models\CommunityDonor;
 use App\Models\Donor;
 use App\Models\InternetUser;
@@ -48,7 +49,8 @@ class CommunityDonorController extends Controller
             for($i=0; $i < count($request->donor_id); $i++) {
 
                 $communityDonor = new CommunityDonor();
-                $communityDonor->community_id = $request->community_id;
+                if($request->compound_id) $communityDonor->compound_id = $request->compound_id;
+                if($request->compound_id == null) $communityDonor->community_id = $request->community_id;
                 $communityDonor->service_id = $request->service_id;
                 $communityDonor->donor_id = $request->donor_id[$i];
                 $communityDonor->save();
@@ -65,7 +67,8 @@ class CommunityDonorController extends Controller
     
                     $allEnergyMeterDonor = new AllEnergyMeterDonor();
                     $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
-                    $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
+                    if($request->community_id) $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
+                    if($request->compound_id) $allEnergyMeterDonor->compound_id = $allEnergyMeter->compound_id;
                     $allEnergyMeterDonor->donor_id = $request->donor_id[$i];
                     $allEnergyMeterDonor->save();
                 }
@@ -83,7 +86,8 @@ class CommunityDonorController extends Controller
     
                     $allWaterHolderDonor = new AllWaterHolderDonor();
                     $allWaterHolderDonor->all_water_holder_id = $allWaterHolder->id;
-                    $allWaterHolderDonor->community_id = $allWaterHolder->community_id;
+                    if($request->community_id) $allWaterHolderDonor->community_id = $allWaterHolder->community_id;
+                    if($request->compound_id) $allWaterHolderDonor->compound_id = $allWaterHolder->compound_id;
                     $allWaterHolderDonor->donor_id = $request->donor_id[$i];
                     $allWaterHolderDonor->save();
                 }

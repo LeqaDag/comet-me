@@ -679,4 +679,29 @@ class EnergyComponentController extends Controller
         return response()->json($response); 
     }
 
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemBts(Request $request)
+    {
+        $id = $request->id;
+
+        $energyBts = EnergySystemBatteryTemperatureSensor::find($id);
+
+        if($energyBts->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'BTS Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
 }

@@ -67,11 +67,13 @@ class ImportEnergyMaintenance implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
-        // $community = Community::where("english_name", $row["name"])->first();
-        // $community->latitude = $row["lat"];
-        // $community->longitude = $row["long"];
-        // $community->save();
-
+        // fill power for each energy system
+        // $energySystem = EnergySystem::where("name", $row["name"])->first();
+        // $energySystem->total_rated_power = $row["rated"];
+        // $energySystem->generated_power = $row["generated"];
+        // $energySystem->turbine_power = $row["turbine"];
+        // $energySystem->save();
+   
         // Get all meter numbers from vending file
         // $meterVending = new AllEnergyVendingMeter();
         // $meterVending->meter_number = $row["meter_number"]; 

@@ -32,7 +32,8 @@ class EnergySystem implements FromCollection, WithHeadings, WithTitle, ShouldAut
             ->where('energy_systems.is_archived', 0)
             ->select(
                 'energy_systems.name', 'energy_systems.installation_year',
-                'energy_system_types.name as type',
+                'energy_system_types.name as type', 'energy_systems.total_rated_power', 
+                'energy_systems.generated_power', 
             );
 
        // die($query->get());
@@ -62,7 +63,8 @@ class EnergySystem implements FromCollection, WithHeadings, WithTitle, ShouldAut
      */
     public function headings(): array
     {
-        return ["Energy System", "Installation Year", "Energy System Type"
+        return ["Energy System", "Installation Year", "Energy System Type", "Total Rated Power",
+            "Generated Power"
         ];
     }
 

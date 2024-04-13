@@ -110,17 +110,15 @@ label, table {
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <label class='col-md-12 control-label'>Installation Year</label>
-                                        <select name="year_from" class="selectpicker form-control" 
-                                            data-live-search="true">
-                                            <option disabled selected>Filter by Year</option>
-                                            @php
-                                                $startYear = 2010; // C
-                                                $currentYear = date("Y");
-                                            @endphp
-                                            @for ($year = $currentYear; $year >= $startYear; $year--)
-                                                <option value="{{ $year }}">{{ $year }}</option>
-                                            @endfor
+                                        <label class='col-md-12 control-label'>Cycle Year</label>
+                                        <select name="energy_cycle_id"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Cycle Year</option>
+                                            @foreach($energyCycles as $energyCycle)
+                                                <option value="{{$energyCycle->id}}">
+                                                    {{$energyCycle->name}}
+                                                </option>
+                                            @endforeach
                                         </select> 
                                     </fieldset>
                                 </div>

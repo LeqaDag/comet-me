@@ -75,11 +75,39 @@
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select name="energy_system_cycle_id" class="selectpicker form-control"
+                                data-live-search="true">
+                                @if($energySystem->energy_system_cycle_id)
+                                <option value="{{$energySystem->EnergySystemCycle->id}}" disabled selected>
+                                    {{$energySystem->EnergySystemCycle->name}}
+                                </option>
+                                @foreach($energyCycles as $energyCycle)
+                                    <option value="{{$energyCycle->id}}">
+                                        {{$energyCycle->name}}
+                                    </option>
+                                @endforeach
+                                @else 
+
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energyCycles as $energyCycle)
+                                    <option value="{{$energyCycle->id}}">
+                                        {{$energyCycle->name}}
+                                    </option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Upgrade Year 1</label>
                             <input type="number" name="upgrade_year1" 
                             class="form-control" value="{{$energySystem->upgrade_year1}}">
                         </fieldset>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Upgrade Year 2</label>
@@ -87,8 +115,6 @@
                             class="form-control" value="{{$energySystem->upgrade_year2}}">
                         </fieldset>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Rated Power</label>
@@ -101,13 +127,6 @@
                             <label class='col-md-12 control-label'>Generated Power</label>
                             <input type="text" name="generated_power" 
                             class="form-control"value="{{$energySystem->generated_power}}">
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Cycle Year</label>
-                            <input type="text" name="cycle_year" 
-                            class="form-control"value="{{$energySystem->cycle_year}}">
                         </fieldset>
                     </div>
                 </div>
@@ -1070,6 +1089,112 @@
                         </div>
                     </div>
                 @endif
+ 
+
+                <hr style="margin-top:30px">
+                <div class="row">
+                    <h6>BTS</h6>
+                </div>
+                @if(count($btsSystems) > 0)
+
+                    <table id="energySystemBtsTable" class="table table-striped my-2">
+                        <tbody>
+                            @foreach($btsSystems as $btsSystem)
+                            <tr id="btsSystemRow">
+                                <td class="text-center">
+                                    {{$btsSystem->BTS_model}}
+                                </td>
+                                <td class="text-center">
+                                    {{$btsSystem->bts_units}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteEnergySystemBts" 
+                                        id="deleteEnergySystemBts"
+                                        data-id="{{$btsSystem->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <span>Add More BTS</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                            <table class="table table-bordered" id="addRemoveBts">
+                                <tr>
+                                    <th>BTS Models</th>
+                                    <th>Units</th>
+                                    <th>Options</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="bts_id[]" class="selectpicker form-control"
+                                            multiple data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($btss as $bts)
+                                                <option value="{{$bts->id}}">
+                                                    {{$bts->BTS_model}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="bts_units[0][subject]" class="form-control"
+                                            data-id="0">
+                                    </td>
+                                    <td>
+                                        <button type="button" name="add" id="addRemoveBtsButton" 
+                                            class="btn btn-outline-primary">
+                                            Add BTS Units
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                @else
+                    <div class="row">
+                        <h6>Add New BTS</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                            <table class="table table-bordered" id="addRemoveBts">
+                                <tr>
+                                    <th>BTS Models</th>
+                                    <th>Units</th>
+                                    <th>Options</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select name="bts_id[]" class="selectpicker form-control"
+                                            multiple data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($btss as $bts)
+                                                <option value="{{$bts->id}}">
+                                                    {{$bts->BTS_model}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="bts_units[0][subject]" class="form-control"
+                                            data-id="0">
+                                    </td>
+                                    <td>
+                                        <button type="button" name="add" id="addRemoveBtsButton" 
+                                            class="btn btn-outline-primary">
+                                            Add BTS Units
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                @endif
 
 
                 <hr style="margin-top:30px">
@@ -1928,6 +2053,44 @@
 
 <script>
 
+    // delete energy system BTS
+    $('#energySystemBtsTable').on('click', '.deleteEnergySystemBts',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this bts?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemBts') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
     // delete energy system battery
     $('#energySystemBatteryTable').on('click', '.deleteEnergySystemBattery',function() {
         var id = $(this).data('id');
@@ -2591,6 +2754,7 @@
     var controller_mcb_counter = 0;
     var pv_mcb_counter = 0;
     var air_counter = 0;
+    var bts_counter = 0;
 
     // Battery
     $(document).on('click', '#addRemoveBatteryButton', function () {
@@ -2846,6 +3010,21 @@
         );
     });
     $(document).on('click', '.removeAirConditioner', function () {
+        $(this).parents('tr').remove();
+    });
+
+    // BTS
+    $(document).on('click', '#addRemoveBtsButton', function () {
+
+        ++bts_counter;
+        $("#addRemoveBts").append('<tr><td></td>' +
+            '<td><input class="form-control" data-id="'+ bts_counter +'" name="bts_units[][subject]"></td>' +
+            '<td><button type="button"' +
+            'class="btn btn-outline-danger removeBts">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.removeBts', function () {
         $(this).parents('tr').remove();
     });
 

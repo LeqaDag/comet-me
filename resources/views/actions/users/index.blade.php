@@ -16,6 +16,15 @@
 </h4>
 
 <div class="container mb-4">
+    
+    <h5>
+        <button type="button" class="btn btn-success btn-sm" 
+            data-bs-toggle="modal" data-bs-target="#createUserActionItem">
+            <i class="bx bx-plus"></i>
+        </button>
+        @include('actions.users.create_task')
+    </h5>
+                        
     @if(count($groupedActionItems) > 0)
         @foreach($groupedActionItems as $userId => $userActionItems)
             @php
@@ -51,13 +60,7 @@
 
                     <div id="userCollapse{{$userId}}" class="collapse multi-collapse timeline-event p-0 mb-4" 
                         data-aos="fade-right">
-                        <h5>
-                            <button type="button" class="btn btn-success btn-sm" 
-                                data-bs-toggle="modal" data-bs-target="#createUserActionItem">
-                                <i class="bx bx-plus"></i>
-                            </button>
-                            @include('actions.users.create_task')
-                        </h5>
+                    
                         <div class="pb-0">
                             <table id="actionItemTable" class="dt-advanced-search table table-bordered">
                                 <thead>

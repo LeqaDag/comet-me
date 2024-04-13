@@ -371,6 +371,7 @@
                     $("#energyHolderIcon").removeClass('bx bx-building bx-sm me-3');
                     $("#energyHolderIcon").removeClass('bx bx-bulb bx-sm me-3');
                     $("#energyHolderIcon").removeClass('bx bx-cuboid bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-analyse bx-sm me-3');
                     $("#energyHolderIcon").addClass('bx bx-user bx-sm me-3');
                  } else if(response['public']) {
 
@@ -380,6 +381,7 @@
                     $("#energyHolderIcon").removeClass('bx bx-user bx-sm me-3');
                     $("#energyHolderIcon").removeClass('bx bx-bulb bx-sm me-3');
                     $("#energyHolderIcon").removeClass('bx bx-cuboid bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-analyse bx-sm me-3');
                     $("#energyHolderIcon").addClass('bx bx-building bx-sm me-3');
                 } else if(response['energySystem']) {
 
@@ -389,6 +391,7 @@
                     $("#energyHolderIcon").removeClass('bx bx-user bx-sm me-3');
                     $("#energyHolderIcon").removeClass('bx bx-building bx-sm me-3');
                     $("#energyHolderIcon").removeClass('bx bx-cuboid bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-analyse bx-sm me-3');
                     $("#energyHolderIcon").addClass('bx bx-bulb bx-sm me-3');
                 } else if(response['turbine']) {
 
@@ -398,7 +401,18 @@
                     $("#energyHolderIcon").removeClass('bx bx-user bx-sm me-3');
                     $("#energyHolderIcon").removeClass('bx bx-building bx-sm me-3');
                     $("#energyHolderIcon").removeClass('bx bx-bulb bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-analyse bx-sm me-3');
                     $("#energyHolderIcon").addClass('bx bx-cuboid bx-sm me-3');
+                } else if(response['generator']) {
+
+                    $('#energyModalTitle').html(response['generator'].name);
+                    $('#englishNameUser').html(response['generator'].name);
+
+                    $("#energyHolderIcon").removeClass('bx bx-user bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-building bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-bulb bx-sm me-3');
+                    $("#energyHolderIcon").removeClass('bx bx-cuboid bx-sm me-3');
+                    $("#energyHolderIcon").addClass('bx bx-analyse bx-sm me-3');
                 }
 
                 $('#communityUser').html('');
@@ -406,8 +420,17 @@
 
                 $('#callDate').html('');
                 $('#callDate').html(response['energyMaintenance'].date_of_call);
+                $('#visitDateMaintenance').html('');
+                $('#visitDateMaintenance').html(response['energyMaintenance'].visit_date);
                 $('#completedDate').html('');
                 $('#completedDate').html(response['energyMaintenance'].date_completed);
+                
+                $('#lastHourGenerator').html('');
+                $('#lastHourGenerator').html(response['energyMaintenance'].last_hour);
+                $('#runHourGenerator').html('');
+                $('#runHourGenerator').html(response['energyMaintenance'].run_hour);
+                $('#runPerformedHourGenerator').html('');
+                $('#runPerformedHourGenerator').html(response['energyMaintenance'].run_performed_hour);
 
                 $('#userReceipent').html('');
                 $('#userReceipent').html(response['user'].name);

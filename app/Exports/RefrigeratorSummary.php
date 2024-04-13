@@ -32,6 +32,7 @@ class RefrigeratorSummary implements FromCollection, WithHeadings, WithTitle, Sh
             ->leftJoin('households', 'refrigerator_holders.household_id', '=', 'households.id')
             ->leftJoin('public_structures', 'refrigerator_holders.public_structure_id', 
                 '=', 'public_structures.id')
+            ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 'refrigerator_holder_receive_numbers.refrigerator_holder_id')
             ->where('refrigerator_holders.is_archived', 0)
             ->select(
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
@@ -40,7 +41,7 @@ class RefrigeratorSummary implements FromCollection, WithHeadings, WithTitle, Sh
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'refrigerator_holders.year', 'refrigerator_holders.date', 
                 'refrigerator_holders.is_paid', 'refrigerator_holders.payment',  
-                'refrigerator_holders.receive_number', 'refrigerator_holders.status');
+                'refrigerator_holder_receive_numbers.receive_number', 'refrigerator_holders.status');
 
         if($this->request->community) {
 

@@ -19,7 +19,7 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
 
     function __construct($request) {
 
-        $this->request = $request;
+        $this->request = $request; 
     }
 
     /**
@@ -36,6 +36,8 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
                 'energy_systems.id')
             ->leftJoin('energy_turbine_communities', 'electricity_maintenance_calls.energy_turbine_community_id', 
                 'energy_turbine_communities.id')
+            ->leftJoin('energy_generator_communities', 'electricity_maintenance_calls.energy_generator_community_id', 
+                    'energy_generator_communities.id')
             ->join('communities', 'electricity_maintenance_calls.community_id', 'communities.id')
             ->join('regions', 'communities.region_id','regions.id')
             ->join('sub_regions', 'communities.sub_region_id','sub_regions.id')
@@ -57,14 +59,15 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
             ->where('electricity_maintenance_calls.is_archived', 0)
             ->select([
                 DB::raw('COALESCE(households.english_name, public_structures.english_name, 
-                    energy_systems.name, energy_turbine_communities.name) as exported_value'),
+                    energy_systems.name, energy_turbine_communities.name, energy_generator_communities.name) 
+                    as exported_value'),
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'recipients.name as recipient_name',
                 'maintenance_statuses.name', 'maintenance_types.type',
+                DB::raw('group_concat(DISTINCT energy_maintenance_issues.english_name)'),
                 DB::raw('group_concat(DISTINCT energy_maintenance_actions.english_name)'),
                 DB::raw('group_concat(DISTINCT energy_maintenance_actions.arabic_name)'),
-                DB::raw('group_concat(DISTINCT energy_maintenance_issues.english_name)'),
                 'date_of_call', 'date_completed', 
                 DB::raw('group_concat(DISTINCT performed_users.name)'),
                 'electricity_maintenance_calls.notes'
@@ -98,7 +101,7 @@ class EnergyMaintenanceExport implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return ["Agent", "Community", "Region", "Sub Region", "Recipient", "Status", "Type", 
-            "Action in Arabic", "Action in English", "Issue", "Call Date", "Completed Date", 
+            "Issue", "Action in Arabic", "Action in English", "Call Date", "Completed Date", 
             "Performed By", "Notes"];
     }
 

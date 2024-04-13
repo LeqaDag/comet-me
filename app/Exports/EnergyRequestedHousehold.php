@@ -24,7 +24,7 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
     /**
     * @return \Illuminate\Support\Collection
     */
-    public function collection()   
+    public function collection()    
     {
         $query = DB::table('households')
             ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')

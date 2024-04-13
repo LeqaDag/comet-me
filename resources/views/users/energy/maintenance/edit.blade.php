@@ -29,6 +29,10 @@
     @else @if($energyMaintenance->energy_turbine_community_id)
 
         {{$energyMaintenance->EnergyTurbineCommunity->name}}
+    @else @if($energyMaintenance->energy_generator_community_id)
+
+        {{$energyMaintenance->EnergyGeneratorCommunity->name}}
+    @endif
     @endif
     @endif
     @endif
@@ -80,6 +84,12 @@
                             <label class='col-md-12 control-label'>Energy Turbine</label>
                             <input type="text" value="{{$energyMaintenance->EnergyTurbineCommunity->name}}" 
                                 class="form-control" disabled>
+                        @else @if($energyMaintenance->energy_generator_community_id)
+
+                            <label class='col-md-12 control-label'>Energy Generator</label>
+                            <input type="text" value="{{$energyMaintenance->EnergyGeneratorCommunity->name}}" 
+                                class="form-control" disabled>
+                        @endif
                         @endif
                         @endif
                         @endif
@@ -169,6 +179,31 @@
                         </fieldset>
                     </div>
                 </div>
+
+                @if($energyMaintenance->energy_generator_community_id)
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Last Run Hours</label>
+                            <input type="text" name="last_hour" class="form-control" value="{{$energyMaintenance->last_hour}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Run Hours</label>
+                            <input type="text" name="run_hour" class="form-control"
+                                value="{{$energyMaintenance->run_hour}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Run Hours to perform maintenance</label>
+                            <input type="text" name="run_performed_hour" class="form-control"
+                                value="{{$energyMaintenance->run_performed_hour}}">
+                        </fieldset>
+                    </div>
+                </div>
+                @endif
 
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">

@@ -17,7 +17,7 @@
             <div class="row">
                 <div class="col-xl-4 col-lg-4 col-md-4">
                     <h6>
-                        System Name: 
+                        System Name:  
                         <span class="spanDetails">
                             {{$energySystem->name}}
                         </span>
@@ -51,12 +51,24 @@
                 </div>
                 <div class="col-xl-4 col-lg-4 col-md-4">
                     <h6>
+                        Cycle Year: 
+                        <span class="spanDetails">
+                            @if($energySystem->energy_system_cycle_id)
+                            {{$energySystem->EnergySystemCycle->name}}
+                            @endif
+                        </span>
+                    </h6>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <h6>
                         Upgrade Year 1: 
                         <span class="spanDetails">
                             {{$energySystem->upgrade_year1}}
                         </span>
                     </h6>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-xl-4 col-lg-4 col-md-4">
                     <h6>
                         Upgrade Year 2: 
@@ -65,8 +77,6 @@
                         </span>
                     </h6>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-xl-4 col-lg-4 col-md-4">
                     <h6>
                         Rated Solar Power (kW): 
@@ -127,6 +137,48 @@
                 <hr>
             @endif
             
+            @if(count($battaryMountSystems) < 1)
+                <div class="alert alert-warning">
+                    No Battery Mounts Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                            Battery Mounts:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table class="table table-info">
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>Brand</th>
+                                    <th>Units</th>
+                                </tr>
+                            </thead>
+                            @foreach($battaryMountSystems as $battaryMountSystem)
+                                <tr>
+                                    <td>{{$battaryMountSystem->model}}</td>
+                                    <td>{{$battaryMountSystem->brand}}</td>
+                                    <td>{{$battaryMountSystem->unit}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan=2>Total Units</td>
+                                    <td>{{$battaryMountSystems->sum('unit') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
             @if(count($pvSystems) < 1)
                 <div class="alert alert-warning">
                    No Solar Panel Found.
@@ -169,6 +221,49 @@
                 <hr>
             @endif
    
+            @if(count($pvMountSystems) < 1)
+                <div class="alert alert-warning">
+                   No Solar Panel Mount Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Solar Panel Mounts:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-warning">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                </tr>
+                            </thead>
+                            @foreach($pvMountSystems as $pvSystem)
+                                <tr>
+                                    <td>{{$pvSystem->model}}</td>
+                                    <td>{{$pvSystem->brand}}</td>
+                                    <td>{{$pvSystem->unit}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan=2>Total Units</td>
+                                    <td>{{$pvMountSystems->sum('unit') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+   
+
             @if(count($controllerSystems) < 1)
                 <div class="alert alert-warning">
                     No Controllers Found.

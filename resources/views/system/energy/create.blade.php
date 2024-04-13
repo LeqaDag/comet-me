@@ -34,14 +34,13 @@
                             <label class='col-md-12 control-label'>Community</label>
                             <select class="selectpicker form-control" name="community_id" 
                                 data-live-search="true" id="communitySelected"
-                                required>
+                                >
                                 <option disabled selected>Choose one...</option>
                                 @foreach($communities as $community)
                                 <option value="{{$community->id}}">{{$community->english_name}}</option>
                                 @endforeach
                             </select>
                         </fieldset>
-                        <div id="community_id_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                         <fieldset class="form-group">
@@ -77,8 +76,15 @@
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Cycle Year</label>
-                            <input type="number" name="cycle_year" 
-                            class="form-control">
+                            <select name="energy_system_cycle_id" class="selectpicker form-control"
+                                data-live-search="true">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energyCycles as $energyCycle)
+                                    <option value="{{$energyCycle->id}}">
+                                        {{$energyCycle->name}}
+                                    </option>
+                                @endforeach
+                            </select>
                         </fieldset>
                     </div>
                 </div>
@@ -786,17 +792,7 @@
 
         $('#energySystemForm').on('submit', function (event) {
 
-            var communityValue = $('#communitySelected').val();
             var energyTypeValue = $('#energySystemTypeSelected').val();
-
-            if (communityValue == null) {
-
-                $('#community_id_error').html('Please select a community!'); 
-                return false;
-            } else if (communityValue != null) {
-
-                $('#community_id_error').empty();
-            }
 
             if (energyTypeValue == null) {
 
@@ -809,7 +805,6 @@
 
             $(this).addClass('was-validated');  
             $('#energy_system_type_id_error').empty();
-            $('#community_id_error').empty();
 
             this.submit();
         });

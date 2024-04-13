@@ -14,7 +14,7 @@ label, table {
     margin-top: 20px;
 }
 </style>
-
+ 
 <p>
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseEnergySystemVisualData" 
         role="button" aria-expanded="false" aria-controls="collapseEnergySystemVisualData">

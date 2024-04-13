@@ -32,6 +32,11 @@ class ElectricityMaintenanceCall extends Model
         return $this->belongsTo(EnergyTurbineCommunity::class, 'energy_turbine_community_id', 'id');
     }
 
+    public function EnergyGeneratorCommunity()
+    {
+        return $this->belongsTo(EnergyGeneratorCommunity::class, 'energy_generator_community_id', 'id');
+    }
+
     public function MaintenanceType()
     {
         return $this->belongsTo(MaintenanceType::class, 'maintenance_type_id', 'id');

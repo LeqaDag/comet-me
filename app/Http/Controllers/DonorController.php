@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\Community; 
 use App\Models\CommunityDonor;
 use App\Models\Donor;
+use App\Models\Compound;
 use App\Models\InternetUser;
 use App\Models\InternetUserDonor;
 use App\Models\EnergyDonor;
@@ -47,9 +48,10 @@ class DonorController extends Controller
             if ($request->ajax()) {
 
                 $data = DB::table('community_donors')
-                    ->join('communities', 'community_donors.community_id', '=', 'communities.id')
-                    ->join('donors', 'community_donors.donor_id', '=', 'donors.id')
-                    ->join('service_types', 'community_donors.service_id', '=', 'service_types.id')
+                    ->leftJoin('communities', 'community_donors.community_id', 'communities.id')
+                    ->leftJoin('compounds', 'community_donors.compound_id', 'compounds.id')
+                    ->join('donors', 'community_donors.donor_id', 'donors.id')
+                    ->join('service_types', 'community_donors.service_id', 'service_types.id')
                     ->where('community_donors.is_archived', 0);
                     
                 if($communityFilter != null) {
@@ -66,8 +68,8 @@ class DonorController extends Controller
                 }
 
                 $data->select(
-                    'communities.english_name as english_name', 
-                    'communities.arabic_name as arabic_name',
+                    DB::raw('IFNULL(communities.english_name, compounds.english_name) 
+                        as value'),
                     'community_donors.id as id', 'community_donors.created_at as created_at', 
                     'community_donors.updated_at as updated_at',
                     'donors.donor_name as donor_name',
@@ -239,7 +241,11 @@ class DonorController extends Controller
                 $arrayGridDonors[++$key] = [$value->donor_name, $value->number];
             }
 
-            return view('admin.donor.index', compact('communities', 'donors', 'services'))
+            $compounds = Compound::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+
+            return view('admin.donor.index', compact('communities', 'donors', 'services', 'compounds'))
                 ->with('donorsWaterData', json_encode($arrayWater))
                 ->with('donorsInternetData', json_encode($arrayInternet))
                 ->with('householdDonorsEnergyData', json_encode($householdDonorsArray))

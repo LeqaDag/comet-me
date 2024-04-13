@@ -31,7 +31,7 @@ use App\Models\GridUser;
 use App\Models\Photo;
 use App\Models\Region;
 use App\Models\FbsUserIncident;
-use App\Models\H2oSystemIncident;
+use App\Models\H2oSystemIncident; 
 use App\Models\GridCommunityCompound;
 use App\Models\Setting;
 use App\Models\SubRegion;
@@ -361,6 +361,7 @@ class ActionItemController extends Controller
                 ->select('communities.id', 'communities.english_name as community',  
                     'grid_community_compounds.grid',
                     'grid_community_compounds.electricity_room')
+                ->distinct()
                 ->get();
 
             $communitiesGridMissing = DB::table('communities')
@@ -372,6 +373,7 @@ class ActionItemController extends Controller
                 ->select('communities.id', 'communities.english_name as community',  
                     'grid_community_compounds.grid',
                     'grid_community_compounds.electricity_room')
+                ->distinct()
                 ->get();
 
             $compoundsElecticityRoomMissing = DB::table('compounds')

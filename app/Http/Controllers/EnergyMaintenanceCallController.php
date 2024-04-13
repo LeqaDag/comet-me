@@ -23,7 +23,8 @@ use App\Models\ElectricityMaintenanceCallAction;
 use App\Models\EnergyMaintenanceAction;
 use App\Models\EnergyMaintenanceIssue;
 use App\Models\EnergyTurbineCommunity;
-use App\Models\EnergyMaintenanceIssueType;
+use App\Models\EnergyGeneratorCommunity;
+use App\Models\EnergyMaintenanceIssueType; 
 use App\Models\ElectricityMaintenanceCallUser;
 use App\Models\Household;
 use App\Models\WaterUser;
@@ -87,12 +88,14 @@ class EnergyMaintenanceCallController extends Controller
                         'public_structures.id')
                     ->leftJoin('energy_turbine_communities', 'electricity_maintenance_calls.energy_turbine_community_id', 
                         'energy_turbine_communities.id')
+                    ->leftJoin('energy_generator_communities', 'electricity_maintenance_calls.energy_generator_community_id', 
+                        'energy_generator_communities.id')
                     ->join('communities', 'electricity_maintenance_calls.community_id', 'communities.id')
                     ->join('maintenance_types', 'electricity_maintenance_calls.maintenance_type_id', 
-                        '=', 'maintenance_types.id')
+                        'maintenance_types.id')
                     ->join('maintenance_statuses', 'electricity_maintenance_calls.maintenance_status_id', 
-                        '=', 'maintenance_statuses.id')
-                    ->join('users', 'electricity_maintenance_calls.user_id', '=', 'users.id')
+                        'maintenance_statuses.id')
+                    ->join('users', 'electricity_maintenance_calls.user_id', 'users.id')
                     ->where('electricity_maintenance_calls.is_archived', 0);
 
 
@@ -129,7 +132,8 @@ class EnergyMaintenanceCallController extends Controller
                         'electricity_maintenance_calls.created_at as created_at',
                         'electricity_maintenance_calls.updated_at as updated_at',
                         'users.name as user_name', 'public_structures.english_name as public_name',
-                        'energy_turbine_communities.name as turbine',
+                        'energy_turbine_communities.name as turbine', 
+                        'energy_generator_communities.name as generator',
                         'energy_systems.name as energy_name'
                     )->latest();
 
@@ -156,6 +160,7 @@ class EnergyMaintenanceCallController extends Controller
                         else if($row->public_name != null) $holder = $row->public_name;
                         else if($row->energy_name !=null) $holder = $row->energy_name;
                         else if($row->turbine !=null) $holder = $row->turbine;
+                        else if($row->generator !=null) $holder = $row->generator;
 
                         return $holder;
                     })
@@ -176,7 +181,7 @@ class EnergyMaintenanceCallController extends Controller
                 ->rawColumns(['action', 'holder'])
                 ->make(true);
             }
-    
+     
             $communities = Community::where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')
                 ->get();
@@ -251,6 +256,9 @@ class EnergyMaintenanceCallController extends Controller
         } else if($request->flag == "turbine") {
             
             $maintenance->energy_turbine_community_id = $request->agent_id;
+        } else if($request->flag == "generator") {
+            
+            $maintenance->energy_generator_community_id = $request->agent_id;
         } 
 
         $maintenance->community_id = $request->community_id[0];
@@ -271,6 +279,9 @@ class EnergyMaintenanceCallController extends Controller
 
         $maintenance->user_id = $request->user_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
+        $maintenance->last_hour = $request->last_hour;
+        $maintenance->run_hour = $request->run_hour;
+        $maintenance->run_performed_hour = $request->run_performed_hour;
         $maintenance->notes = $request->notes;
         $maintenance->save();
 
@@ -324,6 +335,10 @@ class EnergyMaintenanceCallController extends Controller
         } else if($energyMaintenance->energy_turbine_community_id) {
 
             $allEnergyActions = EnergyMaintenanceAction::where("energy_maintenance_issue_type_id", 4)
+                ->get();
+        } else if($energyMaintenance->energy_generator_community_id) {
+
+            $allEnergyActions = EnergyMaintenanceAction::where("energy_maintenance_issue_type_id", 5)
                 ->get();
         } 
 
@@ -394,6 +409,11 @@ class EnergyMaintenanceCallController extends Controller
         $energyMaintenance->user_id = $request->user_id;
         $energyMaintenance->maintenance_type_id = $request->maintenance_type_id;
         $energyMaintenance->notes = $request->notes;
+        
+        if($request->last_hour) $energyMaintenance->last_hour = $request->last_hour;
+        if($request->run_hour) $energyMaintenance->run_hour = $request->run_hour;
+        if($request->run_performed_hour) $energyMaintenance->run_performed_hour = $request->run_performed_hour;
+
         $energyMaintenance->save();
         $maintenanceId = $energyMaintenance->id;
 
@@ -607,6 +627,13 @@ class EnergyMaintenanceCallController extends Controller
             $response['turbine'] = $turbine;
         }
 
+        if($energyMaintenance->energy_generator_community_id != NULL) {
+            $generatorId = $energyMaintenance->energy_generator_community_id;
+            $generator = EnergyGeneratorCommunity::where('id', $generatorId)->first();
+            
+            $response['generator'] = $generator;
+        }
+
         $community = Community::where('id', $energyMaintenance->community_id)->first();
         $status = MaintenanceStatus::where('id', $energyMaintenance->maintenance_status_id)->first();
         $type = MaintenanceType::where('id', $energyMaintenance->maintenance_type_id)->first();
@@ -755,6 +782,17 @@ class EnergyMaintenanceCallController extends Controller
             foreach ($energyTurbines as $energyTurbine) {
 
                 $html .= '<option value="'.$energyTurbine->id.'">'.$energyTurbine->name.'</option>';
+            }
+        } else if($flag == "generator") {
+
+            $energyGenerators = EnergyGeneratorCommunity::where('community_id', $community_id)
+                ->select('id', 'name')
+                ->get();
+                
+                
+            foreach ($energyGenerators as $energyGenerator) {
+
+                $html .= '<option value="'.$energyGenerator->id.'">'.$energyGenerator->name.'</option>';
             }
         } 
 

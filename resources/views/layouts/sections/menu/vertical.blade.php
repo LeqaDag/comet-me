@@ -26,7 +26,7 @@
     <li class="menu-item" id="action-items">
         <a href="{{url('action-item')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-task"></i>
-            <div>Action Items</div>
+            <div>Action Items / Project Plans</div>
         </a>
     </li>
 
@@ -321,6 +321,16 @@
                             <div>Actions</div>
                         </a>
                     </li>
+                    @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                        Auth::guard('user')->user()->user_type_id == 2 ||
+                        Auth::guard('user')->user()->user_type_id == 4)
+                        <li class="menu-item" id="energy-generator-turbine">
+                            <a href="{{url('energy-generator-turbine')}}" class="menu-link" >
+                                <i class=""></i>
+                                <div>Generators/Turbines</div>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
             <li class="menu-item" id="refrigerator-maintenance">
@@ -395,11 +405,35 @@
             <div>Systems</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item" id="energy-system">
-                <a href="{{url('energy-system')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Energy System</div>
+            <li class="menu-item" id="energy">
+                <a class="menu-link menu-toggle">
+                    <div>Energy</div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="energy-system">
+                        <a href="{{url('energy-system')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Energy System</div>
+                        </a>
+                    </li>
+                @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2)
+                    <li class="menu-item" id="energy-cost">
+                        <a href="{{url('energy-cost')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Energy Cost</div>
+                        </a>
+                    </li>
+                @endif
+                @if(Auth::guard('user')->user()->user_type_id == 1)
+                    <li class="menu-item" id="donor-cost">
+                        <a href="{{url('donor-cost')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Donor Fund</div>
+                        </a>
+                    </li>
+                @endif
+                </ul>
             </li>
             <li class="menu-item" id="water-system">
                 <a href="{{url('water-system')}}" class="menu-link" >
@@ -430,23 +464,6 @@
         </ul>
     </li>
 
-    @if(Auth::guard('user')->user()->user_type_id == 1 ||
-        Auth::guard('user')->user()->user_type_id == 2)
-    <li class="menu-item" id="costs">
-        <a class="menu-link menu-toggle">
-            <i class="menu-icon tf-icons bx bx-shekel"></i>
-            <div>Costs</div>
-        </a>
-        <ul class="menu-sub">
-            <li class="menu-item" id="energy-cost">
-                <a href="{{url('energy-cost')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Energy Cost</div>
-                </a>
-            </li>
-        </ul>
-    </li>
-    @endif
     
     <li class="menu-item" id="incidents">
         <a class="menu-link menu-toggle">
@@ -743,7 +760,13 @@
         $("#maintenance").addClass("open");
         $("#energy-maintenance-tab").addClass("active");
         $("#energy-maintenance-tab").addClass("open");
-    } else if(last_part == "refrigerator-maintenance") {
+    }  else if(last_part == "energy-generator-turbine") {
+
+        $("#energy-generator-turbine").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#energy-maintenance-tab").addClass("active");
+        $("#energy-maintenance-tab").addClass("open");
+    }  else if(last_part == "refrigerator-maintenance") {
 
         $("#refrigerator-maintenance").addClass("active");
         $("#maintenance").addClass("open");
@@ -786,11 +809,18 @@
     } else if(last_part == "energy-system") {
 
         $("#energy-system").addClass("active");
+        $("#energy").addClass("open");
         $("#systems").addClass("open");
     }  else if(last_part == "energy-cost") {
 
         $("#energy-cost").addClass("active");
-        $("#costs").addClass("open");
+        $("#energy").addClass("open");
+        $("#systems").addClass("open");
+    }  else if(last_part == "donor-cost") {
+
+        $("#donor-cost").addClass("active");
+        $("#energy").addClass("open");
+        $("#systems").addClass("open");
     } else if(last_part == "water-system") {
 
         $("#water-system").addClass("active");
