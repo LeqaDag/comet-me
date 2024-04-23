@@ -811,6 +811,8 @@ class EnergySystemController extends Controller
         if($request->total_rated_power) $energySystem->total_rated_power = $request->total_rated_power;
         if($request->generated_power == null) $energySystem->generated_power = null;
         if($request->generated_power) $energySystem->generated_power = $request->generated_power;
+        if($request->turbine_power == null) $energySystem->turbine_power = null;
+        if($request->turbine_power) $energySystem->turbine_power = $request->turbine_power;
         if($request->energy_system_type_id) $energySystem->energy_system_type_id = $request->energy_system_type_id;
         $energySystem->notes = $request->notes;
         $energySystem->save();

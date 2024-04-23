@@ -51,7 +51,35 @@
                                 @endforeach
                             </select>
                         </fieldset>
-                    </div> 
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select name="energy_system_cycle_id" data-live-search="true"
+                            class="selectpicker form-control" >
+                            @if($energyUser->energy_system_cycle_id)
+                                <option disabled selected>
+                                    {{$energyUser->EnergySystemCycle->name}}
+                                </option>
+                                @foreach($energyCycles as $energyCycle)
+                                <option value="{{$energyCycle->id}}">
+                                    {{$energyCycle->name}}
+                                </option>
+                                @endforeach
+                            @else
+                            <option disabled selected>Choose one...</option>
+                                @foreach($energyCycles as $energyCycle)
+                                <option value="{{$energyCycle->id}}">
+                                    {{$energyCycle->name}}
+                                </option>
+                                @endforeach
+                            @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Meter Number</label>
@@ -59,9 +87,6 @@
                                 value="{{$energyUser->meter_number}}"> 
                         </fieldset>
                     </div> 
-                </div>
-
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Daily limit</label> 
@@ -69,6 +94,9 @@
                                 value="{{$energyUser->daily_limit}}"> 
                         </fieldset> 
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Installation date</label>
@@ -76,13 +104,11 @@
                             value="{{$energyUser->installation_date}}"> 
                         </fieldset>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Meter Active</label> 
-                            <select name='meter_active' class="form-control">
+                            <select name='meter_active'  data-live-search="true"
+                            class="selectpicker form-control">
                                 <option selected disabled>
                                     {{$energyUser->meter_active}}
                                 </option>
@@ -91,10 +117,13 @@
                             </select> 
                         </fieldset> 
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label' for="region_id">Meter Case</label>
-                            <select name='meter_case_id' name="meter_case_id " class="form-control">
+                            <select name='meter_case_id' data-live-search="true"
+                            class="selectpicker form-control">
                                 <option disabled selected>
                                     {{$energyUser->MeterCase->meter_case_name_english}}
                                 </option>
@@ -106,12 +135,11 @@
                             </select> 
                         </fieldset> 
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Vendor Name</label> 
-                            <select name='vendor_username_id' class="form-control">
+                            <select name='vendor_username_id' data-live-search="true"
+                            class="selectpicker form-control">
                                 <option selected disabled>
                                     @if($vendor)
                                     {{$vendor->name}}
@@ -127,10 +155,14 @@
                             </select> 
                         </fieldset> 
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New/Old Community</label> 
-                            <select name='installation_type_id' class="form-control">
+                            <select name='installation_type_id'  data-live-search="true"
+                            class="selectpicker form-control">
                                 <option value="">
                                     {{$energyUser->InstallationType->type}}
                                 </option>
@@ -142,13 +174,11 @@
                             </select> 
                         </fieldset> 
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Energy System</label> 
-                            <select name='energy_system_id' class="form-control">
+                            <select name='energy_system_id'  data-live-search="true"
+                            class="selectpicker form-control">
                                 <option selected disabled>
                                     {{$energyUser->EnergySystem->name}}
                                 </option>
@@ -158,10 +188,13 @@
                             </select> 
                         </fieldset> 
                     </div>
+                </div> 
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Ground Connected</label> 
-                            <select name='ground_connected' class="form-control">
+                            <select name='ground_connected'  data-live-search="true"
+                            class="selectpicker form-control">
                                 <option selected disabled>
                                     {{$energyUser->ground_connected}}
                                 </option>

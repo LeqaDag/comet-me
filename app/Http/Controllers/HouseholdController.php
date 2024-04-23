@@ -25,6 +25,7 @@ use App\Models\RefrigeratorHolder;
 use App\Models\RefrigeratorMaintenanceCall;
 use App\Models\Donor;
 use App\Models\EnergySystem;
+use App\Models\EnergySystemCycle;
 use App\Models\Compound;
 use App\Models\CompoundHousehold;
 use App\Models\EnergySystemType;
@@ -634,11 +635,18 @@ class HouseholdController extends Controller
         $communityHousehold = CommunityHousehold::where('household_id', $id)->first();
         $compoundHousehold = CompoundHousehold::where('household_id', $id)->first();
         $compound = [];
+        $energyCycleYear = [];
 
-        if($communityHousehold) {
+        if($compoundHousehold) {
 
             $compound = Compound::where('id', $compoundHousehold->compound_id)->first();
         }
+
+        if($household->energy_system_cycle_id) {
+
+            $energyCycleYear = EnergySystemCycle::where('id', $household->energy_system_cycle_id)->first();
+        }
+
         $response['community'] = $community;
         $response['household'] = $household;
         $response['profession'] = $profession;
@@ -647,6 +655,7 @@ class HouseholdController extends Controller
         $response['structure'] = $structure;
         $response['communityHousehold'] = $communityHousehold;
         $response['compound'] = $compound;
+        $response['energyCycleYear'] = $energyCycleYear;
 
         return response()->json($response);
     }
@@ -713,10 +722,11 @@ class HouseholdController extends Controller
             ->orderBy('name', 'ASC')
             ->get();
         $householdStatuses = HouseholdStatus::where('is_archived', 0)->get();
+        $energyCycles = EnergySystemCycle::get();
 
         return view('employee.household.edit', compact('household', 'regions', 'communities',
             'professions', 'structure', 'cistern', 'communityHousehold', 'energySystemTypes',
-            'householdStatuses'));
+            'householdStatuses', 'energyCycles'));
     }
 
     /**
@@ -763,6 +773,18 @@ class HouseholdController extends Controller
         $household->women_name_arabic = $request->women_name_arabic;
         $household->profession_id = $request->profession_id;
         $household->phone_number = $request->phone_number;
+
+        if($request->energy_system_cycle_id) {
+
+            $household->energy_system_cycle_id = $request->energy_system_cycle_id;
+            $energyUser = AllEnergyMeter::where("household_id", $id)->first();
+
+            if($energyUser) {
+
+                $energyUser->energy_system_cycle_id = $request->energy_system_cycle_id;
+                $energyUser->save();
+            }
+        }
 
         if($request->community_id) {
 

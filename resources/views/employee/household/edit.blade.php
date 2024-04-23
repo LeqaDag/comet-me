@@ -256,6 +256,31 @@ label, table {
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select name="energy_system_cycle_id" data-live-search="true"
+                            class="selectpicker form-control" >
+                            @if($household->energy_system_cycle_id)
+                                <option disabled selected>
+                                    {{$household->EnergySystemCycle->name}}
+                                </option>
+                                @foreach($energyCycles as $energyCycle)
+                                <option value="{{$energyCycle->id}}">
+                                    {{$energyCycle->name}}
+                                </option>
+                                @endforeach
+                            @else
+                            <option disabled selected>Choose one...</option>
+                                @foreach($energyCycles as $energyCycle)
+                                <option value="{{$energyCycle->id}}">
+                                    {{$energyCycle->name}}
+                                </option>
+                                @endforeach
+                            @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Energy Status</label>
                             <select name="household_status_id" class="form-control" >
                                 @if($household->HouseholdStatus)

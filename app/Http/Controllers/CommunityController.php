@@ -15,13 +15,14 @@ use App\Models\AllWaterHolder;
 use App\Models\AllEnergyMeterDonor;
 use App\Models\Community;
 use App\Models\CommunityDonor;
-use App\Models\CommunityStatus;
+use App\Models\CommunityStatus; 
 use App\Models\CommunityService;
 use App\Models\CommunityRepresentative;
 use App\Models\CommunityRole;
 use App\Models\Compound;
 use App\Models\Donor;
 use App\Models\EnergySystem;
+use App\Models\EnergySystemCycle;
 use App\Models\EnergySystemType;
 use App\Models\Household;
 use App\Models\Photo;
@@ -59,6 +60,43 @@ class CommunityController extends Controller
      */
     public function index(Request $request)
     {	
+        $data = DB::table('households')
+            ->join('communities', 'communities.id', 'households.community_id')
+            ->select(
+                'households.community_id AS id',
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 
+                THEN 1 ELSE NULL END) as total_household'),
+                )
+            ->groupBy('households.community_id')
+            ->get();
+       
+        
+        foreach($data as $d) {
+            $community = Community::findOrFail($d->id);
+            //$community->number_of_household = NULL;
+            $community->number_of_household = $d->total_household;
+            $community->save();
+        }
+
+        $households = DB::table('households')
+            ->join('communities', 'communities.id', 'households.community_id')
+            ->select(
+                'households.community_id AS id',
+                DB::raw('SUM(CASE WHEN households.is_archived = 0 THEN 
+                    households.number_of_male + households.number_of_female ELSE 0 END) 
+                    as total_people')
+                )
+
+            ->groupBy('households.community_id')
+            ->get();
+
+        foreach($households as $household) {
+            $community = Community::findOrFail($household->id);
+            //$community->number_of_household = NULL;
+            $community->number_of_people = $household->total_people;
+            $community->save();
+        }
+        
         // $communities = Community::get();
 
         // foreach($communities as $community) {
@@ -233,13 +271,15 @@ class CommunityController extends Controller
                 ->get();
             $waterSources = WaterSource::where('is_archived', 0)->get();
             
+            $energyCycles = EnergySystemCycle::get();
+
             return view('employee.community.index', compact('communities', 'regions', 
                 'communityRecords', 'communityWater', 'communityInternet', 'subregions',
                 'communitiesWater', 'communitiesInternet', 'communitiesAC', 'communityAC',
                 'products', 'energyTypes', 'communitiesInitial', 'communityInitial', 
                 'communitiesSurvyed', 'communitySurvyed', 'settlements', 'towns',
                 'publicCategories', 'energySystemTypes', 'publicStructures', 'donors',
-                'waterSources', 'communityStatuses'))
+                'waterSources', 'communityStatuses', 'energyCycles'))
                 ->with('regionsData', json_encode($array))->with(
                     'subRegionsData', json_encode($arraySubRegions)
                 );
@@ -373,6 +413,7 @@ class CommunityController extends Controller
         $community->arabic_name = $request->arabic_name;
         $community->region_id = $request->region_id;
         $community->sub_region_id = $request->sub_region_id;
+        $community->energy_system_cycle_id = $request->energy_system_cycle_id;
         $community->location_gis = $request->location_gis;
         $community->number_of_compound = $request->number_of_compound;
         $community->number_of_people = $request->number_of_people;
@@ -874,10 +915,11 @@ class CommunityController extends Controller
             ->get();
 
         $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+        $energyCycles = EnergySystemCycle::get();
 
         return view('employee.community.edit', compact('community', 'products', 
             'communityStatuses', 'regions', 'subRegions', 'secondName', 'compounds',
-            'recommendedEnergySystems', 'energySystemTypes'));
+            'recommendedEnergySystems', 'energySystemTypes', 'energyCycles'));
     }
 
     /**
@@ -894,6 +936,30 @@ class CommunityController extends Controller
         if($request->arabic_name) $community->arabic_name = $request->arabic_name;
         if($request->region_id) $community->region_id = $request->region_id;
         if($request->sub_region_id) $community->sub_region_id = $request->sub_region_id;
+        if($request->energy_system_cycle_id) {
+
+            $community->energy_system_cycle_id = $request->energy_system_cycle_id;
+            $households = Household::where("community_id", $id)->get();
+
+            if($households) {
+
+                foreach($households as $household) {
+
+                    $household->energy_system_cycle_id = $request->energy_system_cycle_id;
+                    $household->save();
+                }
+            }
+
+            $allEnergyMeters = AllEnergyMeter::where("community_id", $id)->get();
+            if($allEnergyMeters) {
+
+                foreach($allEnergyMeters as $allEnergyMeter) {
+
+                    $allEnergyMeter->energy_system_cycle_id = $request->energy_system_cycle_id;
+                    $allEnergyMeter->save();
+                }
+            }
+        }
         if($request->community_status_id) $community->community_status_id = $request->community_status_id;
         if($request->reception) $community->reception = $request->reception;
         if($request->number_of_household) $community->number_of_household = $request->number_of_household;

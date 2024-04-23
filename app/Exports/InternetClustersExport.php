@@ -17,7 +17,7 @@ use App\Models\InternetMetric;
 use App\Models\InternetMetricCluster;
 use App\Models\Household;
 use Carbon\Carbon; 
-use DB;
+use DB; 
 
 class InternetClustersExport implements FromCollection, WithTitle, 
     WithStyles, WithCustomStartCell, WithMapping, ShouldAutoSize
@@ -33,7 +33,7 @@ class InternetClustersExport implements FromCollection, WithTitle,
     /**
     * @return \Illuminate\Support\Collection
     */
-    public function collection()
+    public function collection() 
     { 
         $data = DB::table('internet_metric_clusters')
             ->join('internet_metrics', 'internet_metric_clusters.internet_metric_id', 
@@ -44,8 +44,9 @@ class InternetClustersExport implements FromCollection, WithTitle,
                 'internet_clusters.name', 
                 'internet_metric_clusters.source_of_connection', 
                 'internet_metric_clusters.attached_communities', 
-                'internet_metric_clusters.active_contracts', 
-                'internet_metric_clusters.bandwidth_consumption',
+                'internet_metric_clusters.active_contracts',  
+                'internet_metric_clusters.total_paid',  
+                'internet_metric_clusters.total_unpaid', 
                 'internet_metric_clusters.weekly_max_in', 
                 'internet_metric_clusters.weekly_max_out',
                 'internet_metric_clusters.weekly_avg_in',
@@ -88,7 +89,8 @@ class InternetClustersExport implements FromCollection, WithTitle,
             $row->source_of_connection,
             $row->attached_communities,
             $row->active_contracts,
-            $row->bandwidth_consumption,
+            $row->total_paid,
+            $row->total_unpaid,
             $row->weekly_max_in,
             $row->weekly_max_out,
             $row->weekly_avg_in,
@@ -128,19 +130,21 @@ class InternetClustersExport implements FromCollection, WithTitle,
         $sheet->setCellValue('C1', 'ISP');
         $sheet->setCellValue('D1', 'Attached Communities');
         $sheet->setCellValue('E1', 'Active Contracts');
-        $sheet->setCellValue('F1', 'Total Bandwidth Mbps');
-        $sheet->setCellValue('G1', 'Weekly Max In Bandwidth Mbps');
-        $sheet->setCellValue('H1', 'Weekly Max Out Bandwidth Mbps');
-        $sheet->setCellValue('I1', 'Weekly Avg In Bandwidth Mbps');
-        $sheet->setCellValue('J1', 'Weekly Avg Out Bandwidth Mbps');
-        $sheet->setCellValue('K1', 'Weekly Now In Bandwidth Mbps');
-        $sheet->setCellValue('L1', 'Weekly Now Out Bandwidth Mbps');
-        $sheet->setCellValue('M1', 'Monthly Max In Bandwidth Mbps');
-        $sheet->setCellValue('N1', 'Monthly Max Out Bandwidth Mbps');
-        $sheet->setCellValue('O1', 'Monthly Avg In Bandwidth Mbps');
-        $sheet->setCellValue('P1', 'Monthly Avg Out Bandwidth Mbps');
-        $sheet->setCellValue('Q1', 'Monthly Now In Bandwidth Mbps');
-        $sheet->setCellValue('R1', 'Monthly Now Out Bandwidth Mbps');
+        $sheet->setCellValue('F1', 'Total Paid Holders');
+        $sheet->setCellValue('G1', 'Total Unpaid Holders');
+        $sheet->setCellValue('H1', 'Total Bandwidth Mbps');
+        $sheet->setCellValue('I1', 'Weekly Max In Bandwidth Mbps');
+        $sheet->setCellValue('J1', 'Weekly Max Out Bandwidth Mbps');
+        $sheet->setCellValue('K1', 'Weekly Avg In Bandwidth Mbps');
+        $sheet->setCellValue('L1', 'Weekly Avg Out Bandwidth Mbps');
+        $sheet->setCellValue('M1', 'Weekly Now In Bandwidth Mbps');
+        $sheet->setCellValue('N1', 'Weekly Now Out Bandwidth Mbps');
+        $sheet->setCellValue('O1', 'Monthly Max In Bandwidth Mbps');
+        $sheet->setCellValue('P1', 'Monthly Max Out Bandwidth Mbps');
+        $sheet->setCellValue('Q1', 'Monthly Avg In Bandwidth Mbps');
+        $sheet->setCellValue('R1', 'Monthly Avg Out Bandwidth Mbps');
+        $sheet->setCellValue('S1', 'Monthly Now In Bandwidth Mbps');
+        $sheet->setCellValue('T1', 'Monthly Now Out Bandwidth Mbps');
  
         $sheet->getStyle('B1')->getAlignment()->setWrapText(true);
         $sheet->getStyle('C1')->getAlignment()->setWrapText(true);

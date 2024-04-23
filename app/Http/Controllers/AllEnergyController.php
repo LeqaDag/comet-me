@@ -36,6 +36,7 @@ use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
 use App\Models\VendorUserName;
+use App\Models\EnergySystemCycle;
 use App\Exports\AllEnergyExport;
 use Carbon\Carbon;
 use Image;
@@ -52,6 +53,30 @@ class AllEnergyController extends Controller
      */
     public function index(Request $request)
     {
+        // $allEnergyMeterDonors = AllEnergyMeterDonor::where("community_id", 171)->get();
+        // foreach( $allEnergyMeterDonors  as  $allEnergyMeterDonor) {
+
+        //     $allEnergyMeterDonor->delete();
+        // }
+
+        // $community = Community::find(188);
+
+        // $households = Household::where('community_id', $community->id)
+        //     ->where('energy_system_cycle_id', '!=', null)
+        //     ->where('energy_system_type_id', null)
+        //     ->get();
+
+      
+        // if($households) {
+
+        //     foreach($households as $household) {
+
+        //         $household->energy_system_type_id = 2;
+        //         $household->save();
+        //     }
+        // }
+      //  die($households);
+        
         // $allEnergyMeters = AllEnergyMeter::where('is_archived', 0)
         //     ->whereNotNull('household_id')
         //     ->get();
@@ -172,7 +197,7 @@ class AllEnergyController extends Controller
 
         if (Auth::guard('user')->user() != null) {
 
-            if ($request->ajax()) { 
+            if ($request->ajax()) {  
  
                 $data = DB::table('all_energy_meters')
                     ->join('communities', 'all_energy_meters.community_id', 'communities.id')
@@ -351,6 +376,14 @@ class AllEnergyController extends Controller
     public function edit($id)
     {
         $energyUser = AllEnergyMeter::findOrFail($id);
+        $communityCycle = Community::find($energyUser->community_id);
+
+        if($communityCycle) {
+
+            $energyUser->energy_system_cycle_id = $communityCycle->energy_system_cycle_id;
+            $energyUser->save();
+        }
+
         $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
             ->where("is_archived", 0)
             ->get();
@@ -374,10 +407,11 @@ class AllEnergyController extends Controller
         $vendor = VendorUserName::where('id', $energyUser->vendor_username_id)->first();
         $donors = Donor::where('is_archived', 0)->get();
         $installationTypes = InstallationType::where('is_archived', 0)->get();
+        $energyCycles = EnergySystemCycle::get();
 
         return view('users.energy.not_active.edit_energy', compact('household', 'communities',
             'meterCases', 'energyUser', 'communityVendors', 'vendor', 'energySystems',
-            'energyDonors', 'donors', 'installationTypes'));
+            'energyDonors', 'donors', 'installationTypes', 'energyCycles'));
     }
 
     /**
@@ -456,6 +490,25 @@ class AllEnergyController extends Controller
     {
         $energyUser = AllEnergyMeter::find($id);
 
+        $communityCycle = Community::find($energyUser->community_id);
+
+        if($communityCycle) {
+
+            $energyUser->energy_system_cycle_id = $communityCycle->energy_system_cycle_id;
+        }
+
+        if($request->energy_system_cycle_id) {
+
+            $energyUser->energy_system_cycle_id = $request->energy_system_cycle_id;
+
+            $householdUser = Household::where("id", $energyUser->household_id)->first();
+            if($householdUser) {
+
+                $householdUser->energy_system_cycle_id = $request->energy_system_cycle_id;
+                $householdUser->save();
+            }
+        }
+
         if($energyUser->household_id) {
 
             $displacedHousehold = DisplacedHousehold::where('household_id', 
@@ -493,6 +546,7 @@ class AllEnergyController extends Controller
         if($request->meter_case_id) $energyUser->meter_case_id = $request->meter_case_id;
         
         if($request->community_id) $energyUser->community_id = $request->community_id;
+
 
         if($request->meter_case_id == 1 || $request->meter_case_id == 2 ||
             $request->meter_case_id == 3 || $request->meter_case_id == 4 ||

@@ -4,7 +4,7 @@
     <div class="d-flex flex-wrap mb-4">
         @foreach($users as $user)
             @if($user->user_type_id == $userTypeId)
-                @if($flag == 1)
+                @if($flag == 1) 
                 <div>
                     <div class="avatar avatar-xs me-2">
                         @if($user->image == "")

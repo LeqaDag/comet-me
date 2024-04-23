@@ -32,11 +32,12 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
             ->leftJoin('compound_households', 'compound_households.household_id', 'households.id')
             ->leftJoin('compounds', 'compound_households.compound_id', 'compounds.id')
             ->leftJoin('energy_request_statuses', 'energy_request_systems.energy_request_status_id', 
-                'energy_request_statuses.id')
+                'energy_request_statuses.id') 
             ->leftJoin('energy_system_types', 'energy_request_systems.recommendede_energy_system_id', 
-                'energy_system_types.id')
+                'energy_system_types.id') 
             ->where('households.is_archived', 0)
             ->where('households.household_status_id', 5) 
+            ->where('households.energy_system_cycle_id', '!=', null)
             ->where('energy_request_systems.recommendede_energy_system_id', 2)
             ->select('households.english_name as household',
                 'communities.english_name as community_name', 
@@ -57,6 +58,10 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
             $query->where("energy_request_systems.energy_request_status_id", $this->request->request_status);
         }
 
+        if($this->request->energy_cycle_id) {
+
+            $query->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
+        }
         return $query->get();
     } 
 

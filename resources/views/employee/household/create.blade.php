@@ -13,9 +13,37 @@
         margin-top: 20px;
     }
 
+    /* Override Smoothness theme styles */
+    .ui-autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 70px);
+        padding-left: 10px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-top: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    /* Center-align the text and add padding */
+    .ui-autocomplete .ui-menu-item {
+        padding: 30px;
+        cursor: pointer;
+        text-align: center; /* Center-align the text */
+    }
+
+    /* Apply hover effect to the dropdown items */
+    .ui-autocomplete .ui-menu-item:hover {
+        background-color: #f0f0f0;
+    }
+
 </style>
 
-@section('content')
+@section('content') 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">Add </span> New Household
 </h4> 
@@ -30,13 +58,16 @@
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Father/Husband Name</label>
-                            <input type="text" name="english_name" id="householdEnglishName" 
-                            placeholder="Write in English" value="{{old('english_name')}}"
-                            class="form-control" required>
-                            <div id="english_name_error" class="text-danger"></div>
-                            @if ($errors->has('english_name'))
-                                <span class="error">{{ $errors->first('english_name') }}</span>
-                            @endif
+                            <div class="autocomplete-container">
+                                <input type="text" name="english_name" id="householdEnglishName" 
+                                placeholder="Write in English" value="{{old('english_name')}}"
+                                class="form-control" required>
+                                <div id="english_name_error" class="text-danger"></div>
+                                @if ($errors->has('english_name'))
+                                    <span class="error">{{ $errors->first('english_name') }}</span>
+                                @endif
+                                <div class="autocomplete-dropdown"></div>
+                            </div>
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -269,7 +300,31 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
 <script>
+
+    // $(document).ready(function () {
+
+    //     $("#householdEnglishName").autocomplete({
+
+    //         source: function(request, response) {
+    //             $.ajax({
+    //                 url: "household/autocomplete/" + request.term,
+    //                 dataType: "json",
+    //                 success: function(data) {
+
+    //                     response(data);
+    //                 }
+    //             });
+    //         },
+    //         minLength: 2 // Minimum characters before triggering autocomplete
+    //     });
+    // });
+
     $(document).ready(function () {
 
         var oldSelectProfession;

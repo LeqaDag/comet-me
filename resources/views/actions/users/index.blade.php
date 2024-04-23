@@ -14,17 +14,9 @@
         /</span> Your Action Items
     </a>
 </h4>
-
+ 
 <div class="container mb-4">
-    
-    <h5>
-        <button type="button" class="btn btn-success btn-sm" 
-            data-bs-toggle="modal" data-bs-target="#createUserActionItem">
-            <i class="bx bx-plus"></i>
-        </button>
-        @include('actions.users.create_task')
-    </h5>
-                        
+                    
     @if(count($groupedActionItems) > 0)
         @foreach($groupedActionItems as $userId => $userActionItems)
             @php
@@ -61,66 +53,35 @@
                     <div id="userCollapse{{$userId}}" class="collapse multi-collapse timeline-event p-0 mb-4" 
                         data-aos="fade-right">
                     
-                        <div class="pb-0">
-                            <table id="actionItemTable" class="dt-advanced-search table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Task</th>
-                                        <th>Status</th>
-                                        <th>Priority</th>
-                                        <th>Timeline</th>
-                                        <th>Notes</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="actionItemsBody">
-                                    @foreach($userActionItems as $actionItem)
-                                        <tr id="actionItemRow_{{ $actionItem->id }}">
-                                            <td>{{$actionItem->task}}</td>
-                                            <td style="width:200px">
-                                                <select name="action_status_id" class="selectpicker form-control action-status" 
-                                                    data-live-search="true" data-action-item-id="{{$actionItem->id}}"
-                                                    >
-                                                    <option disabled selected>{{$actionItem->ActionStatus->status}}</option>
-                                                    @foreach($actionStatuses as $actionStatus)
-                                                        <option value="{{$actionStatus->id}}">
-                                                            {{$actionStatus->status}}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </td>
-                                            <td>
-                                                @if($actionItem->ActionPriority->id == 1)
-                                                <span class='badge bg-primary'>
-                                                    {{$actionItem->ActionPriority->name}}
-                                                </span>
-                                                @else @if($actionItem->ActionPriority->id == 2)
-                                                <span class='badge bg-warning text-dark'>
-                                                    {{$actionItem->ActionPriority->name}}
-                                                </span>
-                                                @else @if($actionItem->ActionPriority->id == 3)
-                                                <span class='badge bg-danger'>
-                                                    {{$actionItem->ActionPriority->name}}
-                                                </span>
-                                                @endif
-                                                @endif
-                                                @endif
-                                            </td>
-                                            <td>
-                                                {{ $actionItem->date }} 
-                                                <strong>to </strong>
-                                                {{ $actionItem->due_date }}
-                                            </td>
-                                            <td>
-                                                <input type="text" value="{{ $actionItem->notes }}"
-                                                    class="action-notes form-control" 
-                                                    data-action-item-id="{{$actionItem->id}}" >
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                        @include('actions.users.action')
+                    </div>
 
+                    <div class="d-flex flex-wrap mb-4">
+                        <div>
+                            <div class="avatar avatar-xs me-2">
+                                @if($userActionItems->first()->User->image == "")
+                                    @if($userActionItems->first()->User->gender == "male")
+                                        <img src="{{url('users/profile/male.png')}}" class="rounded-circle">
+                                    @else
+                                        <img src="{{url('users/profile/female.png')}}" class="rounded-circle">
+                                    @endif
+                                @else
+                                    <img src="{{url('users/profile/'.$userActionItems->first()->User->image)}}" alt="Avatar" class="rounded-circle" />
+                                @endif
+                            </div>
+                        </div>
+                        <a data-toggle="collapse" class="text-dark" 
+                            href="#userCollapsePlatfrom{{$userId}}" 
+                            aria-expanded="false" 
+                            aria-controls="userCollapsePlatfrom{{$userId}}">
+                            Your <strong>Platform Tasks</strong>
+                        </a>
+                    </div>
+
+                    <div id="userCollapsePlatfrom{{$userId}}" class="collapse multi-collapse timeline-event p-0 mb-4" 
+                        data-aos="fade-right">
+                    
+                       
                         <div class="pb-0">
                             @php
                                 $userTypeId = Auth::guard('user')->user()->user_type_id;
@@ -166,10 +127,169 @@
         @endforeach
     @endif
 </div>
-
-
+@include('actions.users.show')
 
 <script>
+    var table;
+    function DataTableContent() {
+
+        table = $('.data-table-action-items').DataTable({
+            
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('action-item-user.index') }}",
+                data: function (d) {
+                    d.search = $('input[type="search"]').val();
+                    d.status_filter = $('#filterByStatus').val();
+                    d.priority_filter = $('#filterByPriority').val();
+                    d.start_date_filter = $('#filterByStartDate').val();
+                    d.end_date_filter = $('#filterByEndDate').val();
+                }
+            },
+            dom: 'Blfrtip',
+            buttons: [
+                {
+                    extend: 'pdf',
+                    exportOptions: {
+                        columns: [1,2,3,4,5] // Column index which needs to export
+                    }
+                },
+                {
+                    extend: 'csv',
+                    exportOptions: {
+                        columns: [0,5] // Column index which needs to export
+                    }
+                },
+                {
+                    extend: 'excel',
+                }
+            ],
+            columns: [
+                {data: 'task', name: 'task'},
+                {data: 'statusLabel'},
+                {data: 'priorityLabel'},
+                {data: 'action'}
+            ]
+            
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+        
+        $('#filterByStatus').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByPriority').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByStartDate').on('input', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByEndDate').on('input', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-action-items')) {
+                $('.data-table-action-items').DataTable().destroy();
+            }
+            $('#filterByStartDate').val(' ');
+            $('#filterByEndDate').val(' ');
+
+            DataTableContent();
+        });
+
+        // View record details
+        $('#actionItemUserTable').on('click', '.detailsUserActionItemButton',function() {
+            var id = $(this).data('id');
+        
+            // AJAX request
+            $.ajax({
+                url: 'work-plan/' + id,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    $('#actionItemUserModalTitle').html(" ");
+
+                    $('#actionOwner').html(" ");
+                    $('#ownerRole').html(" ");
+                    $('#actionStatus').html(" ");
+                    $('#actionPriority').html(" ");
+                    $('#actionDate').html(" ");
+                    $('#actionDueDate').html(" ");
+                    $('#actionNotes').html(" ");
+
+                    $('#actionItemUserModalTitle').html(response['actionItem'].task);
+                    $('#actionOwner').html(response['user'].name);
+                    $('#ownerRole').html(response['userType'].name);
+                    $('#actionStatus').html(response['status'].status);
+                    $('#actionPriority').html(response['priority'].name);
+                    $('#actionDate').html(response['actionItem'].date);
+                    $('#actionDueDate').html(response['actionItem'].due_date);
+                    $('#actionNotes').html(response['actionItem'].notes);
+                }
+            });
+        });
+
+        // View record photos
+        $('#actionItemUserTable').on('click', '.updateUserActionItem',function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+           
+            url = url +'/'+ id +'/edit';
+            window.open(url, "_self"); 
+        });
+
+        // Delete record
+        $('#actionItemUserTable').on('click', '.deleteUserActionItem',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this Action Item?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteUserActionItem') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#actionItemUserTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+    });
+
+
     $(document).ready(function () {
 
         $('.action-status').change(function () {
@@ -221,6 +341,68 @@
 
                         $('#actionItemRow_' + actionItemId).remove();
                     }
+                },
+                error: function (error) {
+                    // Handle error, if needed
+                    console.error(error);
+                }
+            });
+        });
+
+        $('.action-date-from').change(function () {
+
+            var actionItemId = $(this).data('action-item-id');
+            var dateFrom = $(this).val();
+
+            $.ajax({
+                type: 'POST',
+                url: 'action-item/update-action-date-from',
+                data: {
+                    actionItemId: actionItemId,
+                    dateFrom: dateFrom,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'The Date updated successfully!',
+                        showDenyButton: false,
+                        showCancelButton: false,
+                        confirmButtonText: 'Okay!'
+                    }).then((result) => {
+                        
+                    });
+                },
+                error: function (error) {
+                    // Handle error, if needed
+                    console.error(error);
+                }
+            });
+        });
+
+        $('.action-due-date').change(function () {
+
+            var actionItemId = $(this).data('action-item-id');
+            var dateTo = $(this).val();
+
+            $.ajax({
+                type: 'POST',
+                url: 'action-item/update-action-date-to',
+                data: {
+                    actionItemId: actionItemId,
+                    dateTo: dateTo,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'The Due Date updated successfully!',
+                        showDenyButton: false,
+                        showCancelButton: false,
+                        confirmButtonText: 'Okay!'
+                    }).then((result) => {
+                        
+                    });
                 },
                 error: function (error) {
                     // Handle error, if needed

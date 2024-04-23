@@ -251,6 +251,20 @@
                 <div class="card-body pb-0">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between 
+                            align-items-center ps-0 text-primary">
+                            <div>
+                                <i class="bx bx-calendar"></i>
+                                <span>Cycle Year</span>
+                            </div>
+                            <div>
+                                @if($community->energy_system_cycle_id)
+                                    <span class="text-dark">
+                                        ({{$community->EnergySystemCycle->name}})
+                                    </span>
+                                @endif
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between 
                             align-items-center ps-0 text-warning">
                             <div>
                                 <i class="bx bx-bulb"></i>

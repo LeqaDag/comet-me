@@ -210,10 +210,9 @@ class EnergyCostInstallation implements FromCollection, WithTitle, ShouldAutoSiz
             ->leftJoin('community_donors', 'community_donors.community_id', 'communities.id')
             ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('communities.is_archived', 0)
-            ->where('communities.community_status_id', 1)
-            ->orWhere('communities.community_status_id', 2)
+            ->where('communities.energy_system_cycle_id', '!=', null)
             ->where('all_households.household_status_id', '!=', 8)
-             ->whereNotExists(function ($query) {
+            ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('compounds')
                     ->whereRaw('compounds.community_id = communities.id');
@@ -221,16 +220,17 @@ class EnergyCostInstallation implements FromCollection, WithTitle, ShouldAutoSiz
             ->select( 
                 'communities.english_name', 
                 'regions.english_name as region',
-                DB::raw('COUNT(CASE WHEN all_households.household_status_id != 8 AND all_energy_types.id = 2 THEN 1 END) as sum_FBS'),
-                DB::raw('COUNT(CASE WHEN all_households.household_status_id != 8 AND all_energy_types.id = 1 THEN 1 END) as sum_MG'),
-                DB::raw('COUNT(CASE WHEN all_households.household_status_id != 8 AND all_energy_types.id = 4 THEN 1 END) as sum_SMG'),
-                DB::raw('COUNT(CASE WHEN all_households.household_status_id != 4 AND all_households.household_status_id != 8 THEN 1 END) as household'),
-                DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 2 THEN 1 END) as sum_FBS'),
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 1 THEN 1 END) as sum_MG'),
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END) as sum_SMG'),
+                DB::raw('COUNT(CASE WHEN all_households.household_status_id != 4 AND 
+                    all_households.household_status_id  != 8 THEN 1 END) as household'),
+                    DB::raw('group_concat(DISTINCT CASE WHEN community_donors.is_archived = 0 THEN donors.donor_name END) as donors'),
                 DB::raw('CASE 
                     WHEN energy_systems.energy_system_type_id = 2 THEN (' . $totalFbsComponent . ' * COUNT(CASE WHEN all_households.household_status_id != 4 AND all_households.household_status_id != 8 THEN 1 END)) 
                     ELSE (((energy_systems.total_costs * 0.16) + energy_systems.total_costs) * 0.10 ) + energy_systems.total_costs 
                     END as system_cost')
-            )
+                )
             ->groupBy('communities.english_name');
 
         $queryCompounds = DB::table('compounds') 
@@ -250,19 +250,19 @@ class EnergyCostInstallation implements FromCollection, WithTitle, ShouldAutoSiz
             ->leftJoin('community_donors', 'community_donors.compound_id', 'compounds.id')
             ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('communities.is_archived', 0)
-            ->where('households.is_archived', 0)
-            ->where('households.household_status_id', '!=', 8)
+            ->where('communities.energy_system_cycle_id', '!=', null)
             ->where(function ($query) {
                 $query->where('communities.community_status_id', 2);
             })
             ->select(
                 'compounds.english_name', 
                 'regions.english_name as region',
-                DB::raw('COUNT(CASE WHEN households.household_status_id != 8 AND energy_system_types.id = 2 THEN 0 END) as sum_FBS'),
-                DB::raw('COUNT(CASE WHEN households.household_status_id != 8 AND energy_system_types.id = 1 THEN 0 END) as sum_MG'),
-                DB::raw('COUNT(CASE WHEN households.household_status_id != 8 AND energy_system_types.id = 4 THEN 0 END) as sum_SMG'),
-                DB::raw('COUNT(CASE WHEN households.household_status_id != 8 AND households.id THEN 0 END) as household'),
-                DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
+                DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 2 THEN households.id END) as sum_FBS'),
+                DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 1 THEN households.id END) as sum_MG'),
+                DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 4 THEN households.id END) as sum_SMG'),
+                DB::raw('COUNT(CASE WHEN households.household_status_id != 8 AND households.id 
+                    AND households.is_archived = 0 THEN 0 END) as household'),
+                DB::raw('group_concat(DISTINCT CASE WHEN community_donors.is_archived = 0 THEN donors.donor_name END) as donors'),
                 DB::raw('CASE 
                 WHEN energy_systems.energy_system_type_id = 2 THEN (' . $totalFbsComponent . ' * COUNT(CASE WHEN households.household_status_id != 4 AND households.household_status_id != 8 THEN 1 END)) 
                 ELSE (((energy_systems.total_costs * 0.16) + energy_systems.total_costs) * 0.10 ) + energy_systems.total_costs 
@@ -275,6 +275,7 @@ class EnergyCostInstallation implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('households.is_archived', 0)
             ->where('households.household_status_id', 5)
             ->where('energy_request_systems.recommendede_energy_system_id', 2)
+            ->where('households.energy_system_cycle_id', '!=', null)
             ->count();
 
         $this->miscCost = $totalFbsComponent * $this->misc;
@@ -305,7 +306,6 @@ class EnergyCostInstallation implements FromCollection, WithTitle, ShouldAutoSiz
             $queryCommunities->where("energy_systems.energy_system_cycle_id", $this->request->energy_cycle_id);
         }
 
-        
 
         $communitiesCollection = collect($queryCommunities->get());
         $compoundsCollection = collect($queryCompounds->get());

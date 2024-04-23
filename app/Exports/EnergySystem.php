@@ -33,7 +33,7 @@ class EnergySystem implements FromCollection, WithHeadings, WithTitle, ShouldAut
             ->select(
                 'energy_systems.name', 'energy_systems.installation_year',
                 'energy_system_types.name as type', 'energy_systems.total_rated_power', 
-                'energy_systems.generated_power', 
+                'energy_systems.generated_power', 'energy_systems.turbine_power'
             );
 
        // die($query->get());
@@ -64,7 +64,7 @@ class EnergySystem implements FromCollection, WithHeadings, WithTitle, ShouldAut
     public function headings(): array
     {
         return ["Energy System", "Installation Year", "Energy System Type", "Total Rated Power",
-            "Generated Power"
+            "Generated Power", "Turbine Power"
         ];
     }
 
@@ -95,7 +95,7 @@ class EnergySystem implements FromCollection, WithHeadings, WithTitle, ShouldAut
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:C1');
+        $sheet->setAutoFilter('A1:F1');
 
         return [
             // Style the first row as bold text.

@@ -66,6 +66,7 @@ class InternetHolderController extends Controller
                 $internetUser->expired_gt_than_30d = $holder["expired_gt_than_30d"];
                 $internetUser->expired_gt_than_60d = $holder["expired_gt_than_60d"];
                 $internetUser->is_expire = $holder["is_expire"];
+                $internetUser->paid = $holder["paid"];
                 $internetUser->community_id = $community->id;
                 
                 $community->internet_service = "Yes";
@@ -78,6 +79,7 @@ class InternetHolderController extends Controller
 
                         $existInternetHolder->is_expire = $holder["is_expire"];
                         $existInternetHolder->active = $holder["active"];
+                        $existInternetHolder->paid = $holder["paid"];
                         $existInternetHolder->last_purchase_date = $holder["last_purchase_date"];
                         $existInternetHolder->expired_gt_than_30d = $holder["expired_gt_than_30d"];
                         $existInternetHolder->expired_gt_than_60d = $holder["expired_gt_than_60d"];
@@ -96,6 +98,7 @@ class InternetHolderController extends Controller
 
                         $existInternetPublic->is_expire = $holder["is_expire"];
                         $existInternetPublic->active = $holder["active"];
+                        $existInternetPublic->paid = $holder["paid"];
                         $existInternetPublic->last_purchase_date = $holder["last_purchase_date"];
                         $existInternetPublic->expired_gt_than_30d = $holder["expired_gt_than_30d"];
                         $existInternetPublic->expired_gt_than_60d = $holder["expired_gt_than_60d"];

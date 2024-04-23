@@ -116,24 +116,121 @@
         href="#projectCostsTab" 
         aria-expanded="false" 
         aria-controls="projectCostsTab">
-        <span class="text-muted fw-light">Projects /</span> Costs
+        <span class="text-muted fw-light">Projects /</span> Files
     </a>
 </h4>
 
-<div class="container mb-4">
-    <div class="user-tasks">
-        <div class="d-flex flex-wrap mb-4">
+<div class="container">
+    <h6 class="py-3 breadcrumb-wrapper">
+        <a data-toggle="collapse" class="text-warning" 
+            href="#EnergyProjectFiles" 
+            aria-expanded="false" 
+            aria-controls="EnergyProjectFiles">
+            <i class="bx bx-bulb bx-sm me-3"></i>
+            Energy Project
+        </a>
+    </h6>
+    
+    <div class="row overflow-hidden collapse multi-collapse container" id="EnergyProjectFiles">
+        <div class="user-tasks">
+            <div class="">
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('energy-request.export') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-xl-1 col-lg-1 col-md-1"></div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Cycle Year</label>
+                                <select name="energy_cycle_id"
+                                    class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Search Cycle Year</option>
+                                    @foreach($energyCycles as $energyCycle)
+                                        <option value="{{$energyCycle->id}}">
+                                            {{$energyCycle->name}}
+                                        </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Click Here</label>
+                                <button class="form-control btn-warning" type="submit">
+                                    <i class='fa-solid fa-file-excel'></i>
+                                    Export Energy Installation Progress Report
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="mb-4">
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('energy-cost.export') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-xl-1 col-lg-1 col-md-1"></div>
+                        <div class="col-xl-3 col-lg-3 col-md-3">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Cycle Year</label>
+                                <select name="energy_cycle_id"
+                                    class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Search Cycle Year</option>
+                                    @foreach($energyCycles as $energyCycle)
+                                        <option value="{{$energyCycle->id}}">
+                                            {{$energyCycle->name}}
+                                        </option>
+                                    @endforeach
+                                </select> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Click Here</label>
+                                <button class="form-control btn-warning" type="submit">
+                                    <i class='fa-solid fa-file-excel'></i>
+                                    Export Energy Installation Cost File
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <h6 class="py-3 breadcrumb-wrapper">
+        <a data-toggle="collapse" class="text-success" 
+            href="#InternetProjectFiles" 
+            aria-expanded="false" 
+            aria-controls="InternetProjectFiles">
+            <i class="bx bx-wifi bx-sm me-3"></i>
+            Internet Project
+        </a>
+    </h6> 
+
+    <div class="row overflow-hidden collapse multi-collapse container" id="InternetProjectFiles">
+        <div class=" mb-4">
             <form method="POST" enctype='multipart/form-data' 
-                action="{{ route('energy-cost.export') }}">
+                action="{{ route('internet-user.export') }}">
                 @csrf
-                <button class=" btn-warning" type="submit">
-                    <i class='fa-solid fa-file-excel'></i>
-                    Export Energy Installation Cost File
-                </button>
+                <div class="row">
+                    <div class="col-xl-1 col-lg-1 col-md-1"></div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                        <button class="form-control btn-success" type="submit">
+                            <i class='fa-solid fa-file-excel'></i>
+                            Export Internet Metrics Report File
+                        </button>
+                        </fieldset>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
 </div>
+
 @endif
 
 <hr>
@@ -176,20 +273,96 @@
     </a>
 </h4>
 
+
 <div class="container mb-4">
-    @php
-        $userTypeId = 6;
-        $collapseId = 'internetWorkPlans';
-        $includeView = 'actions.admin.internet.index';
-    @endphp
-    @include('actions.admin.user_tasks')
+    <div class="user-tasks">
+        <div class="d-flex flex-wrap mb-4">
+            @foreach($users as $user)
+            @if($user->user_type_id == 1 && $user->id == 6)
+            <div>
+                <div class="avatar avatar-xs me-2">
+                    @if($user->image == "")
+                        @if($user->gender == "male")
+                            <img src="{{url('users/profile/male.png')}}" class="rounded-circle">
+                        @else
+                            <img src="{{url('users/profile/female.png')}}" class="rounded-circle">
+                        @endif
+                    @else
+                        <img src="{{url('users/profile/'.$user->image)}}" alt="Avatar" class="rounded-circle" />
+                    @endif
+                </div>
+            </div> 
+            <a data-toggle="collapse" class="text-dark" 
+                href="#energySystemWorkPlans" 
+                aria-expanded="false" 
+                aria-controls="energySystemWorkPlans">
+                Assigned this task to <strong>{{$user->name}}</strong>
+            </a> 
+            @endif
+            @endforeach
+        </div>
+
+        <div id="energySystemWorkPlans" data-aos="fade-right"
+            class="collapse multi-collapse timeline-event p-0 mb-4">
+            <div class="row overflow-hidden container mb-4" >
+                <div class="col-12">
+                    <ul class="timeline timeline-center mt-5">
+                        <!-- Action Items for internal -->
+                        @include('actions.admin.internal.energy_system')
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="container mb-4">
     <div class="user-tasks">
         <div class="d-flex flex-wrap mb-4">
             @foreach($users as $user)
-            @if($user->user_type_id == 1 && $user->name == "Tamar Cohen")
+            @if($user->user_type_id == 2 && $user->id == 3)
+            <div>
+                <div class="avatar avatar-xs me-2">
+                    @if($user->image == "")
+                        @if($user->gender == "male")
+                            <img src="{{url('users/profile/male.png')}}" class="rounded-circle">
+                        @else
+                            <img src="{{url('users/profile/female.png')}}" class="rounded-circle">
+                        @endif
+                    @else
+                        <img src="{{url('users/profile/'.$user->image)}}" alt="Avatar" class="rounded-circle" />
+                    @endif
+                </div>
+            </div> 
+            <a data-toggle="collapse" class="text-dark" 
+                href="#householdMissingDetailsWorkPlans" 
+                aria-expanded="false" 
+                aria-controls="householdMissingDetailsWorkPlans">
+                Assigned this task to <strong>{{$user->name}}</strong>
+            </a> 
+            @endif
+            @endforeach
+        </div>
+
+        <div id="householdMissingDetailsWorkPlans" data-aos="fade-right"
+            class="collapse multi-collapse timeline-event p-0 mb-4">
+            <div class="row overflow-hidden container mb-4" >
+                <div class="col-12">
+                    <ul class="timeline timeline-center mt-5">
+                        <!-- Action Items for internal -->
+                        @include('actions.admin.internal.missing_household_details')
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-4">
+    <div class="user-tasks">
+        <div class="d-flex flex-wrap mb-4">
+            @foreach($users as $user)
+            @if($user->user_type_id == 1 && $user->id == 2)
             <div>
                 <div class="avatar avatar-xs me-2">
                     @if($user->image == "")
@@ -233,7 +406,7 @@
     <div class="user-tasks">
         <div class="d-flex flex-wrap mb-4">
             @foreach($users as $user)
-            @if($user->user_type_id == 1 && $user->name == "Leqa Daghameen")
+            @if($user->user_type_id == 1 && $user->id == 1)
             <div>
                 <div class="avatar avatar-xs me-2">
                     @if($user->image == "")
@@ -269,6 +442,17 @@
             </div>
         </div>
     </div>
+</div>
+
+
+
+<div class="container mb-4">
+    @php
+        $userTypeId = 6;
+        $collapseId = 'internetWorkPlans';
+        $includeView = 'actions.admin.internet.index';
+    @endphp
+    @include('actions.admin.user_tasks')
 </div>
 
 <div class="row overflow-hidden collapse multi-collapse container mb-4" id="actionPlanTab">

@@ -21,7 +21,7 @@
                         <div class="d-flex align-items-center mt-2">
                         <h5 class="mb-0">{{$energyUsersNumbers}}</h5>
                     </div>
-                </div>
+                </div> 
                 <div class="user-analytics text-center me-2">
                     <i class="bx bx-hive me-1"></i>
                     <span>Shared Users</span>

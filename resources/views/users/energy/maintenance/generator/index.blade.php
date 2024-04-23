@@ -16,7 +16,7 @@
         <div class="alert alert-success">
             {{ session()->get('message') }}
         </div>
-    </div>
+    </div> 
 @endif
 
 <div class="container mb-4 ">
@@ -54,7 +54,7 @@
 </div> 
 
 
-<!-- <br>
+<br>
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span> Energy Turbines - Communities 
 </h4>
@@ -100,7 +100,7 @@
             </table>
         </div>
     </div>
-</div>  -->
+</div> 
 
 <script type="text/javascript">
     $(function () {
@@ -166,13 +166,13 @@
 
     $(function () {
 
-        var table1 = $('.data-table-turbine-turbine').DataTable({
+        var table1 = $('.data-table-energy-turbine').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{route('energy-turbine.index')}}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.searchTurbine = $('input[type="search"]').val()
                 }
             },
             columns: [

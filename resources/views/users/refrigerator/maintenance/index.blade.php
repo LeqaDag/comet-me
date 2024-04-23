@@ -167,7 +167,7 @@
                     Auth::guard('user')->user()->user_type_id == 2 ||
                     Auth::guard('user')->user()->user_type_id == 3 ||
                     Auth::guard('user')->user()->user_type_id == 4 ||
-                    Auth::guard('user')->user()->user_type_id == 7 )
+                    Auth::guard('user')->user()->user_type_id == 11 )
                     <div style="margin-top:18px">
                         <button type="button" class="btn btn-success" 
                             data-bs-toggle="modal" data-bs-target="#createMaintenanceLogRefrigerator">

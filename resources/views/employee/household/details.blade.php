@@ -26,7 +26,7 @@
                                 <div class="timeline-event">
                                     <div>
                                         <div class="timeline-header border-bottom mb-3">
-                                            <h6 class="mb-0">Personal
+                                            <h6 class="mb-0">Personal 
                                                 <span class="text-danger">Details</span>
                                             </h6>
                                         </div>
@@ -168,6 +168,13 @@
                                         </div>
                                         <div class="col-lg-6">
                                             <ul class="list-unstyled">
+                                                <li class="d-flex justify-content-start align-items-center text-info mb-3">
+                                                    <i class="bx bx-calendar bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">Energy Cycle Year</small>
+                                                        <h6 class="mb-0" id="energyCycleYear"></h6>
+                                                    </div>
+                                                </li>
                                                 <li class="d-flex justify-content-start align-items-center text-light mb-3">
                                                     <i class="bx bx-crosshair bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">

@@ -214,12 +214,32 @@ class FbsIncidentController extends Controller
 
             $energyUser = AllEnergyMeter::where('household_id', $request->energy_user_id)->first();
             $fbsIncident->energy_user_id = $energyUser->id;
+
+            $energyUser = AllEnergyMeter::where("is_archived", 0)
+                ->where("household_id", $request->energy_user_id)
+                ->first();
+
+            if($energyUser) {
+
+                $energyUser->meter_case_id = 20;
+                $energyUser->save();
+            }
         }
 
         if($request->public_user == "public") {
 
             $energyUser = AllEnergyMeter::where('public_structure_id', $request->energy_user_id)->first();
             $fbsIncident->energy_user_id = $energyUser->id;
+
+            $energyPublic = AllEnergyMeter::where("is_archived", 0)
+                ->where("public_structure_id", $request->energy_user_id)
+                ->first();
+
+            if($energyPublic) {
+
+                $energyPublic->meter_case_id = 20;
+                $energyPublic->save();
+            }
         }
 
         $fbsIncident->incident_id = $request->incident_id;

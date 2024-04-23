@@ -66,7 +66,7 @@
                                         </div>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> 
                             <div class="col-lg-6">
                                 <ul class="list-unstyled">
                                     <li class="d-flex justify-content-start align-items-center text-info mb-3">

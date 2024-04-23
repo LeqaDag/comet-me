@@ -52,6 +52,7 @@ use App\Models\MgIncident;
 use App\Models\IncidentStatusMgSystem;
 use App\Models\InternetNetworkIncident;
 use App\Models\InternetUserIncident;
+use App\Models\EnergySystemCycle;
 use App\Models\InternetUser;
 use App\Models\RecommendedCommunityEnergySystem;
 use App\Models\MeterList;
@@ -59,11 +60,13 @@ use App\Models\WaterNetworkUser;
 use App\Exports\MissingHouseholdDetailsExport;
 use App\Exports\MissingHouseholdAcExport;
 use App\Exports\InProgressHouseholdExport;
+use App\Exports\EnergyCompoundHousehold;
 use Auth;
 use Route;
 use DB;
 use Excel;
 use PDF;
+use DataTables;
 
 class ActionItemController extends Controller
 {
@@ -275,6 +278,96 @@ class ActionItemController extends Controller
             $networkIncidents = InternetNetworkIncident::where('is_archived', 0)->get();
             $internetHolderIncidents = InternetUserIncident::where('is_archived', 0)->get();
 
+            $mgIncidentDetails =  DB::table('mg_incidents')
+                ->join('communities', 'mg_incidents.community_id', 'communities.id')
+                ->join('energy_systems', 'mg_incidents.energy_system_id', 'energy_systems.id')
+                ->join('incidents', 'mg_incidents.incident_id', 'incidents.id')
+                ->join('incident_status_mg_systems', 'mg_incidents.incident_status_mg_system_id', 
+                    'incident_status_mg_systems.id')
+                ->where('mg_incidents.is_archived', 0)
+                ->select('mg_incidents.date',
+                    'communities.english_name as community_name',
+                    'incidents.english_name as incident',
+                    'energy_systems.name as energy_name', 
+                    'mg_incidents.incident_status_mg_system_id',
+                    'incident_status_mg_systems.name as mg_status')
+                ->get();
+
+            $fbsIncidentDetails = DB::table('fbs_user_incidents')
+                ->join('communities', 'fbs_user_incidents.community_id', 'communities.id')
+                ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', 'all_energy_meters.id')
+                ->leftJoin('households', 'all_energy_meters.household_id', 'households.id')
+                ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
+                    'public_structures.id')
+                ->join('incidents', 'fbs_user_incidents.incident_id', 'incidents.id')
+                ->leftJoin('fbs_incident_statuses', 
+                    'fbs_user_incidents.id', 
+                    'fbs_incident_statuses.fbs_user_incident_id')
+                ->leftJoin('incident_status_small_infrastructures', 
+                    'fbs_incident_statuses.incident_status_small_infrastructure_id', 
+                    'incident_status_small_infrastructures.id')
+                ->where('fbs_user_incidents.is_archived', 0)
+                ->select(
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as exported_value'),
+                    'fbs_user_incidents.date',
+                    'communities.english_name as community_name', 
+                    'incidents.english_name as incident', 
+                    'fbs_user_incidents.incident_status_small_infrastructure_id'
+                )
+                ->distinct()
+                ->get();
+
+            $waterIncidentDetails = DB::table('h2o_system_incidents')
+                ->join('communities', 'h2o_system_incidents.community_id', 'communities.id')
+                ->join('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
+                    'all_water_holders.id')
+                ->leftJoin('households', 'all_water_holders.household_id', 'households.id')
+                ->leftJoin('public_structures', 'all_water_holders.public_structure_id', 
+                    'public_structures.id')
+                ->join('incidents', 'h2o_system_incidents.incident_id', 'incidents.id')
+                ->where('h2o_system_incidents.is_archived', 0)
+                ->select([
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as exported_value'),
+                    'h2o_system_incidents.date', 
+                    'communities.english_name as community_name', 
+                    'incidents.english_name as incident',
+                    'h2o_system_incidents.incident_status_id'
+                ])
+                ->distinct()
+                ->get(); 
+
+            $networkIncidentDetails = DB::table('internet_network_incidents')
+                ->join('communities', 'internet_network_incidents.community_id', 'communities.id')
+                ->join('incidents', 'internet_network_incidents.incident_id', 'incidents.id')
+                ->where('internet_network_incidents.is_archived', 0)
+                ->select(
+                    'internet_network_incidents.date',
+                    'communities.english_name as community_name', 
+                    'incidents.english_name as incident', 
+                    'internet_network_incidents.internet_incident_status_id'
+                )
+                ->get();
+
+            $internetHolderIncidentDetails = DB::table('internet_user_incidents')
+                ->join('communities', 'internet_user_incidents.community_id', 'communities.id')
+                ->join('internet_users', 'internet_user_incidents.internet_user_id', 'internet_users.id')
+                ->leftJoin('households', 'internet_users.household_id', 'households.id')
+                ->leftJoin('public_structures', 'internet_users.public_structure_id', 
+                    'public_structures.id')
+                ->join('incidents', 'internet_user_incidents.incident_id', 'incidents.id')
+                ->where('internet_user_incidents.is_archived', 0)
+                ->select(
+                    DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as exported_value'),
+                    'internet_user_incidents.date',
+                    'communities.english_name as community_name',
+                    'incidents.english_name as incident', 
+                    'internet_user_incidents.internet_incident_status_id'
+                )
+                ->get();
+
             $miscRequested =  DB::table('households')
                 ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
                 ->where('households.is_archived', 0)
@@ -388,7 +481,7 @@ class ActionItemController extends Controller
                     'grid_community_compounds.electricity_room')
                 ->groupBy('compounds.id')
                 ->get(); 
-
+ 
             //die($compoundsElecticityRoomMissing);
             $compoundsGridMissing = DB::table('compounds')
                 ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
@@ -805,11 +898,331 @@ class ActionItemController extends Controller
             $actionStatuses = ActionStatus::all();
             $actionPriorities = ActionPriority::all();
 
+            $missingEnergySystemInstallationYear = EnergySystem::where("is_archived", 0)
+                ->whereNull("installation_year")
+                ->get();
+
+            $missingEnergySystemRatedPower = EnergySystem::where("is_archived", 0)
+                ->whereNull("total_rated_power")
+                ->get();
+
+            $missingEnergySystemCycleYear = EnergySystem::where("is_archived", 0)
+                ->where("installation_year", ">", 2023)
+                ->whereNull("energy_system_cycle_id")
+                ->get();
+
+            $missingEnergySystemGeneratedPower = DB::table('energy_systems')
+                ->join('communities', 'communities.id', 'energy_systems.community_id')
+                ->where('energy_systems.is_archived', 0)
+                ->whereNull('energy_systems.generated_power')
+                ->whereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('energy_generator_communities')
+                        ->whereRaw('energy_generator_communities.community_id = energy_systems.community_id');
+                })
+                ->select( 
+                    'energy_systems.name', 
+                    'energy_systems.id', 
+                    'communities.english_name'
+                )
+                ->get();
+
+            $missingEnergySystemTurbinePower = DB::table('energy_systems')
+                ->join('communities', 'communities.id', 'energy_systems.community_id')
+                ->where('energy_systems.is_archived', 0)
+                ->whereNull('energy_systems.turbine_power')
+                ->whereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('energy_turbine_communities')
+                        ->whereRaw('energy_turbine_communities.community_id = energy_systems.community_id');
+                })
+                ->select( 
+                    'energy_systems.name', 
+                    'energy_systems.id', 
+                    'communities.english_name'
+                )
+                ->get();
+
+            $missingEnergySystemBattery = DB::table('energy_systems')
+                ->join('communities', 'communities.id', 'energy_systems.community_id')
+                ->where('energy_systems.is_archived', 0)
+                ->whereNull('energy_systems.generated_power')
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('energy_system_batteries')
+                        ->whereRaw('energy_system_batteries.energy_system_id = energy_systems.id');
+                })
+                ->select( 
+                    'energy_systems.name', 
+                    'energy_systems.id', 
+                    'communities.english_name'
+                )
+                ->get();
+
+            $missingEnergySystemPv = DB::table('energy_systems')
+                ->join('communities', 'communities.id', 'energy_systems.community_id')
+                ->where('energy_systems.is_archived', 0)
+                ->whereNull('energy_systems.generated_power')
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('energy_system_pvs')
+                        ->whereRaw('energy_system_pvs.energy_system_id = energy_systems.id');
+                })
+                ->select( 
+                    'energy_systems.name', 
+                    'energy_systems.id', 
+                    'communities.english_name'
+                )
+                ->get();
+
+
+            $missingPhoneMiscHouseholds = DB::table('households')
+                ->join('communities', 'households.community_id', 'communities.id')
+                ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
+                ->where('households.is_archived', 0)
+                ->where('households.household_status_id', 5)
+                ->where('energy_request_systems.recommendede_energy_system_id', 2)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.phone_number", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community',
+                    DB::raw('@rownum := @rownum + 1 as row_number')
+                )
+                ->crossJoin(DB::raw('(SELECT @rownum := 0) as dummy'))
+                ->get();
+
+            $missingMaleMiscHouseholds = DB::table('households')
+                ->join('communities', 'households.community_id', 'communities.id')
+                ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
+                ->where('households.is_archived', 0)
+                ->where('households.household_status_id', 5)
+                ->where('energy_request_systems.recommendede_energy_system_id', 2)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_male", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community',
+                    DB::raw('@rownum := @rownum + 1 as row_number')
+                )
+                ->crossJoin(DB::raw('(SELECT @rownum := 0) as dummy'))
+                ->get();
+
+            $missingFemaleMiscHouseholds = DB::table('households')
+                ->join('communities', 'households.community_id', 'communities.id')
+                ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
+                ->where('households.is_archived', 0)
+                ->where('households.household_status_id', 5)
+                ->where('energy_request_systems.recommendede_energy_system_id', 2)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_female", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community',
+                    DB::raw('@rownum := @rownum + 1 as row_number')
+                )
+                ->crossJoin(DB::raw('(SELECT @rownum := 0) as dummy'))
+                ->get();
+
+            $missingAdultMiscHouseholds = DB::table('households')
+                ->join('communities', 'households.community_id', 'communities.id')
+                ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
+                ->where('households.is_archived', 0)
+                ->where('households.household_status_id', 5)
+                ->where('energy_request_systems.recommendede_energy_system_id', 2)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_adults", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community',
+                    DB::raw('@rownum := @rownum + 1 as row_number')
+                )
+                ->crossJoin(DB::raw('(SELECT @rownum := 0) as dummy'))
+                ->get();
+
+            $missingChildrenMiscHouseholds = DB::table('households')
+                ->join('communities', 'households.community_id', 'communities.id')
+                ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
+                ->where('households.is_archived', 0)
+                ->where('households.household_status_id', 5)
+                ->where('energy_request_systems.recommendede_energy_system_id', 2)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_children", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community',
+                    DB::raw('@rownum := @rownum + 1 as row_number')
+                )
+                ->crossJoin(DB::raw('(SELECT @rownum := 0) as dummy'))
+                ->get();
+
+            $energyCycles = EnergySystemCycle::orderBy('name', 'ASC')
+                ->get();
+
+            $missingCompoundNewHouseholds = DB::table('compounds')
+                ->join('communities', 'communities.id', 'compounds.community_id')
+                ->leftJoin('compound_households', 'compound_households.compound_id', 'compounds.id')
+                ->leftJoin('households', 'compound_households.household_id', 'households.id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.phone_number", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community'
+                )
+                ->groupBy("compounds.id")
+                ->get();
+
+            $missingCommunityNewHouseholds = DB::table('communities')
+                ->join('households', 'households.community_id',
+                    'communities.id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.phone_number", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community'
+                )
+                ->groupBy("communities.id")
+                ->get();
+
+            $missingPhoneNewHouseholds = $missingCompoundNewHouseholds->merge($missingCommunityNewHouseholds);
+
+            $missingCompoundNewMaleHouseholds = DB::table('compounds')
+                ->join('communities', 'communities.id', 'compounds.community_id')
+                ->join('compound_households', 'compound_households.compound_id', 'compounds.id')
+                ->join('households', 'compound_households.household_id', 'households.id')
+                ->where('communities.is_archived', 0)
+                ->where('households.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_type_id', '!=', 2)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->whereNull('households.number_of_male') 
+                ->select(
+                    DB::raw('DISTINCT households.english_name as household_name'),
+                    'communities.english_name as community'
+                )
+                ->groupBy('households.id') 
+                ->get();
+            
+            $missingCommunityNewMaleHouseholds = DB::table('communities')
+                ->join('households', 'households.community_id', 'communities.id')
+                ->where('communities.is_archived', 0)
+                ->where('households.is_archived', 0)
+                ->where('households.energy_system_type_id', '!=', 2)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->whereNull('households.number_of_male') 
+                ->select(
+                    DB::raw('DISTINCT households.english_name as household_name'),
+                    'communities.english_name as community'
+                )
+                ->get();
+        
+                
+            $missingMaleNewHouseholds = $missingCompoundNewMaleHouseholds->merge($missingCommunityNewMaleHouseholds);
+
+            $missingCompoundNewFemaleHouseholds = DB::table('compounds')
+                ->join('communities', 'communities.id', 'compounds.community_id')
+                ->leftJoin('compound_households', 'compound_households.compound_id', 'compounds.id')
+                ->leftJoin('households', 'compound_households.household_id', 'households.id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_female", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community'
+                )
+                ->groupBy("compounds.id")
+                ->get();
+
+            $missingCommunityNewFemaleHouseholds = DB::table('communities')
+                ->join('households', 'households.community_id',
+                    'communities.id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_female", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community'
+                )
+                ->groupBy("communities.id")
+                ->get();
+
+            $missingFemaleNewHouseholds = $missingCompoundNewFemaleHouseholds->merge($missingCommunityNewFemaleHouseholds);
+
+            $missingCompoundNewAdultHouseholds = DB::table('compounds')
+                ->join('communities', 'communities.id', 'compounds.community_id')
+                ->leftJoin('compound_households', 'compound_households.compound_id', 'compounds.id')
+                ->leftJoin('households', 'compound_households.household_id', 'households.id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_adults", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community'
+                )
+                ->groupBy("compounds.id")
+                ->get();
+
+            $missingCommunityNewAdultHouseholds = DB::table('communities')
+                ->join('households', 'households.community_id',
+                    'communities.id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_adults", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community'
+                )
+                ->groupBy("communities.id")
+                ->get();
+
+            $missingAdultNewHouseholds = $missingCompoundNewAdultHouseholds->merge($missingCommunityNewAdultHouseholds);
+
+            $missingCompoundNewChildrenHouseholds = DB::table('compounds')
+                ->join('communities', 'communities.id', 'compounds.community_id')
+                ->leftJoin('compound_households', 'compound_households.compound_id', 'compounds.id')
+                ->leftJoin('households', 'compound_households.household_id', 'households.id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_children", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community'
+                )
+                ->groupBy("compounds.id")
+                ->get();
+
+            $missingCommunityNewChildrenHouseholds = DB::table('communities')
+                ->join('households', 'households.community_id',
+                    'communities.id')
+                ->where('communities.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
+                ->where('households.energy_system_cycle_id', '!=', null)
+                ->where("households.number_of_children", null)
+                ->select(
+                    'households.english_name as household_name',
+                    'communities.english_name as community'
+                )
+                ->groupBy("communities.id")
+                ->get();
+
+            $missingChildrenNewHouseholds = $missingCompoundNewChildrenHouseholds->merge($missingCommunityNewChildrenHouseholds);
+
+
             if(Auth::guard('user')->user()->user_type_id == 1 || 
                 Auth::guard('user')->user()->user_type_id == 2) {
 
                     return view('actions.admin.index', compact('actionStatuses', 'actionPriorities',
-                    'youngHolders', 'internetManager',
+                    'youngHolders', 'internetManager', 'energyCycles',
                     'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
                     'missingMaleNumbers', 'missingFemaleNumbers', 'missingChildrenNumbers',
                     'users', 'missingEnergySystems', 'acHouseholds', 'internetUsers',
@@ -822,25 +1235,134 @@ class ActionItemController extends Controller
                     'networkIncidents', 'internetHolderIncidents', 'notStartedACSurveyCommunities',
                     'notStartedACInstallationCommunities', 'miscRequested', 'queryCompounds',
                     'notStartedACInstallationCompounds', 'totalNotStartedAC',
-                    'communitiesGridMissing', 'compoundsGridMissing', 
+                    'communitiesGridMissing', 'compoundsGridMissing', 'fbsIncidentDetails',
                     'communitiesNeedToCompleteElectricity', 'communitiesElecticityRoomMissing',
                     'compoundsElecticityRoomMissing', 'communitiesFbsNotDCInstallations',
-                    'communitiesMgSmgNotDCInstallations',
+                    'communitiesMgSmgNotDCInstallations', 'mgIncidentDetails',
                     'electricityNewMaintenances', 'electricityInProgressMaintenances',
                     'refrigeratorNewMaintenances', 'refrigeratorInProgressMaintenances',
                     'waterNewMaintenances', 'waterInProgressMaintenances', 'missingUserEnergDonors',
-                    'missingEnergyPublicDonors', 'missingUserWaterDonors',
-                    'missingPublicWaterDonors', 'missingUserInternetDonors', 
+                    'missingEnergyPublicDonors', 'missingUserWaterDonors', 'waterIncidentDetails',
+                    'missingPublicWaterDonors', 'missingUserInternetDonors', 'networkIncidentDetails',
                     'missingPublicInternetDonors', 'holdersFbsNotDCInstallations',
                     'holdersMgSmgNotDCInstallations', 'notYetSafteyCheckedFbs', 
-                    'notYetConnectedGround', 'notYetSafteyCheckedMg', 
-                    'notYetCompletedSafteyCheckedMg', 'notYetSafteyCompletedFbs'),
+                    'notYetConnectedGround', 'notYetSafteyCheckedMg', 'missingEnergySystemCycleYear',
+                    'missingEnergySystemRatedPower', 'missingEnergySystemInstallationYear',
+                    'missingEnergySystemGeneratedPower', 'missingEnergySystemBattery',
+                    'missingEnergySystemPv', 'missingEnergySystemTurbinePower',
+                    'notYetCompletedSafteyCheckedMg', 'notYetSafteyCompletedFbs', 'internetHolderIncidentDetails',
+                    'missingMaleMiscHouseholds', 'missingAdultMiscHouseholds', 'missingFemaleMiscHouseholds', 
+                    'missingMaleMiscHouseholds', 'missingPhoneMiscHouseholds', 'missingChildrenMiscHouseholds',
+                    'missingPhoneNewHouseholds', 'missingMaleNewHouseholds', 'missingFemaleNewHouseholds',
+                    'missingAdultNewHouseholds', 'missingChildrenNewHouseholds'),
                     ['groupedActionItems' => $groupedActionItems]
                 );
-            } else {
+            } else if(Auth::guard('user')->user()->user_type_id != 1 || 
+                Auth::guard('user')->user()->user_type_id != 2) {
 
+                $statusFilter = $request->input('status_filter');
+                $priorityFilter = $request->input('priority_filter');
+                $startDateFilter = $request->input('start_date_filter');
+                $endDateFilter = $request->input('end_date_filter');
+
+                if ($request->ajax()) {
+
+                    $data = DB::table('action_items')
+                        ->join('users', 'action_items.user_id', 'users.id')
+                        ->join('action_priorities', 'action_items.action_priority_id', 'action_priorities.id')
+                        ->join('action_statuses', 'action_items.action_status_id', 'action_statuses.id')
+                        ->where('action_items.is_Archived', 0)
+                        ->where('users.id', Auth::guard('user')->user()->id);
+
+                    if ($statusFilter != null) {
+
+                        $data->where('action_statuses.id', $statusFilter);
+                    }
+                    if ($priorityFilter != null) {
+
+                        $data->where('action_priorities.id', $priorityFilter);
+                    }
+                    if ($startDateFilter != null) {
+
+                        $data->where('action_items.date', '>=', $startDateFilter);
+                    }
+                    if ($endDateFilter != null) {
+
+                        $data->where('action_items.due_date', "<=", $endDateFilter);
+                    }
+
+                    $data->select(
+                        'action_items.id as id', 'action_items.task',
+                        'action_priorities.name as priority', 'action_items.date',
+                        'users.name', 'action_items.created_at as created_at', 'users.image',
+                        'action_items.updated_at as updated_at', 'action_statuses.status',
+                        'action_statuses.id as status_id', 'action_priorities.id as priority_id'
+                    )
+                    ->latest();
+
+                    return Datatables::of($data)
+                        ->addIndexColumn()
+                        ->addColumn('action', function($row) {
+        
+                            $detailsButton = "<a type='button' class='detailsUserActionItemButton' data-bs-toggle='modal' data-bs-target='#userActionItemDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
+                            $updateButton = "<a type='button' class='updateUserActionItem' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                            $deleteButton = "<a type='button' class='deleteUserActionItem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                            
+                            if(Auth::guard('user')->user()->user_type_id != 1 || 
+                                Auth::guard('user')->user()->user_type_id != 2) 
+                            {
+                                    
+                                return $detailsButton." ". $updateButton." ".$deleteButton;
+                            } else return $detailsButton; 
+                        })
+                        ->addColumn('statusLabel', function($row) {
+
+                            if($row->status_id == 1) 
+                            $statusLabel = "<span class='badge rounded-pill bg-label-info'>".$row->status."</span>";
+
+                            else if($row->status_id == 2) 
+                            $statusLabel = "<span class='badge rounded-pill bg-label-warning'>".$row->status."</span>";
+                        
+                            else if($row->status_id == 3) 
+                            $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
+
+                            else if($row->status_id == 4) 
+                            $statusLabel = "<span class='badge rounded-pill bg-label-success'>".$row->status."</span>";
+
+                            return $statusLabel;
+                        })
+                        ->addColumn('priorityLabel', function($row) {
+
+                            if($row->priority_id == 1) 
+                            $priorityLabel = "<span class='badge bg-primary'>".$row->priority."</span>";
+
+                            else if($row->priority_id == 2) 
+                            $priorityLabel = "<span class='badge bg-warning text-dark'>".$row->priority."</span>";
+                        
+                            else if($row->priority_id == 3) 
+                            $priorityLabel = "<span class='badge bg-danger'>".$row->priority."</span>";
+
+                            return $priorityLabel;
+                        })
+                    
+                        ->filter(function ($instance) use ($request) {
+                            if (!empty($request->get('search'))) {
+                                    $instance->where(function($w) use($request){
+                                    $search = $request->get('search');
+                                    $w->orWhere('action_items.task', 'LIKE', "%$search%")
+                                    ->orWhere('action_items.date', 'LIKE', "%$search%")
+                                    ->orWhere('action_items.due_date', 'LIKE', "%$search%")
+                                    ->orWhere('action_statuses.status', 'LIKE', "%$search%")
+                                    ->orWhere('action_priorities.name', 'LIKE', "%$search%");
+                                });
+                            }
+                        })
+                    ->rawColumns(['action', 'statusLabel', 'priorityLabel'])
+                    ->make(true);
+                }
+        
                 return view('actions.users.index', compact('actionStatuses', 'actionPriorities',
-                    'youngHolders', 'internetManager',
+                    'youngHolders', 'internetManager', 
                     'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
                     'missingMaleNumbers', 'missingFemaleNumbers', 'missingChildrenNumbers',
                     'users', 'missingEnergySystems', 'acHouseholds', 'internetUsers',
@@ -876,7 +1398,6 @@ class ActionItemController extends Controller
         }    
     }
 
-
     /**
      * Store a newly created resource in storage.
      *
@@ -897,7 +1418,6 @@ class ActionItemController extends Controller
 
         return redirect()->back()->with('message', 'New Action Item Added Successfully!');
     }
-
 
     /**
      * 
@@ -953,9 +1473,20 @@ class ActionItemController extends Controller
             
         return Excel::download(new MissingHouseholdDetailsExport($request, $data), 
             'missing_details_household.xlsx');
+    } 
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function newHouseholdMissingDetails(Request $request) 
+    {       
+         
+        return Excel::download(new EnergyCompoundHousehold($request), 
+            'missing_details_new_household.xlsx');
     }
 
-     /**
+    /**
      * 
      * @return \Illuminate\Support\Collection
      */
@@ -1088,5 +1619,52 @@ class ActionItemController extends Controller
         $actionItem->save();
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function updateDateFrom(Request $request)
+    {
+        $actionItemId = $request->input('actionItemId');
+        $dateFrom = $request->input('dateFrom');
+
+        $actionItem = ActionItem::findOrFail($actionItemId);
+        $actionItem->date = $dateFrom;
+        $actionItem->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function updateDateTo(Request $request)
+    {
+        $actionItemId = $request->input('actionItemId');
+        $dateTo = $request->input('dateTo');
+
+        $actionItem = ActionItem::findOrFail($actionItemId);
+        $actionItem->due_date = $dateTo;
+        $actionItem->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $actionItem = ActionItem::findOrFail($id);
+        $actionStatuses = ActionStatus::all();
+        $actionPriorities = ActionPriority::all();
+
+        return view('actions.users.edit', compact('actionItem', 'actionStatuses', 'actionPriorities'));
     }
 }

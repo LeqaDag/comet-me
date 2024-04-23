@@ -372,6 +372,12 @@ label, table {
                         $('#systemGroundUser').css('color', 'red');
                     }
 
+                    if(response['energyCycleYear'] != []) {
+
+                        $('#energyCycleYear').html(" ");
+                        $('#energyCycleYear').html(response['energyCycleYear'].name);
+                    }
+
                     $('#installationTypeUser').html(" ");
                     if(response['installationType']) $('#installationTypeUser').html(response['installationType'].type);
 
@@ -401,6 +407,12 @@ label, table {
                         for (var i = 0; i < response['fbsIncident'].length; i++) {
                             $('#incidentUser').html(response['fbsIncident'][i].english_name);
                             $('#incidentDate').html(response['fbsIncident'][i].incident_date);
+                        }
+                    }
+                    if(response['mgIncident'] != []) {
+                        for (var i = 0; i < response['mgIncident'].length; i++) {
+                            $('#incidentUser').html(response['mgIncident'][i].english_name);
+                            $('#incidentDate').html(response['mgIncident'][i].incident_date);
                         }
                     }
 

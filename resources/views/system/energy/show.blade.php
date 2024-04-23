@@ -31,6 +31,7 @@
                         </span>
                     </h6>
                 </div>
+                @if($energySystem->community_id)
                 <div class="col-xl-4 col-lg-4 col-md-4">
                     <h6>
                         Community: 
@@ -39,6 +40,7 @@
                         </span>
                     </h6>
                 </div>
+                @endif
             </div>
             <div class="row">
                 <div class="col-xl-4 col-lg-4 col-md-4">

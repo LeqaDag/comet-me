@@ -19,7 +19,7 @@
                         data-bs-target="#missingRepresentativesInCommunity">
                         <i class="bx bx-user bx-sm me-3"></i>
                     </a>
-                    <div class="ps-3 border-start">
+                    <div class="ps-3 border-start"> 
                         <small class="text-muted mb-1">
                             <a href="/representative" target="_blank" title="click here">
                                 Community Representatives
@@ -112,7 +112,7 @@
 <!-- Action Items for Missing details for the households -->
 <li class="timeline-item mb-md-4 mb-5 timeline-item-left">
     <span class="timeline-indicator timeline-indicator-danger" data-aos="zoom-in" data-aos-delay="200">
-    <i class="bx bx-user"></i>
+        <i class="bx bx-user"></i>
     </span>
     <div class="timeline-event card p-0" data-aos="fade-right">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
@@ -178,7 +178,7 @@
         <div class="card-header border-0 d-flex justify-content-between">
             <h6 class="card-title mb-0">Schools</h6>
         </div>
-        <div class="card-body pb-0">
+        <div class="card-body pb-0"> 
             @if(count($missingSchoolDetails) > 0)
             <p>You've {{$missingSchoolDetails->count()}}
             
@@ -233,6 +233,6 @@
         @endif
         <div class="timeline-event-time">Initial Survey</div>
     </div>
-</li>
+</li> 
 
 

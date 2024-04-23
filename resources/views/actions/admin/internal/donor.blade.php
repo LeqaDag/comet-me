@@ -14,7 +14,7 @@
                         aria-controls="EnergyDonorsTab">
                         Energy Donors 
                     </a>
-                </h5>
+                </h5> 
             </div>
             
             <div class="collapse multi-collapse container mb-4" 
@@ -109,7 +109,7 @@
                         </h6>
                     </div>
                     <div class="mb-4">
-                        <a type="button" data-bs-toggle="modal" 
+                        <a type="button" data-bs-toggle="modal"  
                             data-bs-target="#missingEnergyPublicDonors">
                             You've got 
                             <span class="text-warning">

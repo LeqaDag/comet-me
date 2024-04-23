@@ -21,7 +21,7 @@ use Auth;
 use DB; 
 use Route;
 use DataTables;
-use Excel;
+use Excel; 
 use Illuminate\Support\Facades\URL;
 
 class EnergyGeneratorTurbineController extends Controller
@@ -81,7 +81,11 @@ class EnergyGeneratorTurbineController extends Controller
                 ->orderBy('generator_model', 'ASC')
                 ->get();
 
-            return view('users.energy.maintenance.generator.index', compact('communities', 'generators'));
+            $turbines = EnergyTurbine::where('is_archived', 0)
+                ->orderBy('model', 'ASC')
+                ->get();
+                
+            return view('users.energy.maintenance.generator.index', compact('communities', 'generators', 'turbines'));
 
         } else {
 

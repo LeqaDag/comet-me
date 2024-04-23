@@ -15,6 +15,11 @@ label, table {
     margin-top: 20px;
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div style="width: 80%; margin: auto;">
+        <canvas id="myChart"></canvas>
+    </div>
+
 <p>
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseInternetUsersVisualData" 
         role="button" aria-expanded="false" aria-controls="collapseInternetUsersVisualData">
@@ -371,7 +376,8 @@ label, table {
                     </div>
                 </div>
             </div>
-            @foreach($clusters as $cluster)
+            @if($clustersJson)
+            @foreach($clustersJson as $cluster)
             <div class="row">
                 <div class="col-lg-3 col-md-6 col-12">
                     <div class="text-center">
@@ -398,6 +404,7 @@ label, table {
                 </div>
             </div>
             @endforeach
+            @endif
         </div>
     </div>
 </div>
@@ -574,7 +581,90 @@ label, table {
     </div>
 </div>
 
+
+
 <script type="text/javascript">
+
+    var data = @json($percentageData);
+
+    // Extract periods, cluster names, unpaid_percentage values, and total_contracts
+    var periods = Object.keys(data);
+    var clusterNames = [];
+    var datasets = [];
+
+    // Extract cluster names, unpaid_percentage values, and total_contracts for each period
+    periods.forEach(function(period) {
+        var clusterData = data[period];
+        Object.keys(clusterData).forEach(function(clusterName) {
+            if (!clusterNames.includes(clusterName)) {
+                clusterNames.push(clusterName);
+            }
+        });
+    });
+
+    // Prepare datasets for each cluster
+    clusterNames.forEach(function(clusterName) {
+        var dataset = {
+            label: clusterName,
+            data: [],
+            totalContracts: [], // Store total_contracts values
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            pointRadius: 5,
+            pointHoverRadius: 7
+        };
+        periods.forEach(function(period) {
+            var clusterData = data[period][clusterName];
+            dataset.data.push(clusterData.unpaid_percentage);
+            dataset.totalContracts.push(clusterData.active_contracts); // Store total_contracts values
+        });
+        datasets.push(dataset);
+    });
+
+    // Create chart
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: periods, // X-axis: Periods
+            datasets: datasets // Y-axis: Unpaid Percentage for each cluster
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Period (Date From - Date To)'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '% of Total Unpaid'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            return periods[tooltipItems[0].dataIndex];
+                        },
+                        label: function(context) {
+                            var clusterName = context.dataset.label;
+                            var value = context.parsed.y;
+                            var index = context.dataIndex;
+                            var totalContracts = context.dataset.totalContracts[index]; // Get total_contracts from the dataset
+                            return clusterName + ': ' + value + '% - Total Contracts: ' + totalContracts;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
 
     var table;
     function DataTableContent() {

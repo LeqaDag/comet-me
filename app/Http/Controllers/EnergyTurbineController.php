@@ -20,7 +20,7 @@ use Carbon\Carbon;
 use Auth;
 use DB; 
 use Route;
-use DataTables;
+use DataTables; 
 use Excel;
 use Illuminate\Support\Facades\URL;
 
@@ -62,11 +62,11 @@ class EnergyTurbineController extends Controller
 
                     })
                     ->filter(function ($instance) use ($request) {
-                        if (!empty($request->get('search'))) {
+                        if (!empty($request->get('searchTurbine'))) {
                                 $instance->where(function($w) use($request) {
-                                    $search = $request->get('search');
-                                    $w->orWhere('energy_turbine_communities.name', 'LIKE', "%$search%")
-                                    ->orWhere('communities.english_name', 'LIKE', "%$search%");
+                                    $searchTurbine = $request->get('searchTurbine');
+                                    $w->orWhere('energy_turbine_communities.name', 'LIKE', "%$searchTurbine%")
+                                    ->orWhere('communities.english_name', 'LIKE', "%$searchTurbine%");
                             });
                         }
                     })
@@ -104,7 +104,7 @@ class EnergyTurbineController extends Controller
         $communityTurbine->name = $request->name;
         $communityTurbine->save();
 
-        return redirect()->back()->with('message', 'New Community Turbine Inserted Successfully!');
+        return redirect()->back()->with('success_message', 'New Community Turbine Inserted Successfully!');
     }
 
     /**
@@ -135,7 +135,7 @@ class EnergyTurbineController extends Controller
             $turbine->delete();
 
             $response['success'] = 1;
-            $response['msg'] = 'Turbine Deleted successfully'; 
+            $response['msg'] = 'Community-Turbine Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

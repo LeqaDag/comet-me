@@ -129,6 +129,13 @@
                             class="form-control"value="{{$energySystem->generated_power}}">
                         </fieldset>
                     </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Turbine Power</label>
+                            <input type="text" name="turbine_power" 
+                            class="form-control"value="{{$energySystem->turbine_power}}">
+                        </fieldset>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-xl-8 col-lg-8 col-md-8 mb-1">

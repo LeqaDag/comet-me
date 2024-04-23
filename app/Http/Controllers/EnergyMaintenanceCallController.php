@@ -275,7 +275,7 @@ class EnergyMaintenanceCallController extends Controller
         } else {
 
             $maintenance->maintenance_status_id = $request->maintenance_status_id;
-        } 
+        }  
  
         $maintenance->user_id = $request->user_id;
         $maintenance->maintenance_type_id = $request->maintenance_type_id;
@@ -428,7 +428,7 @@ class EnergyMaintenanceCallController extends Controller
                 }
             }
         }
-        
+         
         if($request->new_actions) {
             if($request->new_actions) {
                 for($i=0; $i < count($request->new_actions); $i++) {

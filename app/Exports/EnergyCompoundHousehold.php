@@ -20,7 +20,7 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
     function __construct($request) {
         $this->request = $request;
     }
- 
+  
     /**
     * @return \Illuminate\Support\Collection
     */
@@ -28,37 +28,51 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
     {
         $queryCompounds = DB::table('compounds')
             ->join('communities', 'communities.id', 'compounds.community_id')
-            ->join('regions', 'communities.region_id', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
             ->join('community_statuses', 'communities.community_status_id', 
                 'community_statuses.id')
-            ->join('compound_households', 'compound_households.compound_id', 'compounds.id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->leftJoin('compound_households', 'compound_households.compound_id', 'compounds.id')
             ->join('households', 'compound_households.household_id', 'households.id')
-            ->leftJoin('energy_system_types', 'households.energy_system_type_id', 
-                'energy_system_types.id')
+            ->leftJoin('household_statuses', 'households.household_status_id', 
+                'household_statuses.id')
+            ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
+            ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+            ->leftJoin('grid_community_compounds', 'compounds.id',
+                'grid_community_compounds.compound_id')
+            ->leftJoin('community_donors', 'community_donors.compound_id', 'compounds.id')
+            ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('communities.is_archived', 0)
-            ->where('communities.community_status_id', 1)
-            ->orWhere('communities.community_status_id', 2)
+            ->where('communities.energy_system_cycle_id', '!=', null)
+            ->where('households.energy_system_cycle_id', '!=', null)
             ->select(
                 'households.english_name as household',
-                'communities.english_name as community_name', 
-                'regions.english_name as region', 'sub_regions.english_name as sub_region',
+                'household_statuses.status as status',
+                'communities.english_name as community_name',
+                'community_statuses.name as community_status',
+                'compounds.english_name as compound_name',
                 'energy_system_types.name', 'households.number_of_male', 
                 'households.number_of_female', 'households.number_of_adults', 
-                'households.number_of_children', 'households.phone_number'
-            );
+                'households.number_of_children', 'households.phone_number',
+                DB::raw('group_concat(DISTINCT CASE WHEN community_donors.is_archived = 0 THEN donors.donor_name END) as donors')
+            )
+            ->groupBy('households.english_name');
 
         $queryCommunities =  DB::table('communities')
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
             ->join('community_statuses', 'communities.community_status_id', 
                 'community_statuses.id')
-            ->leftJoin('households', 'households.community_id','communities.id')
+            ->join('households', 'households.community_id','communities.id')
+            ->leftJoin('household_statuses', 'households.household_status_id', 
+                'household_statuses.id')
             ->leftJoin('energy_system_types', 'energy_system_types.id',
                 'households.energy_system_type_id')
+            ->leftJoin('community_donors', 'community_donors.community_id', 'communities.id')
+            ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('communities.is_archived', 0)
-            ->where('communities.community_status_id', 1)
-            ->orWhere('communities.community_status_id', 2)
+            ->where('communities.energy_system_cycle_id', '!=', null)
+            ->where('households.energy_system_cycle_id', '!=', null)
              ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('compounds')
@@ -66,41 +80,28 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
             })
             ->select(
                 'households.english_name as household',
-                'communities.english_name as community_name', 
-                'regions.english_name as region', 'sub_regions.english_name as sub_region',
+                'household_statuses.status as status',
+                'communities.english_name as community_name',
+                'community_statuses.name as community_status',
+                DB::raw('" " as space'),
                 'energy_system_types.name', 'households.number_of_male', 
                 'households.number_of_female', 'households.number_of_adults', 
-                'households.number_of_children', 'households.phone_number'
-            );
+                'households.number_of_children', 'households.phone_number',
+                DB::raw('group_concat(DISTINCT CASE WHEN community_donors.is_archived = 0 THEN donors.donor_name END) as donors')
+            )
+            ->groupBy('households.english_name');
+
+            
+        if($this->request->energy_cycle_id) {
+
+            $queryCommunities->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
+            $queryCompounds->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
+        }
 
         $communitiesCollection = collect($queryCommunities->get());
         $compoundsCollection = collect($queryCompounds->get());
 
-        $query =  DB::table('households')
-            ->join('household_statuses', 'households.household_status_id', 
-                'household_statuses.id')
-            ->join('communities', 'communities.id', 'households.community_id')
-            ->leftJoin('compound_households', 'compound_households.household_id', 'households.id')
-            ->leftJoin('compounds', 'compound_households.compound_id', 'compounds.id')
-            ->join('community_statuses', 'communities.community_status_id', 
-                'community_statuses.id')
-            ->leftJoin('energy_system_types', 'energy_system_types.id',
-                'households.energy_system_type_id')
-            ->where('communities.is_archived', 0)
-            ->where('communities.community_status_id', 1)
-            ->orWhere('communities.community_status_id', 2)
-            ->where('households.household_status_id', '!=', 4)
-            ->select(
-                'households.english_name as household',
-                'communities.english_name as community_name',
-                'household_statuses.status as status',
-                'compounds.english_name as compound_name',
-                'energy_system_types.name', 'households.number_of_male', 
-                'households.number_of_female', 'households.number_of_adults', 
-                'households.number_of_children', 'households.phone_number'
-            );
-
-        return $query->get();
+        return $compoundsCollection->merge($communitiesCollection);
     } 
 
     /**
@@ -110,14 +111,14 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
      */
     public function headings(): array
     {
-        return ["Household", "Community", "Status", "Compound", "System Type",  
+        return ["Household", "Household Status", "Community", "Community Status", "Compound", "System Type",  
             "Number of male", "Number of Female", "Number of adults", 
-            "Number of children", "Phone number"];
+            "Number of children", "Phone number", "Donors"];
     }
 
     public function title(): string
     {
-        return 'Households - New Communities';
+        return 'Households - New Cycle';
     }
 
     /**
@@ -142,7 +143,7 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:J1');
+        $sheet->setAutoFilter('A1:K1');
 
         return [
             // Style the first row as bold text.

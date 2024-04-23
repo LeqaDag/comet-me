@@ -36,6 +36,11 @@ class Community extends Model
         return $this->belongsTo(CommunityStatus::class, 'community_status_id', 'id');
     }
 
+    public function EnergySystemCycle()
+    {
+        return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
+    }
+
     public function communityServices() {
 
         return $this->hasMany(communityServices::class);

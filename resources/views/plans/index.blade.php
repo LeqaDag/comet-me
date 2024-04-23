@@ -17,7 +17,7 @@
     }
 
     .user-name {
-        font-size: 15px; 
+        font-size: 15px;  
     }
 </style>
 <h4 class="py-3 breadcrumb-wrapper mb-4">

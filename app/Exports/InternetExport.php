@@ -16,12 +16,12 @@ class InternetExport implements WithMultipleSheets, ShouldAutoSize
     function __construct($request) {
         $this->request = $request;
     }
-   
+    
     /**
      * @return array
      */ 
     public function sheets(): array
-    {
+    { 
         $sheets = [   
             new InternetMetricsExport($this->request),
             new InternetClustersExport($this->request),

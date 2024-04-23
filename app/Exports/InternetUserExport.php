@@ -160,6 +160,7 @@ WithStyles
                 'internet_clusters.name as cluster_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'internet_users.start_date', 
+                DB::raw('CASE WHEN internet_users.paid = 1 THEN "Yes" ELSE "No" END as paid'),
                 DB::raw('CASE WHEN internet_users.active = 1 THEN "Yes" ELSE "No" END as active'),
                 DB::raw('CASE WHEN internet_users.is_expire = 1 THEN "Yes" ELSE "No" END as expire'),
                 'internet_users.number_of_contract', 'internet_users.last_purchase_date',
@@ -194,7 +195,7 @@ WithStyles
     public function headings(): array
     {
         return ["Internet Holder", "Arabic Name", "Public Name", "Community", "Cluster Name", 
-            "Region", "Sub Region", "Start Date", "Is Active", "Is Expire", 
+            "Region", "Sub Region", "Start Date", "Is Paid", "Is Active", "Is Expire", 
             "Number of Contracts", "Last Purchase Date", "Expired > 30" , 
             "Expired > 60", "Donors"];
     }

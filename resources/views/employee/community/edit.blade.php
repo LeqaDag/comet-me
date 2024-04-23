@@ -79,8 +79,8 @@ label {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community Status</label>
-                                <select name="community_status_id" 
-                                class="form-control" >
+                                <select name="community_status_id" data-live-search="true"
+                                class="selectpicker form-control" >
                                     <option disabled selected>
                                         {{$community->CommunityStatus->name}}
                                     </option>
@@ -92,6 +92,34 @@ label {
                                 </select>
                             </fieldset>
                         </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Cycle Year</label>
+                                <select name="energy_system_cycle_id" data-live-search="true"
+                                class="selectpicker form-control" >
+                                @if($community->energy_system_cycle_id)
+                                    <option disabled selected>
+                                        {{$community->EnergySystemCycle->name}}
+                                    </option>
+                                    @foreach($energyCycles as $energyCycle)
+                                    <option value="{{$energyCycle->id}}">
+                                        {{$energyCycle->name}}
+                                    </option>
+                                    @endforeach
+                                @else
+                                <option disabled selected>Choose one...</option>
+                                    @foreach($energyCycles as $energyCycle)
+                                    <option value="{{$energyCycle->id}}">
+                                        {{$energyCycle->name}}
+                                    </option>
+                                    @endforeach
+                                @endif
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Cellular Reception?</label>
@@ -102,9 +130,6 @@ label {
                                 </select>
                             </fieldset>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Number of Households</label>
@@ -119,6 +144,9 @@ label {
                                 value="{{$community->number_of_people}}" class="form-control">
                             </fieldset>
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Products type</label>
@@ -136,9 +164,6 @@ label {
                                 </select>
                             </fieldset> 
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Fallah</label>
@@ -159,6 +184,9 @@ label {
                                 </select>
                             </fieldset>
                         </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Demolition orders/demolitions </label>
@@ -166,9 +194,6 @@ label {
                                 value="{{$community->demolition}}" class="form-control">
                             </fieldset>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Lawyer</label>

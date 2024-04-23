@@ -10,6 +10,7 @@ use Auth;
 use DB;
 use Route; 
 use App\Models\User;
+use App\Models\AllEnergyMeter;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\Donor;
@@ -213,6 +214,16 @@ class MgIncidentController extends Controller
                 $mgHousehold->household_id = $request->households[$i];
                 $mgHousehold->mg_incident_id = $mgIncident->id;
                 $mgHousehold->save();
+
+                $energyUser = AllEnergyMeter::where("is_archived", 0)
+                    ->where("household_id", $request->households[$i])
+                    ->first();
+
+                if($energyUser) {
+
+                    $energyUser->meter_case_id = 20;
+                    $energyUser->save();
+                }
             }
         }
 

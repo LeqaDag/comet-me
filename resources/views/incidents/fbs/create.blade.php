@@ -55,7 +55,7 @@
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy Holder</label>
-                                <select name="energy_user_id" class="selectpicker form-control" 
+                                <select name="energy_user_id" class="selectpicker form-control" data-live-search="true"
                                     id="energyUserSelectedFbs" disabled>
                                     <option disabled selected>Choose one...</option>
                                 </select>

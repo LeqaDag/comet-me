@@ -34,4 +34,8 @@ class Household extends Model
         return $this->belongsTo(HouseholdStatus::class, 'household_status_id', 'id');
     }
 
+    public function EnergySystemCycle()
+    {
+        return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
+    }
 }

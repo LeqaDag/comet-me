@@ -43,7 +43,7 @@ class WorkPlanController extends Controller
                     ->join('users', 'action_items.user_id', 'users.id')
                     ->join('action_priorities', 'action_items.action_priority_id', 'action_priorities.id')
                     ->join('action_statuses', 'action_items.action_status_id', 'action_statuses.id')
-                    ->where('action_items.is_Archived', 0);
+                    ->where('action_items.is_archived', 0);
 
                 if($userFilter != null) {
 

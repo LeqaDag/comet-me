@@ -14,6 +14,7 @@ use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\Donor;
 use App\Models\InternetCluster; 
+use App\Models\InternetClusterCommunity; 
 use App\Models\InternetUser; 
 use App\Models\InternetUserDonor;
 use App\Models\Household;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Http;
 use App\Exports\InternetExport;
 use Carbon\Carbon;
 use Image;
-use DataTables;
+use DataTables; 
 use Excel;
 
 class InternetUserController extends Controller
@@ -76,8 +77,7 @@ class InternetUserController extends Controller
                     'communities.english_name as community_name',
                     'households.english_name as household_name',
                     'internet_statuses.name'
-                    ) 
-                    ->latest();
+                )->latest();
 
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -136,7 +136,7 @@ class InternetUserController extends Controller
             $clusterApi = Http::get('http://185.190.140.86/api/clusters/');
 
             $dataJson = json_decode($dataApi, true);
-            $clusters = json_decode($clusterApi, true);
+            $clustersJson = json_decode($clusterApi, true);
 
             $InternetUsersCounts = DB::table('internet_users')
                 ->where('internet_users.is_archived', 0)
@@ -186,10 +186,66 @@ class InternetUserController extends Controller
 
             $internetClusters = InternetCluster::get();
 
+            $data = DB::table('internet_metric_clusters')
+                ->join('internet_metrics', 'internet_metrics.id', '=', 'internet_metric_clusters.internet_metric_id')
+                ->join('internet_clusters', 'internet_clusters.id', '=', 'internet_metric_clusters.internet_cluster_id')
+                ->where('internet_metric_clusters.total_unpaid', '!=', NULL)
+                ->select(
+                    'internet_metric_clusters.active_contracts',
+                    'internet_metric_clusters.total_unpaid',
+                    'internet_metrics.date_from',
+                    'internet_metrics.date_to',
+                    'internet_metrics.id',
+                    'internet_clusters.name as cluster_name'
+                )
+                ->get();
+
+            
+            // Group data by date and cluster
+            $groupedData = [];
+            foreach ($data as $item) {
+                $period = $item->date_from . ' - ' . $item->date_to;
+                $clusterName = $item->cluster_name;
+
+                if($item->total_unpaid) {
+
+                    if (!isset($groupedData[$period][$clusterName])) {
+                        $groupedData[$period][$clusterName] = [
+                            'active_contracts' => 0,
+                            'total_unpaid' => 0,
+                            'date_from' => $item->date_from,
+                            'date_to' => $item->date_to,
+                        ];
+                    }
+                }
+
+                $groupedData[$period][$clusterName]['active_contracts'] += $item->active_contracts;
+                $groupedData[$period][$clusterName]['total_unpaid'] += $item->total_unpaid;
+            }
+
+            // Calculate percentage for each group
+            $percentageData = [];
+            foreach ($groupedData as $period => $clusterss) {
+
+                foreach ($clusterss as $clusterName => $values) {
+
+                    $totalContract = $values['active_contracts'];
+                    $unpaidPercentage = $totalContract != 0 ? ($values['total_unpaid'] / $totalContract) * 100 : 0;
+    
+                    $percentageData[$period][$clusterName] = [
+                        'active_contracts' => $totalContract,
+                        'unpaid_percentage' => $unpaidPercentage,
+                        'date_from' => $values['date_from'],
+                        'date_to' => $values['date_to'],
+                    ];
+                }
+            }
+
             return view('users.internet.index', compact('communities', 'donors', 'dataJson', 
-                'clusters', 'internetPercentage', 'allInternetPeople', 'activeInternetCommuntiiesCount',
-                'allContractHolders', 'allInternetUsersCounts', 'youngInternetHolders',
-                'communitiesInternet', 'InternetPublicCount', 'internetClusters'));
+                'clustersJson', 'internetPercentage', 'allInternetPeople', 'activeInternetCommuntiiesCount',
+                'allContractHolders', 'allInternetUsersCounts', 'youngInternetHolders', 
+                'communitiesInternet', 'InternetPublicCount', 'internetClusters', 'percentageData')
+            );
              
         } else {
 

@@ -15,7 +15,7 @@ label, table {
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">
                     Create New Community
-                </h1>
+                </h1> 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
                 </button>
@@ -81,6 +81,24 @@ label, table {
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Cycle Year</label>
+                                <select name="energy_system_cycle_id" id="selectedCycleYear" 
+                                    class="selectpicker form-control" data-live-search="true" 
+                                        required data-parsley-required="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($energyCycles as $energyCycle)
+                                    <option value="{{$energyCycle->id}}">
+                                        {{$energyCycle->name}}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                            <div id="energy_system_cycle_id_error" style="color: red;"></div>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Products type</label>
                                 <select name="product_type_id" id="product_type_id" 
                                     class="selectpicker form-control" data-live-search="true"  
@@ -92,8 +110,6 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Fallah</label>
@@ -118,7 +134,8 @@ label, table {
                             </fieldset>
                             <div id="is_bedouin_error" style="color: red;"></div>
                         </div>
-
+                    </div>
+                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Cellular Reception?</label>
@@ -129,8 +146,6 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy Sources</label>
@@ -154,6 +169,8 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Demolition orders/demolitions </label>
@@ -174,6 +191,8 @@ label, table {
                                 <input type="text" name="lawyer" class="form-control">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Latitude</label>
@@ -186,8 +205,6 @@ label, table {
                                 <input type="text" name="longitude" class="form-control">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Nearby Towns</label>
@@ -202,6 +219,8 @@ label, table {
                             </fieldset>
                         </div>
 
+                    </div>
+                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Nearby Settlements</label>
@@ -230,6 +249,18 @@ label, table {
                             </fieldset>
                         </div>
 
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Recommended system type</label>
+                                <select name="recommended_energy_system_id[]" 
+                                    class="selectpicker form-control" multiple data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($energyTypes as $energyType)
+                                    <option value="{{$energyType->id}}">{{$energyType->name}}</option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
                         <!-- <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label' id=""></label>
@@ -268,23 +299,11 @@ label, table {
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Recommended system type</label>
-                                <select name="recommended_energy_system_id[]" 
-                                    class="selectpicker form-control" multiple data-live-search="true">
-                                    <option disabled selected>Choose one...</option>
-                                    @foreach($energyTypes as $energyType)
-                                    <option value="{{$energyType->id}}">{{$energyType->name}}</option>
-                                    @endforeach
-                                </select>
-                            </fieldset>
-                        </div>
                         <div class="col-xl-8 col-lg-8 col-md-8 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Notes</label>
                                 <textarea name="notes" class="form-control" 
-                                   style="resize:none" cols="20" rows="1"></textarea>
+                                   style="resize:none" cols="20" rows="2"></textarea>
                             </fieldset>
                         </div>
                     </div> 
@@ -351,6 +370,7 @@ label, table {
 
             var regionValue = $('#selectedRegion').val();
             var subRegionValue = $('#selectedSubRegions').val();
+            var cycleValue = $('#selectedCycleYear').val();
             var fallahValue = $('#is_fallah').val();
             var bedouinValue = $('#is_bedouin').val();
 
@@ -369,6 +389,14 @@ label, table {
             } else if (subRegionValue != null) {
 
                 $('#sub_region_id_error').empty();
+            }
+            if (cycleValue == null) {
+
+                $('#energy_system_cycle_id_error').html('Please select a cycle year!'); 
+                return false;
+            } else if (cycleValue != null) {
+
+                $('#energy_system_cycle_id_error').empty();
             }
             if (fallahValue == null) {
 
@@ -392,7 +420,8 @@ label, table {
             $('#sub_region_id_error').empty();
             $('#is_fallah_error').empty();
             $('#is_bedouin_error').empty();
-
+            $("#energy_system_cycle_id_error").empty();
+            
             $.ajax({ 
                 url: "community",
                 method: 'POST',

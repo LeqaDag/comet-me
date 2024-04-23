@@ -28,6 +28,7 @@ use App\Models\MeterCase;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
+use App\Models\EnergySystemCycle;
 use App\Exports\EnergyUserExport;
 use App\Models\Region;
 use App\Models\Vendor;
@@ -364,14 +365,34 @@ class EnergyUserController extends Controller
         $vendor = VendorUserName::where('id', $energyMeter->vendor_username_id)->first();
         $installationType = InstallationType::where('id', $energyMeter->installation_type_id)->first();
 
+        // Affected households / MG Incidents
+        $mgIncident = DB::table('mg_affected_households')
+            ->join('households', 'mg_affected_households.household_id', 'households.id')
+            ->join('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
+            ->join('mg_incidents', 'mg_affected_households.mg_incident_id', 
+                'mg_incidents.id') 
+            ->join('incidents', 'mg_incidents.incident_id', '=', 'incidents.id')
+            ->where('mg_affected_households.is_archived', 0)
+            ->where('all_energy_meters.id', $id)
+            ->select('mg_incidents.date as incident_date',
+                'incidents.english_name'
+            )
+            ->get();
+
         // FBS Incident
         $fbsIncident = DB::table('fbs_user_incidents')
-            ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
+            ->join('incidents', 'fbs_user_incidents.incident_id', 'incidents.id')
             ->where('fbs_user_incidents.is_archived', 0)
             ->where('fbs_user_incidents.energy_user_id', $id)
             ->select('fbs_user_incidents.date as incident_date', 
                 'incidents.english_name')
             ->get(); 
+
+        $energyCycleYear = [];
+        if($energyMeter->energy_system_cycle_id) {
+
+            $energyCycleYear = EnergySystemCycle::where('id', $energyMeter->energy_system_cycle_id)->first();
+        }
 
         $response['energy'] = $energyMeter;
         $response['energyMeterDonors'] = $energyMeterDonors;
@@ -385,6 +406,8 @@ class EnergyUserController extends Controller
         $response['vendor'] = $vendor;
         $response['installationType'] = $installationType;
         $response['fbsIncident'] = $fbsIncident;
+        $response['mgIncident'] = $mgIncident;
+        $response['energyCycleYear'] = $energyCycleYear;
 
         return response()->json($response);
     }

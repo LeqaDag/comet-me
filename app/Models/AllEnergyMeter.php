@@ -42,4 +42,9 @@ class AllEnergyMeter extends Model
         
         return $this->belongsTo(InstallationType::class, 'installation_type_id', 'id');
     }
+
+    public function EnergySystemCycle()
+    {
+        return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
+    }
 }

@@ -369,6 +369,12 @@ Route::get('action-item/ac-household/export', [App\Http\Controllers\ActionItemCo
 Route::get('action-item/in-progress-household/export', [App\Http\Controllers\ActionItemController::class, 'householdInProgressExport']);
 Route::post('action-item/update-action-status', [App\Http\Controllers\ActionItemController::class, 'updateActionStatus']);
 Route::post('action-item/update-action-note', [App\Http\Controllers\ActionItemController::class, 'updateActionNote']);
+Route::post('action-item/update-action-date-from', [App\Http\Controllers\ActionItemController::class, 'updateDateFrom']);
+Route::post('action-item/update-action-date-to', [App\Http\Controllers\ActionItemController::class, 'updateDateTo']);
+Route::get('action-item/new-household/missing', [App\Http\Controllers\ActionItemController::class, 'newHouseholdMissingDetails']);
+
+Route::resource('action-item-user', App\Http\Controllers\ActionItemUserController::class); 
+Route::get('/delete-action-item-user', [App\Http\Controllers\ActionItemUserController::class, 'deleteUserActionItem'])->name('deleteUserActionItem');
 
 Route::resource('public-structure', App\Http\Controllers\PublicStructureController::class);
 Route::post('public-structure-export', [App\Http\Controllers\PublicStructureController::class, 'export'])->name('public-structure.export');
@@ -453,3 +459,5 @@ Route::resource('energy-generator-turbine', App\Http\Controllers\EnergyGenerator
 Route::get('/delete-generator-community', [App\Http\Controllers\EnergyGeneratorTurbineController::class, 'deleteEnergyGenerator'])->name('deleteEnergyGenerator');
 Route::resource('energy-turbine', App\Http\Controllers\EnergyTurbineController::class); 
 Route::get('/delete-energy-turbine', [App\Http\Controllers\EnergyTurbineController::class, 'deleteEnergyTurbine'])->name('deleteEnergyTurbine');
+
+Route::get('/household/household/autocomplete/{term}', [App\Http\Controllers\HouseholdController::class, 'autoComplete'])->name('autocomplete.households');

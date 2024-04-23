@@ -76,7 +76,7 @@ class EnergyCostSystem implements FromCollection, WithHeadings, WithTitle, Shoul
         
         return $energySystems->merge($energyFbsSystems);
     }
-
+ 
     /**
      * Write code on Method
      *

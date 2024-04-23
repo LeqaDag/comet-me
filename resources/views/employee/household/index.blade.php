@@ -595,26 +595,34 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#waterServiceHousehold').html(response['household'].water_system_status);
                     $('#internetServiceHousehold').html(response['household'].internet_system_status);
                     $('#energyStatusHousehold').html(response['status'].status);
-                    $('#compoundHousehold').html(response['compound'].english_name);
+                    if(response['compound']) $('#compoundHousehold').html(response['compound'].english_name);
 
                     $('#numberOfCistern').html(" ");
-                    $('#numberOfCistern').html(response['cistern'].number_of_cisterns);
-                    $('#volumeCistern').html(" ");
-                    $('#volumeCistern').html(response['cistern'].volume_of_cisterns);
-                    $('#depthCistern').html(" ");
-                    $('#depthCistern').html(response['cistern'].depth_of_cisterns);
-                    $('#sharedCistern').html(" ");
-                    $('#sharedCistern').html(response['cistern'].shared_cisterns);
-                    $('#distanceCistern').html(" ");
-                    $('#distanceCistern').html(response['cistern'].distance_from_house);
+
+                    if(response['cistern']) {
+
+                        $('#numberOfCistern').html(response['cistern'].number_of_cisterns);
+                        $('#volumeCistern').html(" ");
+                        $('#volumeCistern').html(response['cistern'].volume_of_cisterns);
+                        $('#depthCistern').html(" ");
+                        $('#depthCistern').html(response['cistern'].depth_of_cisterns);
+                        $('#sharedCistern').html(" ");
+                        $('#sharedCistern').html(response['cistern'].shared_cisterns);
+                        $('#distanceCistern').html(" ");
+                        $('#distanceCistern').html(response['cistern'].distance_from_house);
+                    }
                     $('#herdSize').html(" ");
                     $('#herdSize').html(response['household'].size_of_herd);
-                    $('#numberOfStructures').html(" ");
-                    $('#numberOfStructures').html(response['structure'].number_of_structures);
-                    $('#numberOfkitchens').html(" ");
-                    $('#numberOfkitchens').html(response['structure'].number_of_kitchens);
-                    $('#numberOfShelters').html(" ");
-                    $('#numberOfShelters').html(response['structure'].number_of_animal_shelters);
+
+                    if(response['structure']) {
+
+                        $('#numberOfStructures').html(" ");
+                        $('#numberOfStructures').html(response['structure'].number_of_structures);
+                        $('#numberOfkitchens').html(" ");
+                        $('#numberOfkitchens').html(response['structure'].number_of_kitchens);
+                        $('#numberOfShelters').html(" ");
+                        $('#numberOfShelters').html(response['structure'].number_of_animal_shelters);
+                    }
                     
                     if(response['communityHousehold']) {
 
@@ -627,7 +635,13 @@ All<span class="text-muted fw-light"> Households</span>
                         $('#lengthOfStay').html(" ");
                         $('#lengthOfStay').html(response['communityHousehold'].length_of_stay);
                     }
-                    
+                   
+                    if(response['energyCycleYear'] != []) {
+
+                        $('#energyCycleYear').html(" ");
+                        $('#energyCycleYear').html(response['energyCycleYear'].name);
+                    }
+
                     $('#energySourceHousehold').html(" ");
                     $('#energySourceHousehold').html(response['household'].electricity_source);
                     $('#energySourceSharedHousehold').html(" ");
