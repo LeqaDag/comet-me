@@ -48,18 +48,64 @@ class CommunityDonorController extends Controller
 
             for($i=0; $i < count($request->donor_id); $i++) {
 
-                $communityDonor = new CommunityDonor();
-                if($request->compound_id) $communityDonor->compound_id = $request->compound_id;
-                if($request->compound_id == null) $communityDonor->community_id = $request->community_id;
-                $communityDonor->service_id = $request->service_id;
-                $communityDonor->donor_id = $request->donor_id[$i];
-                $communityDonor->save();
+                $existCommunityDonor = CommunityDonor::where('donor_id', $request->donor_id[$i])
+                    ->where('service_id', $request->service_id)
+                    ->first();
+                if($existCommunityDonor) {
+
+                } else {
+
+                    $communityDonor = new CommunityDonor();
+                    if($request->energy_system_id) $communityDonor->energy_system_id = $request->energy_system_id;
+                    if($request->compound_id) $communityDonor->compound_id = $request->compound_id;
+                    if($request->compound_id == null) $communityDonor->community_id = $request->community_id;
+                    $communityDonor->service_id = $request->service_id;
+                    $communityDonor->donor_id = $request->donor_id[$i];
+                    $communityDonor->save();
+                }
             }
         }  
 
         if($request->service_id == 1) {
 
-            if($request->compound_id) {
+            if($request->energy_system_id) {
+
+                $allEnergyMeters = DB::table('all_energy_meters')
+                    ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                    ->where('communities.id', $request->community_id)
+                    ->join('households', 'all_energy_meters.household_id', 'households.id')
+                    ->where('all_energy_meters.is_archived', 0)
+                    ->where('households.is_archived', 0)
+                    ->where('all_energy_meters.energy_system_id', $request->energy_system_id)
+                    ->select("all_energy_meters.id", "all_energy_meters.community_id")
+                    ->get();
+    
+                if($allEnergyMeters) {
+
+                    foreach($allEnergyMeters as $allEnergyMeter) {
+    
+                        for($i=0; $i < count($request->donor_id); $i++) {
+            
+                            $exisitAllEnergyMeterDonor = AllEnergyMeterDonor::where('all_energy_meter_id', $allEnergyMeter->id)
+                                ->where('donor_id', $request->donor_id)
+                                ->where('energy_system_id', $request->energy_system_id)
+                                ->first();
+
+                            if($exisitAllEnergyMeterDonor) {
+
+                            } else {
+
+                                $allEnergyMeterDonor = new AllEnergyMeterDonor();
+                                $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                                $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
+                                $allEnergyMeterDonor->energy_system_id = $request->energy_system_id;
+                                $allEnergyMeterDonor->donor_id = $request->donor_id[$i];
+                                $allEnergyMeterDonor->save();
+                            }
+                        }
+                    }
+                }
+            } else if($request->compound_id) {
 
                 $allEnergyMeters = DB::table('all_energy_meters')
                     ->join('communities', 'all_energy_meters.community_id', 'communities.id')
@@ -78,12 +124,22 @@ class CommunityDonorController extends Controller
     
                         for($i=0; $i < count($request->donor_id); $i++) {
             
-                            $allEnergyMeterDonor = new AllEnergyMeterDonor();
-                            $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
-                            $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
-                            $allEnergyMeterDonor->compound_id = $request->compound_id;
-                            $allEnergyMeterDonor->donor_id = $request->donor_id[$i];
-                            $allEnergyMeterDonor->save();
+                            $exisitAllEnergyMeterDonor = AllEnergyMeterDonor::where('all_energy_meter_id', $allEnergyMeter->id)
+                                ->where('donor_id', $request->donor_id)
+                                ->where('compound_id', $request->compound_id)
+                                ->first();
+                            
+                            if($exisitAllEnergyMeterDonor) {
+
+                            } else {
+
+                                $allEnergyMeterDonor = new AllEnergyMeterDonor();
+                                $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                                $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
+                                $allEnergyMeterDonor->compound_id = $request->compound_id;
+                                $allEnergyMeterDonor->donor_id = $request->donor_id[$i];
+                                $allEnergyMeterDonor->save();
+                            }
                         }
                     }
                 }
@@ -96,11 +152,20 @@ class CommunityDonorController extends Controller
     
                         for($i=0; $i < count($request->donor_id); $i++) {
             
-                            $allEnergyMeterDonor = new AllEnergyMeterDonor();
-                            $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
-                            $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
-                            $allEnergyMeterDonor->donor_id = $request->donor_id[$i];
-                            $allEnergyMeterDonor->save();
+                            $exisitAllEnergyMeterDonor = AllEnergyMeterDonor::where('all_energy_meter_id', $allEnergyMeter->id)
+                                ->where('donor_id', $request->donor_id)
+                                ->first();
+
+                            if($exisitAllEnergyMeterDonor) {
+
+                            } else {
+
+                                $allEnergyMeterDonor = new AllEnergyMeterDonor();
+                                $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                                $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
+                                $allEnergyMeterDonor->donor_id = $request->donor_id[$i];
+                                $allEnergyMeterDonor->save();
+                            }
                         }
                     }
                 }
@@ -316,7 +381,13 @@ class CommunityDonorController extends Controller
         $donor = CommunityDonor::find($id);
         $allEnergyMeterDonors = null;
         
-        if($donor->compound_id) {
+        if($donor->energy_system_id) {
+
+            $allEnergyMeterDonors = AllEnergyMeterDonor::where("donor_id", $donor->donor_id)
+                ->where("energy_system_id", $donor->energy_system_id)
+                ->where('is_archived', 0)
+                ->get();
+        } else if($donor->compound_id) {
 
             $allEnergyMeterDonors = AllEnergyMeterDonor::where("donor_id", $donor->donor_id)
                 ->where("compound_id", $donor->compound_id)

@@ -15,6 +15,7 @@ use App\Models\AllEnergyVendingMeter;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
+use App\Models\CompoundHousehold;
 use App\Models\CommunityVendor;
 use App\Models\CommunityService;
 use App\Models\Donor;
@@ -53,50 +54,22 @@ class AllEnergyController extends Controller
      */
     public function index(Request $request)
     {
-        // $allEnergyMeterDonors = AllEnergyMeterDonor::where("community_id", 171)->get();
-        // foreach( $allEnergyMeterDonors  as  $allEnergyMeterDonor) {
-
-        //     $allEnergyMeterDonor->delete();
-        // }
-
-        // $community = Community::find(188);
-
-        // $households = Household::where('community_id', $community->id)
-        //     ->where('energy_system_cycle_id', '!=', null)
-        //     ->where('energy_system_type_id', null)
-        //     ->get();
-
-      
-        // if($households) {
-
-        //     foreach($households as $household) {
-
-        //         $household->energy_system_type_id = 2;
-        //         $household->save();
-        //     }
-        // }
-      //  die($households);
-        
+   
         // $allEnergyMeters = AllEnergyMeter::where('is_archived', 0)
         //     ->whereNotNull('household_id')
+        //     ->where('community_id', 187) // 179
         //     ->get();
 
         // foreach($allEnergyMeters as $allEnergyMeter) {
+
+        //     $allEnergyMeter->energy_system_cycle_id = 1;
+        //     $allEnergyMeter->save();
 
         //     $household = Household::where('id', $allEnergyMeter->household_id)->first();
 
         //     if($household) {
 
-        //         $household->energy_service = "Yes";
-        //         $household->energy_system_status = "Served";
-        //         // if($allEnergyMeter->is_main = "Yes") {
-
-        //         //     $household->energy_meter = "Yes";
-        //         // } else {
-
-        //         //     $household->energy_meter = "No"; 
-        //         // }
-                
+        //         $household->energy_system_cycle_id = 1;
         //         $household->save();
         //     }
         // }
@@ -190,6 +163,71 @@ class AllEnergyController extends Controller
         //     $energyUser->ground_connected = "Yes";
         //     $energyUser->save();
         // }
+
+        
+        // add the donors for users if it's exist in community-donors 
+        $missingUserEnergDonors = DB::table('all_energy_meters')
+            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+            ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+            ->leftJoin('energy_system_types', 'all_energy_meters.energy_system_type_id', 
+                'energy_system_types.id')
+            ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id', 
+                'all_energy_meter_donors.all_energy_meter_id')
+            ->join('households', 'households.id', 
+                'all_energy_meters.household_id')
+            ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
+            ->whereNull('all_energy_meter_donors.all_energy_meter_id')
+            ->where('all_energy_meters.energy_system_id', '!=', 100)
+            ->select(
+                'communities.english_name as community', 'all_energy_meters.meter_number',
+                'households.english_name as household_name', 'household_statuses.status',
+                'energy_systems.name as energy_name', 'energy_system_types.name as type',
+                'households.id as id', 'all_energy_meters.id as all_energy_meter_id',
+                'communities.id as community_id'
+                )
+            ->get();
+
+        //dd($missingUserEnergDonors->count());
+        if(count($missingUserEnergDonors) > 0) {
+
+            foreach($missingUserEnergDonors as $missingUserEnergDonor) {
+
+                $compoundHousehold = CompoundHousehold::where('household_id', $missingUserEnergDonor->id)->first();
+                if($compoundHousehold) {
+
+                    $compoundDonors = CommunityDonor::where('compound_id', $compoundHousehold->compound_id)
+                        ->where('service_id', 1)
+                        ->get();
+
+                    if($compoundDonors) {
+
+                        foreach($compoundDonors as $compoundDonor) {
+                                
+                            $newAllEnergyCompoundMeterDonor = new AllEnergyMeterDonor();
+                            $newAllEnergyCompoundMeterDonor->compound_id = $compoundDonor->compound_id;
+                            $newAllEnergyCompoundMeterDonor->all_energy_meter_id = $missingUserEnergDonor->all_energy_meter_id;
+                            $newAllEnergyCompoundMeterDonor->donor_id = $compoundDonor->donor_id;
+                            $newAllEnergyCompoundMeterDonor->save();
+                        }
+                    }
+                }
+                $communityDonors = CommunityDonor::where('community_id', $missingUserEnergDonor->community_id)
+                    ->where('service_id', 1)
+                    ->get();
+
+                if($communityDonors) {
+
+                    foreach($communityDonors as $communityDonor) {
+                                
+                        $newAllEnergyCommunityMeterDonor = new AllEnergyMeterDonor();
+                        $newAllEnergyCommunityMeterDonor->community_id = $communityDonor->community_id;
+                        $newAllEnergyCommunityMeterDonor->all_energy_meter_id = $missingUserEnergDonor->all_energy_meter_id;
+                        $newAllEnergyCommunityMeterDonor->donor_id = $communityDonor->donor_id;
+                        $newAllEnergyCommunityMeterDonor->save();
+                    }
+                } 
+            }
+        }
 
         $communityFilter = $request->input('community_filter');
         $typeFilter = $request->input('type_filter');

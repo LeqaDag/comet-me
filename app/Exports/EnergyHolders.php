@@ -32,6 +32,8 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
             ->LeftJoin('installation_types', 'all_energy_meters.installation_type_id', 
                 'installation_types.id')
+            ->LeftJoin('energy_system_cycles', 'all_energy_meters.energy_system_cycle_id', 
+                'energy_system_cycles.id')
             ->LeftJoin('public_structures', 'all_energy_meters.public_structure_id', 
                 'public_structures.id')
             ->leftJoin('households', 'all_energy_meters.household_id', 'households.id')
@@ -50,7 +52,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
                 DB::raw('IFNULL(households.arabic_name, public_structures.arabic_name) 
                     as exported_value_arabic'),
                 'all_energy_meters.is_main',
-                'installation_types.type',
+                'installation_types.type', 'energy_system_cycles.name as cycle',
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region', 
                 'meter_cases.meter_case_name_english', 
@@ -99,7 +101,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
     public function headings(): array
     {
         return ["Energy Holder (User/Public)", "Energy Holder (User/Public) Arabic",
-            "Main Holder", "Installation Type", "Community", 
+            "Main Holder", "Installation Type", "Cycle Year", "Community", 
             "Region", "Sub Region", "Meter Case", "Energy System", "Energy System Type", 
             "Connected Ground", "Number of male", "Number of Female", "Number of adults", 
             "Number of children", "Phone number", "Meter Number", "Daily Limit", 

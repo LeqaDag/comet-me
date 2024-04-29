@@ -76,7 +76,7 @@ class EnergyMaintenanceCallController extends Controller
         $dateFilter = $request->input('date_filter');
 
         if (Auth::guard('user')->user() != null) {
- 
+  
             if ($request->ajax()) {
                 
                 $data = DB::table('electricity_maintenance_calls')
@@ -114,7 +114,7 @@ class EnergyMaintenanceCallController extends Controller
                         $data->join('electricity_maintenance_call_actions', 
                             'electricity_maintenance_calls.id', 
                             'electricity_maintenance_call_actions.electricity_maintenance_call_id')
-                            ->leftJoin('energy_maintenance_actions', 'energy_maintenance_actions.id',
+                            ->join('energy_maintenance_actions', 'energy_maintenance_actions.id',
                                 'electricity_maintenance_call_actions.energy_maintenance_action_id')
                             ->where('energy_maintenance_actions.energy_maintenance_issue_id', $issueFilter);
                     }
@@ -122,7 +122,7 @@ class EnergyMaintenanceCallController extends Controller
     
                         $data->where('electricity_maintenance_calls.date_completed', '>=', $dateFilter);
                     }
-
+ 
                     $data->select(
                         'electricity_maintenance_calls.id as id', 
                         'households.english_name as household_name', 
@@ -135,7 +135,9 @@ class EnergyMaintenanceCallController extends Controller
                         'energy_turbine_communities.name as turbine', 
                         'energy_generator_communities.name as generator',
                         'energy_systems.name as energy_name'
-                    )->latest();
+                    )
+                    ->distinct()
+                    ->latest();
 
                 return Datatables::of($data)
                     ->addIndexColumn()

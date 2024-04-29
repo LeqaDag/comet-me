@@ -326,6 +326,7 @@ class EnergySafetyController extends Controller
 
             $electricityMaintenanceCallAction = new ElectricityMaintenanceCallAction();
             $electricityMaintenanceCallAction->maintenance_electricity_action_id = 75;
+            $electricityMaintenanceCallAction->energy_maintenance_action_id = 16;
             $electricityMaintenanceCallAction->electricity_maintenance_call_id = $maintenanceId;
             $electricityMaintenanceCallAction->save();
         }

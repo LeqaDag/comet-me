@@ -64,7 +64,7 @@ class CommunityController extends Controller
             ->join('communities', 'communities.id', 'households.community_id')
             ->select(
                 'households.community_id AS id',
-                DB::raw('COUNT(CASE WHEN households.is_archived = 0 
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.internet_holder_young = 0
                 THEN 1 ELSE NULL END) as total_household'),
                 )
             ->groupBy('households.community_id')
@@ -72,6 +72,7 @@ class CommunityController extends Controller
        
         
         foreach($data as $d) {
+
             $community = Community::findOrFail($d->id);
             //$community->number_of_household = NULL;
             $community->number_of_household = $d->total_household;
@@ -82,18 +83,22 @@ class CommunityController extends Controller
             ->join('communities', 'communities.id', 'households.community_id')
             ->select(
                 'households.community_id AS id',
-                DB::raw('SUM(CASE WHEN households.is_archived = 0 THEN 
-                    households.number_of_male + households.number_of_female ELSE 0 END) 
-                    as total_people')
+                DB::raw(
+                    'SUM(CASE WHEN households.is_archived = 0 THEN households.number_of_adults + households.number_of_children 
+                        ELSE 0 END) as total_people'),
+                DB::raw(
+                    'SUM(CASE WHEN households.is_archived = 0 THEN households.number_of_male + households.number_of_female 
+                        ELSE 0 END) as total_people1')
                 )
-
             ->groupBy('households.community_id')
             ->get();
 
         foreach($households as $household) {
+
             $community = Community::findOrFail($household->id);
             //$community->number_of_household = NULL;
-            $community->number_of_people = $household->total_people;
+            if($household->total_people > $household->total_people1) $community->number_of_people = $household->total_people;
+            else $community->number_of_people = $household->total_people1;
             $community->save();
         }
         
@@ -318,41 +323,8 @@ class CommunityController extends Controller
      */
     public function create()
     {
-        // $communityDonors = CommunityDonor::all();
-        // foreach($communityDonors as $communityDonor) {
-        //     $community = Community::where('english_name', $communityDonor->community_name)
-        //     ->first();
-        //     $donor = Donor::where('donor_name', $communityDonor->donor_name)
-        //     ->first();
-        //     $service = ServiceType::where('service_name', $communityDonor->service_type)
-        //     ->first();
-
-        //     $communityDonor->community_id = $community->id;
-        //     $communityDonor->donor_id = $donor->id;
-        //     $communityDonor->service_id = $service->id;
-        //     $communityDonor->save();
-        // }
-
-        // $energyAll = EnergySystem::all();
-        // foreach($energyAll as $energy) {
-        //     $type = EnergySystemType::where('name', $energy->system_type)
-        //     ->first();
-        //     $energy->energy_system_type_id = $type->id;
-        //     $energy->save();
-        // }
-
-        // $subCommunities = SubCommunity::all();
-        // foreach($subCommunities as $subCommunity) {
-        //     $community = Community::where('english_name', $subCommunity->community_name)
-        //     ->first();
-        //     $subCommunity->community_id = $community->id;
-        //     $household = Household::where('english_name', $subCommunity->household_name)
-        //     ->first();
-        //     $subCommunity->household_id = $household->id;
-        //     $subCommunity->save();
-        // }
-  
         $peopleHouseholds = Household::where('is_archived', 0)->get();
+
         foreach($peopleHouseholds as $peopleHousehold) {
 
             $peopleHousehold->number_of_people = $peopleHousehold->number_of_male +
@@ -364,7 +336,7 @@ class CommunityController extends Controller
             ->join('communities', 'communities.id', 'households.community_id')
             ->select(
                 'households.community_id AS id',
-                DB::raw('COUNT(CASE WHEN households.is_archived = 0 
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.internet_holder_young = 0
                 THEN 1 ELSE NULL END) as total_household'),
                 )
             ->groupBy('households.community_id')
@@ -382,18 +354,22 @@ class CommunityController extends Controller
             ->join('communities', 'communities.id', 'households.community_id')
             ->select(
                 'households.community_id AS id',
-                DB::raw('SUM(CASE WHEN households.is_archived = 0 THEN 
-                    households.number_of_male + households.number_of_female ELSE 0 END) 
-                    as total_people')
+                DB::raw(
+                    'SUM(CASE WHEN households.is_archived = 0 THEN households.number_of_adults + households.number_of_children 
+                        ELSE 0 END) as total_people'),
+                DB::raw(
+                    'SUM(CASE WHEN households.is_archived = 0 THEN households.number_of_male + households.number_of_female 
+                        ELSE 0 END) as total_people1')
                 )
-
             ->groupBy('households.community_id')
             ->get();
 
         foreach($households as $household) {
+
             $community = Community::findOrFail($household->id);
             //$community->number_of_household = NULL;
-            $community->number_of_people = $household->total_people;
+            if($household->total_people > $household->total_people1) $community->number_of_people = $household->total_people;
+            else $community->number_of_people = $household->total_people1;
             $community->save();
         }
 

@@ -21,6 +21,7 @@ use App\Models\CommunityRepresentative;
 use App\Models\CommunityRole;
 use App\Models\Compound;
 use App\Models\Donor; 
+use App\Models\CameraIncident;
 use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
 use App\Models\EnergyUser;
@@ -92,11 +93,13 @@ class ActionItemController extends Controller
             $internetUsers = InternetUser::where("is_archived", 0)->get();
             $internetDataApi = Http::get('http://185.190.140.86/api/data/');
             $internetDataApi = json_decode($internetDataApi, true);
+
             $totalContract = $internetDataApi[0]["total_contracts"];
 
             $youngHolders = Household::where('internet_holder_young', 1)
                 ->whereNull('english_name')
                 ->get();
+
             $internetManager = User::where("user_type_id", 6)->first();
             $communitiesNotInSystems = DB::table('internet_users')
                 ->leftJoin('internet_system_communities', function ($join) {
@@ -180,7 +183,6 @@ class ActionItemController extends Controller
                 ->where('communities.community_status_id', 2)
                 ->get();
            
-
             $missingCommunityDonors = DB::table('communities')
                 ->leftJoin('community_donors', function ($join) {
                     $join->on('communities.id', 'community_donors.community_id')
@@ -277,6 +279,7 @@ class ActionItemController extends Controller
             $waterIncidents = H2oSystemIncident::where('is_archived', 0)->get();
             $networkIncidents = InternetNetworkIncident::where('is_archived', 0)->get();
             $internetHolderIncidents = InternetUserIncident::where('is_archived', 0)->get();
+            $cameraIncidents = CameraIncident::where('is_archived', 0)->get();
 
             $mgIncidentDetails =  DB::table('mg_incidents')
                 ->join('communities', 'mg_incidents.community_id', 'communities.id')
@@ -368,6 +371,20 @@ class ActionItemController extends Controller
                 )
                 ->get();
 
+            $cameraIncidentDetails  = DB::table('camera_incidents')
+                ->leftJoin('communities', 'camera_incidents.community_id', 'communities.id')
+                ->leftJoin('repositories', 'camera_incidents.repository_id', 'repositories.id')
+                ->join('incidents', 'camera_incidents.incident_id', 'incidents.id')
+                ->where('camera_incidents.is_archived', 0)
+                ->select(
+                    DB::raw('IFNULL(communities.english_name, repositories.name) 
+                    as exported_value'),
+                    'camera_incidents.date',
+                    'incidents.english_name as incident', 
+                    'camera_incidents.internet_incident_status_id'
+                )
+                ->get();
+            
             $miscRequested =  DB::table('households')
                 ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
                 ->where('households.is_archived', 0)
@@ -722,6 +739,7 @@ class ActionItemController extends Controller
                 ->join('households', 'households.id', 
                     'all_energy_meters.household_id')
                 ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
+                ->where('all_energy_meters.is_archived', 0)
                 ->whereNull('all_energy_meter_donors.all_energy_meter_id')
                 ->select(
                     'communities.english_name as community', 
@@ -1216,7 +1234,7 @@ class ActionItemController extends Controller
                 ->get();
 
             $missingChildrenNewHouseholds = $missingCompoundNewChildrenHouseholds->merge($missingCommunityNewChildrenHouseholds);
-
+ 
 
             if(Auth::guard('user')->user()->user_type_id == 1 || 
                 Auth::guard('user')->user()->user_type_id == 2) {
@@ -1254,114 +1272,13 @@ class ActionItemController extends Controller
                     'missingMaleMiscHouseholds', 'missingAdultMiscHouseholds', 'missingFemaleMiscHouseholds', 
                     'missingMaleMiscHouseholds', 'missingPhoneMiscHouseholds', 'missingChildrenMiscHouseholds',
                     'missingPhoneNewHouseholds', 'missingMaleNewHouseholds', 'missingFemaleNewHouseholds',
-                    'missingAdultNewHouseholds', 'missingChildrenNewHouseholds'),
+                    'missingAdultNewHouseholds', 'missingChildrenNewHouseholds', 'cameraIncidentDetails',
+                    'cameraIncidents'),
                     ['groupedActionItems' => $groupedActionItems]
                 );
-            } else if(Auth::guard('user')->user()->user_type_id != 1 || 
-                Auth::guard('user')->user()->user_type_id != 2) {
+            } else {
 
-                $statusFilter = $request->input('status_filter');
-                $priorityFilter = $request->input('priority_filter');
-                $startDateFilter = $request->input('start_date_filter');
-                $endDateFilter = $request->input('end_date_filter');
-
-                if ($request->ajax()) {
-
-                    $data = DB::table('action_items')
-                        ->join('users', 'action_items.user_id', 'users.id')
-                        ->join('action_priorities', 'action_items.action_priority_id', 'action_priorities.id')
-                        ->join('action_statuses', 'action_items.action_status_id', 'action_statuses.id')
-                        ->where('action_items.is_Archived', 0)
-                        ->where('users.id', Auth::guard('user')->user()->id);
-
-                    if ($statusFilter != null) {
-
-                        $data->where('action_statuses.id', $statusFilter);
-                    }
-                    if ($priorityFilter != null) {
-
-                        $data->where('action_priorities.id', $priorityFilter);
-                    }
-                    if ($startDateFilter != null) {
-
-                        $data->where('action_items.date', '>=', $startDateFilter);
-                    }
-                    if ($endDateFilter != null) {
-
-                        $data->where('action_items.due_date', "<=", $endDateFilter);
-                    }
-
-                    $data->select(
-                        'action_items.id as id', 'action_items.task',
-                        'action_priorities.name as priority', 'action_items.date',
-                        'users.name', 'action_items.created_at as created_at', 'users.image',
-                        'action_items.updated_at as updated_at', 'action_statuses.status',
-                        'action_statuses.id as status_id', 'action_priorities.id as priority_id'
-                    )
-                    ->latest();
-
-                    return Datatables::of($data)
-                        ->addIndexColumn()
-                        ->addColumn('action', function($row) {
-        
-                            $detailsButton = "<a type='button' class='detailsUserActionItemButton' data-bs-toggle='modal' data-bs-target='#userActionItemDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
-                            $updateButton = "<a type='button' class='updateUserActionItem' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                            $deleteButton = "<a type='button' class='deleteUserActionItem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                            
-                            if(Auth::guard('user')->user()->user_type_id != 1 || 
-                                Auth::guard('user')->user()->user_type_id != 2) 
-                            {
-                                    
-                                return $detailsButton." ". $updateButton." ".$deleteButton;
-                            } else return $detailsButton; 
-                        })
-                        ->addColumn('statusLabel', function($row) {
-
-                            if($row->status_id == 1) 
-                            $statusLabel = "<span class='badge rounded-pill bg-label-info'>".$row->status."</span>";
-
-                            else if($row->status_id == 2) 
-                            $statusLabel = "<span class='badge rounded-pill bg-label-warning'>".$row->status."</span>";
-                        
-                            else if($row->status_id == 3) 
-                            $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
-
-                            else if($row->status_id == 4) 
-                            $statusLabel = "<span class='badge rounded-pill bg-label-success'>".$row->status."</span>";
-
-                            return $statusLabel;
-                        })
-                        ->addColumn('priorityLabel', function($row) {
-
-                            if($row->priority_id == 1) 
-                            $priorityLabel = "<span class='badge bg-primary'>".$row->priority."</span>";
-
-                            else if($row->priority_id == 2) 
-                            $priorityLabel = "<span class='badge bg-warning text-dark'>".$row->priority."</span>";
-                        
-                            else if($row->priority_id == 3) 
-                            $priorityLabel = "<span class='badge bg-danger'>".$row->priority."</span>";
-
-                            return $priorityLabel;
-                        })
-                    
-                        ->filter(function ($instance) use ($request) {
-                            if (!empty($request->get('search'))) {
-                                    $instance->where(function($w) use($request){
-                                    $search = $request->get('search');
-                                    $w->orWhere('action_items.task', 'LIKE', "%$search%")
-                                    ->orWhere('action_items.date', 'LIKE', "%$search%")
-                                    ->orWhere('action_items.due_date', 'LIKE', "%$search%")
-                                    ->orWhere('action_statuses.status', 'LIKE', "%$search%")
-                                    ->orWhere('action_priorities.name', 'LIKE', "%$search%");
-                                });
-                            }
-                        })
-                    ->rawColumns(['action', 'statusLabel', 'priorityLabel'])
-                    ->make(true);
-                }
-        
-                return view('actions.users.index', compact('actionStatuses', 'actionPriorities',
+                return view('actions.users.action.index', compact('actionStatuses', 'actionPriorities',
                     'youngHolders', 'internetManager', 
                     'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
                     'missingMaleNumbers', 'missingFemaleNumbers', 'missingChildrenNumbers',

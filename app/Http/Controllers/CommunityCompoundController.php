@@ -225,10 +225,12 @@ class CommunityCompoundController extends Controller
 
             $htmlHouseholds = '<option value="">Choose One...</option>';
             $htmlCompounds = '<option value="">Choose One...</option>';
-        } else {
+            $htmlEnergySystems = '<option value="">Choose One...</option>';
+        } else { 
 
             $htmlCompounds = '<option value="">Choose One...</option>';
             $htmlHouseholds = '<option value="">Choose One...</option>';
+            $htmlEnergySystems = '<option value="">Choose One...</option>';
             
             $households = Household::where('community_id', $request->community_id)
                 ->where('is_archived', 0)
@@ -247,11 +249,20 @@ class CommunityCompoundController extends Controller
             foreach ($households as $household) {
                 $htmlHouseholds .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
             }
+
+            $energySystems = EnergySystem::where('community_id', $request->community_id)
+                ->get();
+
+            foreach($energySystems as $energySystem) {
+
+                $htmlEnergySystems .= '<option value="'.$energySystem->id.'">'.$energySystem->name.'</option>';
+            }
         }
 
         return response()->json([
             'htmlHouseholds' => $htmlHouseholds,
-            'htmlCompounds' => $htmlCompounds
+            'htmlCompounds' => $htmlCompounds,
+            'htmlEnergySystems' => $htmlEnergySystems
         ]);
     }
 

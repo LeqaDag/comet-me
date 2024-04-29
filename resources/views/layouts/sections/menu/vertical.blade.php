@@ -508,6 +508,12 @@
                     </li>
                 </ul>
             </li>
+            <li class="menu-item" id="incident-camera">
+                <a href="{{url('incident-camera')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Cameras</div>
+                </a>
+            </li>
         </ul>
     </li>
 
@@ -868,6 +874,10 @@
 
         $("#incident-internet-user").addClass("active");
         $("#internet-incidents").addClass("open");
+        $("#incidents").addClass("open");
+    } else if(last_part == "incident-camera") {
+
+        $("#incident-camera").addClass("active");
         $("#incidents").addClass("open");
     }
 </script>

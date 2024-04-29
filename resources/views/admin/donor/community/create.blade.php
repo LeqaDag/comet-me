@@ -18,7 +18,7 @@ label, table {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
                 </button>
-            </div> 
+            </div>  
             <div class="modal-body">
                 <form method="POST" enctype='multipart/form-data' id="communityDonorForm"
                     action="{{url('community-donor')}}">
@@ -37,6 +37,15 @@ label, table {
                                     </option>
                                     @endforeach
                                 </select>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Energy System</label>
+                                <select name="energy_system_id" class="selectpicker form-control" 
+                                    data-live-search="true" id="selectedEnergySystem" disabled>
+                                    <option disabled selected>Choose one...</option>
+                                </select> 
                             </fieldset>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4">
@@ -102,6 +111,11 @@ label, table {
                 select.prop('disabled', false);
                 select.html(data.htmlCompounds);
                 select.selectpicker('refresh');
+
+                var energySelect = $('#selectedEnergySystem');
+                energySelect.prop('disabled', false);
+                energySelect.html(data.htmlEnergySystems);
+                energySelect.selectpicker('refresh');
             },
             error: function(xhr, status, error) {
                 console.error(error);
@@ -115,12 +129,13 @@ label, table {
 
             var communityValue = $('#selectedCommunity').val();
             var compoundValue = $('#selectedCompound').val();
+            var energyValue = $('#selectedEnergySystem').val();
             var serviceValue = $('#serviceSelected').val();
             var donorValue = $('#donorsSelected').val();
 
-            if (communityValue == null && compoundValue == null) {
+            if (communityValue == null && compoundValue == null && energyValue == null) {
 
-                $('#community_compound_error').html('Please select a compound or community!');
+                $('#community_compound_error').html('Please select a community first then compound or energy system!');
                 return false;
             } else {
 

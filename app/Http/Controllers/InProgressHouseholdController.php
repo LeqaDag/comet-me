@@ -41,6 +41,7 @@ use App\Models\Profession;
 use App\Models\MovedHousehold;
 use App\Models\EnergyRequestSystem;
 use App\Models\EnergyUser;
+use App\Models\EnergySystemCycle;
 use App\Models\InstallationType;
 use App\Models\EnergyHolder;
 use App\Models\EnergyPublicStructure;
@@ -166,10 +167,11 @@ class InProgressHouseholdController extends Controller
             ->orderBy('english_name', 'ASC')
             ->get();
         $professions  = Profession::where('is_archived', 0)->get();
-
+        $energySystemCycles = EnergySystemCycle::orderBy('name', 'ASC')
+            ->get();
 
         return view('employee.household.elc_create', compact('communities', 'energySystemTypes', 
-            'households', 'professions', 'installationTypes'));
+            'households', 'professions', 'installationTypes', 'energySystemCycles'));
     }
 
      /**
@@ -192,7 +194,7 @@ class InProgressHouseholdController extends Controller
             $communityService->service_id = 1;
             $communityService->community_id = $request->community_id;
             $communityService->save();
-        }
+        }  
 
         if($request->household_id) {
 
@@ -200,6 +202,7 @@ class InProgressHouseholdController extends Controller
 
                 $household = Household::findOrFail($request->household_id[$i]);
                 $household->household_status_id = 3;
+                $household->energy_system_cycle_id = $request->energy_system_cycle_id;
                 $household->save(); 
 
                 $energyUser = new AllEnergyMeter();
@@ -207,6 +210,7 @@ class InProgressHouseholdController extends Controller
                 $energyUser->household_id = $request->household_id[$i];
                 $energyUser->community_id = $request->community_id;
                 $energyUser->energy_system_type_id = $request->energy_system_type_id;
+                $energyUser->energy_system_cycle_id = $request->energy_system_cycle_id;
                 if($request->energy_system_type_id != 2) {
 
                     $energyUser->ground_connected = "Yes";

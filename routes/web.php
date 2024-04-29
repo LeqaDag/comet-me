@@ -341,6 +341,13 @@ Route::get('/delete-network-equipment', [App\Http\Controllers\InternetNetworkInc
 Route::get('/delete-network-photo', [App\Http\Controllers\InternetNetworkIncidentController::class, 'deleteNetworkPhoto'])->name('deleteNetworkPhoto');
 Route::get('/delete-internet-incident-photo', [App\Http\Controllers\InternetUserIncidentController::class, 'deleteInternetUserPhoto'])->name('deleteInternetUserPhoto');
 
+// Camera incidents
+Route::resource('incident-camera', App\Http\Controllers\CameraIncidentController::class);
+Route::post('incident-camera-export', [App\Http\Controllers\CameraIncidentController::class, 'export'])->name('camera-incident.export');
+Route::get('/delete-incident-camera', [App\Http\Controllers\CameraIncidentController::class, 'deleteCameraIncident'])->name('deleteCameraIncident');
+Route::get('/delete-camera-photo', [App\Http\Controllers\CameraIncidentController::class, 'deleteCameraIncidentPhoto'])->name('deleteCameraIncidentPhoto');
+Route::get('/delete-camera-equipment', [App\Http\Controllers\CameraIncidentController::class, 'deleteCameraIncidentEquipment'])->name('deleteCameraIncidentEquipment');
+
 
 Route::post('quality-result-export', [App\Http\Controllers\WaterQualityResultController::class, 'export'])->name('quality-result.export');
 Route::get('water_holder/get_by_community/{community_id}/{flag}', [App\Http\Controllers\WaterQualityResultController::class, 'getWaterHolderByCommunity']);
@@ -367,10 +374,6 @@ Route::get('action-item/household/missing', [App\Http\Controllers\ActionItemCont
 Route::get('missing/donors/{community_id}', [App\Http\Controllers\ActionItemController::class, 'householdMissingDonors']);
 Route::get('action-item/ac-household/export', [App\Http\Controllers\ActionItemController::class, 'householdAcExport']);
 Route::get('action-item/in-progress-household/export', [App\Http\Controllers\ActionItemController::class, 'householdInProgressExport']);
-Route::post('action-item/update-action-status', [App\Http\Controllers\ActionItemController::class, 'updateActionStatus']);
-Route::post('action-item/update-action-note', [App\Http\Controllers\ActionItemController::class, 'updateActionNote']);
-Route::post('action-item/update-action-date-from', [App\Http\Controllers\ActionItemController::class, 'updateDateFrom']);
-Route::post('action-item/update-action-date-to', [App\Http\Controllers\ActionItemController::class, 'updateDateTo']);
 Route::get('action-item/new-household/missing', [App\Http\Controllers\ActionItemController::class, 'newHouseholdMissingDetails']);
 
 Route::resource('action-item-user', App\Http\Controllers\ActionItemUserController::class); 

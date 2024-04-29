@@ -25,6 +25,7 @@ class EnergyMaintenanceExport implements WithMultipleSheets, ShouldAutoSize
     { 
         $sheets = [   
 
+            new Maintenance\EnergyMaintenanceSummary($this->request), 
             new Maintenance\EnergyMaintenanceLog($this->request), 
             new Maintenance\EnergyMgExtension($this->request),
         ];

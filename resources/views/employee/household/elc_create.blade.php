@@ -14,7 +14,7 @@ label {
 @section('vendor-style')
 
 
-@endsection
+@endsection 
 
 
 @section('content')
@@ -83,33 +83,53 @@ label {
 
                 </div>
 
-            <div class="row">
-                <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
-                    <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Energy System Type</label>
-                        <select name="energy_system_type_id" data-parsley-required="true"
-                            class="form-control" id="selectedEnergySystemType">
-                            <option disabled selected>Choose one...</option>
-                            @foreach($energySystemTypes as $energySystemType)
-                                <option value="{{$energySystemType->id}}">
-                                    {{$energySystemType->name}}
-                                </option>
-                            @endforeach
-                        </select>
-                    </fieldset>
-                    <div id="energy_system_type_id_error" style="color: red;"></div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy System Type</label>
+                            <select name="energy_system_type_id" data-parsley-required="true"
+                                class="selectpicker form-control" id="selectedEnergySystemType"data-live-search="true">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energySystemTypes as $energySystemType)
+                                    <option value="{{$energySystemType->id}}">
+                                        {{$energySystemType->name}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                        <div id="energy_system_type_id_error" style="color: red;"></div>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy System</label>
+                            <select name="energy_system_id" id="selectedEnergySystem" 
+                                class="form-control" data-parsley-required="true" disabled>
+                                <option disabled selected>Choose one...</option>
+                            </select>
+                        </fieldset>
+                        <div id="energy_system_id_error" style="color: red;"></div>
+                    </div>
                 </div>
-                <div class="col-xl-6 col-lg-6 col-md-6">
-                    <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Energy System</label>
-                        <select name="energy_system_id" id="selectedEnergySystem" 
-                            class="form-control" data-parsley-required="true" disabled>
-                            <option disabled selected>Choose one...</option>
-                        </select>
-                    </fieldset>
-                    <div id="energy_system_id_error" style="color: red;"></div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select name="energy_system_cycle_id" data-parsley-required="true"
+                                class="selectpicker form-control" id="energySystemCycleSelected"
+                                data-live-search="true">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energySystemCycles as $energySystemCycle)
+                                    <option value="{{$energySystemCycle->id}}">
+                                        {{$energySystemCycle->name}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                        <div id="energy_system_cycle_id_error" style="color: red;"></div>
+                    </div>
                 </div>
-            </div>
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -338,6 +358,7 @@ label {
             var householdValue = $('#selectedUserHousehold').val();
             var energyTypeValue = $('#selectedEnergySystemType').val();
             var energyValue = $('#selectedEnergySystem').val();
+            var energyCycle = $('#energySystemCycleSelected').val();
 
             if (miscValue == null) {
 
@@ -384,12 +405,22 @@ label {
                 $('#energy_system_id_error').empty();
             }
 
+            if (energyCycle == null) {
+
+                $('#energy_system_cycle_id_error').html('Please select an Energy cycle!'); 
+                return false;
+            } else if (energyCycle != null){
+
+                $('#energy_system_cycle_id_error').empty();
+            }
+
             $(this).addClass('was-validated');  
             $('#misc_error').empty(); 
             $('#community_id_error').empty();
             $('#household_id_error').empty();
             $('#energy_system_type_id_error').empty();
             $('#energy_system_id_error').empty();
+            $('#energy_system_cycle_id_error').empty();
 
             this.submit();
         });

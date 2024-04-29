@@ -33,7 +33,8 @@ class AllIncidentExport implements WithMultipleSheets, ShouldAutoSize
             new NetworkIncidentSystem($this->request),
             new NetworkIncidentAreaAffected($this->request),
             new NetworkIncidentHouseholdsAffected($this->request),
-            new InternetUserIncidentExport($this->request)
+            new InternetUserIncidentExport($this->request),
+            new CameraIncidentExport($this->request),
         ];
 
         return $sheets;

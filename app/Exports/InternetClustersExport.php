@@ -44,6 +44,7 @@ class InternetClustersExport implements FromCollection, WithTitle,
                 'internet_clusters.name', 
                 'internet_metric_clusters.source_of_connection', 
                 'internet_metric_clusters.attached_communities', 
+                'internet_metric_clusters.total_contracts',  
                 'internet_metric_clusters.active_contracts',  
                 'internet_metric_clusters.total_paid',  
                 'internet_metric_clusters.total_unpaid', 
@@ -88,6 +89,7 @@ class InternetClustersExport implements FromCollection, WithTitle,
             $row->name,
             $row->source_of_connection,
             $row->attached_communities,
+            $row->total_contracts,
             $row->active_contracts,
             $row->total_paid,
             $row->total_unpaid,
@@ -123,28 +125,29 @@ class InternetClustersExport implements FromCollection, WithTitle,
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:R1');
+        $sheet->setAutoFilter('A1:U1');
 
         $sheet->setCellValue('A1', 'Count/Value');
         $sheet->setCellValue('B1', 'Cluster Name');
         $sheet->setCellValue('C1', 'ISP');
         $sheet->setCellValue('D1', 'Attached Communities');
-        $sheet->setCellValue('E1', 'Active Contracts');
-        $sheet->setCellValue('F1', 'Total Paid Holders');
-        $sheet->setCellValue('G1', 'Total Unpaid Holders');
-        $sheet->setCellValue('H1', 'Total Bandwidth Mbps');
-        $sheet->setCellValue('I1', 'Weekly Max In Bandwidth Mbps');
-        $sheet->setCellValue('J1', 'Weekly Max Out Bandwidth Mbps');
-        $sheet->setCellValue('K1', 'Weekly Avg In Bandwidth Mbps');
-        $sheet->setCellValue('L1', 'Weekly Avg Out Bandwidth Mbps');
-        $sheet->setCellValue('M1', 'Weekly Now In Bandwidth Mbps');
-        $sheet->setCellValue('N1', 'Weekly Now Out Bandwidth Mbps');
-        $sheet->setCellValue('O1', 'Monthly Max In Bandwidth Mbps');
-        $sheet->setCellValue('P1', 'Monthly Max Out Bandwidth Mbps');
-        $sheet->setCellValue('Q1', 'Monthly Avg In Bandwidth Mbps');
-        $sheet->setCellValue('R1', 'Monthly Avg Out Bandwidth Mbps');
-        $sheet->setCellValue('S1', 'Monthly Now In Bandwidth Mbps');
-        $sheet->setCellValue('T1', 'Monthly Now Out Bandwidth Mbps');
+        $sheet->setCellValue('E1', 'Total Contracts');
+        $sheet->setCellValue('F1', 'Active Contracts');
+        $sheet->setCellValue('G1', 'Total Paid Holders');
+        $sheet->setCellValue('H1', 'Total Unpaid Holders');
+        $sheet->setCellValue('I1', 'Total Bandwidth Mbps');
+        $sheet->setCellValue('J1', 'Weekly Max In Bandwidth Mbps');
+        $sheet->setCellValue('K1', 'Weekly Max Out Bandwidth Mbps');
+        $sheet->setCellValue('L1', 'Weekly Avg In Bandwidth Mbps');
+        $sheet->setCellValue('M1', 'Weekly Avg Out Bandwidth Mbps');
+        $sheet->setCellValue('N1', 'Weekly Now In Bandwidth Mbps');
+        $sheet->setCellValue('O1', 'Weekly Now Out Bandwidth Mbps');
+        $sheet->setCellValue('P1', 'Monthly Max In Bandwidth Mbps');
+        $sheet->setCellValue('Q1', 'Monthly Max Out Bandwidth Mbps');
+        $sheet->setCellValue('R1', 'Monthly Avg In Bandwidth Mbps');
+        $sheet->setCellValue('S1', 'Monthly Avg Out Bandwidth Mbps');
+        $sheet->setCellValue('T1', 'Monthly Now In Bandwidth Mbps');
+        $sheet->setCellValue('U1', 'Monthly Now Out Bandwidth Mbps');
  
         $sheet->getStyle('B1')->getAlignment()->setWrapText(true);
         $sheet->getStyle('C1')->getAlignment()->setWrapText(true);

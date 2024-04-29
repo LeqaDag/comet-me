@@ -130,7 +130,7 @@ class InternetUserController extends Controller
                 ->get();
             $donors = Donor::where('is_archived', 0)
                 ->orderBy('donor_name', 'ASC')
-                ->get();
+                ->get(); 
     
             $dataApi = Http::get('http://185.190.140.86/api/data/');
             $clusterApi = Http::get('http://185.190.140.86/api/clusters/');
@@ -187,11 +187,11 @@ class InternetUserController extends Controller
             $internetClusters = InternetCluster::get();
 
             $data = DB::table('internet_metric_clusters')
-                ->join('internet_metrics', 'internet_metrics.id', '=', 'internet_metric_clusters.internet_metric_id')
-                ->join('internet_clusters', 'internet_clusters.id', '=', 'internet_metric_clusters.internet_cluster_id')
+                ->join('internet_metrics', 'internet_metrics.id', 'internet_metric_clusters.internet_metric_id')
+                ->join('internet_clusters', 'internet_clusters.id', 'internet_metric_clusters.internet_cluster_id')
                 ->where('internet_metric_clusters.total_unpaid', '!=', NULL)
                 ->select(
-                    'internet_metric_clusters.active_contracts',
+                    'internet_metric_clusters.total_contracts',
                     'internet_metric_clusters.total_unpaid',
                     'internet_metrics.date_from',
                     'internet_metrics.date_to',
@@ -199,7 +199,6 @@ class InternetUserController extends Controller
                     'internet_clusters.name as cluster_name'
                 )
                 ->get();
-
             
             // Group data by date and cluster
             $groupedData = [];
@@ -211,7 +210,7 @@ class InternetUserController extends Controller
 
                     if (!isset($groupedData[$period][$clusterName])) {
                         $groupedData[$period][$clusterName] = [
-                            'active_contracts' => 0,
+                            'total_contracts' => 0,
                             'total_unpaid' => 0,
                             'date_from' => $item->date_from,
                             'date_to' => $item->date_to,
@@ -219,7 +218,7 @@ class InternetUserController extends Controller
                     }
                 }
 
-                $groupedData[$period][$clusterName]['active_contracts'] += $item->active_contracts;
+                $groupedData[$period][$clusterName]['total_contracts'] += $item->total_contracts;
                 $groupedData[$period][$clusterName]['total_unpaid'] += $item->total_unpaid;
             }
 
@@ -229,11 +228,13 @@ class InternetUserController extends Controller
 
                 foreach ($clusterss as $clusterName => $values) {
 
-                    $totalContract = $values['active_contracts'];
+                    $totalContract = $values['total_contracts'];
+                    $unpaid = $values['total_unpaid'];
                     $unpaidPercentage = $totalContract != 0 ? ($values['total_unpaid'] / $totalContract) * 100 : 0;
     
                     $percentageData[$period][$clusterName] = [
-                        'active_contracts' => $totalContract,
+                        'total_unpaid' => $unpaid,
+                        'total_contracts' => $totalContract,
                         'unpaid_percentage' => $unpaidPercentage,
                         'date_from' => $values['date_from'],
                         'date_to' => $values['date_to'],
@@ -241,9 +242,53 @@ class InternetUserController extends Controller
                 }
             }
 
+            $unPaidData =  DB::table('internet_metric_clusters')
+                ->join('internet_metrics', 'internet_metrics.id', 'internet_metric_clusters.internet_metric_id')
+                ->whereNotNull('internet_metric_clusters.total_unpaid') 
+                ->select(
+                    DB::raw('SUM(internet_metric_clusters.total_contracts) as total_contracts'),
+                    DB::raw('SUM(internet_metric_clusters.total_unpaid) as total_unpaid'),
+                    'internet_metrics.date_from',
+                    'internet_metrics.date_to'
+                )
+                ->groupBy('internet_metrics.date_from')
+                ->get();
+
+            // Format the data for Chart.js
+            $labels = [];
+            $totalContractsData = [];
+            $totalUnpaidData = [];
+
+            foreach ($unPaidData as $data) {
+                $labels[] = $data->date_from;
+                $totalContractsData[] = $data->total_contracts;
+                $totalUnpaidData[] = $data->total_unpaid;
+            }
+
+            // Prepare data for chart
+            $chartData = [
+                'labels' => $labels,
+                'datasets' => [
+                    [
+                        'label' => 'Total Contracts',
+                        'data' => $totalContractsData,
+                        'backgroundColor' => 'rgba(54, 162, 235, 0.2)', 
+                        'borderColor' => 'rgba(54, 162, 235, 1)', 
+                        'borderWidth' => 1,
+                    ],
+                    [
+                        'label' => 'Unpaid Contracts',
+                        'data' => $totalUnpaidData,
+                        'backgroundColor' => 'rgba(255, 99, 132, 0.2)', 
+                        'borderColor' => 'rgba(255, 99, 132, 1)', 
+                        'borderWidth' => 1,
+                    ],
+                ],
+            ];
+
             return view('users.internet.index', compact('communities', 'donors', 'dataJson', 
                 'clustersJson', 'internetPercentage', 'allInternetPeople', 'activeInternetCommuntiiesCount',
-                'allContractHolders', 'allInternetUsersCounts', 'youngInternetHolders', 
+                'allContractHolders', 'allInternetUsersCounts', 'youngInternetHolders', 'chartData',
                 'communitiesInternet', 'InternetPublicCount', 'internetClusters', 'percentageData')
             );
              

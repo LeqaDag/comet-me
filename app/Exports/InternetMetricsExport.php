@@ -42,7 +42,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
 
         $metrics = json_decode($dataApi, true);
         $clusters = json_decode($clusterApi, true);
-        
+    
         // $lastRecord = InternetMetric::latest('created_at')->first();
         // $date_from = Carbon::parse($lastRecord->date_to)->addDay(1)->toDateString();
         // $date_to = Carbon::now()->toDateString();
@@ -54,8 +54,8 @@ class InternetMetricsExport implements FromCollection, WithTitle,
         // Calculate the difference in days (one week)
         $diffInDays = $date_from->diffInDays($date_to);
 
-        // Check if the difference is exactly one week (7 days)
-        $isOneWeek = $diffInDays === 7;
+        // Check if the difference two dates is exactly one week (7 days) or greater, but not more than 9 days
+        $isOneWeek = $diffInDays >= 7 && $diffInDays <= 9;
 
         if ($isOneWeek) {
             
@@ -134,6 +134,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                             $internetMetricCluster->source_of_connection = $cluster["isp"];
                             $internetMetricCluster->attached_communities = $cluster["attached_communities"];
                             $internetMetricCluster->active_contracts = $cluster["active_contracts"];
+                            $internetMetricCluster->total_contracts = $cluster["active_contracts"] + $cluster["expired_contracts"];
                             $internetMetricCluster->weekly_max_in = $cluster["weekly_max_in"];
                             $internetMetricCluster->weekly_max_out = $cluster["weekly_max_out"];
                             $internetMetricCluster->weekly_avg_in = $cluster["weekly_avg_in"];
@@ -161,6 +162,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                             $newMetricCluster->internet_cluster_id = $internetCluster->id;
                             $newMetricCluster->source_of_connection = $cluster["isp"];
                             $newMetricCluster->attached_communities = $cluster["attached_communities"];
+                            $newMetricCluster->total_contracts = $cluster["active_contracts"] + $cluster["expired_contracts"];
                             $newMetricCluster->active_contracts = $cluster["active_contracts"];
                             $newMetricCluster->weekly_max_in = $cluster["weekly_max_in"];
                             $newMetricCluster->weekly_max_out = $cluster["weekly_max_out"];
@@ -194,7 +196,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                             ->join('internet_clusters', 'internet_cluster_communities.internet_cluster_id', 'internet_clusters.id')
                             ->where('internet_users.is_archived', 0)
                             ->where('internet_clusters.id', $internetCluster->id)
-                            ->select(
+                            ->select( 
                                 'internet_clusters.name', 
                                 DB::raw('COUNT(internet_users.community_id) as user_count'),
                                 DB::raw('COUNT(CASE WHEN internet_users.paid = 1 THEN 1 END) as total_paid'),
@@ -208,6 +210,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                         $newMetricCluster->internet_cluster_id = $internetCluster->id;
                         $newMetricCluster->source_of_connection = $cluster["isp"];
                         $newMetricCluster->attached_communities = $cluster["attached_communities"];
+                        $newMetricCluster->total_contracts = $cluster["active_contracts"] + $cluster["expired_contracts"];
                         $newMetricCluster->active_contracts = $cluster["active_contracts"];
                         $newMetricCluster->weekly_max_in = $cluster["weekly_max_in"];
                         $newMetricCluster->weekly_max_out = $cluster["weekly_max_out"];

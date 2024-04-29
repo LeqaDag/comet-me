@@ -42,7 +42,7 @@ class EnergyMaintenanceLog implements FromCollection, WithHeadings, WithTitle, S
             ->join('regions', 'communities.region_id','regions.id')
             ->join('sub_regions', 'communities.sub_region_id','sub_regions.id')
             ->join('maintenance_types', 'electricity_maintenance_calls.maintenance_type_id', 
-               'maintenance_types.id')
+               'maintenance_types.id') 
             ->join('electricity_maintenance_call_actions', 'electricity_maintenance_calls.id', 
                 'electricity_maintenance_call_actions.electricity_maintenance_call_id')
             ->leftJoin('energy_maintenance_actions', 'energy_maintenance_actions.id',

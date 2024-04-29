@@ -17,7 +17,7 @@ class EnergyMgExtension implements FromCollection, WithHeadings, WithTitle, Shou
 
     protected $request;
 
-    function __construct($request) {
+    function __construct($request) { 
 
         $this->request = $request; 
     }

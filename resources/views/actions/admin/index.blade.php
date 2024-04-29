@@ -120,7 +120,7 @@
     </a>
 </h4>
 
-<div class="container">
+<div class="container" >
     <h6 class="py-3 breadcrumb-wrapper">
         <a data-toggle="collapse" class="text-warning" 
             href="#EnergyProjectFiles" 
@@ -131,7 +131,7 @@
         </a>
     </h6>
     
-    <div class="row overflow-hidden collapse multi-collapse container" id="EnergyProjectFiles">
+    <div class="row collapse multi-collapse container" id="EnergyProjectFiles">
         <div class="user-tasks">
             <div class="">
                 <form method="POST" enctype='multipart/form-data' 
@@ -153,7 +153,7 @@
                                 </select> 
                             </fieldset>
                         </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-4 col-lg-4 col-md-4" >
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Click Here</label>
                                 <button class="form-control btn-warning" type="submit">
@@ -165,13 +165,13 @@
                     </div>
                 </form>
             </div>
-            <div class="mb-4">
+            <div class="">
                 <form method="POST" enctype='multipart/form-data' 
                     action="{{ route('energy-cost.export') }}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-1 col-lg-1 col-md-1"></div>
-                        <div class="col-xl-3 col-lg-3 col-md-3">
+                        <div class="col-xl-3 col-lg-3 col-md-3" style="height: 180px;z-index: 200;">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Cycle Year</label>
                                 <select name="energy_cycle_id"

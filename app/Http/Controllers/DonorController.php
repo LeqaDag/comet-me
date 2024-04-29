@@ -98,6 +98,8 @@ class DonorController extends Controller
                                 $w->orWhere('communities.english_name', 'LIKE', "%$search%")
                                 ->orWhere('donors.donor_name', 'LIKE', "%$search%")
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('compounds.english_name', 'LIKE', "%$search%")
+                                ->orWhere('compounds.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('service_types.service_name', 'LIKE', "%$search%");
                             });
                         }

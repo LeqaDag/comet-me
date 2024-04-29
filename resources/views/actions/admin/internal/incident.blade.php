@@ -384,6 +384,68 @@
             </div>
         </div>
         
+        <hr>
+        <div class="card-body pb-0">
+            <h6 class="card-title mb-0">
+                <span class="align-middle">
+                    Incidents 
+                    <a data-toggle="collapse" class="text-dark" 
+                        href="#cameraIncidentStatusDetails" 
+                        aria-expanded="false" 
+                        aria-controls="cameraIncidentStatusDetails">
+                        <span class="badge rounded-pill bg-label-danger">Installed Cameras</span>
+                    </a>
+                </span>
+            </h6>
+            <div class="row overflow-hidden collapse multi-collapse container" id="cameraIncidentStatusDetails">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between 
+                        align-items-center ps-0 text-warning">
+                        <div>
+                            <span>In progress</span>
+                        </div>
+                        <div>
+                        @if(count($cameraIncidents) > 0)
+                            @php
+                                $modalCameraIncidentDetailsId = 'cameraIncidentInProgress';
+                                $incidentStatus = 6;
+                            @endphp
+                            <p>
+                                <a type="button" data-bs-toggle="modal" title="View Incidents"
+                                    data-bs-target="#{{$modalCameraIncidentDetailsId}}" class="btn btn-outline-warning">
+                                    
+                                    {{$cameraIncidents->where('internet_incident_status_id', 6)->count()}}
+                                </a>
+                            </p> 
+                            @include('actions.admin.internal.incident.camera_details')
+                        @endif
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between 
+                        align-items-center ps-0 text-warning">
+                        <div>
+                            <span>Not Retrieved</span>
+                        </div>
+                        <div>
+                        @if(count($cameraIncidents) > 0)
+                            @php
+                                $modalCameraIncidentDetailsId = 'cameraIncidentNotRetrieved';
+                                $incidentStatus = 1;
+                            @endphp
+                            <p>
+                                <a type="button" data-bs-toggle="modal" title="View Incidents"
+                                    data-bs-target="#{{$modalCameraIncidentDetailsId}}" class="btn btn-outline-warning">
+                                    
+                                    {{$cameraIncidents->where('internet_incident_status_id', 1)->count()}}
+                                </a>
+                            </p> 
+                            @include('actions.admin.internal.incident.camera_details')
+                        @endif
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
         <br>
         <div class="timeline-event-time">Incidents</div>
     </div>

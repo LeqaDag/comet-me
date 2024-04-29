@@ -141,7 +141,7 @@ class ActionItemUserController extends Controller
                         if(Auth::guard('user')->user()->user_type_id != 1 || 
                             Auth::guard('user')->user()->user_type_id != 2) 
                         {
-                                
+                                 
                             return $detailsButton." ". $updateButton." ".$deleteButton;
                         } else return $detailsButton; 
                     })
@@ -191,7 +191,7 @@ class ActionItemUserController extends Controller
                 ->make(true);
             }
     
-            return view('actions.users.action');
+            return view('actions.users.action.index');
             
         } else {
 
