@@ -575,8 +575,9 @@ class HomeController extends Controller
     public function showMainPage()
     { 
         $settings = Setting::get();
+        $teamMembers = User::get();
 
-        return view('welcome', compact('settings'));
+        return view('welcome', compact('settings', 'teamMembers'));
     }
 
     /**

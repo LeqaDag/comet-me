@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use App\Models\ActionItem; 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ActionItemReminderMail;
+use Carbon\Carbon;
 
 class SendEmailsBasedOnEndDate extends Command
 {
@@ -15,13 +16,15 @@ class SendEmailsBasedOnEndDate extends Command
 
     public function handle()
     {
-        // Your logic to check the end date and send email
-        $records = ActionItem::whereDate('due_date', today())->get();
+        // Check the end date and send email
+        $records = ActionItem::whereDate('due_date', today()) // Check for records due today
+            ->orWhereDate('due_date', Carbon::today()->addDay()) // Check for records due tomorrow
+            ->get();
 
         foreach ($records as $record) {
 
             $user = User::findOrFail($record->user_id);
-
+ 
             try {
                 $details = [
                     'title' => 'Your Action Item',

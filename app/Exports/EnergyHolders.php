@@ -50,7 +50,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
                     as exported_value'),
                 DB::raw('IFNULL(households.arabic_name, public_structures.arabic_name) 
-                    as exported_value_arabic'),
+                    as exported_value_arabic'), 
                 'all_energy_meters.is_main',
                 'installation_types.type', 'energy_system_cycles.name as cycle',
                 'communities.english_name as community_name',

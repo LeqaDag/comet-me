@@ -44,8 +44,11 @@ WithStyles
                 'internet_metrics.id')
             ->where('internet_users.is_archived', 0)
             ->whereRaw('internet_users.start_date BETWEEN ? AND ?', [$maxDateFrom, $maxDateTo])
+            ->where('internet_metrics.date_from', $maxDateFrom)
+            ->where('internet_metrics.date_to', $maxDateTo)
             ->select(
-                DB::raw('IFNULL(households.english_name, public_structures.english_name) as exported_value'),
+                DB::raw('COALESCE(households.english_name, households.arabic_name, 
+                    public_structures.english_name, public_structures.arabic_name) as exported_value'),
                 'communities.english_name as community_name',
                 'internet_clusters.name as cluster_name',
                 'internet_metrics.date_from', 'internet_metrics.date_to',

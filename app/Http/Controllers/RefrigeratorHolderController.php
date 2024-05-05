@@ -19,7 +19,7 @@ use App\Models\RefrigeratorHolder;
 use App\Models\RefrigeratorHolderReceiveNumber;
 use App\Exports\RefrigeratorExport;
 use App\Imports\ImportRefrigerator;
-use Carbon\Carbon;
+use Carbon\Carbon; 
 use Image;
 use DataTables;
 use Excel;
@@ -256,10 +256,21 @@ class RefrigeratorHolderController extends Controller
     public function edit($id) 
     {
         $refrigeratorHolder = RefrigeratorHolder::findOrFail($id);
-        $refrigeratorHolderNumber = RefrigeratorHolderReceiveNumber::where("refrigerator_holder_id", 
-            $id)->get();
+        $refrigeratorUsers = [];
 
-        return view('users.refrigerator.edit', compact('refrigeratorHolder', 'refrigeratorHolderNumber'));
+        if($refrigeratorHolder->household_id) $refrigeratorUsers = Household::where('is_archived', 0)
+            ->where('community_id', $refrigeratorHolder->community_id)
+            ->get();
+
+        if($refrigeratorHolder->public_structure_id) $refrigeratorUsers = PublicStructure::where('is_archived', 0)
+            ->where('community_id', $refrigeratorHolder->community_id)
+            ->where('comet_meter', 0)
+            ->get();
+
+        $refrigeratorHolderNumber = RefrigeratorHolderReceiveNumber::where("refrigerator_holder_id", 
+            $id)->get(); 
+
+        return view('users.refrigerator.edit', compact('refrigeratorHolder', 'refrigeratorHolderNumber', 'refrigeratorUsers'));
     }
 
     /**
@@ -274,6 +285,8 @@ class RefrigeratorHolderController extends Controller
         $refrigeratorHolderNumber = RefrigeratorHolderReceiveNumber::where("refrigerator_holder_id", 
             $id)->get();
 
+        if($request->household_id) $refrigeratorHolder->household_id = $request->household_id;
+        if($request->public_structure_id) $refrigeratorHolder->public_structure_id = $request->public_structure_id;
         $refrigeratorHolder->refrigerator_type_id = $request->refrigerator_type_id;
         $refrigeratorHolder->number_of_fridge = $request->number_of_fridge;
         $refrigeratorHolder->date = $request->date;

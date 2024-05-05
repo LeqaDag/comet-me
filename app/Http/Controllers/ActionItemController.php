@@ -758,6 +758,7 @@ class ActionItemController extends Controller
                 ->join('public_structures', 'public_structures.id', 
                     'all_energy_meters.public_structure_id')
                 ->whereNull('all_energy_meter_donors.all_energy_meter_id')
+                ->where('public_structures.comet_meter', 0)
                 ->select(
                     'communities.english_name', 'public_structures.english_name as public',
                     'energy_systems.name as energy_name', 'energy_system_types.name as type')

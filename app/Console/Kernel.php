@@ -7,6 +7,10 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+    protected $commands = [
+        Commands\RunInternetMetricsTask::class,
+    ];
+    
     /**
      * Define the application's command schedule.
      *
@@ -15,7 +19,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('send:emails')->daily();     
+        // this command for notifying the users for their action items. 
+        $schedule->command('send:emails')->daily();  
+        // this command for creating the internet metric report. 
+        $schedule->command('internet:metrics')->daily();    
     }
 
     /**

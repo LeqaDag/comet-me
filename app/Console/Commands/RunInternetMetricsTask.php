@@ -1,42 +1,24 @@
 <?php
 
-namespace App\Exports;
+namespace App\Console\Commands;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell; 
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use App\Models\Community;
-use App\Models\InternetUser;
-use App\Models\InternetCluster;
+use Carbon\Carbon;
 use App\Models\InternetMetric;
 use App\Models\InternetMetricCluster;
+use App\Models\InternetCluster;
 use App\Models\InternetClusterCommunity;
-use App\Models\Household;
-use Carbon\Carbon;
-use DB; 
+use Illuminate\Support\Facades\DB;
 
-class InternetMetricsExport implements FromCollection, WithTitle, 
-    WithStyles, WithCustomStartCell, WithMapping, ShouldAutoSize, WithColumnFormatting
+class RunInternetMetricsTask extends Command
 {
-    protected $request;
-    protected $query;
+    protected $signature = 'internet:metrics';
 
-    function __construct($request) {
+    protected $description = 'Update internet metrics';
 
-        $this->request = $request;
-    }
-
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function collection()
-    { 
+    public function handle()
+    {
         $dataApi = Http::get('http://185.190.140.86/api/data/');
         $clusterApi = Http::get('http://185.190.140.86/api/clusters/');
 
@@ -74,15 +56,9 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                 $exist->expire_contacts = $metrics[0]["total_accounts_expired_less_30_days"] + 
                     $metrics[0]["total_accounts_expired_over_30_days"];
                 $exist->sale_points = $metrics[0]["total_sale_points"];
-                $exist->total_cash = $metrics[0]["total_paid_cash"]; 
+                $exist->total_cash = $metrics[0]["total_cash_income"];
                 $exist->total_hotspot_communities = $metrics[0]["total_hotspot_communities"];
                 $exist->total_broadband_communities = $metrics[0]["total_broadband_communities"];
-                $exist->hotspot_expire_users = $metrics[0]["hotspot_expire_users"];
-                $exist->ppp_total_users = $metrics[0]["ppp_total_users"];
-                $exist->hotspot_total_users = $metrics[0]["hotspot_total_users"];
-                $exist->hotspot_active_users = $metrics[0]["hotspot_active_users"];
-                $exist->ppp_expire_users = $metrics[0]["ppp_expire_users"];
-                $exist->ppp_active_users = $metrics[0]["ppp_active_users"];
                 $exist->save();
 
             } else {
@@ -100,15 +76,9 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                 $internetMetric->expire_contacts = $metrics[0]["total_accounts_expired_less_30_days"] + 
                     $metrics[0]["total_accounts_expired_over_30_days"];
                 $internetMetric->sale_points = $metrics[0]["total_sale_points"];
-                $internetMetric->total_cash = $metrics[0]["total_paid_cash"];
+                $internetMetric->total_cash = $metrics[0]["total_cash_income"];
                 $internetMetric->total_hotspot_communities = $metrics[0]["total_hotspot_communities"];
                 $internetMetric->total_broadband_communities = $metrics[0]["total_broadband_communities"];
-                $internetMetric->hotspot_expire_users = $metrics[0]["hotspot_expire_users"];
-                $internetMetric->ppp_total_users = $metrics[0]["ppp_total_users"];
-                $internetMetric->hotspot_total_users = $metrics[0]["hotspot_total_users"];
-                $internetMetric->hotspot_active_users = $metrics[0]["hotspot_active_users"];
-                $internetMetric->ppp_expire_users = $metrics[0]["ppp_expire_users"];
-                $internetMetric->ppp_active_users = $metrics[0]["ppp_active_users"];
                 $internetMetric->save();
             }
         
@@ -139,6 +109,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                                 )
                                 ->groupBy('internet_cluster_communities.internet_cluster_id')
                                 ->first();
+                            
                             
                         if($internetMetricCluster) {
                         
@@ -193,7 +164,6 @@ class InternetMetricsExport implements FromCollection, WithTitle,
                                 $newMetricCluster->total_paid = $userCountsByCluster->total_paid;
                                 $newMetricCluster->total_unpaid = $userCountsByCluster->total_un_paid;
                             }
-                            
                             $newMetricCluster->save();
                         }
 
@@ -251,157 +221,6 @@ class InternetMetricsExport implements FromCollection, WithTitle,
             
         }
 
-        $data = DB::table('internet_metrics');
-
-        $this->query = $data->get();
-
-        return $data->get();
-    }
-
-    /**
-     * Start Cell
-     *
-     * @return response()
-     */
-    public function startCell(): string
-    {
-        return 'B2';
-    }
-
-    /**
-     * Values
-     *
-     * @return response()
-     */
-    public function map($row): array
-    {
-        return [
-            $row->active_community,
-            $row->inactive_community,
-            $row->total_hotspot_communities,
-            $row->total_broadband_communities,
-            $row->total_contracts,
-            $row->active_contracts,
-            $row->hotspot_total_users,
-            $row->ppp_total_users,
-            $row->hotspot_active_users,
-            $row->ppp_active_users,
-            $row->expire_contacts,
-            $row->expire_contacts_over_month,
-            $row->expire_contacts_less_month,
-            $row->hotspot_expire_users,
-            $row->ppp_expire_users,
-            $row->sale_points,
-            $row->total_cash
-        ];
-    }
-
-    /**
-     * Title
-     *
-     * @return response()
-     */
-    public function title(): string
-    {
-        return 'Metrics Report';
-    }
-
-    /**
-     * Column
-     *
-     * @return response()
-     */
-    public function columnFormats(): array
-    {
-        return [
-            'A' => '@', // Set the text wrapping for column A
-            // Add more columns and formats as needed
-        ];
-    }
-
-    /**
-     * Styling
-     *
-     * @return response()
-     */
-    public function styles(Worksheet $sheet)
-    {
-        $sheet->setAutoFilter('A1:R1');
-
-        $sheet->setCellValue('A1', 'Details');
-        $sheet->setCellValue('B1', 'Active Communities');
-        $sheet->setCellValue('C1', 'Inactive Communities (without subscriptions)');
-        $sheet->setCellValue('D1', 'Total Hotspot Communities');
-        $sheet->setCellValue('E1', 'Total Broadband Communities');
-        $sheet->setCellValue('F1', 'Total Family Contracts');
-        $sheet->setCellValue('G1', 'Active Contracts (With 150 shekel upfront or vending visit)');
-        $sheet->setCellValue('H1', 'Total Hotspot Contracts');
-        $sheet->setCellValue('I1', 'Total Broadband Contracts');
-        $sheet->setCellValue('J1', 'Total Hotspot Active Contracts');
-        $sheet->setCellValue('K1', 'Total Broadband Active Contracts');
-        $sheet->setCellValue('L1', 'Expire Contracts');
-        $sheet->setCellValue('M1', 'Inactive Contracts (Exceeding 30 days without vending visit)');
-        $sheet->setCellValue('N1', 'Contracts (Ended within 30 days & not renewed)');
-        $sheet->setCellValue('O1', 'Hotspot Expire Contracts');
-        $sheet->setCellValue('P1', 'Broadband Expire Contracts');
-        $sheet->setCellValue('Q1', 'Number of Vending Points');
-        $sheet->setCellValue('R1', 'Total vending points debt');
-
-        $sheet->getStyle('B1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('C1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('D1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('E1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('F1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('G1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('H1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('I1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('J1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('K1')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('L1')->getAlignment()->setWrapText(true); 
-        $sheet->getStyle('M1')->getAlignment()->setWrapText(true); 
-        $sheet->getStyle('N1')->getAlignment()->setWrapText(true); 
-        $sheet->getStyle('O1')->getAlignment()->setWrapText(true); 
-        $sheet->getStyle('P1')->getAlignment()->setWrapText(true); 
-        $sheet->getStyle('Q1')->getAlignment()->setWrapText(true); 
-        $sheet->getStyle('P1')->getAlignment()->setWrapText(true); 
-        $sheet->getStyle('Q1')->getAlignment()->setWrapText(true); 
-        $sheet->getStyle('R1')->getAlignment()->setWrapText(true); 
-
-        $sheet->getColumnDimension('B')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('C')->setAutoSize(false)->setWidth(35);
-        $sheet->getColumnDimension('D')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('E')->setAutoSize(false)->setWidth(35);
-        $sheet->getColumnDimension('F')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('G')->setAutoSize(false)->setWidth(35);
-        $sheet->getColumnDimension('H')->setAutoSize(false)->setWidth(35);
-        $sheet->getColumnDimension('I')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('J')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('L')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('M')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('N')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('O')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('P')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('Q')->setAutoSize(false)->setWidth(30);
-        $sheet->getColumnDimension('R')->setAutoSize(false)->setWidth(30);
-
-        for ($i=0; $i < count($this->query); $i++) { 
-
-            $sheet->setCellValue('A'.$i+2, "Count / Value (". $this->query[$i]->date_from. 
-                " to ". $this->query[$i]->date_to. " )");
-        }
-
-        $range = 'A1:' . $sheet->getHighestColumn() . $sheet->getHighestRow();
-
-        return [
-            // Style the first row as bold text.
-            1    => ['font' => ['bold' => true, 'size' => 12]],
-            $range => [
-                'alignment' => [
-                    'horizontal' => 'center',
-                    'vertical' => 'center',
-                ],
-            ],
-        ];
+        $this->info('Internet metrics updated successfully!');
     }
 }

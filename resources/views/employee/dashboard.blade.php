@@ -639,7 +639,7 @@ function ClearMapView() {
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(drawChart);
       
-    var options = {
+    var options = { 
         curveType: 'function',
         legend: { position: 'bottom' },
         vAxis: {format: '0000'},

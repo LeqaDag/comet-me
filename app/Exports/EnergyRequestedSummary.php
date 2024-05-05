@@ -16,7 +16,7 @@ use DB;
 class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSize, 
     WithStyles, WithEvents,WithCustomStartCell
 {
-    private $misc = 0;
+    private $misc = 0, $activateMisc = 0;
 
     protected $request; 
 
@@ -94,6 +94,17 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('energy_request_systems.recommendede_energy_system_id', 2)
             ->where('households.energy_system_cycle_id', '!=', null);
 
+        $this->activateMisc = DB::table('households')
+            //->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
+            ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+            ->join('communities', 'communities.id', 'all_energy_meters.community_id')
+            ->where('households.is_archived', 0)
+            ->where('households.household_status_id', 4) 
+            ->where('all_energy_meters.energy_system_type_id', 2)
+            ->where('households.energy_system_cycle_id', '!=', null)
+            ->whereNull('communities.energy_system_cycle_id')
+            ->where('all_energy_meters.meter_case_id', 1)
+            ->select('communities.english_name', 'households.english_name as household');
 
         if($this->request->community_id) {
  
@@ -108,11 +119,13 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             $queryCommunities->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
             $queryCompounds->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
             $this->misc->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
+            $this->activateMisc->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
         }
 
         $communitiesCollection = collect($queryCommunities->get());
         $compoundsCollection = collect($queryCompounds->get());
         $this->misc = $this->misc->count();
+        $this->activateMisc = $this->activateMisc->count();
 
         return $compoundsCollection->merge($communitiesCollection);
     } 
@@ -163,6 +176,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->setCellValue('A2', 'MISC FBS -- "Requested Systems"');     
         $sheet->setCellValue('B2', ' ');     
         $sheet->setCellValue('C2', $this->misc);
+        $sheet->setCellValue('I2', $this->activateMisc);
 
         return [
             // Style the first row as bold text.

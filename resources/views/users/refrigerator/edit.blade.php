@@ -17,7 +17,7 @@ label {
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> 
     @if($refrigeratorHolder->household_id)
-
+ 
         {{$refrigeratorHolder->Household->english_name}}
     @else @if($refrigeratorHolder->public_structure_id)
 
@@ -52,14 +52,30 @@ label {
                         @if($refrigeratorHolder->household_id)
 
                             <label class='col-md-12 control-label'>User</label>
-                            <input type="text" value="{{$refrigeratorHolder->Household->english_name}}" 
-                                class="form-control" disabled>
+                            <select class="selectpicker form-control" name="household_id" data-live-search="true">
+                                <option value="{{$refrigeratorHolder->Household->english_name}}" disabled selected>
+                                    {{$refrigeratorHolder->Household->english_name}}
+                                </option>
+                                @foreach($refrigeratorUsers as $refrigeratorUser)
+                                    <option value="{{$refrigeratorUser->id}}">
+                                        {{$refrigeratorUser->english_name}}
+                                    </option>
+                                @endforeach  
+                            </select>
                             
                         @else @if($refrigeratorHolder->public_structure_id)
 
                             <label class='col-md-12 control-label'>Public</label>
-                            <input type="text" value="{{$refrigeratorHolder->PublicStructure->english_name}}" 
-                                class="form-control" disabled>
+                            <select class="selectpicker form-control" name="public_structure_id" data-live-search="true">
+                                <option value="{{$refrigeratorHolder->PublicStructure->english_name}}" disabled selected>
+                                    {{$refrigeratorHolder->PublicStructure->english_name}}
+                                </option>
+                                @foreach($refrigeratorUsers as $refrigeratorUser)
+                                    <option value="{{$refrigeratorUser->id}}">
+                                        {{$refrigeratorUser->english_name}}
+                                    </option>
+                                @endforeach  
+                            </select>
                         @endif
                         @endif
                         </fieldset>
