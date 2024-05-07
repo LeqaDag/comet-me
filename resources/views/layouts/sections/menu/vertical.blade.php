@@ -18,7 +18,7 @@
     <li class="menu-item" id="work-plans">
         <a href="{{url('work-plan')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-list-check"></i>
-            <div>Work Plans</div>
+            <div>Action Items</div>
         </a>
     </li>
     @endif
@@ -26,7 +26,7 @@
     <li class="menu-item" id="action-items">
         <a href="{{url('action-item')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-task"></i>
-            <div>Action Items / Project Plans</div>
+            <div>Project Plans</div>
         </a>
     </li>
 
@@ -49,23 +49,30 @@
                     <div>All</div>
                 </a>
             </li>
-            <li class="menu-item" id="initial-community">
-                <a href="{{url('initial-community')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Initial Survey</div>
-                </a>
-            </li>
-            <li class="menu-item" id="ac-community">
-                <a href="{{url('ac-community')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>AC Survey</div>
-                </a>
-            </li>
             <li class="menu-item" id="served-community">
                 <a href="{{url('served-community')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Served</div>
                 </a>
+            </li>
+            <li class="menu-item" id="in_progress_communities">
+                <a class="menu-link menu-toggle">
+                    <div>In Progress</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="initial-community">
+                        <a href="{{url('initial-community')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Initial Survey</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="ac-community">
+                        <a href="{{url('ac-community')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>AC in Progress</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="menu-item" id="representative">
                 <a href="{{url('representative')}}" class="menu-link" >
@@ -124,7 +131,7 @@
                     <li class="menu-item" id="ac-household">
                         <a href="{{url('ac-household')}}" class="menu-link" >
                             <i class=""></i>
-                            <div>AC Survey</div>
+                            <div>AC Survey Completed</div>
                         </a>
                     </li> 
                     <li class="menu-item" id="progress-household">
@@ -620,12 +627,15 @@
     } else if(last_part == "initial-community") {
 
         $("#initial-community").addClass("active");
+        $("#in_progress_communities").addClass("active");
         $("#communities").addClass("open");
+        $("#in_progress_communities").addClass("open");
     } else if(last_part == "ac-community") {
 
         $("#ac-community").addClass("active");
+        $("#in_progress_communities").addClass("active");
         $("#communities").addClass("open");
-
+        $("#in_progress_communities").addClass("open");
     } else if(last_part == "served-community") {
 
         $("#served-community").addClass("active");

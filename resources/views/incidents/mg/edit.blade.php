@@ -85,7 +85,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Incident Type</label>
-                            <select name="incident_id" class="form-control">
+                            <select name="incident_id" class="form-control" id="incidentMgType">
                                 @if($mgIncident->incident_id)
                                     <option value="{{$mgIncident->incident_id}}">
                                         {{$mgIncident->Incident->english_name}}
@@ -149,6 +149,60 @@
                     </div>
                 </div>
 
+                @if($mgIncident->incident_id == 4)
+                <div id="swoDiv">
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Order Number</label>
+                                <input type="number" name="order_number" class="form-control"
+                                    value="{{$mgIncident->order_number}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Order Date</label>
+                                <input type="date" name="order_date" class="form-control"
+                                    value="{{$mgIncident->order_date}}">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Geolocation Lat</label>
+                                <input type="text" name="geolocation_lat" class="form-control"
+                                value="{{$mgIncident->geolocation_lat}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Geolocation Long</label>
+                                <input type="text" name="geolocation_long" class="form-control"
+                                value="{{$mgIncident->geolocation_long}}">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Date of hearing</label>
+                                <input type="date" name="hearing_date" class="form-control"
+                                value="{{$mgIncident->hearing_date}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-12 col-lg-12 col-md-12">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Description of structure</label>
+                                <textarea name="structure_description" class="form-control" 
+                                    style="resize:none" cols="20" rows="3">
+                                    {{$mgIncident->structure_description}}
+                                </textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                @endif
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
@@ -348,6 +402,21 @@
 </div>
 
 <script>
+
+    $(document).on('change', '#incidentMgType', function () {
+
+        incident_type_id = $(this).val();
+
+        if(incident_type_id == 4)  {
+
+            $("#swoDiv").css("display", "block");
+            $("#swoDiv").css("visiblity", "visible");
+        } else {
+
+            $("#swoDiv").css("display", "none");
+            $("#swoDiv").css("visiblity", "none");
+        }
+    });
 
     $(document).on('change', '#fbsSelectedCommuntiy', function () {
 

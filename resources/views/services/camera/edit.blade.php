@@ -114,7 +114,7 @@ label, table {
                                         data-id="{{$communityCameraType->id}}">
                                         <i class="fa fa-trash text-danger"></i>
                                     </a>
-                                </td
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -210,18 +210,25 @@ label, table {
                             @foreach($communityNvrTypes as $communityNvrType)
                             <tr id="communityNvrTypesRow">
                                 <td class="text-center">
-                                    {{$communityNvrType->NvrCamera->model}}
+                                    {{$communityNvrType->NvrCamera->model}} / 
+                                    <span class="text-info">{{$communityNvrType->number}} </span>
+                                </td>
+                                <td class="text-center" id="existingIpAddressNvr_{{$communityNvrType->id}}">
+                                    <input type="text" class="ipAddressNvr form-control" data-id="{{$communityNvrType->id}}"
+                                        value="{{$communityNvrType->ip_address}}" placeholder="Enter IP Address">
                                 </td>
                                 <td class="text-center">
-                                    {{$communityNvrType->number}}
-                                </td>
-                                <td class="text-center">
+                                    <a class="btn updateCommunityNvrCamera" 
+                                        id="updateCommunityNvrCamera"
+                                        data-id="{{$communityNvrType->id}}">
+                                        <i class="fa fa-pen text-info"></i>
+                                    </a>
                                     <a class="btn deleteCommunityNvrCamera" 
                                         id="deleteCommunityNvrCamera"
                                         data-id="{{$communityNvrType->id}}">
                                         <i class="fa fa-trash text-danger"></i>
                                     </a>
-                                </td
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -235,6 +242,7 @@ label, table {
                                 <tr>
                                     <th>NVR Model</th>
                                     <th># of NVR</th>
+                                    <th>IP Address</th>
                                     <th>Options</th>
                                 </tr>
                                 <tr> 
@@ -253,6 +261,11 @@ label, table {
                                         <input type="text" name="addMoreInputFieldsNvrNumber[0][subject]" 
                                         placeholder="# of NVR" class="target_point form-control" 
                                         data-id="0"/>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="addMoreInputFieldsNvrIpAddress[0][subject]" 
+                                        placeholder="IP Address" class="target_point form-control" 
+                                        data-id="0" />
                                     </td>
                                     <td>
                                         <button type="button" name="add" id="addNvrForCommunityButton" 
@@ -275,6 +288,7 @@ label, table {
                                 <tr>
                                     <th>NVR Model</th>
                                     <th># of NVR</th>
+                                    <th>IP Address</th>
                                     <th>Options</th>
                                 </tr>
                                 <tr> 
@@ -293,6 +307,11 @@ label, table {
                                         <input type="text" name="addMoreInputFieldsNvrNumber[0][subject]" 
                                         placeholder="# of NVR" class="target_point form-control" 
                                         data-id="0"/>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="addMoreInputFieldsNvrIpAddress[0][subject]" 
+                                        placeholder="IP Address" class="target_point form-control" 
+                                        data-id="0" />
                                     </td>
                                     <td>
                                         <button type="button" name="add" id="addNvrForCommunityButton" 
@@ -497,6 +516,38 @@ $(document).ready(function() {
         });
     });
 
+    // add ip address for nvr
+    $('.ipAddressNvr').change(function () {
+
+        var id = $(this).data('id');
+        var ip_address = $(this).val();
+
+        $.ajax({
+            type: 'POST',
+            url: "/camera/update_ip",
+            data: {
+                id: id,
+                ip_address: ip_address,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'IP Address updated successfully!',
+                    showDenyButton: false,
+                    showCancelButton: false,
+                    confirmButtonText: 'Okay!'
+                }).then((result) => {
+                    
+                });
+            },
+            error: function (error) {
+                // Handle error, if needed
+                console.error(error);
+            }
+        });
+    });
+
     // Add More Cameras
     var j = 0;
     const cameras = {!! json_encode($cameras) !!};
@@ -541,9 +592,11 @@ $(document).ready(function() {
         $("#dynamicAddRemoveNvr").append('<tr><td><select class="selectpicker form-control"' + 
             'data-live-search="true" name="nvr_id[]">' + options +
             '</select></td><td>' +
-            '<input type="text"' +
+            '<input required type="text"' +
             'name="addMoreInputFieldsNvrNumber[][subject]" placeholder="# of NVR"' +
-            'class="target_point form-control" data-id="'+ i +'" /></td><td><button type="button"' +
+            'class="target_point form-control" data-id="'+ i +'" /></td><td><input type="text"'+ 
+            'name="addMoreInputFieldsNvrIpAddress[][subject]" placeholder="IP Address"'+
+            'data-id="'+ i +'" class="target_point form-control"></td><td><button type="button"' +
             'class="btn btn-outline-danger remove-input-field-nvr">Delete</button></td>' +
             '</tr>'
         );

@@ -42,7 +42,7 @@
                         @foreach($missingCommunityDonors as $missingCommunityDonor)
                             <li class="d-flex list-group-item list-group-item-warning"
                                 style="margin-top:9px">
-                                <?php
+                                <?php 
                                     $missingEnergyUserDonors = DB::table('all_energy_meters')
                                     ->join('households', 'all_energy_meters.household_id', 
                                         'households.id')

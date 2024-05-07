@@ -18,7 +18,7 @@ use App\Models\EnergyDonor;
 use App\Models\EnergySystem;
 use App\Models\Household;
 use App\Models\HouseholdMeter;
-use App\Models\MgIncident;
+use App\Models\MgIncident; 
 use App\Models\Incident;
 use App\Models\IncidentEquipment;
 use App\Models\IncidentStatusMgSystem;
@@ -195,6 +195,16 @@ class MgIncidentController extends Controller
         $mgIncident->incident_status_mg_system_id = $request->incident_status_mg_system_id;
         $mgIncident->response_date = $request->response_date;
         $mgIncident->notes = $request->notes;
+        if($request->incident_id == 4) {
+
+            $mgIncident->order_number = $request->order_number;
+            $mgIncident->order_date = $request->order_date;
+            $mgIncident->geolocation_lat = $request->geolocation_lat;
+            $mgIncident->geolocation_long = $request->geolocation_long;
+            $mgIncident->hearing_date = $request->hearing_date;
+            $mgIncident->structure_description = $request->structure_description;
+        }
+
         $mgIncident->save();
 
         if($request->incident_equipment_id) {
@@ -368,6 +378,16 @@ class MgIncidentController extends Controller
         $mgIncident->incident_status_mg_system_id = $request->incident_status_mg_system_id;
         $mgIncident->response_date = $request->response_date;
         $mgIncident->notes = $request->notes;
+        if($request->incident_id == 4) {
+
+            $mgIncident->order_number = $request->order_number;
+            $mgIncident->order_date = $request->order_date;
+            $mgIncident->geolocation_lat = $request->geolocation_lat;
+            $mgIncident->geolocation_long = $request->geolocation_long;
+            $mgIncident->hearing_date = $request->hearing_date;
+            $mgIncident->structure_description = $request->structure_description;
+        }
+        
         $mgIncident->save();
 
         if($request->new_equipment) {

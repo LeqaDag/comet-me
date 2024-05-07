@@ -12,7 +12,6 @@ label, table {
     }
 </style>
 
-
 <div id="createMgIncident" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -125,6 +124,52 @@ label, table {
                         </div>
                     </div>
 
+                    <div id="swoDiv" style="display:none; visiblity: none">
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Order Number</label>
+                                    <input type="number" name="order_number" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Order Date</label>
+                                    <input type="date" name="order_date" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Geolocation Lat</label>
+                                    <input type="text" name="geolocation_lat" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Geolocation Long</label>
+                                    <input type="text" name="geolocation_long" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Date of hearing</label>
+                                    <input type="date" name="hearing_date" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-12 col-lg-12 col-md-12">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Description of structure</label>
+                                    <textarea name="structure_description" class="form-control" 
+                                        style="resize:none" cols="20" rows="3"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
@@ -192,6 +237,16 @@ label, table {
     $(document).on('change', '#incidentMgType', function () {
         incident_type_id = $(this).val();
 
+        if(incident_type_id == 4)  {
+
+            $("#swoDiv").css("display", "block");
+            $("#swoDiv").css("visiblity", "visible");
+        } else {
+
+            $("#swoDiv").css("display", "none");
+            $("#swoDiv").css("visiblity", "none");
+        }
+
         $.ajax({
             url: "mg-incident/get_by_type/" + incident_type_id,
             method: 'GET',
@@ -213,7 +268,7 @@ label, table {
             var energyValue = $('#energySystemMgIncident').val();
             var incidentTypeValue = $('#incidentMgType').val();
             var incidentStatusValue = $('#incidentMgStatus').val();
-            var equipmentValue = $('#equipmentDamaged').val();
+            //var equipmentValue = $('#equipmentDamaged').val();
 
             if (communityValue == null) {
 
@@ -251,21 +306,21 @@ label, table {
                 $('#incident_status_mg_system_id_error').empty();
             }
 
-            if (!equipmentValue || equipmentValue.length === 0) {
+            // if (!equipmentValue || equipmentValue.length === 0) {
 
-                $('#incident_equipment_id_error').html('Please select at least one equipment!');
-                return false;
-            } else {
+            //     $('#incident_equipment_id_error').html('Please select at least one equipment!');
+            //     return false;
+            // } else {
 
-                $('#incident_equipment_id_error').empty();
-            }
+            //     $('#incident_equipment_id_error').empty();
+            // }
 
             $(this).addClass('was-validated');  
             $('#energy_system_id_error').empty(); 
             $('#community_id_error').empty();
             $('#incident_id_error').empty();
             $('#incident_status_mg_system_id_error').empty();
-            $('#incident_equipment_id_error').empty();
+            //$('#incident_equipment_id_error').empty();
 
             this.submit();
         });

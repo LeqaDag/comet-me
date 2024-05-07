@@ -55,7 +55,7 @@ class InternetMetricsExport implements FromCollection, WithTitle,
         $diffInDays = $date_from->diffInDays($date_to);
 
         // Check if the difference two dates is exactly one week (7 days) or greater, but not more than 9 days
-        $isOneWeek = $diffInDays >= 7 && $diffInDays <= 9;
+        $isOneWeek = $diffInDays >= 7 && $diffInDays <= 11;
 
         if ($isOneWeek) {
             

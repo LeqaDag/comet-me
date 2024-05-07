@@ -1,3 +1,6 @@
+<meta charset="utf-8">
+
+
 <link rel="stylesheet" href="{{asset('assets/vendor/css/pages/ui-carousel.css')}}" />
 <style>
     .dropdown-toggle{

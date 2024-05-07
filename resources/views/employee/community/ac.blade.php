@@ -56,8 +56,8 @@
             columns: [
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
-                {data: 'number_of_people', name: 'number_of_people'},
-                {data: 'name', name: 'name'},
+                {data: 'number_of_household', name: 'number_of_household'},
+                {data: 'name', name: 'name'}, 
                 {data: 'subname', name: 'subname'},
                 {data: 'action'}
             ]

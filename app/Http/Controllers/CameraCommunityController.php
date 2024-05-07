@@ -19,7 +19,7 @@ use App\Models\CameraCommunityPhoto;
 use App\Models\Camera;
 use App\Models\NvrCamera;
 use App\Models\Region;
-use App\Models\Household;
+use App\Models\Household; 
 use App\Models\SubRegion;
 use App\Models\Repository;
 use App\Exports\CameraCommunityExport;
@@ -148,6 +148,7 @@ class CameraCommunityController extends Controller
             'camera_id.*' => 'required',
             'addMoreInputFieldsCameraNumber.*.subject' => 'required',
             'addMoreInputFieldsNvrNumber.*.subject' => 'required',
+            'addMoreInputFieldsNvrIpAddress.*.subject' => 'required',
         ]);
 
         $cameraCommunity = new CameraCommunity();
@@ -177,6 +178,7 @@ class CameraCommunityController extends Controller
             $nvrCommunityType = new NvrCommunityType(); 
             $nvrCommunityType->nvr_camera_id = $cameraNvrId;
             $nvrCommunityType->camera_community_id = $cameraCommunity->id;
+            $nvrCommunityType->ip_address = $validatedData['addMoreInputFieldsNvrIpAddress'][$index]['subject'];
             $nvrCommunityType->number = $validatedData['addMoreInputFieldsNvrNumber'][$index]['subject'];
             $nvrCommunityType->save();
         }
@@ -302,12 +304,14 @@ class CameraCommunityController extends Controller
             $validatedData = $request->validate([
                 'nvr_id.*' => 'required',
                 'addMoreInputFieldsNvrNumber.*.subject' => 'required',
+                'addMoreInputFieldsNvrIpAddress.*.subject' => 'required',
             ]);
 
             foreach ($validatedData['nvr_id'] as $index => $cameraNvrId) {
                 $nvrCommunityType = new NvrCommunityType(); 
                 $nvrCommunityType->nvr_camera_id = $cameraNvrId;
                 $nvrCommunityType->camera_community_id = $cameraCommunity->id;
+                $nvrCommunityType->ip_address = $validatedData['addMoreInputFieldsNvrIpAddress'][$index]['subject'];
                 $nvrCommunityType->number = $validatedData['addMoreInputFieldsNvrNumber'][$index]['subject'];
                 $nvrCommunityType->save();
             }
@@ -348,6 +352,24 @@ class CameraCommunityController extends Controller
         }
 
         return redirect('/camera')->with('message', 'Installed Camera Updated Successfully!');
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateIpAddress(Request $request)
+    {
+        $id = $request->input('id');
+        $ip_address = $request->input('ip_address');
+
+        $nvrCommunityType = NvrCommunityType::findOrFail($id);
+        $nvrCommunityType->ip_address = $ip_address;
+        $nvrCommunityType->save();
+
+        return response()->json(['success' => true]);
     }
 
     /**

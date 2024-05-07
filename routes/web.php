@@ -407,6 +407,7 @@ Route::get('/delete-camera-type', [App\Http\Controllers\CameraCommunityControlle
 Route::get('/delete-nvr-camera-type', [App\Http\Controllers\CameraCommunityController::class, 'deleteCommunityNvrCamera'])->name('deleteCommunityNvrCamera');
 Route::get('/delete-community-camera-photo', [App\Http\Controllers\CameraCommunityController::class, 'deleteCommunityCameraPhoto'])->name('deleteCommunityCameraPhoto');
 Route::post('camera-export', [App\Http\Controllers\CameraCommunityController::class, 'export'])->name('camera.export');
+Route::post('camera/update_ip', [App\Http\Controllers\CameraCommunityController::class, 'updateIpAddress']);
 
 Route::resource('displaced-community', App\Http\Controllers\DisplacedCommunityController::class);
 

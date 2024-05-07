@@ -79,7 +79,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 1 THEN households.id END) as sum_MG'),
                 DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 4 THEN households.id END) as sum_SMG'),
                 'grid_community_compounds.electricity_room',
-                'grid_community_compounds.grid',
+                'grid_community_compounds.grid', 
                 DB::raw('COUNT(DISTINCT CASE WHEN households.household_status_id = 3 THEN households.id END) as sum_AC'),
                 DB::raw('COUNT(DISTINCT CASE WHEN households.household_status_id = 3 
                     AND all_energy_meters.meter_case_id = 1 THEN 1 END) as sum_DC'), 

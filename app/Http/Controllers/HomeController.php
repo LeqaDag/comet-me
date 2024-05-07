@@ -44,6 +44,7 @@ use App\Models\MgIncident;
 use App\Models\IncidentStatusMgSystem;
 use App\Models\InternetUser;
 use App\Models\MeterList;
+use App\Models\HomePhoto;
 use App\Models\WaterNetworkUser;
 use Auth;
 use Route;
@@ -576,8 +577,9 @@ class HomeController extends Controller
     { 
         $settings = Setting::get();
         $teamMembers = User::get();
+        $images = HomePhoto::get();
 
-        return view('welcome', compact('settings', 'teamMembers'));
+        return view('welcome', compact('settings', 'teamMembers', 'images'));
     }
 
     /**

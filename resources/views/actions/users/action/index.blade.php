@@ -174,6 +174,7 @@
                             <th>Task</th>
                             <th>Status</th>
                             <th>Priority</th>
+                            <th>Task Creation Date</th>
                             <th>Options</th>
                         </tr>
                     </thead>
@@ -225,6 +226,7 @@
                 {data: 'task', name: 'task'},
                 {data: 'statusLabel'},
                 {data: 'priorityLabel'},
+                {data: 'created_at', name: 'created_at'},
                 {data: 'action'}
             ]
             

@@ -138,8 +138,14 @@
                     action="{{ route('energy-request.export') }}">
                     @csrf
                     <div class="row">
-                        <div class="col-xl-1 col-lg-1 col-md-1"></div>
-                        <div class="col-xl-3 col-lg-3 col-md-3">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Export</label>
+                                <input type="text" class="form-control" disabled
+                                value="Energy Installation Progress Report"> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Cycle Year</label>
                                 <select name="energy_cycle_id"
@@ -170,8 +176,14 @@
                     action="{{ route('energy-cost.export') }}">
                     @csrf
                     <div class="row">
-                        <div class="col-xl-1 col-lg-1 col-md-1"></div>
-                        <div class="col-xl-3 col-lg-3 col-md-3" style="height: 180px;z-index: 200;">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Export</label>
+                                <input type="text" class="form-control" disabled
+                                value="Energy Installation Cost File"> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4" style="height: 180px;z-index: 200;">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Cycle Year</label>
                                 <select name="energy_cycle_id"
@@ -216,13 +228,20 @@
                 action="{{ route('internet-user.export') }}">
                 @csrf
                 <div class="row">
-                    <div class="col-xl-1 col-lg-1 col-md-1"></div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                        <button class="form-control btn-success" type="submit">
-                            <i class='fa-solid fa-file-excel'></i>
-                            Export Internet Metrics Report File
-                        </button>
+                            <label class='col-md-12 control-label'>Export</label>
+                            <input type="text" class="form-control" disabled
+                            value="Internet Metrics Report File"> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Click Here</label>
+                            <button class="form-control btn-success" type="submit">
+                                <i class='fa-solid fa-file-excel'></i>
+                                Export Internet Metrics Report File
+                            </button>
                         </fieldset>
                     </div>
                 </div>

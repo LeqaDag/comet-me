@@ -120,11 +120,12 @@ class ActionItemUserController extends Controller
 
                     $data->where('action_items.due_date', "<=", $endDateFilter);
                 }
-
+ 
                 $data->select(
                     'action_items.id as id', 'action_items.task',
                     'action_priorities.name as priority', 'action_items.date',
-                    'users.name', 'action_items.created_at as created_at', 'users.image',
+                    'users.name', 'users.image',
+                    DB::raw('DATE(action_items.created_at) as created_at'),
                     'action_items.updated_at as updated_at', 'action_statuses.status',
                     'action_statuses.id as status_id', 'action_priorities.id as priority_id'
                 )

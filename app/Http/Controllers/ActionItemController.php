@@ -182,7 +182,7 @@ class ActionItemController extends Controller
                 ->join('communities', 'communities.id', 'households.community_id')
                 ->where('communities.community_status_id', 2)
                 ->get();
-           
+            
             $missingCommunityDonors = DB::table('communities')
                 ->leftJoin('community_donors', function ($join) {
                     $join->on('communities.id', 'community_donors.community_id')

@@ -129,7 +129,10 @@
                                         </span> / 
                                         <span class="text-info" style="font-size:12px">
                                             {{$nvrCommunityType->number}}
-                                        </span>
+                                        </span> (
+                                        <span class="text-info" style="font-size:12px">
+                                            {{$nvrCommunityType->ip_address}}
+                                        </span> )
                                     </li>
                                 </ul>
                                 @endforeach

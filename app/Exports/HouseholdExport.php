@@ -25,10 +25,13 @@ class HouseholdExport implements WithMultipleSheets, ShouldAutoSize
     { 
         $sheets = [   
 
-            new Household\HouseholdSummary($this->request), 
+            new Household\CommunitySummary($this->request), 
+            new Household\NewCommunitySummary($this->request), 
+            //new Household\HouseholdSummary($this->request), 
             new Household\AllHousehold($this->request),
             new Household\MissingAllInfo($this->request),
             new Household\DiscrepancyHousehold($this->request),
+            new Household\NoChildrenListed($this->request),
         ];
 
         return $sheets;

@@ -9,7 +9,7 @@
 </style>  
 
 <div id="createCommunityCamera" class="modal fade" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content"> 
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
@@ -123,6 +123,7 @@
                                 <tr>
                                     <th>NVR Model</th>
                                     <th># of NVR</th>
+                                    <th>IP Address</th>
                                     <th>Options</th>
                                 </tr>
                                 <tr> 
@@ -141,6 +142,11 @@
                                     <td>
                                         <input type="text" name="addMoreInputFieldsNvrNumber[0][subject]" 
                                         placeholder="# of NVR" class="target_point form-control" 
+                                        data-id="0" required/>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="addMoreInputFieldsNvrIpAddress[0][subject]" 
+                                        placeholder="IP Address" class="target_point form-control" 
                                         data-id="0" required/>
                                     </td>
                                     <td>
@@ -250,7 +256,9 @@
                 '</select></td><td>' +
                 '<input required type="text"' +
                 'name="addMoreInputFieldsNvrNumber[][subject]" placeholder="# of NVR"' +
-                'class="target_point form-control" data-id="'+ i +'" /></td><td><button type="button"' +
+                'class="target_point form-control" data-id="'+ i +'" /></td><td><input type="text"'+ 
+                'name="addMoreInputFieldsNvrIpAddress[][subject]" required placeholder="IP Address"'+
+                'data-id="'+ i +'" class="target_point form-control"></td><td><button type="button"' +
                 'class="btn btn-outline-danger remove-input-field-nvr">Delete</button></td>' +
                 '</tr>'
             );

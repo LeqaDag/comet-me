@@ -26,8 +26,10 @@ class TwoFAController extends Controller
      */
     public function index() 
     {
+        if (Auth::guard('user')->user() != null) {
 
-        return view('auth.2fa');
+            return view('auth.2fa');
+        } else return redirect('/');
     }
   
     /**

@@ -53,6 +53,7 @@ class AcCommunityController extends Controller
                         'communities.id as id', 'communities.created_at as created_at', 
                         'communities.updated_at as updated_at',
                         'communities.number_of_people as number_of_people',
+                        'communities.number_of_household as number_of_household',
                         'regions.english_name as name',
                         'regions.arabic_name as aname',
                         'sub_regions.english_name as subname',

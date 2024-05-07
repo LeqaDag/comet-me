@@ -248,7 +248,7 @@ class AllEnergyController extends Controller
                     ->leftJoin('households as shared_households', 'shared_households.id', 
                         'household_meters.household_id')
                     ->where('all_energy_meters.is_archived', 0);
-    
+     
                 if($communityFilter != null) {
 
                     $data->where('communities.id', $communityFilter);

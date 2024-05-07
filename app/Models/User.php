@@ -38,6 +38,11 @@ class User extends Authenticatable
         return $this->belongsTo(UserType::class, 'user_type_id', 'id');
     }
 
+    public function UserRoleType()
+    {
+        return $this->belongsTo(UserRoleType::class, 'user_role_type_id', 'id');
+    }
+
     public function Role()
     {
         return $this->belongsTo(Role::class, 'role_id', 'id');
