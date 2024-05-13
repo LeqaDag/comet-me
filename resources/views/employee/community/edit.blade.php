@@ -526,6 +526,47 @@ label {
                         </div>
                     </div>
 
+                    <hr>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>
+                                <h4>Surveyed </h4> 
+                            </label>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Is Surveyed</label>
+                            <select name="is_surveyed"
+                                class="form-control" >
+                                @if($community->is_surveyed)
+                                <option selected disabled value="{{$community->is_surveyed}}">
+                                    {{$community->is_surveyed}}
+                                </option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                                @else
+                                <option selected disabled>Choose one...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Last Surveyed Date</label>
+                            <input type="date" name="last_surveyed_date" 
+                            value="{{$community->last_surveyed_date}}"
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">

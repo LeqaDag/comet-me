@@ -44,6 +44,7 @@ use App\Models\Profession;
 use App\Models\MovedHousehold;
 use App\Models\GridSharedUser;
 use App\Exports\HouseholdExport;
+use App\Exports\MissingHouseholdExport;
 use Carbon\Carbon;
 use DataTables;
 use mikehaertl\wkhtmlto\Pdf;
@@ -187,7 +188,7 @@ class HouseholdController extends Controller
                         else if($row->status == "AC Survey") 
                         $statusLabel = "<span class='badge rounded-pill bg-label-primary'>".$row->status."</span>";
                        
-                        else if($row->status == "In Progress") 
+                        else if($row->status == "AC Completed") 
                         $statusLabel = "<span class='badge rounded-pill bg-label-warning'>".$row->status."</span>";
 
                         else if($row->status == "Served") 
@@ -337,12 +338,13 @@ class HouseholdController extends Controller
         $household->profession_id = $request->profession_id;
         $household->phone_number = $request->phone_number;
         $household->community_id = $request->community_id;
+        $household->number_of_people = $request->number_of_people;
         $household->number_of_children = $request->number_of_children;
         $household->number_of_adults = $request->number_of_adults;
         $household->university_students = $request->university_students;
         $household->school_students = $request->school_students;
         $household->number_of_male = $request->number_of_male;
-        $household->number_of_female = $request->number_of_female;
+        $household->number_of_female = $request->number_of_female; 
         $household->demolition_order = $request->demolition_order;
         $household->notes = $request->notes;
         $household->size_of_herd = $request->size_of_herd;
@@ -356,14 +358,27 @@ class HouseholdController extends Controller
 
         $cistern = new Cistern();
         $cistern->number_of_cisterns = $request->number_of_cisterns;
+        $cistern->volume_of_cisterns = $request->volume_of_cisterns;
+        $cistern->shared_cisterns = $request->shared_cisterns;
+        $cistern->distance_from_house = $request->distance_from_house;
+        $cistern->depth_of_cisterns = $request->depth_of_cisterns;
         $cistern->household_id = $id;
         $cistern->save();
 
-        $cistern = new Structure();
-        $cistern->number_of_structures = $request->number_of_structures;
-        $cistern->number_of_kitchens = $request->number_of_kitchens;
-        $cistern->household_id = $id;
-        $cistern->save();
+        $newStructure = new Structure();
+        $newStructure->number_of_structures = $request->number_of_structures;
+        $newStructure->number_of_kitchens = $request->number_of_kitchens;
+        $newStructure->number_of_animal_shelters = $request->number_of_animal_shelters;
+        $newStructure->household_id = $id;
+        $newStructure->save();
+        
+        $newCommunityHousehold = new CommunityHousehold();
+        $newCommunityHousehold->is_there_house_in_town = $request->is_there_house_in_town;
+        $newCommunityHousehold->is_there_izbih = $request->is_there_izbih;
+        $newCommunityHousehold->how_long = $request->how_long;
+        $newCommunityHousehold->length_of_stay = $request->length_of_stay;
+        $newCommunityHousehold->household_id = $id;
+        $newCommunityHousehold->save();
         
         $data = DB::table('households')
             ->where('households.is_archived', 0)
@@ -915,6 +930,8 @@ class HouseholdController extends Controller
         if($request->electricity_source) $household->electricity_source = $request->electricity_source;
         if($request->electricity_source_shared) $household->electricity_source_shared = $request->electricity_source_shared;
         if($request->energy_system_type_id) $household->energy_system_type_id = $request->energy_system_type_id;
+        if($request->is_surveyed) $household->is_surveyed = $request->is_surveyed;
+        if($request->last_surveyed_date) $household->last_surveyed_date = $request->last_surveyed_date;
         $household->save();
 
         if($householdMeter) {
@@ -996,5 +1013,15 @@ class HouseholdController extends Controller
     {
                 
         return Excel::download(new HouseholdExport($request), 'households.xlsx');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportMissing(Request $request) 
+    {
+                
+        return Excel::download(new MissingHouseholdExport($request), 'missing_details_households.xlsx');
     }
 }

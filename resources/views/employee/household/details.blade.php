@@ -266,14 +266,14 @@
                                                 <li class="d-flex justify-content-start align-items-center text-light mb-3">
                                                     <i class="bx bx-timer bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">How long</small>
+                                                        <small class="text-muted mb-1">How long (Months)</small>
                                                         <h6 class="mb-0" id="howLong"></h6>
                                                     </div>
                                                 </li>
                                                 <li class="d-flex justify-content-start align-items-center text-dark mb-3">
                                                     <i class="bx bx-time bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Length of stay</small>
+                                                        <small class="text-muted mb-1">Length of stay (Months)</small>
                                                         <h6 class="mb-0" id="lengthOfStay"></h6>
                                                     </div>
                                                 </li>
@@ -287,14 +287,14 @@
                                                 <li class="d-flex justify-content-start align-items-center text-success mb-3">
                                                     <i class="bx bx-cylinder bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Cistern Volume</small>
+                                                        <small class="text-muted mb-1">Cistern Volume (Liters)</small>
                                                         <h6 class="mb-0" id="volumeCistern"></h6>
                                                     </div>
                                                 </li>
                                                 <li class="d-flex justify-content-start align-items-center text-primary mb-3">
                                                     <i class="bx bx-border-outer bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Cistern Depth</small>
+                                                        <small class="text-muted mb-1">Cistern Depth (Meters)</small>
                                                         <h6 class="mb-0" id="depthCistern"></h6>
                                                     </div>
                                                 </li>
@@ -308,7 +308,7 @@
                                                 <li class="d-flex justify-content-start align-items-center text-dark mb-3">
                                                     <i class="bx bx-map-pin bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Distance from house</small>
+                                                        <small class="text-muted mb-1">Distance from house (Meters)</small>
                                                         <h6 class="mb-0" id="distanceCistern"></h6>
                                                     </div>
                                                 </li>

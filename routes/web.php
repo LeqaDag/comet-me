@@ -465,3 +465,6 @@ Route::resource('energy-turbine', App\Http\Controllers\EnergyTurbineController::
 Route::get('/delete-energy-turbine', [App\Http\Controllers\EnergyTurbineController::class, 'deleteEnergyTurbine'])->name('deleteEnergyTurbine');
 
 Route::get('/household/household/autocomplete/{term}', [App\Http\Controllers\HouseholdController::class, 'autoComplete'])->name('autocomplete.households');
+
+Route::post('missing-household-export', [App\Http\Controllers\HouseholdController::class, 'exportMissing'])->name('missing-household.export');
+ 

@@ -258,6 +258,57 @@
         href="#" 
         aria-expanded="false" 
         aria-controls="">
+        <span class="text-muted fw-light">Surveys /</span> Files
+    </a>
+</h4>
+
+<div class="container" >
+    <h6 class="py-3 breadcrumb-wrapper">
+        <a data-toggle="collapse" class="text-info" 
+            href="#IssueHouseholdFiles" 
+            aria-expanded="false" 
+            aria-controls="IssueHouseholdFiles">
+            <i class="bx bx-group bx-sm me-3"></i>
+            Households
+        </a>
+    </h6>
+    
+    <div class="row collapse multi-collapse container" id="IssueHouseholdFiles">
+        <div class="user-tasks">
+            <div class="">
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('missing-household.export') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Export</label>
+                                <input type="text" class="form-control" disabled
+                                value="Missing Households Details Report"> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4" >
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Click Here</label>
+                                <button class="form-control btn-info" type="submit">
+                                    <i class='fa-solid fa-file-excel'></i>
+                                    Export Missing Households Details Report
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+<h4 class="py-3 breadcrumb-wrapper mb-2">
+    <a data-toggle="collapse" class="text-primary" 
+        href="#" 
+        aria-expanded="false" 
+        aria-controls="">
         <span class="text-muted fw-light">Projects /</span> Work Plan Progress
     </a>
 </h4>

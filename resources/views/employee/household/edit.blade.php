@@ -25,7 +25,7 @@ label, table {
     <span class="text-muted fw-light">Information </span> 
 </h4>
 
-<div class="card">
+<div class="card"> 
     <div class="card-content collapse show">
         <div class="card-body">
             <form method="POST" action="{{route('household.update', $household->id)}}"
@@ -414,7 +414,7 @@ label, table {
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Cisterns volume?</label>
+                            <label class='col-md-12 control-label'>Cisterns volume? (Liters)</label>
                             @if(!$cistern)
                             <input type="number" name="volume_of_cisterns" 
                             class="form-control">
@@ -422,12 +422,12 @@ label, table {
                             <input type="number" name="volume_of_cisterns" 
                             value="{{$cistern->volume_of_cisterns}}"
                             class="form-control">
-                            @endif
+                            @endif 
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Cisterns depth?</label>
+                            <label class='col-md-12 control-label'>Cisterns depth? (Meters)</label>
                             @if(!$cistern)
                             <input type="number" name="depth_of_cisterns" 
                             class="form-control">
@@ -440,7 +440,7 @@ label, table {
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Distance from house</label>
+                            <label class='col-md-12 control-label'>Distance from house (Meters)</label>
                             @if(!$cistern)
                             <input type="number" name="distance_from_house" 
                             class="form-control">
@@ -515,7 +515,7 @@ label, table {
 
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>How long?</label>
+                            <label class='col-md-12 control-label'>How long? (Months)</label>
                             @if(!$communityHousehold)
                             <input type="number" name="how_long" 
                             class="form-control">
@@ -529,7 +529,7 @@ label, table {
 
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Length of stay</label>
+                            <label class='col-md-12 control-label'>Length of stay (Months)</label>
                             @if(!$communityHousehold)
                             <input type="number" name="length_of_stay" 
                             class="form-control">
@@ -575,6 +575,48 @@ label, table {
                         </fieldset>
                     </div>
                 </div>
+
+                <hr>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>
+                                <h4>Surveyed </h4> 
+                            </label>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Is Surveyed</label>
+                            <select name="is_surveyed"
+                                class="form-control" >
+                                @if($household->is_surveyed)
+                                <option selected disabled value="{{$household->is_surveyed}}">
+                                    {{$household->is_surveyed}}
+                                </option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                                @else
+                                <option selected disabled>Choose one...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Last Surveyed Date</label>
+                            <input type="date" name="last_surveyed_date" 
+                            value="{{$household->last_surveyed_date}}"
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">

@@ -144,23 +144,23 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Number of Residents</label>
+                            <input type="number" name="number_of_people" id="totalResidents"
+                            class="form-control" required>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many male?</label>
                             <input type="number" name="number_of_male" value="{{old('number_of_male')}}"
-                            class="form-control">
+                            class="form-control" id="numberOfMale" required>
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many female?</label>
                             <input type="number" name="number_of_female" value="{{old('number_of_female')}}"
-                            class="form-control">
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-4 col-lg-4 col-md-4">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>How many adults?</label>
-                            <input type="number" name="number_of_adults" value="{{old('number_of_adults')}}"
-                            class="form-control">
+                            class="form-control" id="numberOfFemale" required>
                         </fieldset>
                     </div>
                 </div>
@@ -168,9 +168,16 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many adults?</label>
+                            <input type="number" name="number_of_adults" value="{{old('number_of_adults')}}"
+                            class="form-control" id="numberOfAdult"required>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many children under 16?</label>
                             <input type="number" name="number_of_children" value="{{old('number_of_children')}}"
-                            class="form-control">
+                            class="form-control" id="numberOfChildren"required>
                         </fieldset>
                     </div>
 
@@ -181,7 +188,9 @@
                             class="form-control">
                         </fieldset>
                     </div>
+                </div>
 
+                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many household members in university?</label>
@@ -189,9 +198,6 @@
                             value="{{old('university_students')}}" class="form-control">
                         </fieldset>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Demolition order in house?</label>
@@ -237,20 +243,20 @@
                             </label>
                         </fieldset>
                     </div>
-                </div>
+                </div> 
 
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>How many structures?</label>
-                            <input type="number" name="number_of_structures" 
+                            <label class='col-md-12 control-label'>Size of herd</label>
+                            <input type="number" name="size_of_herd" 
                             class="form-control">
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Size of herd</label>
-                            <input type="number" name="size_of_herd" 
+                            <label class='col-md-12 control-label'>How many structures?</label>
+                            <input type="number" name="number_of_structures" 
                             class="form-control">
                         </fieldset>
                     </div>
@@ -263,11 +269,90 @@
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many animal shelters?</label>
+                            <input type="number" name="number_of_animal_shelters" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many cisterns?</label>
                             <input type="number" name="number_of_cisterns" 
                             class="form-control">
                         </fieldset>
                     </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cisterns volume? (Liters)</label>
+                            <input type="number" name="volume_of_cisterns" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cisterns depth? (Meters)</label>
+                            <input type="number" name="depth_of_cisterns" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Distance from house (Meters)</label>
+                            <input type="number" name="distance_from_house" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Shared cistern?</label>
+                            <select name="shared_cisterns"
+                                class="form-control" >
+                                <option selected disabled>Choose one...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Is there house in town?</label>
+                            <select name="is_there_house_in_town"
+                                class="form-control" >
+                                <option selected disabled>Choose one...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Is there izbih?</label>
+                            <select name="is_there_izbih"
+                                class="form-control" >
+                                <option selected disabled>Choose one...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How long? (Months)</label>
+                            <input type="number" name="how_long" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Length of stay (Months)</label>
+                            <input type="number" name="length_of_stay" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Electricity source</label>
@@ -278,7 +363,7 @@
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Shared?</label>
+                            <label class='col-md-12 control-label'>Electricity Shared?</label>
                             <select name="electricity_source_shared" id="electricitySourceShared"
                                 class="form-control">
                                 <option selected disabled>Choose One...</option>

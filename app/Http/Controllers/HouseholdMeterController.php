@@ -317,7 +317,8 @@ class HouseholdMeterController extends Controller
     public function store(Request $request)
     {
         $energyUser = AllEnergyMeter::where('id', $request->energy_user_id)->first();
-
+        $mainHousehold = Household::where('id', $energyUser->household_id)->first();
+        
         if($request->household_id) {
 
             for($i=0; $i < count($request->household_id); $i++) {
@@ -342,8 +343,8 @@ class HouseholdMeterController extends Controller
                 }
 
                 $householdMeter = new HouseholdMeter();
-                $householdMeter->user_name = $household->english_name;
-                $householdMeter->user_name_arabic = $household->arabic_name;
+                $householdMeter->user_name = $mainHousehold->english_name;
+                $householdMeter->user_name_arabic = $mainHousehold->arabic_name;
                 $householdMeter->household_id = $request->household_id[$i];
                 $householdMeter->energy_user_id = $request->energy_user_id;
                 $householdMeter->save();
@@ -369,8 +370,8 @@ class HouseholdMeterController extends Controller
                 }
 
                 $householdMeter = new HouseholdMeter();
-                $householdMeter->user_name = $household->english_name;
-                $householdMeter->user_name_arabic = $household->arabic_name;
+                $householdMeter->user_name = $mainHousehold->english_name;
+                $householdMeter->user_name_arabic = $mainHousehold->arabic_name;
                 $householdMeter->public_structure_id = $request->public_id[$i];
                 $householdMeter->energy_user_id = $request->energy_user_id;
                 $householdMeter->save();

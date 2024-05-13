@@ -945,6 +945,9 @@ class CommunityController extends Controller
         if($request->demolition) $community->demolition = $request->demolition;
         if($request->land_status) $community->land_status = $request->land_status;
 
+        if($request->is_surveyed) $community->is_surveyed = $request->is_surveyed;
+        if($request->last_surveyed_date) $community->last_surveyed_date = $request->last_surveyed_date;
+
         if($request->energy_service) {
 
             $community->energy_service = $request->energy_service;
