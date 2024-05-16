@@ -184,6 +184,15 @@ class InternetUserIncidentController extends Controller
         }
 
         $internetIncident->incident_id = $request->incident_id;
+        if($request->incident_id == 4) {
+
+            $internetIncident->order_number = $request->order_number;
+            $internetIncident->order_date = $request->order_date;
+            $internetIncident->geolocation_lat = $request->geolocation_lat;
+            $internetIncident->geolocation_long = $request->geolocation_long;
+            $internetIncident->hearing_date = $request->hearing_date;
+            $internetIncident->structure_description = $request->structure_description;
+        }
         $internetIncident->internet_incident_status_id = $request->internet_incident_status_id;
         $internetIncident->response_date = $request->response_date;
         $internetIncident->notes = $request->notes;
@@ -303,6 +312,15 @@ class InternetUserIncidentController extends Controller
         }
 
         $internetIncident->incident_id = $request->incident_id;
+        if($request->incident_id == 4) {
+
+            $internetIncident->order_number = $request->order_number;
+            $internetIncident->order_date = $request->order_date;
+            $internetIncident->geolocation_lat = $request->geolocation_lat;
+            $internetIncident->geolocation_long = $request->geolocation_long;
+            $internetIncident->hearing_date = $request->hearing_date;
+            $internetIncident->structure_description = $request->structure_description;
+        }
         $internetIncident->internet_incident_status_id = $request->internet_incident_status_id;
         $internetIncident->notes = $request->notes;
         if($request->response_date == null) $internetIncident->response_date = null;

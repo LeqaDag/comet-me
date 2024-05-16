@@ -102,6 +102,7 @@
                                 <span class="text-muted">{{$mgIncident->response_date}}</span>
                             </div>
                         </div> <br>
+                        @if($incident->english_name != "SWO")
                         <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
                             <div class="mb-sm-0 mb-2">
                                 <p class="mb-0">Equipment Damaged</p>
@@ -114,6 +115,37 @@
                                 @endif
                             </div>
                         </div><br>
+                        @endif
+                        @if($incident->english_name == "SWO")
+                        <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Order Number</p>
+                                <span class="text-muted">{{$mgIncident->order_number}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Order Date</p>
+                                <span class="text-muted">{{$mgIncident->order_date}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Geolocation Lat</p>
+                                <span class="text-muted">{{$mgIncident->geolocation_lat}}</span>
+                            </div>
+                        </div> <br>
+                        <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Geolocation Long</p>
+                                <span class="text-muted">{{$mgIncident->geolocation_long}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Date of hearing</p>
+                                <span class="text-muted">{{$mgIncident->hearing_date}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Description of structure</p>
+                                <span class="text-muted">{{$mgIncident->structure_description}}</span>
+                            </div>
+                        </div>
+                        @endif <br>
                         <div class="mb-sm-0 mb-2">
                             <p class="mb-0">Households Affected</p>
                             @if(count($mgAffectedHouseholds) > 0)

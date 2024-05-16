@@ -54,6 +54,9 @@ class InternetUserIncidentExport implements FromCollection, WithHeadings, WithTi
                 'internet_user_incidents.year', 'internet_user_incidents.date', 
                 'internet_incident_statuses.name',
                 'internet_user_incidents.response_date',
+                'internet_user_incidents.order_number', 'internet_user_incidents.order_date', 
+                'internet_user_incidents.geolocation_lat', 'internet_user_incidents.geolocation_long', 
+                'internet_user_incidents.hearing_date', 'internet_user_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 'internet_user_incidents.notes'
@@ -85,8 +88,9 @@ class InternetUserIncidentExport implements FromCollection, WithHeadings, WithTi
     {
         return ["Internet User", "Community", "Region", "Sub Region", 
             "# of Male", "# of Female", "# of Children", "# of Adults", "Incident", 
-            "Incident Year", "Incident Date", "Status", "Response Date",
-            "Donor", "Equipment Damaged", "Notes"];
+            "Incident Year", "Incident Date", "Status", "Response Date", "Order Number", 
+            "Order Date", "Geolocation Lat", "Geolocation Long", "Date of hearing", 
+            "Description of structure", "Donor", "Equipment Damaged", "Notes"];
     }
 
     public function title(): string
@@ -101,7 +105,7 @@ class InternetUserIncidentExport implements FromCollection, WithHeadings, WithTi
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:P1');
+        $sheet->setAutoFilter('A1:V1');
 
         return [
             // Style the first row as bold text.

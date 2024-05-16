@@ -71,6 +71,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 DB::raw('group_concat(DISTINCT water_donor.donor_name) as water_donor'),
                 'internet_system_status',
                 DB::raw('group_concat(DISTINCT internet_donor.donor_name) as internet_donor'),
+                'households.is_surveyed', 'households.last_surveyed_date'
             )
             ->groupBy('households.id');
 
@@ -230,7 +231,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
             "# of School students", "Energy System Status", "Main User", 
             "Energy System Type", "Meter Number", "Energy Donors",
             "Requset Date", "Water System Status", "Water Donors",
-            "Internet System Status", "Internet Donors"];
+            "Internet System Status", "Internet Donors", "Is Surveyed", "Surveyed Date"];
     }
 
     public function title(): string
@@ -245,7 +246,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:V1');
+        $sheet->setAutoFilter('A1:X1');
 
         return [
             // Style the first row as bold text.

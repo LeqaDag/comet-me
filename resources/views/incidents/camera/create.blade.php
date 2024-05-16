@@ -81,7 +81,7 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Incident Status</label>
                                 <select name="internet_incident_status_id" id="incidentCameraStatus"
-                                    class="selectpicker form-control" >
+                                    class="selectpicker form-control" data-live-search="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($internetIncidentStatuses as $internetIncidentStatus)
                                     <option value="{{$internetIncidentStatus->id}}">
@@ -109,7 +109,7 @@ label, table {
                         </div>
                     </div>
                     
-                    <div class="row">
+                    <div class="row" id="equipmentDamagedDiv" style="display:none; visiblity: none">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Equipment Damaged</label>
@@ -127,6 +127,54 @@ label, table {
                             <div id="incident_equipment_id_error" style="color: red;"></div>
                         </div>
                     </div>
+
+                    <div id="swoDiv" style="display:none; visiblity: none">
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Order Number</label>
+                                    <input type="number" name="order_number" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Order Date</label>
+                                    <input type="date" name="order_date" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Geolocation Lat</label>
+                                    <input type="text" name="geolocation_lat" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Geolocation Long</label>
+                                    <input type="text" name="geolocation_long" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Date of hearing</label>
+                                    <input type="date" name="hearing_date" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-12 col-lg-12 col-md-12">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Description of structure</label>
+                                    <textarea name="structure_description" class="form-control" 
+                                        style="resize:none" cols="20" rows="3"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
@@ -162,13 +210,32 @@ label, table {
 
     $(document).ready(function() {
 
+        $(document).on('change', '#incidentCameraType', function () {
+            incident_type_id = $(this).val();
+
+            if(incident_type_id == 4)  {
+
+                $("#swoDiv").css("display", "block");
+                $("#swoDiv").css("visiblity", "visible");
+
+                $('#equipmentDamagedDiv').css("display", "none");
+                $('#equipmentDamagedDiv').css("visiblity", "none");
+            } else {
+    
+                $("#swoDiv").css("display", "none");
+                $("#swoDiv").css("visiblity", "none");
+
+                $('#equipmentDamagedDiv').css("display", "block");
+                $('#equipmentDamagedDiv').css("visiblity", "visible");
+            }
+        });
+
         $('#cameraIncidentForm').on('submit', function (event) {
 
             var communityValue = $('#cameraSelectedCommuntiy').val();
             var repositoryValue = $('#RepositoryCamera').val();
             var incidentTypeValue = $('#incidentCameraType').val();
             var incidentStatusValue = $('#incidentCameraStatus').val();
-            var equipmentValue = $('#equipmentDamaged').val();
 
             if (communityValue == null && repositoryValue == null) {
 
@@ -197,20 +264,10 @@ label, table {
                 $('#internet_incident_status_id_error').empty();
             }
 
-            if (!equipmentValue || equipmentValue.length === 0) {
-
-                $('#incident_equipment_id_error').html('Please select at least one equipment!');
-                return false;
-            } else {
-
-                $('#incident_equipment_id_error').empty();
-            }
-
             $(this).addClass('was-validated');  
             $('#community_id_error').empty();
             $('#incident_id_error').empty();
             $('#internet_incident_status_id_error').empty();
-            $('#incident_equipment_id_error').empty();
 
             this.submit();
         });

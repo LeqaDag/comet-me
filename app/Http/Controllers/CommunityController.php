@@ -1011,6 +1011,8 @@ class CommunityController extends Controller
         if($request->description) $community->description = $request->description;
         if($request->latitude) $community->latitude = $request->latitude; 
         if($request->longitude) $community->longitude = $request->longitude;
+        if($request->lawyer) $community->lawyer = $request->lawyer;
+        if($request->notes) $community->notes = $request->notes;
         $community->save();
 
         if($request->addMoreInputFieldsCompoundName) {

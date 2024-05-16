@@ -64,6 +64,9 @@ class FbsMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldAut
                 'fbs_user_incidents.response_date',
                 'fbs_user_incidents.losses_energy',
                 'fbs_user_incidents.losses_water',
+                'fbs_user_incidents.order_number', 'fbs_user_incidents.order_date', 
+                'fbs_user_incidents.geolocation_lat', 'fbs_user_incidents.geolocation_long', 
+                'fbs_user_incidents.hearing_date', 'fbs_user_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 'fbs_user_incidents.notes'
@@ -97,7 +100,9 @@ class FbsMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldAut
         return ["Energy Holder", "Main Holder", "Community", "Region", "Sub Region", 
             "# of Male", "# of Female", "# of Children", "# of Adults", "Incident", 
             "Incident Year", "Incident Date", "Status", "Response Date",
-            "Losses Energy (ILS)", "Losses Water (ILS)", "Donor", "Equipment Damaged", 
+            "Losses Energy (ILS)", "Losses Water (ILS)", "Order Number", "Order Date", 
+            "Geolocation Lat", "Geolocation Long", "Date of hearing", "Description of structure",
+            "Donor", "Equipment Damaged", 
             "Notes"];
     }
 
@@ -113,7 +118,7 @@ class FbsMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldAut
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:S1');
+        $sheet->setAutoFilter('A1:Y1');
 
         return [
             // Style the first row as bold text.

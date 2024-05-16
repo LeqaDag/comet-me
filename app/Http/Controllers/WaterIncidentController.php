@@ -19,7 +19,7 @@ use App\Models\H2oSystemIncident;
 use App\Models\H2oIncidentPhoto;
 use App\Models\H2oPublicStructure;
 use App\Models\GridPublicStructure;
-use App\Models\H2oIncidentStatus;
+use App\Models\H2oIncidentStatus; 
 use App\Models\Household;
 use App\Models\User;
 use App\Models\Community;
@@ -224,6 +224,15 @@ class WaterIncidentController extends Controller
         }
 
         $waterIncident->incident_id = $request->incident_id;
+        if($request->incident_id == 4) {
+
+            $waterIncident->order_number = $request->order_number;
+            $waterIncident->order_date = $request->order_date;
+            $waterIncident->geolocation_lat = $request->geolocation_lat;
+            $waterIncident->geolocation_long = $request->geolocation_long;
+            $waterIncident->hearing_date = $request->hearing_date;
+            $waterIncident->structure_description = $request->structure_description;
+        }
         $waterIncident->response_date = $request->response_date;
         $waterIncident->notes = $request->notes;
         $waterIncident->save();
@@ -327,6 +336,15 @@ class WaterIncidentController extends Controller
         }
 
         $waterIncident->incident_id = $request->incident_id;
+        if($request->incident_id == 4) {
+
+            $waterIncident->order_number = $request->order_number;
+            $waterIncident->order_date = $request->order_date;
+            $waterIncident->geolocation_lat = $request->geolocation_lat;
+            $waterIncident->geolocation_long = $request->geolocation_long;
+            $waterIncident->hearing_date = $request->hearing_date;
+            $waterIncident->structure_description = $request->structure_description;
+        }
         $waterIncident->equipment = $request->equipment;
         $waterIncident->notes = $request->notes;
         $waterIncident->save();

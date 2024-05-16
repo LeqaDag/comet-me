@@ -318,6 +318,7 @@ Route::post('fbs-incident-export', [App\Http\Controllers\FbsIncidentController::
 Route::get('/delete-fbs-equipment', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentEquipment'])->name('deleteIncidentEquipment');
 Route::get('/delete-fbs-status', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentStatus'])->name('deleteIncidentStatus');
 Route::get('/delete-fbs-photo', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentPhoto'])->name('deleteIncidentPhoto');
+Route::get('fbs-incident/get_by_type/{incident_type_id}', [App\Http\Controllers\FbsIncidentController::class, 'getStatusByIncidentType']);
 
 Route::resource('water-incident', App\Http\Controllers\WaterIncidentController::class);
 Route::get('/delete-water-incident', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncident'])->name('deleteWaterIncident');

@@ -193,7 +193,7 @@ class HomeController extends Controller
                 ->where('energy_system_status', 'Served')
                 ->where('is_archived', 0)
                 ->orWhere("water_service", "Yes")
-                ->count();
+                ->count(); 
 
             $mgIncidentsNumber = MgIncident::where('is_archived', 0)->count();
 
@@ -417,6 +417,27 @@ class HomeController extends Controller
                 [$value->internet_service_beginning_year, $sumInternet];
             }
 
+            // Cumulative sum Camera
+            $totalCamera = DB::table('camera_communities')
+                ->join('communities', 'camera_communities.community_id', 'communities.id')
+                ->where('camera_communities.is_archived', 0)
+                ->whereNotNull("camera_communities.date")
+                ->select(
+                    DB::raw('camera_communities.date as date'),
+                    DB::raw('count(*) as number'))
+                ->groupBy('camera_communities.date')
+                ->get();
+
+            $cumulativeSumCamera[] = ['Date', 'Sum'];
+            $sumCamera = 0;
+ 
+            foreach($totalCamera as $key => $value) {
+
+                $sumCamera += $value->number;
+                $cumulativeSumCamera[++$key] = 
+                [$value->date, $sumCamera];
+            }
+
             $energyUsers = AllEnergyMeter::where("meter_case_id", 1)
                 ->where('is_archived', 0)
                 ->count();
@@ -557,6 +578,8 @@ class HomeController extends Controller
                 ->with(
                     'cumulativeSumInternetData', json_encode($cumulativeSumInternet))
                 ->with(
+                    'cumulativeSumCameraData', json_encode($cumulativeSumCamera))
+                ->with(
                     'cumulativeSum', json_encode($cumulativeSum))
                 ->with(
                     'incidentsData', json_encode($arrayIncidents));
@@ -581,7 +604,7 @@ class HomeController extends Controller
 
         return view('welcome', compact('settings', 'teamMembers', 'images'));
     }
-
+ 
     /**
      * Get the manual as a pdf
      *

@@ -199,7 +199,8 @@ class FbsIncidentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {      
+    {    
+        //dd($request->all());  
         $fbsIncident = new FbsUserIncident();
 
         if($request->date) {
@@ -243,6 +244,15 @@ class FbsIncidentController extends Controller
         }
 
         $fbsIncident->incident_id = $request->incident_id;
+        if($request->incident_id == 4) {
+
+            $fbsIncident->order_number = $request->order_number;
+            $fbsIncident->order_date = $request->order_date;
+            $fbsIncident->geolocation_lat = $request->geolocation_lat;
+            $fbsIncident->geolocation_long = $request->geolocation_long;
+            $fbsIncident->hearing_date = $request->hearing_date;
+            $fbsIncident->structure_description = $request->structure_description;
+        }
         $fbsIncident->response_date = $request->response_date;
         $fbsIncident->losses_energy = $request->losses_energy;
         $fbsIncident->losses_water = $request->losses_water;
@@ -386,6 +396,16 @@ class FbsIncidentController extends Controller
         }
 
         $fbsIncident->incident_id = $request->incident_id;
+        if($request->incident_id == 4) {
+
+            if($request->order_number) $fbsIncident->order_number = $request->order_number;
+            if($request->order_date)$fbsIncident->order_date = $request->order_date;
+            if($request->geolocation_lat) $fbsIncident->geolocation_lat = $request->geolocation_lat;
+            if($request->geolocation_long) $fbsIncident->geolocation_long = $request->geolocation_long;
+            if($request->hearing_date) $fbsIncident->hearing_date = $request->hearing_date;
+            if($request->structure_description) $fbsIncident->structure_description = $request->structure_description;
+        }
+
         $fbsIncident->notes = $request->notes;
         $fbsIncident->response_date = $request->response_date;
         $fbsIncident->losses_energy = $request->losses_energy;
@@ -580,6 +600,38 @@ class FbsIncidentController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+     /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getStatusByIncidentType(Request $request)
+    {
+        $fbsIncidents = IncidentStatusSmallInfrastructure::where('incident_id', $request->incident_type_id)
+            ->where('is_archived', 0)
+            ->orderBy('name', 'ASC')
+            ->get();
+
+        if (!$request->incident_type_id) {
+
+            $html = '<option disabled selected>Choose One...</option>';
+        } else {
+
+            $html = '<option  disabled selected>Choose One...</option>';
+            $fbsIncidents = IncidentStatusSmallInfrastructure::where('incident_id', $request->incident_type_id)
+                ->orderBy('name', 'ASC')
+                ->where('is_archived', 0)
+                ->get();
+
+            foreach ($fbsIncidents as $fbsIncident) {
+                $html .= '<option value="'.$fbsIncident->id.'">'.$fbsIncident->name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
     }
 
     /**

@@ -18,7 +18,7 @@ label, table {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
                 </button>
-            </div>
+            </div> 
             <div class="modal-body">
                 <form method="POST" enctype='multipart/form-data' id="waterIncidentForm"
                     action="{{url('water-incident')}}">
@@ -110,7 +110,7 @@ label, table {
                             </fieldset>
                             <div id="incident_status_id_error" style="color: red;"></div>
                         </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6">
+                        <div class="col-xl-6 col-lg-6 col-md-6" id="equipmentDamagedDiv">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Equipment Damaged</label>
                                 <select name="incident_equipment_id[]" multiple
@@ -127,6 +127,53 @@ label, table {
                             <div id="incident_equipment_id_error" style="color: red;"></div>
                         </div>
                     </div>
+
+                    <div id="swoDiv" style="display:none; visiblity: none">
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Order Number</label>
+                                    <input type="number" name="order_number" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Order Date</label>
+                                    <input type="date" name="order_date" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Geolocation Lat</label>
+                                    <input type="text" name="geolocation_lat" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Geolocation Long</label>
+                                    <input type="text" name="geolocation_long" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Date of hearing</label>
+                                    <input type="date" name="hearing_date" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-12 col-lg-12 col-md-12">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Description of structure</label>
+                                    <textarea name="structure_description" class="form-control" 
+                                        style="resize:none" cols="20" rows="3"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
@@ -164,6 +211,26 @@ label, table {
         $('#chooseUserOrPublic').html('<option disabled selected>Choose one...</option><option value="user">User</option><option value="public">Public Structure</option>');
         $('#chooseUserOrPublic').selectpicker('refresh');
         UserOrPublic(community_id);
+    });
+
+    $(document).on('change', '#incidentWaterType', function () {
+        incident_type_id = $(this).val();
+
+        if(incident_type_id == 4)  {
+
+            $("#swoDiv").css("display", "block");
+            $("#swoDiv").css("visiblity", "visible");
+
+            $('#equipmentDamagedDiv').css("display", "none");
+            $('#equipmentDamagedDiv').css("visiblity", "none");
+        } else {
+
+            $("#swoDiv").css("display", "none");
+            $("#swoDiv").css("visiblity", "none");
+
+            $('#equipmentDamagedDiv').css("display", "block");
+            $('#equipmentDamagedDiv').css("visiblity", "visible");
+        }
     });
 
     function UserOrPublic(community_id) {
@@ -207,7 +274,6 @@ label, table {
             var waterValue = $('#waterHolderSelected').val();
             var incidentTypeValue = $('#incidentWaterType').val();
             var incidentStatusValue = $('#incidentWaterStatus').val();
-            var equipmentValue = $('#equipmentDamaged').val();
 
             if (communityValue == null) {
 
@@ -254,22 +320,12 @@ label, table {
                 $('#incident_status_id_error').empty();
             }
 
-            if (!equipmentValue || equipmentValue.length === 0) {
-
-                $('#incident_equipment_id_error').html('Please select at least one equipment!');
-                return false;
-            } else {
-
-                $('#incident_equipment_id_error').empty();
-            }
-
             $(this).addClass('was-validated');  
             $('#all_water_holder_id_error').empty();  
             $('#public_user_error').empty();
             $('#community_id_error').empty();
             $('#incident_id_error').empty();
             $('#incident_status_id_error').empty();
-            $('#incident_equipment_id_error').empty();
 
             this.submit();
         });

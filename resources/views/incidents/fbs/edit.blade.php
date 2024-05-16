@@ -129,6 +129,63 @@
                         </fieldset>
                     </div>
                 </div>
+
+                @if($fbsIncident->incident_id == 4)
+                <div id="swoDiv">
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Order Number</label>
+                                <input type="number" name="order_number" class="form-control"
+                                    value="{{$fbsIncident->order_number}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Order Date</label>
+                                <input type="date" name="order_date" class="form-control"
+                                    value="{{$fbsIncident->order_date}}">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Geolocation Lat</label>
+                                <input type="text" name="geolocation_lat" class="form-control"
+                                value="{{$fbsIncident->geolocation_lat}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Geolocation Long</label>
+                                <input type="text" name="geolocation_long" class="form-control"
+                                value="{{$fbsIncident->geolocation_long}}">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Date of hearing</label>
+                                <input type="date" name="hearing_date" class="form-control"
+                                value="{{$fbsIncident->hearing_date}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-12 col-lg-12 col-md-12">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Description of structure</label>
+                                <textarea name="structure_description" class="form-control" 
+                                    style="resize:none" cols="20" rows="3">
+                                    {{$fbsIncident->structure_description}}
+                                </textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
@@ -146,7 +203,7 @@
                 <div class="row">
                     <h5>Incident FBS Statuses</h5>
                 </div>
-                @if(count($fbsStatuses) > 0)
+                @if(count($fbsStatuses) > 0) 
 
                     <table id="fbsStatusesTable" 
                         class="table table-striped data-table-fbs-equipments my-2">
@@ -205,6 +262,7 @@
                 <br>
                 <hr>
 
+                @if($fbsIncident->incident_id != 4)
                 <div class="row">
                     <h5>Equipment Damaged</h5>
                 </div>
@@ -264,7 +322,7 @@
                         </div>
                     </div>
                 @endif
-
+                @endif
                 <br>
                 <hr>
 

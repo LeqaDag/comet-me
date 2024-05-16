@@ -205,6 +205,15 @@ class CameraIncidentController extends Controller
         if($request->repository_id) $cameraIncident->repository_id = $request->repository_id;  
 
         $cameraIncident->incident_id = $request->incident_id;
+        if($request->incident_id == 4) {
+
+            $cameraIncident->order_number = $request->order_number;
+            $cameraIncident->order_date = $request->order_date;
+            $cameraIncident->geolocation_lat = $request->geolocation_lat;
+            $cameraIncident->geolocation_long = $request->geolocation_long;
+            $cameraIncident->hearing_date = $request->hearing_date;
+            $cameraIncident->structure_description = $request->structure_description;
+        }
         $cameraIncident->internet_incident_status_id = $request->internet_incident_status_id;
         if($request->response_date) $cameraIncident->response_date = $request->response_date;
         $cameraIncident->notes = $request->notes;
@@ -330,6 +339,15 @@ class CameraIncidentController extends Controller
         }
 
         $cameraIncident->incident_id = $request->incident_id;
+        if($request->incident_id == 4) {
+
+            $cameraIncident->order_number = $request->order_number;
+            $cameraIncident->order_date = $request->order_date;
+            $cameraIncident->geolocation_lat = $request->geolocation_lat;
+            $cameraIncident->geolocation_long = $request->geolocation_long;
+            $cameraIncident->hearing_date = $request->hearing_date;
+            $cameraIncident->structure_description = $request->structure_description;
+        }
         $cameraIncident->internet_incident_status_id = $request->internet_incident_status_id;
         $cameraIncident->response_date = $request->response_date;
         $cameraIncident->notes = $request->notes;

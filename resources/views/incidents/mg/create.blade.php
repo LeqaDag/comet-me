@@ -76,7 +76,8 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Incident MG Status</label>
                                 <select name="incident_status_mg_system_id" disabled
-                                    class="selectpicker form-control" id="incidentMgStatus" required>
+                                    class="selectpicker form-control" id="incidentMgStatus" 
+                                        data-live-search="true" required>
                                 </select>
                             </fieldset>
                             <div id="incident_status_mg_system_id_error" style="color: red;"></div>
@@ -242,7 +243,7 @@ label, table {
             $("#swoDiv").css("display", "block");
             $("#swoDiv").css("visiblity", "visible");
         } else {
-
+ 
             $("#swoDiv").css("display", "none");
             $("#swoDiv").css("visiblity", "none");
         }

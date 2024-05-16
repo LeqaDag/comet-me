@@ -242,6 +242,19 @@
     </div>
   </div>
 </div>
+<div class="row mb-4">
+  <div class="col-md-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="menu-icon tf-icons bx bx-lg bx-camera text-danger"></i>
+              Total Number of Communities by Date (camera)</h5>
+        </div>
+        <div class="card-body">
+            <div id="installationCommunityChartCamera"></div>
+        </div>
+    </div>
+  </div>
+</div>
 
   <!-- Masafer Yatta-->
 <div class="card mb-4">
@@ -340,7 +353,7 @@
   </div>
 </div>
 
-@include('employee.incident_details')
+@include('employee.incident_details') 
   <div class="row mb-4">
     <div class="col-md-12 col-lg-12">
       <div class="col-xl-12 col-lg-12 col-md-12">
@@ -607,6 +620,7 @@ function ClearMapView() {
     var water = <?php echo $cumulativeSumWaterData; ?>;
     var internet = <?php echo $cumulativeSumInternetData; ?>;
     var cumulativeSum = <?php echo $cumulativeSum; ?>;
+    var camera = <?php echo $cumulativeSumCameraData; ?>;
 
     google.charts.load('current', {'packages':['bar']});
     google.charts.setOnLoadCallback(drawChart);
@@ -615,6 +629,7 @@ function ClearMapView() {
   
       var waterData = google.visualization.arrayToDataTable(water);
       var internetData = google.visualization.arrayToDataTable(internet);
+      var cameraData = google.visualization.arrayToDataTable(camera);
       var cumulativeSumEnergyData = google.visualization.arrayToDataTable(cumulativeSum);
 
       var chartWater = new google.charts.Bar
@@ -627,6 +642,12 @@ function ClearMapView() {
         (document.getElementById('initialYearCommunityChartInternet'));
       chartInternet.draw(
         internetData
+      );
+
+      var chartCamera = new google.charts.Bar
+        (document.getElementById('installationCommunityChartCamera'));
+        chartCamera.draw(
+          cameraData
       );
     }
   });

@@ -20,7 +20,7 @@ class NetworkIncidentSystem implements FromCollection, WithHeadings, WithTitle, 
         $this->request = $request; 
     }
 
-    /**
+    /** 
     * @return \Illuminate\Support\Collection
     */
     public function collection()
@@ -52,6 +52,9 @@ class NetworkIncidentSystem implements FromCollection, WithHeadings, WithTitle, 
                 'internet_network_incidents.year', 'internet_network_incidents.date', 
                 'internet_incident_statuses.name as incident_status',
                 'internet_network_incidents.response_date',
+                'internet_network_incidents.order_number', 'internet_network_incidents.order_date', 
+                'internet_network_incidents.geolocation_lat', 'internet_network_incidents.geolocation_long', 
+                'internet_network_incidents.hearing_date', 'internet_network_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT households.english_name) as households'),
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
@@ -85,7 +88,9 @@ class NetworkIncidentSystem implements FromCollection, WithHeadings, WithTitle, 
     public function headings(): array
     {
         return ["Community", "Region", "Sub Region", "Incident", "Incident Year", 
-            "Incident Date", "Status", "Response Date", "Households", "Equipment Damaged", 
+            "Incident Date", "Status", "Response Date", "Order Number", "Order Date", 
+            "Geolocation Lat", "Geolocation Long", "Date of hearing", 
+            "Description of structure", "Households", "Equipment Damaged", 
             "Donors", "Notes", "Next Step"];
     }
 
@@ -101,7 +106,7 @@ class NetworkIncidentSystem implements FromCollection, WithHeadings, WithTitle, 
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:L1');
+        $sheet->setAutoFilter('A1:S1');
         $sheet->getStyle('K1')->getAlignment()->setWrapText(true);
 
         $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(40);

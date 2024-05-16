@@ -124,7 +124,8 @@
                                 <p class="mb-0">Response Date</p>
                                 <span class="text-muted">{{$fbsIncident->response_date}}</span>
                             </div>
-                        </div> <br>
+                        </div> <br> 
+                        @if($incident->english_name != "SWO")
                         <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
                             <div class="mb-sm-0 mb-2">
                                 <p class="mb-0">Equipment Damaged</p>
@@ -136,7 +137,38 @@
                                     @endforeach
                                 @endif
                             </div>
+                        </div> <br>
+                        @endif
+                        @if($incident->english_name == "SWO")
+                        <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Order Number</p>
+                                <span class="text-muted">{{$fbsIncident->order_number}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Order Date</p>
+                                <span class="text-muted">{{$fbsIncident->order_date}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Geolocation Lat</p>
+                                <span class="text-muted">{{$fbsIncident->geolocation_lat}}</span>
+                            </div>
+                        </div> <br>
+                        <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Geolocation Long</p>
+                                <span class="text-muted">{{$fbsIncident->geolocation_long}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Date of hearing</p>
+                                <span class="text-muted">{{$fbsIncident->hearing_date}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Description of structure</p>
+                                <span class="text-muted">{{$fbsIncident->structure_description}}</span>
+                            </div>
                         </div>
+                        @endif
                     </div>
                 </li>
           

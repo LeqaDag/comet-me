@@ -20,7 +20,7 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
         $this->request = $request; 
     }
 
-    /**
+    /** 
     * @return \Illuminate\Support\Collection
     */
     public function collection()
@@ -60,6 +60,9 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
                 'h2o_system_incidents.date', 
                 DB::raw('group_concat(DISTINCT incident_statuses.name) as incident_status'),
                 'h2o_system_incidents.response_date',
+                'h2o_system_incidents.order_number', 'h2o_system_incidents.order_date', 
+                'h2o_system_incidents.geolocation_lat', 'h2o_system_incidents.geolocation_long', 
+                'h2o_system_incidents.hearing_date', 'h2o_system_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 'h2o_system_incidents.notes'
@@ -93,7 +96,9 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
         return ["Water Holder", "Main User", "Community", "Region", "Sub Region", 
             "# of Male", "# of Female", "# of Children", "# of Adults", 
             "Incident", "Incident Year", "Incident Date", "Status", 
-            "Response Date", "Donors", "Equipment Damaged", "Notes"];
+            "Response Date",  "Order Number", "Order Date", 
+            "Geolocation Lat", "Geolocation Long", "Date of hearing", 
+            "Description of structure", "Donors", "Equipment Damaged", "Notes"];
     }
 
     public function title(): string
@@ -108,10 +113,10 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:P1');
-        $sheet->getStyle('P1')->getAlignment()->setWrapText(true);
+        $sheet->setAutoFilter('A1:W1');
+        $sheet->getStyle('w1')->getAlignment()->setWrapText(true);
 
-        $sheet->getColumnDimension('P')->setAutoSize(false)->setWidth(40);
+        $sheet->getColumnDimension('w')->setAutoSize(false)->setWidth(40);
 
         return [
             // Style the first row as bold text.

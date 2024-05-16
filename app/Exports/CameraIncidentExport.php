@@ -43,6 +43,9 @@ class CameraIncidentExport implements FromCollection, WithHeadings, WithTitle, S
                 DB::raw('IFNULL(camera_community.date, camera_repository.date) as exported_date'),
                 'incidents.english_name as incident', 'camera_incidents.year', 'camera_incidents.date', 
                 'internet_incident_statuses.name as camera_status', 'camera_incidents.response_date',
+                'camera_incidents.order_number', 'camera_incidents.order_date', 
+                'camera_incidents.geolocation_lat', 'camera_incidents.geolocation_long', 
+                'camera_incidents.hearing_date', 'camera_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 'camera_incidents.notes'
             ])
@@ -66,7 +69,8 @@ class CameraIncidentExport implements FromCollection, WithHeadings, WithTitle, S
     public function headings(): array
     {
         return ["Holder", "Installation Date", "Incident", "Incident Year", "Incident Date", "Status", "Response Date", 
-            "Equipment Damaged", "Notes"];
+            "Order Number", "Order Date", "Geolocation Lat", "Geolocation Long", "Date of hearing", 
+            "Description of structure", "Equipment Damaged", "Notes"];
     }
 
     public function title(): string
@@ -81,7 +85,7 @@ class CameraIncidentExport implements FromCollection, WithHeadings, WithTitle, S
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:I1');
+        $sheet->setAutoFilter('A1:O1');
 
         return [
             // Style the first row as bold text.

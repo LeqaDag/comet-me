@@ -51,13 +51,16 @@ class MgIncidentSystem implements FromCollection, WithHeadings, WithTitle, Shoul
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 'incident_status_mg_systems.name as mg_status', 
                 'mg_incidents.response_date',
+                'mg_incidents.order_number', 'mg_incidents.order_date', 
+                'mg_incidents.geolocation_lat', 'mg_incidents.geolocation_long', 
+                'mg_incidents.hearing_date', 'mg_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
                 'mg_incidents.notes'
             ])
             ->groupBy('mg_incidents.id')
             ->orderBy('mg_incidents.date', 'desc'); 
 
-        if($this->request->community) {
+        if($this->request->community) { 
 
             $query->where("communities.english_name", $this->request->community);
         } 
@@ -82,7 +85,9 @@ class MgIncidentSystem implements FromCollection, WithHeadings, WithTitle, Shoul
     {
         return ["MG System", "Community", "Region", "Sub Region", 
             "Incident", "Incident Year", "Incident Date", "Equipment Damaged",
-            "Status", "Response date", "Donors", "Notes"];
+            "Status", "Response date", "Order Number", "Order Date", "Geolocation Lat", 
+            "Geolocation Long", "Date of hearing", "Description of structure",
+            "Donors", "Notes"];
     }
 
     public function title(): string
@@ -97,7 +102,7 @@ class MgIncidentSystem implements FromCollection, WithHeadings, WithTitle, Shoul
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:L1');
+        $sheet->setAutoFilter('A1:R1');
 
         return [
             // Style the first row as bold text.
