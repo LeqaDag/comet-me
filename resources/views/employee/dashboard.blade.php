@@ -239,7 +239,7 @@
         <div class="card-body">
             <div id="initialYearCommunityChartInternet"></div>
         </div>
-    </div>
+    </div> 
   </div>
 </div>
 <div class="row mb-4">

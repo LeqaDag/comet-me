@@ -27,6 +27,11 @@ label, table {
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseEnergyUserPurchaseReport" 
+        role="button" aria-expanded="false" aria-controls="collapseEnergyUserPurchaseReport">
+        <i class="menu-icon tf-icons bx bx-purchase-tag"></i>
+        Purchase Report
+    </a>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
         data-target=".multi-collapse" aria-expanded="false" 
         aria-controls="collapseEnergyUserVisualData collapseEnergyUserExport">
@@ -37,23 +42,21 @@ label, table {
  
 <div class="collapse multi-collapse mb-4" id="collapseEnergyUserVisualData">
     <div class="container">
-        <div class="row g-4 mb-4">  
-            <div class="col-md-12">
+        <div class="row">
+            <div class="col">
                 <div class="panel panel-primary">
                     <div class="panel-header">
                         <h5>Electricity Meter Issues</h5>
                     </div>
-                    <div class="panel-body" >
-                        <div class="">
-                            <div id="energyUserChart" >
-                                <div></div>
-                            </div>
+                    <div class="panel-body">
+                        <div id="energyUserChart">
+                            <div></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>  
+    </div>
 </div>
 
 <div class="collapse multi-collapse container mb-4" id="collapseEnergyUserExport">
@@ -136,6 +139,47 @@ label, table {
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </form>
+                </div>  
+            </div>
+        </div> 
+    </div> 
+</div>
+
+<div class="collapse multi-collapse mb-4" id="collapseEnergyUserPurchaseReport">
+<div class="container mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                Import Your File from Vending Software 
+                                    <i class='menu-icon tf-icons bx bx-export text-info'></i>
+                                </h5>
+                            </div>
+                        </div> 
+                    </div>
+                    <form method="POST" enctype='multipart/form-data' 
+                        action="{{ route('energy-meter.import') }}">
+                        @csrf
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-xl-5 col-lg-5 col-md-5">
+                                    <fieldset class="form-group">
+                                        <input name="file" type="file"
+                                            class="form-control">
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Proccess
+                                    </button>
+                                </div>
+                            </div> 
                         </div>
                     </form>
                 </div>  

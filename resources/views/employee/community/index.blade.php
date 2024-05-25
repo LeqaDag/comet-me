@@ -28,10 +28,10 @@
 
 <div class="collapse multi-collapse" id="collapseCommunityVisualData">
     <div class="container" >
-        <div class="row g-4 mb-4">
-            <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-3 mb-4">
+        <div class="row g-4 mb-4"> 
+            <div class="col">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header"> 
                         <h5 class="card-title mb-0">Energy Service</h5>
                     </div>
                     <div class="card-body">
@@ -123,7 +123,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4 col-xl-4 col-xxl-3 mb-4">
+            <div class="col">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-start justify-content-between">
@@ -207,7 +207,7 @@
 
     <div class="container">
         <div class="row g-4 mb-4">
-            <div class="col-xl-12 col-lg-12 col-md-12">
+            <div class="col">
                 <div class="panel panel-primary">
                     <div class="panel-body" >
                         <div id="pie_chart_regional_community" style="height:450px;">
@@ -382,16 +382,11 @@
         </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                Auth::guard('user')->user()->user_type_id == 2  )
+                Auth::guard('user')->user()->user_type_id == 2 )
                 <div>
-                    <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createCommunity">
+                    <a type="button" class="btn btn-success" 
+                        href="{{url('community', 'create')}}">
                         Create New Community	
-                    </button>
-                    @include('employee.community.create')
-
-                    <a href="{{url('community', 'create')}}" 
-                        class="btn btn-primary">Calculate Number of Households
                     </a>
                 </div>
             @endif

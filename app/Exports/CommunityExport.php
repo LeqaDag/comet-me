@@ -18,7 +18,7 @@ class CommunityExport implements WithMultipleSheets, ShouldAutoSize
         $this->request = $request;
     }
  
-    /**
+    /** 
      * @return array
      */ 
     public function sheets(): array

@@ -779,7 +779,7 @@ class HouseholdController extends Controller
                 if($request->english_name) $sharedGridUser->grid_user_english_name = $request->english_name;
                 if($request->arabic_name) $sharedGridUser->grid_user_arabic_name = $request->arabic_name;
                 $sharedGridUser->save();
-            }
+            } 
         }
         // end updating user name for shared grid user
 

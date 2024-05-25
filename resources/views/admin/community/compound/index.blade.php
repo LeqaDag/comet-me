@@ -15,7 +15,6 @@ label, table {
 }
 </style>
 
-
 <p>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
         data-target="#collapseCompoundCommunityExport" aria-expanded="false" 
@@ -135,6 +134,98 @@ label, table {
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Filter By Community</label>
                         <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunityCompound">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Region</label>
+                        <select name="region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByRegionCompound">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($regions as $region)
+                                <option value="{{$region->id}}">{{$region->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Sub Region</label>
+                        <select name="sub_region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterBySubRegionCompound">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($subregions as $subRegion)
+                                <option value="{{$subRegion->id}}">{{$subRegion->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButtonCompound">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2  )
+            <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <button type="button" class="btn btn-success" 
+                        data-bs-toggle="modal" data-bs-target="#createCommunityCompound">
+                        Create New Community Compound	
+                    </button>
+                    @include('admin.community.compound.create_compound')
+                </div>
+            </div>
+            @endif
+            
+            <table id="compoundTable" class="table table-striped data-table-compounds my-2">
+                <thead>
+                    <tr>
+                        <th >Compound</th>
+                        <th >Community</th>
+                        <th >Region</th>
+                        @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                            Auth::guard('user')->user()->user_type_id == 2  )
+                            <th >Options</th>
+                        @else
+                            <th></th>
+                        @endif
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<br>
+<h4 class="py-3 breadcrumb-wrapper mb-4">
+  <span class="text-muted fw-light">All </span> community compound households
+</h4>
+
+<div class="container">
+    <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
                             data-live-search="true" id="filterByCommunity">
                             <option disabled selected>Choose one...</option>
                             @foreach($communities as $community)
@@ -225,6 +316,8 @@ label, table {
 <script type="text/javascript">
 
     var table;
+    var table1;
+
     function DataTableContent() {
         table = $('.data-table-compound-communities').DataTable({
             processing: true,
@@ -248,7 +341,41 @@ label, table {
         });
     }
 
+    function DataTableContent1() {
+        table1 = $('.data-table-compounds').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{ route('compound.index') }}",
+                data: function (d) {
+                    d.search = $('input[type="search"]').val();
+                    d.filter1 = $('#filterByCommunityCompound').val();
+                    d.second_filter1 = $('#filterByRegionCompound').val();
+                    d.third_filter1 = $('#filterBySubRegionCompound').val();
+                }
+            },
+            columns: [
+                {data: 'english_name', name: 'english_name'},
+                {data: 'community_english_name', name: 'community_english_name'},
+                {data: 'name', name: 'name'},
+                {data: 'action'}
+            ]
+        });
+    }
+
     $(function () {
+
+        DataTableContent1();
+        
+        $('#filterByRegionCompound').on('change', function() {
+            table1.ajax.reload(); 
+        });
+        $('#filterBySubRegionCompound').on('change', function() {
+            table1.ajax.reload(); 
+        });
+        $('#filterByCommunityCompound').on('change', function() {
+            table1.ajax.reload(); 
+        });
 
         DataTableContent();
         
@@ -271,6 +398,17 @@ label, table {
                 $('.data-table-compound-communities').DataTable().destroy();
             }
             DataTableContent();
+        });
+
+        // Clear Filter
+        $('#clearFiltersButtonCompound').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-compounds')) {
+                $('.data-table-compounds').DataTable().destroy();
+            }
+            DataTableContent1();
         });
 
         // Clear Filters for Export

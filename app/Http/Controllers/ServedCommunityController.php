@@ -85,14 +85,33 @@ class ServedCommunityController extends Controller
                     ->make(true);
             }
     
-            $communityRecords = Community::where("community_status_id", "3")->count();
+            $communityRecords = Community::where("community_status_id", "3")
+            ->where('is_archived', 0)->count();
             $regions = Region::where('is_archived', 0)->get();
             $subregions = SubRegion::where('is_archived', 0)->get();
             $products = ProductType::where('is_archived', 0)->get();
             $energyTypes = EnergySystemType::where('is_archived', 0)->get();
     
+            $dataSurveyed = DB::table('communities')
+                ->where('communities.is_archived', 0)
+                ->where('communities.community_status_id', 3)
+                ->select(
+                    DB::raw('CASE WHEN communities.is_surveyed IS NULL THEN "No" ELSE "Yes" END as name'),
+                    DB::raw('count(*) as number')
+                )
+                ->groupBy(DB::raw('CASE WHEN communities.is_surveyed IS NULL THEN "No" ELSE "Yes" END'))
+                ->get();
+
+            $arraySurveyed[] = ['Is Completed Surveyed', 'Total'];
+            
+            foreach($dataSurveyed as $key => $value) {
+
+                $arraySurveyed[++$key] = [$value->name, $value->number];
+            }
+
             return view('employee.community.served', compact('regions', 
-                'communityRecords', 'subregions', 'products', 'energyTypes'));
+                'communityRecords', 'subregions', 'products', 'energyTypes'))
+                ->with('surveyedCommunityData', json_encode($arraySurveyed));
         } else {
 
             return view('errors.not-found');

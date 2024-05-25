@@ -125,6 +125,7 @@ return [
 
   'cipher' => 'AES-256-CBC',
 
+  'charset' => 'UTF-8',
   /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers

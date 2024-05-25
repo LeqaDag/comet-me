@@ -16,7 +16,7 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\CompoundHousehold;
-use App\Models\CommunityVendor;
+use App\Models\CommunityVendor; 
 use App\Models\CommunityService;
 use App\Models\Donor;
 use App\Models\DisplacedHousehold;
@@ -39,6 +39,8 @@ use App\Models\Region;
 use App\Models\VendorUserName;
 use App\Models\EnergySystemCycle;
 use App\Exports\AllEnergyExport;
+use App\Exports\PurchaseEnergyExport;
+use App\Imports\PurchaseEnergyImport;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -769,5 +771,18 @@ class AllEnergyController extends Controller
     {
 
         return Excel::download(new AllEnergyExport($request), 'energy_meters_summary.xlsx');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function import(Request $request) 
+    {
+        $importedData = Excel::toCollection(new PurchaseEnergyImport, $request->file('file'));
+
+        $data = $importedData->first();
+
+        return Excel::download(new PurchaseEnergyExport($data), 'purchase_report.xlsx');
     }
 }

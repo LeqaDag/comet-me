@@ -228,6 +228,24 @@
                                             @endif
                                         </div>
                                     </li>
+                                    <li class="d-flex justify-content-start align-items-center 
+                                        text-secondary mb-3">
+                                        <i class="bx bx-cake bx-sm me-3"></i>
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1">Products</small>
+                                            @if(count($communityProductTypes)> 0)
+                                                @foreach($communityProductTypes as $communityProductType)
+                                                <ul>
+                                                    <li>
+                                                        <span class="text-secondary" style="font-size:12px">
+                                                            {{$communityProductType->name}}
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    </li>
                                 </ul>
                             </div>
                         </div>

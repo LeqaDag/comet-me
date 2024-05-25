@@ -16,7 +16,7 @@
                 </a>
               </div>
             </div>
-          </div>
+          </div> 
         </div>
         <div class="col-lg-3 col-sm-3 col-md-3mb-4">
           <div class="col">
@@ -165,7 +165,7 @@
 
   <!-- H2O Users -->
   <div class="row mb-4">
-    <div class="col-lg-12 col-xl-12 col-md-12 mb-4">
+    <div class="col-md-12 col-lg-12">
       <div class="card"> 
         <div class="card-header">
           <h5 class="card-title mb-0">Water Users</h5>

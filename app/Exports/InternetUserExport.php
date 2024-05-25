@@ -40,7 +40,7 @@ WithStyles
 
         $holders = json_decode($data, true) ;
 
-        foreach($holders as $holder) {
+        foreach($holders as $holder) { 
 
             if($holder["user_group_name"] == "Comet Employee" ||
                 $holder["user_group_name"] == "أبو فلاح	") {
@@ -83,6 +83,9 @@ WithStyles
                 
                 if($household) {
 
+                    $household->phone_number = $holder["holder_mobile"];
+                    $household->save();
+
                     $existInternetHolder = InternetUser::where("household_id", $household->id)->first();
                     if($existInternetHolder) {
 
@@ -95,11 +98,15 @@ WithStyles
 
                     } else {
                         $household->internet_system_status = "Served";
+                        $household->phone_number = $holder["holder_mobile"];
                         $household->save();
                         $internetUser->household_id = $household->id;
                         $internetUser->save();
                     }
                 } else if($public) {
+
+                    $public->phone_number = $holder["holder_mobile"];
+                    $public->save();
 
                     $existInternetPublic = InternetUser::where("public_structure_id", $public->id)->first();
                     if($existInternetPublic) {
@@ -112,6 +119,9 @@ WithStyles
                         $existInternetPublic->save();
                     } else {
                          
+                        $public->phone_number = $holder["holder_mobile"];
+                        $public->save();
+
                         $internetUser->public_structure_id = $public->id;
                         $internetUser->save();
                     }
@@ -121,6 +131,7 @@ WithStyles
 
                         $newHousehold = new Household();
                         $newHousehold->arabic_name = $holder["holder_full_name"];
+                        $newHousehold->phone_number = $holder["holder_mobile"];
                         $newHousehold->internet_holder_young = 1;
                         $newHousehold->community_id = $community->id;
                         $newHousehold->internet_system_status = "Served";
@@ -153,10 +164,14 @@ WithStyles
                 'internet_clusters.id')
             ->LeftJoin('donors', 'internet_user_donors.donor_id', '=', 'donors.id')
             ->where('internet_users.is_archived', 0)
-            ->select('households.english_name as english_name', 
-                'households.arabic_name as arabic_name', 
-                'public_structures.english_name as public', 
+            ->select(
+                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                    as exported_value'),
+                DB::raw('IFNULL(households.arabic_name, public_structures.arabic_name) 
+                    as exported_value_arabic'),
                 'communities.english_name as community_name',
+                DB::raw('IFNULL(households.phone_number, public_structures.phone_number) 
+                    as phone_number'),
                 'internet_clusters.name as cluster_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'internet_users.start_date', 
@@ -194,7 +209,7 @@ WithStyles
      */
     public function headings(): array
     {
-        return ["Internet Holder", "Arabic Name", "Public Name", "Community", "Cluster Name", 
+        return ["Internet Holder", "Arabic Name", "Community", "Phone Number", "Cluster Name", 
             "Region", "Sub Region", "Start Date", "Is Paid", "Is Active", "Is Expire", 
             "Number of Contracts", "Last Purchase Date", "Expired > 30" , 
             "Expired > 60", "Donors"];
@@ -212,7 +227,7 @@ WithStyles
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:O1');
+        $sheet->setAutoFilter('A1:P1');
 
         return [
             // Style the first row as bold text.

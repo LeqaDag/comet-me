@@ -31,6 +31,9 @@ label {
                 @csrf
                 @method('PATCH')
                     <div class="row">
+                        <h5>General Details</h5>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>English Name</label>
@@ -184,30 +187,6 @@ label {
                                 </select>
                             </fieldset>
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Demolition orders/demolitions </label>
-                                <input type="text" name="demolition" 
-                                value="{{$community->demolition}}" class="form-control">
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Lawyer</label>
-                                <input type="text" name="lawyer" class="form-control"
-                                    value="{{$community->lawyer}}">
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Land Status</label>
-                                <input type="text" name="land_status" 
-                                value="{{$community->land_status}}" class="form-control">
-                            </fieldset>
-                        </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Latitude</label>
@@ -229,16 +208,16 @@ label {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Notes</label>
                                 <textarea name="notes" class="form-control" 
-                                   style="resize:none" cols="20" rows="3">
-                                   {{$community->notes}}
+                                style="resize:none" cols="20" rows="3">
+                                {{$community->notes}}
                                 </textarea>
                             </fieldset>
                         </div>
                     </div>
-                   
+
                     <hr>
                     <div class="row" style="margin-top:12px">
-                        <h6>Second Name for community</h6>
+                        <h5>Second Name for community</h5>
                     </div>
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
@@ -269,10 +248,330 @@ label {
                             </fieldset>
                         </div>
                     </div> 
- 
+
                     <hr style="margin-top:30px">
                     <div class="row">
-                        <h6>Recommended Energy Systems</h6>
+                        <h5>Compounds</h5>
+                    </div>
+                    @if(count($compounds) > 0)
+
+                        <table id="communityCompoundTable" class="table table-striped my-2">
+                            <tbody>
+                                @foreach($compounds as $compound)
+                                <tr id="compoundsRow">
+                                    <td class="text-center">
+                                        {{$compound->english_name}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{$compound->arabic_name}}
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn deleteCommunityCompound" 
+                                            id="deleteCommunityCompound"
+                                            data-id="{{$compound->id}}">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <span>Add More Compounds</span>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                                <table class="table table-bordered" id="dynamicAddRemoveCompoundName">
+                                    <tr>
+                                        <th>Compound Name</th>
+                                        <th>Options</th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="text" name="addMoreInputFieldsCompoundName[0][subject]" 
+                                            placeholder="Enter English Copmound Name" class="target_point form-control" 
+                                            data-id="0"/>
+                                        </td>
+                                        <td>
+                                            <button type="button" name="add" id="addCompoundNameButton" 
+                                            class="btn btn-outline-primary">
+                                                Add More
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                    @else
+                        <div class="row">
+                            <h6>Add New Compounds</h6>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                                <table class="table table-bordered" id="dynamicAddRemoveCompoundName">
+                                    <tr>
+                                        <th>Compound Name</th>
+                                        <th>Options</th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="text" name="addMoreInputFieldsCompoundName[0][subject]" 
+                                            placeholder="Enter English Copmound Name" class="target_point form-control" 
+                                            data-id="0"/>
+                                        </td>
+                                        <td>
+                                            <button type="button" name="add" id="addCompoundNameButton" 
+                                            class="btn btn-outline-primary">
+                                                Add More
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+
+                    <hr style="margin-top:30px">
+                    <div class="row">
+                        <h5>Community Products</h5>
+                    </div>
+                    @if(count($communityProductTypes) > 0)
+
+                        <table id="communityProductTypesTable" class="table table-striped my-2">
+                            <tbody>
+                                @foreach($communityProductTypes as $communityProductType)
+                                <tr id="communityProductTypesRow">
+                                    <td class="text-center">
+                                        {{$communityProductType->ProductType->name}}
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn deletecommunityProductTypes" 
+                                            id="deletecommunityProductTypes"
+                                            data-id="{{$communityProductType->id}}">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add More Products</label>
+                                    <select class="selectpicker form-control" multiple data-live-search="true" 
+                                        name="products[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($products as $product)
+                                        <option value="{{$product->id}}">
+                                            {{$product->name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                        
+                    @else
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Products</label>
+                                    <select class="selectpicker form-control" multiple data-live-search="true" 
+                                        name="new_products[]">
+                                        @foreach($products as $product)
+                                        <option value="{{$product->id}}">
+                                            {{$product->name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                    @endif
+
+                    <hr style="margin-top:30px">
+                    <div class="row">
+                        <h5>Nearby Towns</h5>
+                    </div>
+                    @if(count($communityNearbyTowns) > 0)
+
+                        <table id="communityNearbyTownsTable" class="table table-striped my-2">
+                            <tbody>
+                                @foreach($communityNearbyTowns as $communityNearbyTown)
+                                <tr id="communityNearbyTownsRow">
+                                    <td class="text-center">
+                                        {{$communityNearbyTown->Town->english_name}}
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn deletecommunityNearbyTowns" 
+                                            id="deletecommunityNearbyTowns"
+                                            data-id="{{$communityNearbyTown->id}}">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add More Nearby Towns</label>
+                                    <select class="selectpicker form-control" multiple data-live-search="true" 
+                                        name="nearby_towns[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($towns as $town)
+                                        <option value="{{$town->id}}">
+                                            {{$town->english_name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                        
+                    @else
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Nearby Towns</label>
+                                    <select class="selectpicker form-control" multiple data-live-search="true" 
+                                        name="new_nearby_towns[]">
+                                        @foreach($towns as $town)
+                                        <option value="{{$town->id}}">
+                                            {{$town->english_name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                    @endif
+
+
+                    <hr style="margin-top:30px">
+                    <div class="row">
+                        <h5>Nearby Settlements</h5>
+                    </div>
+                    @if(count($communityNearbySettlements) > 0)
+
+                        <table id="communityNearbySettlementsTable" class="table table-striped my-2">
+                            <tbody>
+                                @foreach($communityNearbySettlements as $communityNearbySettlement)
+                                <tr id="communityNearbySettlementsRow">
+                                    <td class="text-center">
+                                        {{$communityNearbySettlement->Settlement->english_name}}
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn deleteCommunityNearbySettlements" 
+                                            id="deleteCommunityNearbySettlements"
+                                            data-id="{{$communityNearbySettlement->id}}">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add More Nearby Settlements</label>
+                                    <select class="selectpicker form-control" multiple data-live-search="true" 
+                                        name="nearby_settlement[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($settlements as $settlement)
+                                        <option value="{{$settlement->id}}">
+                                            {{$settlement->english_name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                        
+                    @else
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Nearby Settlements</label>
+                                    <select class="selectpicker form-control" multiple data-live-search="true" 
+                                        name="new_nearby_settlement[]">
+                                        @foreach($settlements as $settlement)
+                                        <option value="{{$settlement->id}}">
+                                            {{$settlement->english_name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                    @endif
+
+
+
+                    <hr style="margin-top:30px">
+                    <div class="row" style="margin-top:12px">
+                        <h5>Legal Details</h5>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Demolition orders/demolitions </label>
+                                <select name="demolition" class="form-control">
+                                    <option disabled selected>{{$community->demolition}}</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>How Many Demolitions?</label>
+                                <input type="text" name="demolition_number" 
+                                value="{{$community->demolition_number}}" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Have demolition orders been executed?</label>
+                                <select name="demolition_executed" class="form-control">
+                                    <option disabled selected>{{$community->demolition_executed}}</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>When was the last demolition?</label>
+                                <input type="date" name="last_demolition" 
+                                value="{{$community->last_demolition}}" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Lawyer</label>
+                                <input type="text" name="lawyer" class="form-control"
+                                    value="{{$community->lawyer}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Land Status</label>
+                                <input type="text" name="land_status" 
+                                value="{{$community->land_status}}" class="form-control">
+                            </fieldset>
+                        </div>
+                    </div>
+                   
+
+                    <hr style="margin-top:30px">
+                    <div class="row">
+                        <h5>Recommended Energy Systems</h5>
                     </div>
                     @if(count($recommendedEnergySystems) > 0)
 
@@ -370,168 +669,146 @@ label {
                         </div>
                     @endif
 
-
                     <hr style="margin-top:30px">
                     <div class="row">
-                        <h6>Compounds</h6>
+                        <h5>Water Sources</h5>
                     </div>
-                    @if(count($compounds) > 0)
+                    @if(count($communityWaterSources) > 0)
 
-                        <table id="communityCompoundTable" class="table table-striped my-2">
+                        <table id="communityWaterSourcesTable" class="table table-striped my-2">
                             <tbody>
-                                @foreach($compounds as $compound)
-                                <tr id="compoundsRow">
+                                @foreach($communityWaterSources as $communityWaterSource)
+                                <tr id="communityWaterSourcesRow">
                                     <td class="text-center">
-                                        {{$compound->english_name}}
+                                        {{$communityWaterSource->WaterSource->name}}
                                     </td>
                                     <td class="text-center">
-                                        {{$compound->arabic_name}}
-                                    </td>
-                                    <td class="text-center">
-                                        <a class="btn deleteCommunityCompound" 
-                                            id="deleteCommunityCompound"
-                                            data-id="{{$compound->id}}">
+                                        <a class="btn deleteCommunityWaterSources" 
+                                            id="deleteCommunityWaterSources"
+                                            data-id="{{$communityWaterSource->id}}">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                    </td
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                         <div class="row">
-                            <span>Add More Compounds</span>
-                        </div>
-                        <div class="row">
-                            <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                                <table class="table table-bordered" id="dynamicAddRemoveCompoundName">
-                                    <tr>
-                                        <th>Compound Name</th>
-                                        <th>Options</th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <input type="text" name="addMoreInputFieldsCompoundName[0][subject]" 
-                                            placeholder="Enter English Copmound Name" class="target_point form-control" 
-                                            data-id="0"/>
-                                        </td>
-                                        <td>
-                                            <button type="button" name="add" id="addCompoundNameButton" 
-                                            class="btn btn-outline-primary">
-                                                Add More
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </table>
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add More Water Sources</label>
+                                    <select class="selectpicker form-control" multiple data-live-search="true" 
+                                        name="waters[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($waterSources as $waterSource)
+                                        <option value="{{$waterSource->id}}">
+                                            {{$waterSource->name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
                             </div>
                         </div>
                         
                     @else
                         <div class="row">
-                            <h6>Add New Compounds</h6>
-                        </div>
-                        <div class="row">
-                            <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                                <table class="table table-bordered" id="dynamicAddRemoveCompoundName">
-                                    <tr>
-                                        <th>Compound Name</th>
-                                        <th>Options</th>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <input type="text" name="addMoreInputFieldsCompoundName[0][subject]" 
-                                            placeholder="Enter English Copmound Name" class="target_point form-control" 
-                                            data-id="0"/>
-                                        </td>
-                                        <td>
-                                            <button type="button" name="add" id="addCompoundNameButton" 
-                                            class="btn btn-outline-primary">
-                                                Add More
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </table>
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Water Sources</label>
+                                    <select class="selectpicker form-control" multiple data-live-search="true" 
+                                        name="new_waters[]">
+                                        @foreach($waterSources as $waterSource)
+                                        <option value="{{$waterSource->id}}">
+                                            {{$waterSource->name}}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
                             </div>
                         </div>
                     @endif
 
 
-                    <hr>
-                    <div class="row">
-                        <h5>System Details</h5>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Energy Service</label>
-                                <select name="energy_service" class="form-control">
-                                    <option disabled selected>{{$community->energy_service}}</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Energy Service Year</label>
-                                <input type="text" name="energy_service_beginning_year" 
-                                value="{{$community->energy_service_beginning_year}}" class="form-control">
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Water Service</label>
-                                <select name="water_service" class="form-control">
-                                    <option disabled selected>{{$community->water_service}}</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </fieldset>
-                        </div>
-                    </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                </div>
 
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Water Service Year</label>
-                                <input type="text" name="water_service_beginning_year" 
-                                value="{{$community->water_service_beginning_year}}" class="form-control">
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Internet Service</label>
-                                <select name="internet_service" class="form-control">
-                                    <option disabled selected>{{$community->internet_service}}</option>
-                                    <option value="yes">Yes</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Internet Service Year</label>
-                                <input type="text" name="internet_service_beginning_year" 
-                                value="{{$community->internet_service_beginning_year}}" class="form-control">
-                            </fieldset>
-                        </div>
+                <hr style="margin-top:30px">
+                <div class="row">
+                    <h5>System Details</h5>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy Service</label>
+                            <select name="energy_service" class="form-control">
+                                <option disabled selected>{{$community->energy_service}}</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </fieldset>
                     </div>
-
-                    <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-12 mb-1" id="percentageQuestion1Div">
-                            <fieldset class="form-group">
-                                <input type="text" name="description" class="form-control"
-                                    id="percentageInputQuestion1" 
-                                    style="visiblity:hidden; display:none">
-                            </fieldset>
-                        </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy Service Year</label>
+                            <input type="text" name="energy_service_beginning_year" 
+                            value="{{$community->energy_service_beginning_year}}" class="form-control">
+                        </fieldset>
                     </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Water Service</label>
+                            <select name="water_service" class="form-control">
+                                <option disabled selected>{{$community->water_service}}</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
 
-                    <hr>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Water Service Year</label>
+                            <input type="text" name="water_service_beginning_year" 
+                            value="{{$community->water_service_beginning_year}}" class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Internet Service</label>
+                            <select name="internet_service" class="form-control">
+                                <option disabled selected>{{$community->internet_service}}</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Internet Service Year</label>
+                            <input type="text" name="internet_service_beginning_year" 
+                            value="{{$community->internet_service_beginning_year}}" class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 mb-1" id="percentageQuestion1Div">
+                        <fieldset class="form-group">
+                            <input type="text" name="description" class="form-control"
+                                id="percentageInputQuestion1" 
+                                style="visiblity:hidden; display:none">
+                        </fieldset>
+                    </div>
+                </div>
+
+                <hr style="margin-top:30px">
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>
-                                <h4>Surveyed </h4> 
+                                <h5>Surveyed </h5> 
                             </label>
                         </fieldset>
                     </div>
@@ -547,7 +824,7 @@ label {
                                 <option selected disabled value="{{$community->is_surveyed}}">
                                     {{$community->is_surveyed}}
                                 </option>
-                                <option value="yes">Yes</option>
+                                <option value="yes">Yes</option> 
                                 <option value="no">No</option>
                                 @else
                                 <option selected disabled>Choose one...</option>
@@ -580,6 +857,158 @@ label {
 </div>
 
 <script>
+
+    // delete community water source
+    $('#communityWaterSourcesTable').on('click', '.deleteCommunityWaterSources',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Water Source?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteCommunityWaterSources') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // delete community product
+    $('#communityProductTypesTable').on('click', '.deletecommunityProductTypes',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this product?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deletecommunityProductTypes') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // delete community nearby town
+    $('#communityNearbyTownsTable').on('click', '.deletecommunityNearbyTowns',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this nearby town?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deletecommunityNearbyTowns') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // delete community nearby settlements 
+    $('#communityNearbySettlementsTable').on('click', '.deleteCommunityNearbySettlements',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this nearby settlement?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteCommunityNearbySettlements') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
 
     $('#recommended_numbers').on('change', function(){
 

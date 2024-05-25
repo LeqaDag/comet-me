@@ -39,112 +39,107 @@ label, table {
 
 <div class="collapse multi-collapse container mb-4" id="collapseInternetUsersVisualData">
        <!-- Internet Users -->
-    <div class="row mb-4">
-        <div class="col-lg-12 col-xl-12 col-md-12 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Internet Users</h5>
-                </div>
-                <div class="card-body pb-2">
-                    <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Internet Users</h5>
+            <div class="row">
+                <div class="">
+                    <div class="">
                         <ul class="p-0 m-0">
                             <li class="d-flex mb-4 pb-2">
                                 <div class="avatar avatar-sm flex-shrink-0 me-3">
                                     <span class="avatar-initial rounded-circle bg-label-success">
                                         <a href="{{'internet-user'}}" target="_blank" type="button"> 
-                                        <i class='bx bx-wifi'></i>
+                                            <i class='bx bx-wifi'></i>
                                         </a>
                                     </span>
                                 </div>
                                 <div class="d-flex flex-column w-100">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span>Internet Users</span>
-                                        <span class="text-muted">
-                                        {{$internetPercentage}} %
-                                        </span> 
+                                        <span class="text-muted">{{$internetPercentage}}%</span> 
                                     </div>
                                     <div class="progress" style="height:6px;">
                                         <div class="progress-bar bg-success" style="width: {{$internetPercentage}}%" 
-                                        role="progressbar" aria-valuenow="{{$internetPercentage}}" 
-                                        aria-valuemin="0" 
-                                        aria-valuemax="{{$allInternetPeople}}"></div>
+                                            role="progressbar" aria-valuenow="{{$internetPercentage}}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="{{$allInternetPeople}}">
+                                        </div>
                                     </div>
                                 </div>
                             </li>
                         </ul>
                     </div>
 
-                    <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-3 mb-4">
-                        <div class="d-flex justify-content-between align-items-center gap-3 w-100">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center gap-3">
                             <div class="d-flex align-content-center">
                                 <div class="avatar avatar-sm flex-shrink-0 me-3">
                                     <span class="avatar-initial rounded-circle bg-label-success">
                                         <a type="button" data-bs-toggle="modal" 
-                                        data-bs-target="#communityInternet">
-                                        <i class='bx bx-home'></i>
+                                            data-bs-target="#communityInternet">
+                                            <i class='bx bx-home'></i>
                                         </a>
                                     </span>
                                 </div>
                                 <div class="chart-info">
-                                    <h5 class="mb-0">
-                                    @foreach($dataJson as $data)
-                                        {{$data["total_active_communities"]}}
-                                    @endforeach
-                                    </h5>
+                                    <h5 class="mb-0">{{$dataJson[0]["total_active_communities"]}}</h5>
                                     <small class="text-muted">Active Communities</small>
                                 </div>
                             </div>
-                        @include('employee.community.service.internet')
-                        <div class="d-flex align-content-center">
-                            <div class="avatar avatar-sm flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded-circle bg-label-success">
-                                    <i class='bx bx-book-content bx-large'></i>
-                                </span>
+                            @include('employee.community.service.internet')
+                            <div class="d-flex align-content-center">
+                                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded-circle bg-label-success">
+                                        <i class='bx bx-book-content bx-large'></i>
+                                    </span>
+                                </div>
+                                <div class="chart-info"> 
+                                    <h5 class="mb-0">{{$allContractHolders}}</h5>
+                                    <small class="text-muted">Contract Holders</small>
+                                </div>
                             </div>
-                            <div class="chart-info"> 
-                                <h5 class="mb-0">{{$allContractHolders}}</h5>
-                                <small class="text-muted">Contract Holders</small>
+                            <div class="d-flex align-content-center">
+                                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded-circle bg-label-success">
+                                        <i class='bx bx-user'></i>
+                                    </span>
+                                </div>
+                                <div class="chart-info">
+                                    <h5 class="mb-0">{{$allInternetUsersCounts}}</h5>
+                                    <small class="text-muted">Users</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="d-flex align-content-center">
-                            <div class="avatar avatar-sm flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded-circle bg-label-success">
-                                    <i class='bx bx-user'></i>
-                                </span>
+                            <div class="d-flex align-content-center">
+                                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded-circle bg-label-success">
+                                        <i class='bx bx-happy bx-large'></i>
+                                    </span>
+                                </div>
+                                <div class="chart-info"> 
+                                    <h5 class="mb-0">{{$youngInternetHolders}}</h5>
+                                    <small class="text-muted">Young Holders</small>
+                                </div>
                             </div>
-                            <div class="chart-info">
-                                <h5 class="mb-0">{{$allInternetUsersCounts}}</h5>
-                                <small class="text-muted">Users</small>
+                            <div class="d-flex align-content-center">
+                                <div class="avatar avatar-sm flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded-circle bg-label-success">
+                                        <i class='bx bx-buildings'></i>
+                                    </span>
+                                </div>
+                                <div class="chart-info">
+                                    <h5 class="mb-0">{{$InternetPublicCount}}</h5>
+                                    <small class="text-muted">Public Structures</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="d-flex align-content-center">
-                            <div class="avatar avatar-sm flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded-circle bg-label-success">
-                                    <i class='bx bx-happy bx-large'></i>
-                                </span>
-                            </div>
-                            <div class="chart-info"> 
-                                <h5 class="mb-0">{{$youngInternetHolders}}</h5>
-                                <small class="text-muted">Young Holders</small>
-                            </div>
-                        </div>
-                        <div class="d-flex align-content-center">
-                            <div class="avatar avatar-sm flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded-circle bg-label-success">
-                                    <i class='bx bx-buildings'></i>
-                                </span>
-                            </div>
-                            <div class="chart-info">
-                                <h5 class="mb-0">{{$InternetPublicCount}}</h5>
-                                <small class="text-muted">Public Structures</small>
-                            </div>
-                        </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div class="card mb-4">
         <div class="card-body">

@@ -33,14 +33,17 @@ class AllEnergyMeterController extends Controller
             ->where('all_energy_meters.is_archived', 0)
             ->select(
                 'communities.english_name as english_community_name',
+                'communities.arabic_name as arabic_community_name',
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
-                    as holder_name'),
+                    as holder_name_english'),
+                DB::raw('IFNULL(households.arabic_name, public_structures.arabic_name) 
+                    as holder_name_arabic'),
                 'households.phone_number', 'households.energy_system_status',
-                'all_energy_meters.meter_number', 'energy_system_types.name as energy_type_name',
-                'meter_cases.meter_case_name_english', 'all_energy_meters.is_main',
+                'all_energy_meters.meter_number', 'energy_system_types.name as energy_type',
+                'meter_cases.meter_case_name_english as meter_case', 'all_energy_meters.is_main',
                 'households.water_system_status', 'households.internet_system_status')
             ->get(); 
 
-        return response()->json($data)->header('Content-Type', 'application/json; charset=utf-8');
+        return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }
 }

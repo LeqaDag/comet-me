@@ -122,6 +122,9 @@ class UserController extends Controller
         $user->email = $input['email'];
         $user->phone = $input['phone'];
         $user->user_type_id = $input['user_type_id'];
+        if($request->user_type_id == 7 || $request->user_type_id == 8 || $request->user_type_id == 10) $user->user_role_type_id = 6;
+        if($request->user_type_id == 3 || $request->user_type_id == 4 || $request->user_type_id == 5 || 
+            $request->user_type_id == 6) $user->user_role_type_id = 3;
         $user->password = $input['password'];
         $user->save();
     

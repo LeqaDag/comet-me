@@ -10,6 +10,22 @@
 
 @section('content')
 
+<div class="container">
+    <div class="row g-4 mb-4">
+        <div class="col">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div class="row">
+                        <div id="pie_chart_surveyed_household" class="col-md-12">
+
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container mb-4 my-2">
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12">
@@ -62,6 +78,7 @@
     $(function () {
 
         var analytics = <?php echo $communityServedHouseholdsData; ?>;
+        var surveyedHousehold = <?php echo $surveyedHouseholdData; ?>;
 
         google.charts.load('current', {'packages':['corechart']});
         google.charts.setOnLoadCallback(drawChart);
@@ -75,6 +92,16 @@
 
             var chart = new google.visualization.PieChart(document.getElementById('community_served_households_chart'));
             chart.draw(data, options);
+
+            var dataSurveyed = google.visualization.arrayToDataTable(surveyedHousehold);
+            var optionsSurveyed = {
+                title : 'Completed Surveyed' 
+            };
+
+            var chartSurveyed = new google.visualization.PieChart(
+                document.getElementById('pie_chart_surveyed_household')
+                );
+            chartSurveyed.draw(dataSurveyed, optionsSurveyed);
         }
 
         var table = $('.data-table-served-households').DataTable({

@@ -9,14 +9,32 @@
 @include('layouts.all')
 
 @section('content')
+
+<div class="container">
+    <div class="row g-4 mb-4">
+        <div class="col">
+            <div class="panel panel-primary">
+                <div class="panel-body" >
+                    <div class="row">
+                        <div id="pie_chart_surveyed_community" class="col-md-12">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     @if ($communityRecords)
         {{$communityRecords}}
     @endif
   <span class="text-muted fw-light">Served </span> communities
 </h4>
-
+ 
 @include('employee.community.details')
+
+
 
 <div class="container">
     <div class="card my-2">
@@ -45,6 +63,24 @@
 <script type="text/javascript">
     $(function () {
     
+        var surveyedCommunity = <?php echo $surveyedCommunityData; ?>;
+
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart()
+        {
+            var dataSurveyed = google.visualization.arrayToDataTable(surveyedCommunity);
+            var optionsSurveyed = {
+                title : 'Completed Surveyed' 
+            };
+
+            var chartSurveyed = new google.visualization.PieChart(
+                document.getElementById('pie_chart_surveyed_community')
+                );
+            chartSurveyed.draw(dataSurveyed, optionsSurveyed);
+        }
+
         var table = $('.data-table-served-communities').DataTable({
             processing: true,
             serverSide: true,

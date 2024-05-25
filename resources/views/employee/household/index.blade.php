@@ -14,7 +14,7 @@
 label, table {
     margin-top: 20px;
 }
-</style>
+</style> 
 
 <p>
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseHouseholdVisualData" 
@@ -37,9 +37,10 @@ label, table {
 </p>   
 
 <div class="collapse multi-collapse mb-4" id="collapseHouseholdVisualData">
+
     <div class="container">
         <div class="row g-4 mb-4">
-            <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-3 mb-4">
+            <div class="col">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title mb-0">Energy Service</h5>
@@ -130,10 +131,10 @@ label, table {
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4 col-xl-4 col-xxl-3 mb-4">
+            <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between">
+                    <div class="d-flex align-items-start justify-content-between">
                             <div class="content-left">
                                 <span>Water Service</span>
                                 <div class="d-flex align-items-end mt-2">
@@ -171,7 +172,7 @@ label, table {
                 <br>
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between">
+                    <div class="d-flex align-items-start justify-content-between">
                             <div class="content-left">
                                 <span>Internet Service</span>
                                 <div class="d-flex align-items-end mt-2">
@@ -206,11 +207,11 @@ label, table {
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
 
     <div class="container">
         <div class="row g-4 mb-4"> 
-            <div class="col-md-12">
+            <div class="col">
                 <div class="panel panel-primary">
                     <div class="panel-header">
                         <h5>Households by Region</h5>
@@ -242,6 +243,7 @@ label, table {
             </div> 
         </div>
     </div>
+
 </div>
 
 <div class="collapse multi-collapse container mb-4" id="collapseHouseholdExport">
@@ -496,6 +498,7 @@ All<span class="text-muted fw-light"> Households</span>
 
         function drawChart()
         {
+            
             var data = google.visualization.arrayToDataTable(analytics);
             var options = {
                 title : 'Households by Region' 

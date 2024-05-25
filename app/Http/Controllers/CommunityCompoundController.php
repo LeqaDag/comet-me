@@ -33,7 +33,7 @@ use DataTables;
 use Excel;
 
 class CommunityCompoundController extends Controller
-{
+{ 
      /**
      * Display a listing of the resource.
      *

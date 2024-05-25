@@ -144,6 +144,7 @@ Route::get('ac-household/energy-user/get_misc/{misc}', [App\Http\Controllers\Ene
 Route::post('energy-user-export', [App\Http\Controllers\EnergyUserController::class, 'export'])->name('energy-user.export');
 Route::get('progress-household/household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::post('all-meter-export', [App\Http\Controllers\AllEnergyController::class, 'export'])->name('energy-meter.export');
+Route::post('all-meter-import', [App\Http\Controllers\AllEnergyController::class, 'import'])->name('energy-meter.import');
 
 Route::resource('energy-system', App\Http\Controllers\EnergySystemController::class);
 Route::get('energy-system/{id}/editpage', [App\Http\Controllers\EnergySystemController::class, 'editPage']);
@@ -468,4 +469,7 @@ Route::get('/delete-energy-turbine', [App\Http\Controllers\EnergyTurbineControll
 Route::get('/household/household/autocomplete/{term}', [App\Http\Controllers\HouseholdController::class, 'autoComplete'])->name('autocomplete.households');
 
 Route::post('missing-household-export', [App\Http\Controllers\HouseholdController::class, 'exportMissing'])->name('missing-household.export');
- 
+Route::get('/delete-community-water-source', [App\Http\Controllers\CommunityController::class, 'deleteCommunityWaterSources'])->name('deleteCommunityWaterSources');
+Route::get('/delete-community-town', [App\Http\Controllers\CommunityController::class, 'deletecommunityNearbyTowns'])->name('deletecommunityNearbyTowns');
+Route::get('/delete-community-settelement', [App\Http\Controllers\CommunityController::class, 'deleteCommunityNearbySettlements'])->name('deleteCommunityNearbySettlements');
+Route::get('/delete-community-product', [App\Http\Controllers\CommunityController::class, 'deletecommunityProductTypes'])->name('deletecommunityProductTypes');

@@ -19,7 +19,7 @@ class CommunityAll implements FromCollection, WithHeadings, WithTitle, ShouldAut
     protected $request;
 
     function __construct($request) {
-
+ 
         $this->request = $request;
     }
  
@@ -29,31 +29,31 @@ class CommunityAll implements FromCollection, WithHeadings, WithTitle, ShouldAut
     public function collection()
     {
         $data = DB::table('communities')
-            ->join('regions', 'communities.region_id', '=', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
-            ->leftJoin('sub_sub_regions', 'communities.sub_sub_region_id', '=', 'sub_sub_regions.id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->leftJoin('sub_sub_regions', 'communities.sub_sub_region_id', 'sub_sub_regions.id')
             ->join('community_statuses', 'communities.community_status_id', 
-                '=', 'community_statuses.id')
+                'community_statuses.id')
             ->leftJoin('all_energy_meters', 'all_energy_meters.community_id', 'communities.id')
             ->leftJoin('energy_system_types', 'energy_system_types.id', 
                 'all_energy_meters.energy_system_type_id')
             ->leftJoin('community_donors', 'community_donors.community_id', 'communities.id')
 
             ->leftJoin('community_donors as energy_donors', function ($join) {
-                $join->on('communities.id', '=', 'energy_donors.community_id')
-                    ->where('energy_donors.service_id', '=', 1); 
+                $join->on('communities.id', 'energy_donors.community_id')
+                    ->where('energy_donors.service_id', 1); 
             })
             ->leftJoin('donors as energy_donor', 'energy_donors.donor_id', 'energy_donor.id')
         
             ->leftJoin('community_donors as water_donors', function ($join) {
-                $join->on('communities.id', '=', 'water_donors.community_id')
-                    ->where('water_donors.service_id', '=', 2); 
+                $join->on('communities.id', 'water_donors.community_id')
+                    ->where('water_donors.service_id', 2); 
             })
             ->leftJoin('donors as water_donor', 'water_donors.donor_id', 'water_donor.id')
         
             ->leftJoin('community_donors as internet_donors', function ($join) {
-                $join->on('communities.id', '=', 'internet_donors.community_id')
-                    ->where('internet_donors.service_id', '=', 3);  
+                $join->on('communities.id', 'internet_donors.community_id')
+                    ->where('internet_donors.service_id', 3);  
             })
             ->leftJoin('donors as internet_donor', 'internet_donors.donor_id', 'internet_donor.id')
             ->leftJoin('community_representatives', 'community_representatives.community_id', 
@@ -62,6 +62,16 @@ class CommunityAll implements FromCollection, WithHeadings, WithTitle, ShouldAut
                 'representatives.id')
             ->leftJoin('community_roles', 'community_representatives.community_role_id', 
                 'community_roles.id')
+            
+            ->leftJoin('community_products', 'community_products.community_id', 'communities.id')
+            ->leftJoin('product_types', 'community_products.product_type_id', 'product_types.id')
+
+            ->leftJoin('nearby_towns', 'nearby_towns.community_id', 'communities.id')
+            ->leftJoin('towns', 'nearby_towns.town_id', 'towns.id')
+
+            ->leftJoin('nearby_settlements', 'nearby_settlements.community_id', 'communities.id')
+            ->leftJoin('settlements', 'nearby_settlements.settlement_id', 'settlements.id')
+
             ->where('communities.is_archived', 0)
             ->select('communities.english_name as english_name', 
                 'communities.arabic_name as arabic_name',
@@ -78,7 +88,13 @@ class CommunityAll implements FromCollection, WithHeadings, WithTitle, ShouldAut
                 DB::raw('group_concat(DISTINCT internet_donor.donor_name) as internet_donors'),
                 DB::raw('group_concat(DISTINCT representatives.english_name) as representatives'),
                 DB::raw('group_concat(DISTINCT representatives.phone_number) as phone_numbers'),
-                DB::raw('group_concat(DISTINCT community_roles.role) as community_roles')
+                DB::raw('group_concat(DISTINCT community_roles.role) as community_roles'),
+                DB::raw('group_concat(DISTINCT product_types.name) as product_types'),
+                DB::raw('group_concat(DISTINCT towns.english_name) as towns'),
+                DB::raw('group_concat(DISTINCT settlements.english_name) as settlements'),
+                'communities.demolition', 'communities.demolition_number', 
+                'communities.demolition_executed', 'communities.last_demolition', 
+                'communities.lawyer'
             )
             ->groupBy('communities.id');
 
@@ -194,7 +210,10 @@ class CommunityAll implements FromCollection, WithHeadings, WithTitle, ShouldAut
             "Energy Service", "Energy Service Year", "Energy System Type", "Energy Donors",
             "Water Service", "Water Service Year", "Water Donors",
             "Internet Service", "Internet Service Year", "Internet Donors",
-            "Community Representatives", "Phone Numbers", "Role"];
+            "Community Representatives", "Phone Numbers", "Role",
+            "Product Types", "Nearby Towns", "Nearby Settlements", 
+            "Demolition Orders", "# of Demolitions", "# of Execution Demolitions",
+            "Last Demolition", "Lawyers"];
     }
 
 
@@ -225,7 +244,7 @@ class CommunityAll implements FromCollection, WithHeadings, WithTitle, ShouldAut
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:V1');
+        $sheet->setAutoFilter('A1:AD1');
         
         return [ 
             // Style the first row as bold text.

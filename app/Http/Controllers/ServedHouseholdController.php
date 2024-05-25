@@ -125,8 +125,27 @@ class ServedHouseholdController extends Controller
                 $arrayHouseholdsByCommunity[++$key] = [$value->english_name, $value->number];
             }
     
+            $dataSurveyed = DB::table('households')
+                ->where('households.is_archived', 0)
+                ->where('households.internet_holder_young', 0)
+                ->select(
+                    DB::raw('CASE WHEN households.is_surveyed IS NULL THEN "No" ELSE "Yes" END as name'),
+                    DB::raw('count(*) as number')
+                )
+                ->groupBy(DB::raw('CASE WHEN households.is_surveyed IS NULL THEN "No" ELSE "Yes" END'))
+                ->get();
+
+            $arraySurveyed[] = ['Is Completed Surveyed', 'Total'];
+            
+            foreach($dataSurveyed as $key => $value) {
+
+                $arraySurveyed[++$key] = [$value->name, $value->number];
+            }
+
             return view('employee.household.served')
-                ->with('communityServedHouseholdsData', json_encode($arrayHouseholdsByCommunity));
+                ->with('communityServedHouseholdsData', json_encode($arrayHouseholdsByCommunity))
+                ->with('surveyedHouseholdData', json_encode($arraySurveyed)
+        );
         } else {
 
             return view('errors.not-found');

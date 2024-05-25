@@ -23,7 +23,7 @@ class InternetHolderController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     */
+     */ 
     public function index()
     {	
         $data = Http::get('http://185.190.140.86/api/users/');
@@ -74,6 +74,9 @@ class InternetHolderController extends Controller
                 
                 if($household) {
 
+                    $household->phone_number = $holder["holder_mobile"];
+                    $household->save();
+
                     $existInternetHolder = InternetUser::where("household_id", $household->id)->first();
                     if($existInternetHolder) {
 
@@ -87,11 +90,15 @@ class InternetHolderController extends Controller
                     } else {
 
                         $household->internet_system_status = "Served";
+                        $household->phone_number = $holder["holder_mobile"];
                         $household->save();
                         $internetUser->household_id = $household->id;
                         $internetUser->save();
                     }
                 } else if($public) {
+
+                    $public->phone_number = $holder["holder_mobile"];
+                    $public->save();
 
                     $existInternetPublic = InternetUser::where("public_structure_id", $public->id)->first();
                     if($existInternetPublic) {
@@ -114,6 +121,7 @@ class InternetHolderController extends Controller
 
                         $newHousehold = new Household();
                         $newHousehold->arabic_name = $holder["holder_full_name"];
+                        $newHousehold->phone_number = $holder["holder_mobile"];
                         $newHousehold->internet_holder_young = 1;
                         $newHousehold->community_id = $community->id;
                         $newHousehold->internet_system_status = "Served";

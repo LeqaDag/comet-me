@@ -17,6 +17,7 @@ use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\CommunityStatus; 
 use App\Models\CommunityService;
+use App\Models\CommunityProduct;
 use App\Models\CommunityRepresentative;
 use App\Models\CommunityRole;
 use App\Models\Compound;
@@ -323,57 +324,28 @@ class CommunityController extends Controller
      */
     public function create()
     {
-        $peopleHouseholds = Household::where('is_archived', 0)->get();
-
-        foreach($peopleHouseholds as $peopleHousehold) {
-
-            $peopleHousehold->number_of_people = $peopleHousehold->number_of_male +
-                $peopleHousehold->number_of_female;
-            $peopleHousehold->save();
-        }
-
-        $data = DB::table('households')
-            ->join('communities', 'communities.id', 'households.community_id')
-            ->select(
-                'households.community_id AS id',
-                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.internet_holder_young = 0
-                THEN 1 ELSE NULL END) as total_household'),
-                )
-            ->groupBy('households.community_id')
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+        $waterSources = WaterSource::where('is_archived', 0)->get();
+        $energyCycles = EnergySystemCycle::get();
+        $settlements = Settlement::where('is_archived', 0)->get();
+        $towns = Town::where('is_archived', 0)->get();
+        $publicCategories = PublicStructureCategory::where('is_archived', 0)
+            ->orderBy('name', 'ASC')
             ->get();
-       
-        
-        foreach($data as $d) {
-            $community = Community::findOrFail($d->id);
-            //$community->number_of_household = NULL;
-            $community->number_of_household = $d->total_household;
-            $community->save();
-        }
-
-        $households = DB::table('households')
-            ->join('communities', 'communities.id', 'households.community_id')
-            ->select(
-                'households.community_id AS id',
-                DB::raw(
-                    'SUM(CASE WHEN households.is_archived = 0 THEN households.number_of_adults + households.number_of_children 
-                        ELSE 0 END) as total_people'),
-                DB::raw(
-                    'SUM(CASE WHEN households.is_archived = 0 THEN households.number_of_male + households.number_of_female 
-                        ELSE 0 END) as total_people1')
-                )
-            ->groupBy('households.community_id')
+        $publicStructures = PublicStructure::where('is_archived', 0)->get();
+        $regions = Region::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get(); 
+        $subregions = SubRegion::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
             ->get();
+        $products = ProductType::where('is_archived', 0)->get();
+        $energyTypes = EnergySystemType::where('is_archived', 0)->get();
 
-        foreach($households as $household) {
-
-            $community = Community::findOrFail($household->id);
-            //$community->number_of_household = NULL;
-            if($household->total_people > $household->total_people1) $community->number_of_people = $household->total_people;
-            else $community->number_of_people = $household->total_people1;
-            $community->save();
-        }
-
-        return redirect('community');
+        return view('employee.community.create', compact('regions', 'subregions',
+            'products', 'energyTypes', 'settlements', 'energyCycles', 'towns',
+            'publicCategories', 'energySystemTypes', 'publicStructures',
+            'waterSources'));
     }
 
     /**
@@ -403,7 +375,6 @@ class CommunityController extends Controller
         $community->latitude = $request->latitude; 
         $community->longitude = $request->longitude;
         $community->notes = $request->notes;
-        if($request->product_type_id) $community->product_type_id = $request->product_type_id;
         if($request->reception) $community->reception = $request->reception;
         
         $community->save();
@@ -434,6 +405,16 @@ class CommunityController extends Controller
                 $communityWaterSource->water_source_id = $request->waters[$i];
                 $communityWaterSource->community_id = $id;
                 $communityWaterSource->save();
+            }
+        }
+
+        if($request->product_type_id) {
+            for($i=0; $i < count($request->product_type_id); $i++) {
+
+                $communityProduct = new CommunityProduct();
+                $communityProduct->product_type_id = $request->product_type_id[$i];
+                $communityProduct->community_id = $id;
+                $communityProduct->save();
             }
         }
 
@@ -584,7 +565,7 @@ class CommunityController extends Controller
             $secondNameCommunity->save();
         } 
 
-        return redirect()->back()->with('message', 'New Community Inserted Successfully!');
+        return redirect('/community')->with('message', 'New Community Inserted Successfully!');
     }
 
     /**
@@ -696,7 +677,99 @@ class CommunityController extends Controller
 
         return response()->json($response); 
     }
- 
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteCommunityWaterSources(Request $request)
+    {
+        $id = $request->id;
+
+        $communityWater = CommunityWaterSource::findOrFail($id);
+
+        if($communityWater) {
+
+            $communityWater->delete();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Source Deleted successfully'; 
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function deletecommunityNearbyTowns(Request $request)
+    {
+        $id = $request->id;
+
+        $nearbyTown = NearbyTown::findOrFail($id);
+
+        if($nearbyTown) {
+
+            $nearbyTown->delete();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Nearby Town Deleted successfully'; 
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteCommunityNearbySettlements(Request $request)
+    {
+        $id = $request->id;
+
+        $nearbySettlement = NearbySettlement::findOrFail($id);
+
+        if($nearbySettlement) {
+
+            $nearbySettlement->delete();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Nearby Settlement Deleted successfully'; 
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function deletecommunityProductTypes(Request $request)
+    {
+        $id = $request->id;
+
+        $communityProduct = CommunityProduct::findOrFail($id);
+
+        if($communityProduct) {
+
+            $communityProduct->delete();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Product Deleted successfully'; 
+        }
+
+        return response()->json($response); 
+    }
+
     /**
      * Show the specified resource from storage.
      *
@@ -806,11 +879,18 @@ class CommunityController extends Controller
             ->count();
 
         $photos = Photo::where("community_id", $id)->get();
-        
+        $communityProductTypes = DB::table('community_products')
+            ->join('communities', 'community_products.community_id', 'communities.id')
+            ->join('product_types', 'community_products.product_type_id', 'product_types.id')
+            ->where('community_id', $community->id)
+            ->select('product_types.name')
+            ->get();
+
         return view('employee.community.show', compact('community', 'energyDonors', 'waterDonors',
             'internetDonors', 'nearbySettlements', 'totalMeters', 'communityWaterSources',
             'totalWaterHolders', 'gridLarge', 'gridSmall', 'internetHolders', 'secondName',
-            'communityRepresentative', 'publicStructures', 'compounds', 'nearbyTowns', 'photos'));
+            'communityRepresentative', 'publicStructures', 'compounds', 'nearbyTowns', 'photos',
+            'communityProductTypes'));
     }
 
     /**
@@ -890,12 +970,38 @@ class CommunityController extends Controller
             ->where('is_archived', 0)
             ->get();
 
+        $communityWaterSources = CommunityWaterSource::where('community_id', $id)
+            ->where('is_archived', 0)
+            ->get();
+
+        $communityNearbyTowns = NearbyTown::where('community_id', $id)
+            ->where('is_archived', 0)
+            ->get();
+
+        $communityNearbySettlements = NearbySettlement::where('community_id', $id)
+            ->where('is_archived', 0)
+            ->get();
+
+        $communityProductTypes = CommunityProduct::where('community_id', $id)
+            ->get();
+
         $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
         $energyCycles = EnergySystemCycle::get();
+        $waterSources = WaterSource::where('is_archived', 0)->get();
+
+        $towns = Town::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+
+        $settlements = Settlement::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
 
         return view('employee.community.edit', compact('community', 'products', 
             'communityStatuses', 'regions', 'subRegions', 'secondName', 'compounds',
-            'recommendedEnergySystems', 'energySystemTypes', 'energyCycles'));
+            'recommendedEnergySystems', 'energySystemTypes', 'energyCycles', 'waterSources',
+            'communityWaterSources', 'communityNearbyTowns', 'towns', 'settlements',
+            'communityNearbySettlements', 'communityProductTypes'));
     }
 
     /**
@@ -943,6 +1049,9 @@ class CommunityController extends Controller
         if($request->is_fallah) $community->is_fallah = $request->is_fallah;
         if($request->is_bedouin) $community->is_bedouin = $request->is_bedouin;
         if($request->demolition) $community->demolition = $request->demolition;
+        if($request->demolition_number) $community->demolition_number = $request->demolition_number;
+        if($request->demolition_executed) $community->demolition_executed = $request->demolition_executed;
+        if($request->last_demolition) $community->last_demolition = $request->last_demolition;
         if($request->land_status) $community->land_status = $request->land_status;
 
         if($request->is_surveyed) $community->is_surveyed = $request->is_surveyed;
@@ -1014,6 +1123,86 @@ class CommunityController extends Controller
         if($request->lawyer) $community->lawyer = $request->lawyer;
         if($request->notes) $community->notes = $request->notes;
         $community->save();
+
+        if($request->waters) {
+            for($i=0; $i < count($request->waters); $i++) {
+
+                $communityWaterSource = new CommunityWaterSource();
+                $communityWaterSource->water_source_id = $request->waters[$i];
+                $communityWaterSource->community_id = $community->id;
+                $communityWaterSource->save();
+            }
+        }
+
+        if($request->new_waters) {
+            for($i=0; $i < count($request->new_waters); $i++) {
+
+                $communityNewWaterSource = new CommunityWaterSource();
+                $communityNewWaterSource->water_source_id = $request->new_waters[$i];
+                $communityNewWaterSource->community_id = $community->id;
+                $communityNewWaterSource->save();
+            }
+        }
+
+        if($request->nearby_towns) {
+            for($i=0; $i < count($request->nearby_towns); $i++) {
+
+                $communityNearbyTown = new NearbyTown();
+                $communityNearbyTown->town_id = $request->nearby_towns[$i];
+                $communityNearbyTown->community_id = $community->id;
+                $communityNearbyTown->save();
+            }
+        }
+
+        if($request->new_nearby_towns) {
+            for($i=0; $i < count($request->new_nearby_towns); $i++) {
+
+                $communityNearbyTown = new NearbyTown();
+                $communityNearbyTown->town_id = $request->new_nearby_towns[$i];
+                $communityNearbyTown->community_id = $community->id;
+                $communityNearbyTown->save();
+            }
+        }
+
+        if($request->nearby_settlement) {
+            for($i=0; $i < count($request->nearby_settlement); $i++) {
+
+                $communityNearbySettlement = new NearbySettlement();
+                $communityNearbySettlement->settlement_id = $request->nearby_settlement[$i];
+                $communityNearbySettlement->community_id = $community->id;
+                $communityNearbySettlement->save();
+            }
+        }
+
+        if($request->new_nearby_settlement) {
+            for($i=0; $i < count($request->new_nearby_settlement); $i++) {
+
+                $communityNearbySettlement = new NearbySettlement();
+                $communityNearbySettlement->settlement_id = $request->new_nearby_settlement[$i];
+                $communityNearbySettlement->community_id = $community->id;
+                $communityNearbySettlement->save();
+            }
+        }
+
+        if($request->products) {
+            for($i=0; $i < count($request->products); $i++) {
+
+                $communityProduct = new CommunityProduct();
+                $communityProduct->product_type_id = $request->products[$i];
+                $communityProduct->community_id = $community->id;
+                $communityProduct->save();
+            }
+        }
+
+        if($request->new_products) {
+            for($i=0; $i < count($request->new_products); $i++) {
+
+                $communityProduct = new CommunityProduct();
+                $communityProduct->product_type_id = $request->new_products[$i];
+                $communityProduct->community_id = $community->id;
+                $communityProduct->save();
+            }
+        }
 
         if($request->addMoreInputFieldsCompoundName) {
             foreach($request->addMoreInputFieldsCompoundName as $compoundName) {
