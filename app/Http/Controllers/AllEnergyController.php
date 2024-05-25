@@ -779,10 +779,20 @@ class AllEnergyController extends Controller
      */
     public function import(Request $request) 
     {
-        $importedData = Excel::toCollection(new PurchaseEnergyImport, $request->file('file'));
+        try {
+            if (DB::transactionLevel() > 0) {
+                DB::commit();
+            }
+            
+            AllEnergyVendingMeter::truncate();
+    
+        } catch (\Exception $e) {
+            
+            DB::rollBack();
+        }
 
-        $data = $importedData->first();
-
-        return Excel::download(new PurchaseEnergyExport($data), 'purchase_report.xlsx');
+        Excel::import(new PurchaseEnergyImport, $request->file('file')); 
+            
+        return Excel::download(new PurchaseEnergyExport($request), 'purchase_report.xlsx');
     }
 }

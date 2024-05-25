@@ -178,9 +178,8 @@ label, table {
             </div>
         </div>
         <div class="card-body">
-
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                Auth::guard('user')->user()->user_type_id == 2  )
+                Auth::guard('user')->user()->user_type_id == 2)
             <div class="row">
                 <div class="col-xl-4 col-lg-4 col-md-4">
                     <button type="button" class="btn btn-success" 
@@ -273,22 +272,15 @@ label, table {
 
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
                 Auth::guard('user')->user()->user_type_id == 2  )
-            <div class="row">
-                <div class="col-xl-4 col-lg-4 col-md-4">
-                    <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createCommunityCompound">
-                        Create New Community Compound	
-                    </button>
-                    @include('admin.community.compound.create_compound')
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <button type="button" class="btn btn-success" 
+                            data-bs-toggle="modal" data-bs-target="#createCompoundHouseholds">
+                            Create New Compound Households	
+                        </button>
+                        @include('admin.community.compound.create')
+                    </div>
                 </div>
-                <div class="col-xl-4 col-lg-4 col-md-4">
-                    <button type="button" class="btn btn-success" 
-                        data-bs-toggle="modal" data-bs-target="#createCompoundHouseholds">
-                        Create New Compound Households	
-                    </button>
-                    @include('admin.community.compound.create')
-                </div>
-            </div>
             @endif
             
             <table id="compoundCommunityTable" class="table table-striped data-table-compound-communities my-2">
@@ -339,7 +331,7 @@ label, table {
                 {data: 'action'}
             ]
         });
-    }
+    } 
 
     function DataTableContent1() {
         table1 = $('.data-table-compounds').DataTable({
@@ -435,7 +427,45 @@ label, table {
             });
         });
 
-        // delete community
+        // delete community compound
+        $('#compoundTable').on('click', '.deleteCompound',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to delete this compound?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteCompound') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#compoundTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+
+        // delete compound household
         $('#compoundCommunityTable').on('click', '.deleteCompoundHousehold',function() {
             var id = $(this).data('id');
 

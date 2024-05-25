@@ -473,3 +473,4 @@ Route::get('/delete-community-water-source', [App\Http\Controllers\CommunityCont
 Route::get('/delete-community-town', [App\Http\Controllers\CommunityController::class, 'deletecommunityNearbyTowns'])->name('deletecommunityNearbyTowns');
 Route::get('/delete-community-settelement', [App\Http\Controllers\CommunityController::class, 'deleteCommunityNearbySettlements'])->name('deleteCommunityNearbySettlements');
 Route::get('/delete-community-product', [App\Http\Controllers\CommunityController::class, 'deletecommunityProductTypes'])->name('deletecommunityProductTypes');
+Route::get('/delete-compound', [App\Http\Controllers\CompoundController::class, 'deleteCompound'])->name('deleteCompound');
