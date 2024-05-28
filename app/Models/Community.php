@@ -45,4 +45,14 @@ class Community extends Model
 
         return $this->hasMany(communityServices::class);
     }
+
+    public function KindergartenTown()
+    {
+        return $this->belongsTo('App\Models\Town', 'kindergarten_town_id', 'id');
+    }
+
+    public function SchoolTown()
+    {
+        return $this->belongsTo('App\Models\Town', 'school_town_id', 'id');
+    }
 }

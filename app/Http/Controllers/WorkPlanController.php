@@ -140,11 +140,7 @@ class WorkPlanController extends Controller
             $actionStatuses = ActionStatus::all();
             $actionPriorities = ActionPriority::all();
             $users = User::where('is_archived', 0)
-                ->where('user_type_id', 1)
-                ->orWhere('user_type_id', 2)
-                ->orWhere('user_type_id', 3)
-                ->orWhere('user_type_id', 4)
-                ->orWhere('user_type_id', 6)
+                ->whereIn('user_type_id', [1, 2, 3, 4, 5, 6])
                 ->get();
 
             return view('plans.index', compact('actionStatuses', 'actionPriorities', 'users'));

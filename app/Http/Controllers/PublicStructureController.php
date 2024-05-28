@@ -34,6 +34,47 @@ class PublicStructureController extends Controller
      */
     public function index(Request $request)
     { 
+        $publicStructureSchools = PublicStructure::where('is_archived', 0)
+            ->where('public_structure_category_id1', 1)
+            ->orWhere('public_structure_category_id2', 1)
+            ->orWhere('public_structure_category_id3', 1)
+            ->get();
+        
+        foreach($publicStructureSchools as  $publicStructureSchool) {
+
+            $existSchool = SchoolPublicStructure::where('is_archived', 0)
+                ->where('public_structure_id', $publicStructureSchool->id)
+                ->first();
+            if($existSchool) {
+
+            } else {
+
+                $newSchools = new SchoolPublicStructure();
+                $newSchools->public_structure_id =  $publicStructureSchool->id;
+                $newSchools->save();
+            }
+        }
+
+        $schools = SchoolPublicStructure::where('is_archived', 0)->get();
+
+        foreach($schools as $school) {
+
+            $publicStructure = PublicStructure::findOrFail($school->public_structure_id);
+            if($publicStructure) {
+
+                $community = Community::findOrFail($publicStructure->community_id);
+                if($community) {
+
+                    $school->grade_from = $community->grade_from;
+                    $school->grade_to = $community->grade_to;
+                    $school->number_of_students = $community->school_students;
+                    $school->number_of_boys = $community->school_male;
+                    $school->number_of_girls = $community->school_female;
+                    $school->save();
+                }
+            }
+        }
+
         $communityFilter = $request->input('filter');
         $categoryFilter = $request->input('second_filter');
 

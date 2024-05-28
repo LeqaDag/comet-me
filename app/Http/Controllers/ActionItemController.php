@@ -1264,7 +1264,7 @@ class ActionItemController extends Controller
                     'missingEnergyPublicDonors', 'missingUserWaterDonors', 'waterIncidentDetails',
                     'missingPublicWaterDonors', 'missingUserInternetDonors', 'networkIncidentDetails',
                     'missingPublicInternetDonors', 'holdersFbsNotDCInstallations',
-                    'holdersMgSmgNotDCInstallations', 'notYetSafteyCheckedFbs', 
+                    'holdersMgSmgNotDCInstallations', 'notYetSafteyCheckedFbs',  
                     'notYetConnectedGround', 'notYetSafteyCheckedMg', 'missingEnergySystemCycleYear',
                     'missingEnergySystemRatedPower', 'missingEnergySystemInstallationYear',
                     'missingEnergySystemGeneratedPower', 'missingEnergySystemBattery',

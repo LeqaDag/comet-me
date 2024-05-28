@@ -34,6 +34,7 @@ use App\Models\SubCommunity;
 use App\Models\Settlement;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
+use App\Models\SchoolPublicStructure;
 use App\Models\GridCommunityCompound;
 use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
@@ -368,15 +369,28 @@ class CommunityController extends Controller
         $community->number_of_household = $request->number_of_household;
         $community->is_fallah = $request->is_fallah;
         $community->is_bedouin = $request->is_bedouin;
-        $community->demolition = $request->demolition;
         $community->land_status = $request->land_status;
         $community->lawyer = $request->lawyer;
         $community->energy_source = $request->energy_source;  
         $community->latitude = $request->latitude; 
         $community->longitude = $request->longitude;
         $community->notes = $request->notes;
+        $community->demolition = $request->demolition;
+        $community->demolition_number = $request->demolition_number;
+        $community->demolition_executed = $request->demolition_executed;
+        $community->last_demolition = $request->last_demolition;
+        $community->demolition_legal_status = $request->demolition_legal_status;
         if($request->reception) $community->reception = $request->reception;
-        
+        if($request->kindergarten_town_id) $community->kindergarten_town_id = $request->kindergarten_town_id; 
+        if($request->kindergarten_students) $community->kindergarten_students = $request->kindergarten_students; 
+        if($request->kindergarten_male) $community->kindergarten_male = $request->kindergarten_male; 
+        if($request->kindergarten_female) $community->kindergarten_female = $request->kindergarten_female; 
+        if($request->school_town_id) $community->school_town_id = $request->school_town_id; 
+        if($request->school_students) $community->school_students = $request->school_students; 
+        if($request->school_male) $community->school_male = $request->school_male; 
+        if($request->school_female) $community->school_female = $request->school_female; 
+        if($request->grade_from) $community->grade_from = $request->grade_from; 
+        if($request->grade_to) $community->grade_to = $request->grade_to; 
         $community->save();
 
         $id = $community->id;
@@ -459,6 +473,16 @@ class CommunityController extends Controller
                     $publicStructure->arabic_name = "مدرسة  " . $lastCommunity->arabic_name;
                     $publicStructure->public_structure_category_id1 = 1;
                     $publicStructure->save();
+
+                    $schoolPublic = new SchoolPublicStructure();
+                    $schoolPublic->public_structure_id = $publicStructure->id;
+                    if($request->school_students) $schoolPublic->number_of_students = $request->school_students; 
+                    if($request->school_male) $schoolPublic->number_of_boys = $request->school_male; 
+                    if($request->school_female) $schoolPublic->number_of_girls = $request->school_female; 
+                    if($request->grade_from) $schoolPublic->grade_from = $request->grade_from; 
+                    if($request->grade_to) $schoolPublic->grade_to = $request->grade_to; 
+                    $schoolPublic->save();
+
                 }
                 if($request->public_structures[$i] == 2) {
 
@@ -1052,8 +1076,18 @@ class CommunityController extends Controller
         if($request->demolition_number) $community->demolition_number = $request->demolition_number;
         if($request->demolition_executed) $community->demolition_executed = $request->demolition_executed;
         if($request->last_demolition) $community->last_demolition = $request->last_demolition;
+        if($request->demolition_legal_status) $community->demolition_legal_status = $request->demolition_legal_status;
         if($request->land_status) $community->land_status = $request->land_status;
-
+        if($request->kindergarten_town_id) $community->kindergarten_town_id = $request->kindergarten_town_id; 
+        if($request->kindergarten_students) $community->kindergarten_students = $request->kindergarten_students; 
+        if($request->kindergarten_male) $community->kindergarten_male = $request->kindergarten_male; 
+        if($request->kindergarten_female) $community->kindergarten_female = $request->kindergarten_female; 
+        if($request->school_town_id) $community->school_town_id = $request->school_town_id; 
+        if($request->school_students) $community->school_students = $request->school_students; 
+        if($request->school_male) $community->school_male = $request->school_male; 
+        if($request->school_female) $community->school_female = $request->school_female; 
+        if($request->grade_from) $community->grade_from = $request->grade_from; 
+        if($request->grade_to) $community->grade_to = $request->grade_to; 
         if($request->is_surveyed) $community->is_surveyed = $request->is_surveyed;
         if($request->last_surveyed_date) $community->last_surveyed_date = $request->last_surveyed_date;
 

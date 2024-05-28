@@ -35,7 +35,7 @@ class PurchaseEnergyImport implements ToModel, WithHeadingRow
             $meterVending->community_id = $allEnergyMeter->community_id;
             $meterVending->meter_case_id = $allEnergyMeter->meter_case_id;
         }
-        $meterVending->last_purchase_date = $row["date"];
+        $meterVending->last_purchase_date = $row["Last_purchase_date"];
         $meterVending->save();
     }
 }

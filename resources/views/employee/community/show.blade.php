@@ -246,6 +246,88 @@
                                             @endif
                                         </div>
                                     </li>
+                                    <li class="d-flex justify-content-start align-items-center 
+                                        text-info mb-3">
+                                        <i class="bx bx-face bx-sm me-3"></i>
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1">Kindergarten</small>
+                                            <ul>
+                                                @if($community->kindergarten_town_id)
+                                                <li>
+                                                    <span class="text-info" style="font-size:12px">Students go to: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->KindergartenTown->english_name}}
+                                                    </span>
+                                                </li>
+                                                @endif
+                                                <li>
+                                                    <span class="text-info" style="font-size:12px">Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->kindergarten_students}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-info" style="font-size:12px">Male Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->kindergarten_male}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-info" style="font-size:12px">Female Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->kindergarten_female}}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex justify-content-start align-items-center 
+                                        text-success mb-3">
+                                        <i class="bx bx-tab bx-sm me-3"></i>
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1">School</small>
+                                            <ul>
+                                                @if($community->school_town_id)
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Students go to: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->SchoolTown->english_name}}
+                                                    </span>
+                                                </li>
+                                                @endif
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->school_students}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Male Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->school_male}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Female Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->school_female}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Grade from: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->grade_from}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Grade to: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$community->grade_to}}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
                                 </ul>
                             </div>
                         </div>

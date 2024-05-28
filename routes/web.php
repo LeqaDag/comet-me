@@ -57,8 +57,8 @@ Route::get('/delete-community', [App\Http\Controllers\CommunityController::class
 Route::get('household/community/energy-source/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getCommunityEnergySource']);
 Route::get('ac-household/community/energy-source/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getCommunityEnergySource']);
 
-Route::get('/delete-compound', [App\Http\Controllers\CommunityController::class, 'deleteCommunityCompound'])->name('deleteCommunityCompound');
-
+Route::get('/delete-community-compound', [App\Http\Controllers\CommunityController::class, 'deleteCommunityCompound'])->name('deleteCommunityCompound');
+ 
 Route::resource('representative', App\Http\Controllers\CommunityRepresentativeController::class);
 Route::get('/delete-representative', [App\Http\Controllers\CommunityRepresentativeController::class, 
     'deleteCommunityRepresentative'])->name('deleteCommunityRepresentative');

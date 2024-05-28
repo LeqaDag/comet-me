@@ -336,6 +336,13 @@ label {
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Demolition Legal Status</label>
+                            <input type="text" name="demolition_legal_status" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Land Status</label>
                             <input type="text" name="land_status" 
                             class="form-control">
@@ -380,6 +387,99 @@ label {
                         </fieldset>
                     </div> -->
                 </div>
+
+                <hr style="margin-top:20px">
+                <div class="row" >
+                    <h5>Educational "Kindergarten" Details</h5>
+                </div>
+                <div class="row" id="kindergartenDetails">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Where do students go for kindergarten?</label>
+                            <select name="kindergarten_town_id" class="selectpicker form-control"
+                                data-live-search="true">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($towns as $town)
+                                <option value="{{$town->id}}">
+                                    {{$town->english_name}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Students?</label>
+                            <input type="number" name="kindergarten_students" class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Male Students?</label>
+                            <input type="number" name="kindergarten_male" class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Female Students?</label>
+                            <input type="number" name="kindergarten_female" class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+
+                <hr style="margin-top:20px">
+                <div class="row" id="schoolDetails">
+                    <h5>Educational "School" Details</h5>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Where do students go for School?</label>
+                            <select name="school_town_id" class="selectpicker form-control"
+                                data-live-search="true">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($towns as $town)
+                                <option value="{{$town->id}}">
+                                    {{$town->english_name}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Students?</label>
+                            <input type="number" name="school_students" class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Male Students?</label>
+                            <input type="number" name="school_male" class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Female Students?</label>
+                            <input type="number" name="school_female" class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>From Grade?</label>
+                            <input type="number" name="grade_from" class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>To Grade?</label>
+                            <input type="number" name="grade_to" class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-12 mb-1" id="percentageQuestion1Div">
                         <fieldset class="form-group">
