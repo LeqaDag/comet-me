@@ -193,6 +193,7 @@ class H2oMaintenanceCallController extends Controller
 
         $maintenance->community_id = $request->community_id;
         $maintenance->date_of_call = $request->date_of_call;
+        $maintenance->visit_date = $request->visit_date;
         if($request->date_completed) {
 
             $maintenance->date_completed = $request->date_completed;
@@ -283,6 +284,7 @@ class H2oMaintenanceCallController extends Controller
         $maintenance = H2oMaintenanceCall::findOrFail($id);
 
         $maintenance->date_of_call = $request->date_of_call;
+        $maintenance->visit_date = $request->visit_date;
         if($request->date_completed) {
 
             $maintenance->date_completed = $request->date_completed;

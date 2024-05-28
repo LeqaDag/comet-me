@@ -20,7 +20,7 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
         $this->request = $request;
     } 
 
-    /**
+    /** 
     * @return \Illuminate\Support\Collection
     */
     public function collection()
@@ -46,6 +46,7 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
                 'internet_user_donors.internet_user_id')
             ->leftJoin('donors as internet_donor', 'internet_user_donors.donor_id', 
                 'internet_donor.id')
+            ->leftJoin('school_public_structures', 'school_public_structures.public_structure_id', 'public_structures.id')
             ->where('public_structures.is_archived', 0)
             ->select('public_structures.english_name as english_name', 
                 'public_structures.arabic_name as arabic_name', 
@@ -61,6 +62,11 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
                 DB::raw('CASE WHEN internet_users.public_structure_id IS NOT NULL THEN "Yes" 
                     ELSE "No" END as has_internet'),
                 DB::raw('group_concat(DISTINCT internet_donor.donor_name) as internet_donor'),
+                'public_structures.kindergarten_students', 'public_structures.kindergarten_male', 
+                'public_structures.kindergarten_female', 
+                'school_public_structures.number_of_students', 'school_public_structures.number_of_boys', 
+                'school_public_structures.number_of_girls', 'school_public_structures.grade_from',
+                'school_public_structures.grade_to',
                 'public_structures.notes') 
             ->groupBy('public_structures.id');
 
@@ -90,7 +96,9 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
     {
         return ["English Name", "Arabic Name", "Community", "Region", "Sub Region", 
             "Energy Service", "Meter Number", "Energy Donors", "Water Service", "Water Donors", 
-            "Internet Service", "Internet Donors", "Notes"];
+            "Internet Service", "Internet Donors", "Kindergarten Students", "Kindergarten Boys", 
+            "Kindergarten Girls", "School Students", "School Boys", "School Girls", 
+            "School Grade from", "School Grade to", "Notes"];
     }
 
     public function title(): string
@@ -105,7 +113,7 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:M1');
+        $sheet->setAutoFilter('A1:U1');
 
         return [
             // Style the first row as bold text.

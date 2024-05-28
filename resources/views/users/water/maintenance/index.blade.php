@@ -336,6 +336,8 @@
 
                 $('#callDate').html('');
                 $('#callDate').html(response['h2oMaintenance'].date_of_call);
+                $('#visitDate').html('');
+                $('#visitDate').html(response['h2oMaintenance'].visit_date);
                 $('#completedDate').html('');
                 $('#completedDate').html(response['h2oMaintenance'].date_completed);
 

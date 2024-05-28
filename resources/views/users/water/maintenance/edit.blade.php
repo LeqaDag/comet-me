@@ -50,7 +50,7 @@
                         </fieldset>
                     </div> 
                     <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
+                        <fieldset class="form-group"> 
                         @if($waterMaintenance->household_id)
 
                             <label class='col-md-12 control-label'>Water User</label>
@@ -78,14 +78,21 @@
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Completed Date</label>
-                            <input type="date" name="date_completed" class="form-control"
-                                value="{{$waterMaintenance->date_completed}}" >
+                            <label class='col-md-12 control-label'>Visit Date</label>
+                            <input type="date" name="visit_date" class="form-control"
+                                value="{{$waterMaintenance->visit_date}}" >
                         </fieldset>
                     </div>
                 </div>
 
                 <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Completed Date</label>
+                            <input type="date" name="date_completed" class="form-control"
+                                value="{{$waterMaintenance->date_completed}}" >
+                        </fieldset>
+                    </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Maintenance Type</label>
@@ -103,6 +110,9 @@
                             </select>
                         </fieldset>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Maintenance Status</label>
@@ -121,9 +131,6 @@
                             </select>
                         </fieldset>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Recipient</label>

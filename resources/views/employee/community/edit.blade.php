@@ -819,7 +819,17 @@ label {
                     <h5>Educational "Kindergarten" Details</h5>
                 </div>
                 <div class="row" id="kindergartenDetails">
-                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                    <div class="col-xl-4 col-lg-4 col-md-4" >
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Is there a kindergarten in the community?</label>
+                            <select name="is_kindergarten" id="isKindergarten" class="selectpicker form-control">
+                                <option disabled selected>Choose one...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1" id="kindergartenTown" style="visibility:none; display:none">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Where do students go for kindergarten?</label>
                             <select name="kindergarten_town_id" class="selectpicker form-control"
@@ -865,7 +875,8 @@ label {
                     <h5>Educational "School" Details</h5>
                 </div>
                 <div class="row">
-                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                    @if($community->school_town_id)
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1" id="schoolTown">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Where do students go for School?</label>
                             <select name="school_town_id" class="selectpicker form-control"
@@ -883,6 +894,33 @@ label {
                             </select>
                         </fieldset>
                     </div>
+                    @else
+                    
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Is there a school in the community?</label>
+                            <select name="is_school" id="isSchool" class="selectpicker form-control">
+                                <option disabled selected>Choose one...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1" id="schoolTown" style="visibility:none; display:none">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Where do students go for School?</label>
+                            <select name="school_town_id" class="selectpicker form-control"
+                                data-live-search="true">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($towns as $town)
+                                <option value="{{$town->id}}">
+                                    {{$town->english_name}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    @endif
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How Many Students?</label>
@@ -897,8 +935,6 @@ label {
                                 value="{{$community->school_male}}">
                         </fieldset>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How Many Female Students?</label>
@@ -921,6 +957,7 @@ label {
                         </fieldset>
                     </div>
                 </div>
+            
                 <hr style="margin-top:20px">
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -965,6 +1002,36 @@ label {
 </div>
 
 <script>
+
+    $(document).on('change', '#isKindergarten', function () {
+
+        kindergartenFlag = $(this).val();
+
+        if(kindergartenFlag == "no") {
+
+            $("#kindergartenTown").css("visibility", "visible");
+            $("#kindergartenTown").css('display', 'block');
+        } else if(kindergartenFlag == "yes"){
+
+            $("#kindergartenTown").css("visibility", "none");
+            $("#kindergartenTown").css('display', 'none');
+        }
+    });
+
+    $(document).on('change', '#isSchool', function () {
+
+        SchoolFlag = $(this).val();
+
+        if(SchoolFlag == "no") {
+
+            $("#schoolTown").css("visibility", "visible");
+            $("#schoolTown").css('display', 'block');
+        } else if(SchoolFlag == "yes"){
+
+            $("#schoolTown").css("visibility", "none");
+            $("#schoolTown").css('display', 'none');
+        }
+    });
 
     // delete community water source
     $('#communityWaterSourcesTable').on('click', '.deleteCommunityWaterSources',function() {

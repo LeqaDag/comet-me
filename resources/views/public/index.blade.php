@@ -255,11 +255,45 @@ label, table {
                     $('#englishNamePublic').html('');
                     $('#englishNamePublic').html(response['publicStructure'].english_name);
                     $('#arabicNamePublic').html('');
-                    $('#arabicNamePublic').html(response['publicStructure'].english_name);
+                    $('#arabicNamePublic').html(response['publicStructure'].arabic_name);
                     $('#communityName').html('');
                     $('#communityName').html(response['community'].english_name);
                     $('#publicNotes').html('');
                     $('#publicNotes').html(response['publicStructure'].notes);
+
+                    $("#kindergartenDetails").css("visibility", "none");
+                    $("#kindergartenDetails").css('display', 'none');
+
+                    $("#schoolDetails").css("visibility", "none");
+                    $("#schoolDetails").css('display', 'none');
+
+                    if(response['schoolPublic']) {
+
+                        $("#schoolDetails").css("visibility", "visible");
+                        $("#schoolDetails").css('display', 'block');
+                        $('#schoolBoys').html('');
+                        $('#schoolBoys').html(response['publicStructure'].number_of_boys);
+                        $('#schoolGirls').html('');
+                        $('#schoolGirls').html(response['publicStructure'].number_of_girls);
+                        $('#gradeFrom').html('');
+                        $('#gradeFrom').html(response['publicStructure'].grade_from);
+                        $('#gradeTo').html('');
+                        $('#gradeTo').html(response['publicStructure'].grade_to);
+                    }
+
+                    if(response['publicStructure'].public_structure_category_id1 == 5 ||
+                        response['publicStructure'].public_structure_category_id2 == 5 ||
+                        response['publicStructure'].public_structure_category_id3 == 5)  {
+
+                            $("#kindergartenDetails").css("visibility", "visible");
+                            $("#kindergartenDetails").css('display', 'block');
+                            $('#totalKindergartenStudents').html('');
+                            $('#totalKindergartenStudents').html(response['publicStructure'].kindergarten_students);
+                            $('#kindergartenBoys').html('');
+                            $('#kindergartenBoys').html(response['publicStructure'].kindergarten_male);
+                            $('#kindergartenGirls').html('');
+                            $('#kindergartenGirls').html(response['publicStructure'].kindergarten_female);
+                    }
                 }
             });
         });

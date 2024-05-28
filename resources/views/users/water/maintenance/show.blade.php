@@ -85,7 +85,7 @@
                                                     <i class="bx bx-calendar-week bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
                                                         <small class="text-muted mb-1">Visit Date</small>
-                                                        <h6 class="mb-0" id="visitDateInternetMaintenance"></h6>
+                                                        <h6 class="mb-0" id="visitDate"></h6>
                                                     </div>
                                                 </li>
                                                 <li class="d-flex justify-content-start align-items-center text-info mb-3">

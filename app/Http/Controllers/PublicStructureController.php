@@ -75,6 +75,24 @@ class PublicStructureController extends Controller
             }
         }
 
+        $publicStructureKindergartens = PublicStructure::where('is_archived', 0)
+            ->where('public_structure_category_id1', 5)
+            ->orWhere('public_structure_category_id2', 5)
+            ->orWhere('public_structure_category_id3', 5)
+            ->get();
+        
+        foreach($publicStructureKindergartens as  $publicStructureKindergarten) {
+
+            $community = Community::findOrFail($publicStructureKindergarten->community_id);
+            if($community) {
+
+                $publicStructureKindergarten->kindergarten_students = $community->kindergarten_students;
+                $publicStructureKindergarten->kindergarten_male = $community->kindergarten_male;
+                $publicStructureKindergarten->kindergarten_female = $community->kindergarten_female;
+                $publicStructureKindergarten->save();
+            }
+        }
+
         $communityFilter = $request->input('filter');
         $categoryFilter = $request->input('second_filter');
 
@@ -296,9 +314,13 @@ class PublicStructureController extends Controller
     {
         $publicStructure = PublicStructure::findOrFail($id);
         $community = Community::where('id', $publicStructure->community_id)->first();
+        $schoolPublic = SchoolPublicStructure::where('is_archived', 0)
+            ->where('public_structure_id', $id)
+            ->first();
 
         $response['publicStructure'] = $publicStructure;
         $response['community'] = $community;
+        $response['schoolPublic'] = $schoolPublic;
 
         return response()->json($response);
     }
