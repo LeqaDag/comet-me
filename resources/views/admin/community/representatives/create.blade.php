@@ -16,7 +16,7 @@
 <div id="createCommunityRepresentative" class="modal fade" >
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header"> 
                 <h1 class="modal-title fs-5">
                     Create New Community Representative	
                 </h1>
@@ -29,7 +29,7 @@
                     action="{{url('representative')}}">
                     @csrf
                     <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select name="community_id" id="communityChangesRep" 
@@ -45,8 +45,17 @@
                             </fieldset>
                             <div id="community_id_error" style="color: red;"></div>
                         </div>
-
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Compound</label>
+                                <select name="compound_id" id="compoundRepresentitive" 
+                                    class="selectpicker form-control" data-live-search="true"> 
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Household</label>
                                 <select name="household_id" id="selectedHouseholdRepor" 
@@ -58,7 +67,7 @@
                             <div id="household_id_error" style="color: red;"></div>
                         </div>
 
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Phone Number</label>
                                 <input type="text" name="phone_number" id="phoneNumber"
@@ -68,7 +77,7 @@
                     </div>
                
                     <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Role</label>
                                 <select name="community_role_id" data-live-search="true" 
@@ -99,6 +108,42 @@
     $(document).on('change', '#communityChangesRep', function () {
         community_id = $(this).val();
    
+        $.ajax({ 
+            url: "community-compound/get_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                
+                $('#compoundRepresentitive').prop('disabled', false);
+
+                var select = $('#compoundRepresentitive'); 
+
+                select.html(data.htmlCompounds);
+                select.selectpicker('refresh');
+            }
+        }); 
+
+        $(document).on('change', '#compoundRepresentitive', function () {
+
+            var compound_id = $('#compoundRepresentitive').val(); 
+
+            if(compound_id) {
+
+                $.ajax({ 
+                    url: "compound/get_households/get_by_compound/" + compound_id,
+                    method: 'GET',
+                    success: function(data) {
+                        
+                        $('#selectedHouseholdRepor').prop('disabled', false);
+
+                        var select = $('#selectedHouseholdRepor'); 
+
+                        select.html(data.htmlHouseholds);
+                        select.selectpicker('refresh');
+                    }
+                }); 
+            } 
+        });
+
         $.ajax({ 
             url: "household/get_by_community/" + community_id,
             method: 'GET',

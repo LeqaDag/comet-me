@@ -47,10 +47,12 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
             ->leftJoin('donors as internet_donor', 'internet_user_donors.donor_id', 
                 'internet_donor.id')
             ->leftJoin('school_public_structures', 'school_public_structures.public_structure_id', 'public_structures.id')
+            ->leftJoin('compounds', 'compounds.id', 'public_structures.compound_id')
             ->where('public_structures.is_archived', 0)
             ->select('public_structures.english_name as english_name', 
                 'public_structures.arabic_name as arabic_name', 
                 'communities.english_name as community_name',
+                'compounds.english_name as compound',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 DB::raw('CASE WHEN all_energy_meters.meter_number IS NOT NULL THEN "Yes" 
                     ELSE "No" END as has_meter'),
@@ -94,7 +96,7 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
      */
     public function headings(): array
     {
-        return ["English Name", "Arabic Name", "Community", "Region", "Sub Region", 
+        return ["English Name", "Arabic Name", "Community", "Compound", "Region", "Sub Region", 
             "Energy Service", "Meter Number", "Energy Donors", "Water Service", "Water Donors", 
             "Internet Service", "Internet Donors", "Kindergarten Students", "Kindergarten Boys", 
             "Kindergarten Girls", "School Students", "School Boys", "School Girls", 
@@ -113,7 +115,7 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:U1');
+        $sheet->setAutoFilter('A1:V1');
 
         return [
             // Style the first row as bold text.

@@ -77,6 +77,17 @@
                                         </div>
                                         <div class="col-lg-6">
                                             <ul class="list-unstyled">
+                                                <li class="d-flex justify-content-start align-items-center text-info mb-3">
+                                                    <i class="bx bx-home bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">Compound</small>
+                                                        <h6 class="mb-0" id="compoundName"></h6>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <ul class="list-unstyled">
                                                 <li class="d-flex justify-content-start align-items-center text-danger mb-3">
                                                     <i class="bx bx-chat bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">

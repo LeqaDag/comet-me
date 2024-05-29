@@ -27,4 +27,9 @@ class PublicStructure extends Model
     {
         return $this->belongsTo(PublicStructureCategory::class, 'public_structure_category_id3', 'id');
     }
+
+    public function Compound()
+    {
+        return $this->belongsTo(Compound::class, 'compound_id', 'id');
+    }
 }

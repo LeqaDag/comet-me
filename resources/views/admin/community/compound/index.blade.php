@@ -410,19 +410,28 @@ label, table {
             $('.selectpicker').selectpicker('refresh');
         });
 
+        // View record details
+        $('#compoundTable').on('click', '.detailsCompoundButton', function() {
+            var id = $(this).data('id');
+            var url = window.location.href; 
+           
+            url = url +'/'+ id ;
+            window.open(url); 
+        }); 
+
         // View record update page
-        $('#compoundCommunityTable').on('click', '.updateCompoundCommunityHousehold', function() {
+        $('#compoundTable').on('click', '.updateCompoundButton', function() {
             var id = $(this).data('id');
             var url = window.location.href; 
             url = url +'/'+ id +'/edit';
-            
+             
             // AJAX request
             $.ajax({
-                url: 'community-compound/' + id + '/editpage',
+                url: '/compound/' + id + '/editpage',
                 type: 'get',
                 dataType: 'json',
                 success: function(response) {
-                    window.open(url, "_self"); 
+                    window.open(url, "new"); 
                 }
             });
         });

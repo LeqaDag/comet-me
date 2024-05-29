@@ -67,6 +67,7 @@ class CommunityRepresentativeController extends Controller
                        'community_statuses.id')
                     ->join('community_roles', 'community_representatives.community_role_id', 
                        'community_roles.id')
+                    ->leftJoin('compounds', 'compounds.id', 'community_representatives.compound_id')
                     ->where('community_representatives.is_archived', 0);
     
                 if($regionFilter != null) {
@@ -84,6 +85,7 @@ class CommunityRepresentativeController extends Controller
 
                 $data->select(
                     'communities.english_name as english_name', 'communities.arabic_name as arabic_name',
+                    'compounds.english_name as compound',
                     'community_representatives.id as id', 'community_representatives.created_at as created_at', 
                     'community_representatives.updated_at as updated_at',
                     'communities.number_of_people as number_of_people',
@@ -162,6 +164,7 @@ class CommunityRepresentativeController extends Controller
         $communityRepresentative = new CommunityRepresentative();
         $communityRepresentative->community_role_id = $request->community_role_id;
         $communityRepresentative->community_id = $request->community_id;
+        if($request->compound_id) $communityRepresentative->compound_id = $request->compound_id;
         $communityRepresentative->household_id = $request->household_id;
         $communityRepresentative->save();
 

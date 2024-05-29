@@ -8,6 +8,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\Compound;
 use App\Models\Region;
 use Carbon\Carbon;
 use App\Models\Donor;
@@ -190,6 +191,7 @@ class PublicStructureController extends Controller
         $publicStructure->english_name = $request->english_name;
         $publicStructure->arabic_name = $request->arabic_name;
         $publicStructure->community_id = $request->community_id;
+        if($request->compound_id) $publicStructure->compound_id = $request->compound_id;
         $publicStructure->notes = $request->notes;
         $publicStructure->public_structure_category_id1 = $request->public_structure_category_id1;
         $publicStructure->public_structure_category_id2 = $request->public_structure_category_id2;
@@ -237,9 +239,12 @@ class PublicStructureController extends Controller
 
         $schoolPublicStructure = SchoolPublicStructure::where("public_structure_id", $id)->first();
         $schoolCommunities = SchoolCommunity::where("public_structure_id", $id)->get();
-        
+        $compounds = Compound::where('is_archived', 0)
+            ->where('community_id', $publicStructure->community_id)
+            ->get();
+
         return view('public.edit', compact('publicStructure', 'publicCategories',
-            'schoolPublicStructure', 'schoolCommunities', 'communities'));
+            'schoolPublicStructure', 'schoolCommunities', 'communities', 'compounds'));
     }
 
     /**
@@ -255,6 +260,7 @@ class PublicStructureController extends Controller
         $publicStructure->english_name = $request->english_name;
         $publicStructure->arabic_name = $request->arabic_name;
         $publicStructure->notes = $request->notes;
+        if($request->compound_id) $publicStructure->compound_id = $request->compound_id;
         if($request->public_structure_category_id1) $publicStructure->public_structure_category_id1 = $request->public_structure_category_id1;
         if($request->public_structure_category_id2) $publicStructure->public_structure_category_id2 = $request->public_structure_category_id2;
         if($request->public_structure_category_id3) $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
@@ -310,10 +316,11 @@ class PublicStructureController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id) 
     {
         $publicStructure = PublicStructure::findOrFail($id);
         $community = Community::where('id', $publicStructure->community_id)->first();
+        $compound = Compound::where('id', $publicStructure->compound_id)->first();
         $schoolPublic = SchoolPublicStructure::where('is_archived', 0)
             ->where('public_structure_id', $id)
             ->first();
@@ -321,6 +328,7 @@ class PublicStructureController extends Controller
         $response['publicStructure'] = $publicStructure;
         $response['community'] = $community;
         $response['schoolPublic'] = $schoolPublic;
+        $response['compound'] = $compound;
 
         return response()->json($response);
     }

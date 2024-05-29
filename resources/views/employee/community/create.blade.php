@@ -523,7 +523,7 @@ label {
    $(document).on('change', '#isKindergarten', function () {
 
         kindergartenFlag = $(this).val();
-
+ 
         if(kindergartenFlag == "no") {
 
             $("#kindergartenTown").css("visibility", "visible");

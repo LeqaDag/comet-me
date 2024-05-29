@@ -15,8 +15,8 @@
                 <form method="POST" enctype='multipart/form-data' id="publicStructureForm" 
                     action="{{url('public-structure')}}">
                     @csrf
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                    <div class="row"> 
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select name="community_id" id="selectedCommunity" 
@@ -32,14 +32,24 @@
                             </fieldset>
                             <div id="community_id_error" style="color: red;"></div>
                         </div> 
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Compound</label>
+                                <select name="compound_id" id="compoundPublicStructure" 
+                                    class="selectpicker form-control" data-live-search="true"> 
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row"> 
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>English Name</label>
                                 <input type="text" name="english_name" 
                                 class="form-control" required>
                             </fieldset>
                         </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Arabic Name</label>
                                 <input type="text" name="arabic_name" class="form-control"
@@ -49,7 +59,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Category 1</label>
                                 <select name="public_structure_category_id1"
@@ -64,7 +74,7 @@
                                 </select>
                             </fieldset>
                         </div> 
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Category 2</label>
                                 <select name="public_structure_category_id2"
@@ -79,7 +89,9 @@
                                 </select>
                             </fieldset>
                         </div> 
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                    </div> 
+                    <div class="row"> 
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Public Category 3</label>
                                 <select name="public_structure_category_id3"
@@ -94,10 +106,9 @@
                                 </select>
                             </fieldset>
                         </div> 
-                        
                     </div> 
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Notes</label>
                                 <textarea name="notes" class="form-control" 
@@ -120,6 +131,24 @@
 
 <script>
    
+   $(document).on('change', '#selectedCommunity', function () {
+        community_id = $(this).val();
+   
+        $.ajax({ 
+            url: "community-compound/get_by_community/" + community_id,
+            method: 'GET',
+            success: function(data) {
+                
+                $('#compoundPublicStructure').prop('disabled', false);
+
+                var select = $('#compoundPublicStructure'); 
+
+                select.html(data.htmlCompounds);
+                select.selectpicker('refresh');
+            }
+        }); 
+    });
+
     $(document).ready(function () {
 
         $('#publicStructureForm').on('submit', function (event) {

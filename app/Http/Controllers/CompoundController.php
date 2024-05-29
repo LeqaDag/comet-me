@@ -80,14 +80,15 @@ class CompoundController extends Controller
                     ->addColumn('action', function($row) {
 
                         $empty = "";
-                        $updateButton = "<a type='button' class='updateCompound' data-id='".$row->id."'data-bs-toggle='modal' data-bs-target='#updateCompoundCommunityModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $detailsButton = "<a type='button' class='detailsCompoundButton' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
+                        $updateButton = "<a type='button' class='updateCompoundButton' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteCompound' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
     
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 ) 
                         {
                                 
-                            return $deleteButton;
+                            return  $detailsButton." ". $updateButton." ".$deleteButton;
                         } else return $empty; 
        
                     })
@@ -125,7 +126,7 @@ class CompoundController extends Controller
                 ->orderBy('name', 'ASC')
                 ->get();
 
-            return view('admin.community.compound.index1', compact('communities', 'regions', 
+            return view('admin.community.compound.index', compact('communities', 'regions', 
                 'compounds', 'households', 'energySystemTypes', 'subregions'));
         } else {
 
@@ -160,6 +161,30 @@ class CompoundController extends Controller
         return redirect()->back()->with('message', 'New Compound Added Successfully!');
     }
 
+     /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editPage($id)
+    {
+        $compound = Compound::findOrFail($id);
+
+        return response()->json($compound);
+    } 
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -173,7 +198,7 @@ class CompoundController extends Controller
         $compound = Compound::findOrFail($id);
         $compound->is_archived = 1;
         $compound->save();
-
+ 
         $response['success'] = 1;
         $response['msg'] = 'Compound Deleted successfully'; 
         

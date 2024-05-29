@@ -30,15 +30,37 @@
                 @csrf
                 @method('PATCH')
                 <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
                         <label class='col-md-12 control-label'>English Name</label>
                         <input class="form-control" name="english_name"
                             value="{{$publicStructure->english_name}}"/>    
                     </div> 
-                    <div class="col-xl-6 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
                         <label class='col-md-12 control-label'>Arabic Name</label>
                         <input class="form-control" name="arabic_name"
                             value="{{$publicStructure->arabic_name}}"/>    
+                    </div> 
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Compound</label>
+                            <select name="compound_id"
+                                class="selectpicker form-control" data-live-search="true"  
+                                    required>
+                                @if($publicStructure->compound_id)
+                                    <option disabled selected>
+                                        {{$publicStructure->Compound->english_name}}
+                                    </option>
+                                @else 
+                                    <option disabled selected>Choose one...</option>
+                                @endif
+                                
+                                @foreach($compounds as $compound)
+                                <option value="{{$compound->id}}">
+                                    {{$compound->english_name}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
                     </div> 
                 </div>
 

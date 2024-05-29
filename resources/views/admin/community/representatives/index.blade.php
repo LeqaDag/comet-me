@@ -90,6 +90,7 @@
                     <tr>
                         <th class="text-center">Representative</th>
                         <th class="text-center">Community</th>
+                        <th class="text-center">Compound</th>
                         <th class="text-center">Status</th>
                         <th class="text-center">Region</th>
                         <th class="text-center">Role</th>
@@ -123,6 +124,7 @@
             columns: [
                 {data: 'household', name: 'household'},
                 {data: 'english_name', name: 'english_name'},
+                {data: 'compound', name: 'compound'},
                 {data: 'status_name', name: 'status_name'},
                 {data: 'name', name: 'name'},
                 {data: 'role', name: 'role'},

@@ -266,7 +266,12 @@ label, table {
 
                     $("#schoolDetails").css("visibility", "none");
                     $("#schoolDetails").css('display', 'none');
-
+                    $('#compoundName').html('');
+                    if(response['compound']) {
+                        
+                        $('#compoundName').html('');
+                        $('#compoundName').html(response['compound'].english_name);
+                    }
                     if(response['schoolPublic']) {
 
                         $("#schoolDetails").css("visibility", "visible");

@@ -95,8 +95,10 @@ Route::get('community-compound/get_by_community/{community_id}', [App\Http\Contr
 Route::get('community-compound/{id}/editpage', [App\Http\Controllers\CommunityCompoundController::class, 'editPage']);
 Route::get('/delete-compound-household', [App\Http\Controllers\CommunityCompoundController::class, 'deleteCompoundHousehold'])->name('deleteCompoundHousehold');
 Route::post('community-compound-export', [App\Http\Controllers\CommunityCompoundController::class, 'export'])->name('community-compound.export');
+Route::get('compound/get_households/get_by_compound/{compound_id}', [App\Http\Controllers\CommunityCompoundController::class, 'getHouseholdByCompound']);
 
 Route::resource('compound', App\Http\Controllers\CompoundController::class);
+Route::get('compound/{id}/editpage', [App\Http\Controllers\CompoundController::class, 'editPage']);
 
 Route::get('progress-household/household/get_un_user_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getNonUserByCommunity']);
 Route::get('progress-household/household/get_community_type/{installation_type}', [App\Http\Controllers\HouseholdController::class, 'getCommunityByType']);

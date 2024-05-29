@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'community details')
+@section('title', 'compound details')
 
 @include('layouts.all')
 
@@ -8,8 +8,8 @@
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">
-        {{$community->english_name}}
-    </span> - Community Information 
+        {{$compound->english_name}}
+    </span> - Compound Information 
 </h4>
  
 <div class="row overflow-hidden">
@@ -23,19 +23,13 @@
                 <div class="timeline-event card p-0" data-aos="fade-right">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                         <h6 class="card-title mb-0">
-                            {{$community->english_name}}
+                            {{$compound->english_name}}
                             <span class="text-success" style="font-size:12px"> 
-                                <!-- <a type="button" placeholder="View Map"
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#viewCommunityMap{{$community->id}}">
-                                    View Map
-                                </a>
-                                @include('employee.community.map') -->
                             </span>
                         </h6>
                         <div class="meta">
                             <span class="badge rounded-pill bg-label-primary" style="font-size:15px">
-                                {{$community->arabic_name}}
+                                {{$compound->arabic_name}}
                             </span>
                         </div>
                     </div>
@@ -46,36 +40,38 @@
                                     <li class="d-flex justify-content-start align-items-center text-success mb-3">
                                         <i class="bx bx-map bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
-                                            <small class="text-muted mb-1">Region</small>
-                                            <h6 class="mb-0">{{$community->Region->english_name}}</h6>
-                                        </div>
-                                    </li>
-                                    <li class="d-flex justify-content-start align-items-center text-info mb-3">
-                                        <i class="bx bx-map-pin bx-sm me-3"></i>
-                                        <div class="ps-3 border-start">
-                                            <small class="text-muted mb-1">Sub Region</small>
-                                            <h6 class="mb-0">{{$community->SubRegion->english_name}}</h6>
+                                            <small class="text-muted mb-1">Community</small>
+                                            <h6 class="mb-0">{{$compound->Community->english_name}}</h6>
                                         </div>
                                     </li>
                                     <li class="d-flex justify-content-start align-items-center text-primary mb-3">
                                         <i class="bx bx-group bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1"># of People</small>
-                                            <h6 class="mb-0">{{$community->number_of_people}}</h6>
+                                            <h6 class="mb-0">{{$compound->number_of_people}}</h6>
                                         </div>
                                     </li>
                                     <li class="d-flex justify-content-start align-items-center text-warning mb-3">
                                         <i class="bx bx-user-pin bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1"># of Households</small>
-                                            <h6 class="mb-0">{{$community->number_of_household}}</h6>
+                                            <h6 class="mb-0">{{$compound->number_of_household}}
+                                                <span class="text-warning" style="font-size:12px;">
+                                                    <a type="button" data-bs-toggle="modal"
+                                                        title="view households"
+                                                        data-bs-target="#compoundHouseholds{{$compound->id}}">
+                                                        Click here
+                                                    </a>
+                                                </span>
+                                            </h6>
+                                            @include('employee.community.compound_households')
                                         </div>
                                     </li>
                                     <li class="d-flex justify-content-start align-items-center text-dark mb-3">
                                         <i class="bx bx-user bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1">Fallah</small>
-                                            <h6 class="mb-0">{{$community->is_fallah}}</h6>
+                                            <h6 class="mb-0">{{$compound->is_fallah}}</h6>
                                         </div>
                                     </li>
                                     <li class="d-flex justify-content-start align-items-center 
@@ -83,15 +79,7 @@
                                         <i class="bx bx-book-reader bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1">Bedouin</small>
-                                            <h6 class="mb-0">{{$community->is_bedouin}}</h6>
-                                        </div>
-                                    </li>
-                                    <li class="d-flex justify-content-start align-items-center 
-                                        text-light mb-3">
-                                        <i class="bx bx-circle bx-sm me-3"></i>
-                                        <div class="ps-3 border-start">
-                                            <small class="text-muted mb-1">Status</small>
-                                            <h6 class="mb-0">{{$community->CommunityStatus->name}}</h6>
+                                            <h6 class="mb-0">{{$compound->is_bedouin}}</h6>
                                         </div>
                                     </li>
                                 </ul>
@@ -101,7 +89,7 @@
                     <div class="timeline-event-time">General </div>
                 </div>
             </li>
-            <li class="timeline-item mb-md-4 mb-5"> 
+            <li class="timeline-item mb-md-4 mb-5">
                 <span class="timeline-indicator timeline-indicator-dark" 
                     data-aos="zoom-in" data-aos-delay="200">
                     <i class="bx bx-home"></i>
@@ -109,11 +97,11 @@
                 <div class="timeline-event card p-0" data-aos="fade-right">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                         <h6 class="card-title mb-0">
-                            {{$community->english_name}}
+                            {{$compound->english_name}}
                         </h6>
                         <div class="meta">
                             <span class="badge rounded-pill bg-label-primary" style="font-size:15px">
-                                {{$community->arabic_name}}
+                                {{$compound->arabic_name}}
                             </span>
                         </div>
                     </div>
@@ -121,24 +109,12 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <ul class="list-unstyled">
-                                    <li class="d-flex justify-content-start align-items-center 
-                                        text-success mb-3">
-                                        <i class="bx bx-rename bx-sm me-3"></i>
-                                        <div class="ps-3 border-start">
-                                            <small class="text-muted mb-1">Second Name</small>
-                                            <h6 class="mb-0">
-                                                @if($secondName)
-                                                {{$secondName->english_name}}
-                                                @endif
-                                            </h6>
-                                        </div>
-                                    </li>
                                     <li class="d-flex justify-content-start align-items-center text-info mb-3">
                                         <i class="bx bx-user-voice bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
-                                            <small class="text-muted mb-1">Community Representative</small>
-                                            @if(count($communityRepresentative)>0)
-                                                @foreach($communityRepresentative as $representative)
+                                            <small class="text-muted mb-1">Compound Representative</small>
+                                            @if(count($compoundRepresentative)>0)
+                                                @foreach($compoundRepresentative as $representative)
                                                 <ul>
                                                     <li>
                                                         <span class="text-dark" style="font-size:12px">
@@ -162,27 +138,6 @@
                                                     <li>
                                                         <span class="text-dark" style="font-size:12px">
                                                             {{$publicStructure->english_name}}
-                                                        </span>
-                                                    </li>
-                                                </ul>
-                                                @endforeach
-                                            @endif
-                                        </div>
-                                    </li>
-                                    <li class="d-flex justify-content-start align-items-center 
-                                        text-warning mb-3">
-                                        <i class="bx bx-area bx-sm me-3"></i>
-                                        <div class="ps-3 border-start">
-                                            <small class="text-muted mb-1">Compounds</small>
-                                            @if(count($compounds)>0)
-                                                @foreach($compounds as $compound)
-                                                <ul>
-                                                    <li>
-                                                        <span class="text-dark" style="font-size:12px">
-                                                            <a type="button" href="{{ url('/community-compound/' . $compound->id) }}"
-                                                                target="new" title="view compound" >
-                                                                {{$compound->english_name}}
-                                                            </a>
                                                         </span>
                                                     </li>
                                                 </ul>
@@ -231,12 +186,12 @@
                                         <i class="bx bx-cake bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1">Products</small>
-                                            @if(count($communityProductTypes)> 0)
-                                                @foreach($communityProductTypes as $communityProductType)
+                                            @if(count($compoundProductTypes)> 0)
+                                                @foreach($compoundProductTypes as $compoundProductType)
                                                 <ul>
                                                     <li>
                                                         <span class="text-secondary" style="font-size:12px">
-                                                            {{$communityProductType->name}}
+                                                            {{$compoundProductType->name}}
                                                         </span>
                                                     </li>
                                                 </ul>
@@ -250,30 +205,30 @@
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1">Kindergarten</small>
                                             <ul>
-                                                @if($community->kindergarten_town_id)
+                                                @if($compound->kindergarten_town_id)
                                                 <li>
                                                     <span class="text-info" style="font-size:12px">Students go to: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->KindergartenTown->english_name}}
+                                                        {{$compound->KindergartenTown->english_name}}
                                                     </span>
                                                 </li>
                                                 @endif
                                                 <li>
                                                     <span class="text-info" style="font-size:12px">Students: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->kindergarten_students}}
+                                                        {{$compound->kindergarten_students}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-info" style="font-size:12px">Male Students: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->kindergarten_male}}
+                                                        {{$compound->kindergarten_male}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-info" style="font-size:12px">Female Students: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->kindergarten_female}}
+                                                        {{$compound->kindergarten_female}}
                                                     </span>
                                                 </li>
                                             </ul>
@@ -285,42 +240,42 @@
                                         <div class="ps-3 border-start">
                                             <small class="text-muted mb-1">School</small>
                                             <ul>
-                                                @if($community->school_town_id)
+                                                @if($compound->school_town_id)
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Students go to: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->SchoolTown->english_name}}
+                                                        {{$compound->SchoolTown->english_name}}
                                                     </span>
                                                 </li>
                                                 @endif
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Students: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->school_students}}
+                                                        {{$compound->school_students}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Male Students: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->school_male}}
+                                                        {{$compound->school_male}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Female Students: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->school_female}}
+                                                        {{$compound->school_female}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Grade from: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->grade_from}}
+                                                        {{$compound->grade_from}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Grade to: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->grade_to}}
+                                                        {{$compound->grade_to}}
                                                     </span>
                                                 </li>
                                             </ul>
@@ -334,109 +289,16 @@
                 </div>
             </li>
             <li class="timeline-item mb-md-4 mb-5">
-                <span class="timeline-indicator timeline-indicator-danger" data-aos="zoom-in" data-aos-delay="200">
-                <i class="bx bx-server"></i>
-                </span>
-                <div class="timeline-event card p-0" data-aos="fade-left">
-                <div class="card-header border-0 d-flex justify-content-between">
-                    <h6 class="card-title mb-0">
-                        <span class="align-middle">
-                            {{$community->english_name}} - 
-                            <span class="badge rounded-pill bg-label-danger">Services</span>
-                        </span>
-                    </h6>
-                </div>
-                <div class="card-body pb-0">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between 
-                            align-items-center ps-0 text-primary">
-                            <div>
-                                <i class="bx bx-calendar"></i>
-                                <span>Cycle Year</span>
-                            </div>
-                            <div>
-                                @if($community->energy_system_cycle_id)
-                                    <span class="text-dark">
-                                        ({{$community->EnergySystemCycle->name}})
-                                    </span>
-                                @endif
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between 
-                            align-items-center ps-0 text-warning">
-                            <div>
-                                <i class="bx bx-bulb"></i>
-                                <span>Energy Service</span>
-                            </div>
-                            <div>
-                                {{$community->energy_service}}
-                                @if($community->energy_service_beginning_year)
-                                    <span class="text-dark">
-                                        ({{$community->energy_service_beginning_year}})
-                                    </span>
-                                @endif
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between 
-                            align-items-center ps-0 text-info">
-                            <div>
-                                <i class="bx bx-droplet"></i>
-                                <span>Water Service</span>
-                            </div>
-                            <div>
-                                {{$community->water_service}}
-                                @if($community->water_service_beginning_year)
-                                    <span class="text-dark">
-                                        ({{$community->water_service_beginning_year}})
-                                    </span>
-                                @endif
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between 
-                            align-items-center ps-0 text-success">
-                            <div>
-                                <i class="bx bx-wifi"></i>
-                                <span>Internet Service</span>
-                            </div>
-                            <div>
-                                {{$community->internet_service}}
-                                @if($community->internet_service_beginning_year)
-                                    <span class="text-dark">
-                                        ({{$community->internet_service_beginning_year}})
-                                    </span>
-                                @endif
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="timeline-event-time">Services </div>
-                </div>
-            </li>
-            <li class="timeline-item mb-md-4 mb-5">
                 <span class="timeline-indicator timeline-indicator-warning" data-aos="zoom-in" data-aos-delay="200">
                 <i class="bx bx-bulb"></i>
                 </span>
                 <div class="timeline-event card p-0" data-aos="fade-right">
-                    <div class="card-header border-0 d-flex justify-content-between">
-                        <h6 class="card-title mb-0">Energy Service</h6>
-                        <span class="text-muted">
-                            @if($community->energy_service_beginning_year)
-                                Start at {{$community->energy_service_beginning_year}}
-                            @endif
-                        </span>
-                    </div>
                     <div class="card-body pb-0">
                         <div class="hours mb-2">
                             <i class="bx bx-barcode"></i>
                             <span>Total Meters</span>
                             <i class="bx bx-transfer mx-2"></i>
                             <span>{{$totalMeters}}</span>
-                        </div>
-                        <div class="hours mb-2">
-                            <i class="bx bx-grid"></i>
-                            <span>Energy Source</span>
-                            <i class="bx bx-transfer mx-2"></i>
-                            <span>{{$community->energy_source}}</span>
                         </div>
                     </div>
                     <div class="timeline-event-time">Energy</div>
@@ -447,23 +309,15 @@
                 <i class="bx bx-droplet"></i>
                 </span>
                 <div class="timeline-event card p-0" data-aos="fade-right">
-                    <div class="card-header border-0 d-flex justify-content-between">
-                        <h6 class="card-title mb-0">Water Service</h6>
-                        <span class="text-muted">
-                            @if($community->water_service_beginning_year)
-                                Start at {{$community->water_service_beginning_year}}
-                            @endif
-                        </span>
-                    </div>
                     <div class="card-body pb-0">
                         <div class="hours mb-2">
                             <i class="bx bx-grid-alt"></i>
                             <span>Water Sources</span>
                             <i class="bx bx-transfer mx-2"></i>
-                            @if(count($communityWaterSources) > 0)
-                            @foreach($communityWaterSources as $communityWaterSource)
+                            @if(count($compoundWaterSources) > 0)
+                            @foreach($compoundWaterSources as $compoundWaterSource)
                             <span>
-                                {{$communityWaterSource->name}}, 
+                                {{$compoundWaterSource->name}}, 
                             </span>
                             @endforeach
                             @endif
@@ -495,20 +349,12 @@
                 <i class="bx bx-wifi"></i>
                 </span>
                 <div class="timeline-event card p-0" data-aos="fade-right">
-                    <div class="card-header border-0 d-flex justify-content-between">
-                        <h6 class="card-title mb-0">Internet Service</h6>
-                        <span class="text-muted">
-                            @if($community->internet_service_beginning_year)
-                                Start at {{$community->internet_service_beginning_year}}
-                            @endif
-                        </span>
-                    </div>
                     <div class="card-body pb-0">
                         <div class="hours mb-2">
                             <i class="bx bx-phone"></i>
                             <span>Reception</span>
                             <i class="bx bx-transfer mx-2"></i>
-                            <span>{{$community->reception}}</span>
+                            <span>{{$compound->reception}}</span>
                         </div>
                         <div class="hours mb-2">
                             <i class="bx bx-wifi"></i>
@@ -613,7 +459,7 @@
   
     @if(count($photos) > 0)
         <div class="container" style="margin-top:20px">
-            <h5>{{$community->english_name}} Photos</h5>
+            <h5>{{$compound->english_name}} Photos</h5>
             <div id="carouselExampleIndicators" class="carousel slide" 
                 data-bs-ride="carousel">
                 <div class="carousel-inner">
@@ -642,8 +488,8 @@
 <br>
 <div class="container">
     <span class="timeline-indicator timeline-indicator-danger">
-        <button type="button" class="btn btn-info" id="editCommunity"
-            data-id="{{$community->id}}">
+        <button type="button" class="btn btn-info" id="editCompound"
+            data-id="{{$compound->id}}">
             Go to Edit!
         </button>
     </span>
@@ -651,7 +497,7 @@
 
 <script>
     // View record edit
-    $('#editCommunity').on('click', function() {
+    $('#editCompound').on('click', function() {
         var id = $(this).data('id');
         var url = window.location.href; 
     
