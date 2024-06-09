@@ -50,24 +50,59 @@
                             </select>
                         </fieldset>
                     </div> 
+                    
+                    @if($waterHolder->household_id)
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Energy User</label>
-                            <select name="all_water_holder_id" class="form-control" 
-                                id="energyUserSelectedFbs" disabled>
-                                @if($waterHolder->household_id)
-                                    <option value="{{$waterIncident->all_water_holder_id}}">
-                                        {{$waterHolder->Household->english_name}}
-                                    </option> 
-                                    @else @if($waterHolder->public_structure_id)
-                                    <option value="{{$waterIncident->all_water_holder_id}}">
-                                        {{$waterHolder->PublicStructure->english_name}}
-                                    </option> 
-                                    @endif
-                                @endif
+                            <label class='col-md-12 control-label'>Water Holder</label>
+                            <select name="household_id" class="selectpicker form-control" 
+                                    data-live-search="true">
+                                    <option selected disabled>
+                                        {{$waterHolder->Household->english_name}} 
+                                    </option>
+                                    <?php
+                                        $households = DB::table('all_water_holders')
+                                            ->join('households', 'all_water_holders.household_id', 'households.id')
+                                            ->where('all_water_holders.is_archived', 0)
+                                            ->where('all_water_holders.is_main', "Yes")
+                                            ->where("all_water_holders.community_id", $waterHolder->community_id)
+                                            ->orderBy('households.english_name', 'ASC')
+                                            ->select('households.id as id', 'households.english_name')
+                                            ->get();
+                                    ?>
+                                    @foreach($households as $household)
+                                        <option value="{{$household->id}}">{{$household->english_name}}</option>
+                                    @endforeach
                             </select>
                         </fieldset>
                     </div>
+                    @endif
+                    @if($waterHolder->public_structure_id)
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Water Holder</label>
+                            <select name="public_structure_id" class="selectpicker form-control" 
+                                    data-live-search="true">
+                                    <option selected disabled>
+                                        {{$waterHolder->PublicStructure->english_name}} 
+                                    </option>
+                                    <?php
+                                        $allPublics =  DB::table('all_water_holders')
+                                            ->join('public_structures', 'all_water_holders.public_structure_id', 'public_structures.id')
+                                            ->where('all_water_holders.is_archived', 0)
+                                            ->where('all_water_holders.is_main', "Yes")
+                                            ->where("all_water_holders.community_id", $waterHolder->community_id)
+                                            ->orderBy('public_structures.english_name', 'ASC')
+                                            ->select('public_structures.id as id', 'public_structures.english_name')
+                                            ->get();
+                                    ?>
+                                    @foreach($allPublics as $allPublic)
+                                        <option value="{{$allPublic->id}}">{{$allPublic->english_name}}</option>
+                                    @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="row">

@@ -13,7 +13,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
-                    Add FBS Incident
+                    Add Energy User Incident
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
@@ -64,6 +64,18 @@
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Energy System Type</label>
+                                <select name="energy_type" class="selectpicker form-control"
+                                    id="energySystemType" disabled>
+                                    <option disabled selected>Choose one...</option>
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                  
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Incident Type</label>
                                 <select name="incident_id" class="selectpicker form-control" 
                                     required id="incidentFbsType">
@@ -77,19 +89,10 @@
                             </fieldset>
                             <div id="incident_id_error" style="color: red;"></div>
                         </div>
-                    </div>
-                  
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date Of Incident</label>
                                 <input type="date" name="date" class="form-control" required>
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Response Date</label>
-                                <input type="date" name="response_date" class="form-control">
                             </fieldset>
                         </div>
                     </div>
@@ -97,7 +100,13 @@
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Incident FBS Status</label>
+                                <label class='col-md-12 control-label'>Response Date</label>
+                                <input type="date" name="response_date" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Incident Energy User Status</label>
                                 <select name="incident_status_small_infrastructure_id[]" 
                                     class="selectpicker form-control" data-live-search="true"
                                     multiple id="incidentFbsStatus">
@@ -105,6 +114,8 @@
                             </fieldset>
                             <div id="incident_status_small_infrastructure_id_error" style="color: red;"></div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Equipment Damaged</label>
@@ -120,8 +131,6 @@
                             </fieldset>
                             <div id="incident_equipment_id_error" style="color: red;"></div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Losses Energy (ILS)</label>
@@ -242,6 +251,13 @@ $(document).ready(function() {
                         select.selectpicker('refresh');
                     }
                 });
+
+                $(document).on('change', '#energyUserSelectedFbs', function () {
+
+                    user_id = $(this).val();
+                    public_id = 0;
+                    getEnergySystemType(user_id, public_id);
+                });
                 
             } else if(publicUser == "public") {
 
@@ -253,8 +269,29 @@ $(document).ready(function() {
                         select.prop('disabled', false); 
                         select.html(data.html);
                         select.selectpicker('refresh');
-                    }
+                    } 
                 });
+
+                $(document).on('change', '#energyUserSelectedFbs', function () {
+
+                    user_id = $(this).val();
+                    public_id = 0;
+                    getEnergySystemType(user_id, public_id);
+                });
+            }
+        });
+    }
+
+    function getEnergySystemType(user_id, public_id) {
+
+        $.ajax({
+            url: "energy_user/get_system_type/" +  user_id + '/' + public_id,
+            method: 'GET',
+            success: function(data) {
+                var select = $('#energySystemType');
+                select.prop('disabled', false); 
+                select.html(data.html);
+                select.selectpicker('refresh');
             }
         });
     }

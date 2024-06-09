@@ -791,8 +791,16 @@ class AllEnergyController extends Controller
             DB::rollBack();
         }
 
-        Excel::import(new PurchaseEnergyImport, $request->file('file')); 
-            
-        return Excel::download(new PurchaseEnergyExport($request), 'purchase_report.xlsx');
+        try {
+
+            Excel::import(new PurchaseEnergyImport(1), $request->file('first_file'));
+
+            return Excel::download(new PurchaseEnergyExport($request), 'purchase_report.xlsx');
+
+            return back()->with('success', 'Purchase Report Exported successfully!');
+        } catch (\Exception $e) {
+           
+            return back()->with('error', 'Error occurred during import: ' . $e->getMessage());
+        }
     }
 }

@@ -122,6 +122,7 @@ Route::get('energy_user/get_by_community/{community_id}', [App\Http\Controllers\
 Route::get('energy_public/get_by_community/{community_id}', [App\Http\Controllers\EnergyUserController::class, 'getPublicByCommunity']);
 Route::get('energy_public/get_by_energy_type/{community_id}/{energy_type_id}', [App\Http\Controllers\EnergyPublicStructureController::class, 'getEnergySystemByCommunity']);
 Route::get('energy_user/get_meter/{holder_id}', [App\Http\Controllers\EnergyUserController::class, 'getMeterNumber']);
+Route::get('energy_user/get_system_type/{user_id}/{public_id}', [App\Http\Controllers\EnergyUserController::class, 'getEnergySystemType']);
 
 Route::resource('sub-region', App\Http\Controllers\SubRegionController::class);
 Route::resource('sub-sub-region', App\Http\Controllers\SubSubRegionController::class);
@@ -147,6 +148,7 @@ Route::post('energy-user-export', [App\Http\Controllers\EnergyUserController::cl
 Route::get('progress-household/household/get_by_community/{community_id}', [App\Http\Controllers\HouseholdController::class, 'getByCommunity']);
 Route::post('all-meter-export', [App\Http\Controllers\AllEnergyController::class, 'export'])->name('energy-meter.export');
 Route::post('all-meter-import', [App\Http\Controllers\AllEnergyController::class, 'import'])->name('energy-meter.import');
+Route::post('energy-safety-import', [App\Http\Controllers\EnergySafetyController::class, 'import'])->name('energy-safety.import');
 
 Route::resource('energy-system', App\Http\Controllers\EnergySystemController::class);
 Route::get('energy-system/{id}/editpage', [App\Http\Controllers\EnergySystemController::class, 'editPage']);
@@ -318,7 +320,7 @@ Route::get('/delete-mg-photo', [App\Http\Controllers\MgIncidentController::class
 Route::resource('fbs-incident', App\Http\Controllers\FbsIncidentController::class);
 Route::get('/delete-fbs-incident', [App\Http\Controllers\FbsIncidentController::class, 'deleteFbsIncident'])->name('deleteFbsIncident');
 Route::post('fbs-incident-export', [App\Http\Controllers\FbsIncidentController::class, 'export'])->name('fbs-incident.export');
-Route::get('/delete-fbs-equipment', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentEquipment'])->name('deleteIncidentEquipment');
+Route::get('/delete-fbs-equipment/{id}', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentEquipment'])->name('deleteIncidentEquipment');
 Route::get('/delete-fbs-status', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentStatus'])->name('deleteIncidentStatus');
 Route::get('/delete-fbs-photo', [App\Http\Controllers\FbsIncidentController::class, 'deleteIncidentPhoto'])->name('deleteIncidentPhoto');
 Route::get('fbs-incident/get_by_type/{incident_type_id}', [App\Http\Controllers\FbsIncidentController::class, 'getStatusByIncidentType']);

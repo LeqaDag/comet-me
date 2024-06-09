@@ -50,24 +50,61 @@
                             </select>
                         </fieldset>
                     </div> 
+
+                    @if($internetHolder->household_id)
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Internet Holder</label>
-                            <select name="internet_user_id" class="form-control" 
-                                 disabled>
-                                @if($internetIncident->internet_user_id)
-                                    <option value="{{$internetIncident->internet_user_id}}">
-                                    @if($internetIncident->InternetUser->household_id)
-                                            {{$internetIncident->InternetUser->Household->english_name}} 
-                                        @else @if($internetIncident->InternetUser->public_structure_id)
-                                            {{$internetIncident->InternetUser->PublicStructure->english_name}} 
-                                        @endif
-                                    @endif                           
+                            <select name="household_id" class="selectpicker form-control" 
+                                    data-live-search="true">
+                                    <option selected disabled>
+                                        {{$internetHolder->Household->english_name}} 
                                     </option>
-                                @endif
+                                    <?php
+                                        $households = DB::table('internet_users')
+                                            ->join('communities', 'internet_users.community_id', 'communities.id')
+                                            ->join('households', 'internet_users.household_id', 'households.id')
+                                            ->where('internet_users.community_id', $internetHolder->community_id)
+                                            ->where('internet_users.is_archived', 0)
+                                            ->orderBy('households.english_name', 'ASC')
+                                            ->select('households.id as id', 'households.english_name')
+                                            ->get();
+                                    ?>
+                                    @foreach($households as $household)
+                                        <option value="{{$household->id}}">{{$household->english_name}}</option>
+                                    @endforeach
                             </select>
                         </fieldset>
                     </div>
+                    @endif
+                    @if($internetHolder->public_structure_id)
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Internet Holder</label>
+                            <select name="public_structure_id" class="selectpicker form-control" 
+                                    data-live-search="true">
+                                    <option selected disabled>
+                                        {{$internetHolder->PublicStructure->english_name}} 
+                                    </option>
+                                    <?php
+                                        $allPublics = DB::table('internet_users')
+                                            ->join('communities', 'internet_users.community_id', 'communities.id')
+                                            ->join('public_structures', 'internet_users.public_structure_id', 'public_structures.id')
+                                            ->where('internet_users.community_id', $internetHolder->community_id)
+                                            ->where('internet_users.is_archived', 0)
+                                            ->orderBy('public_structures.english_name', 'ASC')
+                                            ->select('public_structures.id as id', 'public_structures.english_name')
+                                            ->get();
+                                    ?>
+                                    @foreach($allPublics as $allPublic)
+                                        <option value="{{$allPublic->id}}">{{$allPublic->english_name}}</option>
+                                    @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    @endif
+
+
                 </div>
 
                 <div class="row">

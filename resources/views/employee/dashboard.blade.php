@@ -190,7 +190,7 @@
 @include('shared.summary')
 
 <!-- Cumulative Sum Energy -->
-<div class="row mb-4">
+<div class="row mb-4"> 
   <div class="col-md-12 col-lg-12">
     <div class="card">
         <div class="card-header">
@@ -399,8 +399,25 @@
       const communities = {!! json_encode($communities) !!};
       const cities = L.layerGroup();
       communities.forEach(community => {
+
         const { latitude, longitude, english_name } = community;
         const marker = L.marker([latitude, longitude]).bindPopup(english_name);
+
+        marker.on('click', function(e) {
+
+          const button = document.createElement('button');
+          button.innerHTML = 'Click Me';
+          button.style.position = 'absolute';
+          button.style.left = e.originalEvent.clientX + 'px';
+          button.style.top = e.originalEvent.clientY + 'px';
+          document.body.appendChild(button); 
+          button.addEventListener('click', function() {
+
+            var url = window.location.href; 
+            url = url +'/community/'+ id;
+            window.open(url, "new"); 
+          });
+        });
         cities.addLayer(marker);
       });
 

@@ -18,3 +18,4 @@ Route::resource('household', App\Http\Controllers\Api\HouseholdController::class
 Route::resource('internet-holder', App\Http\Controllers\Api\InternetHolderController::class);
 Route::resource('old-internet-holder', App\Http\Controllers\Api\OldInternetHoldersController::class);
 Route::resource('energy-meter', App\Http\Controllers\Api\AllEnergyMeterController::class);
+Route::resource('all-data', App\Http\Controllers\Api\AllEnergyHolderController::class);

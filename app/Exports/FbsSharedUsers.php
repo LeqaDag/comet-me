@@ -78,7 +78,7 @@ class FbsSharedUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
 
     public function title(): string
     {
-        return 'FBS Incidents/ Shared Household';
+        return 'Energy User Incidents/ Shared Household';
     }
 
     /**

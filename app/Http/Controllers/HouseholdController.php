@@ -124,19 +124,22 @@ class HouseholdController extends Controller
             if ($request->ajax()) {
                 
                 $data = DB::table('households')
-                    ->join('communities', 'households.community_id', '=', 'communities.id')
-                    ->join('regions', 'communities.region_id', '=', 'regions.id')
-                    ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
+                    ->join('communities', 'households.community_id', 'communities.id')
+                    ->join('regions', 'communities.region_id', 'regions.id')
                     ->join('household_statuses', 'households.household_status_id', 
                         'household_statuses.id')
-                    // ->leftJoin('refrigerator_holders', 'households.id', '=', 'refrigerator_holders.household_id')
-                    // ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
-                    //     '=', 'refrigerator_holder_receive_numbers.refrigerator_holder_id')
-                    // ->leftJoin('all_energy_meters', 'households.id', '=', 
-                    //     'all_energy_meters.household_id')
                     ->where('internet_holder_young', 0)
                     ->where('households.is_archived', 0);
                     
+                if(Auth::guard('user')->user()->user_type_id == 9) {
+
+                    $data->leftJoin('refrigerator_holders', 'households.id', 'refrigerator_holders.household_id')
+                        ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
+                            'refrigerator_holder_receive_numbers.refrigerator_holder_id')
+                        ->leftJoin('all_energy_meters', 'households.id', 
+                            'all_energy_meters.household_id');
+                }
+                
                 if($communityFilter != null) {
 
                     $data->where('communities.id', $communityFilter);
@@ -151,19 +154,27 @@ class HouseholdController extends Controller
                 }
 
                 $data->select(
-                    'households.english_name as english_name', 
-                    'households.arabic_name as arabic_name',
-                    'households.id as id', 'households.created_at as created_at', 
-                    'households.updated_at as updated_at',
-                    'communities.english_name as name',
-                    'communities.arabic_name as aname',
-                    'household_statuses.status',
-                    //'refrigerator_holder_receive_numbers.receive_number',
-                    //'all_energy_meters.is_main'
+                        'households.english_name as english_name', 
+                        'households.arabic_name as arabic_name',
+                        'households.id as id', 'households.created_at as created_at', 
+                        'households.updated_at as updated_at',
+                        'communities.english_name as name',
+                        'communities.arabic_name as aname',
+                        'household_statuses.status'
                     )
-                ->groupBy('households.id')
-                ->latest(); 
+                    ->groupBy('households.id')
+                    ->latest(); 
  
+                if(Auth::guard('user')->user()->user_type_id == 9) {
+
+                    $data->select(
+                        'refrigerator_holder_receive_numbers.receive_number',
+                        'all_energy_meters.is_main'
+                        )
+                    ->distinct()
+                    ->latest(); 
+                }
+
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -216,12 +227,15 @@ class HouseholdController extends Controller
                     })
                     ->addColumn('icon', function($row) {
 
-                        // $icon = "<i class='fa-solid fa-check text-success'></i>";
+                        $icon = "";
 
-                        // if($row->receive_number != NULL) $icon = "<i class='fa-solid fa-check text-success'></i>";
-                        // else $icon = "<i class='fa-solid fa-close text-danger'></i>";
+                        if(Auth::guard('user')->user()->user_type_id == 9) {
 
-                        // return $icon;
+                            if($row->receive_number != NULL) $icon = "<i class='fa-solid fa-check text-success'></i>";
+                            else $icon = "<i class='fa-solid fa-close text-danger'></i>";
+
+                            return $icon;
+                        } 
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {

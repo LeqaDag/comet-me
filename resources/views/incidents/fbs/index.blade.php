@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'fbs incidents')
+@section('title', 'energy users incidents')
 
 @include('layouts.all')
 
@@ -56,7 +56,7 @@
                         <div class="row">
                             <div class="col-xl-10 col-lg-10 col-md-10">
                                 <h5>
-                                Export FBS Incident Report
+                                Export Energy Incident Report
                                     <i class='fa-solid fa-file-excel text-info'></i>
                                 </h5>
                             </div>
@@ -79,8 +79,8 @@
                                     <fieldset class="form-group">
                                         <select name="type" class="selectpicker form-control" 
                                             required>
-                                            <option disabled selected>FBS or All Incidents?</option>
-                                            <option value="fbs">FBS Incidents</option>
+                                            <option disabled selected>Energy or All Incidents?</option>
+                                            <option value="fbs">Energy Incidents</option>
                                             <option value="all">All Incidents</option>
                                         </select> 
                                     </fieldset>
@@ -135,7 +135,7 @@
 </div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> FBS Incidents
+  <span class="text-muted fw-light">All </span> Energy User Incidents
 </h4>
 
 @if(session()->has('message'))
@@ -203,7 +203,7 @@
                 <div>
                     <button type="button" class="btn btn-success" 
                         data-bs-toggle="modal" data-bs-target="#createFbsIncident">
-                        Add FBS Incident
+                        Add Energy User Incident
                     </button>
                     @include('incidents.fbs.create')
                 </div>
@@ -240,7 +240,7 @@
         function drawChart() {
             var data = google.visualization.arrayToDataTable(analytics);
             var options  ={
-                title:'Status of FBS Seizures (total '+ number +')',
+                title:'Status of Energy Seizures (total '+ number +')',
                 is3D:true,
             };
 

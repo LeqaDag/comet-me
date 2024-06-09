@@ -47,10 +47,16 @@ class PurchaseEnergyExport implements FromCollection, WithHeadings, WithTitle, S
                 'all_energy_meters.daily_limit',
                 'all_energy_meters.installation_date',
                 DB::raw('DATE(all_energy_vending_meters.last_purchase_date) as last_purchase_date'), 
-                DB::raw('DATEDIFF(DATE(all_energy_vending_meters.last_purchase_date), 
-                all_energy_meters.installation_date) as days_difference'), 
-                'meter_cases.meter_case_name_english',
+                'all_energy_vending_meters.days',
+                DB::raw('CASE 
+                    WHEN all_energy_vending_meters.days > 30 && all_energy_vending_meters.days < 60 THEN "Over month"
+                    WHEN all_energy_vending_meters.days > 60  && all_energy_vending_meters.days < 120 THEN "Over 2 months"
+                    WHEN all_energy_vending_meters.days > 120 THEN "Over 3 months"
+                    ELSE "Within a month" 
+                END as days_flag'),
+                'meter_cases.meter_case_name_english'
             );
+
 
         return $query->get();
     } 
@@ -65,7 +71,7 @@ class PurchaseEnergyExport implements FromCollection, WithHeadings, WithTitle, S
         return [
             "Energy Holder (User/Public)", "Meter Number", "Community", "Region", 
             "Energy System Type", "Daily Limit", "Installation Date", "Last Purchase Date", 
-            "Days", "Meter Case"];
+            "Days", "Days Flag", "Meter Case"];
     }
 
     public function title(): string
@@ -95,7 +101,7 @@ class PurchaseEnergyExport implements FromCollection, WithHeadings, WithTitle, S
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:J1');
+        $sheet->setAutoFilter('A1:K1');
 
         return [
             // Style the first row as bold text.

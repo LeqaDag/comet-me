@@ -515,7 +515,7 @@ class EnergyUserController extends Controller
             ->where("all_energy_meters.community_id", $community_id)
             ->select('public_structures.id', 'public_structures.english_name')
             ->get();
-      
+       
         if (!$community_id) {
 
             $html = '<option value="">Choose One...</option>';
@@ -533,6 +533,41 @@ class EnergyUserController extends Controller
             }
         }
 
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getEnergySystemType($user_id, $public_id)
+    {
+        $html = '';
+        $holders = [];
+        if ($user_id == 0) {
+
+            $holders = DB::table('all_energy_meters')
+                ->join('public_structures', 'all_energy_meters.public_structure_id', 'public_structures.id')
+                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
+                ->where("all_energy_meters.public_structure_id", $public_id)
+                ->select('energy_system_types.name')
+                ->get();
+        } else if($public_id == 0){
+
+            $holders = DB::table('all_energy_meters')
+                ->join('households', 'all_energy_meters.household_id', 'households.id')
+                ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
+                ->where("all_energy_meters.household_id", $user_id)
+                ->select('energy_system_types.name')
+                ->get();
+        }
+
+        foreach ($holders as $holder) {
+            $html .= '<option>'.$holder->name.'</option>';
+        }
+        
         return response()->json(['html' => $html]);
     }
 }

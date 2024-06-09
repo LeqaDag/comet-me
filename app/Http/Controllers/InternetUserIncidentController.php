@@ -253,6 +253,7 @@ class InternetUserIncidentController extends Controller
             ->join('internet_user_incidents', 'internet_user_incident_equipment.internet_user_incident_id', 
                 '=', 'internet_user_incidents.id')
             ->where('internet_user_incident_equipment.internet_user_incident_id', $id)
+            ->where('internet_user_incident_equipment.is_archived', 0)
             ->get();
 
         $internetIncidentPhotos = InternetUserIncidentPhoto::where('internet_user_incident_id', $id)
@@ -272,18 +273,20 @@ class InternetUserIncidentController extends Controller
     public function edit($id) 
     {
         $internetIncident = InternetUserIncident::findOrFail($id);
+        $internetHolder = InternetUser::findOrFail($internetIncident->internet_user_id);
         $communities = Community::where('is_archived', 0)
             ->where('internet_service', 'yes')
             ->orderBy('english_name', 'ASC')
-            ->get();
+            ->get(); 
         $incidents = Incident::where('is_archived', 0)->get();
         $internetIncidentStatuses = InternetIncidentStatus::where('is_archived', 0)->get();
         $incidentEquipments = IncidentEquipment::where('is_archived', 0)
             ->where("incident_equipment_type_id", 4)
             ->orderBy('name', 'ASC')
-            ->get(); 
+            ->get();  
 
         $internetIncidentEquipments = InternetUserIncidentEquipment::where('internet_user_incident_id', $id)
+            ->where('internet_user_incident_equipment.is_archived', 0)
             ->get();
 
         $internetIncidentPhotos = InternetUserIncidentPhoto::where('internet_user_incident_id', $id)
@@ -291,7 +294,7 @@ class InternetUserIncidentController extends Controller
 
         return view('incidents.internet.user.edit', compact('internetIncident', 'communities', 
             'incidents', 'internetIncidentStatuses', 'internetIncidentEquipments', 
-            'incidentEquipments', 'internetIncidentPhotos'));
+            'incidentEquipments', 'internetIncidentPhotos', 'internetHolder'));
     }
 
     /**
@@ -309,6 +312,18 @@ class InternetUserIncidentController extends Controller
             $internetIncident->date = $request->date;
             $year = explode('-', $request->date);
             $internetIncident->year = $year[0];
+        }
+
+        if($request->household_id) { 
+
+            $internetUser = InternetUser::where('household_id', $request->household_id)->first();
+            $internetIncident->internet_user_id = $internetUser->id;
+        }
+
+        if($request->public_structure_id) {
+
+            $internetUser = InternetUser::where('public_structure_id', $request->public_structure_id)->first();
+            $internetIncident->internet_user_id = $internetUser->id;
         }
 
         $internetIncident->incident_id = $request->incident_id;
@@ -456,7 +471,8 @@ class InternetUserIncidentController extends Controller
 
         if($internetEquipment) {
 
-            $internetEquipment->delete();
+            $internetEquipment->is_archived = 1;
+            $internetEquipment->save();
             
             $response['success'] = 1;
             $response['msg'] = 'Equipment Deleted successfully'; 

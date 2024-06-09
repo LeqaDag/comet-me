@@ -195,12 +195,12 @@
                 <div>
                     <form action="{{route('energy-maintenance.import')}}" method="POST" 
                         enctype="multipart/form-data">
-                        @csrf
+                        @csrf 
                         <div class="row"> 
                             <div class="col-xl-5 col-lg-5 col-md-5">
                                 <fieldset class="form-group">
                                     <input name="file" type="file"
-                                        class="form-control">
+                                        class="form-control" required>
                                 </fieldset>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4">

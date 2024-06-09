@@ -177,7 +177,7 @@
                 </li>
                 @if(count($fbsIncidentPhotos) > 0)
                     <div class="container">
-                        <h5>FBS Incident Photos</h5>
+                        <h5>Energy User Incident Photos</h5>
                         <div id="carouselExampleIndicators" class="carousel slide" 
                             data-bs-ride="carousel">
                             <div class="carousel-inner">

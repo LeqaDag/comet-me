@@ -23,10 +23,12 @@ use App\Models\PublicStructure;
 use App\Exports\EnergySafetyExport;
 use App\Models\ElectricityMaintenanceCall;
 use App\Models\ElectricityMaintenanceCallAction;
+use App\Imports\ImportSafetyChecks;
 use Carbon\Carbon;
 use Image;
 use DataTables;
 use Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class EnergySafetyController extends Controller
 {
@@ -619,5 +621,27 @@ class EnergySafetyController extends Controller
     {
                 
         return Excel::download(new EnergySafetyExport($request), 'meter_safety_checks.xlsx');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function import(Request $request)
+    {
+        try {
+
+            $file = $request->file('file');
+            //$spreadsheet = IOFactory::load($file);
+            // $sheetNames = $spreadsheet->getSheetNames();
+            // $firstSheet = $spreadsheet->getSheet(0);
+
+            Excel::import(new ImportSafetyChecks, $file);
+        
+            return back()->with('success', 'Energy Safety Data Imported successfully!');
+        } catch (\Exception $e) {
+           
+            return back()->with('error', 'Error occurred during import: ' . $e->getMessage());
+        }
     }
 }

@@ -487,7 +487,7 @@
             <li class="menu-item" id="fbs-incident">
                 <a href="{{url('fbs-incident')}}" class="menu-link" >
                     <i class=""></i>
-                    <div>FBS Users</div>
+                    <div>Energy Users</div>
                 </a>
             </li>
             <li class="menu-item" id="water-incident">

@@ -48,6 +48,8 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
                 'all_water_holder_donors.all_water_holder_id')
             ->leftJoin('donors', 'all_water_holder_donors.donor_id', 'donors.id')
             ->where('h2o_system_incidents.is_archived', 0) 
+            ->where('h2o_incident_statuses.is_archived', 0) 
+            ->where('water_incident_equipment.is_archived', 0) 
             ->select([
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
                     as exported_value'),

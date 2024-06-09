@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'edit fbs incident')
+@section('title', 'edit energy user incident')
 
 @include('layouts.all')
 
@@ -49,26 +49,55 @@
                             </select>
                         </fieldset>
                     </div> 
+                    @if($energyMeter->household_id)
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Energy Holder</label>
-                            <select name="energy_user_id" class="form-control" 
-                                id="energyUserSelectedFbs" disabled>
-                                @if($energyMeter->household_id)
-                                    <option value="{{$fbsIncident->energy_user_id}}">
+                            <select name="household_id" class="selectpicker form-control" 
+                                id="energyUserSelectedFbs" data-live-search="true">
+                                    <option selected disabled value="{{$fbsIncident->energy_user_id}}">
                                         {{$energyMeter->Household->english_name}} 
                                     </option>
-                                @else @if($energyMeter->public_structure_id) 
-                                    <option value="{{$fbsIncident->energy_user_id}}">
-                                        {{$energyMeter->PublicStructure->english_name}} 
-                                    </option>
-                                @endif
-                                @endif
+                                    <?php
+                                        $allUsers = DB::table('all_energy_meters')
+                                            ->join('households', 'all_energy_meters.household_id', '=', 'households.id')
+                                            ->where("households.community_id", $energyMeter->community_id)
+                                            ->select('households.id', 'households.english_name')
+                                            ->orderBy('households.english_name', 'ASC') 
+                                            ->get();
+                                    ?>
+                                    @foreach($allUsers as $allUser)
+                                        <option value="{{$allUser->id}}">{{$allUser->english_name}}</option>
+                                    @endforeach
                             </select>
                         </fieldset>
                     </div>
+                    @endif
+                    @if($energyMeter->public_structure_id)
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy Holder</label>
+                            <select name="public_structure_id" class="selectpicker form-control" 
+                                id="energyUserSelectedFbs" data-live-search="true">
+                                    <option selected disabled value="{{$fbsIncident->energy_user_id}}">
+                                        {{$energyMeter->PublicStructure->english_name}} 
+                                    </option>
+                                    <?php
+                                        $allPublics = DB::table('all_energy_meters')
+                                            ->join('public_structures', 'all_energy_meters.public_structure_id', 'public_structures.id')
+                                            ->where("public_structures.community_id", $energyMeter->community_id)
+                                            ->select('public_structures.id', 'public_structures.english_name')
+                                            ->orderBy('public_structures.english_name', 'ASC') 
+                                            ->get();
+                                    ?>
+                                    @foreach($allPublics as $allPublic)
+                                        <option value="{{$allPublic->id}}">{{$allPublic->english_name}}</option>
+                                    @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    @endif
                 </div>
-
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
@@ -201,7 +230,7 @@
                 <hr>
 
                 <div class="row">
-                    <h5>Incident FBS Statuses</h5>
+                    <h5>Incident Energy User Statuses</h5>
                 </div>
                 @if(count($fbsStatuses) > 0) 
 
@@ -228,7 +257,7 @@
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Add More FBS Status</label>
+                                <label class='col-md-12 control-label'>Add More Energy User Status</label>
                                 <select class="selectpicker form-control" 
                                     multiple data-live-search="true" name="more_statuses[]">
                                     <option selected disabled>Choose one...</option>
@@ -245,7 +274,7 @@
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Add FBS Status</label>
+                                <label class='col-md-12 control-label'>Add Energy User Status</label>
                                 <select class="selectpicker form-control" 
                                     multiple data-live-search="true" name="new_statuses[]">
                                     <option selected disabled>Choose one...</option>
@@ -327,7 +356,7 @@
                 <hr>
 
                 <div class="row">
-                    <h5>Incident FBS Photos</h5>
+                    <h5>Incident Energy User Photos</h5>
                 </div>
                 @if(count($fbsIncidentPhotos) > 0)
 
@@ -489,7 +518,7 @@
         }).then((result) => {
             if(result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('deleteIncidentEquipment') }}",
+                    url: "/delete-fbs-equipment/" + id,
                     type: 'get',
                     data: {id: id},
                     success: function(response) {

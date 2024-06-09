@@ -7,7 +7,15 @@
 @section('content')
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">{{$internetUser->Household->english_name}} </span> Incident Information 
+  <span class="text-muted fw-light">
+
+    @if($internetUser->household_id)
+        {{$internetUser->Household->english_name}} 
+    @else @if($internetUser->public_structure_id)
+        {{$internetUser->PublicStructure->english_name}} 
+    @endif
+    @endif
+    </span> Incident Information 
 </h4>
 
 <div class="col-xl-12">
@@ -20,7 +28,14 @@
                     </span>
                     <div class="timeline-event">
                         <div class="timeline-header border-bottom mb-3">
-                            <h6 class="mb-0">{{$internetUser->Household->english_name}} -  
+                            <h6 class="mb-0">
+                            @if($internetUser->household_id)
+                                {{$internetUser->Household->english_name}} 
+                            @else @if($internetUser->public_structure_id)
+                                {{$internetUser->PublicStructure->english_name}} 
+                            @endif
+                            @endif
+                                 -  
                                 <span class="text-primary">Details</span></h6>
                             <small class="text-muted"></small>
                         </div>

@@ -343,6 +343,28 @@
                     </div>
                 </div> 
             @endif
+            <div>
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||  
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 4 )
+                <div>
+                    <form action="{{route('energy-safety.import')}}" method="POST" 
+                        enctype="multipart/form-data">
+                        @csrf
+                        <div class="row"> 
+                            <div class="col-xl-5 col-lg-5 col-md-5">
+                                <fieldset class="form-group">
+                                    <input name="file" type="file"
+                                        class="form-control" required>
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <button class="btn btn-success" type="submit">Import File</button>
+                            </div>
+                        </div>
+                    </form>
+                <div>
+            @endif
             <table id="energySafetyTable" class="table table-striped data-table-energy-safety my-2">
                 <thead>
                     <tr>
@@ -560,5 +582,34 @@
             });
         });
     });
+
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script type="text/javascript">
+    Swal.fire({
+        icon: 'success', 
+        title: '{{ session('success') }}', 
+        showDenyButton: false,
+        showCancelButton: false,
+        confirmButtonText: 'Success!'
+    }).then((result) => {
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script type="text/javascript">
+    Swal.fire({
+        icon: 'error', 
+        title: '{{ session('error') }}', 
+        showDenyButton: false,
+        showCancelButton: false,
+        confirmButtonText: 'Error!'
+    }).then((result) => {
+    });
+</script>
+@endif
+
 @endsection

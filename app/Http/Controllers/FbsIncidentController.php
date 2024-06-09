@@ -50,19 +50,20 @@ class FbsIncidentController extends Controller
             if ($request->ajax()) {
 
                 $data = DB::table('fbs_user_incidents')
-                    ->join('communities', 'fbs_user_incidents.community_id', '=', 'communities.id')
-                    ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', '=', 'all_energy_meters.id')
-                    ->leftJoin('households', 'all_energy_meters.household_id', '=', 'households.id')
+                    ->join('communities', 'fbs_user_incidents.community_id', 'communities.id')
+                    ->join('all_energy_meters', 'fbs_user_incidents.energy_user_id', 'all_energy_meters.id')
+                    ->leftJoin('households', 'all_energy_meters.household_id', 'households.id')
                     ->leftJoin('public_structures', 'all_energy_meters.public_structure_id', 
                         'public_structures.id')
-                    ->join('incidents', 'fbs_user_incidents.incident_id', '=', 'incidents.id')
+                    ->join('incidents', 'fbs_user_incidents.incident_id', 'incidents.id')
                     ->leftJoin('fbs_incident_statuses', 
                         'fbs_user_incidents.id', 
-                        '=', 'fbs_incident_statuses.fbs_user_incident_id')
+                        'fbs_incident_statuses.fbs_user_incident_id')
                     ->leftJoin('incident_status_small_infrastructures', 
                         'fbs_incident_statuses.incident_status_small_infrastructure_id', 
-                        '=', 'incident_status_small_infrastructures.id')
-                    ->where('fbs_user_incidents.is_archived', 0);
+                        'incident_status_small_infrastructures.id')
+                    ->where('fbs_user_incidents.is_archived', 0)
+                    ->where('fbs_incident_statuses.is_archived', 0);
 
                 if($communityFilter != null) {
 
@@ -200,7 +201,6 @@ class FbsIncidentController extends Controller
      */
     public function store(Request $request)
     {    
-        //dd($request->all());  
         $fbsIncident = new FbsUserIncident();
 
         if($request->date) {
@@ -321,14 +321,16 @@ class FbsIncidentController extends Controller
                 'fbs_incident_statuses.incident_status_small_infrastructure_id', 
                 'incident_status_small_infrastructures.id')
             ->where('fbs_incident_statuses.fbs_user_incident_id', $id)
+            ->where('fbs_incident_statuses.is_archived', 0)
             ->get();
             
         $fbsIncidentEquipments = DB::table('fbs_incident_equipment')
             ->join('incident_equipment', 'fbs_incident_equipment.incident_equipment_id', 
-                '=', 'incident_equipment.id')
+                'incident_equipment.id')
             ->join('fbs_user_incidents', 'fbs_incident_equipment.fbs_user_incident_id', 
-                '=', 'fbs_user_incidents.id')
+                'fbs_user_incidents.id')
             ->where('fbs_incident_equipment.fbs_user_incident_id', $id)
+            ->where('fbs_incident_equipment.is_archived', 0)
             ->get();
 
         $fbsIncidentPhotos = FbsIncidentPhoto::where('fbs_user_incident_id', $id)
@@ -352,7 +354,7 @@ class FbsIncidentController extends Controller
             ->orderBy('english_name', 'ASC')
             ->get();
         $energyMeter = AllEnergyMeter::findOrFail($fbsIncident->energy_user_id);
-
+ 
         $incidents = Incident::where('is_archived', 0)->get();
         $fbsIncidentEquipments = FbsIncidentEquipment::where('fbs_user_incident_id', $id)
             ->where('is_archived', 0)
@@ -367,6 +369,7 @@ class FbsIncidentController extends Controller
                 'fbs_incident_statuses.incident_status_small_infrastructure_id', 
                 'incident_status_small_infrastructures.id')
             ->where('fbs_incident_statuses.fbs_user_incident_id', $id)
+            ->where('fbs_incident_statuses.is_archived', 0)
             ->select('fbs_incident_statuses.id', 'incident_status_small_infrastructures.name')
             ->get();
         $fbsIncidentStatues = IncidentStatusSmallInfrastructure::where('is_archived', 0)->get();
@@ -404,6 +407,39 @@ class FbsIncidentController extends Controller
             if($request->geolocation_long) $fbsIncident->geolocation_long = $request->geolocation_long;
             if($request->hearing_date) $fbsIncident->hearing_date = $request->hearing_date;
             if($request->structure_description) $fbsIncident->structure_description = $request->structure_description;
+        }
+
+
+        if($request->public_structure_id) {
+
+            $energyUser = AllEnergyMeter::where('public_structure_id', $request->public_structure_id)->first();
+            $fbsIncident->energy_user_id = $energyUser->id;
+
+            $energyPublic = AllEnergyMeter::where("is_archived", 0)
+                ->where("public_structure_id", $request->public_structure_id)
+                ->first();
+
+            if($energyPublic) {
+
+                $energyPublic->meter_case_id = 20;
+                $energyPublic->save();
+            }
+        }
+
+        if($request->household_id) {
+
+            $energyUser = AllEnergyMeter::where('household_id', $request->household_id)->first();
+            $fbsIncident->energy_user_id = $energyUser->id;
+    
+            $energyUser = AllEnergyMeter::where("is_archived", 0)
+                ->where("household_id", $request->household_id)
+                ->first();
+    
+            if($energyUser) {
+    
+                $energyUser->meter_case_id = 20;
+                $energyUser->save();
+            }
         }
 
         $fbsIncident->notes = $request->notes;
@@ -562,7 +598,8 @@ class FbsIncidentController extends Controller
 
         if($fbsStatus) {
 
-            $fbsStatus->delete();
+            $fbsStatus->is_archived = 1;
+            $fbsStatus->save();
             
             $response['success'] = 1;
             $response['msg'] = 'Status Deleted successfully'; 
@@ -581,15 +618,14 @@ class FbsIncidentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function deleteIncidentEquipment(Request $request)
+    public function deleteIncidentEquipment(int $id)
     {
-        $id = $request->id;
-
         $fbsEquipment = FbsIncidentEquipment::find($id);
 
         if($fbsEquipment) {
 
-            $fbsEquipment->delete();
+            $fbsEquipment->is_archived = 1;
+            $fbsEquipment->save();
             
             $response['success'] = 1;
             $response['msg'] = 'Equipment Deleted successfully'; 
@@ -645,7 +681,7 @@ class FbsIncidentController extends Controller
             return Excel::download(new AllIncidentExport($request), 'all_incidents.xlsx');
         }  else {
 
-            return Excel::download(new FbsIncidentExport($request), 'fbs_incidents.xlsx');
+            return Excel::download(new FbsIncidentExport($request), 'energy_user_incidents.xlsx');
         }    
     }
 }

@@ -167,13 +167,22 @@ label, table {
                         @csrf
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-xl-5 col-lg-5 col-md-5">
+                                <div class="col-xl-4 col-lg-4 col-md-4">
                                     <fieldset class="form-group">
-                                        <input name="file" type="file"
-                                            class="form-control">
+                                        <label for="">Upload the file</label>
+                                        <input name="first_file" type="file"
+                                            class="form-control" required>
                                     </fieldset>
                                 </div>
+                                <!-- <div class="col-xl-4 col-lg-4 col-md-4">
+                                    <fieldset class="form-group">
+                                        <label for="">Upload the second file</label>
+                                        <input name="second_file" type="file"
+                                            class="form-control">
+                                    </fieldset>
+                                </div> -->
                                 <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <label for="">Click here!</label>
                                     <button class="btn btn-info" type="submit">
                                         <i class='fa-solid fa-file-excel'></i>
                                         Proccess
@@ -503,4 +512,30 @@ label, table {
         });
     });
 </script>
+
+@if(session('success'))
+<script type="text/javascript">
+    Swal.fire({
+        icon: 'success', 
+        title: '{{ session('success') }}', 
+        showDenyButton: false,
+        showCancelButton: false,
+        confirmButtonText: 'Success!'
+    }).then((result) => {
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script type="text/javascript">
+    Swal.fire({
+        icon: 'error', 
+        title: '{{ session('error') }}', 
+        showDenyButton: false,
+        showCancelButton: false,
+        confirmButtonText: 'Error!'
+    }).then((result) => {
+    });
+</script>
+@endif
 @endsection
