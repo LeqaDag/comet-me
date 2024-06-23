@@ -6,6 +6,12 @@
 @include('layouts.all')
 
 @section('content')
+<style>
+    .leaflet-map {
+        width: 100%;
+        height: 120vh; /* This will make the map take up the full height of the viewport */
+    }
+</style>
 
 <h1>
   Welcome {{Auth::guard('user')->user()->name}}  
@@ -45,6 +51,19 @@
           <div class="row">
             <div class="col-xl-3 col-lg-3 col-md-3">
               <fieldset class="form-group">
+                <select name="communities[]" class="selectpicker form-control" 
+                data-live-search="true" id="filterByCommunity" multiple>
+                  <option disabled selected>Filter by Community</option>
+                  @foreach($communities as $community)
+                  <option value="{{$community->id}}">
+                    {{$community->english_name}}
+                  </option>
+                  @endforeach
+                </select> 
+              </fieldset>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-3">
+              <fieldset class="form-group">
                 <select name="regions[]" class="selectpicker form-control" 
                 data-live-search="true" id="filterByRegion" multiple>
                   <option disabled selected>Filter by Regions</option>
@@ -79,6 +98,9 @@
                 </select> 
               </fieldset>
             </div>
+          </div>
+          <br>
+          <div class="row">
             <div class="col-xl-3 col-lg-3 col-md-3">
               <fieldset class="form-group">
                 <select name="services[]"
@@ -93,9 +115,6 @@
                 </select> 
               </fieldset>
             </div>
-          </div>
-          <br>
-          <div class="row">
             <div class="col-xl-3 col-lg-3 col-md-3">
               <fieldset class="form-group">
                 <select name="years[]" class="selectpicker form-control" 
@@ -138,6 +157,8 @@
                 </select> 
               </fieldset>
             </div>
+          </div><br> 
+          <div class="row">
             <div class="col-xl-3 col-lg-3 col-md-3">
               <fieldset class="form-group">
                 <select name="donors[]" class="selectpicker form-control" 
@@ -151,8 +172,6 @@
                 </select> 
               </fieldset>
             </div> 
-          </div><br> 
-          <div class="row">
             <div class="col-xl-3 col-lg-3 col-md-3">
               <fieldset class="form-group">
                 <select name="incidents[]" class="selectpicker form-control" 
@@ -383,10 +402,58 @@
   var firstMap = $("#layerControl1");
   var clearMap = $("#clearMapControl");
   var filteredMap = $("#layerControlFilter");
+//   var mapInstance;
+
+//   // Function to initialize the map
+//   function initializeMap() {
+    
+//     mapInstance = L.map('layerControl1', {
+//       center: [32.2428238, 35.494258],
+//       zoom: 10,
+//       layers: [street]
+//     });
+//   }
+
+//   // Function to clear the map
+//   function mapClear() {
+//     if (mapInstance) {
+//       mapInstance.remove(); // Remove the map instance from the container
+//       mapInstance = null; // Set the map instance to null
+//     }
+//   }
+
+//   // Function to parse URL parameters
+// function getParameterByName(name, url) {
+//     if (!url) url = window.location.href;
+//     name = name.replace(/[\[\]]/g, "\\$&");
+//     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+//         results = regex.exec(url);
+//     if (!results) return null;
+//     if (!results[2]) return '';
+//     return decodeURIComponent(results[2].replace(/\+/g, " "));
+// }
+
+//   // Get latitude and longitude from URL parameters
+//   var lat = getParameterByName('lat');
+//   var lng = getParameterByName('lng');
+
+//   // Check if latitude and longitude are provided
+//   if (lat && lng) {
+//     if (!mapInstance) {
+//         // Initialize the map with the provided latitude and longitude
+//         initializeMap();
+//     }
+//     mapInstance.setView([parseFloat(lat), parseFloat(lng)], 10);
+//   } else {
+//     if (!mapInstance) {
+//         // Initialize the map with default settings
+//         initializeMap();
+//     }
+//   }
+
   DefaultMapView();
 
   function DefaultMapView() {
-   
     // view default map
     if (firstMap) {
 
@@ -398,26 +465,23 @@
 
       const communities = {!! json_encode($communities) !!};
       const cities = L.layerGroup();
+
       communities.forEach(community => {
 
-        const { latitude, longitude, english_name } = community;
+        const { id, latitude, longitude, english_name } = community;
         const marker = L.marker([latitude, longitude]).bindPopup(english_name);
+       
+        marker.on('click', function() {
 
-        marker.on('click', function(e) {
-
-          const button = document.createElement('button');
-          button.innerHTML = 'Click Me';
-          button.style.position = 'absolute';
-          button.style.left = e.originalEvent.clientX + 'px';
-          button.style.top = e.originalEvent.clientY + 'px';
-          document.body.appendChild(button); 
-          button.addEventListener('click', function() {
+          setTimeout(function() {
 
             var url = window.location.href; 
-            url = url +'/community/'+ id;
-            window.open(url, "new"); 
-          });
+            var newUrl = url.replace('/home', '');
+            url = newUrl + '/community/' + id;
+            window.open(url, '_blank');
+          }, 2000);
         });
+
         cities.addLayer(marker);
       });
 
@@ -433,12 +497,14 @@
       const overlayMaps = {
         Cities: cities
       };
+      
 
       MapCommunity(layerControl1, baseMaps, overlayMaps);
     }
   }
 
-function ClearMapView() {
+  function ClearMapView() {
+    
     if (clearMap) {
         // Hide other map elements and show the clearMap
         filteredMap.css("visibility", "hidden");
@@ -459,10 +525,24 @@ function ClearMapView() {
         // Create a new map instance in the cleared container
         const communities = {!! json_encode($communities) !!};
         const cities = L.layerGroup();
+
         communities.forEach(community => {
-            const { latitude, longitude, english_name } = community;
-            const marker = L.marker([latitude, longitude]).bindPopup(english_name);
-            cities.addLayer(marker);
+          
+          const { id, latitude, longitude, english_name } = community;
+          const markerClear = L.marker([latitude, longitude]).bindPopup(english_name);
+
+          markerClear.on('click', function() {
+
+            setTimeout(function() {
+
+              var url = window.location.href; 
+              var newUrl = url.replace('/home', '');
+              url = newUrl + '/community/' + id;
+              window.open(url, '_blank');
+            }, 2000);
+          });
+
+          cities.addLayer(markerClear);
         });
 
         const clearMapControl = L.map('clearMapControl', {
@@ -481,46 +561,8 @@ function ClearMapView() {
 
         MapCommunity(clearMapControl, baseMaps, overlayMaps);
     }
-}
+  }
 
-//   function ClearMapView() {
-   
-//    // view default map
-//    if (clearMap) {
-
-//     filteredMap.css("visibility", "hidden");
-//     filteredMap.css('display','none');
-
-//     firstMap.css("visibility", "hidden");
-//     firstMap.css('display','none');
-
-//     clearMap.css("visibility", "visible");
-//     clearMap.css('display','block');
-
-//      const communities = {!! json_encode($communities) !!};
-//      const cities = L.layerGroup();
-//      communities.forEach(community => {
-//        const { latitude, longitude, english_name } = community;
-//        const marker = L.marker([latitude, longitude]).bindPopup(english_name);
-//        cities.addLayer(marker);
-//      });
-
-//      const clearMapControl = L.map('clearMapControl', {
-//        center: [32.2428238, 35.494258],
-//        zoom: 10,
-//        layers: [street, cities]
-//      });
-//      const baseMaps = {
-//        Street: street,
-//        Watercolor: watercolor
-//      };
-//      const overlayMaps = {
-//        Cities: cities
-//      };
-
-//      MapCommunity(clearMapControl, baseMaps, overlayMaps);
-//    }
-//  }
 
   $('#clearFiltersButton').on('click', function() {
 
@@ -572,18 +614,31 @@ function ClearMapView() {
         if(filteredMap) {
 
           firstMap.css("visibility", "hidden");
-          firstMap.css('display','none');
+          firstMap.css('display', 'none');
 
           clearMap.css("visibility", "hidden");
-          clearMap.css('display','none');
+          clearMap.css('display', 'none');
 
           filteredMap.css("visibility", "visible");
-          filteredMap.css('display','block');
+          filteredMap.css('display', 'block');
 
           var cities = L.layerGroup();
           data.communities.forEach(community => {
-            var { latitude, longitude, english_name } = community;
+
+            var {id, latitude, longitude, english_name } = community;
             var markerFiltered = L.marker([latitude, longitude]).bindPopup(english_name);
+
+            markerFiltered.on('click', function() {
+
+              setTimeout(function() {
+
+                var url = window.location.href; 
+                var newUrl = url.replace('/home', '');
+                url = newUrl + '/community/' + id;
+                window.open(url, '_blank');
+              }, 2000);
+            });
+
             cities.addLayer(markerFiltered);
           });
 

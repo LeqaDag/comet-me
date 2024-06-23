@@ -19,3 +19,4 @@ Route::resource('internet-holder', App\Http\Controllers\Api\InternetHolderContro
 Route::resource('old-internet-holder', App\Http\Controllers\Api\OldInternetHoldersController::class);
 Route::resource('energy-meter', App\Http\Controllers\Api\AllEnergyMeterController::class);
 Route::resource('all-data', App\Http\Controllers\Api\AllEnergyHolderController::class);
+Route::resource('actions', App\Http\Controllers\Api\AllActionsController::class);

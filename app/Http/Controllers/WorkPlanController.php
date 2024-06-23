@@ -23,7 +23,7 @@ use Mail;
 class WorkPlanController extends Controller
 { 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource. 
      *
      * @return \Illuminate\Http\Response
      */
@@ -141,6 +141,7 @@ class WorkPlanController extends Controller
             $actionPriorities = ActionPriority::all();
             $users = User::where('is_archived', 0)
                 ->whereIn('user_type_id', [1, 2, 3, 4, 5, 6])
+                ->orderBy('name', 'ASC')
                 ->get();
 
             return view('plans.index', compact('actionStatuses', 'actionPriorities', 'users'));

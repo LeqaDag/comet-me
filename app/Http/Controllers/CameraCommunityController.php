@@ -12,13 +12,14 @@ use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\Donor;
 use App\Models\Community;
+use App\Models\CommunityService;
 use App\Models\CameraCommunityType;
 use App\Models\CameraCommunity;
 use App\Models\NvrCommunityType;
 use App\Models\CameraCommunityPhoto;
 use App\Models\Camera;
 use App\Models\NvrCamera;
-use App\Models\Region;
+use App\Models\Region; 
 use App\Models\Household; 
 use App\Models\SubRegion;
 use App\Models\Repository;
@@ -37,6 +38,34 @@ class CameraCommunityController extends Controller
      */
     public function index(Request $request)
     {	
+        $allCommunityCameras = CameraCommunity::where('is_archived', 0)
+            ->where('community_id', '!=', NULL)
+            ->get();
+        
+        foreach($allCommunityCameras as $allCommunityCamera) {
+
+            $existCommunityService = CommunityService::where('community_id', $allCommunityCamera->community_id)
+                ->where('service_id', 4)
+                ->first();
+
+            $community = Community::findOrFail($allCommunityCamera->community_id);
+     
+            if($existCommunityService) {
+
+            } else {
+
+                $communityService = new CommunityService();
+                $communityService->community_id = $allCommunityCamera->community_id;
+                $communityService->service_id = 4;
+                $communityService->save();
+            }
+
+            $dateTime = Carbon::createFromFormat('Y-m-d', $allCommunityCamera->date);
+            $year = $dateTime->year;
+            $community->camera_service_beginning_year = $year;
+            $community->save();
+        }
+
         if (Auth::guard('user')->user() != null) {
 
             $communities = Community::where('is_archived', 0)

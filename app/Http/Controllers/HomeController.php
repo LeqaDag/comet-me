@@ -660,6 +660,29 @@ class HomeController extends Controller
     {
         $communities = DB::table("communities")->whereNotNull("communities.latitude");
    
+        // Search Community
+        if($request->communities) {
+            $communityIds = $request->communities;
+        
+            $communities->where(function ($query) use ($communityIds) {
+                foreach ($communityIds as $communityId) {
+                    if (is_array($communityId)) {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($communityId) {
+                            $subQuery->select('communities.id')
+                                ->from('communities')
+                                ->whereIn('communities.id', $communityId);
+                        });
+                    } else {
+                        $query->orWhereIn('communities.id', function ($subQuery) use ($communityId) {
+                            $subQuery->select('communities.id')
+                                ->from('communities')
+                                ->where('communities.id', $communityId);
+                        });
+                    }
+                }
+            });
+        }
+
         // Search Region
         if($request->regions) {
             $regionIds = $request->regions;
@@ -741,7 +764,7 @@ class HomeController extends Controller
                             $subQuery->select('community_services.community_id')
                                 ->from('community_services')
                                 ->whereIn('community_services.service_id', $serviceId);
-                        });
+                        }); 
                     } else {
                         $query->orWhereIn('id', function ($subQuery) use ($serviceId) {
                             $subQuery->select('community_services.community_id')
@@ -764,13 +787,15 @@ class HomeController extends Controller
                         $query->orWhere(function ($subQuery) use ($yearId) {
                             $subQuery->whereIn('energy_service_beginning_year', $yearId)
                                 ->orWhereIn('water_service_beginning_year', $yearId)
-                                ->orWhereIn('internet_service_beginning_year', $yearId);
+                                ->orWhereIn('internet_service_beginning_year', $yearId)
+                                ->orWhereIn('camera_service_beginning_year', $yearId);
                         });
                     } else {
                         $query->orWhere(function ($subQuery) use ($yearId) {
                             $subQuery->where('energy_service_beginning_year', $yearId)
                                 ->orWhere('water_service_beginning_year', $yearId)
-                                ->orWhere('internet_service_beginning_year', $yearId);
+                                ->orWhere('internet_service_beginning_year', $yearId)
+                                ->orWhere('camera_service_beginning_year', $yearId);
                         });
                     }
                 }

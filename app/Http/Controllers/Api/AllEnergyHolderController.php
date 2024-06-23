@@ -31,6 +31,7 @@ class AllEnergyHolderController extends Controller
             ->join('all_energy_meters', 'all_energy_meters.community_id', 'internet_users.community_id')
             ->select(
                 'internet_users.id as id',
+                DB::raw('IFNULL(households.id, public_structures.id) as holder_id'),
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) as contract_holder'),
                 DB::raw('IFNULL(households.arabic_name, public_structures.arabic_name) as contract_holder_arabic'),
                 'communities.english_name as community_name',
@@ -94,6 +95,7 @@ class AllEnergyHolderController extends Controller
             ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
             ->where('all_energy_meters.is_archived', 0)
             ->select(
+                DB::raw('IFNULL(households.id, public_structures.id) as energy_id'),
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) as energy_holder'),
                 DB::raw('IFNULL(households.arabic_name, public_structures.arabic_name) as energy_holder_arabic'),
                 'communities.english_name as community_name', 'communities.english_name as community_name_arabic',
@@ -114,6 +116,7 @@ class AllEnergyHolderController extends Controller
             })
             ->whereNull('all_energy_meters.community_id')
             ->select(
+                'households.id as id',
                 'households.english_name as household_english',
                 'households.arabic_name as household_arabic',
                 'communities.english_name as community_english',
@@ -132,6 +135,7 @@ class AllEnergyHolderController extends Controller
             })
             ->whereNull('all_energy_meters.community_id')
             ->select(
+                'public_structures.id',
                 'public_structures.english_name as public_english',
                 'public_structures.arabic_name as public_arabic',
                 'communities.english_name as community_english',
@@ -158,6 +162,7 @@ class AllEnergyHolderController extends Controller
             ->get();
 
         return response()->json([
+            'contract_holders' => $queryHolders,
             'main_users' => $query,
             'shared_users' => $dataShared,
             'households' => $dataHouseholds,

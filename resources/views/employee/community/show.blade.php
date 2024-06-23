@@ -24,6 +24,10 @@
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                         <h6 class="card-title mb-0">
                             {{$community->english_name}}
+                            <a href="{{ route('home') }}?lat={{ $community->latitude }}&lng={{ $community->longitude }}" 
+                                target="_blank">
+                                <i class="bx bx-map-pin bx-sm me-3"></i>
+                            </a>
                             <span class="text-success" style="font-size:12px"> 
                                 <!-- <a type="button" placeholder="View Map"
                                     data-bs-toggle="modal" 
@@ -67,8 +71,11 @@
                                     <li class="d-flex justify-content-start align-items-center text-warning mb-3">
                                         <i class="bx bx-user-pin bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
-                                            <small class="text-muted mb-1"># of Households</small>
-                                            <h6 class="mb-0">{{$community->number_of_household}}</h6>
+                                            <small class="text-muted mb-1"># of Households</small> 
+                                            <a href="{{ route('household.index', ['filterByCommunity' => $community->id]) }}"
+                                                target="_blank">
+                                                <h6 class="mb-0">{{$community->number_of_household}}</h6>
+                                            </a>
                                         </div>
                                     </li>
                                     <li class="d-flex justify-content-start align-items-center text-dark mb-3">

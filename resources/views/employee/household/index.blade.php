@@ -524,8 +524,16 @@ All<span class="text-muted fw-light"> Households</span>
             chartSubRegion.draw(dataSubRegion, optionsSubRegion);
         }
 
+        var urlParams = new URLSearchParams(window.location.search);
+        var filterByCommunity = urlParams.get('filterByCommunity');
+
+        if (filterByCommunity) {
+
+            $('#filterByCommunity').val(filterByCommunity);
+        }
+
         DataTableContent();
-        
+
         $('#filterByRegion').on('change', function() {
             table.ajax.reload(); 
         });
