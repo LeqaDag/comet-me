@@ -458,6 +458,11 @@ Route::post('energy-action-export', [App\Http\Controllers\EnergyActionController
 Route::get('/delete-energy-action', [App\Http\Controllers\EnergyActionController::class, 'deleteEnergyMainAction'])->name('deleteEnergyMainAction');
 Route::get('/energy-action/get/{id}', [App\Http\Controllers\EnergyActionController::class, 'getEnergyIssue']);
 
+
+Route::resource('water-action', App\Http\Controllers\WaterActionController::class);
+Route::get('/delete-water-action', [App\Http\Controllers\WaterActionController::class, 'deleteWaterMainAction'])->name('deleteWaterMainAction');
+Route::post('water-action-export', [App\Http\Controllers\WaterActionController::class, 'export'])->name('water-action.export');
+
 Route::resource('energy-cost', App\Http\Controllers\EnergyCostController::class); 
 Route::get('energy-cost/{id}/editpage', [App\Http\Controllers\EnergyCostController::class, 'editPage']);
 Route::post('energy-cost-export', [App\Http\Controllers\EnergyCostController::class, 'export'])->name('energy-cost.export');

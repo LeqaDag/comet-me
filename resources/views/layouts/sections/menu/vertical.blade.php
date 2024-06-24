@@ -346,12 +346,28 @@
                     <div>Refrigerator Maintenance</div>
                 </a>
             </li>
-            <li class="menu-item" id="water-maintenance">
-                <a href="{{url('water-maintenance')}}" class="menu-link" >
-                    <i class=""></i>
+
+            
+            <li class="menu-item" id="water-maintenance-tab">
+                <a class="menu-link menu-toggle">
                     <div>Water Maintenance</div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="water-maintenance">
+                        <a href="{{url('water-maintenance')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>All Maintenance</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="water-action">
+                        <a href="{{url('water-action')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Actions</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
+
             <li class="menu-item" id="internet-maintenance-tab">
                 <a class="menu-link menu-toggle">
                     <div>Internet Maintenance</div>
@@ -790,7 +806,15 @@
 
         $("#water-maintenance").addClass("active");
         $("#maintenance").addClass("open");
-    }  else if(last_part == "internet-maintenance") {
+        $("#water-maintenance-tab").addClass("active");
+        $("#water-maintenance-tab").addClass("open");
+    }  else if(last_part == "water-action") {
+
+        $("#water-action").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#water-maintenance-tab").addClass("active");
+        $("#water-maintenance-tab").addClass("open");
+    } else if(last_part == "internet-maintenance") {
 
         $("#internet-maintenance").addClass("active");
         $("#maintenance").addClass("open");
