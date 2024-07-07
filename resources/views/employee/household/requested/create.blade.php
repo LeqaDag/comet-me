@@ -70,7 +70,7 @@
                                     {{$profession->profession_name}}
                                 </option>
                                 @endforeach
-                                <option value="other" id="selectedOtherProfession" style="color:red">Other</option>
+                                <!-- <option value="other" id="selectedOtherProfession" style="color:red">Other</option> -->
                             </select>
                             @if ($errors->has('profession_id'))
                                 <span class="error">{{ $errors->first('profession_id') }}</span>
@@ -96,7 +96,7 @@
                         <div id="recommendede_energy_system_id_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
-                        <fieldset class="form-group">
+                        <fieldset class="form-group"> 
                             <label class='col-md-12 control-label'>Community</label>
                             <select name="community_id" id="selectedCommunity" 
                                 class="selectpicker form-control"
@@ -109,6 +109,7 @@
                                 @endforeach
                                 <option value="other" id="selectedOtherCommunity" style="color:red">Other</option>
                             </select>
+                            @include('employee.household.requested.create_community')
                             @if ($errors->has('community_id'))
                                 <span class="error">{{ $errors->first('community_id') }}</span>
                             @endif
@@ -306,7 +307,7 @@
         });
 
         if(selectedValue == "other") {
-            $("#createCommunity").modal('show');
+            $("#createOtherCommunity").modal('show');
 
             $(document).on('click', '#professionNameButton', function () {
                 name = $("#professionName").val();
@@ -314,7 +315,7 @@
                     url: "household/" + name,
                     method: 'GET',
                     success: function(data) {
-                        $("#createCommunity").modal('hide');
+                        $("#createOtherCommunity").modal('hide');
                         $("#selectedCommunity").append('<option value='+data.id+' selected="selected">'+data.name+'</option>');
                     }
                 });

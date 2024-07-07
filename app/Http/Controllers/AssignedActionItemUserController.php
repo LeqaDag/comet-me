@@ -62,14 +62,12 @@ use App\Exports\MissingHouseholdDetailsExport;
 use App\Exports\MissingHouseholdAcExport;
 use App\Exports\InProgressHouseholdExport;
 use App\Exports\EnergyCompoundHousehold;
-use App\Mail\ActionItemMail;
 use Auth;
 use Route;
 use DB;
 use Excel;
 use PDF;
 use DataTables;
-use Mail;
 
 class ActionItemUserController extends Controller
 {
@@ -80,7 +78,7 @@ class ActionItemUserController extends Controller
      */
     public function __construct()
     {
-        //$this->middleware('auth'); 
+        //$this->middleware('auth');
     }
 
     /**
@@ -96,20 +94,18 @@ class ActionItemUserController extends Controller
             $priorityFilter = $request->input('priority_filter');
             $startDateFilter = $request->input('start_date_filter');
             $endDateFilter = $request->input('end_date_filter');
- 
+
             if ($request->ajax()) {
 
-                $data =  DB::table('action_items')
-                    ->join('users', 'action_items.user_id', 'users.id')
+                $data = DB::table('action_item_others')
+                    ->join('users', 'action_item_others.user_id', 'users.id')
+                    ->join('action_items', 'action_item_others.action_item_id', 'action_items.id')
+                    ->join('users as owners', 'action_items.user_id', 'owners.id')
                     ->join('action_priorities', 'action_items.action_priority_id', 'action_priorities.id')
                     ->join('action_statuses', 'action_items.action_status_id', 'action_statuses.id')
-                    ->leftJoin('action_item_others', 'action_items.id', 'action_item_others.action_item_id')
-                    ->where(function ($query) {
-                        $query->where('action_items.user_id', Auth::guard('user')->user()->id)
-                            ->orWhere('action_item_others.user_id', Auth::guard('user')->user()->id); 
-                    })
-                    ->distinct()
-                    ->where('action_items.is_archived', 0);
+                    ->where('action_items.is_archived', 0)
+                    ->where('users.id', Auth::guard('user')->user()->id);
+
 
                 if ($statusFilter != null) {
 
@@ -129,11 +125,11 @@ class ActionItemUserController extends Controller
                 }
  
                 $data->select(
-                    'action_items.id as id', 'action_items.task',
+                    'action_item_others.id as id', 'action_items.task',
                     'action_priorities.name as priority', 'action_items.date',
-                    'users.name as owner_name',
+                    'users.name', 'owners.image', 'owners.name as owner_name',
                     DB::raw('DATE(action_items.created_at) as created_at'),
-                    'action_items.updated_at as updated_at', 'action_statuses.status',
+                    'action_item_others.updated_at as updated_at', 'action_statuses.status',
                     'action_statuses.id as status_id', 'action_priorities.id as priority_id'
                 )
                 ->latest();
@@ -143,19 +139,8 @@ class ActionItemUserController extends Controller
                     ->addColumn('action', function($row) {
     
                         $detailsButton = "<a type='button' class='detailsUserActionItemButton' data-bs-toggle='modal' data-bs-target='#actionItemUserDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
-
-                        if($row->owner_name == Auth::guard('user')->user()->name) {
-
-                            $updateButton = "<a type='button' class='updateUserActionItem' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                            $deleteButton = "<a type='button' class='deleteUserActionItem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                            
-                            if(Auth::guard('user')->user()->user_type_id != 1 || 
-                                Auth::guard('user')->user()->user_type_id != 2) 
-                            {
-                                     
-                                return $detailsButton." ". $updateButton." ".$deleteButton;
-                            } else return $detailsButton; 
-                        } else return $detailsButton; 
+                        
+                        return $detailsButton; 
                     })
                     ->addColumn('statusLabel', function($row) {
 
@@ -186,15 +171,7 @@ class ActionItemUserController extends Controller
 
                         return $priorityLabel;
                     })
-                    ->addColumn('owner', function($row) {
-
-                        $owner = "";
-
-                        if($row->owner_name == Auth::guard('user')->user()->name) $owner = "You";
-                        else $owner = $row->owner_name;
-                        
-                        return $owner;
-                    })
+                
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request){
@@ -207,7 +184,7 @@ class ActionItemUserController extends Controller
                             });
                         }
                     })
-                ->rawColumns(['action', 'statusLabel', 'priorityLabel', 'owner'])
+                ->rawColumns(['action', 'statusLabel', 'priorityLabel'])
                 ->make(true);
             }
     
@@ -251,77 +228,7 @@ class ActionItemUserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $actionItem = ActionItem::where('id', $id)->first();
-        $actionItem->task = $request->task;
-        if($request->date) $actionItem->date = $request->date;
-        if($request->due_date) $actionItem->due_date = $request->due_date;
-        if($request->action_status_id) $actionItem->action_status_id = $request->action_status_id;
-        if($request->action_priority_id) $actionItem->action_priority_id = $request->action_priority_id;
-        if($request->notes) $actionItem->notes = $request->notes;
-        $actionItem->save(); 
-
-        $user = User::findOrFail($actionItem->user_id);
-
-        if($request->new_other) {
- 
-            for($i=0; $i < count($request->new_other); $i++) {
-
-                $assignedToOther = new ActionItemOther();
-                $assignedToOther->user_id = $request->new_other[$i];
-                $assignedToOther->action_item_id = $actionItem->id;
-                $assignedToOther->save();
-
-                $otherUser = User::findOrFail($request->new_other[$i]);
-            }
-
-            try { 
-
-                $details = [
-                    'title' => 'New Action Item',
-                    'name' => $otherUser->name,
-                    'body' => $user->name .' has assigned a new action item with you called : '.$actionItem->task .' ,please review it on your account.',
-                    'start_date' => $actionItem->date,
-                    'end_date' => $actionItem->due_date,
-                ];
-                
-                Mail::to($otherUser->email)->send(new ActionItemMail($details));
-            } catch (Exception $e) {
-    
-                info("Error: ". $e->getMessage());
-            }
-        }
-
-        if($request->more_other) {
-
-            for($i=0; $i < count($request->more_other); $i++) {
-
-                $assignedToOther = new ActionItemOther();
-                $assignedToOther->user_id = $request->more_other[$i];
-                $assignedToOther->action_item_id = $actionItem->id;
-                $assignedToOther->save();
-
-                $otherUser = User::findOrFail($request->more_other[$i]);
-            }
-
-            try { 
-
-                $details = [
-                    'title' => 'New Action Item',
-                    'name' => $otherUser->name,
-                    'body' => $user->name .' has assigned a new action item with you called : '.$actionItem->task .' ,please review it on your account.',
-                    'start_date' => $actionItem->date,
-                    'end_date' => $actionItem->due_date,
-                ];
-                
-                Mail::to($otherUser->email)->send(new ActionItemMail($details));
-            } catch (Exception $e) {
-    
-                info("Error: ". $e->getMessage());
-            }
-        }
-
-        return redirect('/action-item')
-            ->with('message', 'Action Item Updated Successfully!');
+      
     }
 
     /**
@@ -332,21 +239,6 @@ class ActionItemUserController extends Controller
      */
     public function deleteUserActionItem(Request $request)
     {
-        $workPlan = ActionItem::findOrFail($request->id);
-
-        if($workPlan) {
-
-            $workPlan->is_archived = 1;
-            $workPlan->save();
-
-            $response['success'] = 1;
-            $response['msg'] = 'Action Item Deleted successfully'; 
-        } else {
-
-            $response['success'] = 0;
-            $response['msg'] = 'Invalid ID.';
-        }
-
-        return response()->json($response); 
+  
     }
 }

@@ -493,7 +493,7 @@ class WaterIncidentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function deleteIncidentPhoto(Request $request)
+    public function deleteWaterIncidentPhoto(Request $request)
     {
         $id = $request->id;
 

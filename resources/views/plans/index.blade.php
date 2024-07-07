@@ -51,6 +51,18 @@
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Assigned to</label>
+                        <select name="other_user_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByOtherUser">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($otherUsers as $otherUser)
+                                <option value="{{$otherUser->id}}">{{$otherUser->name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Filter By Status</label>
                         <select name="action_status_id" class="selectpicker form-control" 
                             data-live-search="true" id="filterByStatus">
@@ -110,11 +122,12 @@
             <table id="workPlanTable" class="table table-striped data-table-work-plans my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">Task</th>
-                        <th class="text-center">Owner</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-center">Priority</th>
-                        <th class="text-center">Options</th>
+                        <th class="text-center" style="width:45%">Task</th>
+                        <th class="text-center" style="width:20%">Owner</th>
+                        <th class="text-center" style="width:5%">Status</th>
+                        <th class="text-center" style="width:5%">Priority</th>
+                        <th class="text-center" style="width:20%">Assigned with</th>
+                        <th class="text-center" style="width:5%">Options</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,6 +151,7 @@
                 data: function (d) {
                     d.search = $('input[type="search"]').val();
                     d.user_filter = $('#filterByUser').val();
+                    d.assigned_user_filter = $('#filterByOtherUser').val();
                     d.status_filter = $('#filterByStatus').val();
                     d.priority_filter = $('#filterByPriority').val();
                     d.start_date_filter = $('#filterByStartDate').val();
@@ -176,6 +190,23 @@
                 },
                 {data: 'statusLabel'},
                 {data: 'priorityLabel'},
+      
+                {data: 'other_users', name: 'other_users',
+                    render: function(data, type, full, meta) {
+                        if (data !== null && data !== '') {
+                            var users = data.split(','); // Split concatenated users
+                            var images = full.other_images.split(','); // Split concatenated images
+                            var output = '';
+                            for (var i = 0; i < users.length; i++) {
+                                output += "<div class='user-info'><img class='rounded-circle' src='/users/profile/" + images[i] + "' height='30' alt='User Image'/><span class='user-name'>" + 
+                                    users[i] + "</span></div>";
+                            }
+                            return output;
+                        } else {
+                            return ''; // Return empty string if no other_users
+                        }
+                    }
+                },
                 {data: 'action'}
             ]
             
@@ -187,6 +218,9 @@
         DataTableContent();
         
         $('#filterByUser').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByOtherUser').on('change', function() {
             table.ajax.reload(); 
         });
         $('#filterByStatus').on('change', function() {
@@ -235,6 +269,7 @@
                     $('#actionDate').html(" ");
                     $('#actionDueDate').html(" ");
                     $('#actionNotes').html(" ");
+                    $('#actionOthers').html(" "); 
 
                     $('#workPlanModalTitle').html(response['actionItem'].task);
                     $('#actionOwner').html(response['user'].name);
@@ -244,6 +279,12 @@
                     $('#actionDate').html(response['actionItem'].date);
                     $('#actionDueDate').html(response['actionItem'].due_date);
                     $('#actionNotes').html(response['actionItem'].notes);
+                    if(response['others'] != []) {
+                        for (var i = 0; i < response['others'].length; i++) {
+                            $("#actionOthers").append(
+                            '<ul><li>'+ response['others'][i].name +'</li></ul>');  
+                        }
+                    }
                 }
             });
         });

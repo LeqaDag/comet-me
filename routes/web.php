@@ -329,7 +329,7 @@ Route::resource('water-incident', App\Http\Controllers\WaterIncidentController::
 Route::get('/delete-water-incident', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncident'])->name('deleteWaterIncident');
 Route::post('water-incident-export', [App\Http\Controllers\WaterIncidentController::class, 'export'])->name('water-incident.export');
 Route::get('/delete-water-equipment', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncidentEquipment'])->name('deleteWaterIncidentEquipment');
-Route::get('/delete-water-photo', [App\Http\Controllers\WaterIncidentController::class, 'deleteIncidentPhoto'])->name('deleteIncidentPhoto');
+Route::get('/delete-water-photo', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncidentPhoto'])->name('deleteWaterIncidentPhoto');
 Route::get('/delete-water-status', [App\Http\Controllers\WaterIncidentController::class, 'deleteWaterIncidentStatus'])->name('deleteWaterIncidentStatus');
 
 // internet incidents
@@ -429,6 +429,13 @@ Route::get('/delete-hold-household', [App\Http\Controllers\OnHoldHouseholdContro
 
 Route::resource('work-plan', App\Http\Controllers\WorkPlanController::class);
 Route::get('/delete-work-plan', [App\Http\Controllers\WorkPlanController::class, 'deleteWorkPlan'])->name('deleteWorkPlan');
+Route::get('work-plan/other/{id}', [App\Http\Controllers\WorkPlanController::class, 'getOtherUser']);
+Route::get('/delete-other-user', [App\Http\Controllers\WorkPlanController::class, 'deleteOtherUser'])->name('deleteOtherUser');
+Route::get('work-plan/other/user', [App\Http\Controllers\WorkPlanController::class, 'getOtherUsers']);
+
+Route::get('/delete-other-user-admin', [App\Http\Controllers\WorkPlanController::class, 'deleteOtherUserFromAdmin'])->name('deleteOtherUserFromAdmin');
+
+
 Route::resource('internet-maintenance', App\Http\Controllers\InternetMaintenanceCallController::class);
 Route::post('internet-maintenance-export', [App\Http\Controllers\InternetMaintenanceCallController::class, 'export'])->name('internet-maintenance.export');
 Route::resource('internet-issue', App\Http\Controllers\InternetIssueController::class);
@@ -483,3 +490,9 @@ Route::get('/delete-community-town', [App\Http\Controllers\CommunityController::
 Route::get('/delete-community-settelement', [App\Http\Controllers\CommunityController::class, 'deleteCommunityNearbySettlements'])->name('deleteCommunityNearbySettlements');
 Route::get('/delete-community-product', [App\Http\Controllers\CommunityController::class, 'deletecommunityProductTypes'])->name('deletecommunityProductTypes');
 Route::get('/delete-compound', [App\Http\Controllers\CompoundController::class, 'deleteCompound'])->name('deleteCompound');
+
+Route::resource('other-community', App\Http\Controllers\OtherCommunityController::class);
+
+Route::get('/other-community/new', [App\Http\Controllers\HouseholdController::class, 'newCommunity']);
+
+Route::resource('assigned-action', App\Http\Controllers\AssignedActionItemUserController::class);

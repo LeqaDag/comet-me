@@ -94,6 +94,17 @@
                     </div>
 
                     <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Assigned to others</label>
+                                <select class="selectpicker form-control" data-live-search="true" 
+                                    name="other_ids[]" id="assignedOtherUsers" multiple>
+                                </select> 
+                            </fieldset>
+                        </div>  
+                    </div>
+
+                    <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Notes</label>
@@ -115,6 +126,23 @@
 <script>
     $(document).ready(function () {
        
+        $(document).on('change', '#user_id', function () {
+
+            id = $('#user_id').val();
+            
+            $.ajax({
+                url: "work-plan/other/" +  id,
+                method: 'GET',
+                success: function(data) {
+
+                    var select = $('#assignedOtherUsers');
+                    select.prop('disabled', false); 
+                    select.html(data.html);
+                    select.selectpicker('refresh');
+                }
+            });
+        });
+
         $('#workPlanForm').on('submit', function (event) {
        
             var ownerValue = $('#user_id').val();

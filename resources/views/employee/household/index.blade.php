@@ -445,7 +445,7 @@ All<span class="text-muted fw-light"> Households</span>
                         <th class="text-center">Arabic Name</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Status</th>
-                        @if(Auth::guard('user')->user()->user_type_id == 9)
+                        @if(Auth::guard('user')->user()->user_type_id == 3)
                         <th class="text-center">Main User</th>
                         <th class="text-center">Refrigerator</th>
                         @endif
@@ -483,7 +483,7 @@ All<span class="text-muted fw-light"> Households</span>
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'name', name: 'name'},
                 {data: 'statusLabel'},
-                @if(Auth::guard('user')->user()->user_type_id == 9)
+                @if(Auth::guard('user')->user()->user_type_id == 3)
                     {data: 'is_main', name: 'is_main'},
                     {data: 'icon' },
                 @endif

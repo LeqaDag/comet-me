@@ -11,6 +11,7 @@ use App\Models\UserType;
 use App\Models\ActionItem;
 use App\Models\ActionStatus;
 use App\Models\ActionPriority;
+use App\Models\ActionItemOther;
 use App\Models\Community;
 use App\Mail\ActionItemMail;
 use Auth;
@@ -32,6 +33,7 @@ class WorkPlanController extends Controller
         if (Auth::guard('user')->user() != null) {
 
             $userFilter = $request->input('user_filter');
+            $otherUserFilter = $request->input('assigned_user_filter');
             $statusFilter = $request->input('status_filter');
             $priorityFilter = $request->input('priority_filter');
             $startDateFilter = $request->input('start_date_filter');
@@ -43,11 +45,17 @@ class WorkPlanController extends Controller
                     ->join('users', 'action_items.user_id', 'users.id')
                     ->join('action_priorities', 'action_items.action_priority_id', 'action_priorities.id')
                     ->join('action_statuses', 'action_items.action_status_id', 'action_statuses.id')
+                    ->leftJoin('action_item_others', 'action_items.id', 'action_item_others.action_item_id')
+                    ->leftJoin('users as others_users', 'others_users.id', 'action_item_others.user_id')
                     ->where('action_items.is_archived', 0);
 
                 if($userFilter != null) {
 
                     $data->where('users.id', $userFilter);
+                }
+                if($otherUserFilter != null) {
+
+                    $data->where('others_users.id', $otherUserFilter);
                 }
                 if ($statusFilter != null) {
 
@@ -71,10 +79,14 @@ class WorkPlanController extends Controller
                     'action_priorities.name as priority', 'action_items.date',
                     'users.name', 'action_items.created_at as created_at', 'users.image',
                     'action_items.updated_at as updated_at', 'action_statuses.status',
-                    'action_statuses.id as status_id', 'action_priorities.id as priority_id'
+                    'action_statuses.id as status_id', 'action_priorities.id as priority_id',
+                    DB::raw('GROUP_CONCAT(others_users.name) as other_users'), // Concatenate other_users
+                    DB::raw('GROUP_CONCAT(others_users.image) as other_images'),
                 )
+                ->groupBy('action_items.id') 
+                ->distinct()
                 ->latest();
- 
+  
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
@@ -137,14 +149,18 @@ class WorkPlanController extends Controller
                 ->make(true);
             }
     
-            $actionStatuses = ActionStatus::all();
-            $actionPriorities = ActionPriority::all();
+            $actionStatuses = ActionStatus::all();  
+            $actionPriorities = ActionPriority::all(); 
             $users = User::where('is_archived', 0)
                 ->whereIn('user_type_id', [1, 2, 3, 4, 5, 6])
                 ->orderBy('name', 'ASC')
                 ->get();
 
-            return view('plans.index', compact('actionStatuses', 'actionPriorities', 'users'));
+            $otherUsers = User::where('is_archived', 0)
+                ->orderBy('name', 'ASC')
+                ->get();
+
+            return view('plans.index', compact('actionStatuses', 'actionPriorities', 'users', 'otherUsers'));
         } else {
 
             return view('errors.not-found');
@@ -174,12 +190,19 @@ class WorkPlanController extends Controller
         $userType = UserType::where('id', $user->user_type_id)->first();
         $status = ActionStatus::where('id', $actionItem->action_status_id)->first();
         $priority = ActionPriority::where('id', $actionItem->action_priority_id)->first();
+        $others = DB::table('action_item_others')
+            ->join('action_items', 'action_item_others.action_item_id', 'action_items.id')
+            ->join('users as others', 'action_item_others.user_id', 'others.id')
+            ->where('action_item_others.action_item_id', $id)
+            ->select('others.name')
+            ->get();
 
         $response['actionItem'] = $actionItem;
         $response['user'] = $user;
         $response['userType'] = $userType;
         $response['status'] = $status;
         $response['priority'] = $priority;
+        $response['others'] = $others;
 
         return response()->json($response);
     }
@@ -203,17 +226,45 @@ class WorkPlanController extends Controller
         $actionItem->save(); 
 
         $user = User::findOrFail($request->user_id);
+
+        if($request->other_ids) {
+            for($i=0; $i < count($request->other_ids); $i++) {
+
+                $assignedToOther = new ActionItemOther();
+                $assignedToOther->user_id = $request->other_ids[$i];
+                $assignedToOther->action_item_id = $actionItem->id;
+                $assignedToOther->save();
+
+                $otherUser = User::findOrFail($request->other_ids[$i]);
+                try { 
+
+                    $details = [
+                        'title' => 'New Action Item',
+                        'name' => $otherUser->name,
+                        'body' => $user->name .' has assigned a new action item with you called : '.$request->task .' ,please review it on your account.',
+                        'start_date' => $request->date,
+                        'end_date' => $request->due_date,
+                    ];
+                    
+                    Mail::to($otherUser->email)->send(new ActionItemMail($details));
+                } catch (Exception $e) {
+        
+                    info("Error: ". $e->getMessage());
+                }
+            }
+        }
+
         try { 
+
             $details = [
                 'title' => 'Your Action Item',
                 'name' => $user->name,
-                'body' => 'You have new action item called : '.$request->task .' ,please review it on your account.',
+                'body' => 'You have a new action item called : '.$request->task .' ,please review it on your account.',
                 'start_date' => $request->date,
                 'end_date' => $request->due_date,
             ];
             
             Mail::to($user->email)->send(new ActionItemMail($details));
-            
         } catch (Exception $e) {
 
             info("Error: ". $e->getMessage());
@@ -233,8 +284,20 @@ class WorkPlanController extends Controller
         $actionItem = ActionItem::findOrFail($id);
         $actionStatuses = ActionStatus::all();
         $actionPriorities = ActionPriority::all();
+        $others = DB::table('action_item_others')
+            ->join('action_items', 'action_item_others.action_item_id', 'action_items.id')
+            ->join('users as others', 'action_item_others.user_id', 'others.id')
+            ->where('action_item_others.action_item_id', $id)
+            ->select('others.name as name', 'action_item_others.id as id')
+            ->get();
 
-        return view('plans.edit', compact('actionItem', 'actionStatuses', 'actionPriorities'));
+        $users = User::where('id', '!=', $actionItem->user_id)
+            ->orderBy('name', 'ASC')
+            ->where('is_archived', 0)
+            ->get();
+
+        return view('plans.edit', compact('actionItem', 'actionStatuses', 'actionPriorities', 'others',
+            'users'));
     }
 
     /**
@@ -254,8 +317,175 @@ class WorkPlanController extends Controller
         if($request->notes) $actionItem->notes = $request->notes;
         $actionItem->save(); 
 
+        $user = User::findOrFail($actionItem->user_id);
+
+        if($request->new_other) {
+ 
+            for($i=0; $i < count($request->new_other); $i++) {
+
+                $assignedToOther = new ActionItemOther();
+                $assignedToOther->user_id = $request->new_other[$i];
+                $assignedToOther->action_item_id = $actionItem->id;
+                $assignedToOther->save();
+
+                $otherUser = User::findOrFail($request->new_other[$i]);
+            }
+
+            try { 
+
+                $details = [
+                    'title' => 'New Action Item',
+                    'name' => $otherUser->name,
+                    'body' => $user->name .' has assigned a new action item with you called : '.$actionItem->task .' ,please review it on your account.',
+                    'start_date' => $actionItem->date,
+                    'end_date' => $actionItem->due_date,
+                ];
+                
+                Mail::to($otherUser->email)->send(new ActionItemMail($details));
+            } catch (Exception $e) {
+    
+                info("Error: ". $e->getMessage());
+            }
+        }
+
+        if($request->more_other) {
+
+            for($i=0; $i < count($request->more_other); $i++) {
+
+                $assignedToOther = new ActionItemOther();
+                $assignedToOther->user_id = $request->more_other[$i];
+                $assignedToOther->action_item_id = $actionItem->id;
+                $assignedToOther->save();
+
+                $otherUser = User::findOrFail($request->more_other[$i]);
+            }
+
+            try { 
+
+                $details = [
+                    'title' => 'New Action Item',
+                    'name' => $otherUser->name,
+                    'body' => $user->name .' has assigned a new action item with you called : '.$actionItem->task .' ,please review it on your account.',
+                    'start_date' => $actionItem->date,
+                    'end_date' => $actionItem->due_date,
+                ];
+                
+                Mail::to($otherUser->email)->send(new ActionItemMail($details));
+            } catch (Exception $e) {
+    
+                info("Error: ". $e->getMessage());
+            }
+        }
+
         return redirect('/work-plan')
             ->with('message', 'Action Item Updated Successfully!');
+    }
+
+    /**
+     * Get other users.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getOtherUser(Request $request)
+    {
+        if (!$request->id) {
+
+            $html = '<option disabled selected>Choose One...</option>';
+        } else {
+
+            $html = '<option disabled selected>Choose One...</option>';
+            $users = User::where('id', '!=', $request->id)
+                //->whereIn('user_type_id', [1, 2, 3, 4, 5, 6])
+                ->orderBy('name', 'ASC')
+                ->where('is_archived', 0)
+                ->get();
+
+            foreach ($users as $user) {
+
+                $html .= '<option value="'.$user->id.'">'.$user->name.'</option>';
+            }
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Get other users.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getOtherUsers()
+    {
+        $id = Auth::guard('user')->user()->id;
+
+        $html = '<option disabled selected>Choose One...</option>';
+        $users = User::where('id', '!=', $id)
+            //->whereIn('user_type_id', [1, 2, 3, 4, 5, 6])
+            ->orderBy('name', 'ASC')
+            ->where('is_archived', 0)
+            ->get();
+
+        foreach ($users as $user) {
+
+            $html .= '<option value="'.$user->id.'">'.$user->name.'</option>';
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteOtherUser(Request $request)
+    {
+        $id = $request->id;
+ 
+        $other = ActionItemOther::findOrFail($id);
+
+        if($other) {
+
+            $other->delete();
+
+            $response['success'] = 1;
+            $response['msg'] = 'User Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteOtherUserFromAdmin(Request $request)
+    {
+        $id = $request->id;
+ 
+        $other = ActionItemOther::findOrFail($id);
+
+        if($other) {
+
+            $other->delete();
+
+            $response['success'] = 1;
+            $response['msg'] = 'User Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 
     /**

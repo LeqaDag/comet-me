@@ -123,57 +123,75 @@ class HouseholdController extends Controller
 
             if ($request->ajax()) {
                 
+                
                 $data = DB::table('households')
                     ->join('communities', 'households.community_id', 'communities.id')
                     ->join('regions', 'communities.region_id', 'regions.id')
-                    ->join('household_statuses', 'households.household_status_id', 
-                        'household_statuses.id')
+                    ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
                     ->where('internet_holder_young', 0)
                     ->where('households.is_archived', 0);
-                    
-                if(Auth::guard('user')->user()->user_type_id == 9) {
 
+                if (Auth::guard('user')->user()->user_type_id == 3) {
                     $data->leftJoin('refrigerator_holders', 'households.id', 'refrigerator_holders.household_id')
-                        ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
-                            'refrigerator_holder_receive_numbers.refrigerator_holder_id')
-                        ->leftJoin('all_energy_meters', 'households.id', 
-                            'all_energy_meters.household_id');
-                }
-                
-                if($communityFilter != null) {
-
-                    $data->where('communities.id', $communityFilter);
-                }
-                if ($regionFilter != null) {
-
-                    $data->where('regions.id', $regionFilter);
-                }
-                if ($statusFilter != null) {
-
-                    $data->where('household_statuses.id', $statusFilter);
-                }
-
-                $data->select(
-                        'households.english_name as english_name', 
+                        ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 'refrigerator_holder_receive_numbers.refrigerator_holder_id')
+                        ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
+                        ->select(
+                            'households.english_name as english_name',
+                            'households.arabic_name as arabic_name',
+                            'households.id as id',
+                            'households.created_at as created_at',
+                            'households.updated_at as updated_at',
+                            'communities.english_name as name',
+                            'communities.arabic_name as aname',
+                            'household_statuses.status',
+                            'refrigerator_holder_receive_numbers.receive_number',
+                            'all_energy_meters.is_main'
+                        )
+                        ->distinct()
+                        ->groupBy('households.id')
+                        ->latest();
+                } else {
+                    $data->select(
+                        'households.english_name as english_name',
                         'households.arabic_name as arabic_name',
-                        'households.id as id', 'households.created_at as created_at', 
+                        'households.id as id',
+                        'households.created_at as created_at',
                         'households.updated_at as updated_at',
                         'communities.english_name as name',
                         'communities.arabic_name as aname',
                         'household_statuses.status'
                     )
                     ->groupBy('households.id')
-                    ->latest(); 
- 
-                if(Auth::guard('user')->user()->user_type_id == 9) {
-
-                    $data->select(
-                        'refrigerator_holder_receive_numbers.receive_number',
-                        'all_energy_meters.is_main'
-                        )
-                    ->distinct()
-                    ->latest(); 
+                    ->latest();
                 }
+
+                if ($communityFilter != null) {
+                    $data->where('communities.id', $communityFilter);
+                }
+
+                if ($regionFilter != null) {
+                    $data->where('regions.id', $regionFilter);
+                }
+
+                if ($statusFilter != null) {
+                    $data->where('household_statuses.id', $statusFilter);
+                }
+
+                if (!empty($request->get('search'))) {
+                    $search = $request->get('search');
+                    $data->where(function($w) use ($search) {
+                        $w->orWhere('households.english_name', 'LIKE', "%$search%")
+                          ->orWhere('communities.english_name', 'LIKE', "%$search%")
+                          ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                          ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
+                          ->orWhere('regions.english_name', 'LIKE', "%$search%")
+                          ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                          ->orWhere('household_statuses.status', 'LIKE', "%$search%");
+                          // ->orWhere('all_energy_meters.is_main', 'LIKE', "%$search%"); // Uncomment if needed
+                    });
+                }
+
+                $data = $data->get();
 
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -229,29 +247,13 @@ class HouseholdController extends Controller
 
                         $icon = "";
 
-                        if(Auth::guard('user')->user()->user_type_id == 9) {
+                        if(Auth::guard('user')->user()->user_type_id == 3) {
 
                             if($row->receive_number != NULL) $icon = "<i class='fa-solid fa-check text-success'></i>";
                             else $icon = "<i class='fa-solid fa-close text-danger'></i>";
 
                             return $icon;
                         } 
-                    })
-                    ->filter(function ($instance) use ($request) {
-                        if (!empty($request->get('search'))) {
-                                $instance->where(function($w) use($request) {
-                                    $search = $request->get('search');
-                                    $w->orWhere('households.english_name', 'LIKE', "%$search%")
-                                    ->orWhere('communities.english_name', 'LIKE', "%$search%")
-                                    ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                    ->orWhere('regions.arabic_name', '=', $search)
-                                    ->orWhere('regions.english_name', '=', $search)
-                                    ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                                    ->orWhere('household_statuses.status', 'LIKE', "%$search%")
-                                   // ->orWhere('all_energy_meters.is_main', 'LIKE', "%$search%")
-                                    ;
-                            });
-                        }
                     })
                     ->rawColumns(['action', 'icon', 'statusLabel', 'checkStatus'])
                     ->make(true);
@@ -486,7 +488,7 @@ class HouseholdController extends Controller
  
         $html = '<option value="'.$household->id.'">'.$household->english_name.'</option>';
 
-        return response()->json(['html' => $html]);
+        return response()->json(['html' => $html]); 
     }
 
     /**

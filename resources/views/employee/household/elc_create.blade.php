@@ -429,7 +429,7 @@ label {
     $(function() {
 
         $('#newHouseholdButton').on('click', function(e) {
-            e.preventDefault(e);
+            e.preventDefault(e); 
             community_id = $("#selectedCommunity").val();
             english_name = $("#english_name").val();
             profession_id = $("#selectedProfession").val();

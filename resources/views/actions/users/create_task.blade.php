@@ -20,7 +20,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">
+                <h1 class="modal-title fs-5"> 
                     Add New Action Item
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
@@ -87,6 +87,16 @@
                                 <input type="date" name="due_date" id="endDate" class="form-control">
                             </fieldset>
                         </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <input type="hidden" name="user_owner_id" id="userOwnerId" 
+                                value="Auth::guard('user')->user()->id">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Assigned to others</label>
+                                <select class="selectpicker form-control" data-live-search="true" 
+                                    name="other_ids[]" id="assignedOtherUsers" multiple>
+                                </select> 
+                            </fieldset>
+                        </div> 
                     </div>
 
                     <div class="row">
@@ -111,6 +121,18 @@
 <script>
 
     $(document).ready(function () {
+
+        $.ajax({
+            url: "work-plan/other/user",
+            method: 'GET',
+            success: function(data) {
+
+                var select = $('#assignedOtherUsers');
+                select.prop('disabled', false); 
+                select.html(data.html);
+                select.selectpicker('refresh');
+            }
+        });
 
         $('#actionItemButton').click(function () {
 

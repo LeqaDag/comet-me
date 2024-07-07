@@ -50,11 +50,11 @@
                                                         <h6 class="mb-0" id="actionDate"></h6>
                                                     </div>
                                                 </li>
-                                                <li class="d-flex justify-content-start align-items-center text-danger mb-3">
-                                                    <i class="bx bx-note bx-sm me-3"></i>
+                                                <li class="d-flex justify-content-start align-items-center text-dark mb-3">
+                                                    <i class="bx bx-group bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Notes</small>
-                                                        <h6 class="mb-0" id="actionNotes"></h6>
+                                                        <small class="text-muted mb-1">Assigned with others</small>
+                                                        <h6 class="mb-0" id="actionOthers"></h6>
                                                     </div>
                                                 </li>
                                             </ul>
@@ -73,6 +73,13 @@
                                                     <div class="ps-3 border-start">
                                                         <small class="text-muted mb-1">End Date</small>
                                                         <h6 class="mb-0" id="actionDueDate"></h6>
+                                                    </div>
+                                                </li>
+                                                <li class="d-flex justify-content-start align-items-center text-danger mb-3">
+                                                    <i class="bx bx-note bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">Notes</small>
+                                                        <h6 class="mb-0" id="actionNotes"></h6>
                                                     </div>
                                                 </li>
                                             </ul>

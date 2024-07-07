@@ -31,7 +31,7 @@
         data-target="#collapseActionItem" aria-expanded="false" 
         aria-controls="collapseActionItem">
         <i class="menu-icon tf-icons bx bx-list-ul"></i>
-        Action Items
+        Your Action Items
     </button>
 </p> 
 
@@ -172,6 +172,7 @@
                     <thead>
                         <tr>
                             <th>Task</th>
+                            <th>Owner</th>
                             <th>Status</th>
                             <th>Priority</th>
                             <th>Task Creation Date</th>
@@ -224,6 +225,7 @@
             ],
             columns: [
                 {data: 'task', name: 'task'},
+                {data: 'owner', name: 'owner'},
                 {data: 'statusLabel'},
                 {data: 'priorityLabel'},
                 {data: 'created_at', name: 'created_at'},
@@ -256,7 +258,7 @@
             $('.selectpicker').prop('selectedIndex', 0);
             $('.selectpicker').selectpicker('refresh');
             if ($.fn.DataTable.isDataTable('.data-table-action-item-users')) {
-                $('.data-table-action-item-users').DataTable().destroy();
+                tableUser.destroy();
             }
             $('#filterByStartDate').val(' ');
             $('#filterByEndDate').val(' ');
@@ -346,5 +348,7 @@
             });
         });
     });
+
+
 </script>
 @endsection

@@ -262,7 +262,7 @@ class DisplacedHouseholdController extends Controller
                                     $userIncident->save();
                                 }
                             }
-                        }
+                        } 
                     }
                     $displacedHousehold->area = $request->area;
                     $displacedHousehold->sub_region_id = $request->sub_region_id;

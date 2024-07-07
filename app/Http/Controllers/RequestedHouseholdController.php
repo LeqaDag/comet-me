@@ -39,6 +39,7 @@ use App\Models\SubRegion;
 use App\Models\Profession;
 use App\Models\MovedHousehold;
 use App\Models\EnergyRequestSystem;
+use App\Models\EnergySystemCycle;
 use Carbon\Carbon;
 use DataTables;
 use mikehaertl\wkhtmlto\Pdf;
@@ -122,12 +123,17 @@ class RequestedHouseholdController extends Controller
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();
-        $regions = Region::where('is_archived', 0)->get();
         $professions = Profession::where('is_archived', 0)->get();
         $energySystems = EnergySystemType::where('is_archived', 0)->get();
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+        $energyCycles = EnergySystemCycle::get();
+        $regions = Region::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get(); 
+        $energyTypes = EnergySystemType::where('is_archived', 0)->get();
 
         return view('employee.household.requested.create', compact('communities', 'regions', 
-            'professions', 'energySystems'));
+            'professions', 'energySystems', 'energyTypes', 'energyCycles'));
     }
 
     /**

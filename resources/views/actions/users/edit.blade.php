@@ -81,6 +81,68 @@ label {
                         </div>
                     </div>
 
+                    <hr>
+                    <div class="row">
+                    <h5>Assigned to others</h5>
+                    </div>
+                    @if($others)
+                    @if(count($others) > 0)
+
+                        <table id="othersTable" 
+                            class="table table-striped my-2">
+                            
+                            <tbody>
+                                @foreach($others as $other)
+                                <tr id="otherRow">
+                                    <td class="text-center">
+                                        {{$other->name}} 
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn deleteOtherUser" id="deleteOtherUser" 
+                                            data-id="{{$other->id}}">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add More "Assigned to others"</label>
+                                    <select class="selectpicker form-control" 
+                                        multiple data-live-search="true" name="more_other[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($users as $user)
+                                            <option value="{{$user->id}}">
+                                                {{$user->name}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                    @else 
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Add "Assigned to others"</label>
+                                    <select class="selectpicker form-control" 
+                                        multiple data-live-search="true" name="new_other[]">
+                                        <option selected disabled>Choose one...</option>
+                                        @foreach($users as $user)
+                                            <option value="{{$user->id}}">
+                                                {{$user->name}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+                    @endif
+                    @endif
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
@@ -105,4 +167,43 @@ label {
     </div>
 </div>
 
+<script>
+    // delete user
+    $('#othersTable').on('click', '.deleteOtherUser',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this user?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteOtherUser') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+</script>
 @endsection

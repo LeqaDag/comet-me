@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+
 use App\Models\AllEnergyMeter;
+use App\Models\ActionItemOther;
 use App\Models\User;
 use App\Models\Community;
 use Carbon\Carbon;
@@ -62,12 +64,14 @@ use App\Exports\MissingHouseholdDetailsExport;
 use App\Exports\MissingHouseholdAcExport;
 use App\Exports\InProgressHouseholdExport;
 use App\Exports\EnergyCompoundHousehold;
+use App\Mail\ActionItemMail;
 use Auth;
 use Route;
 use DB;
 use Excel;
 use PDF;
 use DataTables;
+use Mail;
 
 class ActionItemController extends Controller
 {
@@ -1332,7 +1336,52 @@ class ActionItemController extends Controller
         $actionItem->due_date = $request->due_date;
         $actionItem->notes = $request->notes;
         $actionItem->user_id = Auth::guard('user')->user()->id;
-        $actionItem->save();
+        $actionItem->save(); 
+
+        $user = User::findOrFail(Auth::guard('user')->user()->id);
+
+        if($request->other_ids) {
+            for($i=0; $i < count($request->other_ids); $i++) {
+
+                $assignedToOther = new ActionItemOther();
+                $assignedToOther->user_id = $request->other_ids[$i];
+                $assignedToOther->action_item_id = $actionItem->id;
+                $assignedToOther->save();
+
+                $otherUser = User::findOrFail($request->other_ids[$i]);
+                try { 
+
+                    $details = [
+                        'title' => 'New Action Item',
+                        'name' => $otherUser->name,
+                        'body' => $user->name .' has assigned a new action item with you called : '.$request->task .' ,please review it on your account.',
+                        'start_date' => $request->date,
+                        'end_date' => $request->due_date,
+                    ];
+                    
+                    Mail::to($otherUser->email)->send(new ActionItemMail($details));
+                } catch (Exception $e) {
+        
+                    info("Error: ". $e->getMessage());
+                }
+            }
+        }
+
+        try { 
+
+            $details = [
+                'title' => 'Your Action Item',
+                'name' => $user->name,
+                'body' => 'You have a new action item called : '.$request->task .' ,please review it on your account.',
+                'start_date' => $request->date,
+                'end_date' => $request->due_date,
+            ];
+            
+            Mail::to($user->email)->send(new ActionItemMail($details));
+        } catch (Exception $e) {
+
+            info("Error: ". $e->getMessage());
+        }
 
         return redirect()->back()->with('message', 'New Action Item Added Successfully!');
     }
@@ -1583,6 +1632,19 @@ class ActionItemController extends Controller
         $actionStatuses = ActionStatus::all();
         $actionPriorities = ActionPriority::all();
 
-        return view('actions.users.edit', compact('actionItem', 'actionStatuses', 'actionPriorities'));
+        $others = DB::table('action_item_others')
+            ->join('action_items', 'action_item_others.action_item_id', 'action_items.id')
+            ->join('users as others', 'action_item_others.user_id', 'others.id')
+            ->where('action_item_others.action_item_id', $id)
+            ->select('others.name as name', 'action_item_others.id as id')
+            ->get();
+
+        $users = User::where('id', '!=', $actionItem->user_id)
+            ->orderBy('name', 'ASC')
+            ->where('is_archived', 0)
+            ->get();
+
+        return view('actions.users.edit', compact('actionItem', 'actionStatuses', 'actionPriorities',
+            'others', 'users'));
     }
 }

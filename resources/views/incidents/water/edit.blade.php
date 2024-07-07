@@ -468,7 +468,7 @@
         }).then((result) => {
             if(result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('deleteIncidentPhoto') }}",
+                    url: "{{ route('deleteWaterIncidentPhoto') }}",
                     type: 'get',
                     data: {id: id},
                     success: function(response) {
