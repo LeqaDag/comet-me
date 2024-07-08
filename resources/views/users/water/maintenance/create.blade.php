@@ -13,7 +13,7 @@ label, table {
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
-                    Create New Maintenance Log
+                    Create New Maintenance Log 
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
@@ -43,7 +43,7 @@ label, table {
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Water User/ Public</label>
+                                <label class='col-md-12 control-label'>Water User/ Public/ System</label>
                                 <select id="chooseUserOrPublic" class="selectpicker form-control" 
                                     name="public_user" disabled>
                                 </select>
@@ -193,48 +193,34 @@ label, table {
 
 <script>
 
-    $(document).on('change', '#selectedUserCommunity', function () {
-
-        community_id = $(this).val();
-        $('#selectedWaterHolder').empty();
-        $('#chooseUserOrPublic').prop('disabled', false);
-        $('#chooseUserOrPublic').html('<option disabled selected>Choose one...</option><option value="user">User</option><option value="public">Public Structure</option>');
-        $('#chooseUserOrPublic').selectpicker('refresh');
-        UserOrPublic(community_id);
-    });
-
-    function UserOrPublic(community_id) {
-        $(document).on('change', '#chooseUserOrPublic', function () {
-            publicUser = $('#chooseUserOrPublic').val();
-            
-            if(publicUser == "user") {
-            
-                $.ajax({
-                    url: "water_holder/get_by_community/" + community_id + "/" + publicUser,
-                    method: 'GET',
-                    success: function(data) {
-                        var select = $('#selectedWaterHolder');
-                        select.prop('disabled', false); 
-                        select.html(data.html);
-                        select.selectpicker('refresh');
-                    }
-                });
-                
-            } else if(publicUser == "public") {
-
-                $.ajax({
-                    url: "water_holder/get_by_community/" + community_id + "/" + publicUser,
-                    method: 'GET',
-                    success: function(data) {
-                        var select = $('#selectedWaterHolder');
-                        select.prop('disabled', false); 
-                        select.html(data.html);
-                        select.selectpicker('refresh');
-                    }
-                });
-            }
+    $(document).ready(function() {
+        // This event handler handles the change of #selectedCommunityWater
+        $(document).on('change', '#selectedUserCommunity', function () {
+            var community_id = $(this).val();
+            $('#selectedWaterHolder').empty();
+            $('#chooseUserOrPublic').prop('disabled', false);
+            $('#chooseUserOrPublic').html('<option disabled selected>Choose one...</option><option value="user">User</option><option value="public">Public Structure</option><option value="system">Water System</option>');
+            $('#chooseUserOrPublic').selectpicker('refresh');
         });
-    }
+
+        // This event handler handles the change of #chooseUserOrPublic
+        $(document).on('change', '#chooseUserOrPublic', function () {
+
+            var community_id = $('#selectedUserCommunity').val();
+            var publicUser = $(this).val();
+            
+            $.ajax({
+                url: "water_holder/get_by_community/" + community_id + "/" + publicUser,
+                method: 'GET',
+                success: function(data) {
+                    var select = $('#selectedWaterHolder');
+                    select.prop('disabled', false); 
+                    select.html(data.html);
+                    select.selectpicker('refresh');
+                }
+            });
+        });
+    });
 
     $(document).ready(function() {
         $('#waterMaintenanceForm').on('submit', function (event) {

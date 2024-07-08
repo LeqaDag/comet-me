@@ -43,7 +43,7 @@ label, table {
                         </div> 
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Water User/ Public</label>
+                                <label class='col-md-12 control-label'>Water User/ Public/ System</label>
                                 <select id="chooseUserOrPublic" class="selectpicker form-control" 
                                     name="public_user" disabled>
                                 </select>
@@ -204,13 +204,33 @@ label, table {
 </div> 
 
 <script>
-    $(document).on('change', '#selectedCommunityWater', function () {
-        community_id = $(this).val();
-        $('#waterHolderSelected').empty();
-        $('#chooseUserOrPublic').prop('disabled', false);
-        $('#chooseUserOrPublic').html('<option disabled selected>Choose one...</option><option value="user">User</option><option value="public">Public Structure</option>');
-        $('#chooseUserOrPublic').selectpicker('refresh');
-        UserOrPublic(community_id);
+
+    $(document).ready(function() {
+        // This event handler handles the change of #selectedCommunityWater
+        $(document).on('change', '#selectedCommunityWater', function () {
+            var community_id = $(this).val();
+            $('#waterHolderSelected').empty();
+            $('#chooseUserOrPublic').prop('disabled', false);
+            $('#chooseUserOrPublic').html('<option disabled selected>Choose one...</option><option value="user">User</option><option value="public">Public Structure</option><option value="system">Water System</option>');
+            $('#chooseUserOrPublic').selectpicker('refresh');
+        });
+
+        // This event handler handles the change of #chooseUserOrPublic
+        $(document).on('change', '#chooseUserOrPublic', function () {
+            var community_id = $('#selectedCommunityWater').val();
+            var publicUser = $(this).val();
+            
+            $.ajax({
+                url: "water_holder/get_by_community/" + community_id + "/" + publicUser,
+                method: 'GET',
+                success: function(data) {
+                    var select = $('#waterHolderSelected');
+                    select.prop('disabled', false); 
+                    select.html(data.html);
+                    select.selectpicker('refresh');
+                }
+            });
+        });
     });
 
     $(document).on('change', '#incidentWaterType', function () {
@@ -232,39 +252,6 @@ label, table {
             $('#equipmentDamagedDiv').css("visiblity", "visible");
         }
     });
-
-    function UserOrPublic(community_id) {
-        $(document).on('change', '#chooseUserOrPublic', function () {
-            publicUser = $('#chooseUserOrPublic').val();
-            
-            if(publicUser == "user") {
-            
-                $.ajax({
-                    url: "water_holder/get_by_community/" + community_id + "/" + publicUser,
-                    method: 'GET',
-                    success: function(data) {
-                        var select = $('#waterHolderSelected');
-                        select.prop('disabled', false); 
-                        select.html(data.html);
-                        select.selectpicker('refresh');
-                    }
-                });
-                
-            } else if(publicUser == "public") {
-
-                $.ajax({
-                    url: "water_holder/get_by_community/" + community_id + "/" + publicUser,
-                    method: 'GET',
-                    success: function(data) {
-                        var select = $('#waterHolderSelected');
-                        select.prop('disabled', false); 
-                        select.html(data.html);
-                        select.selectpicker('refresh');
-                    }
-                });
-            }
-        });
-    }
 
     $(document).ready(function() {
         $('#waterIncidentForm').on('submit', function (event) {

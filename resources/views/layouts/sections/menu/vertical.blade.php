@@ -509,7 +509,7 @@
             <li class="menu-item" id="water-incident">
                 <a href="{{url('water-incident')}}" class="menu-link" >
                     <i class=""></i>
-                    <div>Water Users</div>
+                    <div>Water Holders</div>
                 </a>
             </li>
             <li class="menu-item" id="internet-incidents">

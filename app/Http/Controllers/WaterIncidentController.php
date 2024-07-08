@@ -25,6 +25,7 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\Incident;
 use App\Models\IncidentEquipment;
+use App\Models\WaterSystem;
 use App\Models\WaterIncidentEquipment;
 use App\Exports\WaterIncidentExport;
 use App\Exports\AllIncidentExport;
@@ -51,18 +52,20 @@ class WaterIncidentController extends Controller
             if ($request->ajax()) {
 
                 $data = DB::table('h2o_system_incidents')
-                    ->join('communities', 'h2o_system_incidents.community_id', '=', 'communities.id')
-                    ->join('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
-                        '=', 'all_water_holders.id')
-                    ->leftJoin('households', 'all_water_holders.household_id', '=', 'households.id')
+                    ->join('communities', 'h2o_system_incidents.community_id', 'communities.id')
+                    ->leftJoin('water_systems', 'h2o_system_incidents.water_system_id', 
+                        'water_systems.id')
+                    ->leftJoin('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
+                        'all_water_holders.id')
+                    ->leftJoin('households', 'all_water_holders.household_id', 'households.id')
                     ->leftJoin('public_structures', 'all_water_holders.public_structure_id', 
                         'public_structures.id')
-                    ->join('incidents', 'h2o_system_incidents.incident_id', '=', 'incidents.id')
+                    ->join('incidents', 'h2o_system_incidents.incident_id', 'incidents.id')
                     ->leftJoin('h2o_incident_statuses', 'h2o_system_incidents.id', 
-                        '=', 'h2o_incident_statuses.h2o_system_incident_id')
+                        'h2o_incident_statuses.h2o_system_incident_id')
                     ->leftJoin('incident_statuses', 
                         'h2o_incident_statuses.incident_status_id', 
-                        '=', 'incident_statuses.id')
+                        'incident_statuses.id')
                     ->where('h2o_system_incidents.is_archived', 0)
                     ->where('h2o_incident_statuses.is_archived', 0);
 
@@ -86,6 +89,7 @@ class WaterIncidentController extends Controller
                     'communities.english_name as community_name', 
                     'households.english_name as household_name',
                     'public_structures.english_name as public_name', 
+                    'water_systems.name as system_name', 
                     'incidents.english_name as incident',
                     DB::raw('group_concat(DISTINCT incident_statuses.name) as incident_status'),
                     'h2o_system_incidents.notes'
@@ -114,6 +118,7 @@ class WaterIncidentController extends Controller
 
                         if($row->household_name != null) $holder = $row->household_name;
                         else if($row->public_name != null) $holder = $row->public_name;
+                        else if($row->system_name != null) $holder = $row->system_name;
 
                         return $holder;
                     })
@@ -224,6 +229,11 @@ class WaterIncidentController extends Controller
             $waterIncident->all_water_holder_id = $waterUser->id;
         }
 
+        if($request->public_user == "system") {
+
+            $waterIncident->water_system_id = $request->all_water_holder_id;
+        }
+
         $waterIncident->incident_id = $request->incident_id;
         if($request->incident_id == 4) {
 
@@ -290,7 +300,8 @@ class WaterIncidentController extends Controller
     public function edit($id) 
     {
         $waterIncident = H2oSystemIncident::findOrFail($id);
-        $waterHolder = AllWaterHolder::findOrFail($waterIncident->all_water_holder_id);
+        if($waterIncident->water_system_id) $waterHolder = WaterSystem::findOrFail($waterIncident->water_system_id);
+        else $waterHolder = AllWaterHolder::findOrFail($waterIncident->all_water_holder_id);
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();
@@ -361,6 +372,7 @@ class WaterIncidentController extends Controller
         }
         $waterIncident->equipment = $request->equipment;
         $waterIncident->notes = $request->notes;
+        $waterIncident->response_date = $request->response_date;
         $waterIncident->save();
 
         if($request->new_equipment) {
@@ -453,7 +465,10 @@ class WaterIncidentController extends Controller
     public function show($id)
     {
         $waterIncident = H2oSystemIncident::findOrFail($id);
-        $waterHolder = AllWaterHolder::findOrFail($waterIncident->all_water_holder_id);
+
+        if($waterIncident->water_system_id) $waterHolder = WaterSystem::findOrFail($waterIncident->water_system_id);
+        else $waterHolder = AllWaterHolder::findOrFail($waterIncident->all_water_holder_id);
+
         $h2oUser = H2oUser::where('household_id', $waterHolder->household_id)->get();
         $h2oPublic = H2oPublicStructure::where('public_structure_id', $waterHolder->public_structure_id)->get();
         $gridPublic = GridPublicStructure::where('public_structure_id', $waterHolder->public_structure_id)->get();

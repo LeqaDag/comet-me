@@ -29,7 +29,8 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
             ->join('communities', 'h2o_system_incidents.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
-            ->join('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
+            ->leftJoin('water_systems', 'h2o_system_incidents.water_system_id', 'water_systems.id')
+            ->leftJoin('all_water_holders', 'h2o_system_incidents.all_water_holder_id', 
                 'all_water_holders.id')
             ->leftJoin('households', 'all_water_holders.household_id', 'households.id')
             ->leftJoin('public_structures', 'all_water_holders.public_structure_id', 
@@ -51,8 +52,8 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
             ->where('h2o_incident_statuses.is_archived', 0) 
             ->where('water_incident_equipment.is_archived', 0) 
             ->select([
-                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
-                    as exported_value'),
+                DB::raw('COALESCE(households.english_name, public_structures.english_name, 
+                    water_systems.name) as exported_value'),
                 'all_water_holders.is_main',
                 'communities.english_name as community_name', 
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',

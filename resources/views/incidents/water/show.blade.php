@@ -8,10 +8,14 @@
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">
+    @if($waterHolder->name)
+        {{$waterHolder->name}} 
+    @else 
         @if($waterHolder->household_id)
             {{$waterHolder->Household->english_name}} 
         @else @if($waterHolder->public_structure_id)
             {{$waterHolder->PublicStructure->english_name}} 
+        @endif
         @endif
     @endif
     </span> Incident Information 
@@ -28,11 +32,15 @@
                     <div class="timeline-event">
                         <div class="timeline-header border-bottom mb-3">
                             <h6 class="mb-0">
-                            @if($waterHolder->household_id)
-                                {{$waterHolder->Household->english_name}} 
-                            @else @if($waterHolder->public_structure_id)
-                                {{$waterHolder->PublicStructure->english_name}} 
-                            @endif
+                            @if($waterHolder->name)
+                                {{$waterHolder->name}} 
+                            @else 
+                                @if($waterHolder->household_id)
+                                    {{$waterHolder->Household->english_name}} 
+                                @else @if($waterHolder->public_structure_id)
+                                    {{$waterHolder->PublicStructure->english_name}} 
+                                @endif
+                                @endif
                             @endif -  
                                 <span class="text-primary">Details</span>
                             </h6>

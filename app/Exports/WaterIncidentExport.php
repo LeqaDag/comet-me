@@ -23,7 +23,7 @@ class WaterIncidentExport implements WithMultipleSheets, ShouldAutoSize
      */ 
     public function sheets(): array
     {
-        $sheets = [
+        $sheets = [ 
             new WaterMainUsers($this->request),
             new WaterSharedUsers($this->request)
         ];

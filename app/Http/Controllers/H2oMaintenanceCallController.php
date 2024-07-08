@@ -17,7 +17,7 @@ use App\Models\H2oSharedUser;
 use App\Models\H2oStatus;
 use App\Models\H2oUser;
 use App\Models\H2oUserDonor;
-use App\Models\H2oMaintenanceCall;
+use App\Models\H2oMaintenanceCall; 
 use App\Models\H2oMaintenanceCallAction;
 use App\Models\H2oMaintenanceCallUser;
 use App\Models\Household;
@@ -27,6 +27,7 @@ use App\Models\MaintenanceH2oAction;
 use App\Models\MaintenanceStatus;
 use App\Models\MaintenanceType;
 use App\Models\PublicStructure;
+use App\Models\WaterSystem;
 use App\Models\PublicStructureCategory;
 use App\Exports\WaterMaintenanceExport;
 use Auth;
@@ -53,6 +54,7 @@ class H2oMaintenanceCallController extends Controller
             if ($request->ajax()) {
                 
                 $data = DB::table('h2o_maintenance_calls')
+                    ->leftJoin('water_systems', 'h2o_maintenance_calls.water_system_id', 'water_systems.id')
                     ->leftJoin('households', 'h2o_maintenance_calls.household_id', 'households.id')
                     ->leftJoin('public_structures', 'h2o_maintenance_calls.public_structure_id', 
                         'public_structures.id')
@@ -81,6 +83,7 @@ class H2oMaintenanceCallController extends Controller
 
                 $data->select('h2o_maintenance_calls.id as id', 
                     'households.english_name as household_name', 
+                    'water_systems.name as system_name',
                     'date_of_call', 'date_completed', 'h2o_maintenance_calls.notes',
                     'maintenance_types.type', 'maintenance_statuses.name', 
                     'communities.english_name as community_name',
@@ -110,6 +113,7 @@ class H2oMaintenanceCallController extends Controller
 
                         if($row->household_name != null) $holder = $row->household_name;
                         else if($row->public_name != null) $holder = $row->public_name;
+                        else if($row->system_name != null) $holder = $row->system_name;
                         else $holder = null;
 
                         return $holder;
@@ -189,6 +193,11 @@ class H2oMaintenanceCallController extends Controller
         if($request->public_user == "public") {
 
             $maintenance->public_structure_id = $request->all_water_holder_id;
+        }
+
+        if($request->public_user == "system") {
+
+            $maintenance->water_system_id = $request->all_water_holder_id;
         }
 
         $maintenance->community_id = $request->community_id;
@@ -468,6 +477,13 @@ class H2oMaintenanceCallController extends Controller
             $response['public'] = $public;
         }
        
+        if($h2oMaintenance->water_system_id != NULL) {
+            $waterSystemId = $h2oMaintenance->water_system_id;
+            $system = WaterSystem::where('id', $waterSystemId)->first();
+            
+            $response['system'] = $system;
+        }
+
         $community = Community::where('id', $h2oMaintenance->community_id)->first();
         $h2oAction = DB::table('h2o_maintenance_call_actions')
             ->join('h2o_maintenance_calls', 'h2o_maintenance_call_actions.h2o_maintenance_call_id', 

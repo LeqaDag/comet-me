@@ -317,6 +317,7 @@
                 if(response['household']) {
 
                     $("#holderIcon").removeClass('bx bx-building bx-sm me-3');
+                    $("#holderIcon").removeClass('bx bx-cog bx-sm me-3');
                     $("#holderIcon").addClass('bx bx-user bx-sm me-3');
 
                     $('#WaterModalTitle').html(response['household'].english_name);
@@ -325,10 +326,19 @@
                 } else if(response['public']) {
 
                     $("#holderIcon").removeClass('bx bx-user bx-sm me-3');
+                    $("#holderIcon").removeClass('bx bx-cog bx-sm me-3');
                     $("#holderIcon").addClass('bx bx-building bx-sm me-3');
 
                     $('#WaterModalTitle').html(response['public'].english_name);
                     $('#englishNameUser').html(response['public'].english_name);
+                } else if(response['system']) {
+
+                    $("#holderIcon").removeClass('bx bx-user bx-sm me-3');
+                    $("#holderIcon").removeClass('bx bx-building bx-sm me-3');
+                    $("#holderIcon").addClass('bx bx-cog bx-sm me-3');
+
+                    $('#WaterModalTitle').html(response['system'].name);
+                    $('#englishNameUser').html(response['system'].name);
                 }
 
                 $('#communityUser').html('');

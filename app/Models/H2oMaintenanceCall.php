@@ -46,4 +46,9 @@ class H2oMaintenanceCall extends Model
     {
         return $this->belongsTo(PublicStructure::class, 'public_structure_id', 'id');
     }
+
+    public function WaterSystem()
+    {
+        return $this->belongsTo(WaterSystem::class, 'water_system_id', 'id');
+    }
 }

@@ -20,10 +20,14 @@
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> 
-    @if($waterHolder->household_id)
-            {{$waterHolder->Household->english_name}} 
-        @else @if($waterHolder->public_structure_id)
-            {{$waterHolder->PublicStructure->english_name}} 
+    @if($waterHolder->name)
+        {{$waterHolder->name}} 
+    @else
+        @if($waterHolder->household_id)
+                {{$waterHolder->Household->english_name}} 
+            @else @if($waterHolder->public_structure_id)
+                {{$waterHolder->PublicStructure->english_name}} 
+            @endif
         @endif
     @endif
     <span class="text-muted fw-light">Information </span> 
@@ -50,7 +54,19 @@
                             </select>
                         </fieldset>
                     </div> 
-                    
+                    @if($waterHolder->name) 
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Water System</label>
+                            <select class="selectpicker form-control" 
+                                    data-live-search="true" disabled>
+                                    <option selected disabled>
+                                        {{$waterHolder->name}} 
+                                    </option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    @endif
                     @if($waterHolder->household_id)
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">

@@ -24,6 +24,10 @@
     @else @if($waterMaintenance->public_structure_id)
 
         {{$waterMaintenance->PublicStructure->english_name}}
+    @else @if($waterMaintenance->water_system_id)
+
+        {{$waterMaintenance->WaterSystem->name}}
+    @endif
     @endif
     @endif
     <span class="text-muted fw-light">Information </span> 
@@ -62,6 +66,12 @@
                             <label class='col-md-12 control-label'>Water Public</label>
                             <input type="text" value="{{$waterMaintenance->PublicStructure->english_name}}" 
                                 class="form-control" disabled>
+                        @else @if($waterMaintenance->water_system_id)
+
+                            <label class='col-md-12 control-label'>Water System</label>
+                            <input type="text" value="{{$waterMaintenance->WaterSystem->name}}" 
+                                class="form-control" disabled>
+                        @endif
                         @endif
                         @endif
                         </fieldset>

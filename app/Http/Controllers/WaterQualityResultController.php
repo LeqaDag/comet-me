@@ -194,6 +194,7 @@ class WaterQualityResultController extends Controller
     public function getWaterHolderByCommunity($community_id, $flag)
     {
         $html = "<option disabled selected>Choose one...</option>";
+        $systems = null;
 
         if($flag == "user") {
 
@@ -223,12 +224,28 @@ class WaterQualityResultController extends Controller
                 ->where("h2o_public_structures.community_id", $community_id)
                 ->select('public_structures.id as id', 'public_structures.english_name')
                 ->get();
+        } else if($flag == "system") {
+
+            $systems = DB::table('water_systems')
+                ->join('communities', 'water_systems.community_id', 'communities.id')
+                ->where("water_systems.community_id", $community_id)
+                ->select('water_systems.id as id', 'water_systems.name')
+                ->get();
         }
 
-        foreach ($households as $household) {
-            $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+        if($systems) {
+
+            foreach ($systems as $system) {
+
+                $html .= '<option value="'.$system->id.'">'.$system->name.'</option>';
+            }
+        } else {
+
+            foreach ($households as $household) {
+
+                $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
+            }    
         }
-        
 
         return response()->json(['html' => $html]);
     }

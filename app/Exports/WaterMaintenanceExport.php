@@ -18,7 +18,7 @@ class WaterMaintenanceExport implements FromCollection, WithHeadings, WithTitle,
     function __construct($request) {
 
         $this->request = $request;
-    }
+    } 
     
     /**
     * @return \Illuminate\Support\Collection
@@ -26,6 +26,7 @@ class WaterMaintenanceExport implements FromCollection, WithHeadings, WithTitle,
     public function collection()
     {
         $data = DB::table('h2o_maintenance_calls')
+            ->leftJoin('water_systems', 'h2o_maintenance_calls.water_system_id', 'water_systems.id')
             ->leftJoin('households', 'h2o_maintenance_calls.household_id', 'households.id')
             ->leftJoin('public_structures', 'h2o_maintenance_calls.public_structure_id', 
                 'public_structures.id')
@@ -48,8 +49,8 @@ class WaterMaintenanceExport implements FromCollection, WithHeadings, WithTitle,
             ->where('h2o_maintenance_calls.is_archived', 0)
             ->where('h2o_maintenance_call_actions.is_archived', 0)
             ->select([ 
-                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
-                    as exported_value'), 
+                DB::raw('COALESCE(households.english_name, public_structures.english_name, 
+                    water_systems.name) as exported_value'),
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 'recipients.name as user_name', 'maintenance_statuses.name', 'maintenance_types.type', 
