@@ -206,7 +206,7 @@ class CommunityAll implements FromCollection, WithHeadings, WithTitle, ShouldAut
     public function headings(): array
     {
         return ["English Name", "Arabic Name", "Region", "Sub Region", "Sub Sub Region",
-            "Number of Households", "Number of People",  "Number of Compounds", "Status", 
+            "Number of Households", "Number of People", "Number of Compounds", "Status", 
             "Energy Service", "Energy Service Year", "Energy System Type", "Energy Donors",
             "Water Service", "Water Service Year", "Water Donors",
             "Internet Service", "Internet Service Year", "Internet Donors",

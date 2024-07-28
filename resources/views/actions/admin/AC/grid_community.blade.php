@@ -20,7 +20,7 @@ label, table {
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('action-item')}}">
+                <form method="POST" enctype='multipart/form-data' action="{{url('room-grid')}}">
                     @csrf
                     <div class="row">
                         <input type="hidden" name="community_id" value="{{$communitiesGrid->id}}">

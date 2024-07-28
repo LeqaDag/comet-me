@@ -276,16 +276,18 @@ label, table {
 
                         $("#schoolDetails").css("visibility", "visible");
                         $("#schoolDetails").css('display', 'block');
+                        $('#totalSchoolStudents').html('');
+                        $('#totalSchoolStudents').html(response['schoolPublic'].number_of_boys + response['schoolPublic'].number_of_girls);
                         $('#schoolBoys').html('');
-                        $('#schoolBoys').html(response['publicStructure'].number_of_boys);
+                        $('#schoolBoys').html(response['schoolPublic'].number_of_boys);
                         $('#schoolGirls').html('');
-                        $('#schoolGirls').html(response['publicStructure'].number_of_girls);
+                        $('#schoolGirls').html(response['schoolPublic'].number_of_girls);
                         $('#gradeFrom').html('');
-                        $('#gradeFrom').html(response['publicStructure'].grade_from);
+                        $('#gradeFrom').html(response['schoolPublic'].grade_from);
                         $('#gradeTo').html('');
-                        $('#gradeTo').html(response['publicStructure'].grade_to);
+                        $('#gradeTo').html(response['schoolPublic'].grade_to);
                     }
-
+ 
                     if(response['publicStructure'].public_structure_category_id1 == 5 ||
                         response['publicStructure'].public_structure_category_id2 == 5 ||
                         response['publicStructure'].public_structure_category_id3 == 5)  {

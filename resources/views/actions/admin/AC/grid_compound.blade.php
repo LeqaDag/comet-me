@@ -19,8 +19,8 @@ label, table {
                     aria-label="Close">
                 </button>
             </div>
-            <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('action-item')}}">
+            <div class="modal-body"> 
+                <form method="POST" enctype='multipart/form-data' action="{{url('room-grid')}}">
                     @csrf
                     <div class="row">
                         <input type="hidden" name="compound_id" value="{{$compoundsGrid->id}}">

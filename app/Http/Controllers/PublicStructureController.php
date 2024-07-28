@@ -16,7 +16,7 @@ use App\Models\Household;
 use App\Models\Photo;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
-use App\Models\SchoolCommunity;
+use App\Models\SchoolServedCommunity;
 use App\Models\SchoolPublicStructure;
 use App\Exports\PublicStructureExport;
 use Auth;
@@ -35,46 +35,46 @@ class PublicStructureController extends Controller
      */
     public function index(Request $request)
     { 
-        $publicStructureSchools = PublicStructure::where('is_archived', 0)
-            ->where('public_structure_category_id1', 1)
-            ->orWhere('public_structure_category_id2', 1)
-            ->orWhere('public_structure_category_id3', 1)
-            ->get();
+        // $publicStructureSchools = PublicStructure::where('is_archived', 0)
+        //     ->where('public_structure_category_id1', 1)
+        //     ->orWhere('public_structure_category_id2', 1)
+        //     ->orWhere('public_structure_category_id3', 1)
+        //     ->get();
         
-        foreach($publicStructureSchools as  $publicStructureSchool) {
+        // foreach($publicStructureSchools as  $publicStructureSchool) {
 
-            $existSchool = SchoolPublicStructure::where('is_archived', 0)
-                ->where('public_structure_id', $publicStructureSchool->id)
-                ->first();
-            if($existSchool) {
+        //     $existSchool = SchoolPublicStructure::where('is_archived', 0)
+        //         ->where('public_structure_id', $publicStructureSchool->id)
+        //         ->first();
+        //     if($existSchool) {
 
-            } else {
+        //     } else {
 
-                $newSchools = new SchoolPublicStructure();
-                $newSchools->public_structure_id =  $publicStructureSchool->id;
-                $newSchools->save();
-            }
-        }
+        //         $newSchools = new SchoolPublicStructure();
+        //         $newSchools->public_structure_id =  $publicStructureSchool->id;
+        //         $newSchools->save();
+        //     }
+        // }
 
-        $schools = SchoolPublicStructure::where('is_archived', 0)->get();
+        // $schools = SchoolPublicStructure::where('is_archived', 0)->get();
 
-        foreach($schools as $school) {
+        // foreach($schools as $school) {
 
-            $publicStructure = PublicStructure::findOrFail($school->public_structure_id);
-            if($publicStructure) {
+        //     $publicStructure = PublicStructure::findOrFail($school->public_structure_id);
+        //     if($publicStructure) {
 
-                $community = Community::findOrFail($publicStructure->community_id);
-                if($community) {
+        //         $community = Community::findOrFail($publicStructure->community_id);
+        //         if($community) {
 
-                    $school->grade_from = $community->grade_from;
-                    $school->grade_to = $community->grade_to;
-                    $school->number_of_students = $community->school_students;
-                    $school->number_of_boys = $community->school_male;
-                    $school->number_of_girls = $community->school_female;
-                    $school->save();
-                }
-            }
-        }
+        //             $school->grade_from = $community->grade_from;
+        //             $school->grade_to = $community->grade_to;
+        //             $school->number_of_students = $community->school_students;
+        //             $school->number_of_boys = $community->school_male;
+        //             $school->number_of_girls = $community->school_female;
+        //             $school->save();
+        //         }
+        //     }
+        // }
 
         $publicStructureKindergartens = PublicStructure::where('is_archived', 0)
             ->where('public_structure_category_id1', 5)
@@ -229,7 +229,7 @@ class PublicStructureController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) 
+    public function edit($id)  
     {
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
@@ -238,7 +238,7 @@ class PublicStructureController extends Controller
         $publicCategories = PublicStructureCategory::all();
 
         $schoolPublicStructure = SchoolPublicStructure::where("public_structure_id", $id)->first();
-        $schoolCommunities = SchoolCommunity::where("public_structure_id", $id)->get();
+        $schoolCommunities = SchoolServedCommunity::where("public_structure_id", $id)->get();
         $compounds = Compound::where('is_archived', 0)
             ->where('community_id', $publicStructure->community_id)
             ->get();
@@ -266,44 +266,48 @@ class PublicStructureController extends Controller
         if($request->public_structure_category_id3) $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
         $publicStructure->save();
 
-        $existSchoolPublicStructure = SchoolPublicStructure::where("public_structure_id", $id)->first();
-        if($existSchoolPublicStructure) {
+        $existSchoolPublicStructure = SchoolPublicStructure::where("public_structure_id", $id)
+            ->where("is_archived", 0)
+            ->first();
+       
+        if($existSchoolPublicStructure) { 
 
-            $existSchoolPublicStructure->grade_from = $request->grade_from;
-            $existSchoolPublicStructure->grade_to = $request->grade_to;
-            $existSchoolPublicStructure->number_of_students = $request->number_of_boys + $request->number_of_girls;
-            $existSchoolPublicStructure->number_of_boys = $request->number_of_boys;
-            $existSchoolPublicStructure->number_of_girls = $request->number_of_girls;
+            if($request->grade_from) $existSchoolPublicStructure->grade_from = $request->grade_from;
+            if($request->grade_to) $existSchoolPublicStructure->grade_to = $request->grade_to;
+            if($request->number_of_boys || $request->number_of_girls) $existSchoolPublicStructure->number_of_students = $request->number_of_boys + $request->number_of_girls;
+            if($request->number_of_boys) $existSchoolPublicStructure->number_of_boys = $request->number_of_boys;
+            if($request->number_of_girls) $existSchoolPublicStructure->number_of_girls = $request->number_of_girls;
             $existSchoolPublicStructure->save();
+            
         } else {
 
             $schoolPublicStructure = new SchoolPublicStructure();
-            $schoolPublicStructure->grade_from = $request->grade_from;
-            $schoolPublicStructure->grade_to = $request->grade_to;
-            $schoolPublicStructure->number_of_students = $request->number_of_boys + $request->number_of_girls;
-            $schoolPublicStructure->number_of_boys = $request->number_of_boys;
-            $schoolPublicStructure->number_of_girls = $request->number_of_girls;
+            if($request->grade_from) $schoolPublicStructure->grade_from = $request->grade_from;
+            if($request->grade_to) $schoolPublicStructure->grade_to = $request->grade_to;
+            if($request->number_of_boys || $request->number_of_girls) $schoolPublicStructure->number_of_students = $request->number_of_boys + $request->number_of_girls;
+            if($request->number_of_boys) $schoolPublicStructure->number_of_boys = $request->number_of_boys;
+            if($request->number_of_girls) $schoolPublicStructure->number_of_girls = $request->number_of_girls;
             $schoolPublicStructure->public_structure_id = $id;
             $schoolPublicStructure->save();
         }
-        
+ 
         if($request->communities) {
             for($i=0; $i < count($request->communities); $i++) {
 
-                $schoolCommunity = new SchoolCommunity();
-                $schoolCommunity->community_id = $request->communities[$i];
-                $schoolCommunity->public_structure_id = $id;
-                $schoolCommunity->save();
+                $schoolServedCommunity = new SchoolServedCommunity();
+                $schoolServedCommunity->community_id = $request->communities[$i];
+                $schoolServedCommunity->public_structure_id = $id;
+                $schoolServedCommunity->save();
             }
         }
 
         if($request->new_communities) {
             for($i=0; $i < count($request->new_communities); $i++) {
 
-                $schoolCommunity = new SchoolCommunity();
-                $schoolCommunity->community_id = $request->new_communities[$i];
-                $schoolCommunity->public_structure_id = $id;
-                $schoolCommunity->save();
+                $schoolServedCommunity = new SchoolServedCommunity();
+                $schoolServedCommunity->community_id = $request->new_communities[$i];
+                $schoolServedCommunity->public_structure_id = $id;
+                $schoolServedCommunity->save();
             }
         }
 
@@ -371,7 +375,7 @@ class PublicStructureController extends Controller
     {
         $id = $request->id;
 
-        $public = SchoolCommunity::find($id);
+        $public = SchoolServedCommunity::find($id);
 
         if($public) {
 

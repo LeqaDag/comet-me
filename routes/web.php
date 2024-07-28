@@ -496,3 +496,10 @@ Route::resource('other-community', App\Http\Controllers\OtherCommunityController
 Route::get('/other-community/new', [App\Http\Controllers\HouseholdController::class, 'newCommunity']);
 
 Route::resource('assigned-action', App\Http\Controllers\AssignedActionItemUserController::class);
+
+Route::resource('room-grid', App\Http\Controllers\RoomGridController::class);
+
+Route::resource('water-log', App\Http\Controllers\WaterSystemLogFrameController::class);
+Route::post('water-log-export', [App\Http\Controllers\WaterSystemLogFrameController::class, 'export'])->name('water-log.export');
+Route::get('/delete-log', [App\Http\Controllers\WaterSystemLogFrameController::class, 'deleteWaterLog'])->name('deleteWaterLog');
+Route::get('water-log/{id}/editpage', [App\Http\Controllers\WaterSystemLogFrameController::class, 'editPage']);

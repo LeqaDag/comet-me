@@ -22,7 +22,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
 
     /**
     * @return \Illuminate\Support\Collection
-    */
+    */ 
     public function collection()
     {
         $data = DB::table('households') 
@@ -54,6 +54,8 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
             ->leftJoin('donors as internet_donor', 'internet_user_donors.donor_id', 'internet_donor.id')
             ->leftJoin('compound_households', 'households.id', 'compound_households.household_id')
             ->leftJoin('compounds', 'compound_households.compound_id', 'compounds.id')
+            ->leftJoin('structures', 'households.id', 'structures.household_id')
+            ->leftJoin('cisterns', 'households.id', 'cisterns.household_id')
             ->where('households.is_archived', 0) 
             ->where('internet_holder_young', 0) 
             ->select('households.english_name as english_name', 
@@ -61,8 +63,9 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'compounds.english_name as compound',
                 'households.phone_number', 'professions.profession_name', 'households.number_of_people',
-                'number_of_male', 'number_of_female', 'number_of_children','number_of_adults', 
-                'school_students', 'household_statuses.status', 
+                'households.number_of_male', 'households.number_of_female', 'households.number_of_children',
+                'households.number_of_adults', 'households.school_students', 'households.university_students', 
+                'households.demolition_order', 'household_statuses.status', 
                 'all_energy_meters.is_main', 'energy_system_types.name',
                 'all_energy_meters.meter_number', 
                 DB::raw('group_concat(DISTINCT energy_donor.donor_name) as meter_donor'),
@@ -71,6 +74,9 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 DB::raw('group_concat(DISTINCT water_donor.donor_name) as water_donor'),
                 'internet_system_status',
                 DB::raw('group_concat(DISTINCT internet_donor.donor_name) as internet_donor'),
+                'structures.number_of_structures', 'structures.number_of_kitchens', 
+                'structures.number_of_cave', 'households.size_of_herd', 'structures.number_of_animal_shelters', 
+                'cisterns.number_of_cisterns', 'cisterns.shared_cisterns', 
                 'households.is_surveyed', 'households.last_surveyed_date'
             )
             ->groupBy('households.id');
@@ -226,12 +232,12 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function headings(): array
     {
-        return ["English Name", "Arabic Name", "Community", "Region", "Compound", 
-            "Phone Number", "Profession", "# of People", "# of Male", "# of Female", "# of Children", "# of Adults",
-            "# of School students", "Energy System Status", "Main User", 
-            "Energy System Type", "Meter Number", "Energy Donors",
-            "Requset Date", "Water System Status", "Water Donors",
-            "Internet System Status", "Internet Donors", "Is Surveyed", "Surveyed Date"];
+        return ["English Name", "Arabic Name", "Community", "Region", "Compound", "Phone Number", "Profession", 
+            "# of People", "# of Male", "# of Female", "# of Children", "# of Adults", "# of School students", 
+            "# of University students", "Demolition order in house", "Energy System Status", "Main User", 
+            "Energy System Type", "Meter Number", "Energy Donors", "Requset Date", "Water System Status", "Water Donors",
+            "Internet System Status", "Internet Donors", "# of Structures", "# of kitchens", "# of Caves", "Size of herds", 
+            "# of animal shelters", "# of Cisterns", "Shared cistern", "Is Surveyed", "Surveyed Date"];
     }
 
     public function title(): string
@@ -246,7 +252,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:X1');
+        $sheet->setAutoFilter('A1:Z1');
 
         return [
             // Style the first row as bold text.

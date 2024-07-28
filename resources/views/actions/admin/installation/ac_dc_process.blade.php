@@ -17,7 +17,7 @@
                             aria-expanded="false" 
                             aria-controls="notYetStartedACSurveyTab">
                             AC Survey Not Yet Started 
-                        </a>
+                        </a> 
                     </div>
                 </li>
             </ul>
@@ -151,7 +151,7 @@
                                 <a type="button" data-bs-toggle="modal" 
                                     data-bs-target="#updateElectricityGridCompound{{$compoundsElecticityRoom->id}}">
                                     <span>{{$compoundsElecticityRoom->compound}}</span>   
-                                </a> 
+                                </a>  
                             </li>
                         </ul>
                         @include('actions.admin.AC.room_compound')

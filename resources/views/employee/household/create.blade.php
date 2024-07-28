@@ -36,7 +36,7 @@
         text-align: center; /* Center-align the text */
     }
 
-    /* Apply hover effect to the dropdown items */
+    /* Apply hover effect to the dropdown items */ 
     .ui-autocomplete .ui-menu-item:hover {
         background-color: #f0f0f0;
     }
@@ -271,6 +271,13 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many animal shelters?</label>
                             <input type="number" name="number_of_animal_shelters" 
+                            class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many caves?</label>
+                            <input type="number" name="number_of_cave" 
                             class="form-control">
                         </fieldset>
                     </div>

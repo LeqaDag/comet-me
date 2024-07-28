@@ -594,6 +594,8 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#waterServiceHousehold').html(" ");
                     $('#energyStatusHousehold').html(" ");
                     $('#compoundHousehold').html(" ");
+                    $('#numberOfSchoolStudents').html(" ");
+                    $('#numberOfUniversityStudents').html(" ");
  
                     $('#householdModalTitle').html(response['household'].english_name);
                     $('#englishNameHousehold').html(response['household'].english_name);
@@ -603,6 +605,8 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#numberOfMaleHousehold').html(response['household'].number_of_male);
                     $('#numberOfFemaleHousehold').html(response['household'].number_of_female);
                     $('#numberOfChildrenHousehold').html(response['household'].number_of_children);
+                    $('#numberOfSchoolStudents').html(response['household'].school_students);
+                    $('#numberOfUniversityStudents').html(response['household'].university_students);
                     $('#numberOfAdultsHousehold').html(response['household'].number_of_adults);
                     $('#phoneNumberHousehold').html(response['household'].phone_number);
                     $('#energyServiceHousehold').html(response['household'].energy_system_status);
@@ -633,6 +637,8 @@ All<span class="text-muted fw-light"> Households</span>
 
                         $('#numberOfStructures').html(" ");
                         $('#numberOfStructures').html(response['structure'].number_of_structures);
+                        $('#numberOfCaves').html(" ");
+                        $('#numberOfCaves').html(response['structure'].number_of_cave);
                         $('#numberOfkitchens').html(" ");
                         $('#numberOfkitchens').html(response['structure'].number_of_kitchens);
                         $('#numberOfShelters').html(" ");

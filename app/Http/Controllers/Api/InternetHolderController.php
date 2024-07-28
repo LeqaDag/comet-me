@@ -38,7 +38,7 @@ class InternetHolderController extends Controller
          *    must take the name from the api
          * 6. New Public Structures: add is_public flag to the internet flag to add them in the platform 
         */
-
+ 
         $internetData =  Http::get('http://185.190.140.86/api/users/');
         $internetHolders = json_decode($internetData, true);
 
@@ -59,6 +59,8 @@ class InternetHolderController extends Controller
                 $internetUser->expired_gt_than_60d = $internetHolder["expired_gt_than_60d"];
                 $internetUser->is_expire = $internetHolder["is_expire"];
                 $internetUser->paid = $internetHolder["paid"];
+                $internetUser->is_hotspot = $internetHolder["is_hotspot"];
+                $internetUser->is_ppp = $internetHolder["is_ppp"];
 
                 if($internetHolder["have_meter"] == 1) {
 
@@ -67,126 +69,144 @@ class InternetHolderController extends Controller
                         ->where('meter_number', $internetHolder["meters_list"][0]["sn"])
                         ->first();
      
-                    // retrieve the community 
-                    $community = Community::findOrFail($allEnergyMeter->community_id);
-                    $community->internet_service = "Yes";
-                    $community->save();
+                    if($allEnergyMeter) {
 
-                    $communityService = new CommunityService();
-                    $communityService->service_id = 3;
-                    $communityService->community_id = $community->id;
-                    $communityService->save();
+                        // retrieve the community 
+                        $community = Community::findOrFail($allEnergyMeter->community_id);
+                        $community->internet_service = "Yes";
+                        $community->save();
+
+                        $communityService = new CommunityService();
+                        $communityService->service_id = 3;
+                        $communityService->community_id = $community->id;
+                        $communityService->save();
+
+                        // Check if the meter is for user (new/existing main user)
+                        if($allEnergyMeter->household_id != 0 || $allEnergyMeter->household_id != null) {
+
+                            $household = Household::findOrFail($allEnergyMeter->household_id );
+                            $household->phone_number = $internetHolder["cardnum"];
+                            $household->internet_system_status = "Served";
+                            $household->save();
+
+                            $exisiInternetHolder = InternetUser::where('household_id', $allEnergyMeter->household_id)->first();
+                            if($exisiInternetHolder) {
+
+                                $exisiInternetHolder->active = $internetHolder["active"];
+                                $exisiInternetHolder->last_purchase_date = $internetHolder["last_purchase_date"];
+                                $exisiInternetHolder->expired_gt_than_30d = $internetHolder["expired_gt_than_30d"];
+                                $exisiInternetHolder->expired_gt_than_60d = $internetHolder["expired_gt_than_60d"];
+                                $exisiInternetHolder->is_expire = $internetHolder["is_expire"];
+                                $exisiInternetHolder->paid = $internetHolder["paid"];
+                                $exisiInternetHolder->is_hotspot = $internetHolder["is_hotspot"];
+                                $exisiInternetHolder->is_ppp = $internetHolder["is_ppp"];
+                                $exisiInternetHolder->save();
+                            } else {
+
+                                $internetUser->household_id = $allEnergyMeter->household_id;
+                                $internetUser->community_id = $allEnergyMeter->community_id;
+                            }
+
+                        // new/existing main public 
+                        } else if($allEnergyMeter->public_structure_id != 0 || $allEnergyMeter->public_structure_id != null) {
+
+                            $publicStructure = PublicStructure::findOrFail($allEnergyMeter->public_structure_id);
+                            $publicStructure->phone_number = $internetHolder["cardnum"];
+                            $publicStructure->save();
+
+                            $exisiInternetPublic = InternetUser::where('public_structure_id', $allEnergyMeter->public_structure_id)->first();
+                            if($exisiInternetPublic) {
+
+                                $exisiInternetPublic->active = $internetHolder["active"];
+                                $exisiInternetPublic->last_purchase_date = $internetHolder["last_purchase_date"];
+                                $exisiInternetPublic->expired_gt_than_30d = $internetHolder["expired_gt_than_30d"];
+                                $exisiInternetPublic->expired_gt_than_60d = $internetHolder["expired_gt_than_60d"];
+                                $exisiInternetPublic->is_expire = $internetHolder["is_expire"];
+                                $exisiInternetPublic->paid = $internetHolder["paid"];
+                                $exisiInternetPublic->is_hotspot = $internetHolder["is_hotspot"];
+                                $exisiInternetPublic->is_ppp = $internetHolder["is_ppp"];
+                                $exisiInternetPublic->save();
+                            } else {
+
+                                $internetUser->public_structure_id = $allEnergyMeter->public_structure_id;
+                                $internetUser->community_id = $allEnergyMeter->community_id;
+                            }
+                        }
+                    }
 
                     // should send a message called "you've a new meter number not registering on the DB" 
                     if(!$allEnergyMeter) {
 
                     } 
 
-                    // Check if the meter is for user (new/existing main user)
-                    if($allEnergyMeter->household_id != 0 || $allEnergyMeter->household_id != null) {
-
-                        $household = Household::findOrFail($allEnergyMeter->household_id );
-                        $household->phone_number = $internetHolder["cardnum"];
-                        $household->internet_system_status = "Served";
-                        $household->save();
-
-                        $exisiInternetHolder = InternetUser::where('household_id', $allEnergyMeter->household_id)->first();
-                        if($exisiInternetHolder) {
-
-                            $exisiInternetHolder->active = $internetHolder["active"];
-                            $exisiInternetHolder->last_purchase_date = $internetHolder["last_purchase_date"];
-                            $exisiInternetHolder->expired_gt_than_30d = $internetHolder["expired_gt_than_30d"];
-                            $exisiInternetHolder->expired_gt_than_60d = $internetHolder["expired_gt_than_60d"];
-                            $exisiInternetHolder->is_expire = $internetHolder["is_expire"];
-                            $exisiInternetHolder->paid = $internetHolder["paid"];
-                            $exisiInternetHolder->save();
-                        } else {
-
-                            $internetUser->household_id = $allEnergyMeter->household_id;
-                            $internetUser->community_id = $allEnergyMeter->community_id;
-                        }
-
-                    // new/existing main public 
-                    } else if($allEnergyMeter->public_structure_id != 0 || $allEnergyMeter->public_structure_id != null) {
-
-                        $publicStructure = PublicStructure::findOrFail($allEnergyMeter->public_structure_id);
-                        $publicStructure->phone_number = $internetHolder["cardnum"];
-                        $publicStructure->save();
-
-                        $exisiInternetPublic = InternetUser::where('public_structure_id', $allEnergyMeter->public_structure_id)->first();
-                        if($exisiInternetPublic) {
-
-                            $exisiInternetPublic->active = $internetHolder["active"];
-                            $exisiInternetPublic->last_purchase_date = $internetHolder["last_purchase_date"];
-                            $exisiInternetPublic->expired_gt_than_30d = $internetHolder["expired_gt_than_30d"];
-                            $exisiInternetPublic->expired_gt_than_60d = $internetHolder["expired_gt_than_60d"];
-                            $exisiInternetPublic->is_expire = $internetHolder["is_expire"];
-                            $exisiInternetPublic->paid = $internetHolder["paid"];
-                            $exisiInternetPublic->save();
-                        } else {
-
-                            $internetUser->public_structure_id = $allEnergyMeter->public_structure_id;
-                            $internetUser->community_id = $allEnergyMeter->community_id;
-                        }
-                    }
-             
                 } else if($internetHolder["have_meter"] == 0) {
 
                     // new/existing shared user
-                    if($internetHolder["is_main"] == 0 && $internetHolder["is_public_entity"] == 0) {
+                    if($internetHolder["is_public_entity"] == 0) {
 
-                        $household = Household::findOrFail($internetHolder["household_id"]);
-                        $household->phone_number = $internetHolder["cardnum"];
-                        $household->internet_system_status = "Served";
-                        $household->save();
+                        $household = Household::where("arabic_name", $internetHolder["holder_full_name"])->first();
+                        if($household) {
 
-                        $exisiInternetHolder = InternetUser::where('household_id', $internetHolder["household_id"])->first();
-                        if($exisiInternetHolder) {
-
-                            $exisiInternetHolder->active = $internetHolder["active"];
-                            $exisiInternetHolder->last_purchase_date = $internetHolder["last_purchase_date"];
-                            $exisiInternetHolder->expired_gt_than_30d = $internetHolder["expired_gt_than_30d"];
-                            $exisiInternetHolder->expired_gt_than_60d = $internetHolder["expired_gt_than_60d"];
-                            $exisiInternetHolder->is_expire = $internetHolder["is_expire"];
-                            $exisiInternetHolder->paid = $internetHolder["paid"];
-                            $exisiInternetHolder->save();
-                        } else {
-
-                            $internetUser->household_id = $household->id;
-                            $internetUser->community_id = $household->community_id;
+                            $household->phone_number = $internetHolder["cardnum"];
+                            $household->internet_system_status = "Served";
+                            $household->save();
+    
+                            $exisiInternetHolder = InternetUser::where('household_id', $household->id)->first();
+                            if($exisiInternetHolder) {
+    
+                                $exisiInternetHolder->active = $internetHolder["active"];
+                                $exisiInternetHolder->last_purchase_date = $internetHolder["last_purchase_date"];
+                                $exisiInternetHolder->expired_gt_than_30d = $internetHolder["expired_gt_than_30d"];
+                                $exisiInternetHolder->expired_gt_than_60d = $internetHolder["expired_gt_than_60d"];
+                                $exisiInternetHolder->is_expire = $internetHolder["is_expire"];
+                                $exisiInternetHolder->is_hotspot = $internetHolder["is_hotspot"];
+                                $exisiInternetHolder->is_ppp = $internetHolder["is_ppp"];
+                                $exisiInternetHolder->paid = $internetHolder["paid"];
+                                $exisiInternetHolder->save();
+                            } else {
+    
+                                $internetUser->household_id = $household->id;
+                                $internetUser->community_id = $household->community_id;
+                            }
                         }
 
                     // new/existing shared public
-                    } else if($internetHolder["is_main"] == 0 && $internetHolder["is_public_entity"] == 1) {
+                    } else if($internetHolder["is_public_entity"] == 1) {
 
-                        $publicStructure = PublicStructure::findOrFail($internetHolder["public_structure_id"]);
-                        $publicStructure->phone_number = $internetHolder["cardnum"];
-                        $publicStructure->save();
+                        $publicStructure = PublicStructure::where("arabic_name", $internetHolder["holder_full_name"])->first();
+                        if($publicStructure) {
 
-                        $exisiInternetPublic = InternetUser::where('public_structure_id', $internetHolder["public_structure_id"])->first();
-                        if($exisiInternetPublic) {
-
-                            $exisiInternetPublic->active = $internetHolder["active"];
-                            $exisiInternetPublic->last_purchase_date = $internetHolder["last_purchase_date"];
-                            $exisiInternetPublic->expired_gt_than_30d = $internetHolder["expired_gt_than_30d"];
-                            $exisiInternetPublic->expired_gt_than_60d = $internetHolder["expired_gt_than_60d"];
-                            $exisiInternetPublic->is_expire = $internetHolder["is_expire"];
-                            $exisiInternetPublic->paid = $internetHolder["paid"];
-                            $exisiInternetPublic->save();
-                        } else {
-
-                            $internetUser->public_structure_id = $publicStructure->id;
-                            $internetUser->community_id = $publicStructure->community_id;
+                            $publicStructure->phone_number = $internetHolder["cardnum"];
+                            $publicStructure->save();
+    
+                            $exisiInternetPublic = InternetUser::where('public_structure_id', $publicStructure->id)->first();
+                            
+                            if($exisiInternetPublic) {
+    
+                                $exisiInternetPublic->active = $internetHolder["active"];
+                                $exisiInternetPublic->last_purchase_date = $internetHolder["last_purchase_date"];
+                                $exisiInternetPublic->expired_gt_than_30d = $internetHolder["expired_gt_than_30d"];
+                                $exisiInternetPublic->expired_gt_than_60d = $internetHolder["expired_gt_than_60d"];
+                                $exisiInternetPublic->is_expire = $internetHolder["is_expire"];
+                                $exisiInternetPublic->is_hotspot = $internetHolder["is_hotspot"];
+                                $exisiInternetPublic->is_ppp = $internetHolder["is_ppp"];
+                                $exisiInternetPublic->paid = $internetHolder["paid"];
+                                $exisiInternetPublic->save();
+                            } else {
+    
+                                $internetUser->public_structure_id = $publicStructure->id;
+                                $internetUser->community_id = $publicStructure->community_id;
+                            }
                         }
                     }
 
-                    $community = Community::where("arabic_name", $holder["user_group_name"])->first();
+                    $community = Community::where("arabic_name", $internetHolder["user_group_name"])->first();
                     // Young holder
-                    if($internetHolder["is_young_holder"] == 1 && $holder["is_public_entity"] == 0) {
+                    if($internetHolder["is_young"] == 1 && $internetHolder["is_public_entity"] == 0) {
 
                         $newHousehold = new Household();
-                        $newHousehold->arabic_name = $holder["holder_full_name"];
-                        $newHousehold->phone_number = $holder["cardnum"];
+                        $newHousehold->arabic_name = $internetHolder["holder_full_name"];
+                        $newHousehold->phone_number = $internetHolder["cardnum"];
                         $newHousehold->internet_holder_young = 1;
                         $newHousehold->community_id = $community->id;
                         $newHousehold->internet_system_status = "Served";
@@ -197,11 +217,11 @@ class InternetHolderController extends Controller
                         $internetUser->household_id = $newHousehold->id;
                     
                     // new public structure
-                    } else if($internetHolder["is_young_holder"] == 0 && $holder["is_public_entity"] == 1) {
+                    } else if($internetHolder["is_young"] == 0 && $internetHolder["is_public_entity"] == 1) {
 
                         $newPublic = new Household();
-                        $newPublic->arabic_name = $holder["holder_full_name"];
-                        $newPublic->phone_number = $holder["cardnum"];
+                        $newPublic->arabic_name = $internetHolder["holder_full_name"];
+                        $newPublic->phone_number = $internetHolder["cardnum"];
                         $newPublic->community_id = $community->id;
                         $newPublic->save();
     

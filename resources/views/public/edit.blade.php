@@ -133,7 +133,9 @@
                     </div> 
                 </div> 
              
-                @if($publicStructure->public_structure_category_id1 == 1)
+                @if($publicStructure->public_structure_category_id1 == 1 ||
+                    $publicStructure->public_structure_category_id2 == 1 ||
+                    $publicStructure->public_structure_category_id3 == 1)
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                             <fieldset class="form-group">
@@ -188,7 +190,7 @@
                         <h5>What communities does it serve</h5>
                     </div>
                     @if(count($schoolCommunities) > 0)
-
+ 
                         <table id="schoolCommunitiesTable" 
                             class="table table-striped data-table-school-community my-2">
                             

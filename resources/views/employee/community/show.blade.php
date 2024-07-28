@@ -45,7 +45,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-lg-6">
+                            <div class="col-lg-12">
                                 <ul class="list-unstyled">
                                     <li class="d-flex justify-content-start align-items-center text-success mb-3">
                                         <i class="bx bx-map bx-sm me-3"></i>
@@ -78,6 +78,34 @@
                                             </a>
                                         </div>
                                     </li>
+                                    <li class="d-flex justify-content-start align-items-center text-danger mb-3">
+                                        <i class="bx bx-user-check bx-sm me-3"></i>
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1"># of Adult</small>
+                                            <h6 class="mb-0">{{$totalAdults->total_adult}}</h6>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex justify-content-start align-items-center text-primary mb-3">
+                                        <i class="bx bx-face bx-sm me-3"></i>
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1"># of Children</small>
+                                            <h6 class="mb-0">{{$totalChildren->total_children}}</h6>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex justify-content-start align-items-center text-info mb-3">
+                                        <i class="bx bx-book-open bx-sm me-3"></i>
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1"># of School students</small>
+                                            <h6 class="mb-0">{{$totalSchoolStudents->total_school}}</h6>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex justify-content-start align-items-center text-success mb-3">
+                                        <i class="bx bx-book-bookmark bx-sm me-3"></i>
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1"># of University students</small>
+                                            <h6 class="mb-0">{{$totalUnivesrityStudents->total_university}}</h6>
+                                        </div>
+                                    </li>
                                     <li class="d-flex justify-content-start align-items-center text-dark mb-3">
                                         <i class="bx bx-user bx-sm me-3"></i>
                                         <div class="ps-3 border-start">
@@ -101,6 +129,27 @@
                                             <h6 class="mb-0">{{$community->CommunityStatus->name}}</h6>
                                         </div>
                                     </li>
+                                    <li class="d-flex justify-content-start align-items-center text-info mb-3">
+                                        <i class="bx bx-user-voice bx-sm me-3"></i>
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1">Community Representative</small>
+                                            @if(count($communityRepresentative)>0)
+                                                @foreach($communityRepresentative as $representative)
+                                                <ul>
+                                                    <li>
+                                                        <span class="text-dark" style="font-size:12px">
+                                                            {{$representative->english_name}} 
+                                                            / {{$representative->role}} - 
+                                                            <span class="text-info"> 
+                                                                {{$representative->phone_number}}
+                                                            </span>
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -108,6 +157,66 @@
                     <div class="timeline-event-time">General </div>
                 </div>
             </li>
+            <li class="timeline-item mb-md-4 mb-5">
+                <span class="timeline-indicator timeline-indicator-danger" data-aos="zoom-in" data-aos-delay="200">
+                <i class="bx bx-error"></i>
+                </span>
+                <div class="timeline-event card p-0" data-aos="fade-left">
+                <div class="card-header border-0 d-flex justify-content-between">
+                    <h6 class="card-title mb-0">
+                        <span class="align-middle">
+                            {{$community->english_name}}
+                        </span>
+                    </h6>
+                </div>
+                <div class="card-body pb-0">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between 
+                            align-items-center ps-0 text-danger">
+                            <div>
+                                <i class="bx bx-error-alt"></i>
+                                <span># of Demolition Orders</span>
+                            </div>
+                            <div class="text-dark">
+                                {{$community->demolition_number}}
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between 
+                            align-items-center ps-0 text-danger">
+                            <div> 
+                                <i class="bx bx-block"></i>
+                                <span>Demolition legal status</span>
+                            </div>
+                            <div class="text-dark">
+                                {{$community->demolition_legal_status}}
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between 
+                            align-items-center ps-0 text-danger">
+                            <div>
+                                <i class="bx bx-calendar"></i>
+                                <span>Last demolition executed</span>
+                            </div>
+                            <div class="text-dark">
+                                {{$community->last_demolition}}
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between 
+                            align-items-center ps-0 text-danger">
+                            <div>
+                                <i class="bx bx-label"></i>
+                                <span>Lawyer</span>
+                            </div>
+                            <div class="text-dark">
+                                {{$community->lawyer}}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="timeline-event-time">Demolitions </div>
+                </div>
+            </li>
+
             <li class="timeline-item mb-md-4 mb-5"> 
                 <span class="timeline-indicator timeline-indicator-dark" 
                     data-aos="zoom-in" data-aos-delay="200">
@@ -138,24 +247,6 @@
                                                 {{$secondName->english_name}}
                                                 @endif
                                             </h6>
-                                        </div>
-                                    </li>
-                                    <li class="d-flex justify-content-start align-items-center text-info mb-3">
-                                        <i class="bx bx-user-voice bx-sm me-3"></i>
-                                        <div class="ps-3 border-start">
-                                            <small class="text-muted mb-1">Community Representative</small>
-                                            @if(count($communityRepresentative)>0)
-                                                @foreach($communityRepresentative as $representative)
-                                                <ul>
-                                                    <li>
-                                                        <span class="text-dark" style="font-size:12px">
-                                                            {{$representative->english_name}} 
-                                                            / {{$representative->role}}
-                                                        </span>
-                                                    </li>
-                                                </ul>
-                                                @endforeach
-                                            @endif
                                         </div>
                                     </li>
                                     <li class="d-flex justify-content-start align-items-center 
@@ -286,53 +377,168 @@
                                             </ul>
                                         </div>
                                     </li>
+                                    @if($schools || $neighboringTownSchool)
                                     <li class="d-flex justify-content-start align-items-center 
                                         text-success mb-3">
                                         <i class="bx bx-tab bx-sm me-3"></i>
+                                        @if($schools)
                                         <div class="ps-3 border-start">
-                                            <small class="text-muted mb-1">School</small>
+                                            <small class="text-muted mb-1">{{$schoolCommunity->english_name}}</small>
                                             <ul>
-                                                @if($community->school_town_id)
-                                                <li>
-                                                    <span class="text-success" style="font-size:12px">Students go to: </span>
-                                                    <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->SchoolTown->english_name}}
-                                                    </span>
-                                                </li>
-                                                @endif
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Students: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->school_students}}
+                                                        {{$schools->number_of_students}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Male Students: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->school_male}}
+                                                        {{$schools->number_of_boys}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Female Students: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->school_female}}
+                                                        {{$schools->number_of_girls}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Grade from: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->grade_from}}
+                                                        {{$schools->grade_from}}
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <span class="text-success" style="font-size:12px">Grade to: </span>
                                                     <span class="text-secondary" style="font-size:12px">
-                                                        {{$community->grade_to}}
+                                                        {{$schools->grade_to}}
                                                     </span>
                                                 </li>
                                             </ul>
                                         </div>
+                                        @endif
+
+                                        @if($neighboringTownSchool)
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1">{{$neighboringTownSchool->Town->english_name}} - Town</small>
+                                            <ul>
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringTownSchool->number_of_student_school}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Male Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringTownSchool->number_of_male}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Female Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringTownSchool->number_of_female}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Grade from: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringTownSchool->grade_from_school}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-success" style="font-size:12px">Grade to: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringTownSchool->grade_to_school}}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        @endif
                                     </li>
+                                    @endif
+                                    @if($neighboringCommunitySchool1 || $neighboringCommunitySchool2)
+                                    <li class="d-flex justify-content-start align-items-center 
+                                        text-warning mb-3">
+                                        <i class="bx bx-book-bookmark bx-sm me-3"></i>
+                                        @if($neighboringCommunitySchool1)
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1">{{$neighboringCommunitySchool1->PublicStructure->english_name}}</small>
+                                            <ul>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool1->number_of_student_school}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Male Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool1->number_of_male}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Female Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool1->number_of_female}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Grade from: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool1->grade_from_school}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Grade to: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool1->grade_to_school}}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        @endif
+
+                                        @if($neighboringCommunitySchool2)
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1">{{$neighboringCommunitySchool2->PublicStructure->english_name}} - Town</small>
+                                            <ul>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool2->number_of_student_school}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Male Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool2->number_of_male}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Female Students: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool2->number_of_female}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Grade from: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool2->grade_from_school}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span class="text-warning" style="font-size:12px">Grade to: </span>
+                                                    <span class="text-secondary" style="font-size:12px">
+                                                        {{$neighboringCommunitySchool2->grade_to_school}}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        @endif
+                                    </li>
+                                    @endif
                                 </ul>
                             </div>
                         </div>

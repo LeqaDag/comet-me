@@ -515,7 +515,6 @@
 </div>
 
 
-
 <div class="container mb-4">
     @php
         $userTypeId = 6;

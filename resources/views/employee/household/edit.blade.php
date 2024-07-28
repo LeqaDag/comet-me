@@ -401,6 +401,19 @@ label, table {
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How many caves?</label>
+                            @if(!$structure)
+                            <input type="number" name="number_of_cave" 
+                            class="form-control">
+                            @else
+                            <input type="number" name="number_of_cave" 
+                            value="{{$structure->number_of_cave}}"
+                            class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How many cisterns?</label>
                             @if(!$cistern)
                             <input type="number" name="number_of_cisterns" 

@@ -458,11 +458,25 @@
                 @endif
                 </ul>
             </li>
-            <li class="menu-item" id="water-system">
-                <a href="{{url('water-system')}}" class="menu-link" >
+            <li class="menu-item" id="water-system-tab">
+                <a class="menu-link menu-toggle">
                     <i class=""></i>
                     <div>Water System</div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="water-system">
+                        <a href="{{url('water-system')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>All water systems</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="water-log">
+                        <a href="{{url('water-log')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Water logframe</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             <li class="menu-item" id="internet-system-tab">
@@ -864,8 +878,14 @@
     } else if(last_part == "water-system") {
 
         $("#water-system").addClass("active");
+        $("#water-system-tab").addClass("open");
         $("#systems").addClass("open");
-    } else if(last_part == "internet-system") {
+    } else if(last_part == "water-log") {
+
+        $("#water-log").addClass("active");
+        $("#water-system-tab").addClass("open");
+        $("#systems").addClass("open");
+    } else  if(last_part == "internet-system") {
 
         $("#internet-system").addClass("active");
         $("#internet-system-tab").addClass("open");

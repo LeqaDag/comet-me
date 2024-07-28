@@ -18,14 +18,14 @@ label, table {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
                 </button>
-            </div>
+            </div> 
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' action="{{url('action-item')}}">
+                <form method="POST" enctype='multipart/form-data' action="{{url('room-grid')}}">
                     @csrf
                     <div class="row">
                         <input type="hidden" name="compound_id" value="{{$compoundsElecticityRoom->id}}">
                         <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
+                            <fieldset class="form-group"> 
                                 <label class='col-md-12 control-label'>Electricity Room</label>
                                 <select name="electricity_room" class="form-control">
                                     <option disabled selected>{{$compoundsElecticityRoom->electricity_room}}</option>

@@ -19,7 +19,7 @@ class CommunityRepresentative extends Model
     }
 
     public function Household()
-    {
+    { 
         
         return $this->belongsTo(Household::class, 'household_id', 'id');
     }

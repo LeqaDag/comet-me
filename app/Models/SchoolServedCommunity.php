@@ -5,11 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SchoolCommunity extends Model
+class SchoolServedCommunity extends Model
 {
     use HasFactory;
-
-    protected $fillable = ['community_id', 'public_structure_id'];
 
     public function Community()
     {
@@ -19,12 +17,6 @@ class SchoolCommunity extends Model
     public function PublicStructure()
     {
         
-        return $this->belongsTo(PublicStructure::class, 'school_public_structure_id', 'id');
-    }
-
-    public function Town()
-    {
-        
-        return $this->belongsTo(Town::class, 'town_id', 'id');
+        return $this->belongsTo(PublicStructure::class, 'public_structure_id', 'id');
     }
 }

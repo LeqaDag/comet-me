@@ -152,23 +152,6 @@ label {
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Products type</label>
-                                <select name="product_type_id" class="form-control">
-                                    @if($community->ProductType)
-                                        <option disabled selected>
-                                            {{$community->ProductType->name}}
-                                        </option>
-                                    @else
-                                        <option disabled selected>Choose one...</option>
-                                    @endif
-                                    @foreach($products as $product)
-                                        <option value="{{$product->id}}">{{$product->name}}</option>
-                                    @endforeach
-                                </select>
-                            </fieldset> 
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
-                            <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Fallah</label>
                                 <select name="is_fallah" class="form-control">
                                     <option disabled selected>{{$community->is_fallah}}</option>
@@ -530,9 +513,16 @@ label {
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>How Many Demolitions?</label>
+                                <label class='col-md-12 control-label'>How many Demolitions?</label>
                                 <input type="text" name="demolition_number" 
                                 value="{{$community->demolition_number}}" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Demolition Legal Status</label>
+                                <input type="text" name="demolition_legal_status" 
+                                class="form-control" value="{{$community->demolition_legal_status}}">
                             </fieldset>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
@@ -803,17 +793,6 @@ label {
                     </div>
                 </div>
 
-                <hr style="margin-top:30px">
-                <div class="row">
-                    <div class="col-xl-12 col-lg-12 col-md-12">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>
-                                <h5>Surveyed </h5> 
-                            </label>
-                        </fieldset>
-                    </div>
-                </div>
-
                 <hr style="margin-top:20px">
                 <div class="row" >
                     <h5>Educational "Kindergarten" Details</h5>
@@ -874,15 +853,234 @@ label {
                 <div class="row" id="schoolDetails">
                     <h5>Educational "School" Details</h5>
                 </div>
+
+                @if($schools)
+                <div class="row" style="margin-top:20px">
+                    <h6 class="text-info">{{$schoolCommunity->english_name}}</h6>
+                </div>
                 <div class="row">
-                    @if($community->school_town_id)
-                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1" id="schoolTown">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Where do students go for School?</label>
+                            <label class='col-md-12 control-label'>How Many Students?</label>
+                            <input type="number" name="number_of_students" class="form-control"
+                                value="{{$schools->number_of_students}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Male Students?</label>
+                            <input type="number" name="number_of_boys" class="form-control"
+                                value="{{$schools->number_of_boys}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Female Students?</label>
+                            <input type="number" name="number_of_girls" class="form-control"
+                                value="{{$schools->number_of_girls}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>From Grade?</label>
+                            <input type="number" name="grade_from_community" class="form-control"
+                                value="{{$schools->grade_from}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>To Grade?</label>
+                            <input type="number" name="grade_to_community" class="form-control"
+                                value="{{$schools->grade_to}}">
+                        </fieldset>
+                    </div>
+                </div>
+                @endif
+                
+                <div class="row" style="margin-top:30px">
+                    <h6 class="text-info">Do students attend schools in neighboring communities?</h6>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Neighboring school 1</label>
+                            <select name="neighboring_school1" class="selectpicker form-control"
+                                data-live-search="true">
+                                @if($neighboringCommunitySchool1)
+                                <option disabled selected>{{$neighboringCommunitySchool1->PublicStructure->english_name}}</option>
+                                @foreach($schoolCommunities as $schoolCommunity)
+                                <option value="{{$schoolCommunity->id}}">
+                                    {{$schoolCommunity->english_name}}
+                                </option>
+                                @endforeach
+                                @else
+                                <option disabled selected>Choose one...</option>
+                                @foreach($schoolCommunities as $schoolCommunity)
+                                <option value="{{$schoolCommunity->id}}">
+                                    {{$schoolCommunity->english_name}}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+           
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Students?</label>
+                            @if($neighboringCommunitySchool1)
+                            <input type="number" name="school_students1" class="form-control"
+                                value="{{$neighboringCommunitySchool1->number_of_student_school}}">
+                            @else 
+                            <input type="number" name="school_students1" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Male Students?</label>
+                            @if($neighboringCommunitySchool1)
+                            <input type="number" name="school_male1" class="form-control"
+                                value="{{$neighboringCommunitySchool1->number_of_male}}">
+                            @else 
+                            <input type="number" name="school_male1" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Female Students?</label>
+                            @if($neighboringCommunitySchool1)
+                            <input type="number" name="school_female1" class="form-control"
+                                value="{{$neighboringCommunitySchool1->number_of_female}}">
+                            @else 
+                            <input type="number" name="school_female1" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>From Grade?</label>
+                            @if($neighboringCommunitySchool1)
+                            <input type="number" name="grade_from_school1" class="form-control"
+                                value="{{$neighboringCommunitySchool1->grade_from_school}}">
+                            @else 
+                            <input type="number" name="grade_from_school1" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>To Grade?</label>
+                            @if($neighboringCommunitySchool1)
+                            <input type="number" name="grade_to_school1" class="form-control"
+                                value="{{$neighboringCommunitySchool1->grade_to_school}}">
+                            @else 
+                            <input type="number" name="grade_to_school1" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Neighboring school 2</label>
+                            <select name="neighboring_school2" class="selectpicker form-control"
+                                data-live-search="true">
+                                @if($neighboringCommunitySchool2)
+                                <option disabled selected>{{$neighboringCommunitySchool2->PublicStructure->english_name}}</option>
+                                @foreach($schoolCommunities as $schoolCommunity)
+                                <option value="{{$schoolCommunity->id}}">
+                                    {{$schoolCommunity->english_name}}
+                                </option>
+                                @endforeach
+                                @else
+                                <option disabled selected>Choose one...</option>
+                                @foreach($schoolCommunities as $schoolCommunity)
+                                <option value="{{$schoolCommunity->id}}">
+                                    {{$schoolCommunity->english_name}}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+           
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Students?</label>
+                            @if($neighboringCommunitySchool2)
+                            <input type="number" name="school_students2" class="form-control"
+                                value="{{$neighboringCommunitySchool2->number_of_student_school}}">
+                            @else 
+                            <input type="number" name="school_students2" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Male Students?</label>
+                            @if($neighboringCommunitySchool2)
+                            <input type="number" name="school_male2" class="form-control"
+                                value="{{$neighboringCommunitySchool2->number_of_male}}">
+                            @else 
+                            <input type="number" name="school_male2" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>How Many Female Students?</label>
+                            @if($neighboringCommunitySchool2)
+                            <input type="number" name="school_female2" class="form-control"
+                                value="{{$neighboringCommunitySchool2->number_of_female}}">
+                            @else 
+                            <input type="number" name="school_female2" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>From Grade?</label>
+                            @if($neighboringCommunitySchool2)
+                            <input type="number" name="grade_from_school2" class="form-control"
+                                value="{{$neighboringCommunitySchool2->grade_from_school}}">
+                            @else 
+                            <input type="number" name="grade_from_school2" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>To Grade?</label>
+                            @if($neighboringCommunitySchool2)
+                            <input type="number" name="grade_to_school2" class="form-control"
+                                value="{{$neighboringCommunitySchool2->grade_to_school}}">
+                            @else 
+                            <input type="number" name="grade_to_school2" class="form-control">
+                            @endif
+                        </fieldset>
+                    </div>
+                </div>
+            
+
+                <div class="row" style="margin-top:30px">
+                    <h6 class="text-info">Do students attend schools in neighboring town?</h6>
+                </div>
+                <div class="row">
+                    
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Neighboring town</label>
                             <select name="school_town_id" class="selectpicker form-control"
                                 data-live-search="true">
-                                @if($community->school_town_id)
-                                <option disabled selected>{{$community->SchoolTown->english_name}}</option>
+                                @if($neighboringTownSchool)
+                                <option disabled selected>{{$neighboringTownSchool->Town->english_name}}</option>
+                                @foreach($towns as $town)
+                                <option value="{{$town->id}}">
+                                    {{$town->english_name}}
+                                </option>
+                                @endforeach
                                 @else
                                 <option disabled selected>Choose one...</option>
                                 @foreach($towns as $town)
@@ -894,71 +1092,75 @@ label {
                             </select>
                         </fieldset>
                     </div>
-                    @else
-                    
-                    <div class="col-xl-4 col-lg-4 col-md-4">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Is there a school in the community?</label>
-                            <select name="is_school" id="isSchool" class="selectpicker form-control">
-                                <option disabled selected>Choose one...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1" id="schoolTown" style="visibility:none; display:none">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Where do students go for School?</label>
-                            <select name="school_town_id" class="selectpicker form-control"
-                                data-live-search="true">
-                                <option disabled selected>Choose one...</option>
-                                @foreach($towns as $town)
-                                <option value="{{$town->id}}">
-                                    {{$town->english_name}}
-                                </option>
-                                @endforeach
-                            </select>
-                        </fieldset>
-                    </div>
-                    @endif
+           
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How Many Students?</label>
-                            <input type="number" name="school_students" class="form-control"
-                                value="{{$community->school_students}}">
+                            @if($neighboringTownSchool)
+                            <input type="number" name="school_students_town" class="form-control"
+                                value="{{$neighboringTownSchool->number_of_student_school}}">
+                            @else 
+                            <input type="number" name="school_students_town" class="form-control">
+                            @endif
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How Many Male Students?</label>
-                            <input type="number" name="school_male" class="form-control"
-                                value="{{$community->school_male}}">
+                            @if($neighboringTownSchool)
+                            <input type="number" name="number_of_male" class="form-control"
+                                value="{{$neighboringTownSchool->number_of_male}}">
+                            @else 
+                            <input type="number" name="number_of_male" class="form-control">
+                            @endif
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>How Many Female Students?</label>
-                            <input type="number" name="school_female" class="form-control"
-                                value="{{$community->school_female}}">
+                            @if($neighboringTownSchool)
+                            <input type="number" name="number_of_female" class="form-control"
+                                value="{{$neighboringTownSchool->number_of_female}}">
+                            @else 
+                            <input type="number" name="number_of_female" class="form-control">
+                            @endif
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>From Grade?</label>
-                            <input type="number" name="grade_from" class="form-control"
-                                value="{{$community->grade_from}}">
+                            @if($neighboringTownSchool)
+                            <input type="number" name="grade_from_school" class="form-control"
+                                value="{{$neighboringTownSchool->grade_from_school}}">
+                            @else 
+                            <input type="number" name="grade_from_school" class="form-control">
+                            @endif
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>To Grade?</label>
-                            <input type="number" name="grade_to" class="form-control"
-                                value="{{$community->grade_to}}">
+                            @if($neighboringTownSchool)
+                            <input type="number" name="grade_to_school" class="form-control"
+                                value="{{$neighboringTownSchool->grade_to_school}}">
+                            @else 
+                            <input type="number" name="grade_to_school" class="form-control">
+                            @endif
                         </fieldset>
                     </div>
                 </div>
-            
-                <hr style="margin-top:20px">
+
+
+                <hr style="margin-top:30px">
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>
+                                <h5>Surveyed </h5> 
+                            </label>
+                        </fieldset>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
@@ -1015,21 +1217,6 @@ label {
 
             $("#kindergartenTown").css("visibility", "none");
             $("#kindergartenTown").css('display', 'none');
-        }
-    });
-
-    $(document).on('change', '#isSchool', function () {
-
-        SchoolFlag = $(this).val();
-
-        if(SchoolFlag == "no") {
-
-            $("#schoolTown").css("visibility", "visible");
-            $("#schoolTown").css('display', 'block');
-        } else if(SchoolFlag == "yes"){
-
-            $("#schoolTown").css("visibility", "none");
-            $("#schoolTown").css('display', 'none');
         }
     });
 

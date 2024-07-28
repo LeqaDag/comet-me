@@ -39,6 +39,7 @@ use App\Models\GridCommunityCompound;
 use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
+use App\Models\SchoolCommunity;
 use App\Exports\CommunityExport;
 use App\Models\NearbySettlement;
 use App\Models\NearbyTown;
@@ -912,7 +913,7 @@ class CommunityController extends Controller
             ->join('households', 'community_representatives.household_id', '=', 'households.id')
             ->join('community_roles', 'community_representatives.community_role_id', '=', 'community_roles.id')
             ->where('community_representatives.community_id', $community->id)
-            ->select('households.english_name', 'community_roles.role')
+            ->select('households.english_name', 'community_roles.role', 'households.phone_number')
             ->get();
 
         $secondName = SecondNameCommunity::where('community_id', $id)->first();
@@ -973,11 +974,76 @@ class CommunityController extends Controller
             ->select('product_types.name')
             ->get();
 
+        $totalSchoolStudents = DB::table('households')
+            ->join('communities', 'communities.id', 'households.community_id')
+            ->where('households.is_archived', 0)
+            ->where('community_id', $community->id)
+            ->selectRaw('SUM(households.school_students) AS total_school')
+            ->first();
+
+        $totalUnivesrityStudents = DB::table('households')
+            ->join('communities', 'communities.id', 'households.community_id')
+            ->where('households.is_archived', 0)
+            ->where('community_id', $community->id)
+            ->selectRaw('SUM(households.university_students) AS total_university')
+            ->first();
+
+        $totalAdults = DB::table('households')
+            ->join('communities', 'communities.id', 'households.community_id')
+            ->where('households.is_archived', 0)
+            ->where('community_id', $community->id)
+            ->selectRaw('SUM(households.number_of_adults) AS total_adult')
+            ->first();
+
+        $totalChildren = DB::table('households')
+            ->join('communities', 'communities.id', 'households.community_id')
+            ->where('households.is_archived', 0)
+            ->where('community_id', $community->id)
+            ->selectRaw('SUM(households.number_of_children) AS total_children')
+            ->first();
+
+        $schools = null;
+        $neighboringCommunitySchool1 = null;
+        $neighboringCommunitySchool2 = null;
+        $neighboringTownSchool = null;
+
+        $schoolCommunity = PublicStructure::where("community_id", $id)
+            ->where('public_structure_category_id1', 1)
+            ->orWhere('public_structure_category_id2', 1)
+            ->orWhere('public_structure_category_id3', 1)
+            ->first();
+
+        if($schoolCommunity) $schools = SchoolPublicStructure::where("public_structure_id", $schoolCommunity->id)->first();
+
+        $neighboringCommunitySchools = SchoolCommunity::where("community_id", $id)
+            ->whereNull("town_id")
+            ->get();
+       
+        if($neighboringCommunitySchools->count() == 1) {
+
+            $neighboringCommunitySchool1 = $neighboringCommunitySchools->first();
+            $neighboringCommunitySchool2 = null;
+        } else if($neighboringCommunitySchools->count() > 1) {
+
+            $neighboringCommunitySchool1 = $neighboringCommunitySchools->first();
+            $neighboringCommunitySchool2 = $neighboringCommunitySchools->get(1);
+        } else {
+
+            $neighboringCommunitySchool1 = null;
+            $neighboringCommunitySchool2 = null;
+        } 
+
+        $neighboringTownSchool = SchoolCommunity::where("community_id", $id)
+            ->where("town_id", "!=", NULL)
+            ->first();
+
         return view('employee.community.show', compact('community', 'energyDonors', 'waterDonors',
             'internetDonors', 'nearbySettlements', 'totalMeters', 'communityWaterSources',
             'totalWaterHolders', 'gridLarge', 'gridSmall', 'internetHolders', 'secondName',
             'communityRepresentative', 'publicStructures', 'compounds', 'nearbyTowns', 'photos',
-            'communityProductTypes'));
+            'communityProductTypes', 'totalSchoolStudents', 'totalUnivesrityStudents', 'totalAdults',
+            'totalChildren', 'schools', 'neighboringCommunitySchool1', 'neighboringCommunitySchool2', 
+            'neighboringTownSchool', 'schoolCommunity'));
     }
 
     /**
@@ -1084,11 +1150,54 @@ class CommunityController extends Controller
             ->orderBy('english_name', 'ASC')
             ->get();
 
+        $schoolCommunity = PublicStructure::where("community_id", $id)
+            ->where('public_structure_category_id1', 1)
+            ->orWhere('public_structure_category_id2', 1)
+            ->orWhere('public_structure_category_id3', 1)
+            ->first();
+
+        $schools = null;
+        $neighboringCommunitySchool1 = null;
+        $neighboringCommunitySchool2 = null;
+        $neighboringTownSchool = null;
+
+        $schoolCommunities = PublicStructure::where("is_archived", 0)
+            ->where("community_id", '!=', $id)
+            ->where('public_structure_category_id1', 1)
+            ->orWhere('public_structure_category_id2', 1)
+            ->orWhere('public_structure_category_id3', 1)
+            ->get();
+
+        if($schoolCommunity) $schools = SchoolPublicStructure::where("public_structure_id", $schoolCommunity->id)->first();
+
+        $neighboringCommunitySchools = SchoolCommunity::where("community_id", $id)
+            ->whereNull("town_id")
+            ->get();
+       
+        if($neighboringCommunitySchools->count() == 1) {
+
+            $neighboringCommunitySchool1 = $neighboringCommunitySchools->first();
+            $neighboringCommunitySchool2 = null;
+        } else if($neighboringCommunitySchools->count() > 1) {
+
+            $neighboringCommunitySchool1 = $neighboringCommunitySchools->first();
+            $neighboringCommunitySchool2 = $neighboringCommunitySchools->get(1);
+        } else {
+
+            $neighboringCommunitySchool1 = null;
+            $neighboringCommunitySchool2 = null;
+        }
+
+        $neighboringTownSchool = SchoolCommunity::where("community_id", $id)
+            ->where("town_id", "!=", NULL)
+            ->first();
+
         return view('employee.community.edit', compact('community', 'products', 
             'communityStatuses', 'regions', 'subRegions', 'secondName', 'compounds',
             'recommendedEnergySystems', 'energySystemTypes', 'energyCycles', 'waterSources',
-            'communityWaterSources', 'communityNearbyTowns', 'towns', 'settlements',
-            'communityNearbySettlements', 'communityProductTypes'));
+            'communityWaterSources', 'communityNearbyTowns', 'towns', 'settlements', 'schoolCommunities',
+            'communityNearbySettlements', 'communityProductTypes', 'schools', 'schoolCommunity',
+            'neighboringTownSchool', 'neighboringCommunitySchool1', 'neighboringCommunitySchool2'));
     }
 
     /**
@@ -1242,50 +1351,116 @@ class CommunityController extends Controller
             $lastCommunity->save(); 
         }
 
-        if($request->is_school == "yes") {
+        $schoolPublic = PublicStructure::where('is_archived', 0)
+            ->where("community_id", $id)
+            ->where('public_structure_category_id1', 1)
+            ->orWhere('public_structure_category_id2', 1)
+            ->orWhere('public_structure_category_id3', 1)
+            ->first();
 
-            $publicStructureSchool = PublicStructure::where('is_archived', 0)
-                ->where('community_id', $id)
-                ->where('public_structure_category_id1', 1)
-                ->orWhere('public_structure_category_id2', 1)
-                ->orWhere('public_structure_category_id3', 1)
-                ->first();
-                
-            if($publicStructureSchool) {
+        if($schoolPublic) {
 
-                $newPublicSchool = SchoolPublicStructure::where('is_archived', 0)
-                    ->where('public_structure_id', $publicStructureSchool->id)
-                    ->first();
-
-                if($newPublicSchool) {
-
-                    $newPublicSchool->number_of_students = $request->school_students; 
-                    $newPublicSchool->number_of_boys = $request->school_male; 
-                    $newPublicSchool->number_of_girls = $request->school_female; 
-                    $newPublicSchool->grade_from = $request->grade_from; 
-                    $newPublicSchool->grade_to = $request->grade_to;  
-                    $newPublicSchool->save();
-                }
-            }
-
-            if($request->school_students) $lastCommunity->school_students = $request->school_students; 
-            if($request->school_male) $lastCommunity->school_male = $request->school_male; 
-            if($request->school_female) $lastCommunity->school_female = $request->school_female; 
-            if($request->grade_from) $lastCommunity->grade_from = $request->grade_from; 
-            if($request->grade_to) $lastCommunity->grade_to = $request->grade_to;  
-            $lastCommunity->save();
-
-        } else if($request->is_school == "no") {
-            
-            if($request->school_town_id) $lastCommunity->school_town_id = $request->school_town_id; 
-            if($request->school_students) $lastCommunity->school_students = $request->school_students; 
-            if($request->school_male) $lastCommunity->school_male = $request->school_male; 
-            if($request->school_female) $lastCommunity->school_female = $request->school_female; 
-            if($request->grade_from) $lastCommunity->grade_from = $request->grade_from; 
-            if($request->grade_to) $lastCommunity->grade_to = $request->grade_to;  
-            $lastCommunity->save(); 
+            $school = SchoolPublicStructure::where("public_structure_id", $schoolPublic->id)->first();
+            if($request->number_of_students) $school->number_of_students = $request->number_of_students;
+            if($request->number_of_boys) $school->number_of_boys = $request->number_of_boys;
+            if($request->number_of_girls) $school->number_of_girls = $request->number_of_girls;
+            if($request->grade_from_community) $school->grade_from = $request->grade_from_community;
+            if($request->grade_to_community) $school->grade_to = $request->grade_to_community;
+            $school->save();
         }
 
+        $neighboringCommunitySchool1 = null;
+        $neighboringCommunitySchool2 = null;
+
+        $neighboringCommunitySchools = SchoolCommunity::where("community_id", $id)
+            ->whereNull("town_id")
+            ->get();
+    
+        if($neighboringCommunitySchools->count() == 1) {
+
+            $neighboringCommunitySchool1 = $neighboringCommunitySchools->first();
+            $neighboringCommunitySchool2 = null;
+        } else if($neighboringCommunitySchools->count() > 1) {
+
+            $neighboringCommunitySchool1 = $neighboringCommunitySchools->first();
+            $neighboringCommunitySchool2 = $neighboringCommunitySchools->get(1);
+        } else {
+
+            $neighboringCommunitySchool1 = null;
+            $neighboringCommunitySchool2 = null;
+        }
+
+        if($neighboringCommunitySchool1) {
+
+            if($request->neighboring_school1) $neighboringCommunitySchool1->school_public_structure_id = $request->neighboring_school1;
+            if($request->school_students1) $neighboringCommunitySchool1->number_of_student_school = $request->school_students1;
+            if($request->school_male1) $neighboringCommunitySchool1->number_of_male = $request->school_male1;
+            if($request->school_female1) $neighboringCommunitySchool1->number_of_female = $request->school_female1;
+            if($request->grade_from_school1) $neighboringCommunitySchool1->grade_from_school = $request->grade_from_school1;
+            if($request->grade_to_school1) $neighboringCommunitySchool1->grade_to_school = $request->grade_to_school1;
+            $neighboringCommunitySchool1->save();
+        } else {
+
+            $neighboringCommunitySchool1 = new SchoolCommunity();
+            $neighboringCommunitySchool1->community_id = $id;
+            if($request->neighboring_school1) {
+                $neighboringCommunitySchool1->school_public_structure_id = $request->neighboring_school1;
+                if($request->school_students1) $neighboringCommunitySchool1->number_of_student_school = $request->school_students1;
+                if($request->school_male1) $neighboringCommunitySchool1->number_of_male = $request->school_male1;
+                if($request->school_female1) $neighboringCommunitySchool1->number_of_female = $request->school_female1;
+                if($request->grade_from_school1) $neighboringCommunitySchool1->grade_from_school = $request->grade_from_school1;
+                if($request->grade_to_school1) $neighboringCommunitySchool1->grade_to_school = $request->grade_to_school1;
+                $neighboringCommunitySchool1->save();
+            }
+        }
+
+        if($neighboringCommunitySchool2) {
+
+            if($request->neighboring_school2) $neighboringCommunitySchool2->school_public_structure_id = $request->neighboring_school2;
+            if($request->school_students2) $neighboringCommunitySchool2->number_of_student_school = $request->school_students2;
+            if($request->school_male2) $neighboringCommunitySchool2->number_of_male = $request->school_male2;
+            if($request->school_female2) $neighboringCommunitySchool2->number_of_female = $request->school_female2;
+            if($request->grade_from_school2) $neighboringCommunitySchool2->grade_from_school = $request->grade_from_school2;
+            if($request->grade_to_school2) $neighboringCommunitySchool2->grade_to_school = $request->grade_to_school2;
+            $neighboringCommunitySchool2->save();
+        } else {
+
+            $neighboringCommunitySchool2 = new SchoolCommunity();
+            $neighboringCommunitySchool2->community_id = $id;
+            if($request->neighboring_school2) {
+                $neighboringCommunitySchool2->school_public_structure_id = $request->neighboring_school2;
+                if($request->school_students2) $neighboringCommunitySchool2->number_of_student_school = $request->school_students2;
+                if($request->school_male2) $neighboringCommunitySchool2->number_of_male = $request->school_male2;
+                if($request->school_female2) $neighboringCommunitySchool2->number_of_female = $request->school_female2;
+                if($request->grade_from_school2) $neighboringCommunitySchool2->grade_from_school = $request->grade_from_school2;
+                if($request->grade_to_school2) $neighboringCommunitySchool2->grade_to_school = $request->grade_to_school2;
+                $neighboringCommunitySchool2->save();
+            }
+        }
+
+        $neighboringTownSchool = SchoolCommunity::where("community_id", $id)->where("town_id", "!=", null)->first();
+        if($neighboringTownSchool) {
+
+            $neighboringTownSchool->number_of_student_school = $request->school_students_town;
+            $neighboringTownSchool->number_of_male = $request->number_of_male;
+            $neighboringTownSchool->number_of_female = $request->number_of_female;
+            $neighboringTownSchool->grade_from_school = $request->grade_from_school;
+            $neighboringTownSchool->grade_to_school = $request->grade_to_school;
+            $neighboringTownSchool->save();
+        } else {
+
+            $neighboringTown = new SchoolCommunity();
+            $neighboringTown->community_id = $id;
+            if($request->school_town_id) {
+                $neighboringTown->town_id = $request->school_town_id;
+                $neighboringTown->number_of_student_school = $request->school_students_town;
+                $neighboringTown->number_of_male = $request->number_of_male;
+                $neighboringTown->number_of_female = $request->number_of_female;
+                $neighboringTown->grade_from_school = $request->grade_from_school;
+                $neighboringTown->grade_to_school = $request->grade_to_school;
+                $neighboringTown->save();
+            }
+        }
 
         if($request->waters) {
             for($i=0; $i < count($request->waters); $i++) {

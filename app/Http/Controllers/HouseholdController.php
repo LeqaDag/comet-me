@@ -235,6 +235,9 @@ class HouseholdController extends Controller
                         else if($row->status == "On Hold") 
                         $statusLabel = "<span class='badge rounded-pill bg-label-secondary'>".$row->status."</span>";
 
+                        else if($row->status == "Left") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
+                        
                         return $statusLabel;
                     })
                     ->addColumn('checkStatus', function($row) {
@@ -385,6 +388,7 @@ class HouseholdController extends Controller
         $newStructure->number_of_structures = $request->number_of_structures;
         $newStructure->number_of_kitchens = $request->number_of_kitchens;
         $newStructure->number_of_animal_shelters = $request->number_of_animal_shelters;
+        $newStructure->number_of_cave = $request->number_of_cave;
         $newStructure->household_id = $id;
         $newStructure->save();
         
@@ -986,6 +990,7 @@ class HouseholdController extends Controller
             $newStructure->number_of_structures = $request->number_of_structures;
             $newStructure->number_of_kitchens = $request->number_of_kitchens;
             $newStructure->number_of_animal_shelters = $request->number_of_animal_shelters;
+            $newStructure->number_of_cave = $request->number_of_cave;
             $newStructure->household_id = $id;
             $newStructure->save();
         } else {
@@ -993,6 +998,7 @@ class HouseholdController extends Controller
             $structure->number_of_structures = $request->number_of_structures;
             $structure->number_of_kitchens = $request->number_of_kitchens;
             $structure->number_of_animal_shelters = $request->number_of_animal_shelters;
+            $structure->number_of_cave = $request->number_of_cave;
             $structure->household_id = $id;
             $structure->save();
         }
@@ -1021,7 +1027,7 @@ class HouseholdController extends Controller
             ->with('message', 'Household Updated Successfully!');
     }
 
-    /**
+    /** 
      * 
      * @return \Illuminate\Support\Collection
      */

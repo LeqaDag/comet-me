@@ -69,6 +69,13 @@
                                                         <h6 class="mb-0" id="numberOfAdultsHousehold"></h6>
                                                     </div>
                                                 </li>
+                                                <li class="d-flex justify-content-start align-items-center text-danger mb-3">
+                                                    <i class="bx bx-book-bookmark bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">Univesrity students</small>
+                                                        <h6 class="mb-0" id="numberOfUniversityStudents"></h6>
+                                                    </div>
+                                                </li>
                                                 <li class="d-flex justify-content-start align-items-center text-success mb-3">
                                                     <i class="bx bx-store bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
@@ -106,6 +113,13 @@
                                                     <div class="ps-3 border-start">
                                                         <small class="text-muted mb-1">Children</small>
                                                         <h6 class="mb-0" id="numberOfChildrenHousehold"></h6>
+                                                    </div>
+                                                </li>
+                                                <li class="d-flex justify-content-start align-items-center text-dark mb-3">
+                                                    <i class="bx bx-book-open bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">School students</small>
+                                                        <h6 class="mb-0" id="numberOfSchoolStudents"></h6>
                                                     </div>
                                                 </li>
                                                 <li class="d-flex justify-content-start align-items-center text-warning mb-3">
@@ -236,6 +250,13 @@
                                                     <div class="ps-3 border-start">
                                                         <small class="text-muted mb-1"># of kitchens</small>
                                                         <h6 class="mb-0" id="numberOfkitchens"></h6>
+                                                    </div>
+                                                </li>
+                                                <li class="d-flex justify-content-start align-items-center text-dark mb-3">
+                                                    <i class="bx bx-cube bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1"># of Caves</small>
+                                                        <h6 class="mb-0" id="numberOfCaves"></h6>
                                                     </div>
                                                 </li>
                                                 <li class="d-flex justify-content-start align-items-center text-success mb-3">
