@@ -17,7 +17,7 @@ class AllEnergyMeterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request) 
     {	
         $data = DB::table('all_energy_meters')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
@@ -30,6 +30,8 @@ class AllEnergyMeterController extends Controller
                 'all_energy_meters.id')
             ->leftJoin('households as shared_households', 'shared_households.id', 
                 'household_meters.household_id')
+            ->leftJoin('internet_users as internet_household', 'households.id', 'internet_household.household_id')
+            ->leftJoin('internet_users as internet_public', 'public_structures.id', 'internet_public.public_structure_id')
             ->where('all_energy_meters.is_archived', 0)
             ->select(
                 'communities.english_name as english_community_name',
@@ -41,7 +43,12 @@ class AllEnergyMeterController extends Controller
                 'households.phone_number', 'households.energy_system_status',
                 'all_energy_meters.meter_number', 'energy_system_types.name as energy_type',
                 'meter_cases.meter_case_name_english as meter_case', 'all_energy_meters.is_main',
-                'households.water_system_status', 'households.internet_system_status')
+                'households.water_system_status', 'households.internet_system_status',
+                DB::raw('IFNULL(internet_household.is_ppp, 0) as is_ppp'),
+                DB::raw('IFNULL(internet_household.is_hotspot, 0) as is_hotspot'),
+                DB::raw('IFNULL(internet_public.is_ppp, 0) as is_public_ppp'),
+                DB::raw('IFNULL(internet_public.is_hotspot, 0) as is_public_hotspot')
+                )
             ->get(); 
 
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);

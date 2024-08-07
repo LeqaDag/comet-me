@@ -45,6 +45,7 @@ use App\Models\MovedHousehold;
 use App\Models\GridSharedUser;
 use App\Exports\HouseholdExport;
 use App\Exports\MissingHouseholdExport;
+use App\Imports\ImportHousehold;
 use Carbon\Carbon;
 use DataTables;
 use mikehaertl\wkhtmlto\Pdf;
@@ -1025,6 +1026,17 @@ class HouseholdController extends Controller
         
         return redirect('/household')
             ->with('message', 'Household Updated Successfully!');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function import(Request $request)
+    {
+        Excel::import(new ImportHousehold, $request->file('file')); 
+            
+        return back()->with('success', 'Household Data Imported Successfully.');
     }
 
     /** 

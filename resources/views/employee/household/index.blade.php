@@ -436,6 +436,27 @@ All<span class="text-muted fw-light"> Households</span>
                     </p>
                 </div>
             @endif
+
+            @if(Auth::guard('user')->user()->user_type_id ==1 )
+            <div>
+                <form action="{{route('household.import')}}" method="POST" 
+                    enctype="multipart/form-data">
+                    @csrf 
+                    <div class="row"> 
+                        <div class="col-xl-5 col-lg-5 col-md-5">
+                            <fieldset class="form-group">
+                                <input name="file" type="file"
+                                    class="form-control" required>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <button class="btn btn-success" type="submit">Import File</button>
+                        </div>
+                    </div>
+                </form>
+            <div>
+            @endif
+            
             <table id="householdsTable" 
                 class="table table-striped data-table-households my-2">
                 <thead>

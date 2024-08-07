@@ -22,7 +22,7 @@ use App\Models\ElectricityMaintenanceCall;
 use App\Models\ElectricityMaintenanceCallAction;
 use App\Models\EnergyMaintenanceAction;
 use App\Models\EnergyMaintenanceIssue;
-use App\Models\EnergyTurbineCommunity;
+use App\Models\EnergyTurbineCommunity; 
 use App\Models\EnergyGeneratorCommunity;
 use App\Models\EnergyMaintenanceIssueType; 
 use App\Models\ElectricityMaintenanceCallUser;

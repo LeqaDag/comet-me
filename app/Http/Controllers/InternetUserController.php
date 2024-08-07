@@ -18,7 +18,7 @@ use App\Models\InternetClusterCommunity;
 use App\Models\InternetUser; 
 use App\Models\InternetUserDonor;
 use App\Models\InternetMetric;
-use App\Models\InternetMetricCluster;
+use App\Models\InternetMetricCluster; 
 use App\Models\Household;
 use App\Models\Region; 
 use Illuminate\Support\Facades\Http;

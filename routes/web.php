@@ -503,3 +503,5 @@ Route::resource('water-log', App\Http\Controllers\WaterSystemLogFrameController:
 Route::post('water-log-export', [App\Http\Controllers\WaterSystemLogFrameController::class, 'export'])->name('water-log.export');
 Route::get('/delete-log', [App\Http\Controllers\WaterSystemLogFrameController::class, 'deleteWaterLog'])->name('deleteWaterLog');
 Route::get('water-log/{id}/editpage', [App\Http\Controllers\WaterSystemLogFrameController::class, 'editPage']);
+
+Route::post('household-import', [App\Http\Controllers\HouseholdController::class, 'import'])->name('household.import');
