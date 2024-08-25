@@ -78,7 +78,7 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
     }
 
     public function title(): string
-    {
+    { 
         return 'Requested Households MISC';
     }
 

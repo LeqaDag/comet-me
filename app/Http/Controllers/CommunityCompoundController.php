@@ -107,7 +107,8 @@ class CommunityCompoundController extends Controller
                         'households.id')
                     ->join('compounds', 'compound_households.compound_id', 
                         'compounds.id') 
-                    ->where('compound_households.is_archived', 0);
+                    ->where('compound_households.is_archived', 0)
+                    ->where('households.is_archived', 0);
     
                 if($communityFilter != null) {
 

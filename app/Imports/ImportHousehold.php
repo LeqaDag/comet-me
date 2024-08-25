@@ -38,7 +38,7 @@ class ImportHousehold implements ToModel, WithHeadingRow
         // Get the community from it's english name. 
         // $community = Community::where("english_name", $row["community"])->first();
 
-        $community = Community::where("english_name", "Khirbet Yarza")->first();
+        $community = Community::where("english_name", "Khirbet Atuf")->first();
 
         if($community) {
 

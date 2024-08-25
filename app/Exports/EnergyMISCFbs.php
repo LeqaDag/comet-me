@@ -20,24 +20,25 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
     function __construct($request) {
         $this->request = $request;
     }
- 
+  
     /**
     * @return \Illuminate\Support\Collection
     */
     public function collection()    
     {
         $query = DB::table('all_energy_meters')
-            ->join('households', 'households.id', 'all_energy_meters.id')
-            ->join('communities', 'households.community_id', 'communities.id')
+            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+            ->join('households', 'households.id', 'all_energy_meters.household_id')
             ->leftJoin('household_statuses', 'households.household_status_id', 
                 'household_statuses.id')
-            ->where('households.is_archived', 0)
+            ->where('all_energy_meters.is_archived', 0)
             ->where('all_energy_meters.energy_system_type_id', 2)
-            ->where('households.energy_system_cycle_id', '!=', null)
+            ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
             ->select(
                 'households.english_name as household',
                 'communities.english_name as community_name', 
                 'household_statuses.status as status', 
+                'all_energy_meters.meter_number',
                 'households.number_of_male', 'households.number_of_female', 
                 'households.number_of_adults', 'households.number_of_children', 
                 'households.phone_number');
@@ -50,10 +51,9 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
 
         if($this->request->energy_cycle_id) {
 
-            $query->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
+            $query->where("all_energy_meters.energy_system_cycle_id", $this->request->energy_cycle_id);
         }
 
-        die($query->get());
         return $query->get();
     } 
 
@@ -64,7 +64,7 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
      */
     public function headings(): array
     {
-        return ["Household", "Community", "Status", "Number of male", "Number of Female", "Number of adults", 
+        return ["Household", "Community", "Status", "Meter Number", "Number of male", "Number of Female", "Number of adults", 
             "Number of children", "Phone number"];
     }
 

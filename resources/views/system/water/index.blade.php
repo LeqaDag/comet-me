@@ -5,7 +5,7 @@
 @include('layouts.all')
 
 @section('content')
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <p>
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseWaterSystemVisualData" 
         role="button" aria-expanded="false" aria-controls="collapseWaterSystemVisualData">
@@ -77,6 +77,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 
 @include('system.water.show')
+@include('system.water.system_holder')
 
 <script type="text/javascript">
 
@@ -92,7 +93,7 @@
                 }
             },
             columns: [
-                {data: 'name', name: 'name'},
+                {data: 'systemName'},
                 {data: 'type', name: 'type'},
                 {data: 'description', name: 'description'},
                 {data: 'year', name: 'year'},
@@ -117,6 +118,73 @@
             );
         } 
     });
+
+     // View record details
+     $('#systemWaterTable').on('click', '.getWaterHolders',function() {
+        var id = $(this).data('id');
+    
+        // AJAX request
+        $.ajax({
+            url: 'water-system/getHolders/' + id,
+            type: 'get',
+            dataType: 'json', 
+            success: function(response) { 
+
+                $("#waterSystemId").val(response['waterSystem'].id);
+                $("#exportingDiv").css("visibility", "visible");
+                $("#exportingDiv").css("display", "block");
+                if(response['waterSystem'].id == 4) {
+
+                    $("#exportingDiv").css("visibility", "hidden");
+                    $("#exportingDiv").css("display", "none");
+                }
+                $('#systemModalTitle').html(" ");
+                $('#systemModalTitle').html(response['waterSystem'].name);
+                $('#systemHoldersTable tbody').html(" ");
+
+                var data = response['data'];
+
+                $.each(data, function(index, d) {
+                    $('#systemHoldersTable tbody').append(
+                        '<tr>' +
+                            '<td>' + d.community + '</td>' +
+                            '<td>' + d.total_number_of_holders + '</td>' +
+                        '</tr>'
+                    );
+                });
+            }
+        });
+    }); 
+
+    // Export the water holders
+    // $('#systemWaterTable').on('click', '.exportWaterHolders', function() {
+    //     var id = $(this).data('id');
+
+    //     $.ajaxSetup({
+    //         headers: {
+    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //         }
+    //     });
+
+    //     // AJAX request
+    //     $.ajax({
+    //         url: 'water-system/export',
+    //         type: 'get',  
+    //         data: { id: id },  
+    //         dataType: 'json', 
+    //         success: function(response) { 
+    //             Swal.fire({
+    //                 icon: 'success',
+    //                 title: 'Exporting the system holders!',
+    //                 showDenyButton: false,
+    //                 showCancelButton: false,
+    //                 confirmButtonText: 'Okay!'
+    //             }).then((result) => {
+    //                 $('#systemWaterTable').DataTable().draw();
+    //             });
+    //         },
+    //     });   
+    // });
 
     // Delete record
     $('#systemWaterTable').on('click', '.deleteWaterSystem',function() {

@@ -34,10 +34,15 @@ use App\Models\WaterSystemType;
 use App\Models\H2oSystemIncident;
 use App\Models\Incident;
 use App\Models\IncidentStatus;
+use App\Exports\Water\OldSystemHolders;
+use App\Exports\Water\GridLargeHolders;
+use App\Exports\Water\GridSmallHolders;
+use App\Exports\Water\NetworkHolders;
 use Auth;
 use DB;
 use Route;
 use DataTables;
+use Excel;
 
 class WaterSystemController extends Controller
 { 
@@ -78,6 +83,13 @@ class WaterSystemController extends Controller
                             return $viewButton." ". $updateButton." ".$deleteButton;
                         } else return $viewButton;
                     })
+                    ->addColumn('systemName', function($row) {
+
+                        $systemName = "";
+                        $systemName = "<a type='button' class='getWaterHolders text-info' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#waterSystemHolderModal' >". $row->name ."</a>";
+
+                        return $systemName;
+                    })
                    
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -90,7 +102,7 @@ class WaterSystemController extends Controller
                             });
                         }
                     })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'systemName'])
                 ->make(true);
             }
     
@@ -485,5 +497,109 @@ class WaterSystemController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * Get the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getWaterHolders($id)
+    {
+        $waterSystem = WaterSystem::findOrFail($id);
+        $data = null;
+
+        if($id == 1) {
+
+            $data = DB::table('all_water_holders')
+                ->join('communities', 'all_water_holders.community_id', 'communities.id')
+                ->leftJoin('h2o_public_structures', 'all_water_holders.public_structure_id', 
+                    'h2o_public_structures.public_structure_id')
+                ->leftJoin('h2o_users', 'h2o_users.household_id', 'all_water_holders.household_id')
+                ->join('h2o_statuses', 'h2o_users.h2o_status_id', 'h2o_statuses.id')
+                ->select(
+                    'communities.id',
+                    'communities.english_name as community',
+                    DB::raw('COUNT(DISTINCT h2o_users.id) as number_of_users'),
+                    DB::raw('COUNT(DISTINCT h2o_public_structures.public_structure_id) as number_of_structures'),
+                    DB::raw('COUNT(DISTINCT h2o_users.id) + COUNT(DISTINCT h2o_public_structures.public_structure_id) 
+                    as total_number_of_holders')
+                )
+                ->groupBy('communities.id')
+                ->get();
+        } else if($id == 2) {
+
+            $data = DB::table('all_water_holders')
+                ->join('communities', 'all_water_holders.community_id', 'communities.id')
+                ->LeftJoin('grid_public_structures', 'all_water_holders.public_structure_id', 
+                    'grid_public_structures.public_structure_id')
+                ->LeftJoin('grid_users', 'all_water_holders.household_id', 'grid_users.household_id')
+                ->where('all_water_holders.is_archived', 0)
+                ->where('grid_users.grid_integration_large', '!=', 0)
+                ->select(
+                    'communities.id',
+                    'communities.english_name as community',
+                    DB::raw('COUNT(DISTINCT grid_users.id) as number_of_users'),
+                    DB::raw('COUNT(DISTINCT grid_public_structures.public_structure_id) as number_of_structures'),
+                    DB::raw('COUNT(DISTINCT grid_users.id) + COUNT(DISTINCT grid_public_structures.public_structure_id) 
+                    as total_number_of_holders')
+                )
+                ->groupBy('communities.id')
+                ->get();
+        } else if($id == 3) {
+
+            $data = DB::table('all_water_holders')
+                ->join('communities', 'all_water_holders.community_id', 'communities.id')
+                ->LeftJoin('grid_public_structures', 'all_water_holders.public_structure_id', 
+                    'grid_public_structures.public_structure_id')
+                ->LeftJoin('grid_users', 'all_water_holders.household_id', 'grid_users.household_id')
+                ->where('all_water_holders.is_archived', 0)
+                ->where('grid_users.grid_integration_small', '!=', 0)
+                ->select(
+                    'communities.id',
+                    'communities.english_name as community',
+                    DB::raw('COUNT(DISTINCT grid_users.id) as number_of_users'),
+                    DB::raw('COUNT(DISTINCT grid_public_structures.public_structure_id) as number_of_structures'),
+                    DB::raw('COUNT(DISTINCT grid_users.id) + COUNT(DISTINCT grid_public_structures.public_structure_id) 
+                    as total_number_of_holders')
+                )
+                ->groupBy('communities.id')
+                ->get();
+        } else {
+            
+            if($waterSystem->community_id) {
+
+                $data = DB::table('all_water_holders')
+                    ->join('communities', 'all_water_holders.community_id', 'communities.id')
+                    ->where('all_water_holders.is_archived', 0)
+                    ->where('communities.id', $waterSystem->community_id)
+                    ->select(
+                        'communities.id',
+                        'communities.english_name as community',
+                        DB::raw('COUNT(DISTINCT all_water_holders.household_id) as total_number_of_holders')
+                    )
+                    ->groupBy('communities.id')
+                    ->get();
+            }
+        }
+
+        $response['waterSystem'] = $waterSystem;
+        $response['data'] = $data;
+
+        return response()->json($response);
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportWaterHolders(Request $request) 
+    {
+        $id = $request->input('water_system_id');
+        if($id == 1) return Excel::download(new OldSystemHolders($id), 'old_system_holders.xlsx');
+        else if($id == 2)  return Excel::download(new GridLargeHolders($id), 'grid_large_holders.xlsx');
+        else if($id == 3)  return Excel::download(new GridSmallHolders($id), 'grid_small_holders.xlsx');
+        else return Excel::download(new NetworkHolders($id), 'network_holders.xlsx');
     }
 }
