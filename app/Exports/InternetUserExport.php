@@ -42,7 +42,7 @@ WithStyles
         $holders = json_decode($data, true) ;
 
         foreach($holders as $holder) {
-
+            
             if($holder["user_group_name"] == "Comet Employee") {
             } else {
 
@@ -121,6 +121,7 @@ WithStyles
 
                                     $internetUser->household_id = $allEnergyMeter->household_id;
                                     $internetUser->community_id = $allEnergyMeter->community_id;
+                                    $internetUser->save();
                                 }
 
                             // new/existing main public 
@@ -146,6 +147,7 @@ WithStyles
 
                                     $internetUser->public_structure_id = $allEnergyMeter->public_structure_id;
                                     $internetUser->community_id = $allEnergyMeter->community_id;
+                                    $internetUser->save();
                                 }
                             }
                         }

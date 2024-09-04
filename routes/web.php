@@ -507,3 +507,10 @@ Route::get('/delete-log', [App\Http\Controllers\WaterSystemLogFrameController::c
 Route::get('water-log/{id}/editpage', [App\Http\Controllers\WaterSystemLogFrameController::class, 'editPage']);
 
 Route::post('household-import', [App\Http\Controllers\HouseholdController::class, 'import'])->name('household.import');
+
+Route::resource('water-request', App\Http\Controllers\WaterRequestSystemController::class);
+Route::post('water-request-export', [App\Http\Controllers\WaterRequestSystemController::class, 'export'])->name('water-request.export');
+Route::get('water-request/get_by_community/{community_id}', [App\Http\Controllers\WaterRequestSystemController::class, 'getRequestedByCommunity']);
+Route::get('water-request/get_by_household/{household_public_id}/{is_household}', [App\Http\Controllers\WaterRequestSystemController::class, 'getDetailsByHouseholdPublic']);
+Route::get('/delete-water-request', [App\Http\Controllers\WaterRequestSystemController::class, 'deleteRequestedWaterSystem'])->name('deleteWaterRequest');
+Route::get('water-request/get_by_community/public/{community_id}', [App\Http\Controllers\WaterRequestSystemController::class, 'getPublicByCommunity']);

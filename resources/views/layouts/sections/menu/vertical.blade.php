@@ -170,15 +170,30 @@
         </a>
     </li>
 
-    @if(Auth::guard('user')->user()->user_type_id == 1 ||
-     Auth::guard('user')->user()->user_type_id == 2)
-    <li class="menu-item" id="energy-request">
-        <a href="{{url('energy-request')}}" class="menu-link" >
-            <i class="menu-icon tf-icons bx bx-check-square"></i>
+    <li class="menu-item" id="requested-tab">
+        <a class="menu-link menu-toggle">
+            <i class="menu-icon tf-icons bx bx-hive"></i>
             <div>Requested Systems</div>
         </a>
+        <ul class="menu-sub">
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2)
+                <li class="menu-item" id="energy-request">
+                    <a href="{{url('energy-request')}}" class="menu-link" >
+                        <i class=""></i>
+                        <div>Requested Energy</div>
+                    </a>
+                </li>
+            @endif 
+            <li class="menu-item" id="water-request">
+                <a href="{{url('water-request')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Requested Water</div>
+                </a>
+            </li> 
+        </ul>
     </li>
-    @endif
+ 
     <li class="menu-item" id="services">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-tachometer"></i>
@@ -468,7 +483,7 @@
                         <a href="{{url('water-system')}}" class="menu-link" >
                             <i class=""></i>
                             <div>All water systems</div>
-                        </a>
+                        </a> 
                     </li>
                     <li class="menu-item" id="water-log">
                         <a href="{{url('water-log')}}" class="menu-link" >
@@ -731,8 +746,13 @@
         $("#energy-service").addClass("open");
         $("#services").addClass("open");
     } else if(last_part == "energy-request") {
-
+        
+        $("#requested-tab").addClass("open");
         $("#energy-request").addClass("active");
+    } else if(last_part == "water-request") {
+
+        $("#requested-tab").addClass("open");
+        $("#water-request").addClass("active");
     } else if(last_part == "household-meter") {
 
         $("#household-meter").addClass("active");

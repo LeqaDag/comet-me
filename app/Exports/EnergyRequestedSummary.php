@@ -56,8 +56,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'grid_community_compounds.electricity_room',
                 'grid_community_compounds.grid',
                 DB::raw('COUNT(CASE WHEN all_households.household_status_id = 3 THEN 1 END) as sum_AC'),
-                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND 
-                    all_households.energy_system_cycle_id = 1 THEN 1 END) as sum_DC'),
+                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 THEN 1 END) as sum_DC')
                 )
             ->groupBy('communities.english_name');
  
@@ -83,7 +82,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'grid_community_compounds.grid', 
                 DB::raw('COUNT(DISTINCT CASE WHEN households.household_status_id = 3 THEN households.id END) as sum_AC'),
                 DB::raw('COUNT(DISTINCT CASE WHEN households.household_status_id = 3 
-                    AND all_energy_meters.meter_case_id = 1 THEN 1 END) as sum_DC'), 
+                    AND all_energy_meters.meter_case_id = 1 THEN 1 END) as sum_DC')
             )
             ->groupBy('compounds.english_name');
     
@@ -102,8 +101,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('households.is_archived', 0)
             ->where('households.household_status_id', 4) 
             ->where('all_energy_meters.energy_system_type_id', 2)
-            ->where('households.energy_system_cycle_id', '!=', null)
-            ->whereNull('communities.energy_system_cycle_id')
+            ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
             ->where('all_energy_meters.meter_case_id', 1)
             ->select('communities.english_name', 'households.english_name as household');
 
