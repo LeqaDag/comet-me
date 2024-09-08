@@ -55,7 +55,7 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
                 'households.number_of_female', 'households.number_of_adults', 
                 'households.number_of_children', 'households.phone_number',
                 DB::raw('group_concat(DISTINCT CASE WHEN community_donors.is_archived = 0 THEN donors.donor_name END) as donors')
-            )
+            ) 
             ->groupBy('households.english_name');
 
         $queryCommunities =  DB::table('communities')
@@ -71,12 +71,17 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
             ->leftJoin('community_donors', 'community_donors.community_id', 'communities.id')
             ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('communities.is_archived', 0)
-            ->where('communities.energy_system_cycle_id', '!=', null)
-            ->where('households.energy_system_cycle_id', '!=', null)
+            ->whereNotNull('communities.energy_system_cycle_id')
+            //->whereNotNull('households.energy_system_cycle_id')
              ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('compounds')
                     ->whereRaw('compounds.community_id = communities.id');
+            })
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('displaced_households')
+                    ->whereRaw('displaced_households.household_id = households.id');
             })
             ->select(
                 'households.english_name as household',
@@ -118,7 +123,7 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
 
     public function title(): string
     {
-        return 'Households - New Cycle';
+        return 'Households - New Community';
     }
 
     /**

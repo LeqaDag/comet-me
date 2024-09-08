@@ -133,7 +133,6 @@
                         <th>Community</th>
                         <th>Requested Date</th>
                         <th>Main Energy User?</th>
-                        <th>Meter Number</th>
                         <th>Options</th>
                     </tr>
                 </thead>
@@ -165,7 +164,6 @@
                 {data: 'community_name', name: 'community_name'},
                 {data: 'date', name: 'date'},
                 {data: 'is_main', name: 'is_main'},
-                {data: 'meter_number', name: 'meter_number'},
                 {data: 'action'}
             ]
         });
@@ -246,6 +244,46 @@
                 if(result.isConfirmed) {
                     $.ajax({
                         url: "{{ route('deleteWaterRequest') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#waterRequestTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+
+        // Move record
+        $('#waterRequestTable').on('click', '.moveWaterRequest',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to work for this requested holder?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('moveWaterRequest') }}",
                         type: 'get',
                         data: {id: id},
                         success: function(response) {

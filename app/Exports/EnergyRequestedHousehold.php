@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents; 
 use Maatwebsite\Excel\Events\AfterSheet;
+use \Carbon\Carbon;
 use DB;
 
 class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
@@ -26,6 +27,8 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
     */
     public function collection()    
     {
+        $oneYearAgo = Carbon::now()->subYear();
+
         $query = DB::table('households')
             ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
             ->join('communities', 'households.community_id', 'communities.id')
@@ -35,19 +38,18 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
                 'energy_request_statuses.id') 
             ->leftJoin('energy_system_types', 'energy_request_systems.recommendede_energy_system_id', 
                 'energy_system_types.id') 
+            ->where('communities.created_at', '<=', $oneYearAgo)
             ->where('households.is_archived', 0)
             ->where('households.household_status_id', 5) 
-            ->where('households.energy_system_cycle_id', '!=', null)
-            ->where('energy_request_systems.recommendede_energy_system_id', 2)
-            ->select('households.english_name as household',
+            ->select(
+                'households.english_name as household',
                 'communities.english_name as community_name', 
                 'compounds.english_name as compound_name',
                 'energy_system_types.name', "energy_request_systems.date", 
                 'households.number_of_male', 'households.number_of_female', 
                 'households.number_of_adults', 'households.number_of_children', 
-                'households.phone_number');
-
-       // die($query->get());
+                'households.phone_number'
+            );
  
         if($this->request->community_id) {
 
@@ -58,10 +60,10 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
             $query->where("energy_request_systems.energy_request_status_id", $this->request->request_status);
         }
 
-        if($this->request->energy_cycle_id) {
+        // if($this->request->energy_cycle_id) {
 
-            $query->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
-        }
+        //     $query->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
+        // }
         return $query->get();
     } 
 
@@ -79,7 +81,7 @@ class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitl
 
     public function title(): string
     { 
-        return 'Requested Households MISC';
+        return 'Requested Households';
     }
 
     /**

@@ -15,6 +15,7 @@ use App\Models\AllEnergyMeterDonor;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\EnergySystemType;
+use App\Models\CommunityService;
 use App\Models\WaterRequestStatus;
 use App\Models\WaterSystemType;
 use App\Models\WaterRequestSystem;
@@ -31,7 +32,7 @@ use DataTables;
 
 class WaterRequestSystemController extends Controller
 {
-    /**
+    /** 
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -68,6 +69,7 @@ class WaterRequestSystemController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
     
+                        $moveButton = "<a type='button' title='Start Working' class='moveWaterRequest' data-id='".$row->id."'><i class='fa-solid fa-arrow-right text-warning'></i></a>";
                         $viewButton = "<a type='button' class='viewWaterRequest' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewWaterRequestModal' ><i class='fa-solid fa-eye text-info'></i></a>";
                         $updateButton = "<a type='button' class='updateWaterRequest' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateWaterUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteWaterRequest' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
@@ -78,7 +80,7 @@ class WaterRequestSystemController extends Controller
                             Auth::guard('user')->user()->user_type_id == 11) 
                         {
                                 
-                            return $viewButton." ". $updateButton." ".$deleteButton;
+                            return $moveButton." ". $viewButton." ". $updateButton." ".$deleteButton;
                         } else return $viewButton;
        
                     })
@@ -287,6 +289,72 @@ class WaterRequestSystemController extends Controller
             $response['success'] = 0;
             $response['msg'] = 'Invalid ID.';
         }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function moveRequestedWaterSystem(Request $request)
+    {
+        $id = $request->id;
+
+        $waterRequestSystem = WaterRequestSystem::find($id);
+
+        $existCommunityService = CommunityService::where("community_id", $waterRequestSystem->community_id)
+            ->where("service_id", 2)
+            ->first();
+            
+        if($existCommunityService) {
+
+        } else {
+
+            $communityService = new CommunityService();
+            $communityService->service_id = 2;
+            $communityService->community_id = $waterRequestSystem->community_id;
+            $communityService->save();
+        }
+
+        if($waterRequestSystem->household_id) {
+
+            $exist = AllWaterHolder::where("household_id", $waterRequestSystem->household_id)->first();
+            if($exist) {
+
+            } else {
+
+                $newHolder = new AllWaterHolder();
+                $newHolder->household_id = $waterRequestSystem->household_id;
+                $newHolder->community_id = $waterRequestSystem->community_id;
+                $newHolder->is_main = "Yes";
+                $newHolder->request_date = $waterRequestSystem->date;
+                $newHolder->save();
+
+                $household = Household::findOrFail($waterRequestSystem->household_id);
+                $household->water_service = "Yes";
+                $household->water_system_status = "Served";
+                $household->save();
+            }
+        }
+        
+        if($waterRequestSystem->public_structure_id) {
+
+            $newHolder = new AllWaterHolder();
+            $newHolder->public_structure_id = $waterRequestSystem->public_structure_id;
+            $newHolder->community_id = $waterRequestSystem->community_id;
+            $newHolder->is_main = "Yes";
+            $newHolder->request_date = $waterRequestSystem->date;
+            $newHolder->save();
+        }
+
+        $waterRequestSystem->is_archived = 1;
+        $waterRequestSystem->save();
+
+        $response['success'] = 1;
+        $response['msg'] = 'Water Requested Holder moved to the water holders list successfully'; 
 
         return response()->json($response); 
     }

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB;
 use Route;
+use App\Models\AllEnergyMeter;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
@@ -17,9 +18,12 @@ use App\Models\InternetCluster;
 use App\Models\InternetClusterCommunity; 
 use App\Models\InternetUser; 
 use App\Models\InternetUserDonor;
+use App\Models\InternetStatus;
 use App\Models\InternetMetric;
 use App\Models\InternetMetricCluster; 
+use App\Models\InternetSystemType; 
 use App\Models\Household;
+use App\Models\PublicStructure;
 use App\Models\Region; 
 use Illuminate\Support\Facades\Http;
 use App\Exports\InternetExport;
@@ -293,15 +297,16 @@ class InternetUserController extends Controller
                     'internet_users.start_date',
                     'public_structures.english_name as public_name',
                     'communities.english_name as community_name',
-                    'households.english_name as household_name',
+                    DB::raw('IFNULL(households.english_name, households.arabic_name) 
+                        as household_name'),
                     'internet_statuses.name'
                 )->latest();
 
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
-    
-                        $empty = "";
+
+                        $detailsButton = "<a type='button' class='detailsInternetButton' data-bs-toggle='modal' data-bs-target='#internetHolderDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
                         $updateButton = "<a type='button' class='updateInternetUser' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateInternetUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteInternetUser' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
@@ -311,8 +316,8 @@ class InternetUserController extends Controller
                             Auth::guard('user')->user()->user_type_id == 10) 
                         {
                                 
-                            return $updateButton." ".$deleteButton;
-                        } else return $empty;
+                            return  $detailsButton." ".$updateButton." ".$deleteButton;
+                        } else return $detailsButton;
                     })
                     ->addColumn('holder', function($row) {
 
@@ -517,6 +522,108 @@ class InternetUserController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $internetSystemTypes = InternetSystemType::orderBy('name', 'ASC')
+            ->get();
+
+        return view('users.internet.create', compact('communities', 'internetSystemTypes'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $internetHolder = new InternetUser();
+        $internetHolder->community_id = $request->community_id;
+        if($request->public_user == "user") $internetHolder->household_id = $request->household_public_id;
+        else if($request->public_user == "public") $internetHolder->public_structure_id = $request->household_public_id;
+        $internetHolder->start_date = $request->start_date;
+        if($request->internet_type == 2) $internetHolder->is_hotspot = 1;
+        else if($request->internet_type == 3) $internetHolder->is_ppp = 1;
+        $internetHolder->notes = $request->notes;
+        $internetHolder->save();
+
+        return redirect('/internet-user')
+            ->with('message', 'New Contract Holder Added Successfully!');
+    }
+
+    /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $household = null;
+        $public = null;
+        $energyHolder = null;
+
+        $internetUser = InternetUser::findOrFail($id);
+
+        if($internetUser->household_id) {
+
+            $household = Household::where('id', $internetUser->household_id)->first();
+            $energyHolder = AllEnergyMeter::where('is_archived', 0)
+                ->where('household_id', $internetUser->household_id)
+                ->first();
+        }
+        if($internetUser->public_structure_id) {
+
+            $public = PublicStructure::where('id', $internetUser->public_structure_id)->first();
+            $energyHolder = AllEnergyMeter::where('is_archived', 0)
+                ->where('public_structure_id', $internetUser->public_structure_id)
+                ->first();
+        }
+
+        $community = Community::where('id', $internetUser->community_id)->first();
+        $internetStatus = InternetStatus::where('id', $internetUser->internet_status_id)->first();
+        $donors = DB::table('internet_user_donors')
+            ->where('internet_user_donors.is_archived', 0)
+            ->where('internet_user_donors.internet_user_id', $id)
+            ->join('donors', 'internet_user_donors.donor_id', 'donors.id')
+            ->select('donors.donor_name', 'internet_user_donors.internet_user_id')
+            ->get();
+
+        $internetIncidents = DB::table('internet_user_incidents')
+            ->join('internet_users', 'internet_user_incidents.internet_user_id', 
+                'internet_users.id')
+            ->join('incidents', 'internet_user_incidents.incident_id', 'incidents.id')
+            ->leftJoin('internet_incident_statuses', 'internet_user_incidents.internet_incident_status_id', 
+                'internet_incident_statuses.id')
+            ->where('internet_user_incidents.is_archived', 0)
+            ->where('internet_user_incidents.internet_user_id', $id)
+            ->select('internet_user_incidents.date as incident_date',
+                'incidents.english_name as incident', 
+                'internet_incident_statuses.name as incident_status',
+                'internet_user_incidents.response_date')
+            ->get(); 
+
+        $response['household'] = $household;
+        $response['public'] = $public;
+        $response['internetUser'] = $internetUser;
+        $response['community'] = $community;
+        $response['internetStatus'] = $internetStatus;
+        $response['donors'] = $donors;
+        $response['internetIncidents'] = $internetIncidents;
+        $response['energyHolder'] = $energyHolder;
+
+        return response()->json($response);
+    }
+
+    /**
      * View Edit page.
      *
      * @param  int $id
@@ -584,6 +691,108 @@ class InternetUserController extends Controller
     }
 
     /**
+     * Get households by community_id.
+     *
+     * @param  int $id, String $is_household
+     * @return \Illuminate\Http\Response
+     */
+    public function getHousholdsPublicByCommunity(int $id, String $is_household)
+    {
+        $html = '<option selected disabled>Choose One...</option>';
+
+        if($is_household == "user") {
+
+            $holders = Household::where('community_id', $id)
+                ->where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+        } else if($is_household == "public") {
+
+            $holders = PublicStructure::where('community_id', $id)
+                ->where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+        }
+
+        foreach ($holders as $holder) {
+
+            $name = "";
+            if($holder->english_name == null) $name = $holder->arabic_name;
+            else $name = $holder->english_name;
+
+            $html .= '<option value="'. $holder->id. '">'. $name. '</option>';
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
+    /**
+     * Get households by community_id.
+     *
+     * @param  int $id, String $is_household
+     * @return \Illuminate\Http\Response
+     */
+    public function getDetailsByHouseholdPublic(int $id, String $is_household)
+    {
+        if (!$id) {
+
+            $holders = '';
+            $internetDetails = '';
+        } else {
+
+            if($is_household == "user") {
+
+                $holders = DB::table('households') 
+                    ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
+                    ->where('households.is_archived', 0)
+                    ->where('households.id', $id)
+                    ->select(
+                        'all_energy_meters.is_main', 'all_energy_meters.meter_number',
+                        'households.internet_holder_young')                        
+                    ->first();
+
+                $mainUser = DB::table('household_meters') 
+                    ->join('all_energy_meters', 'all_energy_meters.id', 'household_meters.energy_user_id')
+                    ->join('households', 'households.id', 'all_energy_meters.household_id')
+                    ->where('household_meters.is_archived', 0)
+                    ->where('household_meters.household_id', $id)
+                    ->select('households.english_name') 
+                    ->first();
+
+                $internetDetails = InternetUser::where('household_id', $id)
+                    ->where('is_archived', 0)
+                    ->first();
+            } else if($is_household == "public") {
+
+                $holders = AllEnergyMeter::where('public_structure_id', $id)
+                    ->where('is_archived', 0)
+                    ->select('is_main', 'meter_number', 'public_structure_id as Public')
+                    ->first();
+
+                $mainUser = DB::table('household_meters') 
+                    ->join('all_energy_meters', 'all_energy_meters.id', 'household_meters.energy_user_id')
+                    ->leftJoin('public_structures', 'public_structures.id', 'all_energy_meters.public_structure_id')
+                    ->leftJoin('households', 'households.id', 'all_energy_meters.household_id')
+                    ->where('household_meters.is_archived', 0)
+                    ->where('household_meters.public_structure_id', $id)
+                    ->select(DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+                        as english_name'),) 
+                    ->first();
+
+                $internetDetails = InternetUser::where('public_structure_id', $id)
+                    ->where('is_archived', 0)
+                    ->first();
+            }
+        }
+
+        return response()->json([
+            'holders' => $holders,
+            'mainUser' => $mainUser,
+            'internetDetails' => $internetDetails
+        ]);
+    }
+
+    /**
      * Delete a resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -640,7 +849,7 @@ class InternetUserController extends Controller
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function export(Request $request) 
+    public function export(Request $request)  
     {
                 
         return Excel::download(new InternetExport($request), 'internet_holders_metrics.xlsx');

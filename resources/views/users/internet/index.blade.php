@@ -571,8 +571,19 @@ label, table {
                         Get Latest Internet Holders
                     </button>
                 </div>
-            @endif
+            @endif 
             </div>
+
+            @if(Auth::guard('user')->user()->user_type_id == 1 ||
+                Auth::guard('user')->user()->user_type_id == 2 )
+                <div style="margin-top:18px">
+                    <a type="button" class="btn btn-success" 
+                        href="{{url('internet-user', 'create')}}" >
+                        Create New Internet Holder
+                    </a>
+                </div>
+            @endif
+
             <table id="internetAllUsersTable" class="table table-striped data-table-internet-users my-2">
                 <thead>
                     <tr>
@@ -596,8 +607,9 @@ label, table {
     </div>
 </div>
 
-<script type="text/javascript">
+@include('users.internet.view')
 
+<script type="text/javascript">
 
     var table;
     function DataTableContent() {
@@ -656,6 +668,96 @@ label, table {
         $('.selectpicker').selectpicker('refresh');
         $('#startDate').val(' ');
     });
+
+    // View record details
+    $('#internetAllUsersTable').on('click', '.detailsInternetButton',function() {
+        var id = $(this).data('id');
+    
+        // AJAX request
+        $.ajax({
+            url: 'internet-user/' + id,
+            type: 'get',
+            dataType: 'json',
+            success: function(response) { 
+
+                $('#internetModalTitle').html(" ");
+                $('#nameHolder').html(" ");
+                $('#phoneNumberHolder').html(" ");
+
+                if(response['household']) {
+
+                    if(response['household'].english_name) {
+
+                        $('#internetModalTitle').html(response['household'].english_name);
+                        $('#nameHolder').html(response['household'].english_name);
+                    } else {
+                        
+                        $('#internetModalTitle').html(response['household'].arabic_name);
+                        $('#nameHolder').html(response['household'].arabic_name);
+                    }
+
+                    $('#phoneNumberHolder').html(response['household'].phone_number);
+                    $("#holderIcon").removeClass('bx bx-building bx-sm me-3');
+                    $("#holderIcon").addClass('bx bx-user bx-sm me-3');
+                } else if(response['public']) {
+
+                    if(response['public'].english_name) {
+
+                        $('#internetModalTitle').html(response['public'].english_name);
+                        $('#nameHolder').html(response['public'].english_name);
+                    } else {
+
+                        $('#internetModalTitle').html(response['public'].arabic_name);
+                        $('#nameHolder').html(response['public'].arabic_name);
+                    }
+
+                    $('#phoneNumberHolder').html(response['public'].phone_number);
+                    $("#holderIcon").removeClass('bx bx-user bx-sm me-3');
+                    $("#holderIcon").addClass('bx bx-building bx-sm me-3');
+                }
+
+                $('#communityHolder').html(" ");
+                $('#communityHolder').html(response['community'].english_name);
+
+                if(response['energyHolder']) {
+
+                    $('#energyMeterHolder').html(" ");
+                    $('#energyMeterHolder').html(response['energyHolder'].meter_number);
+                    $('#installationDate').html(" ");
+                    $('#installationDate').html(response['energyHolder'].installation_date);
+                }
+
+                $('#startContractDate').html(" ");
+                $('#startContractDate').html(response['internetUser'].start_date);
+                $('#internetSystem').html(" ");
+                if(response['internetUser'].is_hotspot == 1) $('#internetSystem').html("Hotspot");
+                else if(response['internetUser'].is_ppp == 1) $('#internetSystem').html("Broadband");
+                $('#internetStatus').html(" ");
+                $('#internetStatus').html(response['internetStatus'].name);
+                $('#internetPaid').html(" ");
+                if(response['internetUser'].paid == 1) $('#internetPaid').html("Yes");
+                else if(response['internetUser'].paid == 0) $('#internetPaid').html("No");
+                $('#lastPurchaseDate').html(" ");
+                $('#lastPurchaseDate').html(response['internetUser'].last_purchase_date);
+                $('#internetDonors').html(" ");
+                for (var i = 0; i < response['donors'].length; i++) {
+                    $("#internetDonors").append(
+                        '<ul><li>'+ response['donors'][i].donor_name +'</li> </ul>');
+                }
+                
+                $('#incidentName').html(" ");
+                $('#IncidentDate').html(" ");
+                if(response['internetIncidents'] != []) {
+
+                    for (var i = 0; i < response['internetIncidents'].length; i++) {
+
+                        $('#incidentName').html(response['internetIncidents'][i].incident);
+                        $('#IncidentDate').html(response['internetIncidents'][i].incident_date);
+                    }
+                }
+            }
+        });
+    }); 
 
     // Update record
     $('#internetAllUsersTable').on('click', '.updateInternetUser',function() {

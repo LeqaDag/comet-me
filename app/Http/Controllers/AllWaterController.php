@@ -336,7 +336,7 @@ class AllWaterController extends Controller
         $networkUser = WaterNetworkUser::where('household_id', $allWaterHolder->household_id)->first();
         $h2oSharedPublic = H2oSharedPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
         $h2oSharedUser = H2oSharedUser::where("household_id", $allWaterHolder->household_id)->first();;
-        
+         
         $communities =  Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();

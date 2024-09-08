@@ -221,6 +221,8 @@ Route::post('internet-user-export', [App\Http\Controllers\InternetUserController
 Route::get('internet-user/{id}/editpage', [App\Http\Controllers\InternetUserController::class, 'editPage']);
 Route::get('/delete-internetDonor', [App\Http\Controllers\InternetUserController::class, 'deleteInternetDonor'])->name('deleteInternetDonor');
 Route::get('/delete-internet-user', [App\Http\Controllers\InternetUserController::class, 'deleteInternetHolder'])->name('deleteInternetHolder');
+Route::get('internet-user/get_by_household/{household_public_id}/{is_household}', [App\Http\Controllers\InternetUserController::class, 'getDetailsByHouseholdPublic']);
+Route::get('internet-user/get_by_community/{community_id}/{is_household}', [App\Http\Controllers\InternetUserController::class, 'getHousholdsPublicByCommunity']);
 
 Route::resource('household-meter', App\Http\Controllers\HouseholdMeterController::class);
 Route::get('household-meter/get_households/{id}', [App\Http\Controllers\HouseholdMeterController::class, 'getHouseholds'])->name('getHouseholds');
@@ -514,3 +516,4 @@ Route::get('water-request/get_by_community/{community_id}', [App\Http\Controller
 Route::get('water-request/get_by_household/{household_public_id}/{is_household}', [App\Http\Controllers\WaterRequestSystemController::class, 'getDetailsByHouseholdPublic']);
 Route::get('/delete-water-request', [App\Http\Controllers\WaterRequestSystemController::class, 'deleteRequestedWaterSystem'])->name('deleteWaterRequest');
 Route::get('water-request/get_by_community/public/{community_id}', [App\Http\Controllers\WaterRequestSystemController::class, 'getPublicByCommunity']);
+Route::get('/move-water-request', [App\Http\Controllers\WaterRequestSystemController::class, 'moveRequestedWaterSystem'])->name('moveWaterRequest');

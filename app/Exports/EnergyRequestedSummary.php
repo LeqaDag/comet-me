@@ -11,16 +11,19 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents; 
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell; 
+use \Carbon\Carbon;
 use DB;
 
 class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSize, 
     WithStyles, WithEvents,WithCustomStartCell
 {
-    private $misc = 0, $activateMisc = 0;
+    private $misc = 0, $activateMisc = 0, $requestedHouseholds = 0, $relocatedHouseholds = 0,
+        $activateRelocated = 0;
 
     protected $request; 
 
     function __construct($request) {
+
         $this->request = $request;
     }
  
@@ -29,24 +32,73 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
     */ 
     public function collection()  
     { 
-        $queryCommunities =  DB::table('communities')
+        $oneYearAgo = Carbon::now()->subYear();
+
+        // MISC FBS 
+        $this->misc = DB::table('all_energy_meters')
+            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+            ->join('households', 'households.id', 'all_energy_meters.household_id')
+            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('all_energy_meters.is_archived', 0)
+            ->where('all_energy_meters.energy_system_type_id', 2)
+            ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
+
+        $this->activateMisc = DB::table('households')
+            ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+            ->join('communities', 'communities.id', 'all_energy_meters.community_id')
+            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('households.is_archived', 0)
+            ->where('households.household_status_id', 4) 
+            ->where('all_energy_meters.energy_system_type_id', 2)
+            ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
+            ->where('all_energy_meters.meter_active', 'Yes');
+
+        // Requested
+        $this->requestedHouseholds = DB::table('households')
+            ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
+            ->join('communities', 'households.community_id', 'communities.id')
+            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('households.is_archived', 0)
+            ->where('households.household_status_id', 5);
+
+        // Relocated Households
+        $this->relocatedHouseholds =  DB::table('all_energy_meters')
+            ->join('displaced_households', 'all_energy_meters.household_id', 'displaced_households.household_id')
+            ->join('households', 'all_energy_meters.household_id', 'households.id')
+            ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
+            ->join('communities', 'households.community_id', 'communities.id')
+            ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
+            ->where('all_energy_meters.is_archived', 0)
+            ->whereNotNull('communities.energy_system_cycle_id')
+            ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
+
+        $this->activateRelocated =  DB::table('all_energy_meters')
+            ->join('displaced_households', 'all_energy_meters.household_id', 'displaced_households.household_id')
+            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+            ->where('all_energy_meters.is_archived', 0)
+            ->whereNotNull('communities.energy_system_cycle_id')
+            ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
+            ->where('all_energy_meters.meter_active', 'Yes');
+
+        $queryCommunities = DB::table('communities')
             ->join('regions', 'communities.region_id', 'regions.id')
-            ->join('community_statuses', 'communities.community_status_id', 
-                'community_statuses.id')
-            ->leftJoin('households as all_households', 'all_households.community_id',
-                'communities.id')
-            ->leftJoin('energy_system_types as all_energy_types', 'all_energy_types.id',
-                'all_households.energy_system_type_id') 
+            ->join('community_statuses', 'communities.community_status_id', 'community_statuses.id')
+            ->leftJoin('households as all_households', 'all_households.community_id', 'communities.id')
+            ->leftJoin('energy_system_types as all_energy_types', 'all_energy_types.id', 'all_households.energy_system_type_id') 
             ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'all_households.id')
-            ->leftJoin('grid_community_compounds', 'communities.id',
-                'grid_community_compounds.community_id')
+            ->leftJoin('grid_community_compounds', 'communities.id', 'grid_community_compounds.community_id')
             ->where('communities.is_archived', 0)
-            ->where('communities.energy_system_cycle_id', '!=', null)
-             ->whereNotExists(function ($query) {
+            ->whereNotNull('communities.energy_system_cycle_id')
+            ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('compounds')
                     ->whereRaw('compounds.community_id = communities.id');
             }) 
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('displaced_households')
+                    ->whereRaw('displaced_households.household_id = all_households.id');
+            })
             ->select( 
                 'communities.english_name', 
                 'regions.english_name as region',
@@ -60,6 +112,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 )
             ->groupBy('communities.english_name');
  
+
         $queryCompounds = DB::table('compounds')
             ->join('communities', 'communities.id', 'compounds.community_id')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -71,40 +124,24 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'grid_community_compounds.compound_id')
             ->where('communities.is_archived', 0)
             ->where('households.is_archived', 0)
-            ->where('communities.energy_system_cycle_id', '!=', null)
+            ->where('compound_households.is_archived', 0)
+            ->where('all_energy_meters.is_archived', 0)
+            ->whereNotNull('communities.energy_system_cycle_id')
             ->select(
-                'compounds.english_name', 
+                'compounds.english_name',  
                 'regions.english_name as region',
                 DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 2 THEN households.id END) as sum_FBS'),
                 DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 1 THEN households.id END) as sum_MG'),
                 DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 4 THEN households.id END) as sum_SMG'),
                 'grid_community_compounds.electricity_room',
                 'grid_community_compounds.grid', 
-                DB::raw('COUNT(DISTINCT CASE WHEN households.household_status_id = 3 THEN households.id END) as sum_AC'),
-                DB::raw('COUNT(DISTINCT CASE WHEN households.household_status_id = 3 
-                    AND all_energy_meters.meter_case_id = 1 THEN 1 END) as sum_DC')
+                DB::raw('COUNT(CASE WHEN households.household_status_id = 3 THEN households.id END) as sum_AC'),
+                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 THEN households.id END) as sum_DC')
             )
             ->groupBy('compounds.english_name');
-    
-
-        $this->misc = DB::table('all_energy_meters')
-            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
-            ->join('households', 'households.id', 'all_energy_meters.household_id')
-            ->where('all_energy_meters.is_archived', 0)
-            ->where('all_energy_meters.energy_system_type_id', 2)
-            ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
-
-        $this->activateMisc = DB::table('households')
-            //->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
-            ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
-            ->join('communities', 'communities.id', 'all_energy_meters.community_id')
-            ->where('households.is_archived', 0)
-            ->where('households.household_status_id', 4) 
-            ->where('all_energy_meters.energy_system_type_id', 2)
-            ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
-            ->where('all_energy_meters.meter_case_id', 1)
-            ->select('communities.english_name', 'households.english_name as household');
-
+     
+            die( $queryCompounds->get());
+ 
         if($this->request->community_id) {
  
             $queryCompounds->where("communities.id", $this->request->community_id);
@@ -125,13 +162,16 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $compoundsCollection = collect($queryCompounds->get());
         $this->misc = $this->misc->count();
         $this->activateMisc = $this->activateMisc->count();
+        $this->requestedHouseholds = $this->requestedHouseholds->count();
+        $this->relocatedHouseholds = $this->relocatedHouseholds->count();
+        $this->activateRelocated = $this->activateRelocated->count();
 
         return $compoundsCollection->merge($communitiesCollection);
     } 
 
     public function startCell(): string
     {
-        return 'A3';
+        return 'A5';
     }
 
     public function title(): string 
@@ -172,10 +212,18 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->setCellValue('H1', 'Completed AC'); // household_status is in-progress
         $sheet->setCellValue('I1', 'Activate Meter'); // household_status is served
 
-        $sheet->setCellValue('A2', 'MISC FBS -- "Requested Systems"');     
-        $sheet->setCellValue('B2', ' ');     
+        $sheet->setCellValue('A2', 'MISC FBS');  
+        $sheet->setCellValue('A3', 'Relocated Households');  
+        $sheet->setCellValue('A4', 'Requested Households');     
+        $sheet->setCellValue('B2', ' ');       
+        $sheet->setCellValue('B3', ' ');       
+        $sheet->setCellValue('B4', ' ');      
         $sheet->setCellValue('C2', $this->misc);
+        $sheet->setCellValue('C3', $this->relocatedHouseholds);
+        $sheet->setCellValue('C4', $this->requestedHouseholds);
+        
         $sheet->setCellValue('I2', $this->activateMisc);
+        $sheet->setCellValue('I3', $this->activateRelocated);
 
         return [
             // Style the first row as bold text.
