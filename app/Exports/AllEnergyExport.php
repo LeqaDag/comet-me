@@ -25,7 +25,7 @@ class AllEnergyExport implements WithMultipleSheets, ShouldAutoSize
     {
         $sheets = [   
             // new EnergySummary($this->request),
-            new EnergyHolders($this->request),
+            new EnergyHolders($this->request), 
             new HouseholdMeters($this->request),
             new ActiveEnergyUsers($this->request),
             //new EnergyUsers($this->request),

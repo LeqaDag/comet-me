@@ -59,6 +59,10 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
             ])->groupBy('household_meters.id');
 
 
+        if($this->request->region_id) {
+
+            $query->where("regions.id", $this->request->region_id);
+        }
         if($this->request->community_id) {
 
             $query->where("all_energy_meters.community_id", $this->request->community_id);
@@ -66,6 +70,18 @@ class HouseholdMeters implements FromCollection, WithHeadings, WithTitle, Should
         if($this->request->type) {
 
             $query->where("all_energy_meters.installation_type_id", $this->request->type);
+        }
+        if($this->request->energy_system_type_id) {
+
+            $query->where("all_energy_meters.energy_system_type_id", $this->request->energy_system_type_id);
+        }
+        if($this->request->meter_case_id) {
+
+            $query->where("meter_cases.id", $this->request->meter_case_id);
+        }
+        if($this->request->service_year) {
+
+            $query->whereYear("all_energy_meters.installation_date", $this->request->service_year);
         }
         if($this->request->date_from) {
             $query->where("all_energy_meters.installation_date", ">=", $this->request->date_from);

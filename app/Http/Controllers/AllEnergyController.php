@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB; 
 use Route;
-use App\Models\AllEnergyMeter;
+use App\Models\AllEnergyMeter; 
 use App\Models\AllEnergyMeterDonor;
 use App\Models\AllEnergyVendingMeter;
 use App\Models\User;
@@ -234,6 +234,10 @@ class AllEnergyController extends Controller
         $communityFilter = $request->input('community_filter');
         $typeFilter = $request->input('type_filter');
         $dateFilter = $request->input('date_filter');
+        $yearFilter = $request->input('year_filter');
+        $meterFilter = $request->input('meter_filter');
+        $regionFilter = $request->input('region_filter');
+        $energyTypeFilter = $request->input('system_type_filter');
 
         if (Auth::guard('user')->user() != null) {
 
@@ -251,6 +255,10 @@ class AllEnergyController extends Controller
                         'household_meters.household_id')
                     ->where('all_energy_meters.is_archived', 0);
      
+                if($regionFilter != null) {
+
+                    $data->where('communities.region_id', $regionFilter);
+                }
                 if($communityFilter != null) {
 
                     $data->where('communities.id', $communityFilter);
@@ -258,6 +266,18 @@ class AllEnergyController extends Controller
                 if ($typeFilter != null) {
 
                     $data->where('all_energy_meters.installation_type_id', $typeFilter);
+                }
+                if ($energyTypeFilter != null) {
+
+                    $data->where('energy_system_types.id', $energyTypeFilter);
+                }
+                if ($meterFilter != null) {
+
+                    $data->where('meter_cases.id', $meterFilter);
+                }
+                if ($yearFilter != null) {
+
+                    $data->whereYear('all_energy_meters.installation_date', $yearFilter);
                 }
                 if ($dateFilter != null) {
 
@@ -349,12 +369,15 @@ class AllEnergyController extends Controller
             $communities = Community::where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')
                 ->get();
+            $regions = Region::where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
+                ->get();
             $meterCases = MeterCase::where('is_archived', 0)->get();
             $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
             $installationTypes = InstallationType::where('is_archived', 0)->get();
-
+ 
             return view('users.energy.not_active.index', compact('communities', 'energySystemTypes', 
-                'meterCases', 'installationTypes'))
+                'meterCases', 'installationTypes', 'regions'))
                 ->with('energy_users', json_encode($array)
             );
         } else {

@@ -64,7 +64,10 @@ class ActiveEnergyUsers implements FromCollection, WithHeadings, WithTitle, Shou
                 ]) 
             ->groupBy('all_energy_meters.id');
 
-               
+        if($this->request->region_id) {
+
+            $query->where("regions.id", $this->request->region_id);
+        }
         if($this->request->community_id) {
 
             $query->where("all_energy_meters.community_id", $this->request->community_id);
@@ -72,6 +75,18 @@ class ActiveEnergyUsers implements FromCollection, WithHeadings, WithTitle, Shou
         if($this->request->type) {
 
             $query->where("all_energy_meters.installation_type_id", $this->request->type);
+        }
+        if($this->request->energy_system_type_id) {
+
+            $query->where("energy_system_types.id", $this->request->energy_system_type_id);
+        }
+        if($this->request->meter_case_id) {
+
+            $query->where("meter_cases.id", $this->request->meter_case_id);
+        }
+        if($this->request->service_year) {
+
+            $query->whereYear("all_energy_meters.installation_date", $this->request->service_year);
         }
         if($this->request->date_from) {
 

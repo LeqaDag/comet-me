@@ -112,7 +112,6 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 )
             ->groupBy('communities.english_name');
  
-
         $queryCompounds = DB::table('compounds')
             ->join('communities', 'communities.id', 'compounds.community_id')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -120,8 +119,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->leftJoin('households', 'compound_households.household_id', 'households.id')
             ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
             ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
-            ->leftJoin('grid_community_compounds', 'compounds.id',
-                'grid_community_compounds.compound_id')
+            ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
             ->where('communities.is_archived', 0)
             ->where('households.is_archived', 0)
             ->where('compound_households.is_archived', 0)
@@ -136,11 +134,9 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'grid_community_compounds.electricity_room',
                 'grid_community_compounds.grid', 
                 DB::raw('COUNT(CASE WHEN households.household_status_id = 3 THEN households.id END) as sum_AC'),
-                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 THEN households.id END) as sum_DC')
+                DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.meter_case_id = 1 THEN households.id END) as sum_DC')
             )
             ->groupBy('compounds.english_name');
-     
-            die( $queryCompounds->get());
  
         if($this->request->community_id) {
  

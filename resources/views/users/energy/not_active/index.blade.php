@@ -89,6 +89,20 @@ label, table {
                             <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Region</label>
+                                        <select name="region_id"
+                                            class="selectpicker form-control" data-live-search="true">
+                                            <option disabled selected>Search Region</option>
+                                            @foreach($regions as $region)
+                                                <option value="{{$region->id}}">
+                                                    {{$region->english_name}}
+                                                </option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Community</label>
                                         <select name="community_id"
                                             class="selectpicker form-control" data-live-search="true">
@@ -104,15 +118,55 @@ label, table {
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>New/MISC/Grid extension</label>
-                                        <select name="type" id="selectedWaterSystemType" 
+                                        <select name="type" 
                                             class="selectpicker form-control" >
-                                            <option disabled selected>Choose one...</option>
+                                            <option disabled selected>Search Installation Type</option>
                                             @foreach($installationTypes as $installationType)
                                                 <option value="{{$installationType->id}}">
                                                     {{$installationType->type}}
                                                 </option>
                                             @endforeach
                                         </select>
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>System Type</label>
+                                        <select name="energy_system_type_id" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Search System Type</option>
+                                            @foreach($energySystemTypes as $energySystemType)
+                                                <option value="{{$energySystemType->id}}">{{$energySystemType->name}}</option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Meter Status</label>
+                                        <select name="meter_case_id" class="selectpicker form-control" 
+                                            data-live-search="true" >
+                                            <option disabled selected>Search Meter Status</option>
+                                            @foreach($meterCases as $meterCase)
+                                                <option value="{{$meterCase->id}}">{{$meterCase->meter_case_name_english}}</option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Service Year</label>
+                                        <select name="service_year" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Search</option>
+                                            @php
+                                                $startYear = 2010; // C
+                                                $currentYear = date("Y");
+                                            @endphp
+                                            @for ($year = $currentYear; $year >= $startYear; $year--)
+                                                <option value="{{ $year }}">{{ $year }}</option>
+                                            @endfor
+                                        </select> 
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
@@ -215,6 +269,18 @@ label, table {
             <div class="row">
                 <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Region</label>
+                        <select name="region_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByRegion">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($regions as $region)
+                                <option value="{{$region->id}}">{{$region->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Filter By Community</label>
                         <select name="community_id" class="selectpicker form-control" 
                             data-live-search="true" id="filterByCommunity">
@@ -237,6 +303,46 @@ label, table {
                                 </option>
                             @endforeach
                         </select>
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By System Type</label>
+                        <select name="energy_system_type_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByEnergySystemType">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($energySystemTypes as $energySystemType)
+                                <option value="{{$energySystemType->id}}">{{$energySystemType->name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Meter Status</label>
+                        <select name="meter_case_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByMeterStatus">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($meterCases as $meterCase)
+                                <option value="{{$meterCase->id}}">{{$meterCase->meter_case_name_english}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Service Year</label>
+                        <select name="service_year" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByYear">
+                            <option disabled selected>Choose one...</option>
+                            @php
+                                $startYear = 2010; // C
+                                $currentYear = date("Y");
+                            @endphp
+                            @for ($year = $currentYear; $year >= $startYear; $year--)
+                                <option value="{{ $year }}">{{ $year }}</option>
+                            @endfor
+                        </select> 
                     </fieldset>
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-3">
@@ -293,8 +399,12 @@ label, table {
                 data: function (d) {
                     d.search = $('input[type="search"]').val();
                     d.community_filter = $('#filterByCommunity').val();
+                    d.region_filter = $('#filterByRegion').val();
                     d.type_filter = $('#filterByType').val();
                     d.date_filter = $('#filterByDateFrom').val();
+                    d.system_type_filter = $('#filterByEnergySystemType').val();
+                    d.meter_filter = $('#filterByMeterStatus').val();
+                    d.year_filter = $('#filterByYear').val();
                 }
             },
             columns: [
@@ -342,6 +452,22 @@ label, table {
         });
 
         $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByRegion').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByEnergySystemType').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByMeterStatus').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByYear').on('change', function() {
             table.ajax.reload(); 
         });
 
@@ -453,7 +579,7 @@ label, table {
                             '<ul><li>'+ response['householdMeters'][i].english_name +'</li></ul>');  
                         }
                     }
-
+ 
                     $('#incidentUser').html(" ");
                     $('#incidentDate').html(" ");
                     if(response['fbsIncident'] != []) {
