@@ -126,7 +126,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('all_energy_meters.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
             ->select(
-                'compounds.english_name',  
+                'compounds.english_name',   
                 'regions.english_name as region',
                 DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 2 THEN households.id END) as sum_FBS'),
                 DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 1 THEN households.id END) as sum_MG'),
@@ -167,7 +167,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
 
     public function startCell(): string
     {
-        return 'A5';
+        return 'A4';
     }
 
     public function title(): string 
@@ -200,30 +200,42 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->setAutoFilter('A1:I1');
         $sheet->setCellValue('A1', 'Name');   
         $sheet->setCellValue('B1', 'Geographical Region'); 
-        $sheet->setCellValue('C1', '# confirmed FBS'); 
-        $sheet->setCellValue('D1', '# confirmed households/meters (MG)'); 
-        $sheet->setCellValue('E1', 'Small MG (no electricity room)'); 
-        $sheet->setCellValue('F1', 'Electricity Room)'); 
+        $sheet->setCellValue('C1', 'FBS # confirmed'); 
+        $sheet->setCellValue('D1', 'MG # confirmed households/meters'); 
+        $sheet->setCellValue('E1', 'SMG # confirmed households/meters'); 
+        $sheet->setCellValue('F1', 'Electricity Room'); 
         $sheet->setCellValue('G1', 'Grid'); 
         $sheet->setCellValue('H1', 'Completed AC'); // household_status is in-progress
         $sheet->setCellValue('I1', 'Activate Meter'); // household_status is served
 
         $sheet->setCellValue('A2', 'MISC FBS');  
         $sheet->setCellValue('A3', 'Relocated Households');  
-        $sheet->setCellValue('A4', 'Requested Households');     
+        //$sheet->setCellValue('A4', 'Requested Households');     
         $sheet->setCellValue('B2', ' ');       
         $sheet->setCellValue('B3', ' ');       
         $sheet->setCellValue('B4', ' ');      
         $sheet->setCellValue('C2', $this->misc);
         $sheet->setCellValue('C3', $this->relocatedHouseholds);
-        $sheet->setCellValue('C4', $this->requestedHouseholds);
+        //$sheet->setCellValue('C4', $this->requestedHouseholds);
         
         $sheet->setCellValue('I2', $this->activateMisc);
         $sheet->setCellValue('I3', $this->activateRelocated);
 
+        // Adding the summation row
+        $lastRow = $sheet->getHighestRow() + 1;
+        $sheet->setCellValue('A'.$lastRow, 'Total');
+        $sheet->setCellValue('C'.$lastRow, '=SUM(C2:C'.($lastRow-1).')');
+        $sheet->setCellValue('D'.$lastRow, '=SUM(D2:D'.($lastRow-1).')');
+        $sheet->setCellValue('E'.$lastRow, '=SUM(E2:E'.($lastRow-1).')');
+        $sheet->setCellValue('H'.$lastRow, '=SUM(H2:H'.($lastRow-1).')');
+        $sheet->setCellValue('I'.$lastRow, '=SUM(I2:I'.($lastRow-1).')');
+
         return [
             // Style the first row as bold text.
-            1    => ['font' => ['bold' => true, 'size' => 12]]
+            1    => ['font' => ['bold' => true, 'size' => 12]],
+            // Optionally, you can style the total row as well
+            $lastRow => ['font' => ['bold' => true, 'size' => 12]]
         ];
     }
+
 }

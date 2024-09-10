@@ -21,6 +21,7 @@ use App\Models\PublicStructure;
 use App\Models\InstallationType;
 use App\Models\Region;
 use App\Exports\EnergyRequestSystemExport;
+use App\Exports\EnergyRequestedHousehold;
 use Carbon\Carbon;
 use Image;
 use Excel;
@@ -197,5 +198,15 @@ class EnergyRequestSystemController extends Controller
     {
                 
         return Excel::download(new EnergyRequestSystemExport($request), 'Energy Project.xlsx');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportRequested(Request $request) 
+    {
+                
+        return Excel::download(new EnergyRequestedHousehold($request), 'Requested Households.xlsx');
     }
 }

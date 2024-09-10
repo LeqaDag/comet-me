@@ -51,13 +51,29 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
                 'communities.english_name as community_name',
                 'community_statuses.name as community_status',
                 'compounds.english_name as compound_name',
-                'energy_system_types.name', 'households.number_of_male', 
+                'energy_system_types.name', 
+                DB::raw('CASE WHEN households.number_of_male IS NULL 
+                        OR households.number_of_female IS NULL 
+                        OR households.number_of_adults IS NULL 
+                        OR households.number_of_children IS NULL 
+                    THEN "Missing Details" 
+                    ELSE "Complete" 
+                    END as details_status'),
+                'households.number_of_male', 
                 'households.number_of_female', 'households.number_of_adults', 
-                'households.number_of_children', 'households.phone_number',
+                'households.number_of_children', 
+                DB::raw('CASE 
+                    WHEN (households.number_of_male IS NOT NULL AND households.number_of_female IS NOT NULL 
+                        AND households.number_of_adults IS NOT NULL AND households.number_of_children IS NOT NULL 
+                        AND (households.number_of_adults + households.number_of_children) <> (households.number_of_male + households.number_of_female))
+                    THEN "Discrepancy" 
+                    ELSE "No Discrepancy" 
+                    END as discrepancies_status'),
+                'households.phone_number',
                 DB::raw('group_concat(DISTINCT CASE WHEN community_donors.is_archived = 0 THEN donors.donor_name END) as donors')
             ) 
             ->groupBy('households.english_name');
-
+ 
         $queryCommunities =  DB::table('communities')
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
@@ -89,9 +105,25 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
                 'communities.english_name as community_name',
                 'community_statuses.name as community_status',
                 DB::raw('" " as space'),
-                'energy_system_types.name', 'households.number_of_male', 
+                'energy_system_types.name', 
+                DB::raw('CASE WHEN households.number_of_male IS NULL 
+                        OR households.number_of_female IS NULL 
+                        OR households.number_of_adults IS NULL 
+                        OR households.number_of_children IS NULL 
+                    THEN "Missing Details" 
+                    ELSE "Complete" 
+                    END as details_status'),
+                'households.number_of_male', 
                 'households.number_of_female', 'households.number_of_adults', 
-                'households.number_of_children', 'households.phone_number',
+                'households.number_of_children', 
+                DB::raw('CASE 
+                    WHEN (households.number_of_male IS NOT NULL AND households.number_of_female IS NOT NULL 
+                        AND households.number_of_adults IS NOT NULL AND households.number_of_children IS NOT NULL 
+                        AND (households.number_of_adults + households.number_of_children) <> (households.number_of_male + households.number_of_female))
+                    THEN "Discrepancy" 
+                    ELSE "No Discrepancy" 
+                    END as discrepancies_status'),
+                'households.phone_number',
                 DB::raw('group_concat(DISTINCT CASE WHEN community_donors.is_archived = 0 THEN donors.donor_name END) as donors')
             )
             ->groupBy('households.english_name');
@@ -117,8 +149,8 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return ["Household", "Household Status", "Community", "Community Status", "Compound", "System Type",  
-            "Number of male", "Number of Female", "Number of adults", 
-            "Number of children", "Phone number", "Donors"];
+            "All Details", "Number of male", "Number of Female", "Number of adults", "Number of children", 
+            "Discrepancy", "Phone number", "Donors"];
     }
 
     public function title(): string
@@ -148,7 +180,7 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:K1');
+        $sheet->setAutoFilter('A1:M1');
 
         return [
             // Style the first row as bold text.

@@ -159,7 +159,7 @@ label, table {
                                         <select name="service_year" class="selectpicker form-control" 
                                             data-live-search="true">
                                             <option disabled selected>Search</option>
-                                            @php
+                                            @php 
                                                 $startYear = 2010; // C
                                                 $currentYear = date("Y");
                                             @endphp
@@ -267,6 +267,9 @@ label, table {
     <div class="card my-2">
         <div class="card-header">
             <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12">
+                    <h5 class="text-primary">Filter Options</h5>
+                </div>
                 <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Filter By Region</label>
@@ -362,11 +365,31 @@ label, table {
                     </fieldset>
                 </div>
             </div>
+            <hr>
+            <div class="row" style="margin-top:20px">
+                <div class="col-xl-12 col-lg-12 col-md-12">
+                    <h5 class="text-warning">Action Options</h5>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group mb-0">
+                        <label class="d-flex align-items-center mb-0">
+                            <input type="checkbox" id="select-all" class="me-2"> Select All
+                        </label>
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group mb-0">
+                        <button class="btn btn-warning form-control" id="batch-action">Perform Action</button>
+                    </fieldset>
+                </div>
+            </div>
+
         </div>
         <div class="card-body">
             <table id="energyAllUsersTable" class="table table-striped data-table-energy-users my-2">
                 <thead>
                     <tr>
+                        <th class="text-center"></th>
                         <th class="text-center">User Name</th>
                         <th class="text-center">Main User</th>
                         <th class="text-center">Community</th>
@@ -408,6 +431,7 @@ label, table {
                 }
             },
             columns: [
+                { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
                 {data: 'household_name', name: 'household_name'},
                 {data: 'icon'},
                 {data: 'community_name', name: 'community_name'},

@@ -8,11 +8,8 @@
 
 <div class="Container mb-4">
     <div class="col-lg-12 col-md-12 mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Active Users Analytics</h5>
-            </div>
-            <div class="card-body pb-2">
+        <div class="">
+            <div class="pb-2">
                 <div class="d-flex justify-content-around align-items-center flex-wrap mb-4">
                     <div class="user-analytics text-center me-2">
                         <i class="bx bx-user me-1 text-dark"></i>

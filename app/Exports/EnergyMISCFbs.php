@@ -46,8 +46,22 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
                 'all_energy_meters.meter_number', 
                 'meter_cases.meter_case_name_english', 'all_energy_meters.meter_active', 
                 'all_energy_meters.installation_date', 'all_energy_meters.daily_limit',
+                DB::raw('CASE WHEN households.number_of_male IS NULL 
+                        OR households.number_of_female IS NULL 
+                        OR households.number_of_adults IS NULL 
+                        OR households.number_of_children IS NULL 
+                    THEN "Missing Details" 
+                    ELSE "Complete" 
+                    END as details_status'),
                 'households.number_of_male', 'households.number_of_female', 
                 'households.number_of_adults', 'households.number_of_children', 
+                DB::raw('CASE 
+                    WHEN (households.number_of_male IS NOT NULL AND households.number_of_female IS NOT NULL 
+                        AND households.number_of_adults IS NOT NULL AND households.number_of_children IS NOT NULL 
+                        AND (households.number_of_adults + households.number_of_children) <> (households.number_of_male + households.number_of_female))
+                    THEN "Discrepancy" 
+                    ELSE "No Discrepancy" 
+                    END as discrepancies_status'),
                 'households.phone_number');
 
  
@@ -72,8 +86,8 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
     public function headings(): array
     {
         return ["Household", "Community", "Household Status", "Meter Number", "Meter Case", "Meter Active", 
-            "Installation Date", "Daily Limit", "Number of male", "Number of Female", "Number of adults", 
-            "Number of children", "Phone number"];
+            "Installation Date", "Daily Limit", "All Details", "Number of male", "Number of Female", "Number of adults", 
+            "Number of children", "Discrepancy", "Phone number"];
     }
 
     public function title(): string
@@ -103,7 +117,7 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:M1');
+        $sheet->setAutoFilter('A1:O1');
 
         return [
             // Style the first row as bold text.

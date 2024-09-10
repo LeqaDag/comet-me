@@ -48,7 +48,7 @@ label, table {
                         </div>
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
-                        action="{{ route('energy-request.export') }}">
+                        action="{{ route('energy-request-household.export') }}">
                         @csrf
                         <div class="card-body"> 
                             <div class="row">

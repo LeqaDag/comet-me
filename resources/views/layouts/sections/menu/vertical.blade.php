@@ -235,6 +235,12 @@
                             <div>Refrigerator Holders</div>
                         </a>
                     </li>
+                    <li class="menu-item" id="vendor">
+                        <a href="{{url('vendor')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Vending Points</div>
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -771,6 +777,11 @@
     } else if(last_part == "refrigerator-user") {
 
         $("#refrigerator-user").addClass("active");
+        $("#energy-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "vendor") {
+
+        $("#vendor").addClass("active");
         $("#energy-service").addClass("open");
         $("#services").addClass("open");
     } else if(last_part == "all-water") {

@@ -315,6 +315,10 @@ class AllEnergyController extends Controller
                         } else return $viewButton;
 
                     })
+                    ->addColumn('checkbox', function($row) {
+
+                        return "<input type='checkbox' class='record-checkbox' data-id='".$row->id."'>";
+                    })
                     ->addColumn('icon', function($row) {
 
                         $icon = "<i class='fa-solid fa-check text-success'></i>";
@@ -343,7 +347,7 @@ class AllEnergyController extends Controller
                             });
                         }
                     })
-                    ->rawColumns(['action', 'icon'])
+                    ->rawColumns(['checkbox', 'action', 'icon'])
                     ->make(true);
             }
             

@@ -81,7 +81,8 @@ class AllActiveUserController extends Controller
                     'communities.english_name as community_name',
                     'households.id as id', 'households.created_at as created_at', 
                     'households.updated_at as updated_at', 'regions.english_name as region',
-                    'households.english_name as household_name',
+                    DB::raw('IFNULL(households.english_name, households.arabic_name) 
+                        as household_name'),
                     'households.arabic_name as arabic_name', 'households.energy_system_status', 
                     'households.water_system_status', 'households.internet_system_status')
                 ->latest(); 
