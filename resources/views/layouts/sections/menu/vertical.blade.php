@@ -236,7 +236,7 @@
                         </a>
                     </li>
                     <li class="menu-item" id="vendor">
-                        <a href="{{url('vendor')}}" class="menu-link" >
+                        <a href="{{url('vending-point')}}" class="menu-link" >
                             <i class=""></i>
                             <div>Vending Points</div>
                         </a>

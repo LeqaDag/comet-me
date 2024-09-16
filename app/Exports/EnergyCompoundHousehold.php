@@ -38,6 +38,7 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
                 'household_statuses.id')
             ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
             ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+            ->leftJoin('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
             ->leftJoin('grid_community_compounds', 'compounds.id',
                 'grid_community_compounds.compound_id')
             ->leftJoin('community_donors', 'community_donors.compound_id', 'compounds.id')
@@ -52,12 +53,15 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
                 'community_statuses.name as community_status',
                 'compounds.english_name as compound_name',
                 'energy_system_types.name', 
+                'all_energy_meters.meter_number', 
+                'meter_cases.meter_case_name_english', 'all_energy_meters.meter_active', 
+                'all_energy_meters.installation_date', 'all_energy_meters.daily_limit',
                 DB::raw('CASE WHEN households.number_of_male IS NULL 
                         OR households.number_of_female IS NULL 
                         OR households.number_of_adults IS NULL 
                         OR households.number_of_children IS NULL 
                     THEN "Missing Details" 
-                    ELSE "Complete" 
+                    ELSE "Complete"  
                     END as details_status'),
                 'households.number_of_male', 
                 'households.number_of_female', 'households.number_of_adults', 
@@ -82,6 +86,8 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
             ->join('households', 'households.community_id','communities.id')
             ->leftJoin('household_statuses', 'households.household_status_id', 
                 'household_statuses.id')
+            ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+            ->leftJoin('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
             ->leftJoin('energy_system_types', 'energy_system_types.id',
                 'households.energy_system_type_id')
             ->leftJoin('community_donors', 'community_donors.community_id', 'communities.id')
@@ -106,6 +112,9 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
                 'community_statuses.name as community_status',
                 DB::raw('" " as space'),
                 'energy_system_types.name', 
+                'all_energy_meters.meter_number', 
+                'meter_cases.meter_case_name_english', 'all_energy_meters.meter_active', 
+                'all_energy_meters.installation_date', 'all_energy_meters.daily_limit',
                 DB::raw('CASE WHEN households.number_of_male IS NULL 
                         OR households.number_of_female IS NULL 
                         OR households.number_of_adults IS NULL 
@@ -149,8 +158,9 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return ["Household", "Household Status", "Community", "Community Status", "Compound", "System Type",  
-            "All Details", "Number of male", "Number of Female", "Number of adults", "Number of children", 
-            "Discrepancy", "Phone number", "Donors"];
+            "Meter Number", "Meter Case", "Meter Active", "Installation Date", "Daily Limit", "All Details", 
+            "Number of male", "Number of Female", "Number of adults", "Number of children", "Discrepancy", 
+            "Phone number", "Donors"];
     }
 
     public function title(): string
@@ -180,7 +190,7 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:M1');
+        $sheet->setAutoFilter('A1:S1');
 
         return [
             // Style the first row as bold text.

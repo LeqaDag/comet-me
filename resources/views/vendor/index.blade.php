@@ -39,7 +39,7 @@
                         </div>
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
-                        action="{{ route('vendor.export') }}">
+                        action="{{ route('vending-point.export') }}">
                         @csrf
                         <div class="card-body"> 
                             <div class="row">
@@ -187,7 +187,7 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{route('vendor.index')}}",
+                url: "{{route('vending-point.index')}}",
                 data: function (d) {
                     d.search = $('input[type="search"]').val();
                     d.region_filter = $('#filterByRegion').val();
@@ -289,7 +289,7 @@
     
         // AJAX request
         $.ajax({
-            url: 'vendor/' + id,
+            url: 'vending-point/' + id,
             type: 'get',
             dataType: 'json', 
             success: function(response) { 
@@ -339,6 +339,5 @@
         url = url +'/'+ id +'/edit';
         window.open(url, "_self"); 
     });
-
 </script>
 @endsection

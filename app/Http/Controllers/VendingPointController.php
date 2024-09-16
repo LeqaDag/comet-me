@@ -22,7 +22,7 @@ use DataTables;
 use Excel;
 use Route;
 
-class VendorController extends Controller
+class VendingPointController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -93,9 +93,9 @@ class VendorController extends Controller
                         $updateButton = "<a type='button' class='updateVendor' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteVendor' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        if(Auth::guard('user')->user()->user_type_id != 7 || 
-                            Auth::guard('user')->user()->user_type_id != 11 || 
-                            Auth::guard('user')->user()->user_type_id != 8) 
+                        if(Auth::guard('user')->user()->user_type_id != 1 || 
+                            Auth::guard('user')->user()->user_type_id != 2 || 
+                            Auth::guard('user')->user()->user_type_id != 4) 
                         {
                                 
                             return $detailsButton." ". $updateButton." ".$deleteButton;
@@ -192,6 +192,91 @@ class VendorController extends Controller
     }
 
     /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $vendingPoint = Vendor::findOrFail($id);
+        $vendingRegion = null;
+        $community = null;
+        $town = null;
+
+        if($vendingPoint->vendor_region_id) $vendingRegion = VendorRegion::findOrFail($vendingPoint->vendor_region_id);
+        $vendorUserName = VendorUserName::findOrFail($vendingPoint->vendor_username_id);
+
+        if($vendingPoint->community_id) $community = Community::findOrFail($vendingPoint->community_id);
+        if($vendingPoint->town_id) $town = Town::findOrFail($vendingPoint->town_id);
+
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $vendorRegions = VendorRegion::where('is_archived', 0)->get();
+        $vendorUsers = VendorUserName::all();
+        $towns = Town::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+
+        $vendorCommunities = DB::table('community_vendors')
+            ->join('communities', 'community_vendors.community_id', 'communities.id')
+            ->where('community_vendors.vendor_username_id', $vendingPoint->vendor_username_id)
+            ->select('communities.english_name', 'communities.id as id')
+            ->get();
+
+        return view('vendor.edit', compact('vendingPoint', 'vendingRegion', 'vendorUserName', 'communities',
+            'community', 'town', 'vendorRegions', 'vendorUsers', 'towns', 'vendorCommunities'));
+    }
+    
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $vendor = Vendor::findOrFail($id);
+        if($request->english_name) $vendor->english_name = $request->english_name;
+        if($request->arabic_name) $vendor->arabic_name = $request->arabic_name;
+        if($request->vendor_region_id) $vendor->vendor_region_id = $request->vendor_region_id;
+        if($request->vendor_username_id) $vendor->vendor_username_id  = $request->vendor_user_name_id;
+        if($request->phone_number) $vendor->phone_number = $request->phone_number;
+        if($request->additional_phone_number) $vendor->additional_phone_number = $request->additional_phone_number;
+        if($request->notes) $vendor->notes = $request->notes;
+        if($request->community_id) $vendor->community_id = $request->community_town_id;
+        if($request->town_id) $vendor->town_id = $request->community_town_id;
+        if($request->community_town == "community") $vendor->community_id = $request->community_town_id;
+        else if($request->community_town == "town") $vendor->town_id = $request->community_town_id;
+        $vendor->save();
+
+        if($request->new_community) {
+ 
+            for($i=0; $i < count($request->new_community); $i++) {
+
+                $communityVendingPoint = new CommunityVendor();
+                $communityVendingPoint->community_id = $request->new_community[$i];
+                $communityVendingPoint->vendor_username_id = $vendor->vendor_username_id;
+                $communityVendingPoint->save();
+            }
+        }
+
+        if($request->more_community) {
+
+            for($i=0; $i < count($request->more_community); $i++) {
+
+                $communityVendingPoint = new CommunityVendor();
+                $communityVendingPoint->community_id = $request->more_community[$i];
+                $communityVendingPoint->vendor_username_id = $vendor->vendor_username_id;
+                $communityVendingPoint->save();
+            }
+        }
+
+        return redirect('/vending-point')->with('message', 'Vending Point Updated Successfully!');
+    }
+
+    /**
      * Get households by community_id.
      *
      * @param  String $is_household
@@ -242,6 +327,34 @@ class VendorController extends Controller
 
             $response['success'] = 1;
             $response['msg'] = 'Vending Point Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteServedCommunity(Request $request)
+    {
+        $id = $request->id;
+
+        $communityVendingPoint = CommunityVendor::find($id);
+
+        if($communityVendingPoint) {
+
+            $communityVendingPoint->is_archived = 1;
+            $communityVendingPoint->save();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Served Community Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

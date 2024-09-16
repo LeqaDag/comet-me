@@ -516,7 +516,8 @@ Route::get('/delete-water-request', [App\Http\Controllers\WaterRequestSystemCont
 Route::get('water-request/get_by_community/public/{community_id}', [App\Http\Controllers\WaterRequestSystemController::class, 'getPublicByCommunity']);
 Route::get('/move-water-request', [App\Http\Controllers\WaterRequestSystemController::class, 'moveRequestedWaterSystem'])->name('moveWaterRequest');
 
-Route::resource('vendor', App\Http\Controllers\VendorController::class);
-Route::post('vendor-export', [App\Http\Controllers\VendorController::class, 'export'])->name('vendor.export');
-Route::get('vendor/community_town/{community_town}', [App\Http\Controllers\VendorController::class, 'getVendingPointPlace']);
-Route::get('/delete-vendor', [App\Http\Controllers\VendorController::class, 'deleteVendor'])->name('deleteVendor');
+Route::resource('vending-point', App\Http\Controllers\VendingPointController::class);
+Route::post('vendor-export', [App\Http\Controllers\VendingPointController::class, 'export'])->name('vending-point.export');
+Route::get('vendor/community_town/{community_town}', [App\Http\Controllers\VendingPointController::class, 'getVendingPointPlace']);
+Route::get('/delete-vendor', [App\Http\Controllers\VendingPointController::class, 'deleteVendor'])->name('deleteVendor');
+Route::get('/delete-served-community', [App\Http\Controllers\VendingPointController::class, 'deleteServedCommunity'])->name('deleteServedCommunity');

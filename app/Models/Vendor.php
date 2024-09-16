@@ -16,4 +16,19 @@ class Vendor extends Model
     {
         return $this->belongsTo(VendorUsername::class, 'vendor_username_id', 'id');
     }
+
+    public function Community()
+    {
+        return $this->belongsTo(Community::class, 'community_id', 'id');
+    }
+
+    public function Town()
+    {
+        return $this->belongsTo(Town::class, 'town_id', 'id');
+    }
+
+    public function VendorRegion()
+    {
+        return $this->belongsTo(VendorRegion::class, 'vendor_region_id', 'id');
+    }
 }
