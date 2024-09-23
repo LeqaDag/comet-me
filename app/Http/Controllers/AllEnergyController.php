@@ -41,6 +41,7 @@ use App\Models\EnergySystemCycle;
 use App\Exports\AllEnergyExport;
 use App\Exports\PurchaseEnergyExport;
 use App\Imports\PurchaseEnergyImport;
+use App\Helpers\SequenceHelper;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -597,15 +598,73 @@ class AllEnergyController extends Controller
             }
         }
 
-        $energyUser->meter_number = $request->meter_number;
+        // This code is for updating the fake_meter_numbers for the shared ones if the main meter number is changed
+        if($request->meter_number) {
+
+            $energyUser->meter_number = $request->meter_number;
+
+            $sharedEnergyUsers = DB::table('household_meters')
+                ->leftJoin('households', 'household_meters.household_id', 'households.id')
+                ->leftJoin('public_structures', 'household_meters.public_structure_id', 
+                    'public_structures.id')
+                ->join('all_energy_meters', 'household_meters.energy_user_id', 'all_energy_meters.id')
+                ->leftJoin('all_energy_meters as shared_energy_users', 'shared_energy_users.household_id', 'households.id')
+                ->join('households as main_users', 'all_energy_meters.household_id', 'main_users.id')
+                ->where('household_meters.is_archived', 0)
+                ->where('all_energy_meters.id', $id)
+                ->select(
+                    DB::raw('IFNULL(shared_energy_users.fake_meter_number, public_structures.fake_meter_number) 
+                        as fake_meter_number'),
+                    'all_energy_meters.meter_number', 'main_users.id as main_user_id',
+                    'households.id as shared_household_id', 'public_structures.id as shared_public_id'
+                    )
+                ->distinct()
+                ->get();
+                
+            foreach($sharedEnergyUsers as $sharedEnergyUser) {
+                
+                $newFakeMeterNumber = null;
+                if($sharedEnergyUser->fake_meter_number) $newFakeMeterNumber = SequenceHelper::updateSequence($sharedEnergyUser->fake_meter_number, $request->meter_number); 
+
+                else {
+
+                    $newFakeMeterNumber = SequenceHelper::generateSequence($sharedEnergyUser->meter_number, $incrementalNumber);
+                }
+
+                $exist = AllEnergyMeter::where('fake_meter_number', $newFakeMeterNumber)->first();
+    
+                if($exist) {
+                } else {
+
+                    $allEnergyMeter = null;
+                    if($sharedEnergyUser->shared_household_id) {
+                        
+                        $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
+                            ->whereNull("meter_number")
+                            ->where("household_id", $sharedEnergyUser->shared_household_id)
+                            ->first();
+                    } else if($sharedEnergyUser->shared_public_id) {
+
+                        $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
+                            ->whereNull("meter_number")
+                            ->where("public_structure_id", $sharedEnergyUser->shared_public_id)
+                            ->first();
+                    }
+                    if($allEnergyMeter) {
+
+                        $allEnergyMeter->fake_meter_number = $newFakeMeterNumber;
+                        $allEnergyMeter->save();
+                    }
+                }
+
+            }
+        }
+
         $energyUser->daily_limit = $request->daily_limit;
         $energyUser->installation_date = $request->installation_date;
         if($request->installation_type_id) $energyUser->installation_type_id = $request->installation_type_id;
-         
         if($request->ground_connected) $energyUser->ground_connected = $request->ground_connected;
-      
         if($request->meter_active) $energyUser->meter_active = $request->meter_active;
-
         if($request->vendor_username_id) $energyUser->vendor_username_id = $request->vendor_username_id;
 
         if($request->energy_system_id) $energyUser->energy_system_id = $request->energy_system_id;

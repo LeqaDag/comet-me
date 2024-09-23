@@ -521,3 +521,8 @@ Route::post('vendor-export', [App\Http\Controllers\VendingPointController::class
 Route::get('vendor/community_town/{community_town}', [App\Http\Controllers\VendingPointController::class, 'getVendingPointPlace']);
 Route::get('/delete-vendor', [App\Http\Controllers\VendingPointController::class, 'deleteVendor'])->name('deleteVendor');
 Route::get('/delete-served-community', [App\Http\Controllers\VendingPointController::class, 'deleteServedCommunity'])->name('deleteServedCommunity');
+
+Route::resource('young-holder', App\Http\Controllers\YoungHolderController::class);
+Route::get('/delete-young-holder', [App\Http\Controllers\YoungHolderController::class, 'deleteyoungHolder'])->name('deleteyoungHolder');
+Route::get('young-holder/community/{community_id}', [App\Http\Controllers\YoungHolderController::class, 'getYoungAndMainDetailsByCommunity']);
+Route::get('young-holder/main_user/{energy_user_id}', [App\Http\Controllers\YoungHolderController::class, 'getMeterNumberByMain']);

@@ -5,6 +5,51 @@ namespace App\Helpers;
 use Config;
 use Illuminate\Support\Str;
 
+class SequenceHelper {
+
+  public static function generateSequence($meterNumber, $incrementalNumber) 
+  {
+    $meterPart = str_pad($meterNumber, 11, '0', STR_PAD_LEFT);
+      
+    return $meterPart . 's' . $incrementalNumber;
+  }
+
+  public static function generateSequenceYoung($meterNumber, $incrementalNumber) 
+  {
+    $meterPart = str_pad($meterNumber, 11, '0', STR_PAD_LEFT);
+      
+    return $meterPart . 'y' . $incrementalNumber;
+  }
+
+  public static function generateSequencePublic($incrementalNumber) 
+  {
+
+    return $incrementalNumber;
+  }
+
+  public static function updateSequence($fakeMeterNumber, $newMeterNumber)
+  {
+    // Find the position of 's'
+    $sPosition = strpos($fakeMeterNumber, 's');
+    
+    if ($sPosition === false) {
+      // Handle the case where 's' is not found
+      return $fakeMeterNumber; // or return an error message
+    }
+    
+    // Extract the part before 's'
+    $beforeS = substr($fakeMeterNumber, 0, $sPosition);
+    
+    // Combine the new phrase with the part after 's'
+    $afterS = substr($fakeMeterNumber, $sPosition);
+    
+    // Create the new string
+    $updatedString = $newMeterNumber . $afterS;
+    
+    return $updatedString;
+  }
+}
+
 class Helpers
 {
   public static function appClasses()
@@ -12,7 +57,7 @@ class Helpers
 
     $data = config('custom.custom');
 
-
+ 
     // default data array
     $DefaultData = [
       'myLayout' => 'vertical',

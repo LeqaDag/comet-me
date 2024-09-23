@@ -438,7 +438,7 @@ class InternetHolderController extends Controller
                             }
                         } else { 
 
-                            if($holder["is_public_entity"] == 0 || $holder["is_young"]) {
+                            if($holder["is_public_entity"] == 0 || $holder["is_young"] == 1) {
 
                                 $newHousehold = new Household();
                                 $newHousehold->arabic_name = $holder["holder_full_name"];
@@ -451,8 +451,18 @@ class InternetHolderController extends Controller
             
                                 $internetUser->household_id = $newHousehold->id;
                                 $internetUser->save();
-                            } else if($holder["is_public_entity"] == 1) {
+                            } else if($holder["is_public_entity"] == 1 && $holder["out_of_comet"] == 1) {
 
+                                $newOutOfCometPublic = new PublicStructure();
+                                $newOutOfCometPublic->arabic_name = $holder["holder_full_name"];
+                                $newOutOfCometPublic->phone_number = $holder["holder_mobile"];
+                                $newOutOfCometPublic->out_of_comet = 1;
+                                $newOutOfCometPublic->community_id = $community->id;
+                                $newOutOfCometPublic->internet_system_status = "Served";
+                                $lastIdentifier = PublicStructure::max('fake_meter_number');
+                                $nextIdentifier = $lastIdentifier ? $lastIdentifier + 1 : 10000;
+                                $newOutOfCometPublic->fake_meter_number = $nextIdentifier;
+                                $newOutOfCometPublic->save();
                             }
                         }
                     }
