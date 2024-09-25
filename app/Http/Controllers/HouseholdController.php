@@ -61,6 +61,15 @@ class HouseholdController extends Controller
      */
     public function index(Request $request)
     {	
+        $youngHolders = Household::where("internet_holder_young", 1)->get();
+
+        foreach($youngHolders as $youngHolder) {
+
+            $youngHolder->household_status_id = 4;
+            $youngHolder->energy_service = "Yes";
+            $youngHolder->save();
+        }
+
         // $houses = Household::all();
         // foreach($houses as $house) {
         //     if($house->community_id == 1 || $house->community_id == 2 || 

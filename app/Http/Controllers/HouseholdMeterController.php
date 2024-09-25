@@ -31,6 +31,7 @@ use App\Models\Region;
 use App\Models\InstallationType;
 use App\Models\VendorUserName;
 use App\Exports\HouseholdMeters;
+use App\Helpers\SequenceHelper;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -338,7 +339,16 @@ class HouseholdMeterController extends Controller
                     $newAllEnergyMeter->community_id = $energyUser->community_id;
                     $newAllEnergyMeter->installation_type_id = 4;
                     $newAllEnergyMeter->energy_system_type_id = $energyUser->energy_system_type_id;
-                    $newAllEnergyMeter->energy_system_id  = $energyUser->energy_system_id ;
+                    $newAllEnergyMeter->energy_system_id  = $energyUser->energy_system_id;
+
+                    $lastIncrementalNumber = AllEnergyMeter::whereNotNull('fake_meter_number')
+                        ->selectRaw('MAX(CAST(SUBSTRING_INDEX(fake_meter_number, \'s\', -1) AS UNSIGNED)) AS incremental_number')
+                        ->value('incremental_number');
+
+                    $lastIncrementalNumber = $lastIncrementalNumber + 1; 
+                    $newFakeMeterNumber = SequenceHelper::generateSequence($energyUser->meter_number, $lastIncrementalNumber);
+                    $newAllEnergyMeter->fake_meter_number = $newFakeMeterNumber;
+
                     $newAllEnergyMeter->save();
                 }
 
@@ -395,8 +405,14 @@ class HouseholdMeterController extends Controller
 
         if($householdMeter) {
 
-            $householdMeter->delete();
+            $allEnergyMeter = AllEnergyMeter::where("household_id", $householdMeter->household_id)->first();
+            $allEnergyMeter->is_archived = 1;
+            $allEnergyMeter->save();
+
+            $householdMeter->is_archived = 1;
+            $householdMeter->save();
             
+
             $response['success'] = 1;
             $response['msg'] = 'Household Meter Deleted successfully'; 
         } else {

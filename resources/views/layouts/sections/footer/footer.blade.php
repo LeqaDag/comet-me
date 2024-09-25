@@ -12,8 +12,9 @@
       </a>
     </div>
     <div>
-      <a href="" 
-        class="footer-link me-4" target="_blank">Instagram
+      <a href="https://www.facebook.com/p/Comet-ME-100064679921744/" 
+        class="footer-link me-4" target="_blank">
+        Facebook
       </a>
       <a href="{{ config('variables.websiteUrl') ? config('variables.websiteUrl') : '#' }}" 
         target="_blank" class="footer-link me-4">Website

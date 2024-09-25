@@ -103,8 +103,6 @@ class AllEnergyMeterController extends Controller
         //     }
         // }
 
-    
-
         $households = DB::table('households')
             ->join('communities', 'households.community_id', 'communities.id')
             ->leftJoin('household_statuses', 'households.household_status_id', 'household_statuses.id')
@@ -117,6 +115,7 @@ class AllEnergyMeterController extends Controller
             ->leftJoin('household_meters', 'household_meters.household_id', 'households.id')
             ->leftJoin('all_energy_meters as main_energy', 'main_energy.id', 'household_meters.energy_user_id')
             ->leftJoin('households as main_users', 'main_energy.household_id', 'main_users.id')
+            ->leftJoin('young_holders', 'young_holders.household_id', 'households.id')
             ->where('households.is_archived', 0)
             ->select(
                 'communities.english_name as english_community_name',
@@ -124,8 +123,8 @@ class AllEnergyMeterController extends Controller
                 'households.english_name as holder_name_english', 
                 'households.arabic_name as holder_name_arabic', 
                 'households.phone_number', 'household_statuses.status as energy_system_status',
-                DB::raw('IFNULL(all_energy_meters.meter_number, all_energy_meters.fake_meter_number) 
-                    as meter_number'),
+                DB::raw('IFNULL(all_energy_meters.meter_number, 
+                    IFNULL(all_energy_meters.fake_meter_number, young_holders.fake_meter_number)) as meter_number'),
                 'energy_system_types.name as energy_type',
                 'meter_cases.meter_case_name_english as meter_case',
                 'all_energy_meters.is_main', 'all_energy_meters.is_archived',
