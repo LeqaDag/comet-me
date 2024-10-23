@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\AllEnergyMeter;
 use App\Models\User;
@@ -212,6 +213,13 @@ class EnergyMaintenanceCallController extends Controller
 
             $energyIssues = EnergyMaintenanceIssue::all();
             $energyIssueTypes = EnergyMaintenanceIssueType::all();
+
+            // This code is to get the tickets from the API
+            $ticketsData =  Http::get('https://cometme.org/api/tickets');
+            $ticketMaintainances = json_decode($ticketsData, true);
+
+
+            dd($ticketMaintainances);
 
             return view('users.energy.maintenance.index', compact('maintenanceTypes', 
                 'maintenanceStatuses', 'maintenanceEnergyActions', 'users', 'communities', 

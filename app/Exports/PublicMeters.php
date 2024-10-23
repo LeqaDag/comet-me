@@ -42,8 +42,10 @@ class PublicMeters implements FromCollection, WithHeadings, WithTitle, ShouldAut
             ->select('public_structures.english_name as public_name', 
                 'communities.english_name as community_name',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
-                'energy_systems.name as energy_name', 'energy_system_types.name as energy_type_name',
-                'all_energy_meters.meter_number', 'all_energy_meters.daily_limit', 
+                'energy_systems.name as energy_name', 'energy_system_types.name as energy_type_name', 
+                DB::raw('IFNULL(all_energy_meters.meter_number, public_structures.fake_meter_number) 
+                    as meter_number'),
+                'all_energy_meters.daily_limit', 
                 'all_energy_meters.installation_date', 'meter_cases.meter_case_name_english',
                 'donors.donor_name');
 

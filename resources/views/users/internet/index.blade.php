@@ -39,7 +39,7 @@ label, table {
 
 <div class="collapse multi-collapse container mb-4" id="collapseInternetUsersVisualData">
        <!-- Internet Users -->
-
+<!-- 
     <div class="card mb-4">
         <div class="card-body">
             <h5>Internet Users</h5>
@@ -138,7 +138,7 @@ label, table {
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
 
     <div class="card mb-4">

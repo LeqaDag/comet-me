@@ -61,15 +61,15 @@ class HouseholdController extends Controller
      */
     public function index(Request $request)
     {	
-        $youngHolders = Household::where("internet_holder_young", 1)->get();
+        // $youngHolders = Household::where("internet_holder_young", 1)->get();
 
-        foreach($youngHolders as $youngHolder) {
+        // foreach($youngHolders as $youngHolder) {
 
-            $youngHolder->household_status_id = 4;
-            $youngHolder->energy_service = "Yes";
-            $youngHolder->save();
-        }
-
+        //     $youngHolder->household_status_id = 4;
+        //     $youngHolder->energy_service = "Yes";
+        //     $youngHolder->save();
+        // }
+        
         // $houses = Household::all();
         // foreach($houses as $house) {
         //     if($house->community_id == 1 || $house->community_id == 2 || 
@@ -248,6 +248,9 @@ class HouseholdController extends Controller
                         else if($row->status == "Left") 
                         $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
                         
+                        else if($row->status == "Served by Third Party") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
+                        
                         return $statusLabel;
                     })
                     ->addColumn('checkStatus', function($row) {
@@ -339,9 +342,10 @@ class HouseholdController extends Controller
         $regions = Region::where('is_archived', 0)->get();
         $professions = Profession::where('is_archived', 0)->get();
         $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+        $energyCycles = EnergySystemCycle::get();
 
         return view('employee.household.create', compact('communities', 'regions', 
-            'professions', 'energySystemTypes'));
+            'professions', 'energySystemTypes', 'energyCycles'));
     }
 
     /**
@@ -352,12 +356,12 @@ class HouseholdController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'community_id' => 'required',
-            'english_name' => 'required',
-            'arabic_name' => 'required',
-            'profession_id' => 'required'
-        ]);
+        // $this->validate($request, [
+        //     'community_id' => 'required',
+        //     'english_name' => 'required',
+        //     'arabic_name' => 'required',
+        //     'profession_id' => 'required'
+        // ]);
  
        // dd($request->all()); 
         $household = new Household();
@@ -381,6 +385,7 @@ class HouseholdController extends Controller
         $household->electricity_source_shared = $request->electricity_source_shared;
         $household->number_of_people = $request->number_of_male + $request->number_of_female;
         if($request->energy_system_type_id) $household->energy_system_type_id = $request->energy_system_type_id;
+        if($request->energy_system_cycle_id) $household->energy_system_cycle_id = $request->energy_system_cycle_id;
 
         $household->save();
         $id = $household->id;

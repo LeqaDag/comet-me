@@ -14,7 +14,7 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\Region;
 use App\Models\Town;
-use App\Exports\MissingHouseholdExport;
+use App\Exports\VendingPointExport;
 use Carbon\Carbon;
 use Auth;
 use DB;
@@ -343,7 +343,7 @@ class VendingPointController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function deleteServedCommunity(Request $request)
-    {
+    { 
         $id = $request->id;
 
         $communityVendingPoint = CommunityVendor::find($id);
@@ -362,6 +362,16 @@ class VendingPointController extends Controller
         }
 
         return response()->json($response); 
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function export(Request $request) 
+    {
+                
+        return Excel::download(new VendingPointExport($request), 'Vending Points.xlsx');
     }
 }
  

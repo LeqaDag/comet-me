@@ -56,7 +56,8 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 DB::raw('CASE WHEN all_energy_meters.meter_number IS NOT NULL THEN "Yes" 
                     ELSE "No" END as has_meter'),
-                'all_energy_meters.meter_number', 
+                DB::raw('IFNULL(all_energy_meters.meter_number, public_structures.fake_meter_number) 
+                    as meter_number'),
                 DB::raw('group_concat(DISTINCT energy_donor.donor_name) as meter_donor'),
                 DB::raw('CASE WHEN all_water_holders.public_structure_id IS NOT NULL THEN "Yes" 
                     ELSE "No" END as has_water'),

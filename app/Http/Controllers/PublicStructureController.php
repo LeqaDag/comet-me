@@ -16,12 +16,14 @@ use App\Models\Household;
 use App\Models\Photo;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
+use App\Models\EnergySystemCycle;
+use App\Models\EnergySystemType;
 use App\Models\SchoolServedCommunity;
 use App\Models\SchoolPublicStructure;
 use App\Exports\PublicStructureExport;
 use Auth;
 use Route;
-use DB;
+use DB; 
 use Excel;
 use PDF; 
 use DataTables;
@@ -169,9 +171,13 @@ class PublicStructureController extends Controller
                 ->get();
 
             $publicCategories = PublicStructureCategory::all();
+            $energyCycles = EnergySystemCycle::get();
+            $energySystemTypes = EnergySystemType::where('is_archived', 0)
+                ->orderBy('name', 'ASC')
+                ->get();
 
             return view('public.index', compact('communities', 'donors', 'publicCategories', 
-                'regions'));
+                'regions', 'energyCycles', 'energySystemTypes'));
            
         } else {
 
@@ -193,9 +199,12 @@ class PublicStructureController extends Controller
         $publicStructure->community_id = $request->community_id;
         if($request->compound_id) $publicStructure->compound_id = $request->compound_id;
         $publicStructure->notes = $request->notes;
+        if($request->out_of_comet) $publicStructure->out_of_comet = $request->out_of_comet;
         $publicStructure->public_structure_category_id1 = $request->public_structure_category_id1;
         $publicStructure->public_structure_category_id2 = $request->public_structure_category_id2;
         $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
+        if($request->energy_system_type_id) $publicStructure->energy_system_type_id = $request->energy_system_type_id;
+        if($request->energy_system_cycle_id) $publicStructure->energy_system_cycle_id = $request->energy_system_cycle_id;
 
         if($request->public_structure_category_id1 ||
             $request->public_structure_category_id2 || $request->public_structure_category_id3) 
@@ -204,6 +213,17 @@ class PublicStructureController extends Controller
         } else {
             $publicStructure->comet_meter = 1;
         }
+
+        if($request->out_of_comet == 1) {
+
+            $lastIncrementalNumber = PublicStructure::where('out_of_comet', 1)
+                ->whereNotNull('fake_meter_number')
+                ->selectRaw('MAX(fake_meter_number) AS incremental_number')
+                ->value('incremental_number');
+
+            $publicStructure->fake_meter_number = $lastIncrementalNumber + 1; 
+        }
+
         $publicStructure->save();
         
         return redirect('/public-structure')
@@ -242,9 +262,14 @@ class PublicStructureController extends Controller
         $compounds = Compound::where('is_archived', 0)
             ->where('community_id', $publicStructure->community_id)
             ->get();
+        $energyCycles = EnergySystemCycle::get();
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)
+            ->orderBy('name', 'ASC')
+            ->get();
 
         return view('public.edit', compact('publicStructure', 'publicCategories',
-            'schoolPublicStructure', 'schoolCommunities', 'communities', 'compounds'));
+            'schoolPublicStructure', 'schoolCommunities', 'communities', 'compounds',
+            'energyCycles', 'energySystemTypes'));
     }
 
     /**
@@ -264,6 +289,13 @@ class PublicStructureController extends Controller
         if($request->public_structure_category_id1) $publicStructure->public_structure_category_id1 = $request->public_structure_category_id1;
         if($request->public_structure_category_id2) $publicStructure->public_structure_category_id2 = $request->public_structure_category_id2;
         if($request->public_structure_category_id3) $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
+        
+        if($request->energy_system_type_id) $publicStructure->energy_system_type_id = $request->energy_system_type_id;
+        if($request->energy_system_cycle_id) $publicStructure->energy_system_cycle_id = $request->energy_system_cycle_id;
+
+        
+        if($request->out_of_comet) $publicStructure->out_of_comet = $request->out_of_comet;
+        
         $publicStructure->save();
 
         $existSchoolPublicStructure = SchoolPublicStructure::where("public_structure_id", $id)

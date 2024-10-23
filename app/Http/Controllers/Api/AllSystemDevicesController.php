@@ -21,13 +21,15 @@ class AllSystemDevicesController extends Controller
     {	
         $turbines = DB::table('energy_turbine_communities')
             ->join('communities', 'energy_turbine_communities.community_id', 'communities.id')
-            ->select('energy_turbine_communities.name', 'communities.english_name as community')
+            ->select('energy_turbine_communities.name', 'communities.english_name as community', 
+                'energy_turbine_communities.fake_meter_number')
             ->get(); 
 
         $energySystems = DB::table('energy_systems')
             ->leftJoin('communities', 'energy_systems.community_id', 'communities.id')
             ->where('energy_systems.is_archived', 0)
-            ->select('energy_systems.name as energy_system', 'communities.english_name as community')
+            ->select('energy_systems.name as energy_system', 'communities.english_name as community',
+                'energy_systems.fake_meter_number')
             ->get();
 
         $waterSystems =  DB::table('water_systems')
@@ -36,12 +38,14 @@ class AllSystemDevicesController extends Controller
             ->select(
                 'water_systems.name as water_system', 
                 'water_system_types.type as water_type',
-                'communities.english_name as community')
+                'communities.english_name as community',
+                'water_systems.fake_meter_number')
             ->get();
 
         $generators = DB::table('energy_generator_communities')
             ->join('communities', 'energy_generator_communities.community_id', 'communities.id')
-            ->select('energy_generator_communities.name', 'communities.english_name as community')
+            ->select('energy_generator_communities.name', 'communities.english_name as community',
+                'energy_generator_communities.fake_meter_number')
             ->get(); 
 
         $users = DB::table('users')

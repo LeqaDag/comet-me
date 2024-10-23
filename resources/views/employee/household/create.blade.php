@@ -62,13 +62,9 @@
                                 <input type="text" name="english_name" id="householdEnglishName" 
                                 placeholder="Write in English" value="{{old('english_name')}}"
                                 class="form-control" required>
-                                <div id="english_name_error" class="text-danger"></div>
-                                @if ($errors->has('english_name'))
-                                    <span class="error">{{ $errors->first('english_name') }}</span>
-                                @endif
-                                <div class="autocomplete-dropdown"></div>
                             </div>
                         </fieldset>
+                        <div id="english_name_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
@@ -76,11 +72,8 @@
                             <input type="text" name="arabic_name" placeholder="Write in Arabic"
                             class="form-control" value="{{old('arabic_name')}}" 
                             id="householdArabicName" required>
-                            <div id="arabic_name_error" class="text-danger"></div>
-                            @if ($errors->has('arabic_name'))
-                                <span class="error">{{ $errors->first('arabic_name') }}</span>
-                            @endif
                         </fieldset>
+                        <div id="arabic_name_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
@@ -105,19 +98,17 @@
                                 @endforeach
                                 <option value="other" id="selectedOtherProfession" style="color:red">Other</option>
                             </select>
-                            @if ($errors->has('profession_id'))
-                                <span class="error">{{ $errors->first('profession_id') }}</span>
-                            @endif
                         </fieldset>
+                        <div id="profession_id_error" style="color: red;"></div>
                         @include('employee.household.profession')
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Phone Number</label>
                             <input type="text" name="phone_number" value="{{old('phone_number')}}"
-                            class="form-control" id="phoneNumber">
-                            <div id="phone_error" class="text-danger"></div>
+                                class="form-control" id="phoneNumber" required>
                         </fieldset>
+                        <div id="phone_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
@@ -133,11 +124,8 @@
                                 @endforeach
                                 <option value="other" id="selectedOtherCommunity" style="color:red">Other</option>
                             </select>
-                            @if ($errors->has('community_id'))
-                                <span class="error">{{ $errors->first('community_id') }}</span>
-                            @endif
-                            <div id="community_error" class="text-danger"></div>
                         </fieldset>
+                        <div id="community_id_error" style="color: red;"></div>
                     </div>
                 </div>
 
@@ -212,7 +200,7 @@
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Energy System Type</label>
-                            <select name="energy_system_type_id" 
+                            <select name="energy_system_type_id" id="energySystemType"
                                 class="selectpicker form-control" data-live-search="true" >
                                 <option disabled selected>Choose one...</option>
                                 @foreach($energySystemTypes as $energySystemType)
@@ -222,18 +210,38 @@
                                 @endforeach
                             </select>
                         </fieldset>
+                        <div id="energy_system_type_id_error" style="color: red;"></div>
                     </div>
                 </div>
                 
-                <div class="row">  
+                <div class="row"> 
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select name="energy_system_cycle_id" data-live-search="true"
+                            class="selectpicker form-control" id="energyCycleYear">
+                            <option disabled selected>Choose one...</option>
+                                @foreach($energyCycles as $energyCycle)
+                                <option value="{{$energyCycle->id}}">
+                                    {{$energyCycle->name}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                        <div id="energy_system_cycle_id_error" style="color: red;"></div>
+                    </div> 
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label>
-                            <input type="text" name="notes" 
-                            class="form-control">
+                            <textarea name="notes" class="form-control" 
+                                   style="resize:none" cols="20" rows="3"></textarea>
                         </fieldset>
                     </div>
                 </div>
+
                 <label for=""></label>
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12">
@@ -399,6 +407,90 @@
 
 <script>
 
+    $('#householdForm').on('submit', function (event) {
+
+        var englishValue = $('#householdEnglishName').val();
+        var arabicValue = $('#householdArabicName').val();
+        var phoneValue = $('#phoneNumber').val();
+        var communityValue = $('#selectedCommunity').val();
+        var professionValue = $('#selectedProfession').val();
+        var energySystemType = $('#energySystemType').val();
+        var energyCycleValue = $('#energyCycleYear').val();
+
+        if (englishValue == null) {
+
+            $('#english_name_error').html('Please type an English name!');
+            return false;
+        } else if (englishValue != null){
+
+            $('#english_name_error').empty();
+        }
+
+        if (arabicValue == null) {
+
+            $('#arabic_name_error').html('Please type an Arabic name!');
+            return false;
+        } else if (arabicValue != null){
+
+            $('#arabic_name_error').empty();
+        }
+
+        if (phoneValue == null) {
+
+            $('#phone_error').html('Please type the phone number!');
+            return false;
+        } else if (phoneValue != null){
+
+            $('#phone_error').empty();
+        }
+
+        if (professionValue == null) {
+
+            $('#profession_id_error').html('Please select a profession!');
+            return false;
+        } else if (professionValue != null){
+
+            $('#profession_id_error').empty();
+        }
+
+        if (communityValue == null) {
+
+            $('#community_id_error').html('Please select a community!');
+            return false;
+        } else if (communityValue != null){
+
+            $('#community_id_error').empty();
+        }
+
+        if (energyCycleValue == null) {
+
+            $('#energy_system_cycle_id_error').html('Please select the cycle year!'); 
+            return false;
+        } else if (energyCycleValue != null) {
+
+            $('#energy_system_cycle_id_error').empty();
+        }
+
+        if (energySystemType == null) {
+
+            $('#energy_system_type_id_error').html('Please select a type!'); 
+            return false;
+        } else if (energySystemType != null) {
+
+            $('#energy_system_type_id_error').empty();
+        }
+
+        $(this).addClass('was-validated');  
+        $('#english_name_error').empty();
+        $('#arabic_name_error').empty();
+        $('#phone_error').empty();
+        $('#community_id_error').empty();
+        $('#profession_id_error').empty();
+        $('#energy_system_cycle_id_error').empty();
+        $('#energy_system_type_id_error').empty();
+
+        this.submit();
+    });
     // $(document).ready(function () {
 
     //     $("#householdEnglishName").autocomplete({

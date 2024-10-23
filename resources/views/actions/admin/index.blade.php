@@ -134,7 +134,7 @@
     <div class="row collapse multi-collapse container" id="EnergyProjectFiles">
         <div class="user-tasks">
             <div class="">
-                <form method="POST" enctype='multipart/form-data' 
+                <form method="POST" enctype='multipart/form-data' id="EnergyProjectFileForm"
                     action="{{ route('energy-request.export') }}">
                     @csrf
                     <div class="row">
@@ -148,7 +148,7 @@
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Cycle Year</label>
-                                <select name="energy_cycle_id"
+                                <select name="energy_cycle_id" id="cycleYearSelected"
                                     class="selectpicker form-control" data-live-search="true">
                                     <option disabled selected>Search Cycle Year</option>
                                     @foreach($energyCycles as $energyCycle)
@@ -158,6 +158,7 @@
                                     @endforeach
                                 </select> 
                             </fieldset>
+                            <div id="energy_cycle_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4" >
                             <fieldset class="form-group">
@@ -656,6 +657,26 @@
 </div>
 
 <script>
+
+    $('#EnergyProjectFileForm').on('submit', function (event) {
+
+        var englishValue = $('#cycleYearSelected').val();
+
+        if (englishValue == null) {
+
+            $('#energy_cycle_id_error').html('Please Select a cycle year!');
+            return false;
+        } else if (englishValue != null){
+
+            $('#energy_cycle_id_error').empty();
+        }
+
+        $(this).addClass('was-validated');  
+        $('#energy_cycle_id_error').empty();
+
+        this.submit();
+    });
+
     // View record photos
     $(document).on('click', '.viewMissingEnergyUserDonors', function() {
 

@@ -18,7 +18,7 @@ class PublicStructure extends Model
         return $this->belongsTo(PublicStructureCategory::class, 'public_structure_category_id1', 'id');
     }
 
-    public function Category2()
+    public function Category2() 
     {
         return $this->belongsTo(PublicStructureCategory::class, 'public_structure_category_id2', 'id');
     }
@@ -31,5 +31,15 @@ class PublicStructure extends Model
     public function Compound()
     {
         return $this->belongsTo(Compound::class, 'compound_id', 'id');
+    }
+
+    public function EnergySystemType()
+    {
+        return $this->belongsTo(EnergySystemType::class, 'energy_system_type_id', 'id');
+    }
+
+    public function EnergySystemCycle()
+    {
+        return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
     }
 }

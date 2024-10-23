@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\AllEnergyMeter; 
 use App\Models\PublicStructure; 
 use App\Models\User; 
+use App\Models\EnergyTurbineCommunity;
+use App\Models\EnergyGeneratorCommunity;
+use App\Models\EnergySystem;
+use App\Models\WaterSystem;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Helpers\SequenceHelper;
@@ -25,14 +29,79 @@ class AllEnergyMeterController extends Controller
     {	
         $incrementalNumber = 1; 
         $outOfCometPublic = 10000; 
+        $turbineIndex = 30000; 
+        $generatorIndex = 40000; 
+        $energySystemIndex = 50000; 
+        $waterSystemIndex = 60000; 
 
-        // $allMeters = AllEnergyMeter::all();
+        // This code for adding the fake meter numbers for the existing records for the turbines.
+        $allTurbines = EnergyTurbineCommunity::all();
 
-        // foreach($allMeters as $allMeter) {
+        foreach($allTurbines as $allTurbine) {
 
-        //     $allMeter->fake_meter_number = null;
-        //     $allMeter->save();
-        // }
+            $fakeMeterNumber = 'ET'. $turbineIndex; 
+
+            $exist = EnergyTurbineCommunity::where('fake_meter_number', $fakeMeterNumber)->first();
+            if($exist) {
+            } else {
+                    
+                $allTurbine->fake_meter_number =$fakeMeterNumber;
+                $allTurbine->save(); 
+            }
+
+            $turbineIndex++;
+        }
+
+        // This code for adding the fake meter numbers for the existing records for the generators.
+        $allGenerators = EnergyGeneratorCommunity::all();
+
+        foreach($allGenerators as $allGenerator) {
+
+            $fakeMeterNumber = 'EG'.  $generatorIndex; 
+            $exist = EnergyGeneratorCommunity::where('fake_meter_number', $fakeMeterNumber)->first();
+            if($exist) {
+            } else {
+                    
+                $allGenerator->fake_meter_number =$fakeMeterNumber;
+                $allGenerator->save(); 
+            }
+
+            $generatorIndex++;
+        }
+
+        // This code for adding the fake meter numbers for the existing records for the mg energy system.
+        $energySystems = EnergySystem::all();
+
+        foreach($energySystems as $energySystem) {
+
+            $fakeMeterNumber = 'ES'.  $energySystemIndex; 
+            $exist = EnergySystem::where('fake_meter_number', $fakeMeterNumber)->first();
+            if($exist) {
+            } else {
+                    
+                $energySystem->fake_meter_number =$fakeMeterNumber;
+                $energySystem->save(); 
+            }
+
+            $energySystemIndex++;
+        }
+
+        // This code for adding the fake meter numbers for the existing records for the mg water system.
+        $waterSystems = WaterSystem::all();
+
+        foreach($waterSystems as $waterSystem) {
+
+            $fakeMeterNumber = 'WS'.  $waterSystemIndex; 
+            $exist = WaterSystem::where('fake_meter_number', $fakeMeterNumber)->first();
+            if($exist) {
+            } else {
+                    
+                $waterSystem->fake_meter_number =$fakeMeterNumber;
+                $waterSystem->save(); 
+            }
+
+            $waterSystemIndex++;
+        }
 
         // This code for adding the fake meter numbers for the existing records for the public structures.
         $outOfCometPublicStructures = PublicStructure::where("is_archived", 0)
@@ -174,7 +243,74 @@ class AllEnergyMeterController extends Controller
             ->distinct()
             ->get();
 
-        $data = $households->merge($publics);
+        $turbines = DB::table('energy_turbine_communities')
+            ->join('communities', 'energy_turbine_communities.community_id', 'communities.id')
+            ->select(
+                'communities.english_name as english_community_name',
+                'communities.arabic_name as arabic_community_name',
+                'energy_turbine_communities.name as holder_name_english', 
+                'energy_turbine_communities.name as holder_name_arabic', 
+                DB::raw('false as phone_number'), 
+                'energy_turbine_communities.fake_meter_number as meter_number',
+                DB::raw('false as energy_type'), DB::raw('false as meter_case'),
+                DB::raw('false as is_main'), DB::raw('false as is_archived'), 
+                DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'), 
+                DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder') 
+            )
+            ->get(); 
+
+        $energySystems = DB::table('energy_systems')
+            ->leftJoin('communities', 'energy_systems.community_id', 'communities.id')
+            ->where('energy_systems.is_archived', 0)
+            ->select(
+                'communities.english_name as english_community_name',
+                'communities.arabic_name as arabic_community_name',
+                'energy_systems.name as holder_name_english', 
+                'energy_systems.name as holder_name_arabic', 
+                DB::raw('false as phone_number'), 
+                'energy_systems.fake_meter_number as meter_number',
+                DB::raw('false as energy_type'), DB::raw('false as meter_case'),
+                DB::raw('false as is_main'), DB::raw('false as is_archived'), 
+                DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'), 
+                DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder') 
+            )
+            ->get();
+
+        $waterSystems =  DB::table('water_systems')
+            ->leftJoin('water_system_types', 'water_systems.water_system_type_id', 'water_system_types.id')
+            ->leftJoin('communities', 'water_systems.community_id', 'communities.id')
+            ->select(
+                'communities.english_name as english_community_name',
+                'communities.arabic_name as arabic_community_name',
+                'water_systems.name as holder_name_english', 
+                'water_systems.name as holder_name_arabic', 
+                DB::raw('false as phone_number'), 
+                'water_systems.fake_meter_number as meter_number',
+                DB::raw('false as energy_type'), DB::raw('false as meter_case'),
+                DB::raw('false as is_main'), DB::raw('false as is_archived'), 
+                DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'), 
+                DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder') 
+            )
+            ->get();
+
+        $generators = DB::table('energy_generator_communities')
+            ->join('communities', 'energy_generator_communities.community_id', 'communities.id')
+            ->select(
+                'communities.english_name as english_community_name',
+                'communities.arabic_name as arabic_community_name',
+                'energy_generator_communities.name as holder_name_english', 
+                'energy_generator_communities.name as holder_name_arabic', 
+                DB::raw('false as phone_number'), 
+                'energy_generator_communities.fake_meter_number as meter_number',
+                DB::raw('false as energy_type'), DB::raw('false as meter_case'),
+                DB::raw('false as is_main'), DB::raw('false as is_archived'), 
+                DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'), 
+                DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder') 
+            )
+            ->get(); 
+
+        $data = collect([$households, $publics, $turbines, $generators, $energySystems, $waterSystems])->flatten();
+
 
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);
     }

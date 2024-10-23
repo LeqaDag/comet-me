@@ -133,6 +133,79 @@
                     </div> 
                 </div> 
              
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Out of comet?</label>
+                            <select name="out_of_comet" id="outOfComet" data-live-search="true"
+                                class="selectpicker form-control">
+                                @if($publicStructure->out_of_comet == 1) 
+                                    <option selected disabled>Yes</option>
+                                    <option value="0">No</option>
+                                @else @if($publicStructure->out_of_comet == 0) 
+                                    <option selected disabled>No</option>
+                                    <option value="1">Yes</option>
+                                @else
+                                <option disabled selected>Choose one...</option>
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                                @endif
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div> 
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Energy System Type</label>
+                            <select name="energy_system_type_id" 
+                                class="selectpicker form-control" data-live-search="true" >
+                                
+                                @if($publicStructure->energy_system_type_id)
+                                <option value="{{$publicStructure->EnergySystemType->id}}" disabled selected>
+                                    {{$publicStructure->EnergySystemType->name}}
+                                </option>
+                                @foreach($energySystemTypes as $energySystemType)
+                                <option value="{{$energySystemType->id}}">
+                                    {{$energySystemType->name}}
+                                </option>
+                                @endforeach
+                                @else
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energySystemTypes as $energySystemType)
+                                <option value="{{$energySystemType->id}}">
+                                    {{$energySystemType->name}}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select name="energy_system_cycle_id" data-live-search="true"
+                            class="selectpicker form-control" >
+                            @if($publicStructure->energy_system_cycle_id)
+                                <option disabled selected>
+                                    {{$publicStructure->EnergySystemCycle->name}}
+                                </option>
+                                @foreach($energyCycles as $energyCycle)
+                                <option value="{{$energyCycle->id}}">
+                                    {{$energyCycle->name}}
+                                </option>
+                                @endforeach
+                            @else
+                            <option disabled selected>Choose one...</option>
+                                @foreach($energyCycles as $energyCycle)
+                                <option value="{{$energyCycle->id}}">
+                                    {{$energyCycle->name}}
+                                </option>
+                                @endforeach
+                            @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
                 @if($publicStructure->public_structure_category_id1 == 1 ||
                     $publicStructure->public_structure_category_id2 == 1 ||
                     $publicStructure->public_structure_category_id3 == 1)

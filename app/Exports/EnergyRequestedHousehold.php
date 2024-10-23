@@ -15,7 +15,7 @@ use DB;
 
 class EnergyRequestedHousehold implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
     WithStyles, WithEvents
-{
+{ 
     protected $request; 
 
     function __construct($request) {

@@ -12,6 +12,9 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell; 
 use \Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use DB;
 
 class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSize, 
@@ -87,6 +90,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->leftJoin('energy_system_types as all_energy_types', 'all_energy_types.id', 'all_households.energy_system_type_id') 
             ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'all_households.id')
             ->leftJoin('grid_community_compounds', 'communities.id', 'grid_community_compounds.community_id')
+            ->leftJoin('public_structures', 'public_structures.community_id', 'communities.id')
             ->where('communities.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
             ->whereNotExists(function ($query) {
@@ -102,16 +106,59 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->select( 
                 'communities.english_name', 
                 'regions.english_name as region',
-                DB::raw('COUNT(CASE WHEN all_energy_types.id = 2 THEN 1 END) as sum_FBS'),
-                DB::raw('COUNT(CASE WHEN all_energy_types.id = 1 THEN 1 END) as sum_MG'),
-                DB::raw('COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END) as sum_SMG'),
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 2 THEN 1 END) + 
+                    COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 THEN 1 END)
+                    as sum_FBS'),
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 1 THEN 1 END)  + 
+                    COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 THEN 1 END)
+                    as sum_MG'),
+                DB::raw('COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END)  + 
+                    COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 THEN 1 END)
+                    as sum_SMG'),
                 'grid_community_compounds.electricity_room',
                 'grid_community_compounds.grid',
+                DB::raw('COUNT(CASE WHEN all_households.is_archived = 0 AND all_households.household_status_id = 1 THEN 1 END) as sum_inital'),
                 DB::raw('COUNT(CASE WHEN all_households.household_status_id = 3 THEN 1 END) as sum_AC'),
-                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 THEN 1 END) as sum_DC')
-                )
+                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
+                    THEN 1 END) as sum_DC_MG'),
+                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                    THEN 1 END) as sum_DC_FBS'),
+                DB::raw('COUNT(CASE WHEN all_energy_meters.is_main = "No" THEN 1 END) as sum_shared_household'),
+
+                DB::raw('COUNT(CASE WHEN all_energy_meters.household_id = NULL AND all_energy_meters.meter_case_id = 1 AND 
+                    all_energy_meters.energy_system_type_id != 2 THEN 1 END) as sum_public_MG'),
+                DB::raw('COUNT(CASE WHEN all_energy_meters.household_id = NULL AND all_energy_meters.meter_case_id = 1 AND 
+                    all_energy_meters.energy_system_type_id = 2 THEN 1 END) as sum_public_FBS'),
+
+                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 THEN 1 END) +
+                    COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                    THEN 1 END) + 
+                    COUNT(CASE WHEN all_energy_meters.is_main = "No" THEN 1 END) +
+                    COUNT(CASE WHEN all_energy_meters.household_id = NULL AND all_energy_meters.meter_case_id = 1 AND 
+                    all_energy_meters.energy_system_type_id != 2 THEN 1 END) +
+                    COUNT(CASE WHEN all_energy_meters.household_id = NULL AND all_energy_meters.meter_case_id = 1 AND 
+                    all_energy_meters.energy_system_type_id = 2 THEN 1 END)
+                '),
+                    DB::raw('COALESCE(
+                        COUNT(CASE WHEN all_energy_types.id = 2 THEN 1 END) + 
+                        COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 THEN 1 END) +
+                        COUNT(CASE WHEN all_energy_types.id = 1 THEN 1 END)  + 
+                        COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 THEN 1 END) +
+                        COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END)  + 
+                        COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 THEN 1 END) -
+                        (
+                            COUNT(CASE WHEN all_households.household_status_id = 3 AND all_energy_meters.is_main = "Yes" THEN 1 END) +
+                            COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 THEN 1 END) +
+                            COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 THEN 1 END) +
+                            COUNT(CASE WHEN all_energy_meters.is_main = "No" THEN 1 END) +
+                            COUNT(CASE WHEN all_energy_meters.household_id IS NULL AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 THEN 1 END) +
+                            COUNT(CASE WHEN all_energy_meters.household_id IS NULL AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 THEN 1 END)
+                        ), 0) AS delta')
+                   )
             ->groupBy('communities.english_name');
- 
+             
+       
+
         $queryCompounds = DB::table('compounds')
             ->join('communities', 'communities.id', 'compounds.community_id')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -120,24 +167,86 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
             ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
             ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
+            ->leftJoin('public_structures', 'public_structures.compound_id', 'compounds.id')
+            ->leftJoin('all_energy_meters as public_meters', 'public_meters.public_structure_id', 'public_structures.id')
             ->where('communities.is_archived', 0)
-            ->where('households.is_archived', 0)
+            ->where('compounds.is_archived', 0)
+            //->where('households.is_archived', 0)
             ->where('compound_households.is_archived', 0)
             ->where('all_energy_meters.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
             ->select(
-                'compounds.english_name',   
+                'compounds.english_name',    
                 'regions.english_name as region',
-                DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 2 THEN households.id END) as sum_FBS'),
-                DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 1 THEN households.id END) as sum_MG'),
-                DB::raw('COUNT(DISTINCT CASE WHEN households.energy_system_type_id = 4 THEN households.id END) as sum_SMG'),
+                DB::raw('COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 2 
+                    THEN households.id END) + 
+                    COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 
+                    THEN public_structures.id END) as sum_FBS'),
+                DB::raw('COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 1 
+                    THEN households.id END) + 
+                    COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 
+                    THEN public_structures.id END) as sum_MG'),
+                DB::raw('COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 4 THEN 
+                    households.id END) +
+                    COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 
+                    THEN public_structures.id END) as sum_SMG'),
                 'grid_community_compounds.electricity_room',
                 'grid_community_compounds.grid', 
-                DB::raw('COUNT(CASE WHEN households.household_status_id = 3 THEN households.id END) as sum_AC'),
-                DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.meter_case_id = 1 THEN households.id END) as sum_DC')
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.household_status_id = 1 THEN 1 END) as sum_inital'),
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.household_status_id = 3 THEN households.id END) as sum_AC'),
+                DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
+                    THEN households.id END) as sum_DC_MG'),
+                DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                    THEN households.id END) as sum_DC_FBS'),
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END) as sum_shared_household'),
+                
+                DB::raw('COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
+                    THEN public_structures.id END) as sum_public_MG'),
+                DB::raw('COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
+                    THEN public_structures.id END) as sum_public_FBS'),
+                    
+                DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
+                    THEN households.id END) + 
+                    COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                    THEN households.id END) + 
+                    COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END) +
+                    COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
+                    THEN public_structures.id END) +
+                    COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
+                    THEN public_structures.id END)
+                    '),
+                DB::raw('(
+                    COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 2 
+                    THEN households.id END) + 
+                    COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 
+                    THEN public_structures.id END) +
+
+                    COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 1 
+                    THEN households.id END) + 
+                    COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 
+                    THEN public_structures.id END) +
+
+                    COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 4 THEN 
+                    households.id END) +
+                    COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 
+                    THEN public_structures.id END) -
+                    (
+                        COUNT(CASE WHEN households.is_archived = 0 AND households.household_status_id = 3 AND 
+                        all_energy_meters.is_main = "Yes" THEN households.id END) +
+                        COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
+                            THEN households.id END) +
+                        COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                            THEN households.id END) +
+                        COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END) +
+                        COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
+                            THEN public_structures.id END) +
+                        COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
+                            THEN public_structures.id END)
+                    ) + 0 
+                ) AS delta')
             )
             ->groupBy('compounds.english_name');
- 
+
         if($this->request->community_id) {
  
             $queryCompounds->where("communities.id", $this->request->community_id);
@@ -152,10 +261,26 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             $queryCompounds->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
             $this->misc->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
             $this->activateMisc->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
+            $this->relocatedHouseholds->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
+            $this->activateRelocated->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
+            $this->requestedHouseholds->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
         }
+        
+        $communitiesCollection = $queryCommunities->get()->map(function($item) {
+        
+            $item->delta = $item->delta == 0 ? "0" : $item->delta;
 
-        $communitiesCollection = collect($queryCommunities->get());
-        $compoundsCollection = collect($queryCompounds->get());
+            return $item;
+        });
+
+        $compoundsCollection = $queryCompounds->get()->map(function($item) {
+          
+            $item->delta = $item->delta == 0 ? "0" : $item->delta;
+
+            return $item;
+        });
+
+        
         $this->misc = $this->misc->count();
         $this->activateMisc = $this->activateMisc->count();
         $this->requestedHouseholds = $this->requestedHouseholds->count();
@@ -197,16 +322,23 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:I1');
+        $sheet->setAutoFilter('A1:P1');
         $sheet->setCellValue('A1', 'Name');   
         $sheet->setCellValue('B1', 'Geographical Region'); 
         $sheet->setCellValue('C1', 'FBS # confirmed'); 
-        $sheet->setCellValue('D1', 'MG # confirmed households/meters'); 
-        $sheet->setCellValue('E1', 'SMG # confirmed households/meters'); 
+        $sheet->setCellValue('D1', 'MG # confirmed meters'); 
+        $sheet->setCellValue('E1', 'SMG # confirmed meters'); 
         $sheet->setCellValue('F1', 'Electricity Room'); 
         $sheet->setCellValue('G1', 'Grid'); 
-        $sheet->setCellValue('H1', 'Completed AC'); // household_status is in-progress
-        $sheet->setCellValue('I1', 'Activate Meter'); // household_status is served
+        $sheet->setCellValue('H1', 'Initial Households/Public'); 
+        $sheet->setCellValue('I1', 'Completed AC'); // household_status is in-progress
+        $sheet->setCellValue('J1', 'Activate Meter MG'); // household_status is served// MG
+        $sheet->setCellValue('K1', 'Activate Meter FBS');
+        $sheet->setCellValue('L1', 'Shared Households');
+        $sheet->setCellValue('M1', 'Public Structures MG');
+        $sheet->setCellValue('N1', 'Public Structures FBS');
+        $sheet->setCellValue('O1', 'Served');
+        $sheet->setCellValue('P1', 'Delta');
 
         $sheet->setCellValue('A2', 'MISC FBS');  
         $sheet->setCellValue('A3', 'Relocated Households');  
@@ -218,8 +350,14 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->setCellValue('C3', $this->relocatedHouseholds);
         //$sheet->setCellValue('C4', $this->requestedHouseholds);
         
-        $sheet->setCellValue('I2', $this->activateMisc);
-        $sheet->setCellValue('I3', $this->activateRelocated);
+        $sheet->setCellValue('K2', $this->activateMisc);
+        $sheet->setCellValue('K3', $this->activateRelocated);
+
+        $sheet->setCellValue('P2', ($this->misc - $this->activateMisc));
+        $sheet->setCellValue('P3', ($this->relocatedHouseholds -$this->activateRelocated));
+
+        $sheet->setCellValue('O2', ($this->activateMisc));
+        $sheet->setCellValue('O3', ($this->activateRelocated));
 
         // Adding the summation row
         $lastRow = $sheet->getHighestRow() + 1;
@@ -229,6 +367,53 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->setCellValue('E'.$lastRow, '=SUM(E2:E'.($lastRow-1).')');
         $sheet->setCellValue('H'.$lastRow, '=SUM(H2:H'.($lastRow-1).')');
         $sheet->setCellValue('I'.$lastRow, '=SUM(I2:I'.($lastRow-1).')');
+        $sheet->setCellValue('J'.$lastRow, '=SUM(J2:J'.($lastRow-1).')');
+        $sheet->setCellValue('K'.$lastRow, '=SUM(K2:K'.($lastRow-1).')');
+        $sheet->setCellValue('L'.$lastRow, '=SUM(L2:L'.($lastRow-1).')');
+        $sheet->setCellValue('M'.$lastRow, '=SUM(M2:M'.($lastRow-1).')');
+        $sheet->setCellValue('N'.$lastRow, '=SUM(N2:N'.($lastRow-1).')');
+        $sheet->setCellValue('O'.$lastRow, '=SUM(O2:O'.($lastRow-1).')');
+        $sheet->setCellValue('P'.$lastRow, '=SUM(P2:P'.($lastRow-1).')');
+
+        // Confirmed 
+        $sheet->getStyle('C1:C' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('C1:C' . ($lastRow - 1))->getFill()->setStartColor(new Color('ADD8E6'));
+        $sheet->getStyle('C1:C' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('C1:C' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+
+        $sheet->getStyle('D1:D' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('D1:D' . ($lastRow - 1))->getFill()->setStartColor(new Color('ADD8E6'));
+        $sheet->getStyle('D1:D' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('D1:D' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+
+        $sheet->getStyle('E1:E' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('E1:E' . ($lastRow - 1))->getFill()->setStartColor(new Color('ADD8E6'));
+        $sheet->getStyle('E1:E' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('E1:E' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+
+        // Initial
+        $sheet->getStyle('H1:H' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('H1:H' . ($lastRow - 1))->getFill()->setStartColor(new Color('e6e6ff'));
+        $sheet->getStyle('H1:H' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('H1:H' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+
+        // AC Completed
+        $sheet->getStyle('I1:I' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('I1:I' . ($lastRow - 1))->getFill()->setStartColor(new Color('e6e600'));
+        $sheet->getStyle('I1:I' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('I1:I' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+        
+        // Served
+        $sheet->getStyle('O1:O' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('O1:O' . ($lastRow - 1))->getFill()->setStartColor(new Color('86af49'));
+        $sheet->getStyle('O1:O' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('O1:O' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+
+        // Delta
+        $sheet->getStyle('P1:P' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('P1:P' . ($lastRow - 1))->getFill()->setStartColor(new Color('e60000'));
+        $sheet->getStyle('P1:P' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('P1:P' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
 
         return [
             // Style the first row as bold text.

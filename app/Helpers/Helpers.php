@@ -7,6 +7,13 @@ use Illuminate\Support\Str;
 
 class SequenceHelper {
 
+  public static function generateSequenceForOther($meterPart, $incrementalNumber) 
+  {      
+    $meterPart = str_pad($meterNumber, 7, '0', STR_PAD_LEFT);
+
+    return $meterPart . $incrementalNumber;
+  }
+
   public static function generateSequence($meterNumber, $incrementalNumber) 
   {
     $meterPart = str_pad($meterNumber, 11, '0', STR_PAD_LEFT);
