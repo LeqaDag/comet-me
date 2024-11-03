@@ -40,9 +40,7 @@ class InternetHolderController extends Controller
          * 6. New Public Structures: add is_public flag to the internet flag to add them in the platform 
         */
 
-        $this->getInternetUsers();
-
-       die(InternetUser::get());
+        return $this->getInternetUsers2();
     }
 
     public function getInternetUsers() {
@@ -53,6 +51,9 @@ class InternetHolderController extends Controller
 
         $numberMeters = 0;
         
+        // Get Last comet_id
+        $last_comet_id = Household::latest('id')->value('comet_id');
+
         foreach($holders as $holder) {
             
             if($holder["user_group_name"] == "Comet Employee") {
@@ -96,7 +97,7 @@ class InternetHolderController extends Controller
                         if($allEnergyMeter) {
 
                             // Check if the meter is for user (new/existing main user)
-                            if($allEnergyMeter->household_id != 0 || $allEnergyMeter->household_id != null) {
+                            if ($allEnergyMeter->household_id !== null && $allEnergyMeter->household_id !== 0) {
 
                                 $household = Household::findOrFail($allEnergyMeter->household_id);
                                 $household->phone_number = $holder["cardnum"];
@@ -104,6 +105,7 @@ class InternetHolderController extends Controller
                                 $household->save();
 
                                 $exisiInternetHolder = InternetUser::where('household_id', $allEnergyMeter->household_id)->first();
+                                
                                 if($exisiInternetHolder) {
 
                                     $exisiInternetHolder->active = $holder["active"];
@@ -124,7 +126,7 @@ class InternetHolderController extends Controller
                                 }
 
                             // new/existing main public 
-                            } else if($allEnergyMeter->public_structure_id != 0 || $allEnergyMeter->public_structure_id != null) {
+                            } else if($allEnergyMeter->public_structure_id !== 0 || $allEnergyMeter->public_structure_id !== null) {
 
                                 $publicStructure = PublicStructure::findOrFail($allEnergyMeter->public_structure_id);
                                 $publicStructure->phone_number = $holder["cardnum"];
@@ -160,7 +162,7 @@ class InternetHolderController extends Controller
                         if($sharedHolder) {
 
                             // Check if the meter is for shared user (new/existing shared user)
-                            if($sharedHolder->household_id != 0 || $sharedHolder->household_id != null) {
+                            if($sharedHolder->household_id !== 0 || $sharedHolder->household_id !== null) {
 
                                 $household = Household::findOrFail($sharedHolder->household_id);
                                 $household->phone_number = $holder["cardnum"];
@@ -188,7 +190,7 @@ class InternetHolderController extends Controller
                                 }
 
                             // new/existing shared public 
-                            } else if($sharedHolder->public_structure_id != 0 || $sharedHolder->public_structure_id != null) {
+                            } else if($sharedHolder->public_structure_id !== 0 || $sharedHolder->public_structure_id !== null) {
 
                                 $publicStructure = PublicStructure::findOrFail($sharedHolder->public_structure_id);
                                 $publicStructure->phone_number = $holder["cardnum"];
@@ -288,6 +290,7 @@ class InternetHolderController extends Controller
                                     ->first();
 
                                 $newHousehold = new Household();
+                                $newHousehold->comet_id = $last_comet_id++;
                                 $newHousehold->arabic_name = $holder["holder_full_name"];
                                 $newHousehold->phone_number = $holder["holder_mobile"];
                                 $newHousehold->internet_holder_young = 1;
@@ -303,7 +306,7 @@ class InternetHolderController extends Controller
                             }
                         }
 
-                        // should send a message called "you've a new meter number not registering on the DB" 
+                        // should send a message called "you've a new meter number not registering on the DB"  
                         if(!$allEnergyMeter) {
 
                         } 
@@ -316,5 +319,124 @@ class InternetHolderController extends Controller
                 }
             }
         }
+        
+        return response()->json(InternetUser::all());
+    }
+
+
+    /**
+     * Get Last Internert Users & Update Exists
+     * 
+     * @return mixed
+     */
+    public function getInternetUsers2() {
+
+        $data = Http::get('http://185.190.140.86/api/users/');
+
+        $holders = json_decode($data, true) ;
+
+        $numberMeters = 0;
+        
+        // Get Last comet_id
+        $last_house_comet_id = Household::latest('comet_id')->whereNotNull('comet_id')->value('comet_id');
+        $last_public_comet_id = PublicStructure::latest('comet_id')->whereNotNull('comet_id')->value('comet_id');
+        $last_fake_meter_number = PublicStructure::where('fake_meter_number', 'LIKE', '100%')->latest('id')->value('fake_meter_number');
+
+        $user_type = 0;
+        $user_id = 0;
+        foreach($holders as $holder):
+            
+            if($holder["user_group_name"] != "Comet Employee"):
+
+                // Check Community
+                $community = Community::where("arabic_name", $holder["user_group_name"])->first();
+                if($community):
+                
+                    
+                    $old_comet_id = isset($holder["comet_id"]) && $holder["comet_id"] > 0 ? trim($holder["comet_id"]) : "NO_ID";
+                    // Check User Type If Public Structure
+                    if($holder["is_public_entity"] == 1):
+                        
+                        // Check Or Insert 
+                        $public_user = PublicStructure::where('comet_id', $old_comet_id)->orWhere('arabic_name',  'LIKE', trim($holder["holder_full_name"]))->first();
+                        
+                        // New Public User
+                        if(!$public_user):
+                            $public_user = new PublicStructure;
+                            $public_user->english_name = trim($holder["holder_full_name"]);
+                            $public_user->fake_meter_number = ++$last_fake_meter_number;
+                            $public_user->comet_id = ++$last_public_comet_id;
+                        endif;
+                        
+                        // Update Last Data
+                        $public_user->arabic_name = trim($holder["holder_full_name"]);
+                        $public_user->phone_number = $holder["holder_mobile"];
+                        $public_user->community_id = $community->id;
+                        $public_user->out_of_comet = $holder["out_of_comet"] ?? NULL;
+                        $public_user->save();
+                        $user_id = $public_user->id;
+                        $user_type = 0;
+
+                    else: // House Hold Users
+
+                        // Check Or Insert 
+                        $h_user = Household::where('comet_id', $old_comet_id)->orWhere('arabic_name', 'LIKE', trim($holder["holder_full_name"]))->first();
+                        
+                        // New Public User
+                        if(!$h_user):
+                            $h_user = new Household;
+                            $h_user->english_name = trim($holder["holder_full_name"]);
+                            $h_user->fake_meter_number = ++$last_fake_meter_number;
+                            $h_user->comet_id = ++$last_house_comet_id;
+                            $h_user->internet_holder_young = 1;
+                            $h_user->community_name = $community->english_name;
+                            $h_user->community_id = $community->id;
+                            $h_user->energy_service = !empty($holder["meters_list"]) && isset($holder["meters_list"][0]["sn"]) ? 'Yes' : 'No';
+                            $h_user->energy_meter = !empty($holder["meters_list"]) && isset($holder["meters_list"][0]["sn"]) ? 'Yes' : 'No';
+                            $h_user->energy_system_status = !empty($holder["meters_list"]) && isset($holder["meters_list"][0]["sn"]) ? 'Served' : 'Not Served';
+                        endif;
+                        
+                        // Update Last Data
+                        $h_user->arabic_name = trim($holder["holder_full_name"]);
+                        $h_user->phone_number = $holder["holder_mobile"];
+                        $h_user->out_of_comet = $holder["out_of_comet"] ?? NULL;
+                        $h_user->internet_system_status = 'Served';
+                        $h_user->save();
+
+                        $user_id = $h_user->id;
+                        $user_type = 1;
+
+                    endif;
+
+                    // Insert New Internet User
+                    $column = ($user_type == 0) ? 'public_structure_id' : 'household_id';
+                    
+                    $internetUser = InternetUser::where($column, $user_id)->first() ?? new InternetUser;
+
+                     // Insert New Internet User 
+                     $internetUser->public_structure_id = $user_type == 0 ? $user_id : NULL;
+                     $internetUser->household_id = $user_type == 1 ? $user_id : NULL;
+                     $internetUser->internet_status_id = 1;
+                     $internetUser->start_date = $holder["created_on"];
+                     $internetUser->active = $holder["active"];
+                     $internetUser->last_purchase_date = $holder["last_purchase_date"];
+                     $internetUser->expired_gt_than_30d = $holder["expired_gt_than_30d"];
+                     $internetUser->expired_gt_than_60d = $holder["expired_gt_than_60d"];
+                     $internetUser->is_expire = $holder["is_expire"];
+                     $internetUser->paid = $holder["paid"];
+                     $internetUser->community_id = $community->id;
+                     $internetUser->is_hotspot = $holder["is_hotspot"];
+                     $internetUser->is_ppp = $holder["is_ppp"];
+                     $internetUser->from_api = 1;
+                     $internetUser->number_of_people = $holder["port_limit"] ?? 1;
+                     $internetUser->save();
+
+                    
+                endif; // End Check Community
+            endif;
+
+        endforeach;
+
+        return response()->json(InternetUser::all());
     }
 }

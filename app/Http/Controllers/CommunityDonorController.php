@@ -376,7 +376,7 @@ class CommunityDonorController extends Controller
      */
     public function deleteCommunityDonor(Request $request)
     {
-        $id = $request->id;
+        $id = $request->id; 
 
         $donor = CommunityDonor::find($id);
         $allEnergyMeterDonors = null;

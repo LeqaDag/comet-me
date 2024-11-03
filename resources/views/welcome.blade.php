@@ -272,6 +272,22 @@
                     </div>
                 @endif
                 @endforeach
+
+                @foreach($teamMembers as $member)
+                @if($member->is_archived == 0 && $member->user_role_type_id == 7 )
+                    <div class="col-sm-4 col-lg-4 col-md-4">
+                        <div class="team-member">
+                            <img src="{{url('users/profile/'.$member->image)}}" alt="{{ $member->name }}">
+                            <div class="team-member-details">
+                                <p class="team-member-name">{{ $member->name }}</p>
+                                @if($member->Role)
+                                <p>{{ $member->Role->name }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @endforeach
             </div>
         </div>
     </div>

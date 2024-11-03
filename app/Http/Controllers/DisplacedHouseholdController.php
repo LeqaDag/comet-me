@@ -16,6 +16,7 @@ use App\Models\CommunityHousehold;
 use App\Models\Household;
 use App\Models\HouseholdMeter;
 use App\Models\HouseholdStatus;
+use App\Models\AllEnergyMeterDonor;
 use App\Models\DisplacedHousehold;
 use App\Models\DisplacedHouseholdStatus;
 use App\Models\EnergySystemType;

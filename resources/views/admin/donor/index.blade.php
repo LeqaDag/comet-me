@@ -254,9 +254,9 @@
             <table id="donorTable" class="table table-striped data-table-donors my-2">
                 <thead>
                     <tr>
-                        <th>Name</th>
                         <th>Community / Compound</th>
                         <th>Service</th>
+                        <th>Donors</th>
                         @if(Auth::guard('user')->user()->user_type_id == 1)
                             <th>Options</th>
                         @else 
@@ -351,9 +351,9 @@
                     }
                 },
                 columns: [
-                    {data: 'donor_name', name: 'donor_name'},
                     {data: 'value', name: 'value'},
                     {data: 'service_name', service_name: 'name'},
+                    {data: 'donors', name: 'donors'},
                     { data: 'action' }
                 ],
                 

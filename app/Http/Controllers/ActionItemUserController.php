@@ -107,7 +107,7 @@ class ActionItemUserController extends Controller
                     ->where(function ($query) {
                         $query->where('action_items.user_id', Auth::guard('user')->user()->id)
                             ->orWhere('action_item_others.user_id', Auth::guard('user')->user()->id); 
-                    })
+                    }) 
                     ->distinct()
                     ->where('action_items.is_archived', 0);
 
@@ -211,7 +211,9 @@ class ActionItemUserController extends Controller
                 ->make(true);
             }
     
-            return view('actions.users.action.index');
+            $energyCycles = EnergySystemCycle::orderBy('name', 'ASC')->get();
+
+            return view('actions.users.action.index', compact('energyCycles'));
             
         } else {
 

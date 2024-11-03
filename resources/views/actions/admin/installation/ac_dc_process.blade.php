@@ -17,7 +17,7 @@
                             aria-expanded="false" 
                             aria-controls="notYetStartedACSurveyTab">
                             AC Survey Not Yet Started 
-                        </a> 
+                        </a>  
                     </div>
                 </li>
             </ul>
@@ -136,8 +136,10 @@
             </ul>
             <div class="collapse multi-collapse container mb-4" 
                 id="notYetCompletedElectricityRoomTab">
- 
-                @if(count($communitiesElecticityRoomMissing) > 0 ||
+                @if(count($communitiesElecticityRoomMissing) == 0 && count($compoundsElecticityRoomMissing) == 0)
+                    <p>You've got no communities/compounds need to complete the electricity room
+                    </p> 
+                @else @if(count($communitiesElecticityRoomMissing) > 0 ||
                     count($compoundsElecticityRoomMissing) > 0)
                     <p>You've got {{$communitiesElecticityRoomMissing->count()
                             + $compoundsElecticityRoomMissing->count()}} SMG/MG 
@@ -171,6 +173,7 @@
                         @endforeach
                     @endif
                 @endif
+                @endif
             </div>
         </div>
 
@@ -191,7 +194,10 @@
             </ul>
             <div class="collapse multi-collapse container mb-4" 
                 id="notYetCompletedGridTab">
-                @if(count($communitiesGridMissing) > 0 ||
+                @if(count($communitiesGridMissing) == 0 && count($compoundsGridMissing) == 0)
+                    <p>You've got no communities/compounds need to complete the grid
+                    </p> 
+                @else @if(count($communitiesGridMissing) > 0 ||
                     count($compoundsGridMissing) > 0)
                 <p>You've got {{$communitiesGridMissing->count()
                         + $compoundsGridMissing->count()}} SMG/MG 
@@ -224,6 +230,7 @@
                         @include('actions.admin.AC.grid_community')
                         @endforeach
                     @endif
+                @endif
                 @endif
             </div>
         </div>

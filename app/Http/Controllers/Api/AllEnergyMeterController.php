@@ -190,7 +190,8 @@ class AllEnergyMeterController extends Controller
                 'communities.english_name as english_community_name',
                 'communities.arabic_name as arabic_community_name',
                 'households.english_name as holder_name_english', 
-                'households.arabic_name as holder_name_arabic', 
+                'households.arabic_name as holder_name_arabic',  
+                'households.comet_id', 
                 'households.phone_number', 'household_statuses.status as energy_system_status',
                 DB::raw('IFNULL(all_energy_meters.meter_number, 
                     IFNULL(all_energy_meters.fake_meter_number, young_holders.fake_meter_number)) as meter_number'),
@@ -225,6 +226,7 @@ class AllEnergyMeterController extends Controller
                 'communities.arabic_name as arabic_community_name',
                 'public_structures.english_name as holder_name_english', 
                 'public_structures.arabic_name as holder_name_arabic', 
+                'public_structures.comet_id',
                 'public_structures.phone_number',
                 DB::raw('IFNULL(all_energy_meters.meter_number, public_structures.fake_meter_number) 
                     as meter_number'),

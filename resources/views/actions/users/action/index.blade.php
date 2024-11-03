@@ -33,6 +33,14 @@
         <i class="menu-icon tf-icons bx bx-list-ul"></i>
         Your Action Items
     </button>
+    <button class="btn btn-success" type="button" data-toggle="collapse" 
+        data-target="#collapseExportReports" aria-expanded="false" 
+        aria-controls="collapseExportReports">
+        <i class="menu-icon tf-icons bx bx-bulb"></i>
+        <i class="menu-icon tf-icons bx bx-droplet"></i>
+        <i class="menu-icon tf-icons bx bx-wifi"></i>
+        Service Progress Reports
+    </button>
 </p> 
 
 <div class="collapse multi-collapse mb-4" id="collapsePlatformTasks">
@@ -187,7 +195,126 @@
     </div>
 </div>
 
+<div class="collapse multi-collapse mb-4" id="collapseExportReports">
+    <h4 class="py-3 breadcrumb-wrapper mb-4">
+        <span class="text-muted fw-light">All </span> Service Progress Reports
+    </h4>
+
+    <div class="container" >
+        <h6 class="py-3 breadcrumb-wrapper">
+            <a data-toggle="collapse" class="text-warning" 
+                href="#EnergyProjectFiles" 
+                aria-expanded="false" 
+                aria-controls="EnergyProjectFiles">
+                <i class="bx bx-bulb bx-sm me-3"></i>
+                Energy Project
+            </a>
+        </h6>
+        
+        <div class="row collapse multi-collapse container" id="EnergyProjectFiles">
+            <div class="user-tasks">
+                <div class="">
+                    <form method="POST" enctype='multipart/form-data' id="EnergyProjectFileForm"
+                        action="{{ route('energy-request.export') }}">
+                        @csrf
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Export</label>
+                                    <input type="text" class="form-control" disabled
+                                    value="Energy Installation Progress Report"> 
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Cycle Year</label>
+                                    <select name="energy_cycle_id" id="cycleYearSelected"
+                                        class="selectpicker form-control" data-live-search="true">
+                                        <option disabled selected>Search Cycle Year</option>
+                                        @foreach($energyCycles as $energyCycle)
+                                            <option value="{{$energyCycle->id}}">
+                                                {{$energyCycle->name}}
+                                            </option>
+                                        @endforeach
+                                    </select> 
+                                </fieldset>
+                                <div id="energy_cycle_id_error" style="color: red;"></div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4" >
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Click Here</label>
+                                    <button class="form-control btn-warning" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Energy Installation Progress Report
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <h6 class="py-3 breadcrumb-wrapper">
+            <a data-toggle="collapse" class="text-success" 
+                href="#InternetProjectFiles" 
+                aria-expanded="false" 
+                aria-controls="InternetProjectFiles">
+                <i class="bx bx-wifi bx-sm me-3"></i>
+                Internet Project
+            </a>
+        </h6> 
+
+        <div class="row overflow-hidden collapse multi-collapse container" id="InternetProjectFiles">
+            <div class=" mb-4">
+                <form method="POST" enctype='multipart/form-data' 
+                    action="{{ route('internet-user.export') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Export</label>
+                                <input type="text" class="form-control" disabled
+                                value="Internet Metrics Report File"> 
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Click Here</label>
+                                <button class="form-control btn-success" type="submit">
+                                    <i class='fa-solid fa-file-excel'></i>
+                                    Export Internet Metrics Report File
+                                </button>
+                            </fieldset>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+
+    $('#EnergyProjectFileForm').on('submit', function (event) {
+
+        var englishValue = $('#cycleYearSelected').val();
+
+        if (englishValue == null) {
+
+            $('#energy_cycle_id_error').html('Please Select a cycle year!');
+            return false;
+        } else if (englishValue != null){
+
+            $('#energy_cycle_id_error').empty();
+        }
+
+        $(this).addClass('was-validated');  
+        $('#energy_cycle_id_error').empty();
+
+        this.submit();
+    });
+
     var tableUser;
     function DataTableContent() {
 

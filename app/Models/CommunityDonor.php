@@ -18,6 +18,12 @@ class CommunityDonor extends Model
         return $this->belongsTo(Community::class, 'community_id', 'id');
     }
 
+    public function Compound()
+    {
+        
+        return $this->belongsTo(Compound::class, 'compound_id', 'id');
+    }
+
     public function ServiceType()
     {
         

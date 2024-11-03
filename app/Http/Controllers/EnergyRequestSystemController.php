@@ -72,7 +72,7 @@ class EnergyRequestSystemController extends Controller
                         $updateButton = "<a type='button' class='updateEnergyRequest' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateEnergyUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
     
-                        if(Auth::guard('user')->user()->user_type_id == 1 || 
+                        if(Auth::guard('user')->user()->user_type_id == 1 ||  
                             Auth::guard('user')->user()->user_type_id == 2 ||
                             Auth::guard('user')->user()->user_type_id == 3 ||
                             Auth::guard('user')->user()->user_type_id == 4 ||

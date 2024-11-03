@@ -177,7 +177,11 @@
         </a>
         <ul class="menu-sub">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                Auth::guard('user')->user()->user_type_id == 2)
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 ||
+                Auth::guard('user')->user()->user_type_id == 4 ||
+                Auth::guard('user')->user()->user_type_id == 5 ||
+                Auth::guard('user')->user()->user_type_id == 6)
                 <li class="menu-item" id="energy-request">
                     <a href="{{url('energy-request')}}" class="menu-link" >
                         <i class=""></i>

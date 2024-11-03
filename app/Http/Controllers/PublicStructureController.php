@@ -193,8 +193,12 @@ class PublicStructureController extends Controller
      */
     public function store(Request $request)
     {
+        // Get Last comet_id
+        $last_comet_id = PublicStructure::latest('id')->value('comet_id');
+
         $publicStructure = new PublicStructure();
         $publicStructure->english_name = $request->english_name;
+        $publicStructure->comet_id = ++$last_comet_id;
         $publicStructure->arabic_name = $request->arabic_name;
         $publicStructure->community_id = $request->community_id;
         if($request->compound_id) $publicStructure->compound_id = $request->compound_id;

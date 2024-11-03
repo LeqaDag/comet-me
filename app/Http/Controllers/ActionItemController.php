@@ -406,6 +406,7 @@ class ActionItemController extends Controller
                 ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
                 ->where('communities.is_archived', 0)
                 ->where('communities.community_status_id', 1)
+                ->where('communities.energy_system_cycle_id', '!=', null)
                 ->select(
                     'compounds.english_name',
                     DB::raw('COUNT(compound_households.household_id) as number_of_household')
@@ -423,6 +424,7 @@ class ActionItemController extends Controller
                     'all_households.energy_system_type_id')
                 ->where('communities.is_archived', 0)
                 ->where('communities.community_status_id', 2)
+                ->where('communities.energy_system_cycle_id', '!=', null)
                 ->whereNotExists(function ($query) {
                     $query->select(DB::raw(1))
                         ->from('compounds')
@@ -448,6 +450,7 @@ class ActionItemController extends Controller
                 ->leftJoin('energy_system_types', 'households.energy_system_type_id', 
                     'energy_system_types.id')
                 ->where('communities.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
                 ->where(function ($query) {
                     $query->where('communities.community_status_id', 2);
                 })
@@ -472,6 +475,7 @@ class ActionItemController extends Controller
                 ->leftJoin('households', 'communities.id', 'households.community_id')  
                 ->where('grid_community_compounds.electricity_room', 'No')
                 ->where('households.household_status_id', 3)
+                ->where('communities.energy_system_cycle_id', '!=', null)
                 ->select('communities.id', 'communities.english_name as community',  
                     'grid_community_compounds.grid',
                     'grid_community_compounds.electricity_room')
@@ -484,6 +488,7 @@ class ActionItemController extends Controller
                 ->leftJoin('households', 'communities.id', 'households.community_id')  
                 ->where('households.household_status_id', 3)
                 ->where('grid_community_compounds.grid', 'No')
+                ->where('communities.energy_system_cycle_id', '!=', null)
                 ->select('communities.id', 'communities.english_name as community',  
                     'grid_community_compounds.grid',
                     'grid_community_compounds.electricity_room')
@@ -495,6 +500,8 @@ class ActionItemController extends Controller
                 ->leftJoin('communities', 'communities.id', 'compounds.community_id')
                 ->leftJoin('households', 'communities.id', 'households.community_id')  
                 ->where('households.household_status_id', 3)
+                ->where('compounds.is_archived', 0)
+                ->where('communities.energy_system_cycle_id', '!=', null)
                 ->where('grid_community_compounds.electricity_room', 'No')
                 ->select(
                     'compounds.id', 'compounds.english_name as compound',  
@@ -507,9 +514,11 @@ class ActionItemController extends Controller
             $compoundsGridMissing = DB::table('compounds')
                 ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
                 ->leftJoin('communities', 'communities.id', 'compounds.community_id')
-                ->leftJoin('households', 'communities.id', 'households.community_id')  
+                ->leftJoin('households', 'communities.id', 'households.community_id') 
+                ->where('compounds.is_archived', 0) 
                 ->where('households.household_status_id', 3)
                 ->where('grid_community_compounds.grid', 'No')
+                ->where('communities.energy_system_cycle_id', '!=', null)
                 ->select('compounds.id', 'compounds.english_name as compound',  
                     'grid_community_compounds.grid',
                     'grid_community_compounds.electricity_room')
@@ -520,6 +529,7 @@ class ActionItemController extends Controller
                 ->join('communities', 'communities.id', 'grid_community_compounds.community_id')
                 ->where('communities.community_status_id', [2, 3])
                 ->where('grid_community_compounds.electricity_room', 'No')
+                ->where('communities.energy_system_cycle_id', '!=', null)
                 ->select('communities.english_name as community')
                 ->get();
 
@@ -529,13 +539,7 @@ class ActionItemController extends Controller
                     $query->where('all_energy_meters.is_archived', 0)
                         ->where('all_energy_meters.energy_system_type_id', '!=', 2)
                         ->where('all_energy_meters.meter_number', 0)
-                        ->where('communities.community_status_id', 2);
-                })
-                ->orWhere(function($query) {
-                    $query->where('all_energy_meters.is_archived', 0)
-                        ->where('all_energy_meters.energy_system_type_id', '!=', 2)
-                        ->where('all_energy_meters.is_main', 'No')
-                        ->whereNull('all_energy_meters.meter_number')
+                        ->where('communities.energy_system_cycle_id', '!=', null)
                         ->where('communities.community_status_id', 2);
                 })
                 ->select(
@@ -547,7 +551,7 @@ class ActionItemController extends Controller
                 ->groupBy('communities.id')
                 ->get();
  
-            $holdersMgSmgNotDCInstallations =  DB::table('all_energy_meters')
+            $holdersMgSmgNotDCInstallations = DB::table('all_energy_meters')
                 ->join('communities', 'communities.id', 'all_energy_meters.community_id')
                 ->leftJoin('households', 'households.id', 'all_energy_meters.household_id')
                 ->leftJoin('public_structures', 'public_structures.id', 
@@ -556,13 +560,6 @@ class ActionItemController extends Controller
                     $query->where('all_energy_meters.is_archived', 0)
                         ->where('all_energy_meters.energy_system_type_id', '!=', 2)
                         ->where('all_energy_meters.meter_number', 0)
-                        ->where('communities.community_status_id', 2);
-                })
-                ->orWhere(function($query) {
-                    $query->where('all_energy_meters.is_archived', 0)
-                        ->where('all_energy_meters.energy_system_type_id', '!=', 2)
-                        ->where('all_energy_meters.is_main', 'No')
-                        ->whereNull('all_energy_meters.meter_number')
                         ->where('communities.community_status_id', 2);
                 })
                 ->select(
@@ -1284,7 +1281,7 @@ class ActionItemController extends Controller
             } else {
 
                 return view('actions.users.action.index', compact('actionStatuses', 'actionPriorities',
-                    'youngHolders', 'internetManager', 
+                    'youngHolders', 'internetManager', 'energyCycles',
                     'communitiesNotInSystems', 'missingPhoneNumbers', 'missingAdultNumbers',
                     'missingMaleNumbers', 'missingFemaleNumbers', 'missingChildrenNumbers',
                     'users', 'missingEnergySystems', 'acHouseholds', 'internetUsers',

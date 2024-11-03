@@ -141,7 +141,7 @@ class HouseholdController extends Controller
                     ->where('internet_holder_young', 0)
                     ->where('households.is_archived', 0);
 
-                if (Auth::guard('user')->user()->user_type_id == 3) {
+                if (Auth::guard('user')->user()->user_type_id == 3 || Auth::guard('user')->user()->user_role_type_id == 4) {
                     $data->leftJoin('refrigerator_holders', 'households.id', 'refrigerator_holders.household_id')
                         ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 'refrigerator_holder_receive_numbers.refrigerator_holder_id')
                         ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
@@ -363,9 +363,13 @@ class HouseholdController extends Controller
         //     'profession_id' => 'required'
         // ]);
  
+        // Get Last comet_id
+        $last_comet_id = Household::latest('id')->value('comet_id');
+
        // dd($request->all()); 
         $household = new Household();
         $household->english_name = $request->english_name;
+        $household->comet_id = ++$last_comet_id;
         $household->arabic_name = $request->arabic_name;
         $household->women_name_arabic = $request->women_name_arabic;
         $household->profession_id = $request->profession_id;
