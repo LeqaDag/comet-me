@@ -14,7 +14,7 @@
         Export Data
     </button>
 </p> 
-
+ 
 <div class="collapse multi-collapse mb-4" id="collapseEnergyActionsExport">
     <div class="container mb-4">
         <div class="row">
@@ -45,26 +45,11 @@
                             <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <select name="energy_maintenance_issue_id" class="selectpicker form-control"
-                                            data-live-search="true">
-                                            <option disabled selected>Search Issue</option>
-                                            @foreach($energyIssues as $energyIssue)
-                                                <option value="{{$energyIssue->id}}">
-                                                    {{$energyIssue->english_name}}
-                                                </option>
-                                            @endforeach
-                                        </select> 
-                                    </fieldset>
-                                </div>
-                                <div class="col-xl-3 col-lg-3 col-md-3">
-                                    <fieldset class="form-group">
-                                        <select name="energy_maintenance_issue_type_id" class="selectpicker form-control"
-                                            data-live-search="true">
-                                            <option disabled selected>Search Issue Type</option>
-                                            @foreach($energyIssueTypes as $energyIssueType)
-                                                <option value="{{$energyIssueType->id}}">
-                                                    {{$energyIssueType->name}}
-                                                </option>
+                                        <select class="selectpicker form-control" 
+                                            data-live-search="true" name="action_category">
+                                            <option disabled selected>Choose category...</option>
+                                            @foreach($actionCategories as $actionCategory)
+                                                <option value="{{$actionCategory->id}}">{{$actionCategory->english_name}}</option>
                                             @endforeach
                                         </select> 
                                     </fieldset>
@@ -104,24 +89,12 @@
             <div class="row">
                 <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Filter By Issue</label>
+                        <label class='col-md-12 control-label'>Filter By Category</label>
                         <select class="selectpicker form-control" 
-                            data-live-search="true" id="filterByIssue">
+                            data-live-search="true" id="filterByCategory">
                             <option disabled selected>Choose one...</option>
-                            @foreach($energyIssues as $energyIssue)
-                                <option value="{{$energyIssue->id}}">{{$energyIssue->english_name}}</option>
-                            @endforeach
-                        </select> 
-                    </fieldset>
-                </div>
-                <div class="col-xl-3 col-lg-3 col-md-3">
-                    <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Filter By Issue Type</label>
-                        <select class="selectpicker form-control" 
-                            data-live-search="true" id="filterByIssueType">
-                            <option disabled selected>Choose one...</option>
-                            @foreach($energyIssueTypes as $energyIssueType)
-                                <option value="{{$energyIssueType->id}}">{{$energyIssueType->name}}</option>
+                            @foreach($actionCategories as $actionCategory)
+                                <option value="{{$actionCategory->id}}">{{$actionCategory->english_name}}</option>
                             @endforeach
                         </select> 
                     </fieldset>
@@ -157,11 +130,10 @@
             <table id="actionEnergyTable" class="table table-striped data-table-energy-action my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">English Name</th>
-                        <th class="text-center">Arabic Name</th>
-                        <th class="text-center">Issue</th>
-                        <th class="text-center">Type</th>
-                        <th class="text-center">Options</th>
+                        <th>Action English</th>
+                        <th>Action Arabic</th>
+                        <th>Category</th>
+                        <th>Options</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -183,15 +155,13 @@
                 url: "{{route('energy-action.index')}}",
                 data: function (d) {
                     d.search = $('input[type="search"]').val();
-                    d.issue_filter = $('#filterByIssue').val();
-                    d.issue_type_filter = $('#filterByIssueType').val();
+                    d.category_filter = $('#filterByCategory').val();
                 }
             },
             columns: [
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
-                {data: 'issue', name: 'issue'},
-                {data: 'name', name: 'name'},
+                {data: 'category', name: 'category'},
                 {data: 'action'},
             ]
         });
@@ -201,10 +171,7 @@
 
         DataTableContent();
         
-        $('#filterByIssue').on('change', function() {
-            table.ajax.reload(); 
-        });
-        $('#filterByIssueType').on('change', function() {
+        $('#filterByCategory').on('change', function() {
             table.ajax.reload(); 
         });
 

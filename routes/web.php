@@ -419,6 +419,7 @@ Route::get('/delete-nvr-camera-type', [App\Http\Controllers\CameraCommunityContr
 Route::get('/delete-community-camera-photo', [App\Http\Controllers\CameraCommunityController::class, 'deleteCommunityCameraPhoto'])->name('deleteCommunityCameraPhoto');
 Route::post('camera-export', [App\Http\Controllers\CameraCommunityController::class, 'export'])->name('camera.export');
 Route::post('camera/update_ip', [App\Http\Controllers\CameraCommunityController::class, 'updateIpAddress']);
+Route::get('/delete-cameraDonor', [App\Http\Controllers\CameraCommunityController::class, 'deleteCameraDonor'])->name('deleteCameraDonor');
 
 Route::resource('displaced-community', App\Http\Controllers\DisplacedCommunityController::class);
 
@@ -462,6 +463,7 @@ Route::resource('energy-issue', App\Http\Controllers\EnergyIssueController::clas
 Route::post('energy-issue-export', [App\Http\Controllers\EnergyIssueController::class, 'export'])->name('energy-issue.export');
 Route::get('/delete-energy-issue', [App\Http\Controllers\EnergyIssueController::class, 'deleteEnergyIssue'])->name('deleteEnergyIssue');
 Route::get('/energy-issue/get/{id}', [App\Http\Controllers\EnergyIssueController::class, 'getEnergyIssue']);
+Route::get('/energy-issue/get_by_action_category/{id}', [App\Http\Controllers\EnergyIssueController::class, 'getEnergyActionBasedOnCategory']);
 
 Route::resource('energy-action', App\Http\Controllers\EnergyActionController::class);
 Route::post('energy-action-export', [App\Http\Controllers\EnergyActionController::class, 'export'])->name('energy-action.export');

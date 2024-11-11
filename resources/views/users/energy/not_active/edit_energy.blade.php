@@ -135,6 +135,16 @@
                             </select> 
                         </fieldset> 
                     </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6 text-info">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Updated date (only for meter case)</label>
+                            <input type="date" class="form-control text-info" name="last_update_date" 
+                            > 
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Vendor Name</label> 
@@ -155,9 +165,6 @@
                             </select> 
                         </fieldset> 
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New/Old Community</label> 
@@ -174,6 +181,8 @@
                             </select> 
                         </fieldset> 
                     </div>
+                </div> 
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Energy System</label> 
@@ -188,8 +197,6 @@
                             </select> 
                         </fieldset> 
                     </div>
-                </div> 
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Ground Connected</label> 

@@ -8,6 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
+
+use App\Models\EnergyActionCategory;
+use App\Models\EnergyAction;
+use App\Models\EnergyIssue;
+
 use App\Models\InternetMaintenanceCall;
 use App\Models\EnergyMaintenanceAction;
 use App\Models\EnergyMaintenanceIssueType;
@@ -33,34 +38,25 @@ class EnergyActionController extends Controller
     {
         if (Auth::guard('user')->user() != null) {
 
-            $issueFilter = $request->input('issue_filter');
-            $issueTypeFilter = $request->input('issue_type_filter');
+            $categoryFilter = $request->input('category_filter');
 
             if ($request->ajax()) {
-                $data = DB::table('energy_maintenance_actions')
-                    ->join('energy_maintenance_issues', 'energy_maintenance_actions.energy_maintenance_issue_id', 
-                        'energy_maintenance_issues.id')
-                    ->join('energy_maintenance_issue_types', 'energy_maintenance_actions.energy_maintenance_issue_type_id', 
-                        'energy_maintenance_issue_types.id');
+                $data = DB::table('energy_actions')
+                    ->join('energy_action_categories', 'energy_actions.energy_action_category_id', 
+                        'energy_action_categories.id')
+                    ->where('energy_actions.is_archived', 0);
 
-                if($issueFilter != null) {
+                if($categoryFilter != null) {
 
-                    $data->where('energy_maintenance_issues.id', $issueFilter);
+                    $data->where('energy_action_categories.id', $categoryFilter);
                 }
 
-                if($issueTypeFilter != null) {
-
-                    $data->where('energy_maintenance_issue_types.id', $issueTypeFilter);
-                }
-
-                $data
-                ->select('energy_maintenance_actions.id as id', 
-                    'energy_maintenance_actions.english_name', 
-                    'energy_maintenance_actions.arabic_name',
-                    'energy_maintenance_issues.english_name as issue',
-                    'energy_maintenance_issue_types.name',
-                    'energy_maintenance_actions.created_at as created_at',
-                    'energy_maintenance_actions.updated_at as updated_at')
+                $data->select('energy_actions.id as id', 
+                    'energy_actions.english_name', 
+                    'energy_actions.arabic_name',
+                    'energy_action_categories.english_name as category',
+                    'energy_actions.created_at as created_at',
+                    'energy_actions.updated_at as updated_at')
                 ->latest();
 
                 return Datatables::of($data)
@@ -83,11 +79,10 @@ class EnergyActionController extends Controller
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request){
                                 $search = $request->get('search');
-                                $w->orWhere('energy_maintenance_actions.english_name', 'LIKE', "%$search%")
-                                ->orWhere('energy_maintenance_actions.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('energy_maintenance_issues.english_name', 'LIKE', "%$search%")
-                                ->orWhere('energy_maintenance_issues.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('energy_maintenance_issue_types.name', 'LIKE', "%$search%");
+                                $w->orWhere('energy_actions.english_name', 'LIKE', "%$search%")
+                                ->orWhere('energy_actions.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('energy_action_categories.english_name', 'LIKE', "%$search%")
+                                ->orWhere('energy_action_categories.arabic_name', 'LIKE', "%$search%");
                             });
                         }
                     })
@@ -95,11 +90,9 @@ class EnergyActionController extends Controller
                 ->make(true);
             }
 
-            $energyIssues = EnergyMaintenanceIssue::all();
-            $energyIssueTypes = EnergyMaintenanceIssueType::all();
+            $actionCategories = EnergyActionCategory::where("is_archived", 0)->get();
 
-            return view('users.energy.maintenance.action.index', compact('energyIssues',
-                'energyIssueTypes'));
+            return view('users.energy.maintenance.action.index', compact('actionCategories'));
         } else {
 
             return view('errors.not-found');
@@ -114,12 +107,11 @@ class EnergyActionController extends Controller
      */
     public function store(Request $request)
     {     
-        $energyAction = new EnergyMaintenanceAction();
+        $energyAction = new EnergyAction();
 
         $energyAction->english_name = $request->english_name;
         $energyAction->arabic_name = $request->arabic_name;
-        $energyAction->energy_maintenance_issue_type_id = $request->energy_maintenance_issue_type_id;
-        $energyAction->energy_maintenance_issue_id = $request->energy_maintenance_issue_id;
+        $energyAction->energy_action_category_id = $request->energy_action_category_id;
         $energyAction->notes = $request->notes;
         $energyAction->save();
   
@@ -135,12 +127,10 @@ class EnergyActionController extends Controller
      */
     public function edit($id) 
     {
-        $energyAction = EnergyMaintenanceAction::findOrFail($id);
-        $energyIssues = EnergyMaintenanceIssue::all();
-        $energyIssueTypes = EnergyMaintenanceIssueType::all();
+        $energyAction = EnergyAction::findOrFail($id);
+        $energyCategories = EnergyActionCategory::where("is_archived", 0)->get();
 
-        return view('users.energy.maintenance.action.edit', compact('energyIssues',
-            'energyIssueTypes', 'energyAction'));
+        return view('users.energy.maintenance.action.edit', compact('energyCategories', 'energyAction'));
     }
 
     /**
@@ -151,12 +141,11 @@ class EnergyActionController extends Controller
      */
     public function update(int $id, Request $request)
     {     
-        $energyAction = EnergyMaintenanceAction::findOrFail($id);
+        $energyAction = EnergyAction::findOrFail($id);
 
         if($request->english_name) $energyAction->english_name = $request->english_name;
         if($request->arabic_name) $energyAction->arabic_name = $request->arabic_name;
-        if($request->energy_maintenance_issue_type_id) $energyAction->energy_maintenance_issue_type_id = $request->energy_maintenance_issue_type_id;
-        if($request->energy_maintenance_issue_id) $energyAction->energy_maintenance_issue_id = $request->energy_maintenance_issue_id;
+        if($request->energy_action_category_id) $energyAction->energy_action_category_id = $request->energy_action_category_id;
         if($request->notes) $energyAction->notes = $request->notes;
         $energyAction->save();
   
@@ -173,11 +162,12 @@ class EnergyActionController extends Controller
     {
         $id = $request->id;
 
-        $energyAction = EnergyMaintenanceAction::find($id);
+        $energyAction = EnergyAction::find($id);
 
         if($energyAction) {
 
-            $energyAction->delete(); 
+            $energyAction->is_archived = 1;
+            $energyAction->save(); 
 
             $response['success'] = 1;
             $response['msg'] = 'Energy Action Deleted successfully'; 
@@ -211,7 +201,7 @@ class EnergyActionController extends Controller
     {
         $id = $request->id;
 
-        $energyAction = EnergyMaintenanceAction::find($id);
+        $energyAction = EnergyAction::find($id);
 
         return response()->json($energyAction); 
     }

@@ -62,7 +62,8 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
                 'households.number_of_adults', 'households.number_of_children', 
                 'households.phone_number', 'all_energy_meters.meter_number', 
                 'all_energy_meters.daily_limit', 'all_energy_meters.installation_date',
-                DB::raw('group_concat(DISTINCT CASE WHEN all_energy_meter_donors.is_archived = 0 THEN donors.donor_name END) as donors')
+                DB::raw('group_concat(DISTINCT CASE WHEN all_energy_meter_donors.is_archived = 0 
+                    THEN donors.donor_name END) as donors')
                 ]) 
                 ->groupBy('all_energy_meters.id');
 

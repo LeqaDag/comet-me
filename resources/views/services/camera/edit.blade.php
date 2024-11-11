@@ -36,6 +36,9 @@ label, table {
              enctype="multipart/form-data" >
                 @csrf
                 @method('PATCH')
+                <div class="row" style="margin-top:12px">
+                    <h5>General</h5>
+                </div>
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         @if($cameraCommunity->community_id)
@@ -62,8 +65,31 @@ label, table {
                         </fieldset>
                     </div>
                 </div>
-                @if($cameraCommunity->community_id)
+                
                 <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Comet-Me Internally</label>
+                            <select class="selectpicker form-control" 
+                                data-live-search="true" name="comet_internal">
+                                @if($cameraCommunity->comet_internal == 0)
+                                    <option value="0" disabled selected>No</option>
+                                    <option value="1">Yes</option>
+                                @else @if($cameraCommunity->comet_internal == 1)
+                                    <option value="1" disabled selected>Yes</option>
+                                    <option value="0">No</option>
+
+                                @else 
+                                    <option selected disabled>Choose one...</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                @endif
+                                @endif
+                                
+                            </select>
+                        </fieldset>
+                    </div> 
+                    @if($cameraCommunity->community_id)
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Responsible</label>
@@ -89,12 +115,12 @@ label, table {
                             </select>
                         </fieldset>
                     </div> 
+                    @endif
                 </div>
-                @endif
-                <hr>
+                <hr> <br>
 
                 <div class="row" style="margin-top:12px">
-                    <h6>Cameras</h6>
+                    <h5>Cameras</h5>
                 </div>
                 @if(count($communityCameraTypes) > 0)
 
@@ -201,7 +227,7 @@ label, table {
 
                 <hr>
                 <div class="row" style="margin-top:12px">
-                    <h6>NVR Cameras</h6>
+                    <h5>NVR Cameras</h5>
                 </div>
                 @if(count($communityNvrTypes) > 0)
 
@@ -386,6 +412,61 @@ label, table {
                     </div>
                 @endif
 
+                <hr>
+                <div class="row">
+                    <h5>Donors</h5>
+                </div>
+                @if(count($cameraDonors) > 0)
+                    <table id="cameraDonorsTable" class="table table-striped data-table-camera-donors my-2">
+                        <tbody>
+                            @foreach($cameraDonors as $cameraDonor)
+                            <tr id="cameraDonorRow">
+                                <td class="text-center">
+                                    {{$cameraDonor->Donor->donor_name}}
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn deleteCameraDonor" id="deleteCameraDonor" data-id="{{$cameraDonor->id}}">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add more donors</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="donors[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($donors as $donor)
+                                        <option value="{{$donor->id}}">
+                                            {{$donor->donor_name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @else 
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Add Donors</label>
+                                <select class="selectpicker form-control" 
+                                    multiple data-live-search="true" name="new_donors[]">
+                                    <option selected disabled>Choose one...</option>
+                                    @foreach($donors as $donor)
+                                        <option value="{{$donor->id}}">{{$donor->donor_name}}</option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -401,6 +482,44 @@ label, table {
 <script>
 
 $(document).ready(function() {
+
+    // delete camera donor
+    $('#cameraDonorsTable').on('click', '.deleteCameraDonor',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this donor?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteCameraDonor') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
 
     // delete Camera-Community Photo
     $('#cameraCommunityPhotoTable').on('click', '.deleteCommunityCameraPhoto',function() {

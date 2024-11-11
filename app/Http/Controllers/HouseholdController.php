@@ -132,7 +132,7 @@ class HouseholdController extends Controller
             $statusFilter = $request->input('third_filter');
 
             if ($request->ajax()) {
-                
+                 
                 
                 $data = DB::table('households')
                     ->join('communities', 'households.community_id', 'communities.id')

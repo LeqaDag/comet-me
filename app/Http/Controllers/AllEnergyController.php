@@ -10,6 +10,7 @@ use Auth;
 use DB; 
 use Route;
 use App\Models\AllEnergyMeter; 
+use App\Models\AllEnergyMeterHistoryCase; 
 use App\Models\AllEnergyMeterDonor;
 use App\Models\AllEnergyVendingMeter;
 use App\Models\User;
@@ -558,6 +559,8 @@ class AllEnergyController extends Controller
     {
         $energyUser = AllEnergyMeter::find($id);
 
+        $oldMeterCase = $energyUser->meter_case_id;
+
         $communityCycle = Community::find($energyUser->community_id);
 
         if($communityCycle) {
@@ -669,10 +672,22 @@ class AllEnergyController extends Controller
 
         if($request->energy_system_id) $energyUser->energy_system_id = $request->energy_system_id;
         
-        if($request->meter_case_id) $energyUser->meter_case_id = $request->meter_case_id;
+        if($request->meter_case_id) {
+
+            $energyUser->meter_case_id = $request->meter_case_id;
+
+            if($request->meter_case_id != $oldMeterCase) {
+
+                $meterCaseHistory = new AllEnergyMeterHistoryCase();
+                $meterCaseHistory->old_meter_case_id = $oldMeterCase;
+                $meterCaseHistory->new_meter_case_id = $request->meter_case_id;
+                $meterCaseHistory->all_energy_meter = $id;
+                $meterCaseHistory->last_update_date = $request->last_update_date;
+                $meterCaseHistory->save();
+            }
+        }
         
         if($request->community_id) $energyUser->community_id = $request->community_id;
-
 
         if($request->meter_case_id == 1 || $request->meter_case_id == 2 ||
             $request->meter_case_id == 3 || $request->meter_case_id == 4 ||

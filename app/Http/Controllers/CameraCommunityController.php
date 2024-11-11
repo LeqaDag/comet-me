@@ -15,6 +15,7 @@ use App\Models\Community;
 use App\Models\CommunityService;
 use App\Models\CameraCommunityType;
 use App\Models\CameraCommunity;
+use App\Models\CameraCommunityDonor;
 use App\Models\NvrCommunityType;
 use App\Models\CameraCommunityPhoto;
 use App\Models\Camera;
@@ -38,6 +39,19 @@ class CameraCommunityController extends Controller
      */
     public function index(Request $request)
     {	
+        // $cameraCommunities = CameraCommunity::where('is_archived', 0)->get();
+
+        // foreach($cameraCommunities as $cameraCommunity) {
+
+        //     $cameraCommunityDonor = new CameraCommunityDonor();
+        //     $cameraCommunityDonor->camera_community_id = $cameraCommunity->id;
+        //     $cameraCommunityDonor->donor_id = 2;
+        //     $cameraCommunityDonor->save();
+
+        // }
+
+        // die( $cameraCommunities );
+
         $allCommunityCameras = CameraCommunity::where('is_archived', 0)
             ->where('community_id', '!=', NULL)
             ->get();
@@ -188,6 +202,7 @@ class CameraCommunityController extends Controller
         } else if($request->repository_id ) {
 
             $cameraCommunity->repository_id = $request->repository_id;
+            $cameraCommunity->comet_internal = 1;
         }
        
         $cameraCommunity->date = $request->date;
@@ -212,7 +227,7 @@ class CameraCommunityController extends Controller
             $nvrCommunityType->save();
         }
 
-        if ($request->file('photos')) {
+        if ($request->file('photos')) { 
 
             foreach($request->photos as $photo) {
 
@@ -248,8 +263,12 @@ class CameraCommunityController extends Controller
         $cameraPhotos = CameraCommunityPhoto::where('camera_community_id', $id)
             ->get();
 
+        $cameraDonors = CameraCommunityDonor::where("camera_community_id", $id)
+            ->where("is_archived", 0)
+            ->get();
+
         return view('services.camera.show', compact('cameraCommunity', 'nvrCommunityTypes', 
-            'sharedHouseholds', 'cameraPhotos', 'cameraCommunityTypes'));
+            'sharedHouseholds', 'cameraPhotos', 'cameraCommunityTypes', 'cameraDonors'));
     }
 
 
@@ -285,16 +304,18 @@ class CameraCommunityController extends Controller
 
         $cameras = Camera::all();
         $nvrCameras = NvrCamera::all();
+        $donors = Donor::where('is_archived', 0)->get();
 
+        $cameraDonors = CameraCommunityDonor::where("camera_community_id", $id)
+            ->where("is_archived", 0)
+            ->get();
         $communityCameraTypes = CameraCommunityType::where("camera_community_id", $id)->get();
-
         $communityNvrTypes = NvrCommunityType::where("camera_community_id", $id)->get();
-
         $cameraCommunityPhotos = CameraCommunityPhoto::where("camera_community_id", $id)->get();
             
-        return view('services.camera.edit', compact('communities', 'cameras',
+        return view('services.camera.edit', compact('communities', 'cameras', 'donors',
             'cameraCommunity', 'nvrCameras', 'households', 'communityCameraTypes',
-            'communityNvrTypes', 'cameraCommunityPhotos'));
+            'communityNvrTypes', 'cameraCommunityPhotos', 'cameraDonors'));
     }
 
     /**
@@ -309,6 +330,7 @@ class CameraCommunityController extends Controller
         if($request->household_id) $cameraCommunity->household_id = $request->household_id;
         if($request->date == null) $cameraCommunity->date = null;
         if($request->date) $cameraCommunity->date = $request->date;
+        if($request->comet_internal) $cameraCommunity->comet_internal = 1;
         if($request->notes) $cameraCommunity->notes = $request->notes;
         $cameraCommunity->save();
 
@@ -380,6 +402,30 @@ class CameraCommunityController extends Controller
             }
         }
 
+        // update new/more donors
+        if($request->donors) {
+
+            for($i=0; $i < count($request->donors); $i++) {
+
+                $cameraDonor = new CameraCommunityDonor();
+                $cameraDonor->donor_id = $request->donors[$i];
+                $cameraDonor->camera_community_id = $id;
+                $cameraDonor->save();
+            }
+        }
+
+        if($request->new_donors) {
+
+            for($i=0; $i < count($request->new_donors); $i++) {
+
+                $cameraDonor = new CameraCommunityDonor();
+                $cameraDonor->donor_id = $request->new_donors[$i];
+                $cameraDonor->camera_community_id = $id;
+                $cameraDonor->save();
+            }
+        }
+        
+
         return redirect('/camera')->with('message', 'Installed Camera Updated Successfully!');
     }
 
@@ -429,7 +475,35 @@ class CameraCommunityController extends Controller
         return response()->json($response); 
     }
 
-     /**
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteCameraDonor(Request $request)
+    {
+        $id = $request->id;
+
+        $cameraCommunityDonor = CameraCommunityDonor::find($id);
+
+        if($cameraCommunityDonor) {
+
+            $cameraCommunityDonor->is_archived = 1;
+            $cameraCommunityDonor->save();
+
+            $response['success'] = 1;
+            $response['msg'] = 'Donor Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
      * Delete a resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request

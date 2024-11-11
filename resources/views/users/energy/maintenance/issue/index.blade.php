@@ -13,7 +13,7 @@
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button>
-</p> 
+</p>  
 
 <div class="collapse multi-collapse mb-4" id="collapseEnergyIssuesExport">
     <div class="container mb-4">
@@ -35,6 +35,28 @@
                         @csrf
                         <div class="card-body"> 
                             <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <select class="selectpicker form-control" 
+                                            data-live-search="true" name="action_name">
+                                            <option disabled selected>Choose Action...</option>
+                                            @foreach($energyActions as $energyAction)
+                                                <option value="{{$energyAction->id}}">{{$energyAction->english_name}}</option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <select class="selectpicker form-control" 
+                                            data-live-search="true" name="issue_type">
+                                            <option disabled selected>Choose Issue type...</option>
+                                            @foreach($energyIssueTypes as $energyIssueType)
+                                                <option value="{{$energyIssueType->id}}">{{$energyIssueType->name}}</option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div> 
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <button class="btn btn-info" type="submit">
@@ -64,11 +86,48 @@
     </div>
 @endif
 
-@include('users.energy.maintenance.issue.edit')
 
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Filter By Action</label>
+                            <select class="selectpicker form-control" 
+                                data-live-search="true" id="filterByAction">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energyActions as $energyAction)
+                                    <option value="{{$energyAction->id}}">{{$energyAction->english_name}}</option>
+                                @endforeach
+                            </select> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Filter By Issue Type</label>
+                            <select class="selectpicker form-control" 
+                                data-live-search="true" id="filterByIssueType">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($energyIssueTypes as $energyIssueType)
+                                    <option value="{{$energyIssueType->id}}">{{$energyIssueType->name}}</option>
+                                @endforeach
+                            </select> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Clear All Filters</label>
+                            <button class="btn btn-dark" id="clearFiltersButton">
+                                <i class='fa-solid fa-eraser'></i>
+                                Clear Filters
+                            </button>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
             <div class="card-header">
 
                 @if(Auth::guard('user')->user()->user_type_id == 1 ||
@@ -87,8 +146,10 @@
             <table id="issueEnergyTable" class="table table-striped data-table-energy-issue my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">English Name</th>
-                        <th class="text-center">Arabic Name</th>
+                        <th class="text-center">Issue English</th>
+                        <th class="text-center">Issue Arabic</th>
+                        <th class="text-center">Action</th>
+                        <th class="text-center">Type</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -100,22 +161,54 @@
 </div> 
 
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-energy-issue').DataTable({
+    var table;
+
+    function DataTableContent() {
+
+        table = $('.data-table-energy-issue').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{route('energy-issue.index')}}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.action_filter = $('#filterByAction').val();
+                    d.issue_type_filter = $('#filterByIssueType').val();
                 }
             },
             columns: [
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
+                {data: 'energy_action', name: 'energy_action'},
+                {data: 'type', name: 'type'},
                 {data: 'action'},
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByAction').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByIssueType').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#filterByInstallationDate').val(' ');
+            if ($.fn.DataTable.isDataTable('.data-table-energy-issue')) {
+                $('.data-table-energy-issue').DataTable().destroy();
+            }
+            DataTableContent();
         });
     });
 
@@ -187,6 +280,16 @@
                 console.log('Error fetching record details: ', error);
             }
         });
+    });
+
+    // View update
+    $('#issueEnergyTable').on('click', '.updateEnergyIssue',function() {
+        var id = $(this).data('id');
+
+        var url = window.location.href; 
+        
+        url = url +'/'+ id +'/edit';
+        window.open(url, "_self"); 
     });
 </script>
 @endsection

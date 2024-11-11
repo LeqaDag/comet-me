@@ -48,37 +48,18 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Energy Issue</label>
-                            <select name="energy_maintenance_issue_id" data-live-search="true"
+                            <label class='col-md-12 control-label'>Action Category</label>
+                            <select name="energy_action_category_id" data-live-search="true"
                                 class="selectpicker form-control" required>
-                                @if($energyAction->energy_maintenance_issue_id)
-                                    <option value="{{$energyAction->energy_maintenance_issue_id}}">
-                                        {{$energyAction->EnergyMaintenanceIssue->english_name}}
+                                @if($energyAction->energy_action_category_id)
+                                    <option value="{{$energyAction->energy_action_category_id}}">
+                                        {{$energyAction->EnergyActionCategory->english_name}}
                                     </option>
                                 @endif 
-                                @foreach($energyIssues as $energyIssue)
-                                <option value="{{$energyIssue->id}}">
-                                    {{$energyIssue->english_name}}
-                                </option>
-                                @endforeach
-                            </select>
-                        </fieldset>
-                    </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Energy Issue Type</label>
-                            <select name="energy_maintenance_issue_type_id" data-live-search="true"
-                                class="selectpicker form-control" >
-                                @if($energyAction->energy_maintenance_issue_type_id)
-                                    <option value="{{$energyAction->energy_maintenance_issue_type_id}}">
-                                        {{$energyAction->EnergyMaintenanceIssueType->name}}
+                                @foreach($energyCategories as $actionCategory)
+                                    <option value="{{$actionCategory->id}}">
+                                        {{$actionCategory->english_name}}
                                     </option>
-                                @endif 
-                                
-                                @foreach($energyIssueTypes as $energyIssueType)
-                                <option value="{{$energyIssueType->id}}">
-                                    {{$energyIssueType->name}}
-                                </option>
                                 @endforeach
                             </select>
                         </fieldset>

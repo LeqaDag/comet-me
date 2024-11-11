@@ -414,8 +414,8 @@
         var phoneValue = $('#phoneNumber').val();
         var communityValue = $('#selectedCommunity').val();
         var professionValue = $('#selectedProfession').val();
-        var energySystemType = $('#energySystemType').val();
-        var energyCycleValue = $('#energyCycleYear').val();
+        // var energySystemType = $('#energySystemType').val();
+        // var energyCycleValue = $('#energyCycleYear').val();
 
         if (englishValue == null) {
 
@@ -462,23 +462,23 @@
             $('#community_id_error').empty();
         }
 
-        if (energyCycleValue == null) {
+        // if (energyCycleValue == null) {
 
-            $('#energy_system_cycle_id_error').html('Please select the cycle year!'); 
-            return false;
-        } else if (energyCycleValue != null) {
+        //     $('#energy_system_cycle_id_error').html('Please select the cycle year!'); 
+        //     return false;
+        // } else if (energyCycleValue != null) {
 
-            $('#energy_system_cycle_id_error').empty();
-        }
+        //     $('#energy_system_cycle_id_error').empty();
+        // }
 
-        if (energySystemType == null) {
+        // if (energySystemType == null) {
 
-            $('#energy_system_type_id_error').html('Please select a type!'); 
-            return false;
-        } else if (energySystemType != null) {
+        //     $('#energy_system_type_id_error').html('Please select a type!'); 
+        //     return false;
+        // } else if (energySystemType != null) {
 
-            $('#energy_system_type_id_error').empty();
-        }
+        //     $('#energy_system_type_id_error').empty();
+        // }
 
         $(this).addClass('was-validated');  
         $('#english_name_error').empty();
@@ -486,8 +486,8 @@
         $('#phone_error').empty();
         $('#community_id_error').empty();
         $('#profession_id_error').empty();
-        $('#energy_system_cycle_id_error').empty();
-        $('#energy_system_type_id_error').empty();
+        // $('#energy_system_cycle_id_error').empty();
+        // $('#energy_system_type_id_error').empty();
 
         this.submit();
     });

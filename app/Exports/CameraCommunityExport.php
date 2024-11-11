@@ -23,7 +23,7 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
     /**
     * @return \Illuminate\Support\Collection
     */
-    public function collection()
+    public function collection() 
     { 
         $query = DB::table('camera_communities')
             ->leftJoin('communities', 'camera_communities.community_id', 'communities.id')
@@ -41,11 +41,17 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
             ->leftJoin('nvr_community_types', 'camera_communities.id', 
                 'nvr_community_types.camera_community_id')
             ->leftJoin('nvr_cameras', 'nvr_community_types.nvr_camera_id', 'nvr_cameras.id')
+            ->leftJoin('camera_community_donors', 'camera_communities.id', 'camera_community_donors.camera_community_id')
+            ->leftJoin('donors', 'camera_community_donors.donor_id', 'donors.id')
             ->where('camera_communities.is_archived', 0)
             ->select([
                 DB::raw('IFNULL(communities.english_name, repositories.name) as name'),
                 DB::raw('IFNULL(regions.english_name, repository_regions.english_name) as region'),
                 DB::raw('IFNULL(sub_regions.english_name, repository_sub_regions.english_name) as sub_region'),
+                'communities.number_of_household',
+                DB::raw("CASE WHEN camera_communities.comet_internal = 0 THEN 'No' 
+                    ELSE 'Yes' END AS comet_internal"),
+                'communities.internet_service', 'communities.internet_service_beginning_year', 
                 'camera_communities.date',
                 'households.english_name as english_name',
                 DB::raw('SUM(DISTINCT camera_community_types.number) as camera_number'),
@@ -54,6 +60,8 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
                 DB::raw('SUM(DISTINCT nvr_community_types.number) as nvr_number'),
                 DB::raw('group_concat(DISTINCT nvr_cameras.model) as nvrs'),
                 DB::raw('group_concat(DISTINCT nvr_community_types.number) as nvr_numbers'),
+                DB::raw('group_concat(DISTINCT CASE WHEN camera_community_donors.is_archived = 0 
+                    THEN donors.donor_name END) as donors'),
                 'camera_communities.notes'
             ])
             ->groupBy('camera_communities.id')
@@ -83,9 +91,9 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
      */
     public function headings(): array
     {
-        return ["Community", "Region", "Sub Region", "Installation Date", "Responsible",
-            "# of Cameras", "Camera Models", "Camera Number", 
-            "# of NVRs", "NVR Models", "NVR Number", "Notes"];
+        return ["Community", "Region", "Sub Region", "# of Households", "Comet-Me Internaly", "Has Internet?", "Internet Year",
+            "Installation Date", "Responsible", "# of Cameras", "Camera Models", "Camera Number", "# of NVRs", "NVR Models", 
+            "NVR Number", "Donors", "Notes"];
     }
 
     public function title(): string
@@ -100,7 +108,7 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:L1');
+        $sheet->setAutoFilter('A1:Q1');
 
         return [
             // Style the first row as bold text.

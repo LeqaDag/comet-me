@@ -75,6 +75,19 @@
                                             </h6>
                                         </div>
                                     </li>
+                                    <li class="d-flex justify-content-start align-items-center text-danger mb-3">
+                                        <i class="bx bx-dollar bx-sm me-3"></i>
+                                        <div class="ps-3 border-start">
+                                            <small class="text-muted mb-1">Donors</small>
+                                            <h6 class="mb-0">
+                                                @if($cameraDonors)
+                                                    @foreach($cameraDonors as $cameraDonor)
+                                                    <li>{{$cameraDonor->Donor->donor_name}}</li>
+                                                    @endforeach
+                                                @endif
+                                            </h6>
+                                        </div>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
