@@ -31,6 +31,53 @@
              enctype="multipart/form-data" >
                 @csrf
                 @method('PATCH')
+
+                <div class="row">
+                    <h5>General Details</h5>
+                </div>
+                
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Community</label>
+                            <select class="selectpicker form-control" name="community_id" data-live-search="true">
+                                <option selected disabled>{{$energyPublic->Community->english_name}}</option>
+                                @foreach($communities as $community)
+                                <option value="{{$community->id}}">
+                                    {{$community->english_name}}
+                                </option>
+                                
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select name="energy_system_cycle_id" data-live-search="true"
+                            class="selectpicker form-control" >
+                            @if($energyPublic->energy_system_cycle_id)
+                                <option disabled selected>
+                                    {{$energyPublic->EnergySystemCycle->name}}
+                                </option>
+                                @foreach($energyCycles as $energyCycle)
+                                <option value="{{$energyCycle->id}}">
+                                    {{$energyCycle->name}}
+                                </option>
+                                @endforeach
+                            @else
+                            <option disabled selected>Choose one...</option>
+                                @foreach($energyCycles as $energyCycle)
+                                <option value="{{$energyCycle->id}}">
+                                    {{$energyCycle->name}}
+                                </option>
+                                @endforeach
+                            @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
@@ -59,7 +106,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Meter Active</label> 
-                            <select name='meter_active' class="form-control">
+                            <select name='meter_active' class="selectpicker form-control">
                                 <option selected disabled>
                                     {{$energyPublic->meter_active}}
                                 </option>
@@ -74,7 +121,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label' for="region_id">Meter Case</label>
-                            <select name='meter_case_id' name="meter_case_id " class="form-control">
+                            <select name='meter_case_id' name="meter_case_id " class="selectpicker form-control">
                                 <option disabled selected>
                                     {{$energyPublic->MeterCase->meter_case_name_english}}
                                 </option>
@@ -86,10 +133,19 @@
                             </select> 
                         </fieldset> 
                     </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6 text-info">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Updated date (only for meter case)</label>
+                            <input type="date" class="form-control text-info" name="last_update_date" 
+                            > 
+                        </fieldset>
+                    </div> 
+                </div>
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Vendor Name</label> 
-                            <select name='vendor_username_id' class="form-control">
+                            <select name='vendor_username_id' class="selectpicker form-control">
                                 <option selected disabled>
                                     @if($vendor)
                                     {{$vendor->name}}
@@ -105,12 +161,10 @@
                             </select> 
                         </fieldset> 
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New/Old Community</label> 
-                            <select name='installation_type_id' class="form-control">
+                            <select name='installation_type_id' class="selectpicker form-control">
                                 <option selected disabled>
                                     {{$energyPublic->InstallationType->type}}
                                 </option>
@@ -126,7 +180,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Energy System</label> 
-                            <select name='energy_system_id' class="form-control">
+                            <select name='energy_system_id' class="selectpicker form-control">
                                 <option selected disabled>
                                     {{$energyPublic->EnergySystem->name}}
                                 </option>
@@ -136,11 +190,24 @@
                             </select> 
                         </fieldset> 
                     </div>
-
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Ground Connected</label> 
+                            <select name='ground_connected'  data-live-search="true"
+                            class="selectpicker form-control">
+                                <option selected disabled>
+                                    {{$energyPublic->ground_connected}}
+                                </option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select> 
+                        </fieldset> 
+                    </div>
                 </div>
 
+
                 <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label> 
                             <textarea class="form-control" name="notes" style="resize: none;">
@@ -150,6 +217,58 @@
                     </div>
                 </div><hr>
  
+                <div class="row">
+                    <h5>CI & PH</h5>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>CI</label> 
+                            <select name='electricity_collection_box_id' data-live-search="true"
+                            class="selectpicker form-control">
+                                @if($allEnergyMeterPhase)
+                                <option selected disabled>
+                                    {{$allEnergyMeterPhase->ElectricityCollectionBox->name}}
+                                </option>
+                                @foreach($electricityCollectionBoxes as $electricityCollectionBox)
+                                    <option value="{{$electricityCollectionBox->id}}">{{$electricityCollectionBox->name}}</option>
+                                @endforeach
+                                @else
+                                
+                                <option selected disabled>Choose one...</option>
+                                @foreach($electricityCollectionBoxes as $electricityCollectionBox)
+                                    <option value="{{$electricityCollectionBox->id}}">{{$electricityCollectionBox->name}}</option>
+                                @endforeach
+                                @endif
+                            </select> 
+                        </fieldset> 
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>PH (L)</label> 
+                            <select name='electricity_phase_id' data-live-search="true"
+                            class="selectpicker form-control">
+                                @if($allEnergyMeterPhase)
+                                <option selected disabled>
+                                    {{$allEnergyMeterPhase->ElectricityPhase->name}}
+                                </option>
+                                @foreach($electricityPhases as $electricityPhasE)
+                                    <option value="{{$electricityPhasE->id}}">{{$electricityPhasE->name}}</option>
+                                @endforeach
+                                @else
+                                
+                                <option selected disabled>Choose one...</option>
+                                @foreach($electricityPhases as $electricityPhasE)
+                                    <option value="{{$electricityPhasE->id}}">{{$electricityPhasE->name}}</option>
+                                @endforeach
+                                @endif
+                            </select> 
+                        </fieldset> 
+                    </div>
+                </div> 
+
+                <hr>
                 <div class="row">
                     <h5>Donors</h5>
                 </div>

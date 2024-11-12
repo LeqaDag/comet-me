@@ -42,7 +42,7 @@
         Service Progress Reports
     </button>
 </p> 
-
+ 
 <div class="collapse multi-collapse mb-4" id="collapsePlatformTasks">
     <div class="container mb-4">                 
         @if(count($groupedActionItems) > 0)
@@ -54,7 +54,8 @@
 
                 @if(($currentUserTypeId == 3 && $userTypeId == 3) || 
                     ($currentUserTypeId == 4 && $userTypeId == 4) || 
-                    ($currentUserTypeId == 6 && $userTypeId == 6) )
+                    ($currentUserTypeId == 6 && $userTypeId == 6) || 
+                    ($currentUserTypeId == 13 && $userTypeId == 13) )
                     <div class="user-tasks">
                         <div class="pb-0">
                             @php
@@ -91,6 +92,17 @@
                                 @endphp
                                 @include('actions.admin.user_tasks')
                             </div>
+                            @else @if($userTypeId == 13) 
+                            <div class="container mb-4">
+                                @php
+                                    $userTypeId = 13;
+                                    $collapseId = 'internetWorkPlans';
+                                    $includeView = 'actions.admin.internet.index';
+                                    $flag = 0;
+                                @endphp
+                                @include('actions.admin.user_tasks')
+                            </div>
+                            @endif
                             @endif
                             @endif
                             @endif

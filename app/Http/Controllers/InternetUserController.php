@@ -313,7 +313,8 @@ class InternetUserController extends Controller
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 ||
                             Auth::guard('user')->user()->user_type_id == 6 ||
-                            Auth::guard('user')->user()->user_type_id == 10) 
+                            Auth::guard('user')->user()->user_type_id == 10||
+                            Auth::guard('user')->user()->user_type_id == 13) 
                         {
                                 
                             return  $detailsButton." ".$updateButton." ".$deleteButton;

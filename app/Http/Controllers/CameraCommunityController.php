@@ -106,13 +106,21 @@ class CameraCommunityController extends Controller
                         'nvr_community_types.camera_community_id')
                     ->where('camera_communities.is_archived', 0);
                     
+                $requestedData = DB::table('requested_cameras')
+                    ->join('communities', 'requested_cameras.community_id', 'communities.id')
+                    ->join('regions', 'communities.region_id', 'regions.id')
+                    ->join('camera_request_statuses', 'requested_cameras.camera_request_status_id', 'camera_request_statuses.id')
+                    ->where('requested_cameras.is_archived', 0);
+
                 if($communityFilter != null) {
 
                     $data->where('communities.id', $communityFilter);
+                    $requestedData->where('communities.id', $communityFilter);
                 }
                 if ($regionFilter != null) {
 
                     $data->where('regions.id', $regionFilter);
+                    $requestedData->where('regions.id', $regionFilter);
                 }
                 if ($dateFilter != null) {
 

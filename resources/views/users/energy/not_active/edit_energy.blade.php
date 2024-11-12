@@ -141,7 +141,7 @@
                             <input type="date" class="form-control text-info" name="last_update_date" 
                             > 
                         </fieldset>
-                    </div>
+                    </div> 
                 </div>
 
                 <div class="row">
@@ -211,6 +211,7 @@
                         </fieldset> 
                     </div>
                 </div> 
+                
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12">
                         <fieldset class="form-group">
@@ -223,6 +224,58 @@
                 </div> 
                 <hr>
 
+                <div class="row">
+                    <h5>CI & PH</h5>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>CI</label> 
+                            <select name='electricity_collection_box_id' data-live-search="true"
+                            class="selectpicker form-control">
+                                @if($allEnergyMeterPhase)
+                                <option selected disabled>
+                                    {{$allEnergyMeterPhase->ElectricityCollectionBox->name}}
+                                </option>
+                                @foreach($electricityCollectionBoxes as $electricityCollectionBox)
+                                    <option value="{{$electricityCollectionBox->id}}">{{$electricityCollectionBox->name}}</option>
+                                @endforeach
+                                @else
+                                
+                                <option selected disabled>Choose one...</option>
+                                @foreach($electricityCollectionBoxes as $electricityCollectionBox)
+                                    <option value="{{$electricityCollectionBox->id}}">{{$electricityCollectionBox->name}}</option>
+                                @endforeach
+                                @endif
+                            </select> 
+                        </fieldset> 
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>PH (L)</label> 
+                            <select name='electricity_phase_id' data-live-search="true"
+                            class="selectpicker form-control">
+                                @if($allEnergyMeterPhase)
+                                <option selected disabled>
+                                    {{$allEnergyMeterPhase->ElectricityPhase->name}}
+                                </option>
+                                @foreach($electricityPhases as $electricityPhasE)
+                                    <option value="{{$electricityPhasE->id}}">{{$electricityPhasE->name}}</option>
+                                @endforeach
+                                @else
+                                
+                                <option selected disabled>Choose one...</option>
+                                @foreach($electricityPhases as $electricityPhasE)
+                                    <option value="{{$electricityPhasE->id}}">{{$electricityPhasE->name}}</option>
+                                @endforeach
+                                @endif
+                            </select> 
+                        </fieldset> 
+                    </div>
+                </div> 
+                
+                <hr>
                 <div class="row">
                     <h5>Donors</h5>
                 </div>

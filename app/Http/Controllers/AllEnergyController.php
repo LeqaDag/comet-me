@@ -13,6 +13,9 @@ use App\Models\AllEnergyMeter;
 use App\Models\AllEnergyMeterHistoryCase; 
 use App\Models\AllEnergyMeterDonor;
 use App\Models\AllEnergyVendingMeter;
+use App\Models\AllEnergyMeterPhase;
+use App\Models\ElectricityCollectionBox;
+use App\Models\ElectricityPhase;
 use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
@@ -445,13 +448,6 @@ class AllEnergyController extends Controller
     public function edit($id)
     {
         $energyUser = AllEnergyMeter::findOrFail($id);
-        $communityCycle = Community::find($energyUser->community_id);
-
-        if($communityCycle) {
-
-            $energyUser->energy_system_cycle_id = $communityCycle->energy_system_cycle_id;
-            $energyUser->save();
-        }
 
         $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
             ->where("is_archived", 0)
@@ -478,9 +474,16 @@ class AllEnergyController extends Controller
         $installationTypes = InstallationType::where('is_archived', 0)->get();
         $energyCycles = EnergySystemCycle::get();
 
+        $electricityCollectionBoxes = ElectricityCollectionBox::where('is_archived', 0)->get();
+        $electricityPhases = ElectricityPhase::where('is_archived', 0)->get();
+        $allEnergyMeterPhase = AllEnergyMeterPhase::where('is_archived', 0)
+            ->where('all_energy_meter_id', $id)
+            ->first();
+
         return view('users.energy.not_active.edit_energy', compact('household', 'communities',
-            'meterCases', 'energyUser', 'communityVendors', 'vendor', 'energySystems',
-            'energyDonors', 'donors', 'installationTypes', 'energyCycles'));
+            'meterCases', 'energyUser', 'communityVendors', 'vendor', 'energySystems', 'electricityPhases',
+            'energyDonors', 'donors', 'installationTypes', 'energyCycles', 'electricityCollectionBoxes',
+            'allEnergyMeterPhase'));
     }
 
     /**
@@ -560,13 +563,6 @@ class AllEnergyController extends Controller
         $energyUser = AllEnergyMeter::find($id);
 
         $oldMeterCase = $energyUser->meter_case_id;
-
-        $communityCycle = Community::find($energyUser->community_id);
-
-        if($communityCycle) {
-
-            $energyUser->energy_system_cycle_id = $communityCycle->energy_system_cycle_id;
-        }
 
         if($request->energy_system_cycle_id) {
 
@@ -781,6 +777,25 @@ class AllEnergyController extends Controller
                 $energyMeterDonor->all_energy_meter_id = $id;
                 $energyMeterDonor->community_id = $energyUser->community_id;
                 $energyMeterDonor->save();
+            }
+        }
+
+        // CI & PH
+        if($request->electricity_collection_box_id || $request->electricity_phase_id) {
+
+            $existingEnergyMeterPhase = AllEnergyMeterPhase::where("all_energy_meter_id", $id)->first();
+            if($existingEnergyMeterPhase) {
+
+                $existingEnergyMeterPhase->electricity_collection_box_id = $request->electricity_collection_box_id;
+                $existingEnergyMeterPhase->electricity_phase_id = $request->electricity_phase_id;
+                $existingEnergyMeterPhase->save();
+            } else {
+
+                $allEnergyMeterPhase = new AllEnergyMeterPhase();
+                $allEnergyMeterPhase->all_energy_meter_id = $id;
+                $allEnergyMeterPhase->electricity_collection_box_id = $request->electricity_collection_box_id;
+                $allEnergyMeterPhase->electricity_phase_id = $request->electricity_phase_id;
+                $allEnergyMeterPhase->save();
             }
         }
 

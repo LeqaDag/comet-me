@@ -11,6 +11,10 @@ use DB;
 use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\AllEnergyMeterDonor;
+use App\Models\AllEnergyMeterPhase;
+use App\Models\ElectricityCollectionBox;
+use App\Models\AllEnergyMeterHistoryCase;
+use App\Models\ElectricityPhase;
 use App\Models\User;
 use App\Models\CometMeter;
 use App\Models\Community;
@@ -21,6 +25,7 @@ use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
 use App\Models\EnergyUser;
 use App\Models\EnergyHolder;
+use App\Models\EnergySystemCycle;
 use App\Models\EnergyPublicStructure;
 use App\Models\EnergyPublicStructureDonor;
 use App\Models\Household;
@@ -521,6 +526,7 @@ class EnergyPublicStructureController extends Controller
     public function edit($id) 
     {
         $energyPublic = AllEnergyMeter::findOrFail($id);
+
         $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)->get();
         $community_id = Community::findOrFail($energyPublic->community_id);
         $communities = Community::where('is_archived', 0)
@@ -543,10 +549,17 @@ class EnergyPublicStructureController extends Controller
         $donors = Donor::where('is_archived', 0)->get();
 
         $installationTypes = InstallationType::where('is_archived', 0)->get();
+        $energyCycles = EnergySystemCycle::get();
+        $electricityCollectionBoxes = ElectricityCollectionBox::where('is_archived', 0)->get();
+        $electricityPhases = ElectricityPhase::where('is_archived', 0)->get();
+        $allEnergyMeterPhase = AllEnergyMeterPhase::where('is_archived', 0)
+            ->where('all_energy_meter_id', $id)
+            ->first();
 
         return view('users.energy.public.edit', compact('publicStructures', 'communities',
             'meterCases', 'energyPublic', 'communityVendors', 'vendor', 'energySystems',
-            'energyDonors', 'donors', 'installationTypes'));
+            'energyDonors', 'donors', 'installationTypes', 'electricityCollectionBoxes',
+            'electricityPhases', 'allEnergyMeterPhase', 'energyCycles'));
     }
 
     /**
@@ -557,12 +570,27 @@ class EnergyPublicStructureController extends Controller
      */
     public function update(Request $request, $id)
     {
-       // dd($request->all());
+        // dd($request->all());
         $energyPublic = AllEnergyMeter::find($id);
+
+        $oldMeterCase = $energyPublic->meter_case_id;
+
+        if($request->energy_system_cycle_id) {
+
+            $energyPublic->energy_system_cycle_id = $request->energy_system_cycle_id;
+
+            $publicUser = PublicStructure::where("id", $energyPublic->public_structure_id)->first();
+            if($publicUser) {
+
+                $publicUser->energy_system_cycle_id = $request->energy_system_cycle_id;
+                $publicUser->save();
+            }
+        }
 
         $energyPublic->meter_number = $request->meter_number;
         $energyPublic->daily_limit = $request->daily_limit;
         $energyPublic->installation_date = $request->installation_date;
+        if($request->ground_connected) $energyPublic->ground_connected = $request->ground_connected;
         if($request->installation_type_id) $energyPublic->installation_type_id = $request->installation_type_id;
 
         if($request->meter_active) $energyPublic->meter_active = $request->meter_active;
@@ -573,25 +601,19 @@ class EnergyPublicStructureController extends Controller
 
         if($request->notes) $energyPublic->notes = $request->notes;
 
-
-        if($request->meter_case_id == 1 || $request->meter_case_id == 2 ||
-            $request->meter_case_id == 3 || $request->meter_case_id == 4 ||
-            $request->meter_case_id == 5 || $request->meter_case_id == 6 ||
-            $request->meter_case_id == 7 || $request->meter_case_id == 8 ||
-            $request->meter_case_id == 9 || $request->meter_case_id == 10 ||
-            $request->meter_case_id == 11 || $request->meter_case_id == 12 ||
-            $request->meter_case_id == 13 || $request->meter_case_id == 14) 
-        {
-
-            if($request->meter_case_id == 1) {
-                $household = Household::findOrFail($energyPublic->household_id);
-                $household->household_status_id = 4;
-                $household->energy_service = "Yes";
-                $household->energy_meter = "Yes";
-                $household->save();
-            }
+        if($request->meter_case_id) {
 
             $energyPublic->meter_case_id = $request->meter_case_id;
+
+            if($request->meter_case_id != $oldMeterCase) {
+
+                $meterCaseHistory = new AllEnergyMeterHistoryCase();
+                $meterCaseHistory->old_meter_case_id = $oldMeterCase;
+                $meterCaseHistory->new_meter_case_id = $request->meter_case_id;
+                $meterCaseHistory->all_energy_meter = $id;
+                $meterCaseHistory->last_update_date = $request->last_update_date;
+                $meterCaseHistory->save();
+            }
         }
 
         $energyPublic->save(); 
@@ -615,6 +637,25 @@ class EnergyPublicStructureController extends Controller
                 $energyMeterDonor->all_energy_meter_id = $id;
                 $energyMeterDonor->community_id = $energyPublic->community_id;
                 $energyMeterDonor->save();
+            }
+        }
+
+        // CI & PH
+        if($request->electricity_collection_box_id || $request->electricity_phase_id) {
+
+            $existingEnergyMeterPhase = AllEnergyMeterPhase::where("all_energy_meter_id", $id)->first();
+            if($existingEnergyMeterPhase) {
+
+                $existingEnergyMeterPhase->electricity_collection_box_id = $request->electricity_collection_box_id;
+                $existingEnergyMeterPhase->electricity_phase_id = $request->electricity_phase_id;
+                $existingEnergyMeterPhase->save();
+            } else {
+
+                $allEnergyMeterPhase = new AllEnergyMeterPhase();
+                $allEnergyMeterPhase->all_energy_meter_id = $id;
+                $allEnergyMeterPhase->electricity_collection_box_id = $request->electricity_collection_box_id;
+                $allEnergyMeterPhase->electricity_phase_id = $request->electricity_phase_id;
+                $allEnergyMeterPhase->save();
             }
         }
 

@@ -45,6 +45,9 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             'all_energy_meter_donors.all_energy_meter_id')
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id',
                 'donors.id')
+            ->LeftJoin('all_energy_meter_phases', 'all_energy_meters.id', 'all_energy_meter_phases.all_energy_meter_id')
+            ->LeftJoin('electricity_collection_boxes', 'all_energy_meter_phases.electricity_collection_box_id', 'electricity_collection_boxes.id')
+            ->LeftJoin('electricity_phases', 'all_energy_meter_phases.electricity_phase_id', 'electricity_phases.id')
             ->where('all_energy_meters.is_archived', 0)
             ->select([
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
@@ -62,6 +65,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
                 'households.number_of_adults', 'households.number_of_children', 
                 'households.phone_number', 'all_energy_meters.meter_number', 
                 'all_energy_meters.daily_limit', 'all_energy_meters.installation_date',
+                'electricity_collection_boxes.name as ci', 'electricity_phases.name as ph',
                 DB::raw('group_concat(DISTINCT CASE WHEN all_energy_meter_donors.is_archived = 0 
                     THEN donors.donor_name END) as donors')
                 ]) 
@@ -122,7 +126,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
             "Region", "Sub Region", "Meter Case", "Energy System", "Energy System Type", 
             "Connected Ground", "Number of male", "Number of Female", "Number of adults", 
             "Number of children", "Phone number", "Meter Number", "Daily Limit", 
-            "Installation Date", "Donors"];
+            "Installation Date", "CI", "PH (L)", "Donors"];
     }
 
     public function title(): string
@@ -152,7 +156,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:T1');
+        $sheet->setAutoFilter('A1:W1');
 
         return [
             // Style the first row as bold text.

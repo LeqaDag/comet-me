@@ -173,7 +173,7 @@
     <li class="menu-item" id="requested-tab">
         <a class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-hive"></i>
-            <div>Requested Systems</div>
+            <div>Requested Services</div>
         </a>
         <ul class="menu-sub">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
@@ -193,6 +193,12 @@
                 <a href="{{url('water-request')}}" class="menu-link" >
                     <i class=""></i>
                     <div>Requested Water</div>
+                </a>
+            </li> 
+            <li class="menu-item" id="camera-request">
+                <a href="{{url('camera-request')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Requested Camera</div>
                 </a>
             </li> 
         </ul>
@@ -763,6 +769,10 @@
 
         $("#requested-tab").addClass("open");
         $("#water-request").addClass("active");
+    } else if(last_part == "camera-request") {
+
+        $("#requested-tab").addClass("open");
+        $("#camera-request").addClass("active");
     } else if(last_part == "household-meter") {
 
         $("#household-meter").addClass("active");

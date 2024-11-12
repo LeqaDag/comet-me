@@ -528,3 +528,9 @@ Route::resource('young-holder', App\Http\Controllers\YoungHolderController::clas
 Route::get('/delete-young-holder', [App\Http\Controllers\YoungHolderController::class, 'deleteyoungHolder'])->name('deleteyoungHolder');
 Route::get('young-holder/community/{community_id}', [App\Http\Controllers\YoungHolderController::class, 'getYoungAndMainDetailsByCommunity']);
 Route::get('young-holder/main_user/{energy_user_id}', [App\Http\Controllers\YoungHolderController::class, 'getMeterNumberByMain']);
+
+Route::resource('camera-request', App\Http\Controllers\CameraRequestedController::class);
+Route::post('camera-request-export', [App\Http\Controllers\CameraRequestedController::class, 'export'])->name('camera-request.export');
+Route::get('/delete-camera-request', [App\Http\Controllers\CameraRequestedController::class, 'deleteCameraRequest'])->name('deleteCameraRequest');
+Route::get('camera-request/has_camera/{community_id}', [App\Http\Controllers\CameraRequestedController::class, 'getCameraDetailsByCommunity']);
+Route::get('camera-request/{id}/editpage', [App\Http\Controllers\CameraRequestedController::class, 'editPage']);
