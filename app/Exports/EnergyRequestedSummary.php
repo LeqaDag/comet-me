@@ -21,7 +21,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
     WithStyles, WithEvents,WithCustomStartCell
 {
     private $misc = 0, $activateMisc = 0, $requestedHouseholds = 0, $relocatedHouseholds = 0,
-        $activateRelocated = 0;
+        $activateRelocated = 0, $miscRefrigerator = 0, $relocatedRefrigerator;
 
     protected $request; 
 
@@ -72,6 +72,28 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->join('communities', 'households.community_id', 'communities.id')
             ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
             ->where('all_energy_meters.is_archived', 0)
+            ->whereNotNull('communities.energy_system_cycle_id')
+            ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
+
+        // MISC Refrigerator
+        $this->miscRefrigerator = DB::table('refrigerator_holders')
+            ->join('communities', 'refrigerator_holders.community_id', 'communities.id')
+            ->join('households', 'households.id', 'refrigerator_holders.household_id')
+            ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('refrigerator_holders.is_archived', 0)
+            ->where('all_energy_meters.energy_system_type_id', 2)
+            ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
+
+        // Relocated Refrigerator
+        $this->relocatedRefrigerator = DB::table('refrigerator_holders')
+            ->join('households', 'refrigerator_holders.household_id', 'households.id')
+            ->join('displaced_households', 'households.id', 'displaced_households.household_id')
+            ->join('communities', 'households.community_id', 'communities.id')
+            ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+            ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
+            ->where('all_energy_meters.is_archived', 0)
+            ->where('refrigerator_holders.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
 
@@ -286,6 +308,8 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $this->requestedHouseholds = $this->requestedHouseholds->count();
         $this->relocatedHouseholds = $this->relocatedHouseholds->count();
         $this->activateRelocated = $this->activateRelocated->count();
+        $this->miscRefrigerator = $this->miscRefrigerator->count();
+        $this->relocatedRefrigerator = $this->relocatedRefrigerator->count();
 
         return $compoundsCollection->merge($communitiesCollection);
     } 
@@ -339,6 +363,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->setCellValue('N1', 'Public Structures FBS');
         $sheet->setCellValue('O1', 'Served');
         $sheet->setCellValue('P1', 'Delta');
+        $sheet->setCellValue('Q1', 'Refrigerator');
 
         $sheet->setCellValue('A2', 'MISC FBS');  
         $sheet->setCellValue('A3', 'Relocated Households');  
@@ -357,6 +382,9 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
 
         $sheet->setCellValue('O2', ($this->activateMisc));
         $sheet->setCellValue('O3', ($this->activateRelocated));
+
+        $sheet->setCellValue('Q2', ($this->miscRefrigerator));
+        $sheet->setCellValue('Q3', ($this->relocatedRefrigerator));
 
         // Adding the summation row
         $lastRow = $sheet->getHighestRow() + 1;

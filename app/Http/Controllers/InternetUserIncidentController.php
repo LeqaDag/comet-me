@@ -192,9 +192,16 @@ class InternetUserIncidentController extends Controller
             $internetIncident->geolocation_long = $request->geolocation_long;
             $internetIncident->hearing_date = $request->hearing_date;
             $internetIncident->structure_description = $request->structure_description;
+            $internetIncident->building_permit_request_number = $request->building_permit_request_number;
+            $internetIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $internetIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $internetIncident->district_court_case_number = $request->district_court_case_number;
+            $internetIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $internetIncident->case_chronology = $request->case_chronology;
         }
         $internetIncident->internet_incident_status_id = $request->internet_incident_status_id;
         $internetIncident->response_date = $request->response_date;
+        $internetIncident->monetary_losses = $request->monetary_losses;
         $internetIncident->notes = $request->notes;
         $internetIncident->save();
         $id = $internetIncident->id;
@@ -335,11 +342,18 @@ class InternetUserIncidentController extends Controller
             $internetIncident->geolocation_long = $request->geolocation_long;
             $internetIncident->hearing_date = $request->hearing_date;
             $internetIncident->structure_description = $request->structure_description;
+            $internetIncident->building_permit_request_number = $request->building_permit_request_number;
+            $internetIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $internetIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $internetIncident->district_court_case_number = $request->district_court_case_number;
+            $internetIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $internetIncident->case_chronology = $request->case_chronology;
         }
         $internetIncident->internet_incident_status_id = $request->internet_incident_status_id;
         $internetIncident->notes = $request->notes;
         if($request->response_date == null) $internetIncident->response_date = null;
         if($request->response_date) $internetIncident->response_date = $request->response_date;
+        if($request->monetary_losses) $internetIncident->monetary_losses = $request->monetary_losses;
         $internetIncident->save();
 
         if($request->new_equipment) {

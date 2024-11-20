@@ -534,3 +534,4 @@ Route::post('camera-request-export', [App\Http\Controllers\CameraRequestedContro
 Route::get('/delete-camera-request', [App\Http\Controllers\CameraRequestedController::class, 'deleteCameraRequest'])->name('deleteCameraRequest');
 Route::get('camera-request/has_camera/{community_id}', [App\Http\Controllers\CameraRequestedController::class, 'getCameraDetailsByCommunity']);
 Route::get('camera-request/{id}/editpage', [App\Http\Controllers\CameraRequestedController::class, 'editPage']);
+Route::post('all-incident-export', [App\Http\Controllers\MgIncidentController::class, 'exportAll'])->name('all-report-incident.export');

@@ -161,7 +161,7 @@ class EnergyIssueController extends Controller
         //die($energyIssue);
 
         return view('users.energy.maintenance.issue.edit', compact('energyIssue', 'energyCategories', 
-            'energyAction', 'energyIssueTypes'));
+            'energyActions', 'energyIssueTypes'));
     }
 
     /**

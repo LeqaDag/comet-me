@@ -22,6 +22,7 @@ use App\Models\DisplacedHouseholdStatus;
 use App\Models\EnergySystemType;
 use App\Models\EnergySystem;
 use App\Models\SubRegion;
+use App\Models\FbsUserIncident;
 use App\Exports\DisplacedHouseholdExport;
 use Carbon\Carbon;
 use DataTables;

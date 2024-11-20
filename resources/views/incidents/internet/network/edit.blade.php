@@ -178,7 +178,49 @@
                                 value="{{$networkIncident->hearing_date}}">
                             </fieldset>
                         </div>
-                        <div class="col-xl-12 col-lg-12 col-md-12">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Building Permit Request Number</label>
+                                <input type="text" name="building_permit_request_number" class="form-control"
+                                value="{{$networkIncident->building_permit_request_number}}">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Building Permit Request Date</label>
+                                <input type="date" name="building_permit_request_submission_date" class="form-control"
+                                value="{{$networkIncident->building_permit_request_submission_date}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Illegal Construction Case Number</label>
+                                <input type="text" name="illegal_construction_case_number" class="form-control"
+                                value="{{$networkIncident->illegal_construction_case_number}}">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>District Court Case Number</label>
+                                <input type="text" name="district_court_case_number" class="form-control"
+                                value="{{$networkIncident->district_court_case_number}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Supreme Court Case Number</label>
+                                <input type="text" name="supreme_court_case_number" class="form-control"
+                                value="{{$networkIncident->supreme_court_case_number}}">
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Description of structure</label>
                                 <textarea name="structure_description" class="form-control" 
@@ -187,10 +229,30 @@
                                 </textarea>
                             </fieldset>
                         </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Case Chronology</label>
+                                <textarea name="case_chronology" class="form-control" 
+                                    style="resize:none" cols="20" rows="3">
+                                    {{$networkIncident->case_chronology}}
+                                </textarea>
+                            </fieldset>
+                        </div>
                     </div>
                 </div>
                 @endif
                 <br>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Monetary Losses</label>
+                            <input type="number" name="monetary_losses" class="form-control"
+                            value="{{$networkIncident->monetary_losses}}" step="0.01">
+                        </fieldset>
+                    </div>
+                </div>
+
                 <hr>
                 <div class="row">
                     <h5>Affected Households</h5>

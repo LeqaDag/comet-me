@@ -116,7 +116,7 @@
         href="#projectCostsTab" 
         aria-expanded="false" 
         aria-controls="projectCostsTab">
-        <span class="text-muted fw-light">Projects /</span> Files
+        <span class="text-muted fw-light">Report /</span> Files
     </a>
 </h4>
 
@@ -242,6 +242,43 @@
                             <button class="form-control btn-success" type="submit">
                                 <i class='fa-solid fa-file-excel'></i>
                                 Export Internet Metrics Report File
+                            </button>
+                        </fieldset>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h6 class="py-3 breadcrumb-wrapper">
+        <a data-toggle="collapse" class="text-danger" 
+            href="#IncidentsReportFiles" 
+            aria-expanded="false" 
+            aria-controls="IncidentsReportFiles">
+            <i class="bx bx-error-alt bx-sm me-3"></i>
+            Incidents Report
+        </a>
+    </h6> 
+
+    <div class="row overflow-hidden collapse multi-collapse container" id="IncidentsReportFiles">
+        <div class=" mb-4">
+            <form method="POST" enctype='multipart/form-data' 
+                action="{{ route('all-report-incident.export') }}">
+                @csrf
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Export</label>
+                            <input type="text" class="form-control" disabled
+                            value="Incidents Report File"> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Click Here</label>
+                            <button class="form-control btn-success" type="submit">
+                                <i class='fa-solid fa-file-excel'></i>
+                                Export Incidents Report File
                             </button>
                         </fieldset>
                     </div>

@@ -678,7 +678,7 @@ class AllEnergyController extends Controller
                 $meterCaseHistory->old_meter_case_id = $oldMeterCase;
                 $meterCaseHistory->new_meter_case_id = $request->meter_case_id;
                 $meterCaseHistory->all_energy_meter = $id;
-                $meterCaseHistory->last_update_date = $request->last_update_date;
+                if($request->last_update_date) $meterCaseHistory->last_update_date = $request->last_update_date;
                 $meterCaseHistory->save();
             }
         }

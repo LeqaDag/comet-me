@@ -8,13 +8,13 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 use DB;
 
-class RefrigeratorExport implements WithMultipleSheets, ShouldAutoSize
+class IncidentsReport implements WithMultipleSheets, ShouldAutoSize
 {
     use Exportable;
 
     protected $request;
 
-    function __construct($request) {
+    function __construct($request) { 
         $this->request = $request;
     }
  
@@ -23,10 +23,10 @@ class RefrigeratorExport implements WithMultipleSheets, ShouldAutoSize
      */ 
     public function sheets(): array
     {
-        $sheets = [ 
-            new RefrigeratorSummary($this->request),
-            new RefrigeratorEnergy($this->request),
-            //new RefrigeratorEnergyPublic($this->request)
+        $sheets = [   
+            new IncidentSummary($this->request), 
+            new IncidentStopWorkOrder($this->request),
+            //new IncidentAffectedHouseholds($this->request)
         ];
 
         return $sheets;

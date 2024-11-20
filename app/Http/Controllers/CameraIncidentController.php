@@ -213,9 +213,16 @@ class CameraIncidentController extends Controller
             $cameraIncident->geolocation_long = $request->geolocation_long;
             $cameraIncident->hearing_date = $request->hearing_date;
             $cameraIncident->structure_description = $request->structure_description;
+            $cameraIncident->building_permit_request_number = $request->building_permit_request_number;
+            $cameraIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $cameraIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $cameraIncident->district_court_case_number = $request->district_court_case_number;
+            $cameraIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $cameraIncident->case_chronology = $request->case_chronology;
         }
         $cameraIncident->internet_incident_status_id = $request->internet_incident_status_id;
         if($request->response_date) $cameraIncident->response_date = $request->response_date;
+        $cameraIncident->monetary_losses = $request->monetary_losses;
         $cameraIncident->notes = $request->notes;
         $cameraIncident->save();
 
@@ -347,9 +354,16 @@ class CameraIncidentController extends Controller
             $cameraIncident->geolocation_long = $request->geolocation_long;
             $cameraIncident->hearing_date = $request->hearing_date;
             $cameraIncident->structure_description = $request->structure_description;
+            $cameraIncident->building_permit_request_number = $request->building_permit_request_number;
+            $cameraIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $cameraIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $cameraIncident->district_court_case_number = $request->district_court_case_number;
+            $cameraIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $cameraIncident->case_chronology = $request->case_chronology;
         }
         $cameraIncident->internet_incident_status_id = $request->internet_incident_status_id;
         $cameraIncident->response_date = $request->response_date;
+        if($request->monetary_losses) $cameraIncident->monetary_losses = $request->monetary_losses;
         $cameraIncident->notes = $request->notes;
         $cameraIncident->save();
 

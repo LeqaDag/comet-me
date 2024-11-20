@@ -45,7 +45,7 @@ class InternetUserIncidentExport implements FromCollection, WithHeadings, WithTi
                 'internet_users.id')
             ->leftJoin('donors', 'internet_user_donors.donor_id', 'donors.id')
             ->where('internet_user_incidents.is_archived', 0)
-            ->where('internet_user_incident_equipment.is_archived', 0)
+            //->where('internet_user_incident_equipment.is_archived', 0)
             ->select([
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
                     as exported_value'),
@@ -56,10 +56,17 @@ class InternetUserIncidentExport implements FromCollection, WithHeadings, WithTi
                 'incidents.english_name as incident', 
                 'internet_user_incidents.year', 'internet_user_incidents.date', 
                 'internet_incident_statuses.name',
+                'internet_user_incidents.monetary_losses',  
                 'internet_user_incidents.response_date',
                 'internet_user_incidents.order_number', 'internet_user_incidents.order_date', 
                 'internet_user_incidents.geolocation_lat', 'internet_user_incidents.geolocation_long', 
-                'internet_user_incidents.hearing_date', 'internet_user_incidents.structure_description',
+                'internet_user_incidents.hearing_date', 
+                'internet_user_incidents.building_permit_request_number', 
+                'internet_user_incidents.building_permit_request_submission_date', 
+                'internet_user_incidents.illegal_construction_case_number', 
+                'internet_user_incidents.district_court_case_number', 
+                'internet_user_incidents.supreme_court_case_number', 
+                'internet_user_incidents.case_chronology', 'internet_user_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 'internet_user_incidents.notes'
@@ -91,8 +98,10 @@ class InternetUserIncidentExport implements FromCollection, WithHeadings, WithTi
     {
         return ["Internet Holder", "Community", "Region", "Sub Region", 
             "# of Male", "# of Female", "# of Children", "# of Adults", "Incident", 
-            "Incident Year", "Incident Date", "Status", "Response Date", "Order Number", 
-            "Order Date", "Geolocation Lat", "Geolocation Long", "Date of hearing", 
+            "Incident Year", "Incident Date", "Status", "Monetary Losses", "Response Date", "Order Number", 
+            "Order Date", "Geolocation Lat", "Geolocation Long", "Date of hearing",  
+            "Building permit request Number", "Building permit request date", "Illegal Construction Case Number", 
+            "District Court Case Number", "Supreme Court Case Number", "Case Chronology",
             "Description of structure", "Donor", "Equipment Damaged", "Notes"];
     }
 
@@ -108,7 +117,7 @@ class InternetUserIncidentExport implements FromCollection, WithHeadings, WithTi
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:V1');
+        $sheet->setAutoFilter('A1:Z1');
 
         return [
             // Style the first row as bold text.

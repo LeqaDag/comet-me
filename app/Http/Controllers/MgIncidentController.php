@@ -28,6 +28,7 @@ use App\Models\MgAffectedHousehold;
 use App\Models\MgIncidentPhoto;
 use App\Exports\MgIncidentExport;
 use App\Exports\AllIncidentExport;
+use App\Exports\IncidentsReport;
 use Carbon\Carbon;
 use Intervention\Image\Facades\Image;
 use DataTables;
@@ -194,6 +195,7 @@ class MgIncidentController extends Controller
         $mgIncident->incident_id = $request->incident_id;
         $mgIncident->incident_status_mg_system_id = $request->incident_status_mg_system_id;
         $mgIncident->response_date = $request->response_date;
+        $mgIncident->monetary_losses = $request->monetary_losses;
         $mgIncident->notes = $request->notes;
         if($request->incident_id == 4) {
 
@@ -203,6 +205,12 @@ class MgIncidentController extends Controller
             $mgIncident->geolocation_long = $request->geolocation_long;
             $mgIncident->hearing_date = $request->hearing_date;
             $mgIncident->structure_description = $request->structure_description;
+            $mgIncident->building_permit_request_number = $request->building_permit_request_number;
+            $mgIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $mgIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $mgIncident->district_court_case_number = $request->district_court_case_number;
+            $mgIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $mgIncident->case_chronology = $request->case_chronology;
         }
 
         $mgIncident->save();
@@ -377,6 +385,7 @@ class MgIncidentController extends Controller
         $mgIncident->incident_id = $request->incident_id;
         $mgIncident->incident_status_mg_system_id = $request->incident_status_mg_system_id;
         $mgIncident->response_date = $request->response_date;
+        if($request->monetary_losses) $mgIncident->monetary_losses = $request->monetary_losses;
         $mgIncident->notes = $request->notes;
         if($request->incident_id == 4) {
 
@@ -386,6 +395,12 @@ class MgIncidentController extends Controller
             $mgIncident->geolocation_long = $request->geolocation_long;
             $mgIncident->hearing_date = $request->hearing_date;
             $mgIncident->structure_description = $request->structure_description;
+            $mgIncident->building_permit_request_number = $request->building_permit_request_number;
+            $mgIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $mgIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $mgIncident->district_court_case_number = $request->district_court_case_number;
+            $mgIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $mgIncident->case_chronology = $request->case_chronology;
         }
         
         $mgIncident->save();
@@ -689,5 +704,15 @@ class MgIncidentController extends Controller
 
             return Excel::download(new MgIncidentExport($request), 'mg_incidents.xlsx');
         }   
+    }
+
+    /**
+     *  
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportAll(Request $request)  
+    {
+
+        return Excel::download(new IncidentsReport($request), 'Incidents_report.xlsx');  
     }
 }

@@ -243,9 +243,16 @@ class WaterIncidentController extends Controller
             $waterIncident->geolocation_long = $request->geolocation_long;
             $waterIncident->hearing_date = $request->hearing_date;
             $waterIncident->structure_description = $request->structure_description;
+            $waterIncident->building_permit_request_number = $request->building_permit_request_number;
+            $waterIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $waterIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $waterIncident->district_court_case_number = $request->district_court_case_number;
+            $waterIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $waterIncident->case_chronology = $request->case_chronology;
         }
         $waterIncident->response_date = $request->response_date;
         $waterIncident->notes = $request->notes;
+        $waterIncident->monetary_losses = $request->monetary_losses;
         $waterIncident->save();
         $id = $waterIncident->id;
 
@@ -369,10 +376,17 @@ class WaterIncidentController extends Controller
             $waterIncident->geolocation_long = $request->geolocation_long;
             $waterIncident->hearing_date = $request->hearing_date;
             $waterIncident->structure_description = $request->structure_description;
+            $waterIncident->building_permit_request_number = $request->building_permit_request_number;
+            $waterIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $waterIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $waterIncident->district_court_case_number = $request->district_court_case_number;
+            $waterIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $waterIncident->case_chronology = $request->case_chronology;
         }
         $waterIncident->equipment = $request->equipment;
         $waterIncident->notes = $request->notes;
         $waterIncident->response_date = $request->response_date;
+        if($request->monetary_losses) $waterIncident->monetary_losses = $request->monetary_losses;
         $waterIncident->save();
 
         if($request->new_equipment) {

@@ -22,7 +22,7 @@ class FbsMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldAut
 
     /**
     * @return \Illuminate\Support\Collection
-    */
+    */ 
     public function collection()
     {
         $query = DB::table('fbs_user_incidents')
@@ -52,7 +52,7 @@ class FbsMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldAut
            // ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('fbs_user_incidents.is_archived', 0)
             ->where('fbs_incident_statuses.is_archived', 0)
-            ->where('fbs_incident_equipment.is_archived', 0)
+            //->where('fbs_incident_equipment.is_archived', 0)
             ->select([
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
                     as exported_value'),
@@ -69,7 +69,13 @@ class FbsMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldAut
                 'fbs_user_incidents.losses_water',
                 'fbs_user_incidents.order_number', 'fbs_user_incidents.order_date', 
                 'fbs_user_incidents.geolocation_lat', 'fbs_user_incidents.geolocation_long', 
-                'fbs_user_incidents.hearing_date', 'fbs_user_incidents.structure_description',
+                'fbs_user_incidents.hearing_date', 
+                'fbs_user_incidents.building_permit_request_number', 
+                'fbs_user_incidents.building_permit_request_submission_date', 
+                'fbs_user_incidents.illegal_construction_case_number', 
+                'fbs_user_incidents.district_court_case_number', 
+                'fbs_user_incidents.supreme_court_case_number', 
+                'fbs_user_incidents.case_chronology', 'fbs_user_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 'fbs_user_incidents.notes'
@@ -104,7 +110,9 @@ class FbsMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldAut
             "# of Male", "# of Female", "# of Children", "# of Adults", "Incident", 
             "Incident Year", "Incident Date", "Status", "Response Date", "Energy System Type",
             "Losses Energy (ILS)", "Losses Water (ILS)", "Order Number", "Order Date", 
-            "Geolocation Lat", "Geolocation Long", "Date of hearing", "Description of structure",
+            "Geolocation Lat", "Geolocation Long", "Date of hearing", 
+            "Building permit request Number", "Building permit request date", "Illegal Construction Case Number", 
+            "District Court Case Number", "Supreme Court Case Number", "Case Chronology", "Description of structure",
             "Donor", "Equipment Damaged", 
             "Notes"];
     }

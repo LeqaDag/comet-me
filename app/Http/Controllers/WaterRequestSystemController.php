@@ -63,7 +63,7 @@ class WaterRequestSystemController extends Controller
                             as is_main'),
                         DB::raw('IFNULL(households.english_name, public_structures.english_name) 
                             as holder'))
-                    ->latest(); 
+                    ->orderBy('water_request_systems.date', 'asc');
                  
                 return Datatables::of($dataPublic)
                     ->addIndexColumn()

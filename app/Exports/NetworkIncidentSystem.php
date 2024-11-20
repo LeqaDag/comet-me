@@ -51,10 +51,17 @@ class NetworkIncidentSystem implements FromCollection, WithHeadings, WithTitle, 
                 'incidents.english_name as incident', 
                 'internet_network_incidents.year', 'internet_network_incidents.date', 
                 'internet_incident_statuses.name as incident_status',
+                'internet_network_incidents.monetary_losses',  
                 'internet_network_incidents.response_date',
                 'internet_network_incidents.order_number', 'internet_network_incidents.order_date', 
                 'internet_network_incidents.geolocation_lat', 'internet_network_incidents.geolocation_long', 
-                'internet_network_incidents.hearing_date', 'internet_network_incidents.structure_description',
+                'internet_network_incidents.hearing_date', 
+                'internet_network_incidents.building_permit_request_number', 
+                'internet_network_incidents.building_permit_request_submission_date', 
+                'internet_network_incidents.illegal_construction_case_number', 
+                'internet_network_incidents.district_court_case_number', 
+                'internet_network_incidents.supreme_court_case_number', 
+                'internet_network_incidents.case_chronology', 'internet_network_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT households.english_name) as households'),
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
@@ -88,8 +95,10 @@ class NetworkIncidentSystem implements FromCollection, WithHeadings, WithTitle, 
     public function headings(): array
     {
         return ["Community", "Region", "Sub Region", "Incident", "Incident Year", 
-            "Incident Date", "Status", "Response Date", "Order Number", "Order Date", 
-            "Geolocation Lat", "Geolocation Long", "Date of hearing", 
+            "Incident Date", "Status", "Monetary Losses", "Response Date", "Order Number", "Order Date", 
+            "Geolocation Lat", "Geolocation Long", "Date of hearing",  
+            "Building permit request Number", "Building permit request date", "Illegal Construction Case Number", 
+            "District Court Case Number", "Supreme Court Case Number", "Case Chronology",
             "Description of structure", "Households", "Equipment Damaged", 
             "Donors", "Notes", "Next Step"];
     }
@@ -106,7 +115,7 @@ class NetworkIncidentSystem implements FromCollection, WithHeadings, WithTitle, 
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:S1');
+        $sheet->setAutoFilter('A1:Z1');
         $sheet->getStyle('K1')->getAlignment()->setWrapText(true);
 
         $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(40);

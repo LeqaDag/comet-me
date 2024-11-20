@@ -42,10 +42,17 @@ class CameraIncidentExport implements FromCollection, WithHeadings, WithTitle, S
                 DB::raw('IFNULL(communities.english_name, repositories.name) as exported_value'),
                 DB::raw('IFNULL(camera_community.date, camera_repository.date) as exported_date'),
                 'incidents.english_name as incident', 'camera_incidents.year', 'camera_incidents.date', 
-                'internet_incident_statuses.name as camera_status', 'camera_incidents.response_date',
+                'internet_incident_statuses.name as camera_status', 'camera_incidents.monetary_losses',  
+                'camera_incidents.response_date',
                 'camera_incidents.order_number', 'camera_incidents.order_date', 
                 'camera_incidents.geolocation_lat', 'camera_incidents.geolocation_long', 
-                'camera_incidents.hearing_date', 'camera_incidents.structure_description',
+                'camera_incidents.hearing_date', 
+                'camera_incidents.building_permit_request_number', 
+                'camera_incidents.building_permit_request_submission_date', 
+                'camera_incidents.illegal_construction_case_number', 
+                'camera_incidents.district_court_case_number', 
+                'camera_incidents.supreme_court_case_number', 
+                'camera_incidents.case_chronology', 'camera_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 'camera_incidents.notes'
             ])
@@ -68,8 +75,10 @@ class CameraIncidentExport implements FromCollection, WithHeadings, WithTitle, S
      */
     public function headings(): array
     {
-        return ["Holder", "Installation Date", "Incident", "Incident Year", "Incident Date", "Status", "Response Date", 
-            "Order Number", "Order Date", "Geolocation Lat", "Geolocation Long", "Date of hearing", 
+        return ["Holder", "Installation Date", "Incident", "Incident Year", "Incident Date", "Status", 
+            "Monetary Losses", "Response Date", "Order Number", "Order Date", "Geolocation Lat", 
+            "Geolocation Long", "Date of hearing", "Building permit request Number", "Building permit request date", 
+            "Illegal Construction Case Number", "District Court Case Number", "Supreme Court Case Number", "Case Chronology",
             "Description of structure", "Equipment Damaged", "Notes"];
     }
 
@@ -85,7 +94,7 @@ class CameraIncidentExport implements FromCollection, WithHeadings, WithTitle, S
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:O1');
+        $sheet->setAutoFilter('A1:V1');
 
         return [
             // Style the first row as bold text.

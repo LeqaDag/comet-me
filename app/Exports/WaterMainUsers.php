@@ -50,7 +50,7 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
             ->leftJoin('donors', 'all_water_holder_donors.donor_id', 'donors.id')
             ->where('h2o_system_incidents.is_archived', 0) 
             ->where('h2o_incident_statuses.is_archived', 0) 
-            ->where('water_incident_equipment.is_archived', 0) 
+            //->where('water_incident_equipment.is_archived', 0) 
             ->select([
                 DB::raw('COALESCE(households.english_name, public_structures.english_name, 
                     water_systems.name) as exported_value'),
@@ -62,10 +62,17 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
                 'incidents.english_name as incident', 'h2o_system_incidents.year',
                 'h2o_system_incidents.date', 
                 DB::raw('group_concat(DISTINCT incident_statuses.name) as incident_status'),
+                'h2o_system_incidents.monetary_losses',  
                 'h2o_system_incidents.response_date',
                 'h2o_system_incidents.order_number', 'h2o_system_incidents.order_date', 
                 'h2o_system_incidents.geolocation_lat', 'h2o_system_incidents.geolocation_long', 
-                'h2o_system_incidents.hearing_date', 'h2o_system_incidents.structure_description',
+                'h2o_system_incidents.hearing_date', 
+                'h2o_system_incidents.building_permit_request_number', 
+                'h2o_system_incidents.building_permit_request_submission_date', 
+                'h2o_system_incidents.illegal_construction_case_number', 
+                'h2o_system_incidents.district_court_case_number', 
+                'h2o_system_incidents.supreme_court_case_number', 
+                'h2o_system_incidents.case_chronology', 'h2o_system_incidents.structure_description',
                 DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
                 DB::raw('group_concat(DISTINCT incident_equipment.name) as equipment'),
                 'h2o_system_incidents.notes'
@@ -99,8 +106,10 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
         return ["Water Holder", "Main User", "Community", "Region", "Sub Region", 
             "# of Male", "# of Female", "# of Children", "# of Adults", 
             "Incident", "Incident Year", "Incident Date", "Status", 
-            "Response Date",  "Order Number", "Order Date", 
+            "Monetary Losses", "Response Date",  "Order Number", "Order Date", 
             "Geolocation Lat", "Geolocation Long", "Date of hearing", 
+            "Building permit request Number", "Building permit request date", "Illegal Construction Case Number", 
+            "District Court Case Number", "Supreme Court Case Number", "Case Chronology",
             "Description of structure", "Donors", "Equipment Damaged", "Notes"];
     }
 
@@ -116,7 +125,7 @@ class WaterMainUsers implements FromCollection, WithHeadings, WithTitle, ShouldA
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:W1');
+        $sheet->setAutoFilter('A1:X1');
         $sheet->getStyle('w1')->getAlignment()->setWrapText(true);
 
         $sheet->getColumnDimension('w')->setAutoSize(false)->setWidth(40);

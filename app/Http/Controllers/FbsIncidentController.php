@@ -252,6 +252,12 @@ class FbsIncidentController extends Controller
             $fbsIncident->geolocation_long = $request->geolocation_long;
             $fbsIncident->hearing_date = $request->hearing_date;
             $fbsIncident->structure_description = $request->structure_description;
+            $fbsIncident->building_permit_request_number = $request->building_permit_request_number;
+            $fbsIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $fbsIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $fbsIncident->district_court_case_number = $request->district_court_case_number;
+            $fbsIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $fbsIncident->case_chronology = $request->case_chronology;
         }
         $fbsIncident->response_date = $request->response_date;
         $fbsIncident->losses_energy = $request->losses_energy;
@@ -407,8 +413,13 @@ class FbsIncidentController extends Controller
             if($request->geolocation_long) $fbsIncident->geolocation_long = $request->geolocation_long;
             if($request->hearing_date) $fbsIncident->hearing_date = $request->hearing_date;
             if($request->structure_description) $fbsIncident->structure_description = $request->structure_description;
+            if($request->building_permit_request_number) $fbsIncident->building_permit_request_number = $request->building_permit_request_number;
+            if($request->building_permit_request_submission_date) $fbsIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            if($request->illegal_construction_case_number) $fbsIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            if($request->district_court_case_number) $fbsIncident->district_court_case_number = $request->district_court_case_number;
+            if($request->supreme_court_case_number) $fbsIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            if($request->case_chronology) $fbsIncident->case_chronology = $request->case_chronology;
         }
-
 
         if($request->public_structure_id) {
 

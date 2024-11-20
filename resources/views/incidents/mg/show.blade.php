@@ -105,6 +105,10 @@
                         @if($incident->english_name != "SWO")
                         <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
                             <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Monetary Losses</p>
+                                <span class="text-muted">{{$mgIncident->monetary_losses}} ₪</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
                                 <p class="mb-0">Equipment Damaged</p>
                                 @if(count($mgIncidentEquipments) > 0)
                                     @foreach($mgIncidentEquipments as $mgIncidentEquipment)
@@ -141,8 +145,36 @@
                                 <span class="text-muted">{{$mgIncident->hearing_date}}</span>
                             </div>
                             <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Building permit request Number</p>
+                                <span class="text-muted">{{$mgIncident->building_permit_request_number}}</span>
+                            </div>
+                        </div> <br>
+                        <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Building permit request date</p>
+                                <span class="text-muted">{{$mgIncident->building_permit_request_submission_date}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Illegal Construction Case Number</p>
+                                <span class="text-muted">{{$mgIncident->illegal_construction_case_number}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">District Court Case Number</p>
+                                <span class="text-muted">{{$mgIncident->district_court_case_number}}</span>
+                            </div>
+                        </div><br>
+                        <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Supreme Court Case Number</p>
+                                <span class="text-muted">{{$mgIncident->supreme_court_case_number}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
                                 <p class="mb-0">Description of structure</p>
                                 <span class="text-muted">{{$mgIncident->structure_description}}</span>
+                            </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Case Chronology</p>
+                                <span class="text-muted">{{$mgIncident->case_chronology}}</span>
                             </div>
                         </div>
                         @endif <br>

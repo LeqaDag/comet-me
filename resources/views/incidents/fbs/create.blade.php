@@ -181,10 +181,53 @@
                                     <input type="date" name="hearing_date" class="form-control">
                                 </fieldset>
                             </div>
-                            <div class="col-xl-12 col-lg-12 col-md-12">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
-                                    <label class='col-md-12 control-label'>Description of structure</label>
+                                    <label class='col-md-12 control-label'>Building Permit Request Number</label>
+                                    <input type="text" name="building_permit_request_number" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Building Permit Request Date</label>
+                                    <input type="date" name="building_permit_request_submission_date" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Illegal Construction Case Number</label>
+                                    <input type="text" name="illegal_construction_case_number" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>District Court Case Number</label>
+                                    <input type="text" name="district_court_case_number" class="form-control">
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Supreme Court Case Number</label>
+                                    <input type="text" name="supreme_court_case_number" class="form-control">
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Description of Structure</label>
                                     <textarea name="structure_description" class="form-control" 
+                                        style="resize:none" cols="20" rows="3"></textarea>
+                                </fieldset>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>Case Chronology</label>
+                                    <textarea name="case_chronology" class="form-control" 
                                         style="resize:none" cols="20" rows="3"></textarea>
                                 </fieldset>
                             </div>

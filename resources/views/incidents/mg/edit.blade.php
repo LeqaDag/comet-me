@@ -34,7 +34,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Community</label>
-                            <select class=" form-control" name="community_id">
+                            <select class="selectpicker form-control" name="community_id">
                                 @if($mgIncident->community_id)
                                     <option value="{{$mgIncident->community_id}}">
                                         {{$mgIncident->Community->english_name}}
@@ -58,7 +58,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Energy System</label>
-                            <select name="energy_system_id" class="form-control">
+                            <select name="energy_system_id" class="selectpicker form-control">
                                 @if($mgIncident->energy_system_id)
                                     <option value="{{$mgIncident->energy_system_id}}">
                                         {{$mgIncident->EnergySystem->name}}
@@ -85,7 +85,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Incident Type</label>
-                            <select name="incident_id" class="form-control" id="incidentMgType">
+                            <select name="incident_id" class="selectpicker form-control" id="incidentMgType">
                                 @if($mgIncident->incident_id)
                                     <option value="{{$mgIncident->incident_id}}">
                                         {{$mgIncident->Incident->english_name}}
@@ -109,7 +109,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Incident MG Status</label>
-                            <select name="incident_status_mg_system_id" class="form-control">
+                            <select name="incident_status_mg_system_id" class="selectpicker form-control">
                                 @if($mgIncident->incident_status_mg_system_id)
                                     <option value="{{$mgIncident->incident_status_mg_system_id}}">
                                         {{$mgIncident->IncidentStatusMgSystem->name}}
@@ -191,7 +191,49 @@
                                 value="{{$mgIncident->hearing_date}}">
                             </fieldset>
                         </div>
-                        <div class="col-xl-12 col-lg-12 col-md-12">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Building Permit Request Number</label>
+                                <input type="text" name="building_permit_request_number" class="form-control"
+                                value="{{$mgIncident->building_permit_request_number}}">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Building Permit Request Date</label>
+                                <input type="date" name="building_permit_request_submission_date" class="form-control"
+                                value="{{$mgIncident->building_permit_request_submission_date}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Illegal Construction Case Number</label>
+                                <input type="text" name="illegal_construction_case_number" class="form-control"
+                                value="{{$mgIncident->illegal_construction_case_number}}">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>District Court Case Number</label>
+                                <input type="text" name="district_court_case_number" class="form-control"
+                                value="{{$mgIncident->district_court_case_number}}">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Supreme Court Case Number</label>
+                                <input type="text" name="supreme_court_case_number" class="form-control"
+                                value="{{$mgIncident->supreme_court_case_number}}">
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Description of structure</label>
                                 <textarea name="structure_description" class="form-control" 
@@ -200,9 +242,29 @@
                                 </textarea>
                             </fieldset>
                         </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Case Chronology</label>
+                                <textarea name="case_chronology" class="form-control" 
+                                    style="resize:none" cols="20" rows="3">
+                                    {{$mgIncident->case_chronology}}
+                                </textarea>
+                            </fieldset>
+                        </div>
                     </div>
                 </div>
                 @endif
+                
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Monetary Losses</label>
+                            <input type="number" name="monetary_losses" class="form-control"
+                            value="{{$mgIncident->monetary_losses}}" step="0.01">
+                        </fieldset>
+                    </div> 
+                </div>
+
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">

@@ -170,11 +170,18 @@ class InternetNetworkIncidentController extends Controller
             $internetNetworkIncident->geolocation_long = $request->geolocation_long;
             $internetNetworkIncident->hearing_date = $request->hearing_date;
             $internetNetworkIncident->structure_description = $request->structure_description;
+            $internetNetworkIncident->building_permit_request_number = $request->building_permit_request_number;
+            $internetNetworkIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $internetNetworkIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $internetNetworkIncident->district_court_case_number = $request->district_court_case_number;
+            $internetNetworkIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $internetNetworkIncident->case_chronology = $request->case_chronology;
         }
         $internetNetworkIncident->internet_incident_status_id = $request->internet_incident_status_id;
         $internetNetworkIncident->response_date = $request->response_date;
         $internetNetworkIncident->notes = $request->notes;
         $internetNetworkIncident->next_step = $request->next_step;
+        $internetNetworkIncident->monetary_losses = $request->monetary_losses;
         $internetNetworkIncident->save();
         $id = $internetNetworkIncident->id;
 
@@ -331,12 +338,19 @@ class InternetNetworkIncidentController extends Controller
             $networkIncident->geolocation_long = $request->geolocation_long;
             $networkIncident->hearing_date = $request->hearing_date;
             $networkIncident->structure_description = $request->structure_description;
+            $networkIncident->building_permit_request_number = $request->building_permit_request_number;
+            $networkIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+            $networkIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+            $networkIncident->district_court_case_number = $request->district_court_case_number;
+            $networkIncident->supreme_court_case_number = $request->supreme_court_case_number;
+            $networkIncident->case_chronology = $request->case_chronology;
         }
         $networkIncident->internet_incident_status_id = $request->internet_incident_status_id;
         $networkIncident->notes = $request->notes;
         $networkIncident->next_step = $request->next_step;
         if($request->response_date == null) $networkIncident->response_date = null;
         if($request->response_date) $networkIncident->response_date = $request->response_date;
+        if($request->monetary_losses) $networkIncident->monetary_losses = $request->monetary_losses;
         $networkIncident->save();
 
         if($request->new_affected_households) {
