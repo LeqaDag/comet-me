@@ -9,8 +9,8 @@ class EnergyAction extends Model
 {
     use HasFactory;
 
-    public function EnergyActionCategory()
+    public function ActionCategory()
     {
-        return $this->belongsTo(EnergyActionCategory::class, 'energy_action_category_id', 'id');
+        return $this->belongsTo(ActionCategory::class, 'action_category_id', 'id');
     }
 }

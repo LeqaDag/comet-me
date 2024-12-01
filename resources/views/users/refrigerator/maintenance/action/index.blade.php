@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'water actions')
+@section('title', 'refrigerator actions')
 
 @include('layouts.all')
 
@@ -8,30 +8,38 @@
 
 <p>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
-        data-target="#collapseWaterActionsExport" aria-expanded="false" 
-        aria-controls="collapseWaterActionsExport">
+        data-target="#collapseRefrigeratorActionsExport" aria-expanded="false" 
+        aria-controls="collapseRefrigeratorActionsExport">
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button>
 </p> 
-
-<div class="collapse multi-collapse mb-4" id="collapseWaterActionsExport">
+ 
+<div class="collapse multi-collapse mb-4" id="collapseRefrigeratorActionsExport">
     <div class="container mb-4">
         <div class="row">
-            <div class="col-md-12"> 
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
                             <div class="col-xl-10 col-lg-10 col-md-10">
                                 <h5>
-                                Export Water Actions Report
+                                Export Refrigerator Actions Report
                                     <i class='fa-solid fa-file-excel text-info'></i>
                                 </h5>
                             </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearRefrigeratorActionFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
                         </div>
-                    </div>
+                    </div> 
                     <form method="POST" enctype='multipart/form-data' 
-                        action="{{ route('water-action.export') }}">
+                        action="{{ route('refrigerator-action.export') }}">
                         @csrf
                         <div class="card-body"> 
                             <div class="row">
@@ -64,7 +72,7 @@
 </div> 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Water Actions 
+  <span class="text-muted fw-light">All </span> Refrigerator Actions 
 </h4>
  
 @if(session()->has('message'))
@@ -102,26 +110,27 @@
                 </div>
             </div>
         </div>
+
         <div class="card-body">
             <div class="card-header">
+
                 @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                    Auth::guard('user')->user()->user_type_id == 5 ||
-                    Auth::guard('user')->user()->user_type_id == 11 )
+                    Auth::guard('user')->user()->user_type_id == 2)
                     <div style="margin-top:18px">
                         <button type="button" class="btn btn-success" 
-                            data-bs-toggle="modal" data-bs-target="#createActionWater">
-                            Create New Water Action	
+                            data-bs-toggle="modal" data-bs-target="#createActionRefrigerator">
+                            Create New Refrigerator Action	
                         </button>
-                        @include('users.water.maintenance.action.create')
+                        @include('users.refrigerator.maintenance.action.create')
                     </div>
                 @endif
             </div>
 
-            <table id="actionWaterTable" class="table table-striped data-table-water-action my-2">
+            <table id="actionRefrigeratorTable" class="table table-striped data-table-refrigerator-action my-2">
                 <thead>
                     <tr>
-                        <th>English Name</th>
-                        <th>Arabic Name</th>
+                        <th>Action English</th>
+                        <th>Action Arabic</th>
                         <th>Category</th>
                         <th>Options</th>
                     </tr>
@@ -138,11 +147,11 @@
     var table;
     function DataTableContent() {
 
-        table = $('.data-table-water-action').DataTable({
+        table = $('.data-table-refrigerator-action').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{route('water-action.index')}}",
+                url: "{{route('refrigerator-action.index')}}",
                 data: function (d) {
                     d.search = $('input[type="search"]').val();
                     d.category_filter = $('#filterByCategory').val();
@@ -160,7 +169,7 @@
     $(function () {
 
         DataTableContent();
-
+        
         $('#filterByCategory').on('change', function() {
             table.ajax.reload(); 
         });
@@ -171,15 +180,15 @@
             $('.selectpicker').prop('selectedIndex', 0);
             $('.selectpicker').selectpicker('refresh');
             $('#filterByInstallationDate').val(' ');
-            if ($.fn.DataTable.isDataTable('.data-table-water-action')) {
-                $('.data-table-water-action').DataTable().destroy();
+            if ($.fn.DataTable.isDataTable('.data-table-refrigerator-action')) {
+                $('.data-table-refrigerator-action').DataTable().destroy();
             }
             DataTableContent(); 
         });
     });
 
     // Delete record
-    $('#actionWaterTable').on('click', '.deleteWaterAction',function() {
+    $('#actionRefrigeratorTable').on('click', '.deleteRefrigeratorAction',function() {
         var id = $(this).data('id');
 
         Swal.fire({ 
@@ -191,7 +200,7 @@
 
             if(result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('deleteWaterMainAction') }}",
+                    url: "{{ route('deleteRefrigeratorMainAction') }}",
                     type: 'get',
                     data: {id: id},
                     success: function(response) {
@@ -204,7 +213,7 @@
                                 showCancelButton: false,
                                 confirmButtonText: 'Okay!'
                             }).then((result) => {
-                                $('#actionWaterTable').DataTable().draw();
+                                $('#actionRefrigeratorTable').DataTable().draw();
                             });
                         } else {
 
@@ -220,14 +229,14 @@
     });
 
     // Clear Filters for Export
-    $('#clearWaterActionFiltersButton').on('click', function() {
+    $('#clearRefrigeratorActionFiltersButton').on('click', function() {
 
         $('.selectpicker').prop('selectedIndex', 0);
         $('.selectpicker').selectpicker('refresh');
     });
 
     // View update
-    $('#actionWaterTable').on('click', '.updateWaterAction',function() {
+    $('#actionRefrigeratorTable').on('click', '.updateRefrigeratorAction',function() {
         var id = $(this).data('id');
 
         var url = window.location.href; 

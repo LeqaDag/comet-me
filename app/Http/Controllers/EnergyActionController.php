@@ -9,7 +9,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
 
-use App\Models\EnergyActionCategory;
+use App\Models\ActionCategory;
 use App\Models\EnergyAction;
 use App\Models\EnergyIssue;
 
@@ -36,25 +36,37 @@ class EnergyActionController extends Controller
      */
     public function index(Request $request)
     {
+        // $incrementalNumber = 100; 
+        // $energyActions = EnergyAction::all();
+        // foreach($energyActions as $energyAction) {
+
+        //     $actionCategory = ActionCategory::findOrFail($energyAction->action_category_id);
+        //     $energyAction->comet_id = $incrementalNumber;
+        //     $energyAction->full_comet_id = $actionCategory->comet_id . $incrementalNumber;
+        //     $energyAction->save();
+
+        //     $incrementalNumber++;
+        // }
+
         if (Auth::guard('user')->user() != null) {
 
             $categoryFilter = $request->input('category_filter');
 
             if ($request->ajax()) {
                 $data = DB::table('energy_actions')
-                    ->join('energy_action_categories', 'energy_actions.energy_action_category_id', 
-                        'energy_action_categories.id')
+                    ->join('action_categories', 'energy_actions.action_category_id', 
+                        'action_categories.id')
                     ->where('energy_actions.is_archived', 0);
 
                 if($categoryFilter != null) {
 
-                    $data->where('energy_action_categories.id', $categoryFilter);
+                    $data->where('action_categories.id', $categoryFilter);
                 }
 
                 $data->select('energy_actions.id as id', 
                     'energy_actions.english_name', 
                     'energy_actions.arabic_name',
-                    'energy_action_categories.english_name as category',
+                    'action_categories.english_name as category',
                     'energy_actions.created_at as created_at',
                     'energy_actions.updated_at as updated_at')
                 ->latest();
@@ -68,8 +80,7 @@ class EnergyActionController extends Controller
                         $viewButton = "<a type='button' class='viewEnergyAction' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyActionModal' ><i class='fa-solid fa-eye text-info'></i></a>";
 
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
-                            Auth::guard('user')->user()->user_type_id == 10 ||
-                            Auth::guard('user')->user()->user_type_id == 6) 
+                            Auth::guard('user')->user()->user_type_id == 2) 
                         {
                                 
                             return $updateButton. " ". $deleteButton ;
@@ -81,8 +92,8 @@ class EnergyActionController extends Controller
                                 $search = $request->get('search');
                                 $w->orWhere('energy_actions.english_name', 'LIKE', "%$search%")
                                 ->orWhere('energy_actions.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('energy_action_categories.english_name', 'LIKE', "%$search%")
-                                ->orWhere('energy_action_categories.arabic_name', 'LIKE', "%$search%");
+                                ->orWhere('action_categories.english_name', 'LIKE', "%$search%")
+                                ->orWhere('action_categories.arabic_name', 'LIKE', "%$search%");
                             });
                         }
                     })
@@ -90,7 +101,7 @@ class EnergyActionController extends Controller
                 ->make(true);
             }
 
-            $actionCategories = EnergyActionCategory::where("is_archived", 0)->get();
+            $actionCategories = ActionCategory::where("is_archived", 0)->get();
 
             return view('users.energy.maintenance.action.index', compact('actionCategories'));
         } else {
@@ -108,10 +119,12 @@ class EnergyActionController extends Controller
     public function store(Request $request)
     {     
         $energyAction = new EnergyAction();
-
+        // Get last comet_id
+        $last_comet_id = EnergyAction::latest('id')->value('comet_id') + 1;
         $energyAction->english_name = $request->english_name;
         $energyAction->arabic_name = $request->arabic_name;
-        $energyAction->energy_action_category_id = $request->energy_action_category_id;
+        $energyAction->action_category_id = $request->action_category_id;
+        $energyAction->comet_id = $last_comet_id;
         $energyAction->notes = $request->notes;
         $energyAction->save();
   
@@ -128,7 +141,7 @@ class EnergyActionController extends Controller
     public function edit($id) 
     {
         $energyAction = EnergyAction::findOrFail($id);
-        $energyCategories = EnergyActionCategory::where("is_archived", 0)->get();
+        $energyCategories = ActionCategory::where("is_archived", 0)->get();
 
         return view('users.energy.maintenance.action.edit', compact('energyCategories', 'energyAction'));
     }
@@ -145,7 +158,7 @@ class EnergyActionController extends Controller
 
         if($request->english_name) $energyAction->english_name = $request->english_name;
         if($request->arabic_name) $energyAction->arabic_name = $request->arabic_name;
-        if($request->energy_action_category_id) $energyAction->energy_action_category_id = $request->energy_action_category_id;
+        if($request->action_category_id) $energyAction->action_category_id = $request->action_category_id;
         if($request->notes) $energyAction->notes = $request->notes;
         $energyAction->save();
   

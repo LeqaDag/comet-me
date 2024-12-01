@@ -371,11 +371,30 @@
                     @endif
                 </ul>
             </li>
-            <li class="menu-item" id="refrigerator-maintenance">
-                <a href="{{url('refrigerator-maintenance')}}" class="menu-link" >
-                    <i class=""></i>
+            <li class="menu-item" id="refrigerator-maintenance-tab">
+                <a class="menu-link menu-toggle">
                     <div>Refrigerator Maintenance</div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="refrigerator-maintenance">
+                        <a href="{{url('refrigerator-maintenance')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>All Maintenance</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="refrigerator-issue">
+                        <a href="{{url('refrigerator-issue')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Issues</div>
+                        </a>
+                    </li> 
+                    <li class="menu-item" id="refrigerator-action">
+                        <a href="{{url('refrigerator-action')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Actions</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             
@@ -388,6 +407,12 @@
                         <a href="{{url('water-maintenance')}}" class="menu-link" >
                             <i class=""></i>
                             <div>All Maintenance</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="water-issue">
+                        <a href="{{url('water-issue')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Issues</div>
                         </a>
                     </li>
                     <li class="menu-item" id="water-action">
@@ -861,6 +886,20 @@
 
         $("#refrigerator-maintenance").addClass("active");
         $("#maintenance").addClass("open");
+        $("#refrigerator-maintenance-tab").addClass("active");
+        $("#refrigerator-maintenance-tab").addClass("open");
+    }   else if(last_part == "refrigerator-issue") {
+
+        $("#refrigerator-issue").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#refrigerator-maintenance-tab").addClass("active");
+        $("#refrigerator-maintenance-tab").addClass("open");
+    }   else if(last_part == "refrigerator-action") {
+
+        $("#refrigerator-action").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#refrigerator-maintenance-tab").addClass("active");
+        $("#refrigerator-maintenance-tab").addClass("open");
     } else if(last_part == "water-maintenance") {
 
         $("#water-maintenance").addClass("active");
@@ -870,6 +909,12 @@
     }  else if(last_part == "water-action") {
 
         $("#water-action").addClass("active");
+        $("#maintenance").addClass("open");
+        $("#water-maintenance-tab").addClass("active");
+        $("#water-maintenance-tab").addClass("open");
+    }  else if(last_part == "water-issue") {
+
+        $("#water-issue").addClass("active");
         $("#maintenance").addClass("open");
         $("#water-maintenance-tab").addClass("active");
         $("#water-maintenance-tab").addClass("open");

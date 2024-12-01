@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InternetIssue extends Model
+class WaterAction extends Model
 {
     use HasFactory;
 
-    public function InternetAction()
+    public function ActionCategory()
     {
-        return $this->belongsTo(InternetAction::class, 'internet_action_id', 'id');
+        return $this->belongsTo(ActionCategory::class, 'action_category_id', 'id');
     }
 }

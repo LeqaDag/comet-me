@@ -13,7 +13,7 @@
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button>
-</p> 
+</p>  
 
 <div class="collapse multi-collapse mb-4" id="collapseInternetIssuesExport">
     <div class="container mb-4">
@@ -24,17 +24,9 @@
                         <div class="row">
                             <div class="col-xl-10 col-lg-10 col-md-10">
                                 <h5>
-                                Export Internet Issues Report
+                                    Export Internet Issues Report
                                     <i class='fa-solid fa-file-excel text-info'></i>
                                 </h5>
-                            </div>
-                            <div class="col-xl-2 col-lg-2 col-md-2">
-                                <fieldset class="form-group">
-                                    <button class="" id="clearInternetIssueFiltersButton">
-                                    <i class='fa-solid fa-eraser'></i>
-                                        Clear Filters
-                                    </button>
-                                </fieldset>
                             </div>
                         </div>
                     </div>
@@ -45,13 +37,22 @@
                             <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <select name="internet_issue_type_id" class="selectpicker form-control"
-                                            data-live-search="true">
-                                            <option disabled selected>Search Issue Type</option>
-                                            @foreach($internetIssueTypes as $internetIssueType)
-                                                <option value="{{$internetIssueType->id}}">
-                                                    {{$internetIssueType->type}}
-                                                </option>
+                                        <select class="selectpicker form-control" 
+                                            data-live-search="true" name="action_name">
+                                            <option disabled selected>Choose Action...</option>
+                                            @foreach($internetActions as $internetAction)
+                                                <option value="{{$internetAction->id}}">{{$internetAction->english_name}}</option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <select class="selectpicker form-control" 
+                                            data-live-search="true" name="action_category">
+                                            <option disabled selected>Choose Action Category...</option>
+                                            @foreach($actionCategories as $actionCategory)
+                                                <option value="{{$actionCategory->id}}">{{$actionCategory->english_name}}</option>
                                             @endforeach
                                         </select> 
                                     </fieldset>
@@ -85,19 +86,54 @@
     </div>
 @endif
 
-@include('users.internet.maintenance.issue.edit')
 
 <div class="container">
     <div class="card my-2">
         <div class="card-body">
             <div class="card-header">
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Filter By Action</label>
+                            <select class="selectpicker form-control" 
+                                data-live-search="true" id="filterByAction">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($internetActions as $internetAction)
+                                    <option value="{{$internetAction->id}}">{{$internetAction->english_name}}</option>
+                                @endforeach
+                            </select> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Filter By Action Category</label>
+                            <select class="selectpicker form-control" 
+                                data-live-search="true" id="filterByActionCategory">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($actionCategories as $actionCategory)
+                                    <option value="{{$actionCategory->id}}">{{$actionCategory->english_name}}</option>
+                                @endforeach
+                            </select> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Clear All Filters</label>
+                            <button class="btn btn-dark" id="clearFiltersButton">
+                                <i class='fa-solid fa-eraser'></i>
+                                Clear Filters
+                            </button>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
 
+            <div class="card-header">
                 @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                    Auth::guard('user')->user()->user_type_id == 10 ||
-                    Auth::guard('user')->user()->user_type_id == 6 )
+                    Auth::guard('user')->user()->user_type_id == 2)
                     <div style="margin-top:18px">
                         <button type="button" class="btn btn-success" 
-                            data-bs-toggle="modal" data-bs-target="#createIssueInternet">
+                            data-bs-toggle="modal" data-bs-target="#createIssueinternet">
                             Create New Internet Issue	
                         </button>
                         @include('users.internet.maintenance.issue.create')
@@ -108,9 +144,9 @@
             <table id="issueInternetTable" class="table table-striped data-table-internet-issue my-2">
                 <thead>
                     <tr>
-                        <th class="text-center">English Name</th>
-                        <th class="text-center">Arabic Name</th>
-                        <th class="text-center">Type</th>
+                        <th class="text-center">Issue English</th>
+                        <th class="text-center">Issue Arabic</th>
+                        <th class="text-center">Action</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -122,23 +158,53 @@
 </div> 
 
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-internet-issue').DataTable({
+    var table;
+
+    function DataTableContent() {
+
+        table = $('.data-table-internet-issue').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{route('internet-issue.index')}}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.action_filter = $('#filterByAction').val();
+                    d.category_filter = $('#filterByActionCategory').val();
                 }
             },
             columns: [
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
-                {data: 'type', name: 'type'},
+                {data: 'internet_action', name: 'internet_action'},
                 {data: 'action'},
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByAction').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        $('#filterByActionCategory').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#filterByInstallationDate').val(' ');
+            if ($.fn.DataTable.isDataTable('.data-table-internet-issue')) {
+                $('.data-table-internet-issue').DataTable().destroy();
+            }
+            DataTableContent();
         });
     });
 
@@ -155,7 +221,7 @@
 
             if(result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('deleteInternetIssue') }}",
+                    url: "{{ route('deleteInternetMainIssue') }}",
                     type: 'get',
                     data: {id: id},
                     success: function(response) {
@@ -183,12 +249,6 @@
         });
     });
 
-    // Clear Filters for Export
-    $('#clearInternetIssueFiltersButton').on('click', function() {
-
-        $('.selectpicker').prop('selectedIndex', 0);
-        $('.selectpicker').selectpicker('refresh');
-    });
 
     // View update
     $('#issueInternetTable').on('click', '.updateInternetIssue',function() {
@@ -205,7 +265,7 @@
                 $('#issueArabicName').val(data.arabic_name);
                 $('#issueNotes').val(data.notes);
                 
-                $('#updateInternetIssueModal').modal('show');
+                $('#updateinternetIssueModal').modal('show');
                 
                 var form = $('#updateIssueForm');
 
@@ -216,6 +276,16 @@
                 console.log('Error fetching record details: ', error);
             }
         });
+    });
+
+    // View update
+    $('#issueInternetTable').on('click', '.updateInternetIssue',function() {
+        var id = $(this).data('id');
+
+        var url = window.location.href; 
+        
+        url = url +'/'+ id +'/edit';
+        window.open(url, "_self"); 
     });
 </script>
 @endsection

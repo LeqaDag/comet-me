@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
+use App\Models\WaterAction;
+use App\Models\ActionCategory;
 use App\Models\InternetMaintenanceCall;
 use App\Models\MaintenanceH2oAction;
 use App\Models\MaintenanceStatus;
@@ -17,7 +19,7 @@ use Auth;
 use DB;
 use Route;
 use DataTables;
-use Excel;
+use Excel; 
 
 class WaterActionController extends Controller
 {
@@ -31,16 +33,26 @@ class WaterActionController extends Controller
     {
         if (Auth::guard('user')->user() != null) {
 
+            $categoryFilter = $request->input('category_filter');
+
             if ($request->ajax()) {
 
-                $data = DB::table('maintenance_h2o_actions')
-                    ->select(
-                        'maintenance_h2o_actions.id as id', 
-                        'maintenance_h2o_actions.maintenance_action_h2o_english as english_name', 
-                        'maintenance_h2o_actions.maintenance_action_h2o as arabic_name',
-                        'maintenance_h2o_actions.created_at as created_at',
-                        'maintenance_h2o_actions.updated_at as updated_at')
-                    ->latest();
+                $data = DB::table('water_actions')
+                    ->join('action_categories', 'water_actions.action_category_id', 'action_categories.id')
+                    ->where('water_actions.is_archived', 0);
+
+                if($categoryFilter != null) {
+
+                    $data->where('action_categories.id', $categoryFilter);
+                }
+
+                $data->select('water_actions.id as id', 
+                    'water_actions.english_name', 
+                    'water_actions.arabic_name',
+                    'action_categories.english_name as category',
+                    'water_actions.created_at as created_at',
+                    'water_actions.updated_at as updated_at')
+                ->latest();
 
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -62,8 +74,10 @@ class WaterActionController extends Controller
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request){
                                 $search = $request->get('search');
-                                $w->orWhere('maintenance_h2o_actions.maintenance_action_h2o_english', 'LIKE', "%$search%")
-                                ->orWhere('maintenance_h2o_actions.maintenance_action_h2o', 'LIKE', "%$search%");
+                                $w->orWhere('action_categories.english_name', 'LIKE', "%$search%")
+                                ->orWhere('action_categories.arabic_name', 'LIKE', "%$search%")
+                                ->orWhere('water_actions.english_name', 'LIKE', "%$search%")
+                                ->orWhere('water_actions.arabic_name', 'LIKE', "%$search%");
                             });
                         }
                     })
@@ -71,7 +85,9 @@ class WaterActionController extends Controller
                 ->make(true);
             }
 
-            return view('users.water.maintenance.action.index');
+            $actionCategories = ActionCategory::where("is_archived", 0)->get();
+
+            return view('users.water.maintenance.action.index', compact('actionCategories'));
         } else {
 
             return view('errors.not-found');
@@ -86,13 +102,16 @@ class WaterActionController extends Controller
      */
     public function store(Request $request)
     {     
-        $energyAction = new MaintenanceH2oAction();
+        $waterAction = new WaterAction();
+        // Get last comet_id
+        $last_comet_id = WaterAction::latest('id')->value('comet_id') + 1;
+        $waterAction->english_name = $request->english_name;
+        $waterAction->arabic_name = $request->arabic_name;
+        $waterAction->action_category_id = $request->action_category_id;
+        $waterAction->comet_id = $last_comet_id;
+        $waterAction->notes = $request->notes;
+        $waterAction->save();
 
-        $energyAction->maintenance_action_h2o_english = $request->maintenance_action_h2o_english;
-        $energyAction->maintenance_action_h2o = $request->maintenance_action_h2o;
-        $energyAction->notes = $request->notes;
-        $energyAction->save();
-  
         return redirect()->back()
             ->with('message', 'New Action Added Successfully!');
     }
@@ -105,9 +124,10 @@ class WaterActionController extends Controller
      */
     public function edit($id) 
     {
-        $waterAction = MaintenanceH2oAction::findOrFail($id);
+        $waterAction = WaterAction::findOrFail($id);
+        $actionCategories = ActionCategory::where("is_archived", 0)->get();
 
-        return view('users.water.maintenance.action.edit', compact('waterAction'));
+        return view('users.water.maintenance.action.edit', compact('waterAction', 'actionCategories'));
     }
 
     /**
@@ -118,16 +138,17 @@ class WaterActionController extends Controller
      */
     public function update(int $id, Request $request)
     {     
-        $waterAction = MaintenanceH2oAction::findOrFail($id);
+        $waterAction = WaterAction::findOrFail($id);
 
-        if($request->maintenance_action_h2o_english) $waterAction->maintenance_action_h2o_english = $request->maintenance_action_h2o_english;
-        if($request->maintenance_action_h2o) $waterAction->maintenance_action_h2o = $request->maintenance_action_h2o;
+        if($request->english_name) $waterAction->english_name = $request->english_name;
+        if($request->arabic_name) $waterAction->arabic_name = $request->arabic_name;
+        if($request->action_category_id) $waterAction->action_category_id = $request->action_category_id;
         if($request->notes) $waterAction->notes = $request->notes;
         $waterAction->save();
   
         return redirect('/water-action')->with('message', 'Water Action Updated Successfully!');
     }
-
+ 
     /**
      * Delete a resource from storage.
      *
@@ -138,11 +159,12 @@ class WaterActionController extends Controller
     {
         $id = $request->id;
 
-        $waterAction = MaintenanceH2oAction::find($id);
+        $waterAction = WaterAction::find($id);
 
         if($waterAction) {
 
-            $waterAction->delete(); 
+            $waterAction->is_archived = 1;
+            $waterAction->save(); 
 
             $response['success'] = 1;
             $response['msg'] = 'Water Action Deleted successfully'; 

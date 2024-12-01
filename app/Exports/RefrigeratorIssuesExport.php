@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class InternetIssuesExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+class RefrigeratorIssuesExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
 WithStyles
 {
 
@@ -26,28 +26,28 @@ WithStyles
     */
     public function collection()
     {
-        $data = DB::table('internet_issues')
-            ->join('internet_actions', 'internet_issues.internet_action_id', 'internet_actions.id')
-            ->join('action_categories', 'internet_actions.action_category_id', 'action_categories.id')
-            ->where('internet_issues.is_archived', 0) 
-            ->where('internet_actions.is_archived', 0)
+        $data = DB::table('refrigerator_issues')
+            ->join('refrigerator_actions', 'refrigerator_issues.refrigerator_action_id', 'refrigerator_actions.id')
+            ->join('action_categories', 'refrigerator_actions.action_category_id', 'action_categories.id')
+            ->where('refrigerator_issues.is_archived', 0) 
+            ->where('refrigerator_actions.is_archived', 0)
             ->select(
-                'internet_issues.english_name as english_name', 
-                'internet_issues.arabic_name as arabic_name', 
-                'internet_actions.english_name as action_english',
-                'internet_actions.arabic_name as action_arabic',
+                'refrigerator_issues.english_name as english_name', 
+                'refrigerator_issues.arabic_name as arabic_name', 
+                'refrigerator_actions.english_name as action_english',
+                'refrigerator_actions.arabic_name as action_arabic',
                 'action_categories.english_name as category',
-                'internet_issues.notes'
+                'refrigerator_issues.notes'
             ); 
 
         if($this->request->action_name) {
 
-            $data->where("internet_actions.id", $this->request->action_name);
+            $data->where("refrigerator_actions.id", $this->request->action_name);
         } 
 
-        if($this->request->action_category) {
+        if($this->request->issue_type) {
 
-            $data->where("action_categories.id", $this->request->action_category);
+            $data->where("energy_maintenance_issue_types.id", $this->request->issue_type);
         } 
 
         return $data->get();
@@ -66,7 +66,7 @@ WithStyles
 
     public function title(): string
     {
-        return 'Internet Issues';
+        return 'Refrigerator Issues';
     }
 
     /**

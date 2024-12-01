@@ -28,14 +28,14 @@ label, table {
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>English Name</label>
                                 <input type="text" name="english_name" class="form-control"
-                                    required> 
+                                required> 
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Arabic Name</label>
                                 <input type="text" name="arabic_name" class="form-control"
-                                    required> 
+                                required> 
                             </fieldset>
                         </div> 
                     </div>
@@ -43,21 +43,21 @@ label, table {
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Internet Issue</label>
-                                <select name="internet_issue_id" id="internetIssueValue"
-                                    class="selectpicker form-control" required>
+                                <label class='col-md-12 control-label'>Action Category</label>
+                                <select name="action_category_id" data-live-search="true"
+                                    class="selectpicker form-control" required
+                                    id="internetActionValue">
                                     <option disabled selected>Choose one...</option>
-                                    @foreach($internetIssues as $internetIssue)
-                                    <option value="{{$internetIssue->id}}">
-                                        {{$internetIssue->english_name}}
-                                    </option>
+                                    @foreach($actionCategories as $actionCategory)
+                                        <option value="{{$actionCategory->id}}">
+                                            {{$actionCategory->english_name}}
+                                        </option>
                                     @endforeach
                                 </select>
                             </fieldset>
-                            <div id="internet_issue_id_error" style="color: red;"></div>
+                            <div id="internet_action_category_id_error" style="color: red;"></div>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
@@ -76,27 +76,26 @@ label, table {
         </div>
     </div>
 </div>
-
 <script>
 
     $(document).ready(function() {
 
         $('#internetActionForm').on('submit', function (event) {
 
-            var issueValue = $('#internetIssueValue').val();
+            var issueValue = $('#internetActionValue').val();
 
             if (issueValue == null) {
 
-                $('#internet_issue_id_error').html('Please select an issue!'); 
+                $('#internet_action_category_id_error').html('Please select a category!'); 
                 return false;
             } else if (issueValue != null){
 
-                $('#internet_issue_id_error').empty();
+                $('#internet_action_category_id_error').empty();
             }
 
             $(this).addClass('was-validated'); 
-            $('#internet_issue_id_error').empty();
-
+            $('#internet_action_category_id_error').empty();
+            
             this.submit();
         });
     });

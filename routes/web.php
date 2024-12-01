@@ -445,7 +445,7 @@ Route::resource('internet-maintenance', App\Http\Controllers\InternetMaintenance
 Route::post('internet-maintenance-export', [App\Http\Controllers\InternetMaintenanceCallController::class, 'export'])->name('internet-maintenance.export');
 Route::resource('internet-issue', App\Http\Controllers\InternetIssueController::class);
 Route::resource('internet-action', App\Http\Controllers\InternetActionController::class);
-Route::get('/delete-internet-issue', [App\Http\Controllers\InternetIssueController::class, 'deleteInternetIssue'])->name('deleteInternetIssue');
+Route::get('/delete-internet-issue', [App\Http\Controllers\InternetIssueController::class, 'deleteInternetMainIssue'])->name('deleteInternetMainIssue');
 Route::post('internet-issue-export', [App\Http\Controllers\InternetIssueController::class, 'export'])->name('internet-issue.export');
 Route::post('internet-action-export', [App\Http\Controllers\InternetActionController::class, 'export'])->name('internet-action.export');
 Route::get('/delete-internet-action', [App\Http\Controllers\InternetActionController::class, 'deleteInternetMainAction'])->name('deleteInternetMainAction');
@@ -469,10 +469,6 @@ Route::resource('energy-action', App\Http\Controllers\EnergyActionController::cl
 Route::post('energy-action-export', [App\Http\Controllers\EnergyActionController::class, 'export'])->name('energy-action.export');
 Route::get('/delete-energy-action', [App\Http\Controllers\EnergyActionController::class, 'deleteEnergyMainAction'])->name('deleteEnergyMainAction');
 Route::get('/energy-action/get/{id}', [App\Http\Controllers\EnergyActionController::class, 'getEnergyIssue']);
-
-Route::resource('water-action', App\Http\Controllers\WaterActionController::class);
-Route::get('/delete-water-action', [App\Http\Controllers\WaterActionController::class, 'deleteWaterMainAction'])->name('deleteWaterMainAction');
-Route::post('water-action-export', [App\Http\Controllers\WaterActionController::class, 'export'])->name('water-action.export');
 
 Route::resource('energy-cost', App\Http\Controllers\EnergyCostController::class); 
 Route::get('energy-cost/{id}/editpage', [App\Http\Controllers\EnergyCostController::class, 'editPage']);
@@ -535,3 +531,23 @@ Route::get('/delete-camera-request', [App\Http\Controllers\CameraRequestedContro
 Route::get('camera-request/has_camera/{community_id}', [App\Http\Controllers\CameraRequestedController::class, 'getCameraDetailsByCommunity']);
 Route::get('camera-request/{id}/editpage', [App\Http\Controllers\CameraRequestedController::class, 'editPage']);
 Route::post('all-incident-export', [App\Http\Controllers\MgIncidentController::class, 'exportAll'])->name('all-report-incident.export');
+
+Route::resource('refrigerator-issue', App\Http\Controllers\RefrigeratorIssueController::class);
+Route::post('refrigerator-issue-export', [App\Http\Controllers\RefrigeratorIssueController::class, 'export'])->name('refrigerator-issue.export');
+Route::get('/delete-refri-issue', [App\Http\Controllers\RefrigeratorIssueController::class, 'deleteRefrigeratorIssue'])->name('deleteRefrigeratorIssue');
+Route::get('/refrigerator-issue/get_by_action_category/{id}', [App\Http\Controllers\RefrigeratorIssueController::class, 'getRefrigeratorActionBasedOnCategory']);
+
+Route::resource('refrigerator-action', App\Http\Controllers\RefrigeratorActionController::class);
+Route::post('refrigerator-action-export', [App\Http\Controllers\RefrigeratorActionController::class, 'export'])->name('refrigerator-action.export');
+Route::get('/delete-refri-action', [App\Http\Controllers\RefrigeratorActionController::class, 'deleteRefrigeratorMainAction'])->name('deleteRefrigeratorMainAction');
+
+Route::resource('water-action', App\Http\Controllers\WaterActionController::class);
+Route::get('/delete-water-action', [App\Http\Controllers\WaterActionController::class, 'deleteWaterMainAction'])->name('deleteWaterMainAction');
+Route::post('water-action-export', [App\Http\Controllers\WaterActionController::class, 'export'])->name('water-action.export');
+
+Route::resource('water-issue', App\Http\Controllers\WaterIssueController::class);
+Route::get('/delete-water-issue', [App\Http\Controllers\WaterIssueController::class, 'deleteWaterMainIssue'])->name('deleteWaterMainIssue');
+Route::post('water-issue-export', [App\Http\Controllers\WaterIssueController::class, 'export'])->name('water-issue.export');
+Route::get('/water-issue/get_by_action_category/{id}', [App\Http\Controllers\WaterIssueController::class, 'getWaterActionBasedOnCategory']);
+
+Route::get('/internet-issue/get_by_action_category/{id}', [App\Http\Controllers\InternetIssueController::class, 'getInternetActionBasedOnCategory']);

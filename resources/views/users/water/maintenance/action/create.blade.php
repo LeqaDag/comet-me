@@ -27,19 +27,37 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>English Name</label>
-                                <input type="text" name="maintenance_action_h2o_english" class="form-control"
+                                <input type="text" name="english_name" class="form-control"
                                 required> 
                             </fieldset>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Arabic Name</label>
-                                <input type="text" name="maintenance_action_h2o" class="form-control"
+                                <input type="text" name="arabic_name" class="form-control"
                                 required> 
                             </fieldset>
                         </div> 
                     </div>
-
+                    
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Action Category</label>
+                                <select name="action_category_id" data-live-search="true"
+                                    class="selectpicker form-control" required
+                                    id="waterActionValue">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($actionCategories as $actionCategory)
+                                        <option value="{{$actionCategory->id}}">
+                                            {{$actionCategory->english_name}}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+                            <div id="water_action_category_id_error" style="color: red;"></div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <fieldset class="form-group">
@@ -58,3 +76,27 @@ label, table {
         </div>
     </div>
 </div>
+<script>
+
+    $(document).ready(function() {
+
+        $('#waterActionForm').on('submit', function (event) {
+
+            var issueValue = $('#waterActionValue').val();
+
+            if (issueValue == null) {
+
+                $('#water_action_category_id_error').html('Please select a category!'); 
+                return false;
+            } else if (issueValue != null){
+
+                $('#water_action_category_id_error').empty();
+            }
+
+            $(this).addClass('was-validated'); 
+            $('#water_action_category_id_error').empty();
+            
+            this.submit();
+        });
+    });
+</script>

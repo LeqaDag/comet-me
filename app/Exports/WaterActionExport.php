@@ -26,12 +26,22 @@ WithStyles
     */
     public function collection()
     {
-        $data = DB::table('maintenance_h2o_actions')
+        $data = DB::table('water_actions')
+            ->join('action_categories', 'water_actions.action_category_id', 'action_categories.id')
+            ->where('water_actions.is_archived', 0)
+            ->where('action_categories.is_archived', 0)
             ->select(
-                'maintenance_h2o_actions.maintenance_action_h2o_english as english_name', 
-                'maintenance_h2o_actions.maintenance_action_h2o as arabic_name',
-                'maintenance_h2o_actions.notes'
-            ); 
+                'water_actions.english_name as action_english',
+                'water_actions.arabic_name as action_arabic',
+                'action_categories.english_name as english_name', 
+                'action_categories.arabic_name as arabic_name', 
+                'water_actions.notes'
+            );  
+
+        if($this->request->action_category) {
+
+            $data->where("action_categories.id", $this->request->action_category);
+        } 
 
         return $data->get();
     }
@@ -43,7 +53,8 @@ WithStyles
      */
     public function headings(): array
     {
-        return ["English Name", "Arabic Name", "Notes"];
+        return ["Action (English)", "Action (Arabic)", "Action Category (English)", "Action Category (Arabic)", 
+            "Notes"];
     }
 
     public function title(): string
@@ -58,7 +69,7 @@ WithStyles
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:C1');
+        $sheet->setAutoFilter('A1:E1');
 
         return [
             // Style the first row as bold text.

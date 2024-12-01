@@ -17,7 +17,7 @@
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> 
-        {{$waterAction->maintenance_action_h2o_english}}
+        {{$waterAction->english_name}}
     <span class="text-muted fw-light">Information </span> 
 </h4>
 
@@ -32,15 +32,36 @@
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Action (English)</label>
-                            <input type="text" name="maintenance_action_h2o_english" class="form-control" 
-                                value="{{$waterAction->maintenance_action_h2o_english}}">
+                            <input type="text" name="english_name" class="form-control" 
+                                value="{{$waterAction->english_name}}">
                         </fieldset>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Action (Arabic)</label>
-                            <input type="text" name="maintenance_action_h2o" class="form-control"
-                                value="{{$waterAction->maintenance_action_h2o}}" >
+                            <input type="text" name="arabic_name" class="form-control"
+                                value="{{$waterAction->arabic_name}}" >
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Action Category</label>
+                            <select name="action_category_id" data-live-search="true"
+                                class="selectpicker form-control" required>
+                                @if($waterAction->action_category_id)
+                                    <option value="{{$waterAction->action_category_id}}">
+                                        {{$waterAction->ActionCategory->english_name}}
+                                    </option>
+                                @endif 
+                                @foreach($actionCategories as $actionCategory)
+                                    <option value="{{$actionCategory->id}}">
+                                        {{$actionCategory->english_name}}
+                                    </option>
+                                @endforeach
+                            </select>
                         </fieldset>
                     </div>
                 </div>

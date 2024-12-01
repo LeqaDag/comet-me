@@ -13,7 +13,7 @@
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button>
-</p> 
+</p>  
 
 <div class="collapse multi-collapse mb-4" id="collapseInternetActionsExport">
     <div class="container mb-4">
@@ -45,26 +45,11 @@
                             <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <select name="internet_issue_id" class="selectpicker form-control"
-                                            data-live-search="true">
-                                            <option disabled selected>Search Issue</option>
-                                            @foreach($internetIssues as $internetIssue)
-                                                <option value="{{$internetIssue->id}}">
-                                                    {{$internetIssue->english_name}}
-                                                </option>
-                                            @endforeach
-                                        </select> 
-                                    </fieldset>
-                                </div>
-                                <div class="col-xl-3 col-lg-3 col-md-3">
-                                    <fieldset class="form-group">
-                                        <select name="internet_issue_type_id" class="selectpicker form-control"
-                                            data-live-search="true">
-                                            <option disabled selected>Search Issue Type</option>
-                                            @foreach($internetIssueTypes as $internetIssueType)
-                                                <option value="{{$internetIssueType->id}}">
-                                                    {{$internetIssueType->type}}
-                                                </option>
+                                        <select class="selectpicker form-control" 
+                                            data-live-search="true" name="action_category">
+                                            <option disabled selected>Choose category...</option>
+                                            @foreach($actionCategories as $actionCategory)
+                                                <option value="{{$actionCategory->id}}">{{$actionCategory->english_name}}</option>
                                             @endforeach
                                         </select> 
                                     </fieldset>
@@ -87,7 +72,7 @@
 </div> 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Internet Issues 
+  <span class="text-muted fw-light">All </span> Internet Actions 
 </h4>
  
 @if(session()->has('message'))
@@ -98,16 +83,39 @@
     </div>
 @endif
 
-@include('users.internet.maintenance.action.edit')
 
 <div class="container">
     <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Category</label>
+                        <select class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCategory">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($actionCategories as $actionCategory)
+                                <option value="{{$actionCategory->id}}">{{$actionCategory->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             <div class="card-header">
 
                 @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                    Auth::guard('user')->user()->user_type_id == 10 ||
-                    Auth::guard('user')->user()->user_type_id == 6 )
+                    Auth::guard('user')->user()->user_type_id == 2 )
                     <div style="margin-top:18px">
                         <button type="button" class="btn btn-success" 
                             data-bs-toggle="modal" data-bs-target="#createActionInternet">
@@ -123,8 +131,7 @@
                     <tr>
                         <th class="text-center">English Name</th>
                         <th class="text-center">Arabic Name</th>
-                        <th class="text-center">Issue</th>
-                        <th class="text-center">Type</th>
+                        <th class="text-center">Category</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -136,24 +143,46 @@
 </div> 
 
 <script type="text/javascript">
-    $(function () {
 
-        var table = $('.data-table-internet-action').DataTable({
+var table;
+    function DataTableContent() {
+
+        table = $('.data-table-internet-action').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{route('internet-action.index')}}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val()
+                    d.search = $('input[type="search"]').val();
+                    d.category_filter = $('#filterByCategory').val();
                 }
             },
             columns: [
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
-                {data: 'issue', name: 'issue'},
-                {data: 'type', name: 'type'},
+                {data: 'category', name: 'category'},
                 {data: 'action'},
             ]
+        });
+    }
+
+    $(function () {
+
+        DataTableContent();
+
+        $('#filterByCategory').on('change', function() {
+            table.ajax.reload(); 
+        });
+
+        // Clear Filter
+        $('#clearFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            if ($.fn.DataTable.isDataTable('.data-table-internet-action')) {
+                $('.data-table-internet-action').DataTable().destroy();
+            }
+            DataTableContent(); 
         });
     });
 
@@ -209,29 +238,10 @@
     $('#actionInternetTable').on('click', '.updateInternetAction',function() {
         var id = $(this).data('id');
 
-        $.ajax({
-            url: '/internet-action/get/' + id,
-            method: 'GET',
-            data: {id: id},
-            success: function (data) {
-                
-                $('#actionId').val(data.id);
-                $('#actionEnglishName').val(data.english_name);
-                $('#actionArabicName').val(data.arabic_name);
-                $('#actionNotes').val(data.notes);
-                
-                $('#updateInternetActionModal').modal('show');
-                
-                var form = $('#updateActionForm');
-
-                form.attr('action', form.attr('action').replace('__ID__', id));
-
-            },
-            error: function (error) {
-                console.log('Error fetching record details: ', error);
-            }
-        });
+        var url = window.location.href; 
+        
+        url = url +'/'+ id +'/edit';
+        window.open(url, "_self"); 
     });
-
 </script>
 @endsection

@@ -115,8 +115,7 @@
             <div class="card-header">
 
                 @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                    Auth::guard('user')->user()->user_type_id == 7 ||
-                    Auth::guard('user')->user()->user_type_id == 4 )
+                    Auth::guard('user')->user()->user_type_id == 2)
                     <div style="margin-top:18px">
                         <button type="button" class="btn btn-success" 
                             data-bs-toggle="modal" data-bs-target="#createActionEnergy">

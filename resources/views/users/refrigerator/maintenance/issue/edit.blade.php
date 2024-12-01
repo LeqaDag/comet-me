@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'edit energy issue')
+@section('title', 'edit refrigerator issue')
 
 @include('layouts.all')
 
@@ -17,14 +17,14 @@
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> 
-        {{$energyIssue->english_name}}
+        {{$refrigeratorIssue->english_name}}
     <span class="text-muted fw-light">Information </span> 
 </h4>
 
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" action="{{route('energy-issue.update', $energyIssue->id)}}"
+            <form method="POST" action="{{route('refrigerator-issue.update', $refrigeratorIssue->id)}}"
              enctype="multipart/form-data" >
                 @csrf
                 @method('PATCH')
@@ -33,14 +33,14 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Action (English)</label>
                             <input type="text" name="english_name" class="form-control" 
-                                value="{{$energyIssue->english_name}}">
+                                value="{{$refrigeratorIssue->english_name}}">
                         </fieldset>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Action (Arabic)</label>
                             <input type="text" name="arabic_name" class="form-control"
-                                value="{{$energyIssue->arabic_name}}" >
+                                value="{{$refrigeratorIssue->arabic_name}}" >
                         </fieldset>
                     </div>
                 </div>
@@ -50,13 +50,13 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Action Category</label>
                             <select name="action_category_id" data-live-search="true"
-                                class="selectpicker form-control" id="energyActionCategoryEdit">
-                                @if($energyIssue->energy_action_id)
-                                    <option value="{{$energyIssue->EnergyAction->ActionCategory->id}}">
-                                        {{$energyIssue->EnergyAction->ActionCategory->english_name}}
+                                class="selectpicker form-control" id="refrigeratorActionCategoryEdit">
+                                @if($refrigeratorIssue->refrigerator_action_id)
+                                    <option value="{{$refrigeratorIssue->RefrigeratorAction->ActionCategory->id}}">
+                                        {{$refrigeratorIssue->RefrigeratorAction->ActionCategory->english_name}}
                                     </option>
                                 @endif 
-                                @foreach($energyCategories as $actionCategory)
+                                @foreach($refrigeratorCategories as $actionCategory)
                                     <option value="{{$actionCategory->id}}">
                                         {{$actionCategory->english_name}}
                                     </option>
@@ -66,38 +66,17 @@
                     </div> 
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Energy Action</label>
-                            <select name="energy_action_id" data-live-search="true"
-                                class="selectpicker form-control" id="energyActionSelectedEdit">
-                                @if($energyIssue->energy_action_id)
-                                    <option value="{{$energyIssue->EnergyAction->id}}">
-                                        {{$energyIssue->EnergyAction->english_name}}
+                            <label class='col-md-12 control-label'>Refrigerator Action</label>
+                            <select name="refrigerator_action_id" data-live-search="true"
+                                class="selectpicker form-control" id="refrigeratorActionSelectedEdit">
+                                @if($refrigeratorIssue->refrigerator_action_id)
+                                    <option value="{{$refrigeratorIssue->refrigeratorAction->id}}">
+                                        {{$refrigeratorIssue->refrigeratorAction->english_name}}
                                     </option>
                                 @endif 
-                                @foreach($energyActions as $energyAction)
-                                    <option value="{{$energyAction->id}}">
-                                        {{$energyAction->english_name}}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </fieldset>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Energy Issue Type</label>
-                            <select name="energy_maintenance_issue_type_id" data-live-search="true"
-                                class="selectpicker form-control">
-                                @if($energyIssue->energy_maintenance_issue_type_id)
-                                    <option value="{{$energyIssue->energy_maintenance_issue_type_id}}">
-                                        {{$energyIssue->EnergyMaintenanceIssueType->name}}
-                                    </option>
-                                @endif 
-                                @foreach($energyIssueTypes as $energyIssueType)
-                                    <option value="{{$energyIssueType->id}}">
-                                        {{$energyIssueType->name}}
+                                @foreach($refrigeratorActions as $refrigeratorAction)
+                                    <option value="{{$refrigeratorAction->id}}">
+                                        {{$refrigeratorAction->english_name}}
                                     </option>
                                 @endforeach
                             </select>
@@ -111,7 +90,7 @@
                             <label class='col-md-12 control-label'>Notes</label>
                             <textarea name="notes" class="form-control" 
                                 style="resize:none" cols="20" rows="3">
-                                {{$energyIssue->notes}}
+                                {{$refrigeratorIssue->notes}}
                             </textarea>
                         </fieldset>
                     </div>
@@ -131,15 +110,15 @@
 <script>
     $(document).ready(function() {
 
-        $(document).on('change', '#energyActionCategoryEdit', function () {
+        $(document).on('change', '#refrigeratorActionCategoryEdit', function () {
 
             category_id = $(this).val();
             $.ajax({
-                url: "/energy-issue/get_by_action_category/" +  category_id,
+                url: "/refrigerator-issue/get_by_action_category/" +  category_id,
                 method: 'GET',
                 success: function(data) {
 
-                    var select = $('#energyActionSelectedEdit');
+                    var select = $('#refrigeratorActionSelectedEdit');
                     select.prop('disabled', false); 
                     select.html(data.html);
                     select.selectpicker('refresh');

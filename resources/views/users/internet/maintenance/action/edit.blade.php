@@ -1,61 +1,93 @@
+@extends('layouts/layoutMaster')
+
+@section('title', 'edit internet action')
+
+@include('layouts.all')
+
 <style>
     label, input {
-    display: block;
-}
+        display: block;
+    }
 
-label, table {
-    margin-top: 20px;
-}
-</style> 
+    label {
+        margin-top: 20px;
+    } 
+</style>
 
-<div id="updateInternetActionModal" class="modal fade" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">
-                    Update Internet Action
-                </h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" 
-                    aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' id='updateActionForm'
-                action="{{ route('internet-action.update', ['internet_action' => '__ID__']) }}" >
-                    @csrf
-                    @method('PATCH')
-                    <div class="row">
-                        <input type="hidden" name="action_id" id="actionId">
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>English Name</label>
-                                <input type="text" name="english_name" id="actionEnglishName" 
-                                class="form-control"> 
-                            </fieldset>
-                        </div>
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Arabic Name</label>
-                                <input type="text" name="arabic_name" id="actionArabicName" 
-                                class="form-control"> 
-                            </fieldset>
-                        </div> 
+@section('content')
+<h4 class="py-3 breadcrumb-wrapper mb-4">
+    <span class="text-muted fw-light">Edit </span> 
+        {{$internetAction->english_name}}
+    <span class="text-muted fw-light">Information </span> 
+</h4>
+
+<div class="card">
+    <div class="card-content collapse show">
+        <div class="card-body">
+            <form method="POST" action="{{route('internet-action.update', $internetAction->id)}}"
+             enctype="multipart/form-data" >
+                @csrf
+                @method('PATCH')
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Action (English)</label>
+                            <input type="text" name="english_name" class="form-control" 
+                                value="{{$internetAction->english_name}}">
+                        </fieldset>
                     </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Notes</label>
-                                <textarea name="notes" id="actionNotes" class="form-control" 
-                                   style="resize:none" cols="20" rows="3"></textarea>
-                            </fieldset>
-                        </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Action (Arabic)</label>
+                            <input type="text" name="arabic_name" class="form-control"
+                                value="{{$internetAction->arabic_name}}" >
+                        </fieldset>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
-                </form>
-            </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Action Category</label>
+                            <select name="action_category_id" data-live-search="true"
+                                class="selectpicker form-control" required>
+                                @if($internetAction->action_category_id)
+                                    <option value="{{$internetAction->action_category_id}}">
+                                        {{$internetAction->ActionCategory->english_name}}
+                                    </option>
+                                @endif 
+                                @foreach($actionCategories as $actionCategory)
+                                    <option value="{{$actionCategory->id}}">
+                                        {{$actionCategory->english_name}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Notes</label>
+                            <textarea name="notes" class="form-control" 
+                                style="resize:none" cols="20" rows="3">
+                                {{$internetAction->notes}}
+                            </textarea>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top:20px">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <button type="submit" class="btn btn-primary">
+                            Save changes
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+@endsection

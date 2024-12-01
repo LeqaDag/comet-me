@@ -45,12 +45,10 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
             ->leftJoin('donors', 'camera_community_donors.donor_id', 'donors.id')
             ->where('camera_communities.is_archived', 0)
             ->select([
-                DB::raw('IFNULL(communities.english_name, repositories.name) as name'),
+                DB::raw('IFNULL(communities.english_name, CONCAT(repositories.name, " Warehouse")) as name'),
                 DB::raw('IFNULL(regions.english_name, repository_regions.english_name) as region'),
                 DB::raw('IFNULL(sub_regions.english_name, repository_sub_regions.english_name) as sub_region'),
                 'communities.number_of_household',
-                DB::raw("CASE WHEN camera_communities.comet_internal = 0 THEN 'No' 
-                    ELSE 'Yes' END AS comet_internal"),
                 'communities.internet_service', 'communities.internet_service_beginning_year', 
                 'camera_communities.date',
                 'households.english_name as english_name',
@@ -91,7 +89,7 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
      */
     public function headings(): array
     {
-        return ["Community", "Region", "Sub Region", "# of Households", "Comet-Me Internaly", "Has Internet?", "Internet Year",
+        return ["Community", "Region", "Sub Region", "# of Households", "Has Internet?", "Internet Year",
             "Installation Date", "Responsible", "# of Cameras", "Camera Models", "Camera Number", "# of NVRs", "NVR Models", 
             "NVR Number", "Donors", "Notes"];
     }
@@ -108,7 +106,7 @@ class CameraCommunityExport implements FromCollection, WithHeadings, WithTitle, 
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:Q1');
+        $sheet->setAutoFilter('A1:P1');
 
         return [
             // Style the first row as bold text.

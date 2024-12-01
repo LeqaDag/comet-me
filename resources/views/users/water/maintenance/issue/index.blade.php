@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'energy issues')
+@section('title', 'water issues')
 
 @include('layouts.all')
 
@@ -8,14 +8,14 @@
 
 <p>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
-        data-target="#collapseEnergyIssuesExport" aria-expanded="false" 
-        aria-controls="collapseEnergyIssuesExport">
+        data-target="#collapseWaterIssuesExport" aria-expanded="false" 
+        aria-controls="collapseWaterIssuesExport">
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button>
 </p>  
 
-<div class="collapse multi-collapse mb-4" id="collapseEnergyIssuesExport">
+<div class="collapse multi-collapse mb-4" id="collapseWaterIssuesExport">
     <div class="container mb-4">
         <div class="row">
             <div class="col-md-12">
@@ -24,14 +24,14 @@
                         <div class="row">
                             <div class="col-xl-10 col-lg-10 col-md-10">
                                 <h5>
-                                Export Energy Issues Report
+                                    Export Water Issues Report
                                     <i class='fa-solid fa-file-excel text-info'></i>
                                 </h5>
                             </div>
                         </div>
                     </div>
                     <form method="POST" enctype='multipart/form-data' 
-                        action="{{ route('energy-issue.export') }}">
+                        action="{{ route('water-issue.export') }}">
                         @csrf
                         <div class="card-body"> 
                             <div class="row">
@@ -40,8 +40,8 @@
                                         <select class="selectpicker form-control" 
                                             data-live-search="true" name="action_name">
                                             <option disabled selected>Choose Action...</option>
-                                            @foreach($energyActions as $energyAction)
-                                                <option value="{{$energyAction->id}}">{{$energyAction->english_name}}</option>
+                                            @foreach($waterActions as $waterAction)
+                                                <option value="{{$waterAction->id}}">{{$waterAction->english_name}}</option>
                                             @endforeach
                                         </select> 
                                     </fieldset>
@@ -49,14 +49,14 @@
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <select class="selectpicker form-control" 
-                                            data-live-search="true" name="issue_type">
-                                            <option disabled selected>Choose Issue type...</option>
-                                            @foreach($energyIssueTypes as $energyIssueType)
-                                                <option value="{{$energyIssueType->id}}">{{$energyIssueType->name}}</option>
+                                            data-live-search="true" name="action_category">
+                                            <option disabled selected>Choose Action Category...</option>
+                                            @foreach($actionCategories as $actionCategory)
+                                                <option value="{{$actionCategory->id}}">{{$actionCategory->english_name}}</option>
                                             @endforeach
                                         </select> 
                                     </fieldset>
-                                </div> 
+                                </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <button class="btn btn-info" type="submit">
@@ -75,7 +75,7 @@
 </div> 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Energy Issues 
+  <span class="text-muted fw-light">All </span> Water Issues 
 </h4>
  
 @if(session()->has('message'))
@@ -98,20 +98,20 @@
                             <select class="selectpicker form-control" 
                                 data-live-search="true" id="filterByAction">
                                 <option disabled selected>Choose one...</option>
-                                @foreach($energyActions as $energyAction)
-                                    <option value="{{$energyAction->id}}">{{$energyAction->english_name}}</option>
+                                @foreach($waterActions as $waterAction)
+                                    <option value="{{$waterAction->id}}">{{$waterAction->english_name}}</option>
                                 @endforeach
                             </select> 
                         </fieldset>
                     </div>
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Filter By Issue Type</label>
+                            <label class='col-md-12 control-label'>Filter By Action Category</label>
                             <select class="selectpicker form-control" 
-                                data-live-search="true" id="filterByIssueType">
+                                data-live-search="true" id="filterByActionCategory">
                                 <option disabled selected>Choose one...</option>
-                                @foreach($energyIssueTypes as $energyIssueType)
-                                    <option value="{{$energyIssueType->id}}">{{$energyIssueType->name}}</option>
+                                @foreach($actionCategories as $actionCategory)
+                                    <option value="{{$actionCategory->id}}">{{$actionCategory->english_name}}</option>
                                 @endforeach
                             </select> 
                         </fieldset>
@@ -129,26 +129,24 @@
             </div>
 
             <div class="card-header">
-
                 @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                    Auth::guard('user')->user()->user_type_id == 2 )
+                    Auth::guard('user')->user()->user_type_id == 2)
                     <div style="margin-top:18px">
                         <button type="button" class="btn btn-success" 
-                            data-bs-toggle="modal" data-bs-target="#createIssueEnergy">
-                            Create New Energy Issue	
+                            data-bs-toggle="modal" data-bs-target="#createIssueWater">
+                            Create New Water Issue	
                         </button>
-                        @include('users.energy.maintenance.issue.create')
+                        @include('users.water.maintenance.issue.create')
                     </div>
                 @endif
             </div>
 
-            <table id="issueEnergyTable" class="table table-striped data-table-energy-issue my-2">
+            <table id="issueWaterTable" class="table table-striped data-table-water-issue my-2">
                 <thead>
                     <tr>
                         <th class="text-center">Issue English</th>
                         <th class="text-center">Issue Arabic</th>
                         <th class="text-center">Action</th>
-                        <th class="text-center">Type</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -165,22 +163,21 @@
 
     function DataTableContent() {
 
-        table = $('.data-table-energy-issue').DataTable({
+        table = $('.data-table-water-issue').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{route('energy-issue.index')}}",
+                url: "{{route('water-issue.index')}}",
                 data: function (d) {
                     d.search = $('input[type="search"]').val();
                     d.action_filter = $('#filterByAction').val();
-                    d.issue_type_filter = $('#filterByIssueType').val();
+                    d.category_filter = $('#filterByActionCategory').val();
                 }
             },
             columns: [
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
-                {data: 'energy_action', name: 'energy_action'},
-                {data: 'type', name: 'type'},
+                {data: 'water_action', name: 'water_action'},
                 {data: 'action'},
             ]
         });
@@ -194,7 +191,7 @@
             table.ajax.reload(); 
         });
 
-        $('#filterByIssueType').on('change', function() {
+        $('#filterByActionCategory').on('change', function() {
             table.ajax.reload(); 
         });
 
@@ -204,15 +201,15 @@
             $('.selectpicker').prop('selectedIndex', 0);
             $('.selectpicker').selectpicker('refresh');
             $('#filterByInstallationDate').val(' ');
-            if ($.fn.DataTable.isDataTable('.data-table-energy-issue')) {
-                $('.data-table-energy-issue').DataTable().destroy();
+            if ($.fn.DataTable.isDataTable('.data-table-water-issue')) {
+                $('.data-table-water-issue').DataTable().destroy();
             }
             DataTableContent();
         });
     });
 
     // Delete record
-    $('#issueEnergyTable').on('click', '.deleteEnergyIssue',function() {
+    $('#issueWaterTable').on('click', '.deleteWaterIssue',function() {
         var id = $(this).data('id');
 
         Swal.fire({
@@ -224,7 +221,7 @@
 
             if(result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('deleteEnergyIssue') }}",
+                    url: "{{ route('deleteWaterMainIssue') }}",
                     type: 'get',
                     data: {id: id},
                     success: function(response) {
@@ -237,7 +234,7 @@
                                 showCancelButton: false,
                                 confirmButtonText: 'Okay!'
                             }).then((result) => {
-                                $('#issueEnergyTable').DataTable().draw();
+                                $('#issueWaterTable').DataTable().draw();
                             });
                         } else {
 
@@ -254,11 +251,11 @@
 
 
     // View update
-    $('#issueEnergyTable').on('click', '.updateEnergyIssue',function() {
+    $('#issueWaterTable').on('click', '.updateWaterIssue',function() {
         var id = $(this).data('id');
 
         $.ajax({
-            url: '/energy-issue/get/' + id,
+            url: '/water-issue/get/' + id,
             method: 'GET',
             data: {id: id},
             success: function (data) {
@@ -268,7 +265,7 @@
                 $('#issueArabicName').val(data.arabic_name);
                 $('#issueNotes').val(data.notes);
                 
-                $('#updateEnergyIssueModal').modal('show');
+                $('#updateWaterIssueModal').modal('show');
                 
                 var form = $('#updateIssueForm');
 
@@ -282,7 +279,7 @@
     });
 
     // View update
-    $('#issueEnergyTable').on('click', '.updateEnergyIssue',function() {
+    $('#issueWaterTable').on('click', '.updateWaterIssue',function() {
         var id = $(this).data('id');
 
         var url = window.location.href; 

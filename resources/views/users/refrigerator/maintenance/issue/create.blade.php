@@ -8,20 +8,20 @@ label, table {
 }
 </style> 
 
-<div id="createIssueInternet" class="modal fade" tabindex="-1" aria-hidden="true">
+<div id="createIssueRefrigerator" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
-                    Create New Internet Issue
+                    Create New Refrigerator Issue
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' id="internetIssueForm"
-                    action="{{url('internet-issue')}}">
+                <form method="POST" enctype='multipart/form-data' id="refrigeratorIssueForm"
+                    action="{{url('refrigerator-issue')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -43,9 +43,9 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Action Category</label>
-                                <select name="action_category_id" data-live-search="true"
+                                <select name="refrigerator_action_category_id" data-live-search="true"
                                     class="selectpicker form-control" required
-                                    id="internetActionCategory">
+                                    id="refrigeratorActionCategory">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($actionCategories as $actionCategory)
                                         <option value="{{$actionCategory->id}}">
@@ -54,17 +54,17 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
-                            <div id="internet_action_category_id_error" style="color: red;"></div>
+                            <div id="refrigerator_action_category_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Internet Action</label>
-                                <select name="internet_action_id" data-live-search="true"
+                                <label class='col-md-12 control-label'>Refrigerator Action</label>
+                                <select name="refrigerator_action_id" data-live-search="true"
                                     class="selectpicker form-control" required
-                                    id="internetActionSelected">
+                                    id="refrigeratorActionSelected">
                                 </select>
                             </fieldset>
-                            <div id="internet_action_id_error" style="color: red;"></div>
+                            <div id="refrigerator_action_id_error" style="color: red;"></div>
                         </div>
                     </div>
 
@@ -90,15 +90,15 @@ label, table {
 <script>
     $(document).ready(function() {
 
-        $(document).on('change', '#internetActionCategory', function () {
+        $(document).on('change', '#refrigeratorActionCategory', function () {
 
             category_id = $(this).val();
             $.ajax({
-                url: "internet-issue/get_by_action_category/" +  category_id,
+                url: "refrigerator-issue/get_by_action_category/" +  category_id,
                 method: 'GET',
                 success: function(data) {
 
-                    var select = $('#internetActionSelected');
+                    var select = $('#refrigeratorActionSelected');
                     select.prop('disabled', false); 
                     select.html(data.html);
                     select.selectpicker('refresh');
@@ -106,32 +106,32 @@ label, table {
             });
         });
 
-        $('#internetIssueForm').on('submit', function (event) {
+        $('#refrigeratorIssueForm').on('submit', function (event) {
 
-            var categoryValue = $('#internetActionCategory').val();
-            var actionValue = $('#internetActionSelected').val();
+            var categoryValue = $('#refrigeratorActionCategory').val();
+            var actionValue = $('#refrigeratorActionSelected').val();
             
             if (categoryValue == null) {
 
-                $('#internet_action_category_id_error').html('Please select a category!'); 
+                $('#refrigerator_action_category_id_error').html('Please select a category!'); 
                 return false;
             } else if (categoryValue != null){
 
-                $('#internet_action_category_id_error').empty();
+                $('#refrigerator_action_category_id_error').empty();
             }
 
             if (actionValue == null) {
 
-                $('#internet_action_id_error').html('Please select an action!'); 
+                $('#refrigerator_action_id_error').html('Please select an action!'); 
                 return false;
             } else if (actionValue != null){
 
-                $('#internet_action_id_error').empty();
+                $('#refrigerator_action_id_error').empty();
             }
 
             $(this).addClass('was-validated'); 
-            $('#internet_action_category_id_error').empty();
-            $('#internet_action_id_error').empty();
+            $('#refrigerator_action_category_id_error').empty();
+            $('#refrigerator_action_id_error').empty();
             
             this.submit();
         });

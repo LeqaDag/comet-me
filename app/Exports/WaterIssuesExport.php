@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use DB;
 
-class InternetIssuesExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+class WaterIssuesExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
 WithStyles
 {
 
@@ -26,23 +26,23 @@ WithStyles
     */
     public function collection()
     {
-        $data = DB::table('internet_issues')
-            ->join('internet_actions', 'internet_issues.internet_action_id', 'internet_actions.id')
-            ->join('action_categories', 'internet_actions.action_category_id', 'action_categories.id')
-            ->where('internet_issues.is_archived', 0) 
-            ->where('internet_actions.is_archived', 0)
+        $data = DB::table('water_issues')
+            ->join('water_actions', 'water_issues.water_action_id', 'water_actions.id')
+            ->join('action_categories', 'water_actions.action_category_id', 'action_categories.id')
+            ->where('water_issues.is_archived', 0) 
+            ->where('water_actions.is_archived', 0)
             ->select(
-                'internet_issues.english_name as english_name', 
-                'internet_issues.arabic_name as arabic_name', 
-                'internet_actions.english_name as action_english',
-                'internet_actions.arabic_name as action_arabic',
+                'water_issues.english_name as english_name', 
+                'water_issues.arabic_name as arabic_name', 
+                'water_actions.english_name as action_english',
+                'water_actions.arabic_name as action_arabic',
                 'action_categories.english_name as category',
-                'internet_issues.notes'
+                'water_issues.notes'
             ); 
 
         if($this->request->action_name) {
 
-            $data->where("internet_actions.id", $this->request->action_name);
+            $data->where("water_actions.id", $this->request->action_name);
         } 
 
         if($this->request->action_category) {
@@ -66,7 +66,7 @@ WithStyles
 
     public function title(): string
     {
-        return 'Internet Issues';
+        return 'Water Issues';
     }
 
     /**

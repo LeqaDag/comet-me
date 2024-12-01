@@ -44,7 +44,7 @@ label, table {
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Action Category</label>
-                                <select name="energy_action_category_id" data-live-search="true"
+                                <select name="action_category_id" data-live-search="true"
                                     class="selectpicker form-control" required
                                     id="energyActionValue">
                                     <option disabled selected>Choose one...</option>

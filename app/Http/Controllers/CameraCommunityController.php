@@ -128,7 +128,7 @@ class CameraCommunityController extends Controller
                 }
 
                 $data->select(
-                    DB::raw('IFNULL(communities.english_name, repositories.name) as name'),
+                    DB::raw('IFNULL(communities.english_name, repositories.name) as name'), 
                     'households.english_name',
                     'camera_communities.id as id', 'camera_communities.created_at as created_at', 
                     'camera_communities.updated_at as updated_at',

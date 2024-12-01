@@ -8,20 +8,20 @@ label, table {
 }
 </style> 
 
-<div id="createIssueInternet" class="modal fade" tabindex="-1" aria-hidden="true">
+<div id="createIssueWater" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
-                    Create New Internet Issue
+                    Create New Water Issue
                 </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" 
                     aria-label="Close">
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" enctype='multipart/form-data' id="internetIssueForm"
-                    action="{{url('internet-issue')}}">
+                <form method="POST" enctype='multipart/form-data' id="waterIssueForm"
+                    action="{{url('water-issue')}}">
                     @csrf
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
@@ -45,7 +45,7 @@ label, table {
                                 <label class='col-md-12 control-label'>Action Category</label>
                                 <select name="action_category_id" data-live-search="true"
                                     class="selectpicker form-control" required
-                                    id="internetActionCategory">
+                                    id="waterActionCategory">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($actionCategories as $actionCategory)
                                         <option value="{{$actionCategory->id}}">
@@ -54,17 +54,17 @@ label, table {
                                     @endforeach
                                 </select>
                             </fieldset>
-                            <div id="internet_action_category_id_error" style="color: red;"></div>
+                            <div id="water_action_category_id_error" style="color: red;"></div>
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Internet Action</label>
-                                <select name="internet_action_id" data-live-search="true"
+                                <label class='col-md-12 control-label'>water Action</label>
+                                <select name="water_action_id" data-live-search="true"
                                     class="selectpicker form-control" required
-                                    id="internetActionSelected">
+                                    id="waterActionSelected">
                                 </select>
                             </fieldset>
-                            <div id="internet_action_id_error" style="color: red;"></div>
+                            <div id="water_action_id_error" style="color: red;"></div>
                         </div>
                     </div>
 
@@ -90,15 +90,15 @@ label, table {
 <script>
     $(document).ready(function() {
 
-        $(document).on('change', '#internetActionCategory', function () {
+        $(document).on('change', '#waterActionCategory', function () {
 
             category_id = $(this).val();
             $.ajax({
-                url: "internet-issue/get_by_action_category/" +  category_id,
+                url: "water-issue/get_by_action_category/" +  category_id,
                 method: 'GET',
                 success: function(data) {
 
-                    var select = $('#internetActionSelected');
+                    var select = $('#waterActionSelected');
                     select.prop('disabled', false); 
                     select.html(data.html);
                     select.selectpicker('refresh');
@@ -106,32 +106,32 @@ label, table {
             });
         });
 
-        $('#internetIssueForm').on('submit', function (event) {
+        $('#waterIssueForm').on('submit', function (event) {
 
-            var categoryValue = $('#internetActionCategory').val();
-            var actionValue = $('#internetActionSelected').val();
+            var categoryValue = $('#waterActionCategory').val();
+            var actionValue = $('#waterActionSelected').val();
             
             if (categoryValue == null) {
 
-                $('#internet_action_category_id_error').html('Please select a category!'); 
+                $('#water_action_category_id_error').html('Please select a category!'); 
                 return false;
             } else if (categoryValue != null){
 
-                $('#internet_action_category_id_error').empty();
+                $('#water_action_category_id_error').empty();
             }
 
             if (actionValue == null) {
 
-                $('#internet_action_id_error').html('Please select an action!'); 
+                $('#water_action_id_error').html('Please select an action!'); 
                 return false;
             } else if (actionValue != null){
 
-                $('#internet_action_id_error').empty();
+                $('#water_action_id_error').empty();
             }
 
             $(this).addClass('was-validated'); 
-            $('#internet_action_category_id_error').empty();
-            $('#internet_action_id_error').empty();
+            $('#water_action_category_id_error').empty();
+            $('#water_action_id_error').empty();
             
             this.submit();
         });

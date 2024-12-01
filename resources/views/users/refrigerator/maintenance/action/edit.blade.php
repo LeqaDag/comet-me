@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'edit energy action')
+@section('title', 'edit refrigerator action')
 
 @include('layouts.all')
 
@@ -17,14 +17,14 @@
 @section('content')
 <h4 class="py-3 breadcrumb-wrapper mb-4">
     <span class="text-muted fw-light">Edit </span> 
-        {{$energyAction->english_name}}
+        {{$refrigeratorAction->english_name}}
     <span class="text-muted fw-light">Information </span> 
 </h4>
 
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-            <form method="POST" action="{{route('energy-action.update', $energyAction->id)}}"
+            <form method="POST" action="{{route('refrigerator-action.update', $refrigeratorAction->id)}}"
              enctype="multipart/form-data" >
                 @csrf
                 @method('PATCH')
@@ -33,14 +33,14 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Action (English)</label>
                             <input type="text" name="english_name" class="form-control" 
-                                value="{{$energyAction->english_name}}">
+                                value="{{$refrigeratorAction->english_name}}">
                         </fieldset>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Action (Arabic)</label>
                             <input type="text" name="arabic_name" class="form-control"
-                                value="{{$energyAction->arabic_name}}" >
+                                value="{{$refrigeratorAction->arabic_name}}" >
                         </fieldset>
                     </div>
                 </div>
@@ -51,9 +51,9 @@
                             <label class='col-md-12 control-label'>Action Category</label>
                             <select name="action_category_id" data-live-search="true"
                                 class="selectpicker form-control" required>
-                                @if($energyAction->action_category_id)
-                                    <option value="{{$energyAction->action_category_id}}">
-                                        {{$energyAction->ActionCategory->english_name}}
+                                @if($refrigeratorAction->action_category_id)
+                                    <option value="{{$refrigeratorAction->action_category_id}}">
+                                        {{$refrigeratorAction->ActionCategory->english_name}}
                                     </option>
                                 @endif 
                                 @foreach($energyCategories as $actionCategory)
@@ -72,7 +72,7 @@
                             <label class='col-md-12 control-label'>Notes</label>
                             <textarea name="notes" class="form-control" 
                                 style="resize:none" cols="20" rows="3">
-                                {{$energyAction->notes}}
+                                {{$refrigeratorAction->notes}}
                             </textarea>
                         </fieldset>
                     </div>

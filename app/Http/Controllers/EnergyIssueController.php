@@ -9,7 +9,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\User;
 use App\Models\EnergyAction;
-use App\Models\EnergyActionCategory;
+use App\Models\ActionCategory;
 use App\Models\EnergyIssue;
 use App\Models\InternetMaintenanceCall;
 use App\Models\EnergyMaintenanceIssueType;
@@ -32,7 +32,21 @@ class EnergyIssueController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    { 
+        // $incrementalNumber = 1; 
+        // $energyIssues = EnergyIssue::all();
+        // foreach($energyIssues as $energyIssue) {
+
+        //     $energyAction = EnergyAction::findOrFail($energyIssue->energy_action_id);
+        //     $actionCategory = ActionCategory::findOrFail($energyAction->action_category_id);
+        //     $energyIssue->unique_id = $incrementalNumber;
+            
+        //     $energyIssue->comet_id = $actionCategory->comet_id . "E" . $energyAction->comet_id . $incrementalNumber;
+        //     $energyIssue->save();
+
+        //     $incrementalNumber++;
+        // }
+
         if (Auth::guard('user')->user() != null) {
 
             $actionFilter = $request->input('action_filter');
@@ -74,8 +88,7 @@ class EnergyIssueController extends Controller
                         $deleteButton = "<a type='button' class='deleteEnergyIssue' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
 
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
-                            Auth::guard('user')->user()->user_type_id == 7 ||
-                            Auth::guard('user')->user()->user_type_id == 4) 
+                            Auth::guard('user')->user()->user_type_id == 2) 
                         {
                                 
                             return $updateButton. " ". $deleteButton ;
@@ -97,7 +110,7 @@ class EnergyIssueController extends Controller
                 ->make(true);
             }
 
-            $actionCategories = EnergyActionCategory::where("is_archived", 0)->get();
+            $actionCategories = ActionCategory::where("is_archived", 0)->get();
             $energyActions = EnergyAction::where('is_archived', 0)->get();
             $energyIssueTypes = EnergyMaintenanceIssueType::all();
 
@@ -119,9 +132,16 @@ class EnergyIssueController extends Controller
     {     
         $energyIssue = new EnergyIssue();
 
+        // Get last comet_id
+        $last_comet_id = EnergyIssue::latest('id')->value('unique_id') + 1;
         $energyIssue->english_name = $request->english_name;
         $energyIssue->arabic_name = $request->arabic_name;
         $energyIssue->energy_action_id = $request->energy_action_id;
+        $energyIssue->comet_id = $last_comet_id;
+        $energyAction = EnergyAction::findOrFail($request->energy_action_id);
+        $actionCategory = ActionCategory::findOrFail($energyAction->action_category_id);
+        $energyIssue->unique_id = $last_comet_id;
+        $energyIssue->comet_id = $actionCategory->comet_id . "E" . $energyAction->comet_id . $last_comet_id;
         $energyIssue->energy_maintenance_issue_type_id = $request->energy_maintenance_issue_type_id;
         $energyIssue->notes = $request->notes;
         $energyIssue->save();
@@ -152,10 +172,10 @@ class EnergyIssueController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id) 
-    {
+    { 
         $energyIssue = EnergyIssue::findOrFail($id);
         $energyActions = EnergyAction::where("is_archived", 0)->get();
-        $energyCategories = EnergyActionCategory::where("is_archived", 0)->get();
+        $energyCategories = ActionCategory::where("is_archived", 0)->get();
         $energyIssueTypes = EnergyMaintenanceIssueType::all();
 
         //die($energyIssue);
@@ -174,14 +194,20 @@ class EnergyIssueController extends Controller
     {     
         $energyIssue = EnergyIssue::findOrFail($id);
 
+        $last_comet_id = EnergyIssue::latest('id')->value('unique_id') + 1;
+
         if($request->english_name) $energyIssue->english_name = $request->english_name;
         if($request->arabic_name) $energyIssue->arabic_name = $request->arabic_name;
-        if($request->energy_action_id) $energyIssue->energy_action_id = $request->energy_action_id;
-        if($request->energy_action_category_id) {
+        if($request->energy_action_id) {
 
-            $energyAction = EnergyAction::findOrFail($energyIssue->energy_action_id);
-            $energyAction->energy_action_category_id = $request->energy_action_category_id;
+            $energyIssue->energy_action_id = $request->energy_action_id;
+            $energyAction = EnergyAction::findOrFail($request->energy_action_id);
+            $energyAction->action_category_id = $request->action_category_id;
             $energyAction->save();
+
+            $actionCategory = ActionCategory::findOrFail($energyAction->action_category_id);
+            $energyIssue->unique_id = $last_comet_id;
+            $energyIssue->comet_id = $actionCategory->comet_id . "E" . $energyAction->comet_id . $last_comet_id;
         }
         if($request->energy_maintenance_issue_type_id) $energyIssue->energy_maintenance_issue_type_id = $request->energy_maintenance_issue_type_id;
         if($request->notes == null) $energyIssue->notes = null;
@@ -234,7 +260,7 @@ class EnergyIssueController extends Controller
 
             $html = '<option  disabled selected>Choose One...</option>';
 
-            $energyActions = EnergyAction::where('energy_action_category_id', $request->id)
+            $energyActions = EnergyAction::where('action_category_id', $request->id)
                 ->orderBy('english_name', 'ASC')
                 ->where('is_archived', 0)
                 ->get();
