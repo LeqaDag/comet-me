@@ -30,7 +30,7 @@ WithStyles
             ->join('energy_maintenance_issue_types', 'energy_issues.energy_maintenance_issue_type_id', 
                 'energy_maintenance_issue_types.id')
             ->join('energy_actions', 'energy_issues.energy_action_id', 'energy_actions.id')
-            ->join('energy_action_categories', 'energy_actions.energy_action_category_id', 'energy_action_categories.id')
+            ->join('action_categories', 'energy_actions.action_category_id', 'action_categories.id')
             ->where('energy_issues.is_archived', 0) 
             ->where('energy_actions.is_archived', 0)
             ->select(
@@ -38,7 +38,7 @@ WithStyles
                 'energy_issues.arabic_name as arabic_name', 
                 'energy_actions.english_name as action_english',
                 'energy_actions.arabic_name as action_arabic',
-                'energy_action_categories.english_name as category',
+                'action_categories.english_name as category',
                 'energy_maintenance_issue_types.name as type',
                 'energy_issues.notes'
             ); 

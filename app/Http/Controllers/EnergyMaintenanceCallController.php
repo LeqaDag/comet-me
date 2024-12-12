@@ -218,8 +218,7 @@ class EnergyMaintenanceCallController extends Controller
             $ticketsData =  Http::get('https://cometme.org/api/tickets');
             $ticketMaintainances = json_decode($ticketsData, true);
 
-
-            dd($ticketMaintainances);
+           // dd($ticketMaintainances);
 
             return view('users.energy.maintenance.index', compact('maintenanceTypes', 
                 'maintenanceStatuses', 'maintenanceEnergyActions', 'users', 'communities', 
