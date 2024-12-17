@@ -176,17 +176,27 @@
                     </div>
                 </div>
 
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Order Number</label>
+                            <input type="number" name="order_number" class="form-control"
+                                value="{{$internetIncident->order_number}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Monetary Losses</label>
+                            <input type="number" name="monetary_losses" class="form-control"
+                            value="{{$internetIncident->monetary_losses}}" step="0.01">
+                        </fieldset>
+                    </div>
+                </div>
+
 
                 @if($internetIncident->incident_id == 4)
                 <div id="swoDiv">
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Order Number</label>
-                                <input type="number" name="order_number" class="form-control"
-                                    value="{{$internetIncident->order_number}}">
-                            </fieldset>
-                        </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Order Date</label>
@@ -194,8 +204,6 @@
                                     value="{{$internetIncident->order_date}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Geolocation Lat</label>
@@ -203,6 +211,8 @@
                                 value="{{$internetIncident->geolocation_lat}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Geolocation Long</label>
@@ -210,8 +220,6 @@
                                 value="{{$internetIncident->geolocation_long}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date of hearing</label>
@@ -219,6 +227,8 @@
                                 value="{{$internetIncident->hearing_date}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Building Permit Request Number</label>
@@ -226,8 +236,6 @@
                                 value="{{$internetIncident->building_permit_request_number}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Building Permit Request Date</label>
@@ -235,6 +243,8 @@
                                 value="{{$internetIncident->building_permit_request_submission_date}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Illegal Construction Case Number</label>
@@ -242,8 +252,6 @@
                                 value="{{$internetIncident->illegal_construction_case_number}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>District Court Case Number</label>
@@ -251,6 +259,8 @@
                                 value="{{$internetIncident->district_court_case_number}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Supreme Court Case Number</label>
@@ -282,16 +292,6 @@
                     </div>
                 </div>
                 @endif
-
-                <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Monetary Losses</label>
-                            <input type="number" name="monetary_losses" class="form-control"
-                            value="{{$internetIncident->monetary_losses}}" step="0.01">
-                        </fieldset>
-                    </div>
-                </div>
 
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">

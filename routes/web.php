@@ -400,7 +400,7 @@ Route::post('energy-request-export', [App\Http\Controllers\EnergyRequestSystemCo
 Route::get('energy-request/energy-request/get_by_community/{community_id}', [App\Http\Controllers\EnergyRequestSystemController::class, 'getRequestedByCommunity']);
 Route::post('energy-request-household-export', [App\Http\Controllers\EnergyRequestSystemController::class, 'exportRequested'])->name('energy-request-household.export');
 
-Route::resource('requested-household', App\Http\Controllers\RequestedHouseholdController::class);
+Route::resource('requested-household', App\Http\Controllers\RequestedHouseholdController::class); 
 
 Route::resource('displaced-household', App\Http\Controllers\DisplacedHouseholdController::class);
 Route::get('/delete-displaced-household', [App\Http\Controllers\DisplacedHouseholdController::class, 'deleteDisplacedHousehold'])->name('deleteDisplacedHousehold');

@@ -22,7 +22,7 @@ label, table {
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button> 
-</p>
+</p> 
 
 <div class="collapse multi-collapse container mb-4" id="collapseEnergyRequestExport">
     <div class="container">
@@ -55,28 +55,43 @@ label, table {
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Community</label>
-                                        <select name="community"
-                                            class="selectpicker form-control" data-live-search="true">
-                                            <option disabled selected>Search Community</option>
+                                        <select name="community_id" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
                                             @foreach($communities as $community)
-                                            <option value="{{$community->id}}">
-                                                {{$community->english_name}}
-                                            </option>
+                                                <option value="{{$community->id}}">{{$community->english_name}}</option>
                                             @endforeach
                                         </select> 
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <label class='col-md-12 control-label'>Status of request</label>
-                                        <select name="request_status"
-                                            class="selectpicker form-control" data-live-search="true">
-                                            <option disabled selected>Search Status of request</option>
-                                            @foreach($requestStatuses as $requestStatus)
-                                            <option value="{{$requestStatus->id}}">
-                                                {{$requestStatus->name}}
-                                            </option>
+                                        <label class='col-md-12 control-label'>Status</label>
+                                        <select name="status" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            <option value="served">Served</option>
+                                            <option value="service_requested">Service requested</option>
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>System Type if Shared</label>
+                                        <select name="energy_system_type_id" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($energySystemTypes as $energySystemType)
+                                                <option value="{{$energySystemType->id}}">{{$energySystemType->name}}</option>
                                             @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Request Date</label>
+                                        <input type="date" name="request_date" class="form-control"
+                                            id="filterByRequestedDateExport">
                                         </select> 
                                     </fieldset>
                                 </div>
@@ -97,7 +112,7 @@ label, table {
 </div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Requested Systems
+  <span class="text-muted fw-light">All </span> Requested Households
 </h4>
 
 @if(session()->has('message'))
@@ -111,12 +126,68 @@ label, table {
 <div class="container">
     <div class="card my-2">
         <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunity">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Status</label>
+                        <select name="status" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByStatus">
+                            <option disabled selected>Choose one...</option>
+                            <option value="served">Served</option>
+                            <option value="service_requested">Service requested</option>
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By System Type if Shared</label>
+                        <select name="energy_system_type_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterBySystemType">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($energySystemTypes as $energySystemType)
+                                <option value="{{$energySystemType->id}}">{{$energySystemType->name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Request Date</label>
+                        <input type="date" name="date" class="form-control"
+                            id="filterByRequestedDate">
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButton">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-header">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
                 Auth::guard('user')->user()->user_type_id == 2 ||
                 Auth::guard('user')->user()->user_type_id == 3 ||
                 Auth::guard('user')->user()->user_type_id == 4 ||
-                Auth::guard('user')->user()->user_type_id == 5 ||
-                Auth::guard('user')->user()->user_type_id == 6)
+                Auth::guard('user')->user()->user_type_id == 5)
                 <div style="margin-top:18px">
                     <a type="button" class="btn btn-success" 
                         href="{{url('energy-request', 'create')}}" >
@@ -130,11 +201,11 @@ label, table {
                 <thead>
                     <tr>
                         <th class="text-center">Requested Household</th>
-                        <th class="text-center">Requested Community</th>
+                        <th class="text-center">Community</th>
                         <th class="text-center">Request Date</th>
-                        <th class="text-center">Energy</th>
-                        <th class="text-center">Water</th>
-                        <th class="text-center">Internet</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Shared</th>
+                        <th class="text-center">Referred By</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -146,26 +217,64 @@ label, table {
 </div>
 
 <script type="text/javascript">
+
     $(function () {
 
-        var table = $('.data-table-energy-request').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "{{ route('energy-request.index') }}",
-                data: function (d) {
-                    d.search = $('input[type="search"]').val()
+        var table;
+        function DataTableContent() {
+            table = $('.data-table-energy-request').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('energy-request.index') }}",
+                    data: function (d) {
+                        d.search = $('input[type="search"]').val();
+                        d.community_filter = $('#filterByCommunity').val();
+                        d.system_type_filter = $('#filterBySystemType').val();
+                        d.date_filter = $('#filterByRequestedDate').val();
+                        d.household_status = $('#filterByStatus').val();
+                    }
+                },
+                columns: [
+                    {data: 'english_name', name: 'english_name'},
+                    {data: 'community_name', name: 'community_name'},
+                    {data: 'created_at', name: 'created_at'},
+                    {data: 'status', name: 'status'},
+                    {data: 'type', name: 'type'},
+                    {data: 'referred_by', name: 'referred_by'},
+                    {data: 'action'}
+                ] 
+            });
+        }
+
+
+        $(function () {
+            DataTableContent();
+            
+            $('#filterBySystemType').on('change', function() {
+                table.ajax.reload(); 
+            });
+            $('#filterByRequestedDate').on('change', function() {
+                table.ajax.reload(); 
+            });
+            $('#filterByCommunity').on('change', function() {
+                table.ajax.reload(); 
+            });
+            $('#filterByStatus').on('change', function() {
+                table.ajax.reload(); 
+            });
+
+            // Clear Filter
+            $('#clearFiltersButton').on('click', function() {
+
+                $('.selectpicker').prop('selectedIndex', 0);
+                $('.selectpicker').selectpicker('refresh');
+                $('#filterByRequestedDate').val(' ');
+                if ($.fn.DataTable.isDataTable('.data-table-energy-request')) {
+                    $('.data-table-energy-request').DataTable().destroy();
                 }
-            },
-            columns: [
-                {data: 'household', name: 'household'},
-                {data: 'community_name', name: 'community_name'},
-                {data: 'date', name: 'date'},
-                {data: 'energy_service', name: 'energy_service'},
-                {data: 'water_service', name: 'water_service'},
-                {data: 'internet_service', name: 'internet_service'},
-                {data: 'action'}
-            ]
+                DataTableContent();
+            });
         });
          
         // Clear Filters for Export
@@ -173,122 +282,15 @@ label, table {
 
             $('.selectpicker').prop('selectedIndex', 0);
             $('.selectpicker').selectpicker('refresh');
+            $('#filterByRequestedDateExport').val(' ');
         });
 
         // View record details
-        $('#energyAllUsersTable').on('click', '.updateAllEnergyUser',function() {
+        $('#energyRequestTable').on('click', '.viewEnergyRequest',function() {
+
             var id = $(this).data('id');
-            var url = window.location.href; 
-            url = url +'/'+ id +'/edit';
-            // AJAX request
-            $.ajax({
-                url: 'allMeter/' + id + '/editpage',
-                type: 'get',
-                dataType: 'json',
-                success: function(response) {
-                    window.open(url, "_self"); 
-                }
-            });
-        });
-
-        // View record details
-        $('#energyAllUsersTable').on('click', '.viewEnergyUser',function() {
-            var id = $(this).data('id');
-        
-            // AJAX request
-            $.ajax({
-                url: 'energy-user/' + id,
-                type: 'get',
-                dataType: 'json',
-                success: function(response) { 
-                    $('#energyUserModalTitle').html(" ");
-                    $('#energyUserModalTitle').html(response['household'].english_name);
-                    $('#englishNameUser').html(" ");
-                    $('#englishNameUser').html(response['household'].english_name);
-                    $('#communityUser').html(" ");
-                    $('#communityUser').html(response['community'].english_name);
-                    $('#meterActiveUser').html(" ");
-                    $('#meterActiveUser').html(response['energy'].meter_active);
-                    $('#meterCaseUser').html(" ");
-                    $('#meterCaseUser').html(response['meter'].meter_case_name_english);
-                    $('#systemNameUser').html(" ");
-                    $('#systemNameUser').html(response['system'].name);
-                    $('#systemTypeUser').html(" ");
-                    $('#systemTypeUser').html(response['type'].name);
-                    $('#systemLimitUser').html(" ");
-                    $('#systemLimitUser').html(response['energy'].daily_limit);
-                    $('#systemDateUser').html(" ");
-                    $('#systemDateUser').html(response['energy'].installation_date);
-                    $('#systemNotesUser').html(" ");
-                    if(response['energy']) $('#systemNotesUser').html(response['energy'].notes);
-                    $('#vendorDateUser').html(" ");
-                    if(response['vendor']) $('#vendorDateUser').html(response['vendor'].name);
-                    
-                    $('#systemGroundUser').html(" ");
-                    $('#systemGroundUser').html(response['energy'].ground_connected);
-                    if(response['energy'].ground_connected == "Yes") {
-
-                        $('#systemGroundUser').css('color', 'green');
-                    } else if(response['energy'].ground_connected == "No") {
-
-                        $('#systemGroundUser').css('color', 'red');
-                    }
-
-                    $('#installationTypeUser').html(" ");
-                    if(response['installationType']) $('#installationTypeUser').html(response['installationType'].type);
-
-                    $('#donorsDetails').html(" ");
-                    if(response['energyMeterDonors'] != []) {
-                        for (var i = 0; i < response['energyMeterDonors'].length; i++) {
-                            if(response['energyMeterDonors'][i].donor_name == "0")  {
-                                response['energyMeterDonors'][i].donor_name = "Not yet attributed";
-                            }
-                            $("#donorsDetails").append(
-                            '<ul><li>'+ response['energyMeterDonors'][i].donor_name +'</li></ul>');
-                               
-                        }
-                    }
-                }
-            });
+            window.open('/household?id=' + id, '_blank'); 
         }); 
-
-        // delete energy user
-        $('#energyAllUsersTable').on('click', '.deleteAllEnergyUser',function() {
-            var id = $(this).data('id');
-
-            Swal.fire({
-                icon: 'warning',
-                title: 'Are you sure you want to delete this user?',
-                showDenyButton: true,
-                confirmButtonText: 'Confirm'
-            }).then((result) => {
-                if(result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ route('deleteEnergyUser') }}",
-                        type: 'get',
-                        data: {id: id},
-                        success: function(response) {
-                            if(response.success == 1) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: response.msg,
-                                    showDenyButton: false,
-                                    showCancelButton: false,
-                                    confirmButtonText: 'Okay!'
-                                }).then((result) => {
-                                    $('#energyAllUsersTable').DataTable().draw();
-                                });
-                            } else {
-
-                                alert("Invalid ID.");
-                            }
-                        }
-                    });
-                } else if (result.isDenied) {
-                    Swal.fire('Changes are not saved', '', 'info')
-                }
-            });
-        });
     });
 </script>
 @endsection

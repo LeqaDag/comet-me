@@ -15,7 +15,7 @@ label, table {
     margin-top: 20px;
 }
 </style> 
-
+ 
 <p>
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseHouseholdVisualData" 
         role="button" aria-expanded="false" aria-controls="collapseHouseholdVisualData">
@@ -38,7 +38,7 @@ label, table {
 
 <div class="collapse multi-collapse mb-4" id="collapseHouseholdVisualData">
 
-    <div class="container">
+    <div class="container"> 
         <div class="row g-4 mb-4">
             <div class="col">
                 <div class="card">
@@ -437,7 +437,7 @@ All<span class="text-muted fw-light"> Households</span>
                 </div>
             @endif
 
-            @if(Auth::guard('user')->user()->user_type_id ==1 )
+            @if(Auth::guard('user')->user()->user_type_id == 1 )
             <div>
                 <form action="{{route('household.import')}}" method="POST" 
                     enctype="multipart/form-data">
@@ -589,10 +589,26 @@ All<span class="text-muted fw-light"> Households</span>
             alert(id);
         });
 
+
+        $(document).ready(function() {
+            // Get the ID from the URL (query parameter)
+            var urlParams = new URLSearchParams(window.location.search);
+            var id = urlParams.get('id'); 
+            if(id) {
+
+                HouseholdDetails(id);
+                $('#householdDetails').modal('show');
+            }
+        });
+
         // View record details
         $('#householdsTable').on('click', '.detailsHouseholdButton',function() {
+            
             var id = $(this).data('id');
-        
+            HouseholdDetails(id);
+        });
+    
+        function HouseholdDetails(id) {
             // AJAX request
             $.ajax({
                 url: 'household/' + id,
@@ -692,8 +708,8 @@ All<span class="text-muted fw-light"> Households</span>
                     $('#notesHousehold').html(response['household'].notes);
                 }
             });
-        });
-    
+        }
+
         // View record details
         $('#householdsTable').on('click', '.updateHousehold',function() {
             var id = $(this).data('id');

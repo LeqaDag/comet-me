@@ -791,7 +791,7 @@ label, table {
                     title: 'Internet Contract Holders Gotten Successfully!',
                     showDenyButton: false,
                     showCancelButton: false,
-                    confirmButtonText: 'Okay!'
+                    confirmButtonText: 'Okay!' 
                 }).then((result) => {
 
                     $('#internetAllUsersTable').DataTable().draw();

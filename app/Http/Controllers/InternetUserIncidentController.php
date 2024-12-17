@@ -183,10 +183,10 @@ class InternetUserIncidentController extends Controller
             $internetIncident->internet_user_id = $internetUser->id;
         }
 
+        $internetIncident->order_number = $request->order_number;
         $internetIncident->incident_id = $request->incident_id;
         if($request->incident_id == 4) {
 
-            $internetIncident->order_number = $request->order_number;
             $internetIncident->order_date = $request->order_date;
             $internetIncident->geolocation_lat = $request->geolocation_lat;
             $internetIncident->geolocation_long = $request->geolocation_long;
@@ -333,10 +333,11 @@ class InternetUserIncidentController extends Controller
             $internetIncident->internet_user_id = $internetUser->id;
         }
 
+        if($request->order_number) $internetIncident->order_number = $request->order_number;
+
         $internetIncident->incident_id = $request->incident_id;
         if($request->incident_id == 4) {
 
-            $internetIncident->order_number = $request->order_number;
             $internetIncident->order_date = $request->order_date;
             $internetIncident->geolocation_lat = $request->geolocation_lat;
             $internetIncident->geolocation_long = $request->geolocation_long;

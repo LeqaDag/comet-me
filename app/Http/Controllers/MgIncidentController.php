@@ -197,9 +197,10 @@ class MgIncidentController extends Controller
         $mgIncident->response_date = $request->response_date;
         $mgIncident->monetary_losses = $request->monetary_losses;
         $mgIncident->notes = $request->notes;
+        $mgIncident->order_number = $request->order_number;
+
         if($request->incident_id == 4) {
 
-            $mgIncident->order_number = $request->order_number;
             $mgIncident->order_date = $request->order_date;
             $mgIncident->geolocation_lat = $request->geolocation_lat;
             $mgIncident->geolocation_long = $request->geolocation_long;
@@ -387,9 +388,8 @@ class MgIncidentController extends Controller
         $mgIncident->response_date = $request->response_date;
         if($request->monetary_losses) $mgIncident->monetary_losses = $request->monetary_losses;
         $mgIncident->notes = $request->notes;
+        if($request->order_number) $mgIncident->order_number = $request->order_number;
         if($request->incident_id == 4) {
-
-            $mgIncident->order_number = $request->order_number;
             $mgIncident->order_date = $request->order_date;
             $mgIncident->geolocation_lat = $request->geolocation_lat;
             $mgIncident->geolocation_long = $request->geolocation_long;

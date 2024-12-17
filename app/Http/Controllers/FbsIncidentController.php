@@ -243,10 +243,10 @@ class FbsIncidentController extends Controller
             }
         }
 
+        $fbsIncident->order_number = $request->order_number;
         $fbsIncident->incident_id = $request->incident_id;
         if($request->incident_id == 4) {
 
-            $fbsIncident->order_number = $request->order_number;
             $fbsIncident->order_date = $request->order_date;
             $fbsIncident->geolocation_lat = $request->geolocation_lat;
             $fbsIncident->geolocation_long = $request->geolocation_long;
@@ -261,7 +261,6 @@ class FbsIncidentController extends Controller
         }
         $fbsIncident->response_date = $request->response_date;
         $fbsIncident->losses_energy = $request->losses_energy;
-        $fbsIncident->losses_water = $request->losses_water;
         $fbsIncident->notes = $request->notes;
         $fbsIncident->save();
         $id = $fbsIncident->id;
@@ -405,9 +404,10 @@ class FbsIncidentController extends Controller
         }
 
         $fbsIncident->incident_id = $request->incident_id;
+        if($request->order_number) $fbsIncident->order_number = $request->order_number;
+
         if($request->incident_id == 4) {
 
-            if($request->order_number) $fbsIncident->order_number = $request->order_number;
             if($request->order_date)$fbsIncident->order_date = $request->order_date;
             if($request->geolocation_lat) $fbsIncident->geolocation_lat = $request->geolocation_lat;
             if($request->geolocation_long) $fbsIncident->geolocation_long = $request->geolocation_long;
@@ -456,7 +456,6 @@ class FbsIncidentController extends Controller
         $fbsIncident->notes = $request->notes;
         $fbsIncident->response_date = $request->response_date;
         $fbsIncident->losses_energy = $request->losses_energy;
-        $fbsIncident->losses_water = $request->losses_water;
         $fbsIncident->save();
 
         if($request->new_equipment) {

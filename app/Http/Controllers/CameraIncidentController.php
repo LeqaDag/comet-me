@@ -203,11 +203,10 @@ class CameraIncidentController extends Controller
 
         if($request->community_id) $cameraIncident->community_id = $request->community_id;  
         if($request->repository_id) $cameraIncident->repository_id = $request->repository_id;  
-
+        $cameraIncident->order_number = $request->order_number;
         $cameraIncident->incident_id = $request->incident_id;
         if($request->incident_id == 4) {
 
-            $cameraIncident->order_number = $request->order_number;
             $cameraIncident->order_date = $request->order_date;
             $cameraIncident->geolocation_lat = $request->geolocation_lat;
             $cameraIncident->geolocation_long = $request->geolocation_long;
@@ -346,9 +345,9 @@ class CameraIncidentController extends Controller
         }
 
         $cameraIncident->incident_id = $request->incident_id;
+        if($request->order_number) $cameraIncident->order_number = $request->order_number;
         if($request->incident_id == 4) {
 
-            $cameraIncident->order_number = $request->order_number;
             $cameraIncident->order_date = $request->order_date;
             $cameraIncident->geolocation_lat = $request->geolocation_lat;
             $cameraIncident->geolocation_long = $request->geolocation_long;

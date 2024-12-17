@@ -35,8 +35,8 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 'professions.id')
             ->leftJoin('energy_request_systems', 'households.id', 
                 'energy_request_systems.household_id')
-            ->leftJoin('all_energy_meters', 'households.id', 
-                'all_energy_meters.household_id')
+            ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
+            ->leftJoin('meter_cases', 'meter_cases.id', 'all_energy_meters.meter_case_id')
             ->leftJoin('energy_system_types', 'energy_system_types.id', 
                 'all_energy_meters.energy_system_type_id')
             ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id', 
@@ -67,7 +67,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 'households.number_of_adults', 'households.school_students', 'households.university_students', 
                 'households.demolition_order', 'household_statuses.status', 
                 'all_energy_meters.is_main', 'energy_system_types.name',
-                'all_energy_meters.meter_number', 
+                'all_energy_meters.meter_number', 'meter_cases.meter_case_name_english',
                 DB::raw('group_concat(DISTINCT energy_donor.donor_name) as meter_donor'),
                 'energy_request_systems.date', 
                 'water_system_status', 
@@ -235,9 +235,9 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
         return ["English Name", "Arabic Name", "Community", "Region", "Compound", "Phone Number", "Profession", 
             "# of People", "# of Male", "# of Female", "# of Children", "# of Adults", "# of School students", 
             "# of University students", "Demolition order in house", "Energy System Status", "Main User", 
-            "Energy System Type", "Meter Number", "Energy Donors", "Requset Date", "Water System Status", "Water Donors",
-            "Internet System Status", "Internet Donors", "# of Structures", "# of kitchens", "# of Caves", "Size of herds", 
-            "# of animal shelters", "# of Cisterns", "Shared cistern", "Is Surveyed", "Surveyed Date"];
+            "Energy System Type", "Meter Number", "Meter Case", "Energy Donors", "Requset Date", "Water System Status", 
+            "Water Donors", "Internet System Status", "Internet Donors", "# of Structures", "# of kitchens", "# of Caves", 
+            "Size of herds", "# of animal shelters", "# of Cisterns", "Shared cistern", "Is Surveyed", "Surveyed Date"];
     }
 
     public function title(): string

@@ -168,6 +168,10 @@
                                 <p class="mb-0">Response Date</p>
                                 <span class="text-muted">{{$waterIncident->response_date}}</span>
                             </div>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Order Number</p>
+                                <span class="text-muted">{{$waterIncident->order_number}}</span>
+                            </div>
                         </div> <br>
                         @if($incident->english_name != "SWO")
                         <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
@@ -191,10 +195,7 @@
                         <br>
                         @if($incident->english_name == "SWO")
                             <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
-                                <div class="mb-sm-0 mb-2">
-                                    <p class="mb-0">Order Number</p>
-                                    <span class="text-muted">{{$waterIncident->order_number}}</span>
-                                </div>
+                                
                                 <div class="mb-sm-0 mb-2">
                                     <p class="mb-0">Order Date</p>
                                     <span class="text-muted">{{$waterIncident->order_date}}</span>

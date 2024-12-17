@@ -102,8 +102,11 @@
                                 <span class="text-muted">{{$mgIncident->response_date}}</span>
                             </div>
                         </div> <br>
-                        @if($incident->english_name != "SWO")
                         <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Order Number</p>
+                                <span class="text-muted">{{$mgIncident->order_number}}</span>
+                            </div>
                             <div class="mb-sm-0 mb-2">
                                 <p class="mb-0">Monetary Losses</p>
                                 <span class="text-muted">{{$mgIncident->monetary_losses}} ₪</span>
@@ -119,13 +122,9 @@
                                 @endif
                             </div>
                         </div><br>
-                        @endif
                         @if($incident->english_name == "SWO")
                         <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
-                            <div class="mb-sm-0 mb-2">
-                                <p class="mb-0">Order Number</p>
-                                <span class="text-muted">{{$mgIncident->order_number}}</span>
-                            </div>
+                            
                             <div class="mb-sm-0 mb-2">
                                 <p class="mb-0">Order Date</p>
                                 <span class="text-muted">{{$mgIncident->order_date}}</span>

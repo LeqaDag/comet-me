@@ -234,10 +234,10 @@ class WaterIncidentController extends Controller
             $waterIncident->water_system_id = $request->all_water_holder_id;
         }
 
+        $waterIncident->order_number = $request->order_number;
         $waterIncident->incident_id = $request->incident_id;
         if($request->incident_id == 4) {
 
-            $waterIncident->order_number = $request->order_number;
             $waterIncident->order_date = $request->order_date;
             $waterIncident->geolocation_lat = $request->geolocation_lat;
             $waterIncident->geolocation_long = $request->geolocation_long;
@@ -367,10 +367,10 @@ class WaterIncidentController extends Controller
             $waterIncident->all_water_holder_id = $waterUser->id;
         }
 
+        if($request->order_number) $waterIncident->order_number = $request->order_number;
         $waterIncident->incident_id = $request->incident_id;
         if($request->incident_id == 4) {
 
-            $waterIncident->order_number = $request->order_number;
             $waterIncident->order_date = $request->order_date;
             $waterIncident->geolocation_lat = $request->geolocation_lat;
             $waterIncident->geolocation_long = $request->geolocation_long;

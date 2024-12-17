@@ -135,17 +135,26 @@
                         </fieldset>
                     </div>
                 </div>
-                <hr>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Order Number</label>
+                            <input type="number" name="order_number" class="form-control"
+                                value="{{$networkIncident->order_number}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Monetary Losses</label>
+                            <input type="number" name="monetary_losses" class="form-control"
+                            value="{{$networkIncident->monetary_losses}}" step="0.01">
+                        </fieldset>
+                    </div>
+                </div>
+
                 @if($networkIncident->incident_id == 4)
                 <div id="swoDiv">
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Order Number</label>
-                                <input type="number" name="order_number" class="form-control"
-                                    value="{{$networkIncident->order_number}}">
-                            </fieldset>
-                        </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Order Date</label>
@@ -153,8 +162,6 @@
                                     value="{{$networkIncident->order_date}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Geolocation Lat</label>
@@ -162,6 +169,8 @@
                                 value="{{$networkIncident->geolocation_lat}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Geolocation Long</label>
@@ -169,8 +178,6 @@
                                 value="{{$networkIncident->geolocation_long}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date of hearing</label>
@@ -178,6 +185,8 @@
                                 value="{{$networkIncident->hearing_date}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Building Permit Request Number</label>
@@ -185,8 +194,6 @@
                                 value="{{$networkIncident->building_permit_request_number}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Building Permit Request Date</label>
@@ -194,6 +201,8 @@
                                 value="{{$networkIncident->building_permit_request_submission_date}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Illegal Construction Case Number</label>
@@ -201,8 +210,6 @@
                                 value="{{$networkIncident->illegal_construction_case_number}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>District Court Case Number</label>
@@ -210,6 +217,8 @@
                                 value="{{$networkIncident->district_court_case_number}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Supreme Court Case Number</label>
@@ -242,16 +251,6 @@
                 </div>
                 @endif
                 <br>
-
-                <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Monetary Losses</label>
-                            <input type="number" name="monetary_losses" class="form-control"
-                            value="{{$networkIncident->monetary_losses}}" step="0.01">
-                        </fieldset>
-                    </div>
-                </div>
 
                 <hr>
                 <div class="row">

@@ -160,11 +160,12 @@ class InternetNetworkIncidentController extends Controller
             $internetNetworkIncident->year = $year[0];
         }
 
+        $internetNetworkIncident->order_number = $request->order_number;
         $internetNetworkIncident->community_id = $request->community_id;
         $internetNetworkIncident->incident_id = $request->incident_id;
+
         if($request->incident_id == 4) {
 
-            $internetNetworkIncident->order_number = $request->order_number;
             $internetNetworkIncident->order_date = $request->order_date;
             $internetNetworkIncident->geolocation_lat = $request->geolocation_lat;
             $internetNetworkIncident->geolocation_long = $request->geolocation_long;
@@ -329,10 +330,11 @@ class InternetNetworkIncidentController extends Controller
             $networkIncident->year = $year[0];
         }
 
+        if($request->order_number) $networkIncident->order_number = $request->order_number;
+
         $networkIncident->incident_id = $request->incident_id;
         if($request->incident_id == 4) {
 
-            $networkIncident->order_number = $request->order_number;
             $networkIncident->order_date = $request->order_date;
             $networkIncident->geolocation_lat = $request->geolocation_lat;
             $networkIncident->geolocation_long = $request->geolocation_long;

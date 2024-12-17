@@ -58,8 +58,8 @@ class RequestedHouseholdController extends Controller
             if ($request->ajax()) {
             
                 $data = DB::table('households')
-                    ->join('communities', 'households.community_id', '=', 'communities.id')
-                    ->join('regions', 'communities.region_id', '=', 'regions.id')
+                    ->join('communities', 'households.community_id', 'communities.id')
+                    ->join('regions', 'communities.region_id', 'regions.id')
                     ->where('households.is_archived', 0)
                     ->where('households.internet_holder_young', 0)
                     ->where('households.household_status_id', 5)

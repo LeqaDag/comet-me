@@ -164,17 +164,27 @@
                         </fieldset>
                     </div>
                 </div>
+                
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Order Number</label>
+                            <input type="number" name="order_number" class="form-control"
+                                value="{{$waterIncident->order_number}}">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Monetary Losses</label>
+                            <input type="number" name="monetary_losses" class="form-control"
+                            value="{{$waterIncident->monetary_losses}}" step="0.01">
+                        </fieldset>
+                    </div>
+                </div>
 
                 @if($waterIncident->incident_id == 4)
                 <div id="swoDiv">
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Order Number</label>
-                                <input type="number" name="order_number" class="form-control"
-                                    value="{{$waterIncident->order_number}}">
-                            </fieldset>
-                        </div>
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Order Date</label>
@@ -182,8 +192,6 @@
                                     value="{{$waterIncident->order_date}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Geolocation Lat</label>
@@ -191,6 +199,8 @@
                                 value="{{$waterIncident->geolocation_lat}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Geolocation Long</label>
@@ -198,8 +208,6 @@
                                 value="{{$waterIncident->geolocation_long}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Date of hearing</label>
@@ -207,6 +215,8 @@
                                 value="{{$waterIncident->hearing_date}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Building Permit Request Number</label>
@@ -214,8 +224,6 @@
                                 value="{{$waterIncident->building_permit_request_number}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Building Permit Request Date</label>
@@ -223,6 +231,8 @@
                                 value="{{$waterIncident->building_permit_request_submission_date}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Illegal Construction Case Number</label>
@@ -230,8 +240,6 @@
                                 value="{{$waterIncident->illegal_construction_case_number}}">
                             </fieldset>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>District Court Case Number</label>
@@ -239,6 +247,8 @@
                                 value="{{$waterIncident->district_court_case_number}}">
                             </fieldset>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Supreme Court Case Number</label>
@@ -270,16 +280,6 @@
                     </div>
                 </div>
                 @endif
-
-                <div class="row">
-                    <div class="col-xl-6 col-lg-6 col-md-6">
-                        <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Monetary Losses</label>
-                            <input type="number" name="monetary_losses" class="form-control"
-                            value="{{$waterIncident->monetary_losses}}" step="0.01">
-                        </fieldset>
-                    </div>
-                </div>
 
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">

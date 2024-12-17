@@ -106,7 +106,7 @@
                     <div>All</div>
                 </a>
             </li>
-            @if(Auth::guard('user')->user()->user_type_id == 1 || 
+            <!-- @if(Auth::guard('user')->user()->user_type_id == 1 || 
                 Auth::guard('user')->user()->user_type_id == 2 || 
                 Auth::guard('user')->user()->user_type_id == 3 || 
                 Auth::guard('user')->user()->user_type_id == 4)
@@ -116,7 +116,7 @@
                         <div>Requested System/Meter</div>
                     </a>
                 </li>
-            @endif
+            @endif -->
             <li class="menu-item" id="in_progress_households">
                 <a class="menu-link menu-toggle">
                     <div>In Progress</div>
@@ -176,19 +176,12 @@
             <div>Requested Services</div>
         </a>
         <ul class="menu-sub">
-            @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                Auth::guard('user')->user()->user_type_id == 2 ||
-                Auth::guard('user')->user()->user_type_id == 3 ||
-                Auth::guard('user')->user()->user_type_id == 4 ||
-                Auth::guard('user')->user()->user_type_id == 5 ||
-                Auth::guard('user')->user()->user_type_id == 6)
-                <li class="menu-item" id="energy-request">
-                    <a href="{{url('energy-request')}}" class="menu-link" >
-                        <i class=""></i>
-                        <div>Requested Energy</div>
-                    </a>
-                </li>
-            @endif 
+            <li class="menu-item" id="energy-request">
+                <a href="{{url('energy-request')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>Requested Energy</div>
+                </a>
+            </li> 
             <li class="menu-item" id="water-request">
                 <a href="{{url('water-request')}}" class="menu-link" >
                     <i class=""></i>

@@ -29,69 +29,145 @@ label {
         <div class="card-body">
         <form method="POST" action="{{url('energy-request')}}" enctype="multipart/form-data" >
             @csrf
+
             <div class="row">
-                <div class="col-xl-6 col-lg-6 col-md-6">
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Father/Husband Name</label>
+                        <div class="autocomplete-container">
+                            <input type="text" name="english_name" id="householdEnglishName" 
+                            placeholder="Write in English" value="{{old('english_name')}}"
+                            class="form-control" required>
+                        </div>
+                    </fieldset>
+                    <div id="english_name_error" style="color: red;"></div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Father/Husband Name</label>
+                        <input type="text" name="arabic_name" placeholder="Write in Arabic"
+                        class="form-control" value="{{old('arabic_name')}}" 
+                        id="householdArabicName" required>
+                    </fieldset>
+                    <div id="arabic_name_error" style="color: red;"></div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Profession</label>
+                        <select name="profession_id" id="selectedProfession" 
+                            class="selectpicker form-control" required>
+                            <option disabled selected>Choose one...</option>
+                            @foreach($professions as $profession)
+                            <option value="{{$profession->id}}">
+                                {{$profession->profession_name}}
+                            </option>
+                            @endforeach
+                        </select>
+                    </fieldset>
+                    <div id="profession_id_error" style="color: red;"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Phone Number</label>
+                        <input type="text" name="phone_number" value="{{old('phone_number')}}"
+                            class="form-control" id="phoneNumber" required>
+                    </fieldset>
+                    <div id="phone_error" style="color: red;"></div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Community</label>
-                        <select class="selectpicker form-control" 
-                            data-live-search="true" id="selectedRequestCommunity"
-                            name="community_id" required>
+                        <select name="community_id" id="selectedCommunity" 
+                            class="selectpicker form-control"
+                                data-live-search="true" required>
                             <option disabled selected>Choose one...</option>
                             @foreach($communities as $community)
                             <option value="{{$community->id}}">
                                 {{$community->english_name}}
-                            </option> 
+                            </option>
                             @endforeach
+                            <option value="other" id="selectedOtherCommunity" style="color:red">Other</option>
                         </select>
-                        @if ($errors->has('community_id'))
-                            <span class="error">{{ $errors->first('community_id') }}</span>
-                        @endif
                     </fieldset>
-                </div> 
-                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <div id="community_id_error" style="color: red;"></div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4">
                     <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Household</label>
-                        <select name="household_id" class="selectpicker form-control" 
-                            id="selectedRequestHousehold" data-live-search="true" disabled
-                            multiple>
-                            <option disabled selected>Choose one...</option>
-                        </select>
+                        <label class='col-md-12 control-label'>Number of Residents</label>
+                        <input type="number" name="number_of_people" id="totalResidents"
+                        class="form-control" required>
                     </fieldset>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-xl-6 col-lg-6 col-md-6">
+                <div class="col-xl-4 col-lg-4 col-md-4">
                     <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Status of request</label>
-                        <select name="energy_request_status_id" 
-                            class="selectpicker form-control" data-live-search="true"
-                            id="actionSystemSelect">
-                            <option disabled selected>Choose one...</option>
-                            @foreach($requestStatuses as $requestStatus) 
-                                <option value="{{$requestStatus->id}}">
-                                    {{$requestStatus->name}}
-                                </option>
-                            @endforeach
-                        </select>
-                        @if ($errors->has('energy_request_status_id'))
-                            <span class="error">{{ $errors->first('energy_request_status_id') }}</span>
-                        @endif
+                        <label class='col-md-12 control-label'>How many male?</label>
+                        <input type="number" name="number_of_male" value="{{old('number_of_male')}}"
+                        class="form-control" id="numberOfMale" required>
                     </fieldset>
                 </div>
-                <div class="col-xl-6 col-lg-6 col-md-6">
+                <div class="col-xl-4 col-lg-4 col-md-4">
                     <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Request Date</label>
-                        <input type="date" name="date" class="form-control" required>
+                        <label class='col-md-12 control-label'>How many female?</label>
+                        <input type="number" name="number_of_female" value="{{old('number_of_female')}}"
+                        class="form-control" id="numberOfFemale" required>
+                    </fieldset>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>How many adults?</label>
+                        <input type="number" name="number_of_adults" value="{{old('number_of_adults')}}"
+                        class="form-control" id="numberOfAdult"required>
+                    </fieldset>
+                </div>
+            </div>
+                
+            <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>How many children under 16?</label>
+                        <input type="number" name="number_of_children" value="{{old('number_of_children')}}"
+                        class="form-control" id="numberOfChildren"required>
+                    </fieldset>
+                </div>
+
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>How many children in school?</label>
+                        <input type="number" name="school_students" value="{{old('school_students')}}"
+                        class="form-control">
+                    </fieldset>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>How many household members in university?</label>
+                        <input type="number" name="university_students" 
+                        value="{{old('university_students')}}" class="form-control">
                     </fieldset>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-xl-6 col-lg-6 col-md-6">
+                <div class="col-xl-4 col-lg-4 col-md-4">
                     <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Recommended Energy System Type</label>
-                        <select name="recommendede_energy_system_id" 
+                        <label class='col-md-12 control-label'>Demolition order in house?</label>
+                        <select name="demolition_order" class="form-control">
+                            <option selected disabled>Choose One...</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </fieldset>
+                </div>
+
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Energy System Type</label>
+                        <select name="energy_system_type_id" id="energySystemType"
                             class="selectpicker form-control" data-live-search="true" >
                             <option disabled selected>Choose one...</option>
                             @foreach($energySystemTypes as $energySystemType)
@@ -101,17 +177,37 @@ label {
                             @endforeach
                         </select>
                     </fieldset>
+                    <div id="energy_system_type_id_error" style="color: red;"></div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                <div class="col-xl-4 col-lg-4 col-md-4">
                     <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Referred by</label>
-                        <textarea name="referred_by" class="form-control" 
-                            style="resize:none" cols="20" rows="3"></textarea>
+                        <label class='col-md-12 control-label'>Request Date</label>
+                        <input type="date" name="request_date" class="form-control" required>
                     </fieldset>
                 </div>
-                <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+            </div>
+
+            <div class="row">
+                <div class="col-xl-4 col-lg-4 col-md-4">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Referred by</label>
+                        <select name="referred_by_id" id="selectedReferredBy" 
+                            class="selectpicker form-control"
+                                data-live-search="true" required>
+                            <option disabled selected>Choose one...</option>
+                            @foreach($users as $user)
+                            <option value="{{$user->id}}">
+                                {{$user->name}}
+                            </option>
+                            @endforeach
+                        </select>
+                    </fieldset>
+                    <div id="referred_by_error" style="color: red;"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Notes</label>
                         <textarea name="notes" class="form-control" 

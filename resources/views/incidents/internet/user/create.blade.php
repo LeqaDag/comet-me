@@ -128,70 +128,80 @@ label, table {
                             <div id="incident_equipment_id_error" style="color: red;"></div>
                         </div>
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Order Number</label>
+                                <input type="number" name="order_number" class="form-control">
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>Monetary Losses</label>
+                                <input type="number" name="monetary_losses" class="form-control" step="0.01">
+                            </fieldset>
+                        </div>
+                    </div>
+
                     <div id="swoDiv" style="display:none; visiblity: none">
                         <div class="row">
-                            <div class="col-xl-6 col-lg-6 col-md-6">
-                                <fieldset class="form-group">
-                                    <label class='col-md-12 control-label'>Order Number</label>
-                                    <input type="number" name="order_number" class="form-control">
-                                </fieldset>
-                            </div>
                             <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>Order Date</label>
                                     <input type="date" name="order_date" class="form-control">
                                 </fieldset>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>Geolocation Lat</label>
                                     <input type="text" name="geolocation_lat" class="form-control">
                                 </fieldset>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>Geolocation Long</label>
                                     <input type="text" name="geolocation_long" class="form-control">
                                 </fieldset>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>Date of hearing</label>
                                     <input type="date" name="hearing_date" class="form-control">
                                 </fieldset>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>Building Permit Request Number</label>
                                     <input type="text" name="building_permit_request_number" class="form-control">
                                 </fieldset>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>Building Permit Request Date</label>
                                     <input type="date" name="building_permit_request_submission_date" class="form-control">
                                 </fieldset>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>Illegal Construction Case Number</label>
                                     <input type="text" name="illegal_construction_case_number" class="form-control">
                                 </fieldset>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>District Court Case Number</label>
                                     <input type="text" name="district_court_case_number" class="form-control">
                                 </fieldset>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6">
                                 <fieldset class="form-group">
                                     <label class='col-md-12 control-label'>Supreme Court Case Number</label>
@@ -214,15 +224,6 @@ label, table {
                                         style="resize:none" cols="20" rows="3"></textarea>
                                 </fieldset>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6">
-                            <fieldset class="form-group">
-                                <label class='col-md-12 control-label'>Monetary Losses</label>
-                                <input type="number" name="monetary_losses" class="form-control" step="0.01">
-                            </fieldset>
                         </div>
                     </div>
                     
