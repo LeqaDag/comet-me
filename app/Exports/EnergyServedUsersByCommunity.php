@@ -41,7 +41,7 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
         $this->misc = DB::table('all_energy_meters')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
             ->join('households', 'households.id', 'all_energy_meters.household_id')
-            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('communities.energy_system_cycle_id', NULL)
             ->where('all_energy_meters.is_archived', 0)
             ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
@@ -49,18 +49,18 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
         $this->activateMisc = DB::table('households')
             ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
             ->join('communities', 'communities.id', 'all_energy_meters.community_id')
-            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('communities.energy_system_cycle_id', NULL)
             ->where('households.is_archived', 0)
             ->where('households.household_status_id', 4) 
             ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
-            ->where('all_energy_meters.meter_active', 'Yes');
+            ->where('all_energy_meters.meter_active', 'Yes'); 
 
         // Requested
         $this->requestedHouseholds = DB::table('households')
             ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
             ->join('communities', 'households.community_id', 'communities.id')
-            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('communities.energy_system_cycle_id', NULL)
             ->where('households.is_archived', 0)
             ->where('households.household_status_id', 5);
 
@@ -75,13 +75,13 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
             ->whereNotNull('communities.energy_system_cycle_id')
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
 
-        $this->activateRelocated =  DB::table('all_energy_meters')
+        $this->activateRelocated = DB::table('all_energy_meters')
             ->join('displaced_households', 'all_energy_meters.household_id', 'displaced_households.household_id')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
             ->where('all_energy_meters.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
-            ->where('all_energy_meters.meter_active', 'Yes');
+            ->where('all_energy_meters.meter_active', "Yes");
 
         $queryCommunities = DB::table('communities')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -110,8 +110,10 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
                 'regions.english_name as region',
                 DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
                     THEN 1 END) as sum_DC_MG'),
+                    
                 DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
                     THEN 1 END) as sum_DC_FBS'),
+                    
                 DB::raw('COUNT(CASE WHEN all_energy_meters.is_main = "No" THEN 1 END) as sum_shared_household'),
 
                 DB::raw('COUNT(CASE WHEN all_energy_meters.household_id = NULL AND all_energy_meters.meter_case_id = 1 AND 
@@ -153,83 +155,80 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
                     THEN donors.donor_name END) as donors')
             )
             ->groupBy('communities.english_name');
-             
-       
+            
+            $queryCompounds = DB::table('compounds')
+                ->join('communities', 'communities.id', 'compounds.community_id')
+                ->join('regions', 'communities.region_id', 'regions.id')
+                ->leftJoin('compound_households', 'compound_households.compound_id', 'compounds.id')
+                ->leftJoin('households', 'compound_households.household_id', 'households.id')
+                ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
+                ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+                ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
+                ->leftJoin('public_structures', 'public_structures.compound_id', 'compounds.id')
+                ->leftJoin('all_energy_meters as public_meters', 'public_meters.public_structure_id', 'public_structures.id')
+                ->where('communities.is_archived', 0)
+                ->where('compounds.is_archived', 0)
+                //->where('households.is_archived', 0)
+                ->where('compound_households.is_archived', 0)
+                ->where('all_energy_meters.is_archived', 0)
+                ->whereNotNull('communities.energy_system_cycle_id')
+                ->select(
+                    'compounds.english_name',    
+                    'regions.english_name as region',
+                    DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
+                        THEN households.id END) as sum_DC_MG'),
+                    DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                        THEN households.id END) as sum_DC_FBS'),
 
-        $queryCompounds = DB::table('compounds')
-            ->join('communities', 'communities.id', 'compounds.community_id')
-            ->join('regions', 'communities.region_id', 'regions.id')
-            ->leftJoin('compound_households', 'compound_households.compound_id', 'compounds.id')
-            ->leftJoin('households', 'compound_households.household_id', 'households.id')
-            ->leftJoin('energy_system_types', 'households.energy_system_type_id', 'energy_system_types.id')
-            ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
-            ->leftJoin('grid_community_compounds', 'compounds.id', 'grid_community_compounds.compound_id')
-            ->leftJoin('public_structures', 'public_structures.compound_id', 'compounds.id')
-            ->leftJoin('all_energy_meters as public_meters', 'public_meters.public_structure_id', 'public_structures.id')
-            ->leftJoin('community_donors', 'community_donors.compound_id', 'compounds.id')
-            ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
-            ->where('communities.is_archived', 0)
-            ->where('compounds.is_archived', 0)
-            //->where('households.is_archived', 0)
-            ->where('compound_households.is_archived', 0)
-            ->where('all_energy_meters.is_archived', 0)
-            ->whereNotNull('communities.energy_system_cycle_id')
-            ->select(
-                'compounds.english_name',    
-                'regions.english_name as region',
-                DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
-                THEN households.id END) as sum_DC_MG'),
-                DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
-                    THEN households.id END) as sum_DC_FBS'),
-                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END) as sum_shared_household'),
-                
-                DB::raw('COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
-                    THEN public_structures.id END) as sum_public_MG'),
-                DB::raw('COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
-                    THEN public_structures.id END) as sum_public_FBS'),
-                
-                DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
-                    THEN households.id END) +
-                    COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
-                    THEN households.id END) +
-                    COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END)
-                    as total_households'),
-                    
-                DB::raw('COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
+                    DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END) 
+                        as sum_shared_household'),
+
+                    DB::raw('COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
+                        THEN public_structures.id END) as sum_public_MG'),
+                    DB::raw('COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
+                        THEN public_structures.id END) as sum_public_FBS'),
+        
+                    DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
+                        THEN households.id END) +
+                        COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                        THEN households.id END) +
+                        COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END)
+                        as total_households'),
+
+                    DB::raw('COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
                     THEN public_structures.id END) +
                     COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
                     THEN public_structures.id END) as total_public'),    
 
-                DB::raw('(
-                    COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
-                    THEN households.id END) +
-                    COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
-                    THEN households.id END) +
-                    COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END) +
-                    COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
-                    THEN public_structures.id END) +
-                    COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
-                    THEN public_structures.id END) -
-                    (
-                        COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 2 
-                        THEN households.id END) + 
-                        COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 
-                        THEN public_structures.id END) +
-                        COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 1 
-                        THEN households.id END) + 
-                        COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 
-                        THEN public_structures.id END) +
-                        COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 4 
+                    DB::raw('(
+                        COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
                         THEN households.id END) +
-                        COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 
-                        THEN public_structures.id END)
-                    ) + 0 
-                ) AS delta'),
+                        COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                        THEN households.id END) +
+                        COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END) +
+                        COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
+                        THEN public_structures.id END) +
+                        COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
+                        THEN public_structures.id END) -
+                        (
+                            COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 2 
+                            THEN households.id END) + 
+                            COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 
+                            THEN public_structures.id END) +
+                            COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 1 
+                            THEN households.id END) + 
+                            COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 
+                            THEN public_structures.id END) +
+                            COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 4 
+                            THEN households.id END) +
+                            COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 
+                            THEN public_structures.id END)
+                        ) + 0 
+                    ) AS delta'),
+
                 
-                DB::raw('GROUP_CONCAT(DISTINCT CASE WHEN community_donors.is_archived = 0 AND community_donors.service_id = 1
-                    THEN donors.donor_name END) as donors')
-            )
-            ->groupBy('compounds.english_name');
+                )
+                ->groupBy('compounds.english_name');
 
         if($this->request->community_id) {
  
@@ -309,8 +308,8 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
         $sheet->setAutoFilter('A1:K1');
         $sheet->setCellValue('A1', 'Name');   
         $sheet->setCellValue('B1', 'Geographical Region'); 
-        $sheet->setCellValue('C1', 'Activated FBS meters'); 
-        $sheet->setCellValue('D1', 'Activated MG meters');  
+        $sheet->setCellValue('C1', 'Activated MG/SMG meters'); 
+        $sheet->setCellValue('D1', 'Activated FBS meters');  
         $sheet->setCellValue('E1', 'Shared Households');
         $sheet->setCellValue('F1', 'Public Structures MG');
         $sheet->setCellValue('G1', 'Public Structures FBS');
@@ -318,9 +317,16 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
         $sheet->setCellValue('I1', 'Total Public Structures');
         $sheet->setCellValue('J1', 'Delta');
         $sheet->setCellValue('K1', 'Donors');
-    
-        $sheet->setCellValue('B2', ' ');        
+          
+        $sheet->setCellValue('A2', 'MISC FBS');  
+        $sheet->setCellValue('A3', 'Relocated Households');     
+        $sheet->setCellValue('B2', ' ');       
+        $sheet->setCellValue('B3', ' ');      
+        $sheet->setCellValue('D2', $this->activateMisc);
+        $sheet->setCellValue('D3', $this->activateRelocated);
 
+        $sheet->setCellValue('J2', ($this->misc - $this->activateMisc));
+        $sheet->setCellValue('J3', ($this->relocatedHouseholds -$this->activateRelocated));
 
         // Adding the summation row
         $lastRow = $sheet->getHighestRow() + 1;

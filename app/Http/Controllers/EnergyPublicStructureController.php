@@ -32,8 +32,9 @@ use App\Models\Household;
 use App\Models\HouseholdMeter;
 use App\Models\MeterCase;
 use App\Models\ServiceType;
-use App\Models\InstallationType;
+use App\Models\InstallationType; 
 use App\Models\PublicStructure;
+use App\Models\PublicStructureStatus;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
 use App\Models\VendorUserName;
@@ -96,6 +97,22 @@ class EnergyPublicStructureController extends Controller
         //         $allEnergyMeter->save();
         //     }
         // }
+
+
+        // add served to the exsiting public structures
+        $allPublicMeters = AllEnergyMeter::where("is_archived", 0)
+            ->where('public_structure_id', '!=', NULL)
+            ->where('public_structure_id', '!=', 0)
+            ->get();
+
+        foreach($allPublicMeters as $allPublicMeter) {
+
+            $public = PublicStructure::findOrFail($allPublicMeter->public_structure_id);
+            $public->public_structure_status_id = 4;
+            $public->save();
+        }
+
+
 
         if (Auth::guard('user')->user() != null) {
 
@@ -331,6 +348,13 @@ class EnergyPublicStructureController extends Controller
         $publicEnergy->daily_limit = $request->daily_limit;
         $publicEnergy->notes = $request->notes;
         $publicEnergy->save();
+
+        $public = PublicStructure::findOrFail($request->public_structure_id);
+        if($public) {
+
+            $public->public_structure_status_id = 4;
+            $public->save();
+        }
 
         return redirect()->back()->with('message', 'New Public Structure Added Successfully!');
     }

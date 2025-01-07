@@ -130,10 +130,26 @@ label, table {
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Number of Residents</label>
-                            <input type="number" name="number_of_people" 
-                            value="{{$household->number_of_people}}"
-                            class="form-control">
+                            <label class='col-md-12 control-label'>Compound</label>
+                            <select name="compound_id" class="selectpicker form-control"
+                                data-live-search="true">
+                                @if($compound)
+                                <option disabled selected>
+                                    {{$compound->english_name}}
+                                </option>
+                                @foreach($allCompounds as $allCompound)
+                                <option value="{{$allCompound->id}}">
+                                    {{$allCompound->english_name}}
+                                </option>
+                                @endforeach
+                                @else
+                                @foreach($allCompounds as $allCompound)
+                                <option value="{{$allCompound->id}}">
+                                    {{$allCompound->english_name}}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">

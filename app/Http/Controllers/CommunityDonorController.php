@@ -48,9 +48,31 @@ class CommunityDonorController extends Controller
 
             for($i=0; $i < count($request->donor_id); $i++) {
 
-                $existCommunityDonor = CommunityDonor::where('donor_id', $request->donor_id[$i])
-                    ->where('service_id', $request->service_id)
-                    ->first();
+                $existCommunityDonor = null;
+
+                if($request->compound_id) {
+
+                    $existCommunityDonor = CommunityDonor::where('is_archived', 0)
+                        ->where('compound_id', $request->compound_id)
+                        ->where('donor_id', $request->donor_id[$i])
+                        ->where('service_id', $request->service_id)
+                        ->first();
+                } else if($request->compound_id == null) {
+
+                    $existCommunityDonor = CommunityDonor::where('is_archived', 0)
+                        ->where('community_id', $request->community_id)
+                        ->where('donor_id', $request->donor_id[$i])
+                        ->where('service_id', $request->service_id)
+                        ->first();
+                } else if($request->energy_system_id) {
+
+                    $existCommunityDonor = CommunityDonor::where('is_archived', 0)
+                        ->where('energy_system_id', $request->energy_system_id)
+                        ->where('donor_id', $request->donor_id[$i])
+                        ->where('service_id', $request->service_id)
+                        ->first();
+                }
+
                 if($existCommunityDonor) {
 
                 } else {
@@ -125,7 +147,7 @@ class CommunityDonorController extends Controller
                         for($i=0; $i < count($request->donor_id); $i++) {
             
                             $exisitAllEnergyMeterDonor = AllEnergyMeterDonor::where('all_energy_meter_id', $allEnergyMeter->id)
-                                ->where('donor_id', $request->donor_id)
+                                ->where('donor_id', $request->donor_id[$i])
                                 ->where('compound_id', $request->compound_id)
                                 ->first();
                             
@@ -153,7 +175,7 @@ class CommunityDonorController extends Controller
                         for($i=0; $i < count($request->donor_id); $i++) {
             
                             $exisitAllEnergyMeterDonor = AllEnergyMeterDonor::where('all_energy_meter_id', $allEnergyMeter->id)
-                                ->where('donor_id', $request->donor_id)
+                                ->where('donor_id', $request->donor_id[$i])
                                 ->first();
 
                             if($exisitAllEnergyMeterDonor) {

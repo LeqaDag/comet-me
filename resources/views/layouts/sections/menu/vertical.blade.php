@@ -15,14 +15,24 @@
 
     @if(Auth::guard('user')->user()->user_type_id == 1 ||
         Auth::guard('user')->user()->user_type_id == 2)
-    <li class="menu-item" id="work-plans">
-        <a href="{{url('work-plan')}}" class="menu-link">
-            <i class="menu-icon tf-icons bx bx-list-check"></i>
-            <div>Action Items</div>
-        </a>
-    </li>
+        <li class="menu-item" id="work-plans">
+            <a href="{{url('work-plan')}}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-list-check"></i>
+                <div>Action Items</div>
+            </a>
+        </li>
     @endif
     
+    @if(Auth::guard('user')->user()->user_type_id == 1 ||
+        Auth::guard('user')->user()->user_type_id == 2)
+        <li class="menu-item" id="data-collection">
+            <a href="{{url('data-collection')}}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-data"></i>
+                <div>Data Collection</div>
+            </a>
+        </li>
+    @endif
+
     <li class="menu-item" id="action-items">
         <a href="{{url('action-item')}}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-task"></i>
@@ -686,6 +696,10 @@
     } else if(last_part == "action-item") {
 
         $("#action-items").addClass("active");
+
+    } else if(last_part == "data-collection") {
+
+        $("#data-collection").addClass("active");
 
     } else if(last_part == "region") {
 

@@ -42,4 +42,9 @@ class PublicStructure extends Model
     {
         return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
     }
+
+    public function PublicStructureStatus()
+    {
+        return $this->belongsTo(PublicStructureStatus::class, 'public_structure_status_id', 'id');
+    }
 }

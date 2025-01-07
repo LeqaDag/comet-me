@@ -88,6 +88,17 @@
                                         </div>
                                         <div class="col-lg-6">
                                             <ul class="list-unstyled">
+                                                <li class="d-flex justify-content-start align-items-center text-warning mb-3">
+                                                    <i class="bx bx-grid bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">Status</small>
+                                                        <h6 class="mb-0" id="publicStatus"></h6>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <ul class="list-unstyled">
                                                 <li class="d-flex justify-content-start align-items-center text-danger mb-3">
                                                     <i class="bx bx-chat bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">

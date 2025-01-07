@@ -132,10 +132,12 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Number of Residents</label>
-                            <input type="number" name="number_of_people" id="totalResidents"
-                            class="form-control" required>
+                            <label class='col-md-12 control-label'>Compound</label>
+                            <select name="compound_id" id="selectedCompound" 
+                                class="selectpicker form-control" data-live-search="true">
+                            </select>
                         </fieldset>
+                        <div id="compound_id_error" style="color: red;"></div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
@@ -407,6 +409,34 @@
 
 <script>
 
+    $(document).on('change', '#selectedCommunity', function () {
+        
+        id = $(this).val();
+        
+        $.ajax({
+            url: "/household/compound/" + id,
+            method: 'GET',
+            success: function(data) {
+
+                $('#selectedCompound').prop('disabled', false);
+
+                var select = $('#selectedCompound'); 
+
+                select.html(data.html);
+                select.selectpicker('refresh');
+
+                if (data.html && data.html.trim() !== '') {
+                   
+                    select.prop('required', true);
+                } else {
+        
+                    select.prop('required', false);
+                    select.val('');  
+                }
+            }
+        });
+    });
+
     $('#householdForm').on('submit', function (event) {
 
         var englishValue = $('#householdEnglishName').val();
@@ -414,8 +444,9 @@
         var phoneValue = $('#phoneNumber').val();
         var communityValue = $('#selectedCommunity').val();
         var professionValue = $('#selectedProfession').val();
-        // var energySystemType = $('#energySystemType').val();
-        // var energyCycleValue = $('#energyCycleYear').val();
+        var compoundValue = $('#selectedCompound').val(); 
+        var energySystemType = $('#energySystemType').val();
+        var energyCycleValue = $('#energyCycleYear').val();
 
         if (englishValue == null) {
 
@@ -462,23 +493,36 @@
             $('#community_id_error').empty();
         }
 
-        // if (energyCycleValue == null) {
+        var optionsCount = $('#selectedCompound option').length;
+        if(optionsCount > 1) {
 
-        //     $('#energy_system_cycle_id_error').html('Please select the cycle year!'); 
-        //     return false;
-        // } else if (energyCycleValue != null) {
+            if ($('#selectedCompound').prop('required') && (!compoundValue || compoundValue === '')) {
 
-        //     $('#energy_system_cycle_id_error').empty();
-        // }
+                $('#compound_id_error').html('Please select a compound!');
+                return false;
+            } else {
 
-        // if (energySystemType == null) {
+                $('#compound_id_error').empty();
+            }
 
-        //     $('#energy_system_type_id_error').html('Please select a type!'); 
-        //     return false;
-        // } else if (energySystemType != null) {
+            if (energyCycleValue == null) {
 
-        //     $('#energy_system_type_id_error').empty();
-        // }
+                $('#energy_system_cycle_id_error').html('Please select the cycle year!'); 
+                return false;
+            } else if (energyCycleValue != null) {
+
+                $('#energy_system_cycle_id_error').empty();
+            }
+
+                if (energySystemType == null) {
+
+                $('#energy_system_type_id_error').html('Please select a type!'); 
+                return false;
+            } else if (energySystemType != null) {
+
+                $('#energy_system_type_id_error').empty();
+            }
+        }
 
         $(this).addClass('was-validated');  
         $('#english_name_error').empty();
@@ -486,8 +530,9 @@
         $('#phone_error').empty();
         $('#community_id_error').empty();
         $('#profession_id_error').empty();
-        // $('#energy_system_cycle_id_error').empty();
-        // $('#energy_system_type_id_error').empty();
+        $('#compound_id_error').empty();
+        $('#energy_system_cycle_id_error').empty();
+        $('#energy_system_type_id_error').empty();
 
         this.submit();
     });

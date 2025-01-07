@@ -34,6 +34,8 @@ class EnergyRelocatedHousehold implements FromCollection, WithHeadings, WithTitl
             ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
             ->join('communities', 'households.community_id', 'communities.id')
             ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
+            ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id','all_energy_meter_donors.all_energy_meter_id')
+            ->leftJoin('donors', 'all_energy_meter_donors.donor_id', 'donors.id')
             ->where('all_energy_meters.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
@@ -61,8 +63,11 @@ class EnergyRelocatedHousehold implements FromCollection, WithHeadings, WithTitl
                     THEN "Discrepancy" 
                     ELSE "No Discrepancy" 
                     END as discrepancies_status'),
-                'households.phone_number'
-            );
+                'households.phone_number',
+                DB::raw('group_concat(DISTINCT CASE WHEN all_energy_meter_donors.is_archived = 0 
+                    THEN donors.donor_name END) as donors')
+            )
+            ->groupBy('all_energy_meters.id');
 
         if($this->request->community_id) {
 
@@ -86,7 +91,7 @@ class EnergyRelocatedHousehold implements FromCollection, WithHeadings, WithTitl
     {
         return ["Household", "New Community", "Displaced Community", "Household Status", "Meter Number", "Meter Case", 
             "Meter Active", "Installation Date", "Daily Limit", "All Details", "Number of male", "Number of Female", 
-            "Number of adults", "Number of children", "Discrepancy", "Phone number"];
+            "Number of adults", "Number of children", "Discrepancy", "Phone number", "Donors"];
     }
 
     public function title(): string
@@ -116,7 +121,7 @@ class EnergyRelocatedHousehold implements FromCollection, WithHeadings, WithTitl
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:P1');
+        $sheet->setAutoFilter('A1:Q1');
 
         return [
             // Style the first row as bold text.

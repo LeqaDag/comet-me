@@ -15,6 +15,7 @@ use App\Models\Donor;
 use App\Models\Household;
 use App\Models\Photo;
 use App\Models\PublicStructure;
+use App\Models\PublicStructureStatus;
 use App\Models\PublicStructureCategory;
 use App\Models\EnergySystemCycle;
 use App\Models\EnergySystemType;
@@ -101,7 +102,7 @@ class PublicStructureController extends Controller
 
         if (Auth::guard('user')->user() != null) {
 
-            if ($request->ajax()) {
+            if ($request->ajax()) { 
 
                 $data = DB::table('public_structures')
                     ->join('communities', 'public_structures.community_id', 'communities.id')
@@ -271,9 +272,11 @@ class PublicStructureController extends Controller
             ->orderBy('name', 'ASC')
             ->get();
 
+        $publicStatues = PublicStructureStatus::where('is_archived', 0)->get();
+
         return view('public.edit', compact('publicStructure', 'publicCategories',
             'schoolPublicStructure', 'schoolCommunities', 'communities', 'compounds',
-            'energyCycles', 'energySystemTypes'));
+            'energyCycles', 'energySystemTypes', 'publicStatues'));
     }
 
     /**
@@ -297,6 +300,7 @@ class PublicStructureController extends Controller
         if($request->energy_system_type_id) $publicStructure->energy_system_type_id = $request->energy_system_type_id;
         if($request->energy_system_cycle_id) $publicStructure->energy_system_cycle_id = $request->energy_system_cycle_id;
 
+        if($request->public_structure_status_id) $publicStructure->public_structure_status_id = $request->public_structure_status_id;
         
         if($request->out_of_comet) $publicStructure->out_of_comet = $request->out_of_comet;
         
@@ -364,11 +368,13 @@ class PublicStructureController extends Controller
         $schoolPublic = SchoolPublicStructure::where('is_archived', 0)
             ->where('public_structure_id', $id)
             ->first();
+        $status = PublicStructureStatus::where('id', $publicStructure->public_structure_status_id)->first();
 
         $response['publicStructure'] = $publicStructure;
         $response['community'] = $community;
         $response['schoolPublic'] = $schoolPublic;
         $response['compound'] = $compound;
+        $response['status'] = $status;
 
         return response()->json($response);
     }

@@ -206,6 +206,35 @@
                         </fieldset>
                     </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Public Status</label>
+                            <select name="public_structure_status_id" 
+                                class="selectpicker form-control" data-live-search="true" >
+                                
+                                @if($publicStructure->public_structure_status_id)
+                                <option value="{{$publicStructure->PublicStructureStatus->id}}" disabled selected>
+                                    {{$publicStructure->PublicStructureStatus->status}}
+                                </option>
+                                @foreach($publicStatues as $publicStatue)
+                                <option value="{{$publicStatue->id}}">
+                                    {{$publicStatue->status}}
+                                </option>
+                                @endforeach
+                                @else
+                                <option disabled selected>Choose one...</option>
+                                @foreach($publicStatues as $publicStatue)
+                                <option value="{{$publicStatue->id}}">
+                                    {{$publicStatue->status}}
+                                </option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
                 @if($publicStructure->public_structure_category_id1 == 1 ||
                     $publicStructure->public_structure_category_id2 == 1 ||
                     $publicStructure->public_structure_category_id3 == 1)

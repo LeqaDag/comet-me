@@ -393,6 +393,17 @@ class HouseholdController extends Controller
 
         $household->save();
         $id = $household->id;
+        $communityId = $household->community_id;
+
+        if($request->compound_id) {
+
+            $compoundHousehold = new CompoundHousehold();
+            $compoundHousehold->household_id = $id;
+            $compoundHousehold->community_id = $communityId;
+            $compoundHousehold->compound_id = $request->compound_id;
+            $compoundHousehold->energy_system_type_id = $request->energy_system_type_id;
+            $compoundHousehold->save();
+        }
 
         $cistern = new Cistern();
         $cistern->number_of_cisterns = $request->number_of_cisterns;
@@ -777,10 +788,15 @@ class HouseholdController extends Controller
             ->get();
         $householdStatuses = HouseholdStatus::where('is_archived', 0)->get();
         $energyCycles = EnergySystemCycle::get();
+        $compoundHousehold = CompoundHousehold::where("household_id", $id)->first();
+        $compound = Compound::findOrFail($compoundHousehold->compound_id);
+        $allCompounds = Compound::where("is_archived", 0)
+            ->where('community_id', $household->community_id)
+            ->get();
 
         return view('employee.household.edit', compact('household', 'regions', 'communities',
             'professions', 'structure', 'cistern', 'communityHousehold', 'energySystemTypes',
-            'householdStatuses', 'energyCycles'));
+            'householdStatuses', 'energyCycles', 'compound', 'allCompounds'));
     }
 
     /**
@@ -973,6 +989,18 @@ class HouseholdController extends Controller
         if($request->last_surveyed_date) $household->last_surveyed_date = $request->last_surveyed_date;
         $household->save();
 
+        if($request->compound_id) {
+
+            $compoundHousehold = CompoundHousehold::where("household_id", $id)->first();
+
+            if($compoundHousehold) {
+                
+                $compoundHousehold->compound_id = $request->compound_id;
+                if($request->energy_system_type_id) $compoundHousehold->energy_system_type_id = $request->energy_system_type_id;
+                $compoundHousehold->save();
+            }
+        }
+
         if($householdMeter) {
 
             if($request->english_name) $householdMeter->user_name = $request->english_name;
@@ -1055,6 +1083,34 @@ class HouseholdController extends Controller
         Excel::import(new ImportHousehold, $request->file('file')); 
             
         return back()->with('success', 'Household Data Imported Successfully.');
+    }
+
+     /**
+     * Get households by community_id.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getCompounds(Request $request)
+    {
+        $compounds = Compound::where('community_id', $request->id)
+            ->where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+
+        if($compounds != null) {
+
+            $html = '<option selected disabled>Choose One...</option>';
+            foreach ($compounds as $compound) {
+
+                $html .= '<option value="'.$compound->id.'">'.$compound->english_name.'</option>';
+            }
+        } else {
+
+            $html = '<option selected disabled>No compound found</option>';
+        }
+
+        return response()->json(['html' => $html]);
     }
 
     /** 

@@ -27,7 +27,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
 
     function __construct($request) {
 
-        $this->request = $request;
+        $this->request = $request; 
     }
  
     /**
@@ -41,7 +41,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $this->misc = DB::table('all_energy_meters')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
             ->join('households', 'households.id', 'all_energy_meters.household_id')
-            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('communities.energy_system_cycle_id', NULL)
             ->where('all_energy_meters.is_archived', 0)
             ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
@@ -49,12 +49,12 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $this->activateMisc = DB::table('households')
             ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
             ->join('communities', 'communities.id', 'all_energy_meters.community_id')
-            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('communities.energy_system_cycle_id', NULL)
             ->where('households.is_archived', 0)
             ->where('households.household_status_id', 4) 
             ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
-            ->where('all_energy_meters.meter_active', 'Yes');
+            ->where('all_energy_meters.meter_active', 'Yes'); 
 
         // Requested
         $this->requestedHouseholds = DB::table('households')
@@ -80,7 +80,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->join('communities', 'refrigerator_holders.community_id', 'communities.id')
             ->join('households', 'households.id', 'refrigerator_holders.household_id')
             ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
-            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->where('communities.energy_system_cycle_id', NULL)
             ->where('refrigerator_holders.is_archived', 0)
             ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
@@ -103,7 +103,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('all_energy_meters.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
-            ->where('all_energy_meters.meter_active', 'Yes');
+            ->where('all_energy_meters.meter_active', "Yes");
 
         $queryCommunities = DB::table('communities')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -161,25 +161,28 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                     COUNT(CASE WHEN all_energy_meters.household_id = NULL AND all_energy_meters.meter_case_id = 1 AND 
                     all_energy_meters.energy_system_type_id = 2 THEN 1 END)
                 '),
-                    DB::raw('COALESCE(
-                        COUNT(CASE WHEN all_energy_types.id = 2 THEN 1 END) + 
-                        COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 THEN 1 END) +
-                        COUNT(CASE WHEN all_energy_types.id = 1 THEN 1 END)  + 
-                        COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 THEN 1 END) +
-                        COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END)  + 
-                        COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 THEN 1 END) -
-                        (
-                            COUNT(CASE WHEN all_households.household_status_id = 3 AND all_energy_meters.is_main = "Yes" THEN 1 END) +
-                            COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 THEN 1 END) +
-                            COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 THEN 1 END) +
-                            COUNT(CASE WHEN all_energy_meters.is_main = "No" THEN 1 END) +
-                            COUNT(CASE WHEN all_energy_meters.household_id IS NULL AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 THEN 1 END) +
-                            COUNT(CASE WHEN all_energy_meters.household_id IS NULL AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 THEN 1 END)
-                        ), 0) AS delta')
-                   )
+
+
+                DB::raw('COALESCE(
+                COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
+                THEN 1 END) + 
+                COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                THEN 1 END) +
+                COUNT(CASE WHEN all_energy_meters.is_main = "No" THEN 1 END) +
+                COUNT(CASE WHEN all_energy_meters.household_id IS NULL AND all_energy_meters.meter_case_id = 1 AND 
+                all_energy_meters.energy_system_type_id != 2 THEN 1 END) +
+                COUNT(CASE WHEN all_energy_meters.household_id IS NULL AND all_energy_meters.meter_case_id = 1 AND 
+                all_energy_meters.energy_system_type_id = 2 THEN 1 END) -
+                (
+                    COUNT(CASE WHEN all_energy_types.id = 2 THEN 1 END) + 
+                    COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 THEN 1 END) +
+                    COUNT(CASE WHEN all_energy_types.id = 1 THEN 1 END)  + 
+                    COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 THEN 1 END) +
+                    COUNT(CASE WHEN all_energy_types.id = 4 THEN 1 END)  + 
+                    COUNT(CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 THEN 1 END)
+                ), 0) AS delta'), 
+                )
             ->groupBy('communities.english_name');
-             
-       
 
         $queryCompounds = DB::table('compounds')
             ->join('communities', 'communities.id', 'compounds.community_id')
@@ -238,34 +241,30 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                     THEN public_structures.id END)
                     '),
                 DB::raw('(
-                    COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 2 
-                    THEN households.id END) + 
-                    COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 
+                    COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
+                    THEN households.id END) +
+                    COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
+                    THEN households.id END) +
+                    COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END) +
+                    COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
                     THEN public_structures.id END) +
-
-                    COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 1 
-                    THEN households.id END) + 
-                    COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 
-                    THEN public_structures.id END) +
-
-                    COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 4 THEN 
-                    households.id END) +
-                    COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 
+                    COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
                     THEN public_structures.id END) -
                     (
-                        COUNT(CASE WHEN households.is_archived = 0 AND households.household_status_id = 3 AND 
-                        all_energy_meters.is_main = "Yes" THEN households.id END) +
-                        COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
-                            THEN households.id END) +
-                        COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
-                            THEN households.id END) +
-                        COUNT(CASE WHEN households.is_archived = 0 AND all_energy_meters.is_main = "No" THEN 1 END) +
-                        COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id != 2 
-                            THEN public_structures.id END) +
-                        COUNT(DISTINCT CASE WHEN public_meters.meter_case_id = 1 AND public_meters.energy_system_type_id = 2 
-                            THEN public_structures.id END)
+                        COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 2 
+                        THEN households.id END) + 
+                        COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 2 
+                        THEN public_structures.id END) +
+                        COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 1 
+                        THEN households.id END) + 
+                        COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 1 
+                        THEN public_structures.id END) +
+                        COUNT(DISTINCT CASE WHEN households.is_archived = 0 AND households.energy_system_type_id = 4 
+                        THEN households.id END) +
+                        COUNT(DISTINCT CASE WHEN public_structures.is_archived = 0 AND public_structures.energy_system_type_id = 4 
+                        THEN public_structures.id END)
                     ) + 0 
-                ) AS delta')
+                ) AS delta'),
             )
             ->groupBy('compounds.english_name');
 

@@ -35,11 +35,13 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
             ->leftJoin('household_statuses', 'households.household_status_id', 
                 'household_statuses.id')
             ->leftJoin('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
-            ->where('communities.created_at', '<=', $oneYearAgo)
+            ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id','all_energy_meter_donors.all_energy_meter_id')
+            ->leftJoin('donors', 'all_energy_meter_donors.donor_id', 'donors.id')
+            ->where('communities.energy_system_cycle_id', NULL)
             ->where('all_energy_meters.is_archived', 0)
             ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
-            ->select(
+            ->select( 
                 'households.english_name as household',
                 'communities.english_name as community_name', 
                 'household_statuses.status as status', 
@@ -62,7 +64,11 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
                     THEN "Discrepancy" 
                     ELSE "No Discrepancy" 
                     END as discrepancies_status'),
-                'households.phone_number');
+                'households.phone_number',
+                DB::raw('group_concat(DISTINCT CASE WHEN all_energy_meter_donors.is_archived = 0 
+                    THEN donors.donor_name END) as donors')
+            )
+            ->groupBy('all_energy_meters.id');
 
  
         if($this->request->community_id) {
@@ -87,9 +93,9 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
     {
         return ["Household", "Community", "Household Status", "Meter Number", "Meter Case", "Meter Active", 
             "Installation Date", "Daily Limit", "All Details", "Number of male", "Number of Female", "Number of adults", 
-            "Number of children", "Discrepancy", "Phone number"];
+            "Number of children", "Discrepancy", "Phone number", "Donors"];
     }
-
+ 
     public function title(): string
     {
         return 'MISC FBS';
@@ -117,7 +123,7 @@ class EnergyMISCFbs implements FromCollection, WithHeadings, WithTitle, ShouldAu
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:O1');
+        $sheet->setAutoFilter('A1:P1');
 
         return [
             // Style the first row as bold text.

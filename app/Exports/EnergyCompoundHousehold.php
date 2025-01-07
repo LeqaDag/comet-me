@@ -21,10 +21,10 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
         $this->request = $request;
     }
   
-    /**
+    /** 
     * @return \Illuminate\Support\Collection
     */
-    public function collection()  
+    public function collection()   
     {
         $queryCompounds = DB::table('compounds')
             ->join('communities', 'communities.id', 'compounds.community_id')
@@ -42,8 +42,11 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
             ->leftJoin('community_donors', 'community_donors.compound_id', 'compounds.id')
             ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('communities.is_archived', 0)
-            ->where('communities.energy_system_cycle_id', '!=', null)
-            ->where('households.energy_system_cycle_id', '!=', null)
+            ->where('compounds.is_archived', 0)
+            //->where('households.is_archived', 0)
+            ->where('compound_households.is_archived', 0)
+            //->where('all_energy_meters.is_archived', 0)
+            ->whereNotNull('communities.energy_system_cycle_id')
             ->select(
                 'households.english_name as household',
                 'household_statuses.status as status',
@@ -137,7 +140,8 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
         $queryPublics = DB::table('public_structures')
             ->join('communities', 'public_structures.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')                
+            ->leftJoin('public_structure_statuses', 'public_structures.public_structure_status_id', 'public_structure_statuses.id')
             ->leftJoin('compounds', 'public_structures.compound_id', 'compounds.id')
             ->join('all_energy_meters', 'public_structures.id', 'all_energy_meters.public_structure_id')
             ->leftJoin('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
@@ -148,7 +152,7 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
             ->where('communities.energy_system_cycle_id', '!=', null)
             ->select(
                 'public_structures.english_name as household',
-                DB::raw('false as status'), 
+                'public_structure_statuses.status as status',
                 'communities.english_name as community_name',
                 'compounds.english_name as compound_name',
                 'energy_system_types.name', 
@@ -188,7 +192,7 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
      */
     public function headings(): array
     {
-        return ["Holder (Household/Public)", "Household Status", "Community", "Compound", "System Type",  
+        return ["Holder (Household/Public)", "Status", "Community", "Compound", "System Type",  
             "Meter Number", "Meter Case", "Meter Active", "Installation Date", "Daily Limit", "All Details", 
             "Number of male", "Number of Female", "Number of adults", "Number of children", "Discrepancy", 
             "Phone number", "Donors"];

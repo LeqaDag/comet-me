@@ -551,3 +551,11 @@ Route::post('water-issue-export', [App\Http\Controllers\WaterIssueController::cl
 Route::get('/water-issue/get_by_action_category/{id}', [App\Http\Controllers\WaterIssueController::class, 'getWaterActionBasedOnCategory']);
 
 Route::get('/internet-issue/get_by_action_category/{id}', [App\Http\Controllers\InternetIssueController::class, 'getInternetActionBasedOnCategory']);
+
+Route::resource('data-collection', App\Http\Controllers\DataCollectionController::class);
+Route::post('data-collection-export', [App\Http\Controllers\DataCollectionController::class, 'export'])->name('data-collection.export');
+Route::post('data-collection-export-household', [App\Http\Controllers\DataCollectionController::class, 'exportHousehold'])->name('data-collection.export-household');
+Route::post('data-collection-export-all', [App\Http\Controllers\DataCollectionController::class, 'exportAll'])->name('data-collection.export-all');
+Route::post('data-collection-import', [App\Http\Controllers\DataCollectionController::class, 'import'])->name('data-collection.import');
+
+Route::get('household/compound/{id}', [App\Http\Controllers\HouseholdController::class, 'getCompounds']);

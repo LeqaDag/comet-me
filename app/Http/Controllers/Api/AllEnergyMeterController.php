@@ -202,9 +202,9 @@ class AllEnergyMeterController extends Controller
                 ->distinct()
                 ->get();
 
-        $publics = Cache::remember('publics_data', 3600, function () {
-            return DB::table('public_structures')
+        $publics = DB::table('public_structures')
                 ->join('communities', 'public_structures.community_id', 'communities.id')
+                ->leftJoin('public_structure_statuses', 'public_structures.public_structure_status_id', 'public_structure_statuses.id')
                 ->leftJoin('all_energy_meters', 'all_energy_meters.public_structure_id', 'public_structures.id')
                 ->leftJoin('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
                 ->leftJoin('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
@@ -225,10 +225,7 @@ class AllEnergyMeterController extends Controller
                     'public_structures.arabic_name as holder_name_arabic', 
                     'public_structures.comet_id',
                     'public_structures.phone_number',
-                    DB::raw("CASE WHEN meter_cases.public_structure_id IS NOT NULL THEN 'Served'
-                        ELSE 'Not Served' END AS water_system_status"),
-                    'household_statuses.status as energy_system_status',
-
+                    'public_structure_statuses.status as energy_system_status',
                     DB::raw('IFNULL(all_energy_meters.meter_number, public_structures.fake_meter_number) 
                         as meter_number'),
                     'energy_system_types.name as energy_type',
@@ -245,7 +242,6 @@ class AllEnergyMeterController extends Controller
                 )
                 ->distinct()
                 ->get();
-        });
         
 
         $turbines = Cache::remember('energy_turbine_communities', 3600, function () {

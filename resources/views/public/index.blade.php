@@ -260,6 +260,8 @@ label, table {
                     $('#communityName').html(response['community'].english_name);
                     $('#publicNotes').html('');
                     $('#publicNotes').html(response['publicStructure'].notes);
+                    $('#publicStatus').html('');
+                    $('#publicStatus').html(response['status'].status);
 
                     $("#kindergartenDetails").css("visibility", "none");
                     $("#kindergartenDetails").css('display', 'none');
