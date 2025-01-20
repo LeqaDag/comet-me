@@ -27,6 +27,7 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
     {
         $data = DB::table('public_structures')
             ->join('communities', 'public_structures.community_id', '=', 'communities.id')
+            ->leftJoin('public_structure_statuses', 'public_structures.public_structure_status_id', 'public_structure_statuses.id')
             ->join('regions', 'communities.region_id', '=', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', '=', 'sub_regions.id')
             ->leftJoin('all_energy_meters', 'public_structures.id', 
@@ -52,6 +53,7 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
             ->select('public_structures.english_name as english_name', 
                 'public_structures.arabic_name as arabic_name', 
                 'communities.english_name as community_name',
+                'public_structure_statuses.status as energy_system_status',
                 'compounds.english_name as compound',
                 'regions.english_name as region', 'sub_regions.english_name as sub_region',
                 DB::raw('CASE WHEN all_energy_meters.meter_number IS NOT NULL THEN "Yes" 
@@ -97,7 +99,7 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
      */
     public function headings(): array
     {
-        return ["English Name", "Arabic Name", "Community", "Compound", "Region", "Sub Region", 
+        return ["English Name", "Arabic Name", "Community", "Status", "Compound", "Region", "Sub Region", 
             "Energy Service", "Meter Number", "Energy Donors", "Water Service", "Water Donors", 
             "Internet Service", "Internet Donors", "Kindergarten Students", "Kindergarten Boys", 
             "Kindergarten Girls", "School Students", "School Boys", "School Girls", 
@@ -116,7 +118,7 @@ class PublicStructureExport implements FromCollection, WithHeadings, WithTitle, 
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:V1');
+        $sheet->setAutoFilter('A1:W1');
 
         return [
             // Style the first row as bold text.

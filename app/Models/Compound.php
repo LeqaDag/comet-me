@@ -26,4 +26,14 @@ class Compound extends Model
     {
         return $this->belongsTo('App\Models\Town', 'school_town_id', 'id');
     }
+
+    public function CommunityStatus()
+    {
+        return $this->belongsTo(CommunityStatus::class, 'community_status_id', 'id');
+    }
+
+    public function EnergySystemCycle()
+    {
+        return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
+    }
 }

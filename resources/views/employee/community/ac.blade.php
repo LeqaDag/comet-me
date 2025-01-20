@@ -13,7 +13,7 @@
     @if ($communityRecords)
         {{$communityRecords}}
     @endif
-    <span class="text-muted fw-light">AC </span> communities
+    <span class="text-muted fw-light">AC </span> communities/compounds
 </h4>
 
 @include('employee.community.details')
@@ -30,7 +30,7 @@
                         <th class="text-center"># of Households</th>
                         <th class="text-center">Region</th>
                         <th class="text-center">Sub Region</th>
-                        <th class="text-center">Options</th>
+                        <!-- <th class="text-center">Options</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -59,7 +59,7 @@
                 {data: 'number_of_household', name: 'number_of_household'},
                 {data: 'name', name: 'name'}, 
                 {data: 'subname', name: 'subname'},
-                {data: 'action'}
+               // {data: 'action'}
             ]
         });
 

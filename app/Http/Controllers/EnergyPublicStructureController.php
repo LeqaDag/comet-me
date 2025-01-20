@@ -98,22 +98,6 @@ class EnergyPublicStructureController extends Controller
         //     }
         // }
 
-
-        // add served to the exsiting public structures
-        $allPublicMeters = AllEnergyMeter::where("is_archived", 0)
-            ->where('public_structure_id', '!=', NULL)
-            ->where('public_structure_id', '!=', 0)
-            ->get();
-
-        foreach($allPublicMeters as $allPublicMeter) {
-
-            $public = PublicStructure::findOrFail($allPublicMeter->public_structure_id);
-            $public->public_structure_status_id = 4;
-            $public->save();
-        }
-
-
-
         if (Auth::guard('user')->user() != null) {
 
             $communityFilter = $request->input('community_filter');

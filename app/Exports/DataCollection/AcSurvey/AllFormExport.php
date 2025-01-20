@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports\DataCollection\AllForm;
+namespace App\Exports\DataCollection\AcSurvey;
 
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;

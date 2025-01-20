@@ -125,7 +125,7 @@ class CompoundController extends Controller
             $energySystemTypes = EnergySystemType::where('is_archived', 0)
                 ->orderBy('name', 'ASC')
                 ->get();
-
+ 
             return view('admin.community.compound.index', compact('communities', 'regions', 
                 'compounds', 'households', 'energySystemTypes', 'subregions'));
         } else {
@@ -185,6 +185,7 @@ class CompoundController extends Controller
         
     }
 
+    
     /**
      * Remove the specified resource from storage.
      *

@@ -774,6 +774,7 @@ class HouseholdController extends Controller
      */
     public function edit($id)
     {
+        $compound = null;
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
             ->get();
@@ -789,7 +790,7 @@ class HouseholdController extends Controller
         $householdStatuses = HouseholdStatus::where('is_archived', 0)->get();
         $energyCycles = EnergySystemCycle::get();
         $compoundHousehold = CompoundHousehold::where("household_id", $id)->first();
-        $compound = Compound::findOrFail($compoundHousehold->compound_id);
+        if($compoundHousehold) $compound = Compound::findOrFail($compoundHousehold->compound_id);
         $allCompounds = Compound::where("is_archived", 0)
             ->where('community_id', $household->community_id)
             ->get();

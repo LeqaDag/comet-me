@@ -60,6 +60,7 @@ class InternetHolderController extends Controller
             } else {
 
                 $community = Community::where("arabic_name", $holder["user_group_name"])->first();
+                
                 if($community) {
 
                     // retrieve the community 

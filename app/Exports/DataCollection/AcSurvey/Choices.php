@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports\DataCollection\AllForm;
+namespace App\Exports\DataCollection\AcSurvey;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -181,48 +181,46 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
 
 
         $fixedList = [
-            [
-                'list_name' => 'form_type', 
-                'name' => 'Initial Survey',
-                'label' => 'Initial Survey',
-                'label_en' => 'Initial Survey',
-                'label_ar' => 'الاستبيان الأولي',
-                'region' => false,
-                'sub_region' => false,
-                'community' => false,
-            ],
-            [
-                'list_name' => 'form_type', 
-                'name' => 'AC Survey',
-                'label' => 'AC Survey',
-                'label_en' => 'AC Survey',
-                'label_ar' => 'الاستبيان الفعلي ',
-                'region' => false,
-                'sub_region' => false,
-                'community' => false,
-            ],
-            [
-                'list_name' => 'form_type', 
-                'name' => 'Incidents',
-                'label' => 'Incidents',
-                'label_en' => 'Incidents',
-                'label_ar' => 'الحوادث',
-                'region' => false,
-                'sub_region' => false,
-                'community' => false,
-            ],
-            [
-                'list_name' => 'form_type', 
-                'name' => 'Displacement',
-                'label' => 'Displacement',
-                'label_en' => 'Displacement',
-                'label_ar' => 'الرحيل',
-                'region' => false,
-                'sub_region' => false,
-                'community' => false,
-            ],
-
-
+            // [
+            //     'list_name' => 'form_type', 
+            //     'name' => 'Initial Survey',
+            //     'label' => 'Initial Survey',
+            //     'label_en' => 'Initial Survey',
+            //     'label_ar' => 'الاستبيان الأولي',
+            //     'region' => false,
+            //     'sub_region' => false,
+            //     'community' => false,
+            // ],
+            // [
+            //     'list_name' => 'form_type', 
+            //     'name' => 'AC Survey',
+            //     'label' => 'AC Survey',
+            //     'label_en' => 'AC Survey',
+            //     'label_ar' => 'الاستبيان الفعلي ',
+            //     'region' => false,
+            //     'sub_region' => false,
+            //     'community' => false,
+            // ],
+            // [
+            //     'list_name' => 'form_type', 
+            //     'name' => 'Incidents',
+            //     'label' => 'Incidents',
+            //     'label_en' => 'Incidents',
+            //     'label_ar' => 'الحوادث',
+            //     'region' => false,
+            //     'sub_region' => false,
+            //     'community' => false,
+            // ],
+            // [
+            //     'list_name' => 'form_type', 
+            //     'name' => 'Displacement',
+            //     'label' => 'Displacement',
+            //     'label_en' => 'Displacement',
+            //     'label_ar' => 'الرحيل',
+            //     'region' => false,
+            //     'sub_region' => false,
+            //     'community' => false,
+            // ],
 
             [
                 'list_name' => 'herds', 
@@ -506,15 +504,15 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ],
         ];
 
-        $query = collect($cycleYears)
-            ->merge($energyTypes)
+        $query = collect($households)
+            //->merge($energyTypes) 
             ->merge($professions)
             ->merge($acCommunities)
             ->merge($compounds)
-            ->merge($initialCommunities)
-            ->merge($communities)
+            //->merge($initialCommunities)
+            //->merge($communities)
             ->merge($mainUsers)
-            ->merge($households)
+            ->merge($cycleYears)
             ->merge($meterCaseDescriptions)
             ->merge($fixedList); 
         

@@ -28,6 +28,7 @@ use App\Models\Settlement;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
+use App\Models\EnergySystemCycle;
 use App\Models\ProductType;
 use App\Models\Region;
 use App\Models\H2oUser;
@@ -402,10 +403,13 @@ class CommunityCompoundController extends Controller
             ->orderBy('english_name', 'ASC')
             ->get(); 
 
+        $energyCycles = EnergySystemCycle::get();
+        $communityStatuses = CommunityStatus::where('is_archived', 0)->get();
+
         return view('admin.community.compound.edit', compact('compound', 'products', 
-            'energySystemTypes', 'waterSources', 'communities',
+            'energySystemTypes', 'waterSources', 'communities', 'communityStatuses',
             'compoundWaterSources', 'compoundNearbySettlements', 'towns', 'settlements',
-            'compoundNearbyTowns', 'compoundProductTypes'));
+            'compoundNearbyTowns', 'compoundProductTypes', 'energyCycles'));
     }
 
     /**
@@ -421,6 +425,7 @@ class CommunityCompoundController extends Controller
         if($request->english_name) $compound->english_name = $request->english_name;
         if($request->arabic_name) $compound->arabic_name = $request->arabic_name;
         if($request->community_id) $compound->community_id = $request->community_id;
+        if($request->community_status_id) $compound->community_status_id = $request->community_status_id;
         if($request->reception) $compound->reception = $request->reception;
         if($request->number_of_household) $compound->number_of_household = $request->number_of_household;
         if($request->number_of_people) $compound->number_of_people = $request->number_of_people;
@@ -434,10 +439,34 @@ class CommunityCompoundController extends Controller
         if($request->land_status) $compound->land_status = $request->land_status;
         if($request->is_surveyed) $compound->is_surveyed = $request->is_surveyed;
         if($request->last_surveyed_date) $compound->last_surveyed_date = $request->last_surveyed_date;
-        if($request->latitude) $compound->latitude = $request->latitude; 
+        if($request->latitude) $compound->latitude = $request->latitude;  
         if($request->longitude) $compound->longitude = $request->longitude;
         if($request->lawyer) $compound->lawyer = $request->lawyer;
         if($request->notes) $compound->notes = $request->notes;
+
+        if($request->energy_system_cycle_id) {
+
+            $compound->energy_system_cycle_id = $request->energy_system_cycle_id;
+            $householdCompounds = CompoundHousehold::where('compound_id', $id)->get();
+
+            if($householdCompounds) {
+
+                foreach($householdCompounds as $householdCompound) {
+
+                    $household = Household::findOrFail($householdCompound->household_id);
+                    $household->energy_system_cycle_id = $request->energy_system_cycle_id;
+                    $household->save();
+
+                    $allEnergyMeter = AllEnergyMeter::where("household_id", $householdCompound->household_id)->first();
+                    if($allEnergyMeter) {
+
+                        $allEnergyMeter->energy_system_cycle_id = $request->energy_system_cycle_id;
+                        $allEnergyMeter->save();
+                    }
+                }
+            }
+        }
+
         $compound->save();
 
         $lastCompound = Compound::findOrFail($id);
