@@ -27,6 +27,12 @@
     <span class="text-muted fw-light">Information </span> 
 </h4>
 
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
@@ -84,7 +90,11 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Meter Number</label>
                             <input type="text" class="form-control" name="meter_number"
-                                value="{{$energyUser->meter_number}}"> 
+                                value="{{$energyUser->meter_number}}" id="updatedMeterNumber"
+                                maxlength="11" oninput="validateMeterNumber()"> 
+                                <small id="meterError" class="text-danger" style="display: none;">
+                                    Meter number must be 11 digits and not already exist.
+                                </small>
                         </fieldset>
                     </div> 
                     <div class="col-xl-6 col-lg-6 col-md-6">
@@ -345,8 +355,29 @@
 </div>
 
 <script type="text/javascript">
-    $(function () {
 
+    // check the critera for the meter number
+    function validateMeterNumber() {
+
+        var meterNumber = document.getElementById("updatedMeterNumber").value;
+        var errorElement = document.getElementById("meterError");
+
+        // Check if the meter number has exactly 11 digits
+        if (meterNumber.length > 11) {
+
+            errorElement.style.display = 'block';
+            errorElement.innerText = 'Meter number cannot exceed 11 digits.';
+        } else if (meterNumber.length < 11) {
+
+            errorElement.style.display = 'block';
+            errorElement.innerText = 'Meter number cannot be less than 11 digits.';
+        } else {
+
+            errorElement.style.display = 'none';
+        }
+    }
+
+    $(function () {
         // delete energy donor
         $('#energyDonorsTable').on('click', '.deleteEnergyDonor',function() {
             var id = $(this).data('id');

@@ -561,6 +561,20 @@ class AllEnergyController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $existMeterEnergyHolder = AllEnergyMeter::where("meter_number", $request->meter_number)
+            ->where('id', "!=", $id)
+            ->first();
+
+        if ($existMeterEnergyHolder) {
+            
+            $holder = null;
+
+            if($existMeterEnergyHolder->household_id) $holder = Household::findOrFail($existMeterEnergyHolder->household_id);
+            else if($existMeterEnergyHolder->public_structure_id) $holder = PublicStructure::findOrFail($existMeterEnergyHolder->public_structure_id);
+
+            return redirect()->back()->with('error', 'Attension, this meter number ' . $request->meter_number . ' is already exist for '. $holder->english_name);
+        }
+  
         $energyUser = AllEnergyMeter::find($id);
 
         $oldMeterCase = $energyUser->meter_case_id;
@@ -839,7 +853,33 @@ class AllEnergyController extends Controller
         return response()->json($response); 
     }
 
-     /**
+    /**
+     * Check the meter number 
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function checkMeterNumber(Request $request)
+    {
+        //die($request);
+        // Validate the input
+        $request->validate([
+
+            'meter_number' => 'required|digits:11|unique:all_energy_meters,meter_number',
+        ], [
+
+            'meter_number.digits' => 'The meter number must be exactly 11 digits.',
+            'meter_number.unique' => 'This meter number already exists in the database.',
+        ]);
+
+        // Return a JSON response with success message
+        return response()->json([
+            'success' => true,
+            'message' => 'Meter number updated successfully.'
+        ]);
+    }
+
+    /**
      * Delete a resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request

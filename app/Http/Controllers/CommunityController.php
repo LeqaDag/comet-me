@@ -166,7 +166,8 @@ class CommunityController extends Controller
                         $deleteButton = "<a type='button' class='deleteCommunity' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
     
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
-                            Auth::guard('user')->user()->user_type_id == 2 ) 
+                            Auth::guard('user')->user()->user_type_id == 2 || 
+                            Auth::guard('user')->user()->user_type_id == 3) 
                         {
                                 
                             return  $detailsButton." ". $updateButton." ".$deleteButton;
@@ -1095,7 +1096,7 @@ class CommunityController extends Controller
 
         return response()->json($community);
     } 
-
+ 
     /**
      * View Edit page.
      *

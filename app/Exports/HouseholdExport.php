@@ -58,6 +58,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
             ->leftJoin('cisterns', 'households.id', 'cisterns.household_id')
             ->where('households.is_archived', 0) 
             ->where('internet_holder_young', 0) 
+            ->where('out_of_comet', 0) 
             ->select('households.english_name as english_name', 
                 'households.arabic_name as arabic_name', 
                 'communities.english_name as community_name',

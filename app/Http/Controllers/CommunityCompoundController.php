@@ -147,7 +147,8 @@ class CommunityCompoundController extends Controller
                         $deleteButton = "<a type='button' class='deleteCompoundHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
     
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
-                            Auth::guard('user')->user()->user_type_id == 2 ) 
+                            Auth::guard('user')->user()->user_type_id == 2 || 
+                            Auth::guard('user')->user()->user_type_id == 3) 
                         {
                                 
                             return $deleteButton;
@@ -463,7 +464,7 @@ class CommunityCompoundController extends Controller
                         $allEnergyMeter->energy_system_cycle_id = $request->energy_system_cycle_id;
                         $allEnergyMeter->save();
                     }
-                }
+                } 
             }
         }
 

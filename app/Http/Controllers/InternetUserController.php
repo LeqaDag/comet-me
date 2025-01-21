@@ -647,7 +647,7 @@ class InternetUserController extends Controller
     {
         $allInternetHolder = InternetUser::findOrFail($id);
         $allInternetHolderDonors = InternetUserDonor::where("internet_user_id", $id)
-            ->where('is_archived', 0)->get();
+            ->where('is_archived', 0)->get(); 
         $donors = Donor::where('is_archived', 0)->get();
 
         return view('users.internet.all.edit', compact('allInternetHolder', 
@@ -664,6 +664,18 @@ class InternetUserController extends Controller
     {
         $internetUser = InternetUser::findOrFail($id);
  
+        if($request->household_english_name) {
+
+            $household = Household::findOrFail($internetUser->household_id);
+            $household->english_name = $request->household_english_name;
+            $household->save();
+        } else if($request->public_english_name) {
+
+            $public = PublicStructure::findOrFail($internetUser->public_structure_id);
+            $public->english_name = $request->public_english_name;
+            $public->save();
+        }
+    
         if($request->donors) {
 
             for($i=0; $i < count($request->donors); $i++) {

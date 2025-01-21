@@ -22,7 +22,7 @@
         data-target=".multi-collapse" aria-expanded="false" 
         aria-controls="collapseCommunityVisualData collapseCommunityExport">
         <i class="menu-icon tf-icons bx bx-expand-alt"></i>
-        Toggle All
+        Toggle All 
     </button> 
 </p>
 
@@ -382,7 +382,8 @@
         </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                Auth::guard('user')->user()->user_type_id == 2 )
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 )
                 <div>
                     <a type="button" class="btn btn-success" 
                         href="{{url('community', 'create')}}">

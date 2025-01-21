@@ -72,6 +72,28 @@
                             </select>
                         </fieldset>
                     </div>
+                    @if($allInternetHolder->Household)
+                        @if($allInternetHolder->Household->out_of_comet == 1)
+                            <div class="col-xl-4 col-lg-4 col-md-4">
+                                <fieldset class="form-group">
+                                    <label class='col-md-12 control-label'>English Name</label>
+                                    <input type="text" name="household_english_name" class="form-control" 
+                                    value="{{$allInternetHolder->Household->english_name}}" required>
+                                </fieldset>
+                            </div>
+                        @endif
+                    @else 
+    
+                    @if($allInternetHolder->PublicStructure->out_of_comet == 1)
+                        <div class="col-xl-4 col-lg-4 col-md-4">
+                            <fieldset class="form-group">
+                                <label class='col-md-12 control-label'>English Name</label>
+                                <input type="text" name="public_english_name" class="form-control" 
+                                value="{{$allInternetHolder->PublicStructure->english_name}}"required>
+                            </fieldset>
+                        </div>
+                    @endif
+                    @endif
                 </div>
 
                 <hr>

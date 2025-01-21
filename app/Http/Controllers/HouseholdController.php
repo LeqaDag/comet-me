@@ -139,6 +139,7 @@ class HouseholdController extends Controller
                     ->join('regions', 'communities.region_id', 'regions.id')
                     ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
                     ->where('internet_holder_young', 0)
+                    ->where('out_of_comet', 0)
                     ->where('households.is_archived', 0);
 
                 if (Auth::guard('user')->user()->user_type_id == 3 || Auth::guard('user')->user()->user_role_type_id == 4) {

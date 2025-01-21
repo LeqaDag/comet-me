@@ -271,7 +271,8 @@ label, table {
         <div class="card-body">
 
             @if(Auth::guard('user')->user()->user_type_id == 1 ||
-                Auth::guard('user')->user()->user_type_id == 2  )
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->user_type_id == 3 )
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="button" class="btn btn-success" 
