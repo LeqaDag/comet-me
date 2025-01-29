@@ -46,12 +46,12 @@ class ImportHousehold implements ToModel, WithHeadingRow
             $community = Community::where("english_name", $row["select_community"])->first();
             $household = null;
 
-            if($community && $row["do_the_household_still_live_in"] != "left") {
+            if($community && $row["select_is_live"] != "left") {
 
                 if($row["select_household_name"]) {
 
                     $household = Household::where('community_id', $community->id)
-                        ->where("english_name", $row["select_household_name"])
+                        ->where("comet_id", $row["select_household_name"])
                         ->first();
                 } else {
 
@@ -68,7 +68,7 @@ class ImportHousehold implements ToModel, WithHeadingRow
                     $household->english_name = $row["english_name"];
                     $household->phone_number = $row["phone_number"];
                     if($profession) $household->profession_id = $profession->id;
-                    $household->number_of_people = $row["number_of_people"]; 
+                    $household->number_of_people = $row["number_of_male"] + $row["number_of_female"];
                     $household->number_of_male = $row["number_of_male"]; 
                     $household->number_of_female = $row["number_of_female"]; 
                     $household->number_of_children = $row["number_of_children"];
@@ -86,7 +86,8 @@ class ImportHousehold implements ToModel, WithHeadingRow
                         $household->last_surveyed_date = date_timestamp_get($reg_date) ? $reg_date->format('Y-m-d') : null;
                     }
     
-                    $user = User::where('name', 'like', '%' . $row["submitted_by"] . '%')->first();
+                    $cleanName = preg_replace('/\d/', '', $row["submitted_by"]);  
+                    $user = User::where('name', 'like', '%' . $cleanName . '%')->first();
                     if($user) $household->referred_by_id = $user->id;
                     $household->community_id = $community->id;
                     $household->save();
@@ -125,6 +126,15 @@ class ImportHousehold implements ToModel, WithHeadingRow
                         if($row["select_shared_cisterns"]) $cistern->shared_cisterns = $row["select_shared_cisterns"];
                         if($row["distance_from_house"]) $cistern->distance_from_house = $row["distance_from_house"];
                         $cistern->save();
+                    } else {
+
+                        $newCistern = new Cistern();
+                        $newCistern->household_id = $household->id;
+                        if($row["number_of_cisterns"]) $newCistern->number_of_cisterns = $row["number_of_cisterns"];
+                        if($row["cistern_depth"]) $newCistern->volume_of_cisterns = $row["cistern_depth"];
+                        if($row["select_shared_cisterns"]) $newCistern->shared_cisterns = $row["select_shared_cisterns"];
+                        if($row["distance_from_house"]) $newCistern->distance_from_house = $row["distance_from_house"];
+                        $newCistern->save();
                     }
     
                     $structure = Structure::where('household_id', $household->id)->first();
@@ -140,8 +150,15 @@ class ImportHousehold implements ToModel, WithHeadingRow
                         if($row["select_is_there_house_in_town"]) $communityHousehold->is_there_house_in_town = $row["select_is_there_house_in_town"];
                         if($row["select_is_there_izbih"])$communityHousehold->is_there_izbih = $row["select_is_there_izbih"];
                         if($row["how_long"])$communityHousehold->how_long = $row["how_long"];
-                        if($row["length_of_stay"])$communityHousehold->length_of_stay = $row["length_of_stay"];
                         $communityHousehold->save();
+                    } else {
+
+                        $newCommunityHousehold = new CommunityHousehold();
+                        $newCommunityHousehold->household_id = $household->id;
+                        if($row["select_is_there_house_in_town"]) $newCommunityHousehold->is_there_house_in_town = $row["select_is_there_house_in_town"];
+                        if($row["select_is_there_izbih"])$newCommunityHousehold->is_there_izbih = $row["select_is_there_izbih"];
+                        if($row["how_long"])$newCommunityHousehold->how_long = $row["how_long"];
+                        $newCommunityHousehold->save();
                     }
                 }
             }

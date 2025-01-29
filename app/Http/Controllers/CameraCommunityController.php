@@ -131,7 +131,7 @@ class CameraCommunityController extends Controller
                     DB::raw('IFNULL(communities.english_name, repositories.name) as name'), 
                     'households.english_name',
                     'camera_communities.id as id', 'camera_communities.created_at as created_at', 
-                    'camera_communities.updated_at as updated_at',
+                    'camera_communities.updated_at as updated_at', 'camera_communities.date as installation_date',
                     DB::raw('IFNULL(regions.english_name, repository_regions.english_name) as region'),
                     DB::raw('SUM(DISTINCT camera_community_types.number) as camera_number'),
                     DB::raw('SUM(DISTINCT nvr_community_types.number) as nvr_number')
@@ -314,6 +314,14 @@ class CameraCommunityController extends Controller
         $nvrCameras = NvrCamera::all();
         $donors = Donor::where('is_archived', 0)->get();
 
+        $cameraDonorsId = CameraCommunityDonor::where("camera_community_id", $id)
+            ->where("is_archived", 0)
+            ->pluck('donor_id'); 
+
+        $moreDonors = Donor::where('is_archived', 0)
+            ->whereNotIn('id', $cameraDonorsId) 
+            ->get();
+
         $cameraDonors = CameraCommunityDonor::where("camera_community_id", $id)
             ->where("is_archived", 0)
             ->get();
@@ -323,7 +331,7 @@ class CameraCommunityController extends Controller
             
         return view('services.camera.edit', compact('communities', 'cameras', 'donors',
             'cameraCommunity', 'nvrCameras', 'households', 'communityCameraTypes',
-            'communityNvrTypes', 'cameraCommunityPhotos', 'cameraDonors'));
+            'communityNvrTypes', 'cameraCommunityPhotos', 'cameraDonors', 'moreDonors'));
     }
 
     /**

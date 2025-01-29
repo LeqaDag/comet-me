@@ -62,6 +62,40 @@ class AllEnergyController extends Controller
     public function index(Request $request)
     {
    
+        // $allEnergyDonors = AllEnergyMeterDonor::all();
+
+        // foreach($allEnergyDonors as $allEnergyDonor) {
+
+        //     $allEnergyMeter = AllEnergyMeter::findOrFail($allEnergyDonor->all_energy_meter_id);
+
+        //     if($allEnergyMeter) {
+
+        //         $dupliatedDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $allEnergyMeter->id)
+        //             ->where("community_id", $allEnergyMeter->community_id)
+        //             ->get();
+
+        //         $uniqueDonors = [];
+
+        //         foreach ($dupliatedDonors as $dupliatedDonor) {
+                    
+        //             if (in_array($dupliatedDonor->donor_id, $uniqueDonors)) {
+
+        //                 $dupliatedDonor->delete();
+        //             } else {
+
+        //                 $uniqueDonors[] = $dupliatedDonor->donor_id;
+        //             }
+        //         }
+        //         // $wrongEnergyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $allEnergyMeter->id)
+        //         //     ->where("community_id", "!=", $allEnergyMeter->community_id)
+        //         //     ->get();
+        //         // foreach($wrongEnergyDonors as $wrongEnergyDonor) {
+
+        //         //     $wrongEnergyDonor->delete();
+        //         // }
+        //     }
+        // }
+
         // $allEnergyMeters = AllEnergyMeter::where('is_archived', 0)
         //     ->whereNotNull('household_id')
         //     ->where('community_id', 187) // 179
@@ -453,6 +487,7 @@ class AllEnergyController extends Controller
         $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
             ->where("is_archived", 0)
             ->get();
+
         $community_id = Community::findOrFail($energyUser->community_id);
         $communities = Community::where('is_archived', 0)
             ->orderBy('english_name', 'ASC')
@@ -472,6 +507,15 @@ class AllEnergyController extends Controller
         $meterCases = MeterCase::where('is_archived', 0)->get();
         $vendor = VendorUserName::where('id', $energyUser->vendor_username_id)->first();
         $donors = Donor::where('is_archived', 0)->get();
+
+        $energyDonorsId = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
+            ->where("is_archived", 0)
+            ->pluck('donor_id'); 
+
+        $moreDonors = Donor::where('is_archived', 0)
+            ->whereNotIn('id', $energyDonorsId) 
+            ->get();
+
         $installationTypes = InstallationType::where('is_archived', 0)->get();
         $energyCycles = EnergySystemCycle::get();
 
@@ -484,7 +528,7 @@ class AllEnergyController extends Controller
         return view('users.energy.not_active.edit_energy', compact('household', 'communities',
             'meterCases', 'energyUser', 'communityVendors', 'vendor', 'energySystems', 'electricityPhases',
             'energyDonors', 'donors', 'installationTypes', 'energyCycles', 'electricityCollectionBoxes',
-            'allEnergyMeterPhase'));
+            'allEnergyMeterPhase', 'moreDonors'));
     }
 
     /**
@@ -496,9 +540,9 @@ class AllEnergyController extends Controller
     public function updateEnergyDonorData(Request $request) 
     {
         $energyDonors = DB::table('energy_donors')
-            ->join('communities', 'energy_donors.community_id', '=', 'communities.id')
-            ->join('households', 'energy_donors.household_id', '=', 'households.id')
-            ->join('donors', 'energy_donors.donor_id', '=', 'donors.id')
+            ->join('communities', 'energy_donors.community_id', 'communities.id')
+            ->join('households', 'energy_donors.household_id', 'households.id')
+            ->join('donors', 'energy_donors.donor_id', 'donors.id')
             ->where('energy_donors.household_id', $energyUser->household_id)
             ->select('energy_donors.id as id', 'communities.english_name as community_name',
                 'households.english_name as household_name',

@@ -10,12 +10,15 @@ use Auth;
 use DB; 
 use Route;
 use App\Models\AllEnergyMeter;
+use App\Models\AllWaterHolder;
+use App\Models\AllWaterHolderDonor;
 use App\Models\AllEnergyMeterDonor;
 use App\Models\User;
 use App\Models\Community; 
 use App\Models\CommunityDonor;
 use App\Models\Donor;
 use App\Models\Compound;
+use App\Models\CompoundHousehold;
 use App\Models\InternetUser;
 use App\Models\InternetUserDonor;
 use App\Models\EnergyDonor;
@@ -338,62 +341,106 @@ class DonorController extends Controller
     {
         $communityDonor = CommunityDonor::findOrFail($id);
 
-        if($request->new_donors) {
- 
-            for($i=0; $i < count($request->new_donors); $i++) {
-
-                $communityDonorService = new CommunityDonor();
-                $communityDonorService->donor_id = $request->new_donors[$i];
-                $communityDonorService->service_id = $communityDonor->service_id;
-                if($communityDonor->community_id) $communityDonorService->community_id = $communityDonor->community_id;
-                else if($communityDonor->compound_id) $communityDonorService->compound_id = $communityDonor->compound_id;
-                $communityDonorService->save();
-            }
-        }
-
         if($request->more_donors) {
 
-            for($i=0; $i < count($request->more_donors); $i++) {
+            for($i = 0; $i < count($request->more_donors); $i++) {
 
-                $communityDonorService = new CommunityDonor();
-                $communityDonorService->donor_id = $request->more_donors[$i];
-                $communityDonorService->service_id = $communityDonor->service_id;
-                if($communityDonor->community_id) $communityDonorService->community_id = $communityDonor->community_id;
-                else if($communityDonor->compound_id) $communityDonorService->compound_id = $communityDonor->compound_id;
-                $communityDonorService->save();
+                $existCommunityDonor = null;
+
+                if($communityDonor->compound_id) {
+
+                    $existCommunityDonor = CommunityDonor::where('is_archived', 0)
+                        ->where('compound_id', $communityDonor->compound_id)
+                        ->where('donor_id', $request->more_donors[$i])
+                        ->where('service_id', $communityDonor->service_id)
+                        ->first();
+                } else if($communityDonor->compound_id == null) {
+
+                    $existCommunityDonor = CommunityDonor::where('is_archived', 0)
+                        ->where('community_id', $communityDonor->community_id)
+                        ->where('donor_id', $request->more_donors[$i])
+                        ->where('service_id', $communityDonor->service_id)
+                        ->first();
+                } else if($communityDonor->energy_system_id) {
+
+                    $existCommunityDonor = CommunityDonor::where('is_archived', 0)
+                        ->where('energy_system_id', $communityDonor->energy_system_id)
+                        ->where('donor_id', $request->more_donors[$i])
+                        ->where('service_id', $communityDonor->service_id)
+                        ->first();
+                }
+
+                if(!$existCommunityDonor) {
+
+                    $newCommunityDonor = new CommunityDonor();
+                    if($communityDonor->compound_id) $newCommunityDonor->compound_id = $communityDonor->compound_id;
+                    if($communityDonor->compound_id == null) $newCommunityDonor->community_id = $communityDonor->community_id;
+                    $newCommunityDonor->service_id = $communityDonor->service_id;
+                    $newCommunityDonor->donor_id = $request->more_donors[$i];
+                    $newCommunityDonor->save();
+                }
             }
         }
 
+   
         if($communityDonor->service_id == 1) {
 
-            $allEnergyMeters = DB::table('all_energy_meters')
-                ->join('communities', 'all_energy_meters.community_id', 'communities.id')
-                ->join('households', 'all_energy_meters.household_id', 'households.id')
-                ->where('all_energy_meters.is_archived', 0)
-                ->where('households.is_archived', 0)
-                ->select("all_energy_meters.id", "all_energy_meters.community_id")
-                ->get();
+            if($communityDonor->compound_id) {
 
-            if($allEnergyMeters) {
+                $compound = Compound::findOrFail($communityDonor->compound_id);
 
-                foreach($allEnergyMeters as $allEnergyMeter) {
+                $allEnergyMeters = DB::table('all_energy_meters')
+                    ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+                    ->where('communities.id', $compound->community_id)
+                    ->join('households', 'all_energy_meters.household_id', 'households.id')
+                    ->join('compound_households', 'households.id', 'compound_households.household_id')
+                    ->where('all_energy_meters.is_archived', 0)
+                    ->where('households.is_archived', 0)
+                    ->where('compound_households.compound_id', $communityDonor->compound_id)
+                    ->select("all_energy_meters.id", "all_energy_meters.community_id")
+                    ->get();
 
-                    for($i=0; $i < count($request->more_donors); $i++) {
-        
-                        if($communityDonor->community_id) {
+                if($allEnergyMeters) {
 
+                    foreach($allEnergyMeters as $allEnergyMeter) {
+    
+                        for($i=0; $i < count($request->more_donors); $i++) {
+            
                             $exisitAllEnergyMeterDonor = AllEnergyMeterDonor::where('all_energy_meter_id', $allEnergyMeter->id)
                                 ->where('donor_id', $request->more_donors[$i])
-                                ->where('community_id', $communityDonor->community_id)
+                                ->where('compound_id', $communityDonor->compound_id)
                                 ->first();
+                            
+                            if(!$exisitAllEnergyMeterDonor) {
 
-                            if($exisitAllEnergyMeterDonor) {
-
-                            } else {
-    
                                 $allEnergyMeterDonor = new AllEnergyMeterDonor();
                                 $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
-                                $allEnergyMeterDonor->community_id = $communityDonor->community_id;
+                                $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
+                                $allEnergyMeterDonor->compound_id = $communityDonor->compound_id;
+                                $allEnergyMeterDonor->donor_id = $request->more_donors[$i];
+                                $allEnergyMeterDonor->save();
+                            }
+                        }
+                    }
+                }
+            } else if($communityDonor->compound_id == null) {
+
+                $allEnergyMeters = AllEnergyMeter::where("community_id", $communityDonor->community_id)->get();
+
+                if($allEnergyMeters) {
+                    foreach($allEnergyMeters as $allEnergyMeter) {
+    
+                        for($i=0; $i < count($request->more_donors); $i++) {
+            
+                            $exisitAllEnergyMeterDonor = AllEnergyMeterDonor::where('all_energy_meter_id', $allEnergyMeter->id)
+                                ->where('donor_id', $request->more_donors[$i])
+                                ->first();
+
+                            if(!$exisitAllEnergyMeterDonor) {
+
+                                $allEnergyMeterDonor = new AllEnergyMeterDonor();
+                                $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
+                                $allEnergyMeterDonor->community_id = $allEnergyMeter->community_id;
                                 $allEnergyMeterDonor->donor_id = $request->more_donors[$i];
                                 $allEnergyMeterDonor->save();
                             }
@@ -401,36 +448,67 @@ class DonorController extends Controller
                     }
                 }
             }
+        }
+       
+        // Add donors for water users
+        if($communityDonor->service_id == 2) {
 
-            // $allEnergyCompoundMeters = DB::table('all_energy_meters')
-            //     ->join('communities', 'all_energy_meters.community_id', 'communities.id')
-            //     ->where('communities.id', $request->community_id)
-            //     ->join('households', 'all_energy_meters.household_id', 'households.id')
-            //     ->join('compound_households', 'households.id', 'compound_households.household_id')
-            //     ->where('all_energy_meters.is_archived', 0)
-            //     ->where('households.is_archived', 0)
-            //     ->where('compound_households.compound_id', $communityDonor->compound_id)
-            //     ->select("all_energy_meters.id", "all_energy_meters.community_id")
-            //     ->get();
+            $allWaterHolders = AllWaterHolder::where("community_id", $communityDonor->community_id)->get();
 
-            // if($allEnergyCompoundMeters) {
+            if($allWaterHolders) {
 
-            //     $exisitAllEnergyMeterDonor = AllEnergyMeterDonor::where('all_energy_meter_id', $allEnergyMeter->id)
-            //         ->where('donor_id', $request->more_donors[$i])
-            //         ->where('compound_id', $communityDonor->compound_id)
-            //         ->first();
-                
-            //     if($exisitAllEnergyMeterDonor) {
+                foreach($allWaterHolders as $allWaterHolder) {
 
-            //     } else {
+                    for($i=0; $i < count($request->more_donors); $i++) {
+        
+                        $exisitWaterDonor = AllWaterHolderDonor::where("is_archived", 0)
+                            ->where('all_water_holder_id', $allWaterHolder->id)
+                            ->where('donor_id', $request->more_donors[$i])
+                            ->first();
 
-            //         $allEnergyMeterDonor = new AllEnergyMeterDonor();
-            //         $allEnergyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
-            //         $allEnergyMeterDonor->compound_id = $communityDonor->compound_id;
-            //         $allEnergyMeterDonor->donor_id = $request->more_donors[$i];
-            //         $allEnergyMeterDonor->save();
-            //     }
-            // }
+                        if(!$exisitWaterDonor) {
+
+                            $allWaterHolderDonor = new AllWaterHolderDonor();
+                            $allWaterHolderDonor->all_water_holder_id = $allWaterHolder->id;
+                            $allWaterHolderDonor->community_id = $allWaterHolder->community_id;
+                            $allWaterHolderDonor->donor_id = $request->more_donors[$i];
+                            $allWaterHolderDonor->save();
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add donors for internet users
+        if($communityDonor->service_id == 3) {
+
+            $internetUsers = InternetUser::where("community_id", $communityDonor->community_id)->get();
+
+            if($internetUsers) {
+
+                foreach($internetUsers as $internetUser) {
+                    
+                    if($request->more_donors) {
+
+                        for($i=0; $i < count($request->more_donors); $i++) {
+        
+                            $exisitInternetDonor = InternetUserDonor::where("is_archived", 0)
+                                ->where('internet_user_id', $internetUser->id)
+                                ->where('donor_id', $request->more_donors[$i])
+                                ->first();
+                               
+                            if(!$exisitInternetDonor) {
+    
+                                $internetUserDonor = new InternetUserDonor();
+                                $internetUserDonor->internet_user_id = $internetUser->id;
+                                $internetUserDonor->community_id = $internetUser->community_id;
+                                $internetUserDonor->donor_id = $request->more_donors[$i];
+                                $internetUserDonor->save();
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return redirect('/donor')->with('message', 'Donor Updated Successfully!');

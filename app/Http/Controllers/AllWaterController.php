@@ -47,6 +47,35 @@ class AllWaterController extends Controller
      */
     public function index(Request $request)
     {	
+        // This code is to delete the duplicated donors
+        $allWaterDonors = AllWaterHolderDonor::all();
+
+        foreach($allWaterDonors as $allWaterDonor) {
+
+            $allWaterMeter = AllWaterHolder::findOrFail($allWaterDonor->all_water_holder_id);
+
+            if($allWaterMeter) {
+
+                $dupliatedDonors = AllWaterHolderDonor::where("all_water_holder_id", $allWaterMeter->id)
+                    ->where("community_id", $allWaterMeter->community_id)
+                    ->get();
+
+                $uniqueDonors = [];
+
+                foreach ($dupliatedDonors as $dupliatedDonor) {
+                    
+                    if (in_array($dupliatedDonor->donor_id, $uniqueDonors)) {
+
+                        $dupliatedDonor->delete();
+                    } else {
+
+                        $uniqueDonors[] = $dupliatedDonor->donor_id;
+                    }
+                }
+            }
+        }
+
+
         $h2oFlag = AllWaterHolder::where("water_system_id", 1)->count();
 
         //dd($h2oFlag);
@@ -346,11 +375,18 @@ class AllWaterController extends Controller
             ->orderBy('english_name', 'ASC')
             ->get();
         $donors = Donor::where('is_archived', 0)->get();
+        $waterDonorsId = AllWaterHolderDonor::where("all_water_holder_id", $id)
+            ->where("is_archived", 0)
+            ->pluck('donor_id'); 
+
+        $moreDonors = Donor::where('is_archived', 0)
+            ->whereNotIn('id', $waterDonorsId) 
+            ->get();
 
         return view('users.water.all.edit', compact('allWaterHolder', 'allWaterHolderDonors',
             'h2oPublic', 'gridPublic', 'households', 'h2oStatuses', 'communities', 'h2oUser',
             'networkUser', 'h2oSharedPublic', 'h2oSharedUser',  'gridUser', 'bsfStatuses', 
-            'donors'));
+            'donors', 'moreDonors'));
     }
 
     /**

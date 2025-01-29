@@ -273,12 +273,19 @@ class EnergyCometMeterController extends Controller
 
         $energySystems = EnergySystem::where('is_archived', 0)->get();
         $donors = Donor::where('is_archived', 0)->get();
+        $energyDonorsId = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
+            ->where("is_archived", 0)
+            ->pluck('donor_id'); 
+
+        $moreDonors = Donor::where('is_archived', 0)
+            ->whereNotIn('id', $energyDonorsId) 
+            ->get();
 
         $installationTypes = InstallationType::where('is_archived', 0)->get();
 
         return view('users.energy.comet.edit', compact('publicStructures', 'communities',
             'meterCases', 'energyPublic', 'communityVendors', 'vendor', 'energySystems',
-            'energyDonors', 'donors', 'installationTypes'));
+            'energyDonors', 'donors', 'installationTypes', 'moreDonors'));
     }
     
     /**

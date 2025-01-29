@@ -25,7 +25,7 @@ label, table {
                     @csrf
                     <div class="row">
                         <div id="community_compound_error" style="color: red;"></div>
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Community</label>
                                 <select name="community_id" class="selectpicker form-control" 
@@ -39,7 +39,7 @@ label, table {
                                 </select>
                             </fieldset>
                         </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <!-- <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Energy System</label>
                                 <select name="energy_system_id" class="selectpicker form-control" 
@@ -47,8 +47,8 @@ label, table {
                                     <option disabled selected>Choose one...</option>
                                 </select> 
                             </fieldset>
-                        </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        </div> -->
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Compound</label>
                                 <select name="compound_id" class="selectpicker form-control" 
@@ -57,7 +57,7 @@ label, table {
                                 </select> 
                             </fieldset>
                         </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Service Type</label>
                                 <select name="service_id" class="selectpicker form-control"
@@ -72,7 +72,7 @@ label, table {
                             </fieldset>
                             <div id="service_id_error" style="color: red;"></div>
                         </div>
-                        <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="col-xl-6 col-lg-6 col-md-6">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Donor</label>
                                 <select name="donor_id[]" class="selectpicker form-control" 

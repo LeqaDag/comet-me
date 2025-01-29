@@ -255,6 +255,34 @@ class InternetUserController extends Controller
      */
     public function index(Request $request)
     {
+        // This code is to delete the duplicated donors
+        $internetDonors = InternetUserDonor::all();
+
+        foreach($internetDonors as $internetDonor) {
+
+            $internetUser = InternetUser::findOrFail($internetDonor->internet_user_id);
+
+            if($internetUser) {
+
+                $dupliatedDonors = InternetUserDonor::where("internet_user_id", $internetUser->id)
+                    ->where("community_id", $internetUser->community_id)
+                    ->get();
+
+                $uniqueDonors = [];
+
+                foreach ($dupliatedDonors as $dupliatedDonor) {
+                    
+                    if (in_array($dupliatedDonor->donor_id, $uniqueDonors)) {
+
+                        $dupliatedDonor->delete();
+                    } else {
+
+                        $uniqueDonors[] = $dupliatedDonor->donor_id;
+                    }
+                }
+            }
+        }
+
         if (Auth::guard('user')->user() != null) {
 
             $this->getMetrix();

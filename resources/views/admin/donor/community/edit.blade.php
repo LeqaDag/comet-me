@@ -24,7 +24,7 @@
     <span class="text-primary">{{$communityDonor->ServiceType->service_name}}</span>
     <span class="text-muted fw-light">
      - 
-    Donors Information </span> 
+    Donors Information </span>
 </h4> 
 
 <div class="card">

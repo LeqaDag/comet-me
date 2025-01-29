@@ -178,9 +178,9 @@
                                 <select class="selectpicker form-control" 
                                     multiple data-live-search="true" name="donors[]">
                                     <option selected disabled>Choose one...</option>
-                                    @foreach($donors as $donor)
-                                        <option value="{{$donor->id}}">
-                                            {{$donor->donor_name}}
+                                    @foreach($moreDonors as $moreDonor)
+                                        <option value="{{$moreDonor->id}}">
+                                            {{$moreDonor->donor_name}}
                                         </option>
                                     @endforeach
                                 </select>

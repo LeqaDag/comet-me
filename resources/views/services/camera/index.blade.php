@@ -202,7 +202,7 @@ All<span class="text-muted fw-light"> Installed Cameras</span>
                         <th class="text-center">Region</th>
                         <th class="text-center">Responsible</th>
                         <th class="text-center"># of Cameras</th>
-                        <th class="text-center"># of NVRs</th>
+                        <th class="text-center">Installation date</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -237,7 +237,7 @@ All<span class="text-muted fw-light"> Installed Cameras</span>
                 {data: 'region', name: 'region'},
                 {data: 'english_name', name: 'english_name'},
                 {data: 'camera_number', name: 'camera_number'},
-                {data: 'nvr_number', name: 'nvr_number'},
+                {data: 'installation_date', name: 'installation_date'},
                 {data: 'action' }
             ]
         }); 

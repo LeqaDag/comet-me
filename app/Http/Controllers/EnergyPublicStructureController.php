@@ -556,6 +556,14 @@ class EnergyPublicStructureController extends Controller
         $energySystems = EnergySystem::where('is_archived', 0)->get();
         $donors = Donor::where('is_archived', 0)->get();
 
+        $energyDonorsId = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
+            ->where("is_archived", 0)
+            ->pluck('donor_id'); 
+
+        $moreDonors = Donor::where('is_archived', 0)
+            ->whereNotIn('id', $energyDonorsId) 
+            ->get();
+
         $installationTypes = InstallationType::where('is_archived', 0)->get();
         $energyCycles = EnergySystemCycle::get();
         $electricityCollectionBoxes = ElectricityCollectionBox::where('is_archived', 0)->get();
@@ -567,7 +575,7 @@ class EnergyPublicStructureController extends Controller
         return view('users.energy.public.edit', compact('publicStructures', 'communities',
             'meterCases', 'energyPublic', 'communityVendors', 'vendor', 'energySystems',
             'energyDonors', 'donors', 'installationTypes', 'electricityCollectionBoxes',
-            'electricityPhases', 'allEnergyMeterPhase', 'energyCycles'));
+            'electricityPhases', 'allEnergyMeterPhase', 'energyCycles', 'moreDonors'));
     }
 
     /**
