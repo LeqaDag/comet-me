@@ -128,6 +128,41 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>New or Replacement</label>
+                        <select name="water_system_status_id" 
+                            class="selectpicker form-control" data-live-search="true"
+                            id="statusOfSystem">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($waterSystemStatuses as $waterSystemStatus) 
+                                <option value="{{$waterSystemStatus->id}}">
+                                    {{$waterSystemStatus->status}}
+                                </option>
+                            @endforeach
+                        </select>
+                    </fieldset>
+                    <div id="water_system_status_id_error" style="color: red;"></div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Cycle Year</label>
+                        <select name="water_system_cycle_id" 
+                            class="selectpicker form-control" data-live-search="true"
+                            id="waterCycleYear">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($waterCycleYears as $waterCycleYear) 
+                                <option value="{{$waterCycleYear->id}}">
+                                    {{$waterCycleYear->name}}
+                                </option>
+                            @endforeach
+                        </select>
+                    </fieldset>
+                    <div id="water_system_cycle_id_error" style="color: red;"></div>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Referred by</label>
@@ -254,6 +289,8 @@
         var requestedHolder = $('#selectedHouseholdPublic').val();
         var statusOfRequest = $('#statusOfRequest').val();
         var recommendedWaterType = $('#recommendedWaterType').val();
+        var systemStatus = $("#statusOfSystem").val();
+        var waterCycleYear = $("#waterCycleYear").val();
 
         if (communityValue == null) {
 
@@ -300,12 +337,32 @@
             $('#water_system_type_id_error').empty();
         }
 
+        if (systemStatus == null) {
+
+            $('#water_system_status_id_error').html('Please select an option!'); 
+            return false;
+        } else if (systemStatus != null){
+
+            $('#water_system_status_id_error').empty();
+        }
+
+        if (waterCycleYear == null) {
+
+            $('#water_system_cycle_id_error').html('Please select a cycle year!'); 
+            return false;
+        } else if (waterCycleYear != null){
+
+            $('#water_system_cycle_id_error').empty();
+        }
+
         $(this).addClass('was-validated');  
         $('#public_user_error').empty();  
         $('#household_public_id_error').empty();
         $('#community_id_error').empty();
         $('#water_request_status_id_error').empty();
         $('#water_system_type_id_error').empty();
+        $('#water_system_status_id_error').empty();
+        $('#water_system_cycle_id_error').empty();
 
         this.submit();
     });

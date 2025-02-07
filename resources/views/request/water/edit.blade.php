@@ -105,6 +105,72 @@
                             </select>
                         </fieldset>
                     </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>New or Replacement</label>
+                            <select name="water_system_status_id" 
+                                class="selectpicker form-control" data-live-search="true">
+                                @if($waterRequestSystem->water_system_status_id)
+                                <option disabled selected>{{$waterRequestSystem->WaterSystemStatus->status}}</option>
+                                @else
+                                <option disabled selected>Select one...</option>
+                                @endif
+                                @foreach($waterSystemStatuses as $waterSystemStatus)
+                                <option value="{{$waterSystemStatus->id}}">
+                                    {{$waterSystemStatus->status}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select name="water_system_cycle_id" 
+                                class="selectpicker form-control" data-live-search="true" >
+                                @if($waterRequestSystem->water_system_status_id)
+                                <option disabled selected>{{$waterRequestSystem->WaterSystemCycle->name}}</option>
+                                @else
+                                <option disabled selected>Select one...</option>
+                                @endif
+                                @foreach($waterCycleYears as $waterCycleYear)
+                                <option value="{{$waterCycleYear->id}}">
+                                    {{$waterCycleYear->name}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Holder status</label>
+                            <select name="water_holder_status_id" 
+                                class="selectpicker form-control" data-live-search="true">
+                                @if($waterRequestSystem->household_id)
+                                    @if($waterRequestSystem->Household->water_holder_status_id)
+                                    <option disabled selected>{{$waterRequestSystem->Household->WaterHolderStatus->status}}</option>
+                                    @else
+                                    <option disabled selected>Select one...</option>
+                                    @endif
+                                @else @if($waterRequestSystem->public_structure_id)
+                                    @if($waterRequestSystem->PublicStructure->water_holder_status_id)
+                                    <option disabled selected>{{$waterRequestSystem->PublicStructure->WaterHolderStatus->status}}</option>
+                                    @else
+                                    <option disabled selected>Select one...</option>
+                                    @endif
+                                @endif
+                                @endif
+                                @foreach($waterHolderStatues as $waterHolderStatus)
+                                <option value="{{$waterHolderStatus->id}}">
+                                    {{$waterHolderStatus->status}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
                 </div>
 
                 <div class="row">

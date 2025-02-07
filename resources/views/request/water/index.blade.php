@@ -208,22 +208,28 @@
                     if(response['energy']) {
 
                         $('#meterNumberUser').html(response['energy'].meter_number);
-                        $('#meterCaseUser').html(response['meter'].meter_case_name_english);
-                        $('#systemTypeUser').html(response['type'].name);
+                        if(response['meter']) $('#meterCaseUser').html(response['meter'].meter_case_name_english);
+                        if(response['type'])$('#systemTypeUser').html(response['type'].name);
                         $('#systemLimitUser').html(response['energy'].daily_limit);
                         $('#installationDate').html(response['energy'].installation_date);
                     } 
 
                     $('#waterRequestedDate').html(" ");
-                    $('#waterRequestedDate').html(response['waterRequestSystem'].date);
+                    if(response['waterRequestSystem'])$('#waterRequestedDate').html(response['waterRequestSystem'].date);
                     $('#waterRequestedType').html(" ");
-                    $('#waterRequestedType').html(response['waterRequestSystemType'].type);
+                    if(response['waterRequestSystemType'])$('#waterRequestedType').html(response['waterRequestSystemType'].type);
                     $('#waterRequestStatusCase').html(" ");
-                    $('#waterRequestStatusCase').html(response['waterRequestStatus'].name);
+                    if(response['waterRequestStatus'])$('#waterRequestStatusCase').html(response['waterRequestStatus'].name);
+                    $('#waterNewReplacement').html(" ");
+                    if(response['newReplacnment'])$('#waterNewReplacement').html(response['newReplacnment'].status);
+                    $('#waterRequestedCycleYear').html(" ");
+                    if(response['cycleYear'])$('#waterRequestedCycleYear').html(response['cycleYear'].name);
+                    $('#holderStatus').html(" ");
+                    if(response['holderStatus'])$('#holderStatus').html(response['holderStatus'].status);
                     $('#referredBy').html(" ");
-                    $('#referredBy').html(response['waterRequestSystem'].referred_by);
+                    if(response['waterRequestSystem'])$('#referredBy').html(response['waterRequestSystem'].referred_by);
                     $('#systemNotesUser').html(" ");
-                    $('#systemNotesUser').html(response['waterRequestSystem'].notes);
+                    if(response['waterRequestSystem'])$('#systemNotesUser').html(response['waterRequestSystem'].notes);
 
                     waterRequestedDate
                 }

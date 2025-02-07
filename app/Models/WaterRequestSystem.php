@@ -33,4 +33,14 @@ class WaterRequestSystem extends Model
     {
         return $this->belongsTo(WaterSystemType::class, 'water_system_type_id', 'id');
     }
+
+    public function WaterSystemStatus() 
+    {
+        return $this->belongsTo(WaterSystemStatus::class, 'water_system_status_id', 'id');
+    }
+
+    public function WaterSystemCycle() 
+    {
+        return $this->belongsTo(WaterSystemCycle::class, 'water_system_cycle_id', 'id');
+    }
 }

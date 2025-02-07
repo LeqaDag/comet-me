@@ -513,6 +513,7 @@ Route::get('water-request/get_by_household/{household_public_id}/{is_household}'
 Route::get('/delete-water-request', [App\Http\Controllers\WaterRequestSystemController::class, 'deleteRequestedWaterSystem'])->name('deleteWaterRequest');
 Route::get('water-request/get_by_community/public/{community_id}', [App\Http\Controllers\WaterRequestSystemController::class, 'getPublicByCommunity']);
 Route::get('/move-water-request', [App\Http\Controllers\WaterRequestSystemController::class, 'moveRequestedWaterSystem'])->name('moveWaterRequest');
+Route::post('energy-request-export-progress', [App\Http\Controllers\WaterRequestSystemController::class, 'exportProgress'])->name('water-progress.export');
 
 Route::resource('vending-point', App\Http\Controllers\VendingPointController::class);
 Route::post('vendor-export', [App\Http\Controllers\VendingPointController::class, 'export'])->name('vending-point.export');
@@ -557,5 +558,8 @@ Route::post('data-collection-export', [App\Http\Controllers\DataCollectionContro
 Route::post('data-collection-export-household', [App\Http\Controllers\DataCollectionController::class, 'exportHousehold'])->name('data-collection.export-household');
 Route::post('data-collection-export-all', [App\Http\Controllers\DataCollectionController::class, 'exportAll'])->name('data-collection.export-all');
 Route::post('data-collection-import', [App\Http\Controllers\DataCollectionController::class, 'import'])->name('data-collection.import');
+Route::post('data-collection-export-community', [App\Http\Controllers\DataCollectionController::class, 'exportCommunity'])->name('data-collection.export-community');
+Route::post('data-collection-import-ac', [App\Http\Controllers\DataCollectionController::class, 'importAc'])->name('data-collection.import-ac');
+Route::post('data-collection-export-incident', [App\Http\Controllers\DataCollectionController::class, 'exportIncident'])->name('data-collection.export-incident');
 
 Route::get('household/compound/{id}', [App\Http\Controllers\HouseholdController::class, 'getCompounds']);

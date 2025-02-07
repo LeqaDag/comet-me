@@ -148,6 +148,13 @@
                                                         <h6 class="mb-0" id="waterRequestedType"></h6>
                                                     </div>
                                                 </li>
+                                                <li class="d-flex justify-content-start align-items-center text-danger mb-3">
+                                                    <i class="bx bx-calendar-check bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">Cycle Year:  </small>
+                                                        <h6 class="mb-0" id="waterRequestedCycleYear"></h6>
+                                                    </div>
+                                                </li>
                                                 <li class="d-flex justify-content-start align-items-center text-success mb-3">
                                                     <i class="bx bx-text bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
@@ -164,6 +171,20 @@
                                                     <div class="ps-3 border-start">
                                                         <small class="text-muted mb-1">Water Request Status: </small>
                                                         <h6 class="mb-0" id="waterRequestStatusCase"></h6>
+                                                    </div>
+                                                </li>
+                                                <li class="d-flex justify-content-start align-items-center text-success mb-3">
+                                                    <i class="bx bx-dialpad-alt bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">New or Replacement: </small>
+                                                        <h6 class="mb-0" id="waterNewReplacement"></h6>
+                                                    </div>
+                                                </li>
+                                                <li class="d-flex justify-content-start align-items-center text-info mb-3">
+                                                    <i class="bx bx-user bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">Holder Status: </small>
+                                                        <h6 class="mb-0" id="holderStatus"></h6>
                                                     </div>
                                                 </li>
                                                 <li class="d-flex justify-content-start align-items-center text-warning mb-3">

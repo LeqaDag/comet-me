@@ -214,6 +214,44 @@
     </div>
 
     <h6 class="py-3 breadcrumb-wrapper">
+        <a data-toggle="collapse" class="text-info" 
+            href="#waterProjectFiles" 
+            aria-expanded="false" 
+            aria-controls="waterProjectFiles">
+            <i class="bx bx-droplet bx-sm me-3"></i>
+            Water Project
+        </a>
+    </h6> 
+
+    <div class="row overflow-hidden collapse multi-collapse container" id="waterProjectFiles">
+        <div class=" mb-4">
+            <form method="POST" enctype='multipart/form-data' 
+                action="{{ route('water-progress.export') }}">
+                @csrf
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Export</label>
+                            <input type="text" class="form-control" disabled
+                            value="Water Progress Report File"> 
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Click Here</label>
+                            <button class="form-control btn-info" type="submit">
+                                <i class='fa-solid fa-file-excel'></i>
+                                Export Water Progress Report File
+                            </button>
+                        </fieldset>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <h6 class="py-3 breadcrumb-wrapper">
         <a data-toggle="collapse" class="text-success" 
             href="#InternetProjectFiles" 
             aria-expanded="false" 

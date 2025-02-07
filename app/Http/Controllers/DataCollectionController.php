@@ -6,10 +6,13 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Imports\ImportAcHousehold;
 use App\Imports\ImportHousehold;
 use App\Exports\DataCollection\DataCollectionExport;
 use App\Exports\DataCollection\Households;
-use App\Exports\DataCollection\AllForm\AllFormExport;
+use App\Exports\DataCollection\AcSurvey\AllFormExport;
+use App\Exports\DataCollection\Updating\CommunityCompoundExport;
+use App\Exports\DataCollection\Incidents\MainFileExport;
 use Illuminate\Support\Facades\URL;
 use mikehaertl\wkhtmlto\Pdf;
 use App\Models\Region;
@@ -69,7 +72,27 @@ class DataCollectionController extends Controller
     public function export(Request $request) 
     {
                 
-        return Excel::download(new DataCollectionExport($request), 'Updating Households.xlsx');
+        return Excel::download(new CommunityCompoundExport($request), 'Updating Households.xlsx');
+    }
+
+    /** 
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportCommunity(Request $request) 
+    {
+                
+        return Excel::download(new DataCollectionExport($request), 'Updating Communities/Compounds.xlsx');
+    }
+
+    /** 
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportIncident(Request $request) 
+    {
+                
+        return Excel::download(new MainFileExport($request), 'Incidents.xlsx');
     }
 
     /**
@@ -93,6 +116,33 @@ class DataCollectionController extends Controller
             }
     
             return redirect()->back()->with('success', 'Household Data Imported Successfully!');
+        } else {
+
+            return redirect()->back()->with('error', 'File upload failed');
+        }
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function importAc(Request $request)
+    {
+        $file = $request->file('excel_file');
+
+        if ($file->isValid()) {
+
+            $extension = $file->getClientOriginalExtension();
+    
+            if (in_array($extension, ['xlsx', 'xls', 'csv'])) {
+
+                Excel::import(new ImportAcHousehold, $file);
+            } else {
+
+                return redirect()->back()->with('error', 'Invalid file format');
+            }
+    
+            return redirect()->back()->with('success', 'AC Data Imported Successfully!');
         } else {
 
             return redirect()->back()->with('error', 'File upload failed');

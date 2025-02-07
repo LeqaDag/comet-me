@@ -56,7 +56,7 @@
                                     <fieldset class="form-group">
                                         <button class="btn btn-info" type="submit">
                                             <i class='fa-solid fa-download'></i>
-                                            Export Excel foramt "Household Updating"
+                                            Export Excel format "Household Updating"
                                         </button>
                                     </fieldset>
                                 </div>
@@ -72,7 +72,39 @@
                                     <fieldset class="form-group">
                                         <button class="btn btn-info" type="submit">
                                             <i class='fa-solid fa-download'></i>
-                                            Export Excel foramt "All Data"
+                                            Export Excel format "AC Survey"
+                                        </button>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-community') }}">
+                            @csrf
+                            <div class="card-body">
+                                <div class="row">
+                                    <fieldset class="form-group">
+                                        <button class="btn btn-info" type="submit">
+                                            <i class='fa-solid fa-download'></i>
+                                            Export Excel format "Community / Compound"
+                                        </button>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-incident') }}">
+                            @csrf
+                            <div class="card-body">
+                                <div class="row">
+                                    <fieldset class="form-group">
+                                        <button class="btn btn-danger" type="submit">
+                                            <i class='fa-solid fa-download'></i>
+                                            Export Excel format "Incidents"
                                         </button>
                                     </fieldset>
                                 </div>
@@ -106,6 +138,31 @@
     <div class="card">
         <div class="card-body">
             <form action="{{route('data-collection.import')}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <label for="excel_file">Choose Excel File</label>
+                    <input type="file" name="excel_file" class="form-control-file" id="excel_file"required>
+                    @error('excel_file')
+                    <div class="text-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div> <br>
+                <button type="submit" class="btn btn-success btn-block">
+                    
+                    <i class='fa-solid fa-upload'></i>
+                    Proccess
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
+        <span class="text-muted fw-light">Import </span>AC Households Details
+    </h4>
+
+    <!-- File Upload Form -->
+    <div class="card">
+        <div class="card-body">
+            <form action="{{route('data-collection.import-ac')}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
                     <label for="excel_file">Choose Excel File</label>

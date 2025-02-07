@@ -47,4 +47,9 @@ class PublicStructure extends Model
     {
         return $this->belongsTo(PublicStructureStatus::class, 'public_structure_status_id', 'id');
     }
+
+    public function WaterHolderStatus()
+    {
+        return $this->belongsTo(WaterHolderStatus::class, 'water_holder_status_id', 'id');
+    }
 }

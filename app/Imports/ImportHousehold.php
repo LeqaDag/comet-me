@@ -46,7 +46,22 @@ class ImportHousehold implements ToModel, WithHeadingRow
             $community = Community::where("english_name", $row["select_community"])->first();
             $household = null;
 
-            if($community && $row["select_is_live"] != "left") {
+            if($community && $row["select_is_live"] == "Left") {
+
+                if($row["select_household_name"]) {
+
+                    $household = Household::where('community_id', $community->id)
+                        ->where("comet_id", $row["select_household_name"])
+                        ->first();
+
+                    $householdStatus = HouseholdStatus::where('status', "Left")->first();
+                    if($householdStatus) {
+
+                        $household->household_status_id = $householdStatus->id;
+                        $household->save();
+                    }
+                }
+            } else if($community && $row["select_is_live"] == "Live") {
 
                 if($row["select_household_name"]) {
 
@@ -161,7 +176,7 @@ class ImportHousehold implements ToModel, WithHeadingRow
                         $newCommunityHousehold->save();
                     }
                 }
-            }
+            } 
         }
 
         // Importing from Excel sheet

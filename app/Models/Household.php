@@ -38,4 +38,9 @@ class Household extends Model
     {
         return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
     }
+
+    public function WaterHolderStatus()
+    {
+        return $this->belongsTo(WaterHolderStatus::class, 'water_holder_status_id', 'id');
+    }
 }

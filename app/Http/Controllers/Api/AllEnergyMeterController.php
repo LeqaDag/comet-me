@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Models\AllEnergyMeter; 
-use App\Models\PublicStructure; 
-use App\Models\User; 
+use App\Models\AllEnergyMeter;
+use App\Models\PublicStructure;
+use App\Models\User;
 use App\Models\EnergyTurbineCommunity;
 use App\Models\EnergyGeneratorCommunity;
 use App\Models\EnergySystem;
@@ -26,28 +26,30 @@ class AllEnergyMeterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request) 
-    {	
-        $incrementalNumber = 1; 
-        $outOfCometPublic = 10000; 
-        $turbineIndex = 30000; 
-        $generatorIndex = 40000; 
-        $energySystemIndex = 50000; 
-        $waterSystemIndex = 60000; 
-
+    public function index(Request $request)
+    {
+        $incrementalNumber = 1;
+        $outOfCometPublic = 10000;
+        $turbineIndex = 70000;
+        $generatorIndex = 40000;
+        $energySystemIndex = 50000;
+        $waterSystemIndex = 60000;
+        Cache::forget('energy_turbine_communities');
+        Cache::forget('energy_generator_communities');
+        Cache::forget('energy_systems');
         // This code for adding the fake meter numbers for the existing records for the turbines.
         // $allTurbines = EnergyTurbineCommunity::all();
 
         // foreach($allTurbines as $allTurbine) {
 
-        //     $fakeMeterNumber = 'ET'. $turbineIndex; 
+        //     $fakeMeterNumber = 'ET'. $turbineIndex;
 
         //     $exist = EnergyTurbineCommunity::where('fake_meter_number', $fakeMeterNumber)->first();
         //     if($exist) {
         //     } else {
-                    
+
         //         $allTurbine->fake_meter_number =$fakeMeterNumber;
-        //         $allTurbine->save(); 
+        //         $allTurbine->save();
         //     }
 
         //     $turbineIndex++;
@@ -58,13 +60,13 @@ class AllEnergyMeterController extends Controller
 
         // foreach($allGenerators as $allGenerator) {
 
-        //     $fakeMeterNumber = 'EG'.  $generatorIndex; 
+        //     $fakeMeterNumber = 'EG'.  $generatorIndex;
         //     $exist = EnergyGeneratorCommunity::where('fake_meter_number', $fakeMeterNumber)->first();
         //     if($exist) {
         //     } else {
-                    
+
         //         $allGenerator->fake_meter_number =$fakeMeterNumber;
-        //         $allGenerator->save(); 
+        //         $allGenerator->save();
         //     }
 
         //     $generatorIndex++;
@@ -75,13 +77,13 @@ class AllEnergyMeterController extends Controller
 
         // foreach($energySystems as $energySystem) {
 
-        //     $fakeMeterNumber = 'ES'.  $energySystemIndex; 
+        //     $fakeMeterNumber = 'ES'.  $energySystemIndex;
         //     $exist = EnergySystem::where('fake_meter_number', $fakeMeterNumber)->first();
         //     if($exist) {
         //     } else {
-                    
+
         //         $energySystem->fake_meter_number =$fakeMeterNumber;
-        //         $energySystem->save(); 
+        //         $energySystem->save();
         //     }
 
         //     $energySystemIndex++;
@@ -92,13 +94,13 @@ class AllEnergyMeterController extends Controller
 
         // foreach($waterSystems as $waterSystem) {
 
-        //     $fakeMeterNumber = 'WS'.  $waterSystemIndex; 
+        //     $fakeMeterNumber = 'WS'.  $waterSystemIndex;
         //     $exist = WaterSystem::where('fake_meter_number', $fakeMeterNumber)->first();
         //     if($exist) {
         //     } else {
-                    
+
         //         $waterSystem->fake_meter_number =$fakeMeterNumber;
-        //         $waterSystem->save(); 
+        //         $waterSystem->save();
         //     }
 
         //     $waterSystemIndex++;
@@ -115,7 +117,7 @@ class AllEnergyMeterController extends Controller
         //         ->where("out_of_comet", 1)
         //         ->where('fake_meter_number', $fakeMeterNumber)
         //         ->first();
-        //     if($exist) { 
+        //     if($exist) {
         //     } else {
         //         $outOfCometPublicStructure->fake_meter_number = $fakeMeterNumber;
         //         $outOfCometPublicStructure->save();
@@ -123,7 +125,7 @@ class AllEnergyMeterController extends Controller
         //     $outOfCometPublic++;
         // }
 
-        // This code for adding the fake meter numbers for the existing records and it applies only once. 
+        // This code for adding the fake meter numbers for the existing records and it applies only once.
 
         // foreach ($sharedUsers as $sharedUser) {
 
@@ -133,12 +135,12 @@ class AllEnergyMeterController extends Controller
 
         //     if($exist) {
 
-        //         $incrementalNumber++; 
+        //         $incrementalNumber++;
         //     } else {
 
         //         $allEnergyMeter = null;
         //         if($sharedUser->shared_household_id) {
-                     
+
         //             $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
         //                 ->whereNull("meter_number")
         //                 ->where("household_id", $sharedUser->shared_household_id)
@@ -154,8 +156,8 @@ class AllEnergyMeterController extends Controller
 
         //             $allEnergyMeter->fake_meter_number = $fakeMeterNumber;
         //             $allEnergyMeter->save();
-        
-        //             $incrementalNumber++; 
+
+        //             $incrementalNumber++;
         //         }
         //     }
         // }
@@ -183,11 +185,11 @@ class AllEnergyMeterController extends Controller
                     'communities.arabic_name as arabic_community_name',
                     'compounds.english_name as english_compound_name',
                     'compounds.arabic_name as arabic_compound_name',
-                    'households.english_name as holder_name_english', 
-                    'households.arabic_name as holder_name_arabic',  
-                    'households.comet_id', 
+                    'households.english_name as holder_name_english',
+                    'households.arabic_name as holder_name_arabic',
+                    'households.comet_id',
                     'households.phone_number', 'household_statuses.status as energy_system_status',
-                    DB::raw('IFNULL(all_energy_meters.meter_number, 
+                    DB::raw('IFNULL(all_energy_meters.meter_number,
                         IFNULL(all_energy_meters.fake_meter_number, young_holders.fake_meter_number)) as meter_number'),
                     'energy_system_types.name as energy_type',
                     'meter_cases.meter_case_name_english as meter_case',
@@ -219,14 +221,14 @@ class AllEnergyMeterController extends Controller
                 ->select(
                     'communities.english_name as english_community_name',
                     'communities.arabic_name as arabic_community_name',
-                    DB::raw('false as english_compound_name'), 
-                    DB::raw('false as arabic_compound_name'), 
-                    'public_structures.english_name as holder_name_english', 
-                    'public_structures.arabic_name as holder_name_arabic', 
+                    DB::raw('false as english_compound_name'),
+                    DB::raw('false as arabic_compound_name'),
+                    'public_structures.english_name as holder_name_english',
+                    'public_structures.arabic_name as holder_name_arabic',
                     'public_structures.comet_id',
                     'public_structures.phone_number',
                     'public_structure_statuses.status as energy_system_status',
-                    DB::raw('IFNULL(all_energy_meters.meter_number, public_structures.fake_meter_number) 
+                    DB::raw('IFNULL(all_energy_meters.meter_number, public_structures.fake_meter_number)
                         as meter_number'),
                     'energy_system_types.name as energy_type',
                     'meter_cases.meter_case_name_english as meter_case',
@@ -237,12 +239,12 @@ class AllEnergyMeterController extends Controller
                         ELSE 'Not Served' END AS internet_system_status"),
                     DB::raw('IFNULL(internet_public.is_ppp, 0) as is_ppp'),
                     DB::raw('IFNULL(internet_public.is_hotspot, 0) as is_hotspot'),
-                    DB::raw('IFNULL(main_users.english_name, main_public.english_name) 
+                    DB::raw('IFNULL(main_users.english_name, main_public.english_name)
                         as main_holder'),
                 )
                 ->distinct()
                 ->get();
-        
+
 
         $turbines = Cache::remember('energy_turbine_communities', 3600, function () {
             return DB::table('energy_turbine_communities')
@@ -250,18 +252,20 @@ class AllEnergyMeterController extends Controller
                 ->select(
                     'communities.english_name as english_community_name',
                     'communities.arabic_name as arabic_community_name',
-                    DB::raw('false as english_compound_name'), 
-                    DB::raw('false as arabic_compound_name'), 
-                    'energy_turbine_communities.name as holder_name_english', 
-                    'energy_turbine_communities.name as holder_name_arabic', 
-                    DB::raw('false as phone_number'), 
+                    DB::raw('false as english_compound_name'),
+                    DB::raw('false as arabic_compound_name'),
+                    'energy_turbine_communities.comet_id',
+                    'energy_turbine_communities.name as holder_name_english',
+                    'energy_turbine_communities.name as holder_name_arabic',
+                    DB::raw('false as phone_number'),
                     'energy_turbine_communities.fake_meter_number as meter_number',
                     DB::raw('false as energy_type'), DB::raw('false as meter_case'),
-                    DB::raw('false as is_main'), DB::raw('false as is_archived'), 
-                    DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'), 
-                    DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder') 
+                    DB::raw('false as is_main'), DB::raw('false as is_archived'),
+                    DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'),
+                    DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder')
+
                 )
-                ->get(); 
+                ->get();
         });
 
         $energySystems = Cache::remember('energy_systems', 3600, function () {
@@ -271,16 +275,17 @@ class AllEnergyMeterController extends Controller
                 ->select(
                     'communities.english_name as english_community_name',
                     'communities.arabic_name as arabic_community_name',
-                    DB::raw('false as english_compound_name'), 
-                    DB::raw('false as arabic_compound_name'), 
-                    'energy_systems.name as holder_name_english', 
-                    'energy_systems.name as holder_name_arabic', 
-                    DB::raw('false as phone_number'), 
+                    DB::raw('false as english_compound_name'),
+                    DB::raw('false as arabic_compound_name'),
+                    'energy_systems.comet_id',
+                    'energy_systems.name as holder_name_english',
+                    'energy_systems.name as holder_name_arabic',
+                    DB::raw('false as phone_number'),
                     'energy_systems.fake_meter_number as meter_number',
                     DB::raw('false as energy_type'), DB::raw('false as meter_case'),
-                    DB::raw('false as is_main'), DB::raw('false as is_archived'), 
-                    DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'), 
-                    DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder') 
+                    DB::raw('false as is_main'), DB::raw('false as is_archived'),
+                    DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'),
+                    DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder')
                 )
                 ->get();
         });
@@ -292,16 +297,18 @@ class AllEnergyMeterController extends Controller
                 ->select(
                     'communities.english_name as english_community_name',
                     'communities.arabic_name as arabic_community_name',
-                    DB::raw('false as english_compound_name'), 
-                    DB::raw('false as arabic_compound_name'), 
-                    'water_systems.name as holder_name_english', 
-                    'water_systems.name as holder_name_arabic', 
-                    DB::raw('false as phone_number'), 
+                    DB::raw('false as english_compound_name'),
+                    DB::raw('false as arabic_compound_name'),
+                    'water_systems.comet_id',
+                    'water_systems.name as holder_name_english',
+                    'water_systems.name as holder_name_arabic',
+                    DB::raw('false as phone_number'),
                     'water_systems.fake_meter_number as meter_number',
                     DB::raw('false as energy_type'), DB::raw('false as meter_case'),
-                    DB::raw('false as is_main'), DB::raw('false as is_archived'), 
-                    DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'), 
-                    DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder') 
+                    DB::raw('false as is_main'), DB::raw('false as is_archived'),
+                    DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'),
+                    DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder')
+
                 )
                 ->get();
         });
@@ -312,18 +319,20 @@ class AllEnergyMeterController extends Controller
             ->select(
                 'communities.english_name as english_community_name',
                 'communities.arabic_name as arabic_community_name',
-                DB::raw('false as english_compound_name'), 
-                DB::raw('false as arabic_compound_name'), 
-                'energy_generator_communities.name as holder_name_english', 
-                'energy_generator_communities.name as holder_name_arabic', 
-                DB::raw('false as phone_number'), 
+                DB::raw('false as english_compound_name'),
+                DB::raw('false as arabic_compound_name'),
+                'energy_generator_communities.comet_id',
+                'energy_generator_communities.name as holder_name_english',
+                'energy_generator_communities.name as holder_name_arabic',
+                DB::raw('false as phone_number'),
                 'energy_generator_communities.fake_meter_number as meter_number',
                 DB::raw('false as energy_type'), DB::raw('false as meter_case'),
-                DB::raw('false as is_main'), DB::raw('false as is_archived'), 
-                DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'), 
-                DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder') 
+                DB::raw('false as is_main'), DB::raw('false as is_archived'),
+                DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'),
+                DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
+
             )
-            ->get(); 
+            ->get();
         });
 
         $data = collect([$households, $publics, $turbines, $generators, $energySystems, $waterSystems])->flatten();
