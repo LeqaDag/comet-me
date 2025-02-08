@@ -111,6 +111,22 @@
                             </div>
                         </form>
                     </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-displacement') }}">
+                            @csrf
+                            <div class="card-body">
+                                <div class="row">
+                                    <fieldset class="form-group">
+                                        <button class="btn btn-warning" type="submit">
+                                            <i class='fa-solid fa-download'></i>
+                                            Export Excel format "Displacement"
+                                        </button>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>  
         </div>

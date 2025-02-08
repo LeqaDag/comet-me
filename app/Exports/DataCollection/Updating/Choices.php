@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports\DataCollection\AcSurvey;
+namespace App\Exports\DataCollection;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -26,35 +26,29 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
     */
     public function collection()
     {
-        $initialCommunities =  DB::table('communities')
-            ->join('regions', 'communities.region_id', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
-            ->where('communities.is_archived', 0)
-            ->where('communities.community_status_id', 1)
+        $regions = DB::table('regions')
+            ->where('regions.is_archived', 0)
             ->select(
-                DB::raw('"initial_community" as list_name'), 
-                'communities.english_name as name',
-                'communities.english_name as label:English (en)',
-                'communities.arabic_name as label:Arabic (ar)',
-                'regions.english_name as region',
-                'sub_regions.english_name as sub_region',
+                DB::raw('"region" as list_name'), 
+                'regions.english_name as name',
+                'regions.english_name as label:English (en)',
+                'regions.arabic_name as label:Arabic (ar)',
+                DB::raw('false as region'),
+                DB::raw('false as sub_region'),
                 DB::raw('false as community')
             )
             ->get();
 
-        $acCommunities =  DB::table('communities')
-            ->join('regions', 'communities.region_id', 'regions.id')
-            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
-            ->where('communities.is_archived', 0)
-            ->where('communities.community_status_id', 2)
-            ->orWhere('communities.community_status_id', 1)
+        $sub_regions = DB::table('sub_regions')
+            ->join('regions', 'sub_regions.region_id', 'regions.id')
+            ->where('sub_regions.is_archived', 0)
             ->select(
-                DB::raw('"ac_community" as list_name'), 
-                'communities.english_name as name',
-                'communities.english_name as label:English (en)',
-                'communities.arabic_name as label:Arabic (ar)',
+                DB::raw('"sub_region" as list_name'), 
+                'sub_regions.english_name as name',
+                'sub_regions.english_name as label:English (en)',
+                'sub_regions.arabic_name as label:Arabic (ar)',
                 'regions.english_name as region',
-                'sub_regions.english_name as sub_region',
+                DB::raw('false as sub_region'),
                 DB::raw('false as community')
             )
             ->get();
@@ -87,7 +81,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
                 'communities.english_name as community'
             )
             ->get();
-            
+
         $households = DB::table('households')
             ->join('communities', 'households.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -111,13 +105,26 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
             ->where('all_energy_meters.is_archived', 0)
             ->select(
-                DB::raw('"main_users" as list_name'), 
+                DB::raw('"main_user" as list_name'), 
                 'all_energy_meters.id as name',
                 'households.english_name as label:English (en)',
                 'households.arabic_name as label:Arabic (ar)',
                 'regions.english_name as region',
                 'sub_regions.english_name as sub_region',
                 'communities.english_name as community'
+            )
+            ->get();
+
+        $professions = DB::table('professions')
+            ->where('professions.is_archived', 0)
+            ->select(
+                DB::raw('"profession" as list_name'), 
+                'professions.profession_name as name',
+                'professions.profession_name as label:English (en)',
+                'professions.arabic_name as label:Arabic (ar)',
+                DB::raw('false as region'),
+                DB::raw('false as sub_region'),
+                DB::raw('false as community')
             )
             ->get();
 
@@ -132,86 +139,252 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
                 DB::raw('false as community')
             )
             ->get();
-        $professions = DB::table('professions')
-            ->where('professions.is_archived', 0)
+
+        $neighboringSchools1 = DB::table('public_structures')
+            ->join('communities', 'public_structures.community_id', 'communities.id')
+            ->where('public_structures.is_archived', 0)
+            ->where('public_structure_category_id1', 1)
+            ->orWhere('public_structure_category_id2', 1)
+            ->orWhere('public_structure_category_id3', 1)
             ->select(
-                DB::raw('"profession" as list_name'), 
-                'professions.profession_name as name',
-                'professions.profession_name as label:English (en)',
-                'professions.arabic_name as label:Arabic (ar)',
+                DB::raw('"neighboring_school1" as list_name'), 
+                'public_structures.comet_id as name',
+                'public_structures.english_name as label:English (en)',
+                'public_structures.arabic_name as label:Arabic (ar)',
                 DB::raw('false as region'),
                 DB::raw('false as sub_region'),
-                DB::raw('false as community')
+                'communities.english_name as community'
             )
             ->get();
 
-        $cycleYears = DB::table('energy_system_cycles')
+        $neighboringSchools2 = DB::table('public_structures')
+            ->join('communities', 'public_structures.community_id', 'communities.id')
+            ->where('public_structures.is_archived', 0)
+            ->where('public_structure_category_id1', 1)
+            ->orWhere('public_structure_category_id2', 1)
+            ->orWhere('public_structure_category_id3', 1)
             ->select(
-                DB::raw('"cycle_year" as list_name'), 
-                'energy_system_cycles.name as name',
-                'energy_system_cycles.name as label:English (en)',
-                'energy_system_cycles.name as label:Arabic (ar)',
+                DB::raw('"neighboring_school2" as list_name'), 
+                'public_structures.comet_id as name',
+                'public_structures.english_name as label:English (en)',
+                'public_structures.arabic_name as label:Arabic (ar)',
                 DB::raw('false as region'),
                 DB::raw('false as sub_region'),
-                DB::raw('false as community')
+                'communities.english_name as community'
             )
             ->get();
-
-        $energyTypes = DB::table('energy_system_types')
-            ->where('energy_system_types.is_archived', 0)
-            ->select(
-                DB::raw('"system_type" as list_name'), 
-                'energy_system_types.name as name',
-                'energy_system_types.name as label:English (en)',
-                'energy_system_types.name as label:Arabic (ar)',
-                DB::raw('false as region'),
-                DB::raw('false as sub_region'),
-                DB::raw('false as community')
-            )
-            ->get();
-
 
         $fixedList = [
-            // [
-            //     'list_name' => 'form_type', 
-            //     'name' => 'Initial Survey',
-            //     'label' => 'Initial Survey',
-            //     'label:English (en)' => 'Initial Survey',
-            //     'label:Arabic (ar)' => 'الاستبيان الأولي',
-            //     'region' => false,
-            //     'sub_region' => false,
-            //     'community' => false,
-            // ],
-            // [
-            //     'list_name' => 'form_type', 
-            //     'name' => 'AC Survey',
-            //     'label' => 'AC Survey',
-            //     'label:English (en)' => 'AC Survey',
-            //     'label:Arabic (ar)' => 'الاستبيان الفعلي ',
-            //     'region' => false,
-            //     'sub_region' => false,
-            //     'community' => false,
-            // ],
-            // [
-            //     'list_name' => 'form_type', 
-            //     'name' => 'Incidents',
-            //     'label' => 'Incidents',
-            //     'label:English (en)' => 'Incidents',
-            //     'label:Arabic (ar)' => 'الحوادث',
-            //     'region' => false,
-            //     'sub_region' => false,
-            //     'community' => false,
-            // ],
-            // [
-            //     'list_name' => 'form_type', 
-            //     'name' => 'Displacement',
-            //     'label' => 'Displacement',
-            //     'label:English (en)' => 'Displacement',
-            //     'label:Arabic (ar)' => 'الرحيل',
-            //     'region' => false,
-            //     'sub_region' => false,
-            //     'community' => false,
-            // ],
+            [
+                'list_name' => 'form_type', 
+                'name' => 'Community',
+                'label:English (en)' => 'Community',
+                'label:Arabic (ar)' => 'تجمع',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'form_type', 
+                'name' => 'Household',
+                'label:English (en)' => 'Household',
+                'label:Arabic (ar)' => 'أسرة',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'fallah', 
+                'name' => 'Yes',
+                'label:English (en)' => 'Yes',
+                'label:Arabic (ar)' => 'نعم',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'fallah', 
+                'name' => 'No',
+                'label:English (en)' => 'No',
+                'label:Arabic (ar)' => 'لا',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'bedouin', 
+                'name' => 'Yes',
+                'label:English (en)' => 'Yes',
+                'label:Arabic (ar)' => 'نعم',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'bedouin', 
+                'name' => 'No',
+                'label:English (en)' => 'No',
+                'label:Arabic (ar)' => 'لا',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'reception', 
+                'name' => 'Yes',
+                'label:English (en)' => 'Yes',
+                'label:Arabic (ar)' => 'نعم',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'reception', 
+                'name' => 'No',
+                'label:English (en)' => 'No',
+                'label:Arabic (ar)' => 'لا',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'products', 
+                'name' => 'Butter',
+                'label:English (en)' => 'Butter',
+                'label:Arabic (ar)' => 'زبدة',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'products', 
+                'name' => 'Cheese',
+                'label:English (en)' => 'Cheese',
+                'label:Arabic (ar)' => 'جبنة',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'products', 
+                'name' => 'Yoqurt',
+                'label:English (en)' => 'Yoqurt',
+                'label:Arabic (ar)' => 'لبنة',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'water_sources', 
+                'name' => 'Grid',
+                'label:English (en)' => 'Grid',
+                'label:Arabic (ar)' => 'شبكة',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'water_sources', 
+                'name' => 'Rain_Harvest',
+                'label:English (en)' => 'Rain Harvest',
+                'label:Arabic (ar)' => 'مياه أمطار',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'water_sources', 
+                'name' => 'Tankers',
+                'label:English (en)' => 'Tankers',
+                'label:Arabic (ar)' => 'تنكات',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'community_demolition', 
+                'name' => 'Yes',
+                'label:English (en)' => 'Yes',
+                'label:Arabic (ar)' => 'نعم',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'community_demolition', 
+                'name' => 'No',
+                'label:English (en)' => 'No',
+                'label:Arabic (ar)' => 'لا',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'demolition_executed', 
+                'name' => 'Yes',
+                'label:English (en)' => 'Yes',
+                'label:Arabic (ar)' => 'نعم',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'demolition_executed', 
+                'name' => 'No',
+                'label:English (en)' => 'No',
+                'label:Arabic (ar)' => 'لا',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'neighboring_communities', 
+                'name' => '0',
+                'label:English (en)' => '0',
+                'label:Arabic (ar)' => '0',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'neighboring_communities', 
+                'name' => '1',
+                'label:English (en)' => '1',
+                'label:Arabic (ar)' => '1',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'neighboring_communities', 
+                'name' => '2',
+                'label:English (en)' => '2',
+                'label:Arabic (ar)' => '2',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+
+
+
+            [
+                'list_name' => 'is_live', 
+                'name' => 'Live',
+                'label:English (en)' => 'Live',
+                'label:Arabic (ar)' => 'ساكن',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'is_live', 
+                'name' => 'Move',
+                'label:English (en)' => 'Move',
+                'label:Arabic (ar)' => 'انتقل',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
             [
                 'list_name' => 'herds', 
                 'name' => 'Yes',
@@ -466,16 +639,33 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ],
         ];
 
-        $query = collect($households)
-            //->merge($energyTypes) 
-            ->merge($professions)
-            ->merge($acCommunities)
+
+
+        if($this->request->region) {
+
+            $regions->where("regions.id", $this->request->region);
+            $sub_regions->where("regions.id", $this->request->region);
+            $communities->where("communities.region_id", $this->request->region);
+            $households->where("regions.id", $this->request->region);
+        }
+
+        if($this->request->sub_region) {
+
+            $sub_regions->where("sub_regions.id", $this->request->region);
+            $communities->where("communities.sub_region_id", $this->request->sub_region);
+            $households->where("sub_regions.id", $this->request->sub_region);
+        }
+
+        $query = collect($regions)
+            ->merge($sub_regions)
+            ->merge($communities)
             ->merge($compounds)
-            //->merge($initialCommunities)
-            //->merge($communities)
+            ->merge($households)
             ->merge($mainUsers)
-            ->merge($cycleYears)
+            ->merge($professions)
             ->merge($meterCaseDescriptions)
+            ->merge($neighboringSchools1)
+            ->merge($neighboringSchools2)
             ->merge($fixedList); 
         
         return $query;

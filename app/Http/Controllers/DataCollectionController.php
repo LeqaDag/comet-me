@@ -13,6 +13,7 @@ use App\Exports\DataCollection\Households;
 use App\Exports\DataCollection\AcSurvey\AllFormExport;
 use App\Exports\DataCollection\Updating\CommunityCompoundExport;
 use App\Exports\DataCollection\Incidents\MainFileExport;
+use App\Exports\DataCollection\Displacement\MainFileDisplacementExport;
 use Illuminate\Support\Facades\URL;
 use mikehaertl\wkhtmlto\Pdf;
 use App\Models\Region;
@@ -72,7 +73,7 @@ class DataCollectionController extends Controller
     public function export(Request $request) 
     {
                 
-        return Excel::download(new CommunityCompoundExport($request), 'Updating Households.xlsx');
+        return Excel::download(new DataCollectionExport($request), 'Updating Households.xlsx');
     }
 
     /** 
@@ -82,7 +83,7 @@ class DataCollectionController extends Controller
     public function exportCommunity(Request $request) 
     {
                 
-        return Excel::download(new DataCollectionExport($request), 'Updating Communities/Compounds.xlsx');
+        return Excel::download(new CommunityCompoundExport($request), 'Updating Communities/Compounds.xlsx');
     }
 
     /** 
@@ -93,6 +94,16 @@ class DataCollectionController extends Controller
     {
                 
         return Excel::download(new MainFileExport($request), 'Incidents.xlsx');
+    }
+
+    /** 
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportDisplacement(Request $request) 
+    {
+                
+        return Excel::download(new MainFileDisplacementExport($request), 'Displacement.xlsx');
     }
 
     /**

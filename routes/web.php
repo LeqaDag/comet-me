@@ -561,5 +561,6 @@ Route::post('data-collection-import', [App\Http\Controllers\DataCollectionContro
 Route::post('data-collection-export-community', [App\Http\Controllers\DataCollectionController::class, 'exportCommunity'])->name('data-collection.export-community');
 Route::post('data-collection-import-ac', [App\Http\Controllers\DataCollectionController::class, 'importAc'])->name('data-collection.import-ac');
 Route::post('data-collection-export-incident', [App\Http\Controllers\DataCollectionController::class, 'exportIncident'])->name('data-collection.export-incident');
+Route::post('data-collection-export-displacement', [App\Http\Controllers\DataCollectionController::class, 'exportDisplacement'])->name('data-collection.export-displacement');
 
 Route::get('household/compound/{id}', [App\Http\Controllers\HouseholdController::class, 'getCompounds']);

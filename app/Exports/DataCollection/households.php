@@ -26,8 +26,6 @@ class Households implements FromCollection, WithHeadings, WithTitle, ShouldAutoS
     */
     public function collection()
     {
-
-        
         $households = DB::table('households') 
             ->join('communities', 'households.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -37,7 +35,8 @@ class Households implements FromCollection, WithHeadings, WithTitle, ShouldAutoS
             ->leftJoin('structures', 'households.id', 'structures.household_id')
             ->leftJoin('cisterns', 'households.id', 'cisterns.household_id')
             ->leftJoin('community_households', 'community_households.household_id', 'households.id')
-            ->where('households.is_archived', 0) 
+            ->where('households.is_archived', 0)  
+            ->where('communities.is_archived', 0)
             ->where('internet_holder_young', 0) 
             ->select(
                 DB::raw('"household" as list_name'), 
