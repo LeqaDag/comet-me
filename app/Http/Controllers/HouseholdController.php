@@ -616,6 +616,7 @@ class HouseholdController extends Controller
             $html = '<option disabled selected>Choose One...</option>';
             $households = DB::table('households')
                 ->where('households.community_id', $request->community_id)
+                ->where('households.is_archived', 0)
                // ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
                 //->whereNull('all_energy_meters.household_id')
                 ->select('households.id', 'households.english_name')

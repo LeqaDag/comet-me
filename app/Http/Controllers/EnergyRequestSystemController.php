@@ -203,7 +203,7 @@ class EnergyRequestSystemController extends Controller
         $energyRequestHousehold->demolition_order = $request->demolition_order;
         $energyRequestHousehold->energy_system_type_id = $request->energy_system_type_id;
         $energyRequestHousehold->request_date = $request->request_date;
-        $energyRequestHousehold->referred_by_id = $request->referred_by_id;
+        $energyRequestHousehold->referred_by_id = $request->referred_by_id; 
         $energyRequestHousehold->notes = $request->notes;
         $energyRequestHousehold->save();
 

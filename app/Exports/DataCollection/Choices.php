@@ -140,37 +140,16 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             )
             ->get();
 
-        $neighboringSchools1 = DB::table('public_structures')
-            ->join('communities', 'public_structures.community_id', 'communities.id')
-            ->where('public_structures.is_archived', 0)
-            ->where('public_structure_category_id1', 1)
-            ->orWhere('public_structure_category_id2', 1)
-            ->orWhere('public_structure_category_id3', 1)
+        $systemTypes = DB::table('energy_system_types')
+            ->where('energy_system_types.is_archived', 0)
             ->select(
-                DB::raw('"neighboring_school1" as list_name'), 
-                'public_structures.comet_id as name',
-                'public_structures.english_name as label:English (en)',
-                'public_structures.arabic_name as label:Arabic (ar)',
+                DB::raw('"system_type" as list_name'), 
+                'energy_system_types.name as name',
+                'energy_system_types.name as label:English (en)',
+                'energy_system_types.name as label:Arabic (ar)',
                 DB::raw('false as region'),
                 DB::raw('false as sub_region'),
-                'communities.english_name as community'
-            )
-            ->get();
-
-        $neighboringSchools2 = DB::table('public_structures')
-            ->join('communities', 'public_structures.community_id', 'communities.id')
-            ->where('public_structures.is_archived', 0)
-            ->where('public_structure_category_id1', 1)
-            ->orWhere('public_structure_category_id2', 1)
-            ->orWhere('public_structure_category_id3', 1)
-            ->select(
-                DB::raw('"neighboring_school2" as list_name'), 
-                'public_structures.comet_id as name',
-                'public_structures.english_name as label:English (en)',
-                'public_structures.arabic_name as label:Arabic (ar)',
-                DB::raw('false as region'),
-                DB::raw('false as sub_region'),
-                'communities.english_name as community'
+                DB::raw('false as community')
             )
             ->get();
 
@@ -472,8 +451,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->merge($mainUsers)
             ->merge($professions)
             ->merge($meterCaseDescriptions)
-            ->merge($neighboringSchools1)
-            ->merge($neighboringSchools2)
+            ->merge($systemTypes)
             ->merge($fixedList); 
         
         return $query;

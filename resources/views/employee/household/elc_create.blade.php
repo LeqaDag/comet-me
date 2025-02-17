@@ -22,7 +22,7 @@ label {
   <span class="text-muted fw-light">Add </span> New Elc.
 </h4>
 
-<div class="card">
+<div class="card"> 
     <div class="card-content collapse show">
         <div class="card-body">
             <form method="POST" enctype='multipart/form-data' id="elecUserForm" 

@@ -94,7 +94,8 @@ class CommunityAll implements FromCollection, WithHeadings, WithTitle, ShouldAut
                 DB::raw('group_concat(DISTINCT settlements.english_name) as settlements'),
                 'communities.demolition', 'communities.demolition_number', 
                 'communities.demolition_executed', 'communities.last_demolition', 
-                'communities.lawyer'
+                'communities.lawyer',  
+                'communities.is_surveyed', 'communities.last_surveyed_date'
             )
             ->groupBy('communities.id');
 
@@ -213,7 +214,7 @@ class CommunityAll implements FromCollection, WithHeadings, WithTitle, ShouldAut
             "Community Representatives", "Phone Numbers", "Role",
             "Product Types", "Nearby Towns", "Nearby Settlements", 
             "Demolition Orders", "# of Demolitions", "# of Execution Demolitions",
-            "Last Demolition", "Lawyers"];
+            "Last Demolition", "Lawyers", "Is Surveyed", "Surveyed Date"];
     }
 
 

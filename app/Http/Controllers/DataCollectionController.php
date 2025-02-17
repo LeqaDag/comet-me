@@ -14,6 +14,7 @@ use App\Exports\DataCollection\AcSurvey\AllFormExport;
 use App\Exports\DataCollection\Updating\CommunityCompoundExport;
 use App\Exports\DataCollection\Incidents\MainFileExport;
 use App\Exports\DataCollection\Displacement\MainFileDisplacementExport;
+use App\Exports\DataCollection\Agriculture\MainFile;
 use Illuminate\Support\Facades\URL;
 use mikehaertl\wkhtmlto\Pdf;
 use App\Models\Region;
@@ -104,6 +105,16 @@ class DataCollectionController extends Controller
     {
                 
         return Excel::download(new MainFileDisplacementExport($request), 'Displacement.xlsx');
+    }
+
+    /** 
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportAgriculture(Request $request) 
+    {
+                
+        return Excel::download(new MainFile($request), 'Agriculture Survey.xlsx');
     }
 
     /**

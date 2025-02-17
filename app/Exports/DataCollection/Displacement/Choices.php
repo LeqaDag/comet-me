@@ -31,9 +31,8 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->select(
                 DB::raw('"region" as list_name'), 
                 'regions.english_name as name',
-                'regions.arabic_name as label',
-                'regions.english_name as label_en',
-                'regions.arabic_name as label_ar',
+                'regions.arabic_name as label:Arabic (ar)',
+                'regions.english_name as label:English (en)',
                 DB::raw('false as region'),
                 DB::raw('false as sub_region'),
                 DB::raw('false as community')
@@ -46,9 +45,8 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->select(
                 DB::raw('"sub_region" as list_name'), 
                 'sub_regions.english_name as name',
-                'sub_regions.arabic_name as label',
-                'sub_regions.english_name as label_en',
-                'sub_regions.arabic_name as label_ar',
+                'sub_regions.arabic_name as label:Arabic (ar)',
+                'sub_regions.english_name as label:English (en)',
                 'regions.english_name as region',
                 DB::raw('false as sub_region'),
                 DB::raw('false as community')
@@ -62,9 +60,8 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->select(
                 DB::raw('"community" as list_name'), 
                 'communities.english_name as name',
-                'communities.arabic_name as label',
-                'communities.english_name as label_en',
-                'communities.arabic_name as label_ar',
+                'communities.arabic_name as label:Arabic (ar)',
+                'communities.english_name as label:English (en)',
                 'regions.english_name as region',
                 'sub_regions.english_name as sub_region',
                 DB::raw('false as community')
@@ -77,9 +74,8 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->select(
                 DB::raw('"household" as list_name'), 
                 'households.comet_id as name',
-                'households.arabic_name as label',
-                'households.english_name as label_en',
-                'households.arabic_name as label_ar',
+                'households.arabic_name as label:Arabic (ar)',
+                'households.english_name as label:English (en)',
                 DB::raw('false as region'),
                 DB::raw('false as sub_region'),
                 'communities.english_name as community'
@@ -91,9 +87,8 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->select(
                 DB::raw('"new_region" as list_name'), 
                 'sub_regions.english_name as name',
-                'sub_regions.arabic_name as label',
-                'sub_regions.english_name as label_en',
-                'sub_regions.arabic_name as label_ar',
+                'sub_regions.arabic_name as label:Arabic (ar)',
+                'sub_regions.english_name as label:English (en)',
                 DB::raw('false as region'),
                 DB::raw('false as sub_region'),
                 DB::raw('false as community')
@@ -104,9 +99,8 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->select(
                 DB::raw('"household_status" as list_name'), 
                 'displaced_household_statuses.name as name',
-                'displaced_household_statuses.arabic_name as label',
-                'displaced_household_statuses.name as label_en',
-                'displaced_household_statuses.arabic_name as label_ar',
+                'displaced_household_statuses.arabic_name as label:Arabic (ar)',
+                'displaced_household_statuses.name as label:English (en)',
                 DB::raw('false as region'),
                 DB::raw('false as sub_region'),
                 DB::raw('false as community')
@@ -117,43 +111,55 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             [
                 'list_name' => 'area', 
                 'name' => 'Area A',
-                'label' => 'منطقة A',
-                'label_en' => 'Area A',
+                'label:Arabic (ar)' => 'منطقة A',
+                'label:English (en)' => 'Area A',
+                'region' => false,
+                'sub_region' => false,
                 'community' => false,
             ],
             [
                 'list_name' => 'area', 
                 'name' => 'Area B',
-                'label' => 'منطقة B',
-                'label_en' => 'Area B',
+                'label:Arabic (ar)' => 'منطقة B',
+                'label:English (en)' => 'Area B',
+                'region' => false,
+                'sub_region' => false,
                 'community' => false,
             ],
             [
                 'list_name' => 'area', 
                 'name' => 'Area C',
-                'label' => 'منطقة C',
-                'label_en' => 'Area C',
+                'label:Arabic (ar)' => 'منطقة C',
+                'label:English (en)' => 'Area C',
+                'region' => false,
+                'sub_region' => false,
                 'community' => false,
             ],
             [
                 'list_name' => 'system_retrieved', 
                 'name' => 'System Retrieved',
-                'label' => 'تم ارجاع النظام',
-                'label_en' => 'System Retrieved',
+                'label:Arabic (ar)' => 'تم ارجاع النظام',
+                'label:English (en)' => 'System Retrieved',
+                'region' => false,
+                'sub_region' => false,
                 'community' => false,
             ],
             [
                 'list_name' => 'system_retrieved', 
                 'name' => 'System Not Retrieved',
-                'label' => 'لم يتم ارجاع النظام',
-                'label_en' => 'System Not Retrieved',
+                'label:Arabic (ar)' => 'لم يتم ارجاع النظام',
+                'label:English (en)' => 'System Not Retrieved',
+                'region' => false,
+                'sub_region' => false,
                 'community' => false,
             ],
             [
                 'list_name' => 'system_retrieved', 
                 'name' => 'System Destroyed',
-                'label' => 'تم تدمير النظام',
-                'label_en' => 'System Destroyed',
+                'label:Arabic (ar)' => 'تم تدمير النظام',
+                'label:English (en)' => 'System Destroyed',
+                'region' => false,
+                'sub_region' => false,
                 'community' => false,
             ],
         ];
@@ -176,7 +182,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
      */
     public function headings(): array
     {
-        return ['list_name', 'name', 'label', 'label_en', 'label_ar', 'region', 'sub_region', 'community'];
+        return ['list_name', 'name', 'label:Arabic (ar)', 'label:English (en)', 'region', 'sub_region', 'community'];
     }
 
 
