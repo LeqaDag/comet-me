@@ -291,6 +291,88 @@ label, table {
             var id = $(this).data('id');
             window.open('/household?id=' + id, '_blank'); 
         }); 
+
+        // Move record
+        $('#energyRequestTable').on('click', '.moveEnergyRequest',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to confirm this requested household?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('moveEnergyRequest') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#energyRequestTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+
+        // Delete record
+        $('#energyRequestTable').on('click', '.deleteEnergyRequest',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to remove this requested household from the list?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('deleteEnergyRequest') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#energyRequestTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
     });
 </script>
 @endsection

@@ -10,11 +10,13 @@ use App\Imports\ImportAcHousehold;
 use App\Imports\ImportHousehold;
 use App\Exports\DataCollection\DataCollectionExport;
 use App\Exports\DataCollection\Households;
+use App\Exports\DataCollection\RequestedHouseholds;
 use App\Exports\DataCollection\AcSurvey\AllFormExport;
 use App\Exports\DataCollection\Updating\CommunityCompoundExport;
 use App\Exports\DataCollection\Incidents\MainFileExport;
 use App\Exports\DataCollection\Displacement\MainFileDisplacementExport;
 use App\Exports\DataCollection\Agriculture\MainFile;
+use App\Exports\DataCollection\MISC\MainMisc;
 use Illuminate\Support\Facades\URL;
 use mikehaertl\wkhtmlto\Pdf;
 use App\Models\Region;
@@ -55,6 +57,16 @@ class DataCollectionController extends Controller
     {
                 
         return Excel::download(new Households($request), 'households.xlsx');
+    }
+
+    /** 
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportRequestedHouseholds(Request $request) 
+    {
+                
+        return Excel::download(new RequestedHouseholds($request), 'requested_households.xlsx');
     }
 
     /** 
@@ -115,6 +127,16 @@ class DataCollectionController extends Controller
     {
                 
         return Excel::download(new MainFile($request), 'Agriculture Survey.xlsx');
+    }
+
+    /** 
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportRequestedHousehold(Request $request) 
+    {
+                
+        return Excel::download(new MainMisc($request), 'Requested Households.xlsx');
     }
 
     /**

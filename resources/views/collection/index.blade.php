@@ -147,6 +147,36 @@
                             </div>
                         </form>
                     </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-requested') }}">
+                            @csrf
+                            <div class="card-body">
+                                <div class="row">
+                                    <fieldset class="form-group">
+                                        <button class="btn btn-warning" type="submit">
+                                            <i class='fa-solid fa-download'></i>
+                                            Export Excel format "Requested Households"
+                                        </button>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-requested-household') }}">
+                            @csrf
+                            <div class="card-body">
+                                <fieldset class="form-group">
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-download'></i>
+                                        Export requested_households.csv
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>  
         </div>

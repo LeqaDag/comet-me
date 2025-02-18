@@ -17,8 +17,10 @@ use App\Models\EnergySystemType;
 use App\Models\EnergyRequestStatus;
 use App\Models\EnergyRequestSystem;
 use App\Models\Household;
+use App\Models\HouseholdStatus;
 use App\Models\PublicStructure;
 use App\Models\InstallationType;
+use App\Models\EnergySystemCycle;
 use App\Models\Region;
 use App\Models\Profession;
 use App\Exports\EnergyRequestSystemExport;
@@ -109,10 +111,10 @@ class EnergyRequestSystemController extends Controller
                     ->addColumn('action', function($row) {
     
                         $viewButton = "<a type='button' class='viewEnergyRequest' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyRequestModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                        //$updateButton = "<a type='button' class='updateEnergyRequest' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#updateEnergyUserModal' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                        //$deleteButton = "<a type='button' class='deleteEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        $moveButton = "<a type='button' title='Start Working' class='moveEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-check text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
          
-                        return $viewButton;
+                        return $moveButton. " " . $viewButton. " " . $deleteButton;
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -211,8 +213,70 @@ class EnergyRequestSystemController extends Controller
             ->with('message', 'New Energy Requested Household Added Successfully!');
     }
 
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function moveEnergyRequest(Request $request)
+    {
+        $id = $request->id;
 
-     /**
+        $household = Household::find($id);
+        $status = "Confirmed";
+        $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
+        $lastCycleYear = EnergySystemCycle::latest()->first();
+
+        if($household) {
+            
+            if($statusHousehold) {
+
+                $household->household_status_id = $statusHousehold->id;
+                $household->energy_system_cycle_id = $lastCycleYear->id; 
+                $household->save();
+            }
+        } 
+
+        $response['success'] = 1;
+        $response['msg'] = 'Requested Household Confirmed successfully'; 
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergyRequest(Request $request)
+    {
+        $id = $request->id;
+
+        $household = Household::find($id);
+
+        $householdMeter = AllEnergyMeter::where("is_archived", 0)
+            ->where("household_id", $id)
+            ->first();
+
+        if($householdMeter) {
+            
+            $household->household_status_id = 4;
+            $household->save();
+        } else {
+
+            $household->is_archived = 1;
+            $household->save();
+        }
+
+        $response['success'] = 1;
+        $response['msg'] = 'Requested Household Removed successfully'; 
+
+        return response()->json($response); 
+    }
+
+    /**
      * Get households by community_id.
      *
      * @param  \Illuminate\Http\Request  $request

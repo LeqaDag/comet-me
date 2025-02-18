@@ -20,8 +20,8 @@ use DB;
 class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSize, 
     WithStyles, WithEvents,WithCustomStartCell
 {
-    private $misc = 0, $activateMisc = 0, $requestedHouseholds = 0, $relocatedHouseholds = 0,
-        $activateRelocated = 0, $miscRefrigerator = 0, $relocatedRefrigerator;
+    private $confirmedMisc = 0, $misc = 0, $activateMisc = 0, $requestedHouseholds = 0, $relocatedHouseholds = 0,
+        $confirmedRelocated = 0, $activateRelocated = 0, $miscRefrigerator = 0, $relocatedRefrigerator;
 
     protected $request; 
 
@@ -37,6 +37,24 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
     { 
         $oneYearAgo = Carbon::now()->subYear();
 
+        // MISC Confirmed
+        $this->confirmedMisc = DB::table('households')
+            ->join('communities', 'households.community_id', 'communities.id')
+            ->where('communities.energy_system_cycle_id', NULL)
+            ->where('households.is_archived', 0)
+            ->where('households.energy_system_type_id', 2)
+            ->where('households.energy_system_cycle_id', '!=', null)
+            ->where('households.household_status_id', 11);
+
+        // Replacement Confirmed
+        $this->confirmedReplacement = DB::table('households')
+            ->join('communities', 'households.community_id', 'communities.id')
+            ->where('communities.energy_system_cycle_id', NULL)
+            ->where('households.is_archived', 0)
+            ->where('households.energy_system_type_id', 2)
+            ->where('households.energy_system_cycle_id', '!=', null)
+            ->where('households.household_status_id', 12);
+
         // MISC FBS 
         $this->misc = DB::table('all_energy_meters')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
@@ -45,6 +63,8 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('all_energy_meters.is_archived', 0)
             ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
+
+        die($this->confirmedMisc->get());
 
         $this->activateMisc = DB::table('households')
             ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')

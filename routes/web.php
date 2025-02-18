@@ -399,6 +399,8 @@ Route::resource('energy-request', App\Http\Controllers\EnergyRequestSystemContro
 Route::post('energy-request-export', [App\Http\Controllers\EnergyRequestSystemController::class, 'export'])->name('energy-request.export');
 Route::get('energy-request/energy-request/get_by_community/{community_id}', [App\Http\Controllers\EnergyRequestSystemController::class, 'getRequestedByCommunity']);
 Route::post('energy-request-household-export', [App\Http\Controllers\EnergyRequestSystemController::class, 'exportRequested'])->name('energy-request-household.export');
+Route::get('/delete-energy-request', [App\Http\Controllers\EnergyRequestSystemController::class, 'deleteEnergyRequest'])->name('deleteEnergyRequest');
+Route::get('/move-energy-request', [App\Http\Controllers\EnergyRequestSystemController::class, 'moveEnergyRequest'])->name('moveEnergyRequest');
 
 Route::resource('requested-household', App\Http\Controllers\RequestedHouseholdController::class); 
 
@@ -563,5 +565,7 @@ Route::post('data-collection-import-ac', [App\Http\Controllers\DataCollectionCon
 Route::post('data-collection-export-incident', [App\Http\Controllers\DataCollectionController::class, 'exportIncident'])->name('data-collection.export-incident');
 Route::post('data-collection-export-displacement', [App\Http\Controllers\DataCollectionController::class, 'exportDisplacement'])->name('data-collection.export-displacement');
 Route::post('data-collection-export-agriculture', [App\Http\Controllers\DataCollectionController::class, 'exportAgriculture'])->name('data-collection.export-agriculture');
+Route::post('data-collection-export-requested', [App\Http\Controllers\DataCollectionController::class, 'exportRequestedHousehold'])->name('data-collection.export-requested');
+Route::post('data-collection-export-requested-household', [App\Http\Controllers\DataCollectionController::class, 'exportRequestedHouseholds'])->name('data-collection.export-requested-household');
 
 Route::get('household/compound/{id}', [App\Http\Controllers\HouseholdController::class, 'getCompounds']);
