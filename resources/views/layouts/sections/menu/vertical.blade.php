@@ -150,6 +150,18 @@
                             <div>AC Completed</div>
                         </a>
                     </li>
+                    <li class="menu-item" id="misc-household">
+                        <a href="{{url('misc-household')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>MISC Confirmed</div>
+                        </a>
+                    </li>
+                    <li class="menu-item" id="postponed-household">
+                        <a href="{{url('postponed-household')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Postponed</div>
+                        </a>
+                    </li>
                     <li class="menu-item" id="hold-household">
                         <a href="{{url('hold-household')}}" class="menu-link" >
                             <i class=""></i>
@@ -192,6 +204,7 @@
                     <div>Requested Energy</div>
                 </a>
             </li> 
+            
             <li class="menu-item" id="water-request">
                 <a href="{{url('water-request')}}" class="menu-link" >
                     <i class=""></i>
@@ -768,6 +781,18 @@
     } else if(last_part == "progress-household") {
 
         $("#progress-household").addClass("active");
+        $("#households").addClass("open");
+        $("#in_progress_households").addClass("active");
+        $("#in_progress_households").addClass("open");
+    }  else if(last_part == "misc-household") {
+
+        $("#misc-household").addClass("active");
+        $("#households").addClass("open");
+        $("#in_progress_households").addClass("active");
+        $("#in_progress_households").addClass("open");
+    }  else if(last_part == "postponed-household") {
+
+        $("#postponed-household").addClass("active");
         $("#households").addClass("open");
         $("#in_progress_households").addClass("active");
         $("#in_progress_households").addClass("open");

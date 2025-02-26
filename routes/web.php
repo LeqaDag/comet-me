@@ -401,6 +401,7 @@ Route::get('energy-request/energy-request/get_by_community/{community_id}', [App
 Route::post('energy-request-household-export', [App\Http\Controllers\EnergyRequestSystemController::class, 'exportRequested'])->name('energy-request-household.export');
 Route::get('/delete-energy-request', [App\Http\Controllers\EnergyRequestSystemController::class, 'deleteEnergyRequest'])->name('deleteEnergyRequest');
 Route::get('/move-energy-request', [App\Http\Controllers\EnergyRequestSystemController::class, 'moveEnergyRequest'])->name('moveEnergyRequest');
+Route::get('/postpone-energy-request', [App\Http\Controllers\EnergyRequestSystemController::class, 'postponedEnergyRequest'])->name('postponedEnergyRequest');
 
 Route::resource('requested-household', App\Http\Controllers\RequestedHouseholdController::class); 
 
@@ -567,5 +568,12 @@ Route::post('data-collection-export-displacement', [App\Http\Controllers\DataCol
 Route::post('data-collection-export-agriculture', [App\Http\Controllers\DataCollectionController::class, 'exportAgriculture'])->name('data-collection.export-agriculture');
 Route::post('data-collection-export-requested', [App\Http\Controllers\DataCollectionController::class, 'exportRequestedHousehold'])->name('data-collection.export-requested');
 Route::post('data-collection-export-requested-household', [App\Http\Controllers\DataCollectionController::class, 'exportRequestedHouseholds'])->name('data-collection.export-requested-household');
+Route::post('data-collection-export-workshop', [App\Http\Controllers\DataCollectionController::class, 'exportWorkshop'])->name('data-collection.export-workshop');
 
 Route::get('household/compound/{id}', [App\Http\Controllers\HouseholdController::class, 'getCompounds']);
+
+Route::resource('misc-household', App\Http\Controllers\MiscHouseholdController::class);
+Route::get('/move-misc-household', [App\Http\Controllers\MiscHouseholdController::class, 'moveMISCHousehold'])->name('moveMISCHousehold');
+
+Route::resource('postponed-household', App\Http\Controllers\PostponedHouseholdController::class);
+Route::get('/move-postponed-household', [App\Http\Controllers\PostponedHouseholdController::class, 'movePostponedHousehold'])->name('movePostponedHousehold');

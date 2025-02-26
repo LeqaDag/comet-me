@@ -44,7 +44,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('households.is_archived', 0)
             ->where('households.energy_system_type_id', 2)
             ->where('households.energy_system_cycle_id', '!=', null)
-            ->where('households.household_status_id', 11);
+            ->where('households.household_status_id', 11); 
 
         // Replacement Confirmed
         $this->confirmedReplacement = DB::table('households')

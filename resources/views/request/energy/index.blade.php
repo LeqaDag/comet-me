@@ -18,7 +18,7 @@ label, table {
 <p>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
         data-target="#collapseEnergyRequestExport" aria-expanded="false" 
-        aria-controls="collapseEnergyRequestExport">
+        aria-controls="collapseEnergyRequestExport"> 
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button> 
@@ -333,6 +333,58 @@ label, table {
             });
         });
 
+        // Postponed record
+        $('#energyRequestTable').on('click', '.postponedEnergyRequest',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to postpone this requested household?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm',
+                input: 'textarea', 
+                inputPlaceholder: 'Enter your reason for postponing this requested household...',
+                inputAttributes: {
+                    'aria-label': 'Enter your reason'
+                },
+                showCancelButton: true,  
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const reason = result.value;  
+                    $.ajax({
+                        url: "{{ route('postponedEnergyRequest') }}",
+                        type: 'get',
+                        data: {
+                            id: id,
+                            reason: reason
+                        },
+                        success: function(response) {
+                            if(response.success == 1) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#energyRequestTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    console.log('Deletion canceled');
+                }
+            });
+        });
+
+
         // Delete record
         $('#energyRequestTable').on('click', '.deleteEnergyRequest',function() {
             var id = $(this).data('id');
@@ -341,14 +393,25 @@ label, table {
                 icon: 'warning',
                 title: 'Are you sure you want to remove this requested household from the list?',
                 showDenyButton: true,
-                confirmButtonText: 'Confirm'
-            }).then((result) => {
+                confirmButtonText: 'Confirm',
+                input: 'textarea', 
+                inputPlaceholder: 'Enter your reason for postponing this requested household...',
+                inputAttributes: {
+                    'aria-label': 'Enter your reason'
+                },
+                showCancelButton: true,  
+                cancelButtonText: 'Cancel'
 
+            }).then((result) => {
                 if(result.isConfirmed) {
+                    const reason = result.value; 
                     $.ajax({
                         url: "{{ route('deleteEnergyRequest') }}",
                         type: 'get',
-                        data: {id: id},
+                        data: {
+                            id: id,
+                            reason: reason
+                        },
                         success: function(response) {
                             if(response.success == 1) {
 

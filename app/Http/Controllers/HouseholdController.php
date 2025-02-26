@@ -133,7 +133,6 @@ class HouseholdController extends Controller
 
             if ($request->ajax()) {
                  
-                
                 $data = DB::table('households')
                     ->join('communities', 'households.community_id', 'communities.id')
                     ->join('regions', 'communities.region_id', 'regions.id')
@@ -252,6 +251,12 @@ class HouseholdController extends Controller
                         else if($row->status == "Served by Third Party") 
                         $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
                         
+                        else if($row->status == "Confirmed") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-dark text-success'>".$row->status."</span>";
+
+                        else if($row->status == "Incident replacement") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
+
                         return $statusLabel;
                     })
                     ->addColumn('checkStatus', function($row) {

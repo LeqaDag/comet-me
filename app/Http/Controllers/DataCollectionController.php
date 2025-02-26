@@ -17,6 +17,7 @@ use App\Exports\DataCollection\Incidents\MainFileExport;
 use App\Exports\DataCollection\Displacement\MainFileDisplacementExport;
 use App\Exports\DataCollection\Agriculture\MainFile;
 use App\Exports\DataCollection\MISC\MainMisc;
+use App\Exports\DataCollection\Workshops\MainFileWorkshop;
 use Illuminate\Support\Facades\URL;
 use mikehaertl\wkhtmlto\Pdf;
 use App\Models\Region;
@@ -127,6 +128,16 @@ class DataCollectionController extends Controller
     {
                 
         return Excel::download(new MainFile($request), 'Agriculture Survey.xlsx');
+    }
+
+    /** 
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportWorkshop(Request $request) 
+    {
+                
+        return Excel::download(new MainFileWorkshop($request), 'Workshops.xlsx');
     }
 
     /** 

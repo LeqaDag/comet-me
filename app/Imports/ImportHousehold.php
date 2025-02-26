@@ -92,16 +92,15 @@ class ImportHousehold implements ToModel, WithHeadingRow
                         ->first();
                     if(!$existHousehold) {
 
-                        $newHousehold = new Household();
-                        $newHousehold->comet_id = ++$last_comet_id;
+                        $household = new Household();
+                        $household->comet_id = ++$last_comet_id;
                         $energyType = EnergySystemType::where('name', 'like', '%' . $row["select_system_type"] . '%')->first(); 
-                        $newHousehold->energy_system_type_id = $energyType->id;
-                        $newHousehold->household_status_id = 5;
-                        $newHousehold->request_date = $reg_date ? $reg_date->format('Y-m-d') : null;
+                        $household->energy_system_type_id = $energyType->id;
+                        $household->household_status_id = 5;
+                        $household->request_date = $reg_date ? $reg_date->format('Y-m-d') : null;
                     }
                 }
 
-                $household = $newHousehold; 
                 $profession = Profession::where("profession_name", $row["select_profession"])->first();
                     
                 if($household) {

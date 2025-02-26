@@ -13,6 +13,7 @@ use App\Models\AllEnergyMeter;
 use App\Models\AllEnergyMeterDonor;
 use App\Models\User;
 use App\Models\Community;
+use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
 use App\Models\EnergyRequestStatus;
 use App\Models\EnergyRequestSystem;
@@ -23,6 +24,8 @@ use App\Models\InstallationType;
 use App\Models\EnergySystemCycle;
 use App\Models\Region;
 use App\Models\Profession;
+use App\Models\PostponedHousehold; 
+use App\Models\DeletedRequestedHousehold; 
 use App\Exports\EnergyRequestSystemExport;
 use App\Exports\EnergyRequestedHousehold; 
 use Carbon\Carbon;
@@ -112,9 +115,10 @@ class EnergyRequestSystemController extends Controller
     
                         $viewButton = "<a type='button' class='viewEnergyRequest' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyRequestModal' ><i class='fa-solid fa-eye text-info'></i></a>";
                         $moveButton = "<a type='button' title='Start Working' class='moveEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-check text-success'></i></a>";
+                        $postponeButton = "<a type='button' title='Postpone this requested household' class='postponedEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-rotate-right text-warning'></i></a>";
                         $deleteButton = "<a type='button' class='deleteEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
          
-                        return $moveButton. " " . $viewButton. " " . $deleteButton;
+                        return $moveButton. " " . $viewButton. " " . $postponeButton. " " . $deleteButton;
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -214,7 +218,7 @@ class EnergyRequestSystemController extends Controller
     }
 
     /**
-     * Delete a resource from storage.
+     * Confirm the requested household
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -230,16 +234,76 @@ class EnergyRequestSystemController extends Controller
 
         if($household) {
             
-            if($statusHousehold) {
+            if($household->energy_system_type_id == 2) {
 
                 $household->household_status_id = $statusHousehold->id;
                 $household->energy_system_cycle_id = $lastCycleYear->id; 
                 $household->save();
+            } else {
+
+                $status = "AC Completed";
+                $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
+                $household->household_status_id = $statusHousehold->id;
+                $household->energy_system_cycle_id = $lastCycleYear->id; 
+                $household->save();
+
+                $energySystem = EnergySystem::where("is_archived", 0)
+                    ->where("community_id", $household->community_id)
+                    ->first();
+
+                $allEnergyMeter = new AllEnergyMeter();
+                $allEnergyMeter->household_id = $household->id;
+                $allEnergyMeter->installation_type_id = 3;
+                $allEnergyMeter->community_id = $household->community_id;
+                $allEnergyMeter->energy_system_cycle_id = $lastCycleYear->id;
+                $allEnergyMeter->energy_system_type_id = $energySystem->energy_system_type_id;
+                $allEnergyMeter->ground_connected = "Yes";
+                $allEnergyMeter->energy_system_id = $energySystem->id;
+                $allEnergyMeter->meter_number = 0;
+                $allEnergyMeter->meter_case_id = 12; 
+                $allEnergyMeter->save();
             }
         } 
 
         $response['success'] = 1;
         $response['msg'] = 'Requested Household Confirmed successfully'; 
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Postponed the requested household
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function postponedEnergyRequest(Request $request)
+    {
+        $id = $request->id;
+
+        $household = Household::find($id);
+        $status = "Postponed";
+        $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
+
+        if($household) {
+            
+            if($statusHousehold) {
+
+                $household->household_status_id = $statusHousehold->id;
+                $household->save();
+
+                $user = Auth::guard('user')->user();
+
+                $postponedHousehold = new PostponedHousehold();
+                $postponedHousehold->household_id = $id;
+                $postponedHousehold->reason = $request->reason;
+                $postponedHousehold->referred_by = $user->id;
+                $postponedHousehold->save();
+            }
+        } 
+
+        $response['success'] = 1;
+        $response['msg'] = 'Requested Household Postponed successfully'; 
 
         return response()->json($response); 
     }
@@ -268,6 +332,21 @@ class EnergyRequestSystemController extends Controller
 
             $household->is_archived = 1;
             $household->save();
+        }
+
+        $existDeleted = DeletedRequestedHousehold::where("is_archived", 0)
+            ->where("household_id", $id)
+            ->first();
+
+        if(!$existDeleted) {
+
+            $user = Auth::guard('user')->user();
+
+            $deletedRequestedHousehold = new DeletedRequestedHousehold();
+            $deletedRequestedHousehold->household_id = $id;
+            $deletedRequestedHousehold->reason = $request->reason;
+            $deletedRequestedHousehold->referred_by = $user->id;
+            $deletedRequestedHousehold->save();
         }
 
         $response['success'] = 1;

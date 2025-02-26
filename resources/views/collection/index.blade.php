@@ -178,6 +178,24 @@
                         </form>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-workshop') }}">
+                            @csrf
+                            <div class="card-body">
+                                <div class="row">
+                                    <fieldset class="form-group">
+                                        <button class="btn btn-success" type="submit">
+                                            <i class='fa-solid fa-download'></i>
+                                            Export Excel format "Workshops"
+                                        </button>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>  
         </div>
     </div> 
