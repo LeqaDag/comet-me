@@ -8,6 +8,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Imports\ImportAcHousehold;
 use App\Imports\ImportHousehold;
+use App\Imports\ImportRequestedHousehold;
 use App\Exports\DataCollection\DataCollectionExport;
 use App\Exports\DataCollection\Households;
 use App\Exports\DataCollection\RequestedHouseholds;
@@ -198,6 +199,33 @@ class DataCollectionController extends Controller
             }
     
             return redirect()->back()->with('success', 'AC Data Imported Successfully!');
+        } else {
+
+            return redirect()->back()->with('error', 'File upload failed');
+        }
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function importRequested(Request $request)
+    {
+        $file = $request->file('excel_file');
+
+        if ($file->isValid()) {
+
+            $extension = $file->getClientOriginalExtension();
+    
+            if (in_array($extension, ['xlsx', 'xls', 'csv'])) {
+
+                Excel::import(new ImportRequestedHousehold, $file);
+            } else {
+
+                return redirect()->back()->with('error', 'Invalid file format');
+            }
+    
+            return redirect()->back()->with('success', 'Requested Households Imported Successfully!');
         } else {
 
             return redirect()->back()->with('error', 'File upload failed');

@@ -234,7 +234,7 @@ class EnergyRequestSystemController extends Controller
 
         if($household) {
             
-            if($household->energy_system_type_id == 2) {
+            if($household->energy_system_type_id == 2) { 
 
                 $household->household_status_id = $statusHousehold->id;
                 $household->energy_system_cycle_id = $lastCycleYear->id; 

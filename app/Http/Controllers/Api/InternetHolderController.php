@@ -60,7 +60,6 @@ class InternetHolderController extends Controller
             } else {
 
                 $community = Community::where("arabic_name", $holder["user_group_name"])->first();
-                
                 if($community) {
 
                     // retrieve the community 
@@ -364,7 +363,7 @@ class InternetHolderController extends Controller
                         // New Public User
                         if(!$public_user):
                             $public_user = new PublicStructure;
-                            $public_user->english_name = trim($holder["holder_full_name"]);
+                           // $public_user->english_name = trim($holder["holder_full_name"]);
                             $public_user->fake_meter_number = ++$last_fake_meter_number;
                             $public_user->comet_id = ++$last_public_comet_id;
                         endif;

@@ -569,6 +569,7 @@ Route::post('data-collection-export-agriculture', [App\Http\Controllers\DataColl
 Route::post('data-collection-export-requested', [App\Http\Controllers\DataCollectionController::class, 'exportRequestedHousehold'])->name('data-collection.export-requested');
 Route::post('data-collection-export-requested-household', [App\Http\Controllers\DataCollectionController::class, 'exportRequestedHouseholds'])->name('data-collection.export-requested-household');
 Route::post('data-collection-export-workshop', [App\Http\Controllers\DataCollectionController::class, 'exportWorkshop'])->name('data-collection.export-workshop');
+Route::post('data-collection-import-requested', [App\Http\Controllers\DataCollectionController::class, 'importRequested'])->name('data-collection.import-requested');
 
 Route::get('household/compound/{id}', [App\Http\Controllers\HouseholdController::class, 'getCompounds']);
 

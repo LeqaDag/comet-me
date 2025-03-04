@@ -263,6 +263,31 @@
             </form>
         </div>
     </div>
+
+    <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
+        <span class="text-muted fw-light">Import </span>Requested Households
+    </h4>
+
+    <!-- File Upload Form -->
+    <div class="card">
+        <div class="card-body">
+            <form action="{{route('data-collection.import-requested')}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <label for="excel_file">Choose Excel File</label>
+                    <input type="file" name="excel_file" class="form-control-file" id="excel_file"required>
+                    @error('excel_file')
+                    <div class="text-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div> <br>
+                <button type="submit" class="btn btn-success btn-block">
+                    
+                    <i class='fa-solid fa-upload'></i>
+                    Proccess
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">

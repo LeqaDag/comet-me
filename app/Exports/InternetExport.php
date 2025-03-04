@@ -23,10 +23,12 @@ class InternetExport implements WithMultipleSheets, ShouldAutoSize
     public function sheets(): array
     { 
         $sheets = [   
+            new newInternetreportfordonors($this->request),
             new InternetMetricsExport($this->request),
             new InternetClustersExport($this->request),
             new InternetContractExport($this->request),
             new InternetUserExport($this->request)
+            
         ];
  
         return $sheets;

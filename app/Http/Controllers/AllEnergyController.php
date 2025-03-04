@@ -619,7 +619,7 @@ class AllEnergyController extends Controller
 
             return redirect()->back()->with('error', 'Attension, this meter number ' . $request->meter_number . ' is already exist for '. $holder->english_name);
         }
-  
+   
         $energyUser = AllEnergyMeter::find($id);
 
         $oldMeterCase = $energyUser->meter_case_id;

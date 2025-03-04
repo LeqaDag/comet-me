@@ -257,6 +257,9 @@ class HouseholdController extends Controller
                         else if($row->status == "Incident replacement") 
                         $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
 
+                        else if($row->status == "Postponed") 
+                        $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
+
                         return $statusLabel;
                     })
                     ->addColumn('checkStatus', function($row) {

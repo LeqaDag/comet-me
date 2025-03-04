@@ -83,32 +83,73 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             )
             ->get(); 
 
+        $energySystemTypes = DB::table('energy_system_types')
+            ->where('energy_system_types.is_archived', 0)
+            ->select(
+                DB::raw('"energy_system_type" as list_name'), 
+                'energy_system_types.name as name',
+                'energy_system_types.name as label:Arabic (ar)',
+                'energy_system_types.name as label:English (en)',
+                DB::raw('false as region'),
+                DB::raw('false as sub_region'),
+                DB::raw('false as community')
+            )
+            ->get(); 
+
 
         $fixedList = [
             [
-                'list_name' => 'confirm', 
-                'name' => 'Yes',
-                'label:Arabic (ar)' => 'نعم',
-                'label:English (en)' => 'Yes',
+                'list_name' => 'status', 
+                'name' => 'Shared_Requested',
+                'label:Arabic (ar)' => 'مشترك ويطلب نظام',
+                'label:English (en)' => 'Shared & Requested',
                 'region' => false,
                 'sub_region' => false,
                 'community' => false,
             ],
             [
-                'list_name' => 'confirm', 
-                'name' => 'No',
-                'label:Arabic (ar)' => 'لا',
-                'label:English (en)' => 'No',
+                'list_name' => 'status', 
+                'name' => 'Requested',
+                'label:Arabic (ar)' => 'يطلب نظام',
+                'label:English (en)' => 'Requested',
                 'region' => false,
                 'sub_region' => false,
                 'community' => false,
-            ]
+            ],
+            [
+                'list_name' => 'action_type', 
+                'name' => 'Confirmed',
+                'label:Arabic (ar)' => 'تأكيد',
+                'label:English (en)' => 'Confirmed',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'action_type', 
+                'name' => 'Postponed',
+                'label:Arabic (ar)' => 'تأجيل',
+                'label:English (en)' => 'Postponed',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'action_type', 
+                'name' => 'Delete',
+                'label:Arabic (ar)' => 'حذف',
+                'label:English (en)' => 'Delete',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
         ];
 
         $query = collect($regions)
             ->merge($sub_regions)
             ->merge($communities)
             ->merge($households)
+            ->merge($energySystemTypes)
             ->merge($fixedList); 
         
         return $query;

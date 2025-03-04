@@ -395,7 +395,7 @@ label, table {
                 showDenyButton: true,
                 confirmButtonText: 'Confirm',
                 input: 'textarea', 
-                inputPlaceholder: 'Enter your reason for postponing this requested household...',
+                inputPlaceholder: 'Enter your reason for deleting this requested household...',
                 inputAttributes: {
                     'aria-label': 'Enter your reason'
                 },
