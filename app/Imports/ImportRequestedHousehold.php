@@ -21,6 +21,8 @@ use App\Models\Compound;
 use App\Models\CompoundHousehold;
 use App\Models\User;
 use App\Models\CommunityHousehold;
+use App\Models\PostponedHousehold;
+use App\Models\DeletedRequestedHousehold;
 use App\Models\Cistern;
 use App\Models\HouseholdMeter;
 use App\Models\HouseholdStatus;
@@ -30,6 +32,7 @@ use App\Models\Region;
 use App\Models\Structure;
 use Carbon\Carbon;
 use Excel; 
+use Auth;
 
 class ImportRequestedHousehold implements ToModel, WithHeadingRow
 { 
@@ -37,7 +40,7 @@ class ImportRequestedHousehold implements ToModel, WithHeadingRow
     * @param array $row
     *
     * @return \Illuminate\Database\Eloquent\Model|null
-    */
+    */ 
     public function model(array $row)
     {
         // Get data from KOBO 
@@ -45,6 +48,8 @@ class ImportRequestedHousehold implements ToModel, WithHeadingRow
 
             $community = Community::where("english_name", $row["select_community"])->first();
             $household = null;
+            $cleanName = preg_replace('/\d/', '', $row["submitted_by"]);  
+            $user = User::where('name', 'like', '%' . $cleanName . '%')->first();
 
             if($community) {
 
@@ -64,12 +69,10 @@ class ImportRequestedHousehold implements ToModel, WithHeadingRow
                     $household->profession_id = 1;
                 }
                     
-                $cleanName = preg_replace('/\d/', '', $row["submitted_by"]);  
-                $user = User::where('name', 'like', '%' . $cleanName . '%')->first();
                 if($user) $household->referred_by_id = $user->id;
                 $household->save();
 
-                if($row["select_confirm"] == "Yes" && $household) {
+                if($row["select_action_type"] == "Confirmed" && $household) {
 
                     $status = "Confirmed";
                     $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
@@ -110,12 +113,52 @@ class ImportRequestedHousehold implements ToModel, WithHeadingRow
                             $allEnergyMeter->save();
                         }
                     }
+                } else if($row["select_action_type"] == "Delete" && $household) {
 
-                    // $reg_date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['submission_time']);
-                    // if(date_timestamp_get($reg_date)) {
-    
-                    //     $household->last_surveyed_date = date_timestamp_get($reg_date) ? $reg_date->format('Y-m-d') : null;
-                    // }
+                    $householdMeter = AllEnergyMeter::where("is_archived", 0)
+                        ->where("household_id", $household->id)
+                        ->first();
+            
+                    if($householdMeter) {
+                        
+                        $household->household_status_id = 4;
+                        $household->save();
+                    } else {
+            
+                        $household->is_archived = 1;
+                        $household->save();
+                    }
+            
+                    $existDeleted = DeletedRequestedHousehold::where("is_archived", 0)
+                        ->where("household_id", $household->id)
+                        ->first();
+            
+                    if(!$existDeleted) {
+            
+                        $deletedRequestedHousehold = new DeletedRequestedHousehold();
+                        $deletedRequestedHousehold->household_id = $household->id;
+                        $deletedRequestedHousehold->reason = $row["delete_reason"];
+                        $deletedRequestedHousehold->referred_by = $user->id;
+                        $deletedRequestedHousehold->save();
+                    }
+                } else if($row["select_action_type"] == "Postponed" && $household) {
+
+                    $status = "Postponed";
+                    $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
+
+                    if($statusHousehold) {
+
+                        $household->household_status_id = $statusHousehold->id;
+                        $household->save();
+
+                        $user = Auth::guard('user')->user();
+
+                        $postponedHousehold = new PostponedHousehold();
+                        $postponedHousehold->household_id = $household->id;
+                        $postponedHousehold->reason = $row["postponed_reason"];
+                        $postponedHousehold->referred_by = $user->id;
+                        $postponedHousehold->save();
+                    }
                 }
             }
         }

@@ -64,6 +64,7 @@ class EnergyRequestSystemController extends Controller
                     ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
                     ->leftJoin('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
                     ->leftJoin('users', 'households.referred_by_id', 'users.id')
+                    ->leftJoin('energy_system_types as energy_types', 'households.energy_system_type_id', 'energy_types.id')
                     ->where('households.is_archived', 0)
                     ->where('households.internet_holder_young', 0)
                     ->where('households.household_status_id', 5);
@@ -85,7 +86,10 @@ class EnergyRequestSystemController extends Controller
                 }
                 if ($systemTypeFilter != null) {
 
-                    $data->where('energy_system_types.id', $systemTypeFilter);
+                    $data->where(function($query) use ($systemTypeFilter) {
+                        $query->where('energy_system_types.id', $systemTypeFilter)
+                              ->orWhere('energy_types.id', $systemTypeFilter);
+                    });
                 }
                 if ($dateFilter != null) {
 
@@ -104,7 +108,9 @@ class EnergyRequestSystemController extends Controller
                     DB::raw("CASE WHEN all_energy_meters.is_main = 'No' THEN 'Served'
                         ELSE 'Service requested' END AS status"),
                     'households.updated_at as updated_at', 'users.name as referred_by',
-                    'regions.english_name as region_name', 'energy_system_types.name as type',
+                    'regions.english_name as region_name', 
+                    DB::raw('IFNULL(energy_system_types.name, energy_types.name) 
+                        as type'),
                     'communities.english_name as community_name', 'households.phone_number',
                     'communities.arabic_name as aname')
                 ->latest(); 
@@ -126,7 +132,9 @@ class EnergyRequestSystemController extends Controller
                                 $search = $request->get('search');
                                 $w->orWhere('communities.english_name', 'LIKE', "%$search%")
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('households.created_at', 'LIKE', "%$search%")
+                                ->orWhere('energy_types.name', 'LIKE', "%$search%")
+                                ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
+                                ->orWhere('users.name', 'LIKE', "%$search%")
                                 ->orWhere('households.english_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('households.phone_number', 'LIKE', "%$search%");
@@ -234,22 +242,22 @@ class EnergyRequestSystemController extends Controller
 
         if($household) {
             
+            $energySystem = EnergySystem::where("is_archived", 0)
+                ->where("community_id", $household->community_id)
+                ->first();
+
             if($household->energy_system_type_id == 2) { 
 
                 $household->household_status_id = $statusHousehold->id;
                 $household->energy_system_cycle_id = $lastCycleYear->id; 
                 $household->save();
-            } else {
+            } else if($energySystem) {
 
                 $status = "AC Completed";
                 $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
                 $household->household_status_id = $statusHousehold->id;
                 $household->energy_system_cycle_id = $lastCycleYear->id; 
                 $household->save();
-
-                $energySystem = EnergySystem::where("is_archived", 0)
-                    ->where("community_id", $household->community_id)
-                    ->first();
 
                 $allEnergyMeter = new AllEnergyMeter();
                 $allEnergyMeter->household_id = $household->id;
@@ -262,6 +270,11 @@ class EnergyRequestSystemController extends Controller
                 $allEnergyMeter->meter_number = 0;
                 $allEnergyMeter->meter_case_id = 12; 
                 $allEnergyMeter->save();
+            } else {
+                
+                $household->household_status_id = $statusHousehold->id;
+                $household->energy_system_cycle_id = $lastCycleYear->id; 
+                $household->save();
             }
         } 
 

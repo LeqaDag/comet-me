@@ -27,7 +27,8 @@ label {
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
-        <form method="POST" action="{{url('energy-request')}}" enctype="multipart/form-data" >
+        <form method="POST" action="{{url('energy-request')}}" enctype="multipart/form-data" 
+            id="energyRequestedForm">
             @csrf
 
             <div class="row">
@@ -156,7 +157,7 @@ label {
                 <div class="col-xl-4 col-lg-4 col-md-4">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Demolition order in house?</label>
-                        <select name="demolition_order" class="form-control">
+                        <select name="demolition_order" class="form-control" required>
                             <option selected disabled>Choose One...</option>
                             <option value="yes">Yes</option>
                             <option value="no">No</option>
@@ -168,7 +169,7 @@ label {
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Energy System Type</label>
                         <select name="energy_system_type_id" id="energySystemType"
-                            class="selectpicker form-control" data-live-search="true" >
+                            class="selectpicker form-control" data-live-search="true" required>
                             <option disabled selected>Choose one...</option>
                             @foreach($energySystemTypes as $energySystemType)
                             <option value="{{$energySystemType->id}}">
@@ -245,8 +246,60 @@ label {
                 select.selectpicker('refresh');
             }
         }); 
+    }); 
+
+    // Validate the form
+    $('#energyRequestedForm').on('submit', function (event) {
+
+        var professionValue = $('#selectedProfession').val();
+        var communityValue = $('#selectedCommunity').val();
+        var referredBy = $('#selectedReferredBy').val();
+        var systemType = $('#energySystemType').val();
+
+        
+        if (professionValue == null) {
+
+            $('#profession_id_error').html('Please select a profession!'); 
+            return false;
+        } else if (professionValue != null){
+
+            $('#profession_id_error').empty();
+        }
+
+        if (communityValue == null) {
+
+            $('#community_id_error').html('Please select a community!'); 
+            return false;
+        } else if (communityValue != null){
+
+            $('#community_id_error').empty();
+        }
+
+        if (systemType == null) {
+
+            $('#energy_system_type_id_error').html('Please select an option!'); 
+            return false;
+        } else if (systemType != null){
+
+            $('#energy_system_type_id_error').empty();
+        }
+
+        if (referredBy == null) {
+
+            $('#referred_by_error').html('Please select a user!'); 
+            return false;
+        } else if (referredBy != null){
+
+            $('#referred_by_error').empty();
+        }
+
+        $(this).addClass('was-validated');  
+        $('#referred_by_error').empty();  
+        $('#energy_system_type_id_error').empty();
+        $('#community_id_error').empty();
+        $('#profession_id_error').empty();
+
+        this.submit();
     });
-
 </script>
-
 @endsection

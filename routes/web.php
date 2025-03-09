@@ -575,6 +575,12 @@ Route::get('household/compound/{id}', [App\Http\Controllers\HouseholdController:
 
 Route::resource('misc-household', App\Http\Controllers\MiscHouseholdController::class);
 Route::get('/move-misc-household', [App\Http\Controllers\MiscHouseholdController::class, 'moveMISCHousehold'])->name('moveMISCHousehold');
+Route::get('/move-misc-public', [App\Http\Controllers\MiscHouseholdController::class, 'moveMISCPublic'])->name('moveMISCPublic');
+Route::post('misc-household-export', [App\Http\Controllers\MiscHouseholdController::class, 'export'])->name('misc-household.export');
 
 Route::resource('postponed-household', App\Http\Controllers\PostponedHouseholdController::class);
 Route::get('/move-postponed-household', [App\Http\Controllers\PostponedHouseholdController::class, 'movePostponedHousehold'])->name('movePostponedHousehold');
+
+Route::resource('energy-delete-request', App\Http\Controllers\DeletedRequestedHouseholdController::class);
+Route::get('/delete-energy-delete-request', [App\Http\Controllers\DeletedRequestedHouseholdController::class, 'deleteEnergyDeletedRequest'])->name('deleteEnergyDeletedRequest');
+Route::get('/return-energy-delete-request', [App\Http\Controllers\DeletedRequestedHouseholdController::class, 'returnEnergyDeletedRequest'])->name('returnEnergyDeletedRequest');

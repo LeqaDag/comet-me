@@ -152,7 +152,7 @@ label, table {
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
-                        <label class='col-md-12 control-label'>Filter By System Type if Shared</label>
+                        <label class='col-md-12 control-label'>Filter By System Type</label>
                         <select name="energy_system_type_id" class="selectpicker form-control" 
                             data-live-search="true" id="filterBySystemType">
                             <option disabled selected>Choose one...</option>
@@ -216,6 +216,77 @@ label, table {
     </div>
 </div>
 
+
+<h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:40px">
+  <span class="text-muted fw-light">All </span> Deleted Requested Households
+</h4>
+
+@if(session()->has('message_info'))
+    <div class="row">
+        <div class="alert alert-success">
+            {{ session()->get('message_info') }}
+        </div>
+    </div>
+@endif
+
+<div class="container">
+    <div class="card my-2">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Community</label>
+                        <select name="community_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByCommunityDeleted">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($communities as $community)
+                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By System Type</label>
+                        <select name="energy_system_type_id" class="selectpicker form-control" 
+                            data-live-search="true" id="filterBySystemTypeDeleted">
+                            <option disabled selected>Choose one...</option>
+                            @foreach($energySystemTypes as $energySystemType)
+                                <option value="{{$energySystemType->id}}">{{$energySystemType->name}}</option>
+                            @endforeach
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Clear All Filters</label>
+                        <button class="btn btn-dark" id="clearFiltersButtonDeleted">
+                            <i class='fa-solid fa-eraser'></i>
+                            Clear Filters
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="energyDeletedRequestTable" class="table table-striped data-table-energy-delete-request my-2">
+                <thead>
+                    <tr>
+                        <th class="text-center">Deleted Household</th>
+                        <th class="text-center">Community</th>
+                        <th class="text-center">Reason</th>
+                        <th class="text-center">Deleted By</th>
+                        <th class="text-center">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
 <script type="text/javascript">
 
     $(function () {
@@ -246,7 +317,6 @@ label, table {
                 ] 
             });
         }
-
 
         $(function () {
             DataTableContent();
@@ -384,7 +454,6 @@ label, table {
             });
         });
 
-
         // Delete record
         $('#energyRequestTable').on('click', '.deleteEnergyRequest',function() {
             var id = $(this).data('id');
@@ -423,6 +492,147 @@ label, table {
                                     confirmButtonText: 'Okay!'
                                 }).then((result) => {
                                     $('#energyRequestTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+
+
+        // This code for the deleted requested households 
+        var table1;
+        function DataTableContent1() {
+
+            table1 = $('.data-table-energy-delete-request').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('energy-delete-request.index') }}",
+                    data: function (d) {
+                        d.search = $('input[type="search"]').val();
+                        d.community_deleted_filter = $('#filterByCommunityDeleted').val();
+                        d.system_type_deleted_filter = $('#filterBySystemTypeDeleted').val();
+                    }
+                },
+                columns: [
+                    {data: 'english_name', name: 'english_name'},
+                    {data: 'community_name', name: 'community_name'},
+                    {data: 'reason', name: 'reason'},
+                    {data: 'referred_by', name: 'referred_by'},
+                    {data: 'action'}
+                ] 
+            });
+        }
+
+        $(function () {
+            DataTableContent1();
+            
+            $('#filterBySystemTypeDeleted').on('change', function() {
+                table.ajax.reload(); 
+            });
+            $('#filterByCommunityDeleted').on('change', function() {
+                table.ajax.reload(); 
+            });
+
+            // Clear Filter
+            $('#clearFiltersButtonDeleted').on('click', function() {
+
+                $('.selectpicker').prop('selectedIndex', 0);
+                $('.selectpicker').selectpicker('refresh');
+                if ($.fn.DataTable.isDataTable('.data-table-energy-delete-request')) {
+                    $('.data-table-energy-delete-request').DataTable().destroy();
+                }
+                DataTableContent1();
+            });
+        });
+
+        // Return record
+        $('#energyDeletedRequestTable').on('click', '.returnEnergyDeletedRequest',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to return this deleted household to the requested list?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm',
+                showCancelButton: true,  
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const reason = result.value;  
+                    $.ajax({
+                        url: "{{ route('returnEnergyDeletedRequest') }}",
+                        type: 'get',
+                        data: {
+                            id: id,
+                            reason: reason
+                        },
+                        success: function(response) {
+                            if(response.success == 1) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#energyDeletedRequestTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    console.log('Returning canceled');
+                }
+            });
+        });
+
+        // Delete record
+        $('#energyDeletedRequestTable').on('click', '.deleteEnergyDeletedRequest',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to remove this deleted household from the list?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm',
+                showCancelButton: true,  
+                cancelButtonText: 'Cancel'
+
+            }).then((result) => {
+                if(result.isConfirmed) {
+                    const reason = result.value; 
+                    $.ajax({
+                        url: "{{ route('deleteEnergyDeletedRequest') }}",
+                        type: 'get',
+                        data: {
+                            id: id,
+                            reason: reason
+                        },
+                        success: function(response) {
+                            if(response.success == 1) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#energyDeletedRequestTable').DataTable().draw();
                                 });
                             } else {
 

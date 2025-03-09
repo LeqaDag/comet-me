@@ -150,7 +150,8 @@ class EnergyPublicStructureController extends Controller
                                 Auth::guard('user')->user()->user_type_id == 2 ||
                                 Auth::guard('user')->user()->user_type_id == 3 ||
                                 Auth::guard('user')->user()->user_type_id == 4 ||
-                                Auth::guard('user')->user()->user_type_id == 12) 
+                                Auth::guard('user')->user()->user_type_id == 12||
+                                Auth::guard('user')->user()->role_id == 21) 
                             {
                                     
                                 return $viewButton." ". $updateButton." ".$deleteButton;

@@ -196,6 +196,7 @@ class PublicStructureController extends Controller
     {
         // Get Last comet_id
         $last_comet_id = PublicStructure::latest('id')->value('comet_id');
+        $user = Auth::guard('user')->user();
 
         $publicStructure = new PublicStructure();
         $publicStructure->english_name = $request->english_name;
@@ -210,6 +211,7 @@ class PublicStructureController extends Controller
         $publicStructure->public_structure_category_id3 = $request->public_structure_category_id3;
         if($request->energy_system_type_id) $publicStructure->energy_system_type_id = $request->energy_system_type_id;
         if($request->energy_system_cycle_id) $publicStructure->energy_system_cycle_id = $request->energy_system_cycle_id;
+        $publicStructure->referred_by_id = $user->id;
 
         if($request->public_structure_category_id1 ||
             $request->public_structure_category_id2 || $request->public_structure_category_id3) 

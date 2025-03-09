@@ -11,6 +11,102 @@
 
 @section('content')
 
+<p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" 
+        data-target="#collapseEnergyRequestExport" aria-expanded="false" 
+        aria-controls="collapseEnergyRequestExport"> 
+        <i class="menu-icon tf-icons bx bx-export"></i>
+        Export Data
+    </button> 
+</p> 
+
+<div class="collapse multi-collapse container mb-4" id="collapseEnergyRequestExport">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-xl-10 col-lg-10 col-md-10">
+                                <h5>
+                                    Export Requested Systems Report 
+                                    <i class='fa-solid fa-file-excel text-info'></i>
+                                </h5>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2">
+                                <fieldset class="form-group">
+                                    <button class="" id="clearRequestedFiltersButton">
+                                    <i class='fa-solid fa-eraser'></i>
+                                        Clear Filters
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <form method="POST" enctype='multipart/form-data' 
+                        action="{{ route('misc-household.export') }}">
+                        @csrf
+                        <div class="card-body"> 
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Community</label>
+                                        <select name="community_id" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($communities as $community)
+                                                <option value="{{$community->id}}">{{$community->english_name}}</option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Status</label>
+                                        <select name="status" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            <option value="served">Served</option>
+                                            <option value="service_requested">Service requested</option>
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>System Type if Shared</label>
+                                        <select name="energy_system_type_id" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($energySystemTypes as $energySystemType)
+                                                <option value="{{$energySystemType->id}}">{{$energySystemType->name}}</option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Request Date</label>
+                                        <input type="date" name="request_date" class="form-control"
+                                            id="filterByRequestedDateExport">
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <label class='col-md-12 control-label'>Download Excel</label>
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-file-excel'></i>
+                                        Export Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>  
+            </div>
+        </div> 
+    </div> 
+</div>
+
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">All </span>Confirmed MISC
@@ -25,6 +121,7 @@
 @endif
 
 @include('employee.household.details')
+@include('public.show')
 
 <div class="container">
     <div class="card my-2">
@@ -236,7 +333,75 @@
             });
         });
 
-        // Move record
+        // View public details
+        $('#miscHouseholdsTable').on('click', '.detailsPublicButton',function() {
+            var id = $(this).data('id');
+        
+            // AJAX request
+            $.ajax({
+                url: 'public-structure/' + id,
+                type: 'get',
+                dataType: 'json', 
+                success: function(response) {
+
+                    $('#publicStructureModalTitle').html('');
+                    $('#publicStructureModalTitle').html(response['publicStructure'].english_name);
+                    $('#englishNamePublic').html('');
+                    $('#englishNamePublic').html(response['publicStructure'].english_name);
+                    $('#arabicNamePublic').html('');
+                    $('#arabicNamePublic').html(response['publicStructure'].arabic_name);
+                    $('#communityName').html('');
+                    $('#communityName').html(response['community'].english_name);
+                    $('#publicNotes').html('');
+                    $('#publicNotes').html(response['publicStructure'].notes);
+                    $('#publicStatus').html('');
+                    $('#publicStatus').html(response['status'].status);
+
+                    $("#kindergartenDetails").css("visibility", "none");
+                    $("#kindergartenDetails").css('display', 'none');
+
+                    $("#schoolDetails").css("visibility", "none");
+                    $("#schoolDetails").css('display', 'none');
+                    $('#compoundName').html('');
+                    if(response['compound']) {
+                        
+                        $('#compoundName').html('');
+                        $('#compoundName').html(response['compound'].english_name);
+                    }
+                    if(response['schoolPublic']) {
+
+                        $("#schoolDetails").css("visibility", "visible");
+                        $("#schoolDetails").css('display', 'block');
+                        $('#totalSchoolStudents').html('');
+                        $('#totalSchoolStudents').html(response['schoolPublic'].number_of_boys + response['schoolPublic'].number_of_girls);
+                        $('#schoolBoys').html('');
+                        $('#schoolBoys').html(response['schoolPublic'].number_of_boys);
+                        $('#schoolGirls').html('');
+                        $('#schoolGirls').html(response['schoolPublic'].number_of_girls);
+                        $('#gradeFrom').html('');
+                        $('#gradeFrom').html(response['schoolPublic'].grade_from);
+                        $('#gradeTo').html('');
+                        $('#gradeTo').html(response['schoolPublic'].grade_to);
+                    }
+ 
+                    if(response['publicStructure'].public_structure_category_id1 == 5 ||
+                        response['publicStructure'].public_structure_category_id2 == 5 ||
+                        response['publicStructure'].public_structure_category_id3 == 5)  {
+
+                            $("#kindergartenDetails").css("visibility", "visible");
+                            $("#kindergartenDetails").css('display', 'block');
+                            $('#totalKindergartenStudents').html('');
+                            $('#totalKindergartenStudents').html(response['publicStructure'].kindergarten_students);
+                            $('#kindergartenBoys').html('');
+                            $('#kindergartenBoys').html(response['publicStructure'].kindergarten_male);
+                            $('#kindergartenGirls').html('');
+                            $('#kindergartenGirls').html(response['publicStructure'].kindergarten_female);
+                    }
+                }
+            });
+        });
+
+        // Move household
         $('#miscHouseholdsTable').on('click', '.moveMISCHousehold',function() {
             var id = $(this).data('id');
 
@@ -250,6 +415,46 @@
                 if(result.isConfirmed) {
                     $.ajax({
                         url: "{{ route('moveMISCHousehold') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#miscHouseholdsTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+ 
+        // Move public
+        $('#miscHouseholdsTable').on('click', '.moveMISCPublic',function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to start working?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('moveMISCPublic') }}",
                         type: 'get',
                         data: {id: id},
                         success: function(response) {
