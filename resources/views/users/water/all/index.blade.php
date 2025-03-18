@@ -20,7 +20,7 @@
         data-target="#collapseWaterHolderExport" aria-expanded="false" 
         aria-controls="collapseWaterHolderExport">
         <i class="menu-icon tf-icons bx bx-export"></i>
-        Export Data
+        Export  
     </button>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
         data-target=".multi-collapse" aria-expanded="false" 
@@ -371,6 +371,9 @@
                     <tr>
                         <th class="text-center">Water Holder</th>
                         <th class="text-center">Main Holder</th>
+                        <th class="text-center">Delivered</th>
+                        <th class="text-center">Completed</th>
+                        <th class="text-center">Paid</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Options</th>
                     </tr>
@@ -486,6 +489,9 @@
             columns: [
                 {data: 'holder'},
                 {data: 'icon'},
+                {data: 'delivered', name: 'delivered'},
+                {data: 'completed', name: 'completed'},
+                {data: 'paid', name: 'paid'},
                 {data: 'community_name', name: 'community_name'},
                 {data: 'action'}
             ],
@@ -548,6 +554,108 @@
         
         url = url +'/'+ id ;
         window.open(url); 
+    });
+
+    // Delivery checked/unchecked
+    $('#waterAllUsersTable').on('click', '.checkboxDelivered',function() {
+
+        var id = $(this).data('id');
+        var isChecked = $(this).prop('checked');  
+        var status = isChecked ? "Yes" : "No";
+
+        $.ajax({
+            url: "{{ route('checkboxDelivered') }}",
+            type: 'get',
+            data: {
+                id: id,
+                status: status 
+            },
+            success: function(response) {
+                if(response.success == 1) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.msg,
+                        showDenyButton: false,
+                        showCancelButton: false,
+                        confirmButtonText: 'Okay!'
+                    }).then((result) => {
+                        $('#waterAllUsersTable').DataTable().draw();
+                    });
+                } else {
+
+                    alert("Invalid ID.");
+                }
+            }
+        });
+    });
+
+    // Completed checked/unchecked
+    $('#waterAllUsersTable').on('click', '.checkboxCompleted',function() {
+
+        var id = $(this).data('id');
+        var isChecked = $(this).prop('checked');  
+        var status = isChecked ? "Yes" : "No";
+        
+        $.ajax({
+            url: "{{ route('checkboxCompleted') }}",
+            type: 'get',
+            data: {
+                id: id,
+                status: status 
+            },
+            success: function(response) {
+                if(response.success == 1) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.msg,
+                        showDenyButton: false,
+                        showCancelButton: false,
+                        confirmButtonText: 'Okay!'
+                    }).then((result) => {
+                        $('#waterAllUsersTable').DataTable().draw();
+                    });
+                } else {
+
+                    alert("Invalid ID.");
+                }
+            }
+        });
+    });
+
+    // Completed checked/unchecked
+    $('#waterAllUsersTable').on('click', '.checkboxPaid',function() {
+
+        var id = $(this).data('id');
+        var isChecked = $(this).prop('checked');  
+        var status = isChecked ? "Yes" : "No";
+
+        $.ajax({
+            url: "{{ route('checkboxPaid') }}",
+            type: 'get',
+            data: {
+                id: id,
+                status: status 
+            },
+            success: function(response) {
+                if(response.success == 1) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.msg,
+                        showDenyButton: false,
+                        showCancelButton: false,
+                        confirmButtonText: 'Okay!'
+                    }).then((result) => {
+                        $('#waterAllUsersTable').DataTable().draw();
+                    });
+                } else {
+
+                    alert("Invalid ID.");
+                }
+            }
+        });
     });
 
     // Delete record

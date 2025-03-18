@@ -122,6 +122,13 @@
                                                 <li class="d-flex justify-content-start align-items-center text-primary mb-3">
                                                     <i class="bx bx-calendar bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">Cycle Year: </small>
+                                                        <h6 class="mb-0" id="waterCycleYear"></h6>
+                                                    </div>
+                                                </li>
+                                                <li class="d-flex justify-content-start align-items-center text-primary mb-3">
+                                                    <i class="bx bx-calendar bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
                                                         <small class="text-muted mb-1">Installation Year: </small>
                                                         <h6 class="mb-0" id="waterSystemYear"></h6>
                                                     </div>

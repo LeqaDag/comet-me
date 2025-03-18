@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\AllWaterHolder;
 use App\Models\User;
 use App\Models\BsfStatus;
+use App\Models\HouseholdStatus;
 use App\Models\Community;
 use App\Models\CommunityWaterSource;
 use App\Models\GridUser;
@@ -22,11 +23,14 @@ use App\Models\WaterFilter;
 use App\Models\WaterPipe;
 use App\Models\WaterPump;
 use App\Models\WaterSystemConnector;
-use App\Models\WaterSystemElectrical;
+use App\Models\WaterSystemElectrical;  
+use App\Models\WaterSystemCycle;
 use App\Models\WaterSystemFilter;
 use App\Models\WaterSystemPipe;
 use App\Models\WaterSystemPump;
 use App\Models\WaterSystemTank;
+use App\Models\WaterHolderStatus;
+use App\Models\WaterNetworkUser;
 use App\Models\WaterTank;
 use App\Models\WaterUser;
 use App\Models\WaterSystem;
@@ -171,9 +175,10 @@ class WaterSystemController extends Controller
         $waterPipes = WaterPipe::orderBy('model', 'ASC')->get();
         $waterFilters = WaterFilter::orderBy('model', 'ASC')->get();
         $waterConnectors = WaterConnector::orderBy('model', 'ASC')->get();
+        $waterSystemCycles = WaterSystemCycle::orderBy('name', 'ASC')->get();
 
         return view('system.water.create', compact('waterSystemTypes', 'communities', 'waterTanks', 'waterPumps',
-            'waterPipes', 'waterFilters', 'waterConnectors'));
+            'waterPipes', 'waterFilters', 'waterConnectors', 'waterSystemCycles'));
     }
 
     /**
@@ -188,6 +193,7 @@ class WaterSystemController extends Controller
         $waterSystem->water_system_type_id = $request->water_system_type_id;
         $waterSystem->name = $request->name;
         $waterSystem->description = $request->description;
+        if($request->water_system_cycle_id) $waterSystem->water_system_cycle_id = $request->water_system_cycle_id;
         $waterSystem->year = $request->year;
         $waterSystem->upgrade_year1 = $request->upgrade_year1;
         $waterSystem->upgrade_year2 = $request->upgrade_year2;
@@ -199,20 +205,29 @@ class WaterSystemController extends Controller
             $waterSystem->community_id = $request->community_id;
             $waterSystem->save();
 
-            $households = Household::where("community_id", $request->community_id)
+            $left = "Left";
+            $leftStatus = HouseholdStatus::where('status', 'like', '%' . $left. '%')->first(); 
+
+            $households = Household::where("is_archived", 0)
+                ->where("community_id", $request->community_id)
+                ->where("household_status_id", "!=", $leftStatus->id)
                 ->orderBy('english_name', 'ASC')
                 ->get();
 
             foreach($households as $household) {
 
+                $confirmed = "Confirmed";
+                $confirmedStatus = WaterHolderStatus::where('status', 'like', '%' . $confirmed. '%')->first(); 
+
                 $household->water_service = "Yes";
                 $household->water_system_status = "Served";
+                $household->water_system_cycle_id = $request->water_system_cycle_id;
+                $household->water_holder_status_id = $confirmedStatus->id;
                 $household->save();
 
                 $exist = AllWaterHolder::where("household_id", $household->id)->first();
-                if($exist) {
-
-                } else {
+                $existNetwork = WaterNetworkUser::where("household_id", $household->id)->first();
+                if(!$exist) {
 
                     $allWaterHolder = new AllWaterHolder();
                     $allWaterHolder->is_main = "Yes";
@@ -220,6 +235,13 @@ class WaterSystemController extends Controller
                     $allWaterHolder->community_id = $request->community_id;
                     $allWaterHolder->water_system_id = $waterSystem->id;
                     $allWaterHolder->save();
+                }
+                if(!$existNetwork) {
+
+                    $networkUser = new WaterNetworkUser();
+                    $networkUser->household_id = $household->id;
+                    $networkUser->community_id = $request->community_id;
+                    $networkUser->save();
                 }
             }
         }
@@ -314,6 +336,7 @@ class WaterSystemController extends Controller
         $waterSystem = WaterSystem::findOrFail($id);
         $waterSystemType = WaterSystemType::where('id', $waterSystem->water_system_type_id)->first();
         $community = Community::where('id', $waterSystem->community_id)->first();
+        $waterCycle = WaterSystemCycle::where('id', $waterSystem->water_system_cycle_id)->first();
 
         $waterSystemConnectors = DB::table('water_system_connectors')
             ->join('water_systems', 'water_system_connectors.water_system_id', 
@@ -362,6 +385,7 @@ class WaterSystemController extends Controller
 
         $response['waterSystem'] = $waterSystem;
         $response['waterSystemType'] = $waterSystemType;
+        $response['waterCycle'] = $waterCycle;
         $response['community'] = $community;
         $response['waterSystemConnectors'] = $waterSystemConnectors;
         $response['waterSystemFilters'] = $waterSystemFilters;
@@ -438,9 +462,73 @@ class WaterSystemController extends Controller
 
         $waterSystem = WaterSystem::findOrFail($id);
         
+        $waterSystemCycles = WaterSystemCycle::orderBy('name', 'ASC')->get();
+
         return view('system.water.edit', compact('connectors', 'filters', 'waterSystemTypes',
             'pipes', 'pumps', 'tanks', 'waterConnectors', 'waterSystem', 'communities',
-            'waterFilters', 'waterPipes', 'waterPumps', 'waterTanks'));
+            'waterFilters', 'waterPipes', 'waterPumps', 'waterTanks', 'waterSystemCycles'));
+    }
+
+       /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $waterSystem = WaterSystem::findOrFail($id);
+        if($request->water_system_type_id) $waterSystem->water_system_type_id = $request->water_system_type_id;
+        if($request->name) $waterSystem->name = $request->name;
+        if($request->description) $waterSystem->description = $request->description;
+        if($request->water_system_cycle_id) $waterSystem->water_system_cycle_id = $request->water_system_cycle_id;
+        if($request->year) $waterSystem->year = $request->year;
+        if($request->upgrade_year1) $waterSystem->upgrade_year1 = $request->upgrade_year1;
+        if($request->upgrade_year2) $waterSystem->upgrade_year2 = $request->upgrade_year2;
+        if($request->notes) $waterSystem->notes = $request->notes;
+        $waterSystem->save();
+
+        if($request->community_id && $request->water_system_type_id == 4) {
+
+            $waterSystem->community_id = $request->community_id;
+            $waterSystem->save();
+
+            $left = "Left";
+            $leftStatus = HouseholdStatus::where('status', 'like', '%' . $left. '%')->first(); 
+
+            $households = Household::where("is_archived", 0)
+                ->where("community_id", $request->community_id)
+                ->where("household_status_id", "!=", $leftStatus->id)
+                ->orderBy('english_name', 'ASC')
+                ->get();
+
+            foreach($households as $household) {
+
+                $complete = "Completed";
+                $completedStatus = WaterHolderStatus::where('status', 'like', '%' . $complete. '%')->first(); 
+
+                $household->water_service = "Yes";
+                $household->water_system_status = "Served";
+                $household->water_system_cycle_id = $request->water_system_cycle_id;
+                $household->water_holder_status_id = $completedStatus->id;
+                $household->save();
+
+                $exist = AllWaterHolder::where("household_id", $household->id)->first();
+                if($exist) {
+
+                } else {
+
+                    $allWaterHolder = new AllWaterHolder();
+                    $allWaterHolder->is_main = "Yes";
+                    $allWaterHolder->household_id = $household->id;
+                    $allWaterHolder->community_id = $request->community_id;
+                    $allWaterHolder->water_system_id = $waterSystem->id;
+                    $allWaterHolder->save();
+                }
+            }
+        }
+        
+        return redirect('/water-system')->with('message', 'Water System Updated Successfully!');
     }
 
     /**
@@ -485,6 +573,17 @@ class WaterSystemController extends Controller
         $id = $request->id;
 
         $waterSystem = WaterSystem::find($id);
+
+        $households = Household::where("community_id", $waterSystem->community_id)->get();
+
+        foreach($households as $household) {
+
+            $household->water_service = "No";
+            $household->water_system_status = "Not Served";
+            $household->water_system_cycle_id = null;
+            $household->water_holder_status_id = null;
+            $household->save();
+        }
 
         if($waterSystem->delete()) {
 

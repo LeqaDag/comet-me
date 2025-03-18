@@ -13,8 +13,9 @@ use App\Models\AllEnergyMeter;
 use App\Models\AllWaterHolder;
 use App\Models\AllEnergyMeterDonor;
 use App\Models\User; 
-use App\Models\Community;
+use App\Models\Community; 
 use App\Models\EnergySystemType;
+use App\Models\GridIntegrationType;
 use App\Models\CommunityService;
 use App\Models\WaterRequestStatus;
 use App\Models\WaterSystemStatus;
@@ -31,7 +32,7 @@ use App\Exports\WaterRequestSystemExport;
 use App\Exports\Water\WaterProgressExport;
 use Carbon\Carbon;
 use Image;
-use Excel;
+use Excel; 
 use DataTables;
 
 class WaterRequestSystemController extends Controller
@@ -142,9 +143,11 @@ class WaterRequestSystemController extends Controller
             ->get();
         $waterCycleYears = WaterSystemCycle::orderBy('name', 'ASC')
             ->get();
+        $gridTypes = GridIntegrationType::orderBy('name', 'ASC')
+            ->get();
 
         return view('request.water.create', compact('communities', 'requestStatuses', 'waterSystemTypes',
-            'waterSystemStatuses', 'waterCycleYears'));
+            'waterSystemStatuses', 'waterCycleYears', 'gridTypes'));
     }
 
     /**
@@ -164,9 +167,10 @@ class WaterRequestSystemController extends Controller
         $waterRequestSystem->water_system_type_id = $request->water_system_type_id;
         $waterRequestSystem->water_system_status_id = $request->water_system_status_id;
         $waterRequestSystem->water_system_cycle_id = $request->water_system_cycle_id;
+        if($request->grid_integration_type_id) $waterRequestSystem->grid_integration_type_id = $request->grid_integration_type_id;
         $waterRequestSystem->referred_by = $request->referred_by;
         $waterRequestSystem->notes = $request->notes;
-        $waterRequestSystem->save();
+        $waterRequestSystem->save(); 
 
         return redirect('/water-request')
             ->with('message', 'New Water Requested System Added Successfully!');
@@ -192,6 +196,7 @@ class WaterRequestSystemController extends Controller
         $newReplacnment = null;
         $cycleYear = null;
         $holderStatus = null;
+        $gridIntegrationType = null;
 
         if($waterRequestSystem->household_id) {
 
@@ -220,6 +225,8 @@ class WaterRequestSystemController extends Controller
         if($waterRequestSystem->water_system_cycle_id) $cycleYear = WaterSystemCycle::findOrFail($waterRequestSystem->water_system_cycle_id);
         
         if($waterRequestSystem->water_system_status_id) $newReplacnment = WaterSystemStatus::findOrFail($waterRequestSystem->water_system_status_id);
+        
+        if($waterRequestSystem->grid_integration_type_id) $gridIntegrationType = GridIntegrationType::findOrFail($waterRequestSystem->grid_integration_type_id);
 
         $response['energy'] = $energyMeter;
         $response['community'] = $community;
@@ -233,6 +240,7 @@ class WaterRequestSystemController extends Controller
         $response['cycleYear'] = $cycleYear;
         $response['newReplacnment'] = $newReplacnment;
         $response['holderStatus'] = $holderStatus;
+        $response['gridIntegrationType'] = $gridIntegrationType;
 
         return response()->json($response);
     }
@@ -273,8 +281,11 @@ class WaterRequestSystemController extends Controller
 
         $waterHolderStatues = WaterHolderStatus::where('is_archived', 0)->get();
 
+        $gridTypes = GridIntegrationType::orderBy('name', 'ASC')
+            ->get();
+
         return view('request.water.edit', compact('waterRequestSystem', 'requestStatuses', 'waterSystemTypes',
-            'households', 'publics', 'waterSystemStatuses', 'waterCycleYears', 'waterHolderStatues'));
+            'households', 'publics', 'waterSystemStatuses', 'waterCycleYears', 'waterHolderStatues', 'gridTypes'));
     }
     
     /**
@@ -291,6 +302,7 @@ class WaterRequestSystemController extends Controller
         if($request->water_system_type_id) $waterRequestSystem->water_system_type_id = $request->water_system_type_id;
         if($request->water_system_status_id) $waterRequestSystem->water_system_status_id = $request->water_system_status_id;
         if($request->water_system_cycle_id) $waterRequestSystem->water_system_cycle_id = $request->water_system_cycle_id;
+        if($request->grid_integration_type_id) $waterRequestSystem->grid_integration_type_id = $request->grid_integration_type_id;
         if($request->referred_by) $waterRequestSystem->referred_by = $request->referred_by;
         if($request->notes) $waterRequestSystem->notes = $request->notes;
         $waterRequestSystem->save();

@@ -217,7 +217,11 @@
                     $('#waterRequestedDate').html(" ");
                     if(response['waterRequestSystem'])$('#waterRequestedDate').html(response['waterRequestSystem'].date);
                     $('#waterRequestedType').html(" ");
-                    if(response['waterRequestSystemType'])$('#waterRequestedType').html(response['waterRequestSystemType'].type);
+                    if(response['waterRequestSystemType']) {
+
+                        if(response['gridIntegrationType']) $('#waterRequestedType').html(response['gridIntegrationType'].name);
+                        else $('#waterRequestedType').html(response['waterRequestSystemType'].type);
+                    }
                     $('#waterRequestStatusCase').html(" ");
                     if(response['waterRequestStatus'])$('#waterRequestStatusCase').html(response['waterRequestStatus'].name);
                     $('#waterNewReplacement').html(" ");

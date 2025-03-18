@@ -160,7 +160,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
         $energyTypes = DB::table('energy_system_types')
             ->where('energy_system_types.is_archived', 0)
             ->select(
-                DB::raw('"system_type" as list_name'), 
+                DB::raw('"energy_system_type" as list_name'), 
                 'energy_system_types.name as name',
                 'energy_system_types.name as label:English (en)',
                 'energy_system_types.name as label:Arabic (ar)',
@@ -169,7 +169,6 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
                 DB::raw('false as community')
             )
             ->get();
-
 
         $fixedList = [
             // [
@@ -467,7 +466,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
         ];
 
         $query = collect($households)
-            //->merge($energyTypes) 
+            ->merge($energyTypes) 
             ->merge($professions)
             ->merge($acCommunities)
             ->merge($compounds)

@@ -584,3 +584,10 @@ Route::get('/move-postponed-household', [App\Http\Controllers\PostponedHousehold
 Route::resource('energy-delete-request', App\Http\Controllers\DeletedRequestedHouseholdController::class);
 Route::get('/delete-energy-delete-request', [App\Http\Controllers\DeletedRequestedHouseholdController::class, 'deleteEnergyDeletedRequest'])->name('deleteEnergyDeletedRequest');
 Route::get('/return-energy-delete-request', [App\Http\Controllers\DeletedRequestedHouseholdController::class, 'returnEnergyDeletedRequest'])->name('returnEnergyDeletedRequest');
+
+Route::resource('all-maintenance', App\Http\Controllers\AllMaintenanceController::class);
+Route::post('all-maintenance-export', [App\Http\Controllers\AllMaintenanceController::class, 'export'])->name('all-maintenance.export');
+
+Route::get('/water-holder-delivery', [App\Http\Controllers\AllWaterController::class, 'checkboxDelivered'])->name('checkboxDelivered');
+Route::get('/water-holder-complete', [App\Http\Controllers\AllWaterController::class, 'checkboxCompleted'])->name('checkboxCompleted');
+Route::get('/water-holder-paid', [App\Http\Controllers\AllWaterController::class, 'checkboxPaid'])->name('checkboxPaid');

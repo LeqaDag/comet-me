@@ -245,6 +245,8 @@
                 $('#waterSystemType').html(response['waterSystemType'].type);
                 $('#waterSystemYear').html(" ");
                 $('#waterSystemYear').html(response['waterSystem'].year);
+                $('#waterCycleYear').html(" ");
+                if(response['waterCycle']) $('#waterCycleYear').html(response['waterCycle'].name);
                 $('#waterSystemUpgrade1').html(" ");
                 if(response['waterSystem'].upgrade_year1) $('#waterSystemUpgrade1').html(response['waterSystem'].upgrade_year1);
                 $('#waterSystemUpgrade2').html(" ");

@@ -105,6 +105,32 @@
                             </select>
                         </fieldset>
                     </div>
+                    
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Grid Integration Type</label>
+                            <select name="grid_integration_type_id" class="selectpicker form-control"
+                                data-live-search="true">
+                                @if($waterRequestSystem->grid_integration_type_id)
+                                    <option disabled selected>{{$waterRequestSystem->GridIntegrationType->name}}</option>
+                                    @foreach($gridTypes as $gridType)
+                                    <option value="{{$gridType->id}}">
+                                        {{$gridType->name}}
+                                    </option>
+                                    @endforeach
+                                @else
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($gridTypes as $gridType)
+                                    <option value="{{$gridType->id}}">
+                                        {{$gridType->name}}
+                                    </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>New or Replacement</label>
@@ -123,9 +149,6 @@
                             </select>
                         </fieldset>
                     </div>
-                </div>
-
-                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Cycle Year</label>
@@ -144,6 +167,9 @@
                             </select>
                         </fieldset>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Holder status</label>

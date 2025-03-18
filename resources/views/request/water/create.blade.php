@@ -49,7 +49,7 @@
                     </fieldset>
                 </div>
             </div>
-
+ 
             <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <fieldset class="form-group">
@@ -130,6 +130,20 @@
             <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Grid Integration Type</label>
+                        <select name="grid_integration_type_id" id="gridIntegrationType"
+                            class="selectpicker form-control" data-live-search="true" >
+                            <option disabled selected>Choose one...</option>
+                            @foreach($gridTypes as $gridType)
+                            <option value="{{$gridType->id}}">
+                                {{$gridType->name}}
+                            </option>
+                            @endforeach
+                        </select>
+                    </fieldset>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <fieldset class="form-group">
                         <label class='col-md-12 control-label'>New or Replacement</label>
                         <select name="water_system_status_id" 
                             class="selectpicker form-control" data-live-search="true"
@@ -144,6 +158,8 @@
                     </fieldset>
                     <div id="water_system_status_id_error" style="color: red;"></div>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Cycle Year</label>
@@ -161,7 +177,6 @@
                     <div id="water_system_cycle_id_error" style="color: red;"></div>
                 </div>
             </div>
-
             <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                     <fieldset class="form-group">

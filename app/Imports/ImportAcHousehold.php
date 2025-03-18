@@ -48,7 +48,8 @@ class ImportAcHousehold implements ToModel, WithHeadingRow
 
                 if($row["select_household_name"]) {
 
-                    $household = Household::where('community_id', $community->id)
+                    $household = Household::where('is_archived', 0)
+                        ->where('community_id', $community->id)
                         ->where("comet_id", $row["select_household_name"])
                         ->first();
                 } else {
@@ -80,6 +81,12 @@ class ImportAcHousehold implements ToModel, WithHeadingRow
                     $household->is_surveyed = "yes"; 
                     $household->household_status_id = 2;
     
+                    if($row["energy_system_type"]) {
+
+                        $energyType = EnergySystemType::where('name', 'like', '%' . $row["energy_system_type"] . '%')->first(); 
+                        $household->energy_system_type_id = $energyType->id;
+                    }
+
                     $reg_date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['submission_time']);
                     if(date_timestamp_get($reg_date)) {
     

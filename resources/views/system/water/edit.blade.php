@@ -24,10 +24,9 @@ label {
         <div class="card-body">
             <form method="POST" action="{{route('water-system.update', $waterSystem->id)}}"
              enctype="multipart/form-data" >
-                @csrf
+                @csrf 
                 @method('PATCH')
 
-                
                 <div class="row"> 
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
@@ -77,6 +76,21 @@ label {
                             class="form-control" value="{{$waterSystem->year}}">
                         </fieldset>
                     </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select class="selectpicker form-control" name="water_system_cycle_id" 
+                                data-live-search="true" id="communityWaterSystem"
+                                required>
+                                @if($waterSystem->water_system_cycle_id)
+                                    <option disabled selected>{{$waterSystem->WaterSystemCycle->name}}</option>
+                                @endif
+                                @foreach($waterSystemCycles as $waterSystemCycle)
+                                <option value="{{$waterSystemCycle->id}}">{{$waterSystemCycle->name}}</option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Upgrade Year 1</label>
@@ -84,6 +98,8 @@ label {
                             class="form-control" value="{{$waterSystem->upgrade_year1}}">
                         </fieldset>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Upgrade Year 2</label>
@@ -117,7 +133,7 @@ label {
                 <br>
                 <hr>
 
-                <div class="row">
+                <!-- <div class="row">
                     <h5>Tanks</h5>
                 </div>
                 @if(count($waterTanks) > 0) 
@@ -180,7 +196,7 @@ label {
                     </div>
                 @endif
                 <br>
-                <hr>
+                <hr> -->
 
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">

@@ -78,63 +78,43 @@ class AllWaterController extends Controller
 
         $h2oFlag = AllWaterHolder::where("water_system_id", 1)->count();
 
-        //dd($h2oFlag);
-        // Add flag to users for type of system
-        $allWaterHolders = AllWaterHolder::get();
-        //dd($allWaterHolders);
+   
+        // Al-Mihtwesh 12 
+        // Wadi Abu Hindi 5
+        // Sateh al-Baher 11
+        // Umm al-Khair 8 & 9
+        $allWaterHolders = AllWaterHolder::where("water_system_id", 8)
+            ->orWhere("water_system_id", 9)
+            ->orWhere("water_system_id", 5)
+            ->orWhere("water_system_id", 11)
+            ->orWhere("water_system_id", 12)
+            ->get();
 
         foreach($allWaterHolders as $allWaterHolder) {
 
-            // $h2oUser = H2oUser::where("household_id", $allWaterHolder->household_id)->first();
-            // $gridUser = GridUser::where("household_id", $allWaterHolder->household_id)->first();
+            $exist = null;
+            if($allWaterHolder->household_id) $exist = WaterNetworkUser::where("household_id", $allWaterHolder->household_id)->first();
+            else if($allWaterHolder->public_structure_id) $exist = WaterNetworkUser::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
 
-            // if($gridUser) {
-            //     if($allWaterHolder->water_system_id == 1) {
 
-            //     } else if($gridUser->grid_integration_large >= 1) {
+            if(!$exist) {
 
-            //         $allWaterHolder->is_large_grid = 1;
-            //         $allWaterHolder->water_system_id  = 2;
-            //         $allWaterHolder->save();
-            //     } else if($gridUser->grid_integration_small >= 1) {
+                $networkUser = new WaterNetworkUser();
+                if($allWaterHolder->household_id) $networkUser->household_id = $allWaterHolder->household_id;
+                if($allWaterHolder->public_structure_id) $networkUser->public_structure_id = $allWaterHolder->public_structure_id;
+                $networkUser->community_id = $allWaterHolder->community_id;
+                $networkUser->is_delivery = "Yes";
+                $networkUser->is_paid = "NA";
+                $networkUser->is_complete = "Yes";
+                $networkUser->save();
+            } else {
 
-            //         $allWaterHolder->is_small_grid = 1;
-            //         $allWaterHolder->water_system_id  = 2;
-            //         $allWaterHolder->save();
-            //     }
-            // } 
-            // if($h2oUser) {
-            //     $allWaterHolder->is_h2o = 1;
-            //     $allWaterHolder->water_system_id  = 1;
-            //     $allWaterHolder->save();
-            // }
-            // $h2oPublic = H2oPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
-
-            // if($h2oPublic) {
-            //     $allWaterHolder->is_h2o = 1;
-            //     $allWaterHolder->water_system_id  = 1;
-            //     $allWaterHolder->save();
-            // }
+                $exist->is_delivery = "Yes";
+                $exist->is_paid = "NA";
+                $exist->is_complete = "Yes";
+                $exist->save();
+            }
         }
-
-        // $allDonors = H2oUserDonor::all();
-
-        // foreach($allDonors as $allDonor) {
-
-        //     $h2oUser = H2oUser::findOrFail($allDonor->h2o_user_id);
-        //     $allWaterHolder = AllWaterHolder::where('household_id', $h2oUser->household_id)->first();
-
-        //     $exist = AllWaterHolderDonor::where("id", $allWaterHolder->id)->first();
-        //     if($exist) {
-        //     } else {
-        //          $allWaterHolderDonor = new AllWaterHolderDonor();
-        //     $allWaterHolderDonor->donor_id = $allDonor->donor_id;
-        //     $allWaterHolderDonor->community_id = $h2oUser->community_id;
-        //     $allWaterHolderDonor->all_water_holder_id = $allWaterHolder->id;
-        //     $allWaterHolderDonor->save();
-        //     } 
-        // }
-
 
         if (Auth::guard('user')->user() != null) {
  
@@ -148,10 +128,10 @@ class AllWaterController extends Controller
                     ->LeftJoin('public_structures', 'all_water_holders.public_structure_id', 
                         'public_structures.id')
                     ->LeftJoin('households', 'all_water_holders.household_id', 'households.id')
+                    ->LeftJoin('water_holder_statuses', 'households.water_holder_status_id', 'water_holder_statuses.id')
                     ->LeftJoin('h2o_users', 'h2o_users.household_id', 'households.id')
                     ->LeftJoin('grid_users', 'h2o_users.household_id', 'grid_users.household_id')
-                    ->leftJoin('water_network_users', 'households.id', 
-                        'water_network_users.household_id')
+                    ->leftJoin('water_network_users', 'households.id', 'water_network_users.household_id')
                     ->LeftJoin('h2o_statuses', 'h2o_users.h2o_status_id', 'h2o_statuses.id')
                     ->leftJoin('h2o_shared_users', 'h2o_shared_users.h2o_user_id', 
                         'h2o_users.id')
@@ -162,6 +142,8 @@ class AllWaterController extends Controller
                     ->leftJoin('households as shared_grid_households', 'shared_grid_households.id', 
                         'grid_shared_users.household_id')
                     ->where('all_water_holders.is_archived', 0);
+
+                
                 
                 if($filterValue != null) {
 
@@ -176,12 +158,21 @@ class AllWaterController extends Controller
                     'all_water_holders.id as id', 'households.english_name as household_name', 
                     'h2o_users.number_of_h20', 'grid_users.grid_integration_large', 
                     'grid_users.large_date', 'grid_users.grid_integration_small', 
-                    'grid_users.small_date', 'grid_users.is_delivery', 'h2o_users.number_of_bsf', 
-                    'grid_users.is_paid', 'communities.english_name as community_name', 
-                    'grid_users.is_complete', 'all_water_holders.created_at as created_at',
+                    'grid_users.small_date', 'h2o_users.number_of_bsf', 
+                    'communities.english_name as community_name', 
+                    'all_water_holders.created_at as created_at',
                     'all_water_holders.installation_year', 'h2o_statuses.status',
                     'all_water_holders.updated_at as updated_at', 'all_water_holders.is_main',
-                    'public_structures.english_name as public_name')
+                    'public_structures.english_name as public_name',
+
+                    DB::raw('IFNULL(grid_users.is_delivery, IFNULL(water_network_users.is_delivery,
+                        h2o_users.is_delivery)) as delivery'),
+                    DB::raw('IFNULL(grid_users.is_complete, IFNULL(water_network_users.is_complete,
+                        h2o_users.is_complete)) as complete'),
+                    DB::raw('IFNULL(grid_users.is_paid, IFNULL(water_network_users.is_paid,
+                        h2o_users.is_paid)) as paid'),
+
+                    'water_holder_statuses.status as water_status')
                 ->latest();
               
                 return Datatables::of($data)
@@ -217,6 +208,33 @@ class AllWaterController extends Controller
 
                         return $icon;
                     })
+                    ->addColumn('delivered', function($row) {
+
+                        $delivered = "";
+
+                        if($row->delivery == "Yes") $delivered = "<input type='checkbox' class='checkboxDelivered' data-id='".$row->id."' checked>";
+                        else $delivered = "<input type='checkbox' class='checkboxDelivered' data-id='".$row->id."'>";
+
+                        return $delivered;
+                    })
+                    ->addColumn('completed', function($row) {
+
+                        $completed = "";
+
+                        if($row->complete == "Yes") $completed = "<input type='checkbox' class='checkboxCompleted' data-id='".$row->id."' checked='checked'>";
+                        else $completed = "<input type='checkbox' class='checkboxCompleted' data-id='".$row->id."'>";
+
+                        return $completed;
+                    })
+                    ->addColumn('paid', function($row) {
+
+                        $paid = "";
+
+                        if($row->paid == "Yes") $paid = "<input type='checkbox' class='checkboxPaid' data-id='".$row->id."' checked>";
+                        else $paid = "<input type='checkbox' class='checkboxPaid' data-id='".$row->id."'>";
+
+                        return $paid;
+                    })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
                                 $instance->where(function($w) use($request){
@@ -237,7 +255,7 @@ class AllWaterController extends Controller
                             });
                         }
                     })
-                ->rawColumns(['action', 'icon', 'holder'])
+                ->rawColumns(['action', 'icon', 'holder', 'delivered', 'paid', 'completed'])
                 ->make(true);
             }
     
@@ -864,6 +882,147 @@ class AllWaterController extends Controller
             'networkUser', 'waterIncident', 'h2oUser', 'gridUser', 'sharedH2oPublics',
             'energyUser', 'energyPublic', 'sharedH2oUsers', 'sharedGridUsers', 'mainGridUser',
             'mainH2oPublic'));
+    }
+
+    /**
+     * Chnage the delivery status
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function checkboxDelivered(Request $request)
+    {
+        $id = $request->id;
+        $status = $request->status;
+
+        $waterHolder = AllWaterHolder::findOrFail($id);
+        
+        if($waterHolder) {
+
+            $h2oMainUser = H2oUser::where("household_id", $waterHolder->household_id)->first();
+            $gridUser = GridUser::where("household_id", $waterHolder->household_id)->first();
+            $networkUser = WaterNetworkUser::where("household_id", $waterHolder->household_id)->first();
+
+            if($h2oMainUser) {
+
+                $h2oMainUser->is_delivery = $status;
+                $h2oMainUser->save();
+            }
+            if($gridUser) {
+
+                $gridUser->is_delivery = $status;
+                $gridUser->save();
+            }
+
+            if($networkUser) {
+
+                $networkUser->is_delivery = $status;
+                $networkUser->save();
+            }
+
+            $response['success'] = 1;
+            $response['msg'] = 'Delivery status updated successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Chnage the delivery status
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function checkboxCompleted(Request $request)
+    {
+        $id = $request->id;
+        $status = $request->status;
+
+        $waterHolder = AllWaterHolder::findOrFail($id);
+        
+        if($waterHolder) {
+
+            $h2oMainUser = H2oUser::where("household_id", $waterHolder->household_id)->first();
+            $gridUser = GridUser::where("household_id", $waterHolder->household_id)->first();
+            $networkUser = WaterNetworkUser::where("household_id", $waterHolder->household_id)->first();
+
+            if($h2oMainUser) {
+
+                $h2oMainUser->is_complete = $status;
+                $h2oMainUser->save();
+            }
+            if($gridUser) {
+
+                $gridUser->is_complete = $status;
+                $gridUser->save();
+            }
+
+            if($networkUser) {
+
+                $networkUser->is_complete = $status;
+                $networkUser->save();
+            }
+
+            $response['success'] = 1;
+            $response['msg'] = 'Complete status updated successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Chnage the delivery status
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function checkboxPaid(Request $request)
+    {
+        $id = $request->id;
+        $status = $request->status;
+
+        $waterHolder = AllWaterHolder::findOrFail($id);
+        
+        if($waterHolder) {
+
+            $h2oMainUser = H2oUser::where("household_id", $waterHolder->household_id)->first();
+            $gridUser = GridUser::where("household_id", $waterHolder->household_id)->first();
+            $networkUser = WaterNetworkUser::where("household_id", $waterHolder->household_id)->first();
+
+            if($h2oMainUser) {
+
+                $h2oMainUser->is_paid = $status;
+                $h2oMainUser->save();
+            }
+            if($gridUser) {
+
+                $gridUser->is_paid = $status;
+                $gridUser->save();
+            }
+
+            if($networkUser) {
+
+                $networkUser->is_paid = $status;
+                $networkUser->save();
+            }
+
+            $response['success'] = 1;
+            $response['msg'] = 'Paid status updated successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 
     /**

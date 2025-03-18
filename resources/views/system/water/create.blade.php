@@ -25,7 +25,7 @@
             <form method="POST" action="{{url('water-system')}}" enctype="multipart/form-data" >
                 @csrf
 
-                <div class="row">
+                <div class="row"> 
                     <h6>General Details</h6> 
                 </div>
                 <div class="row"> 
@@ -71,6 +71,19 @@
                             <label class='col-md-12 control-label'>Start Year</label>
                             <input type="number" name="year" 
                             class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year</label>
+                            <select class="selectpicker form-control" name="water_system_cycle_id" 
+                                data-live-search="true" id="waterCycleYear"
+                                required >
+                                <option disabled selected>Choose one...</option>
+                                @foreach($waterSystemCycles as $waterSystemCycle)
+                                <option value="{{$waterSystemCycle->id}}">{{$waterSystemCycle->name}}</option>
+                                @endforeach
+                            </select>
                         </fieldset>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">

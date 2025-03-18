@@ -352,6 +352,12 @@
             <div>Maintenance and Monitoring</div>
         </a>
         <ul class="menu-sub">
+            <li class="menu-item" id="all-maintenance">
+                <a href="{{url('all-maintenance')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>All Maintenance</div>
+                </a>
+            </li>
             <li class="menu-item" id="energy-maintenance-tab">
                 <a class="menu-link menu-toggle">
                     <div>Electricity Maintenance</div>
@@ -890,6 +896,10 @@
         $("#camera").addClass("active");
         $("#camera-service").addClass("open");
         $("#services").addClass("open");
+    } else if(last_part == "all-maintenance") {
+
+        $("#all-maintenance").addClass("active");
+        $("#maintenance").addClass("open");
     } else if(last_part == "energy-maintenance") {
 
         $("#energy-maintenance").addClass("active");

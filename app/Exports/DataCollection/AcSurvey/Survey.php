@@ -296,6 +296,18 @@ class Survey implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
                 'relevant' => false,
             ],
             [
+                'type' => 'select_one energy_system_type', 
+                'name' => 'energy_system_type',
+                'label:English (en)' => 'Energy system type',
+                'label:Arabic (ar)' => 'نوع النظام',
+                'hint' => false,
+                'choices' => false,
+                'choice_filter' => false,
+                'calculation' => 'pulldata("households", "energy_system_type", "name", ${select_household_name})',
+                'required' => 'yes',
+                'relevant' => false
+            ],
+            [
                 'type' => 'select_one profession', 
                 'name' => 'select_profession',
                 'label:English (en)' => 'Select profession',

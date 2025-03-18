@@ -43,4 +43,9 @@ class WaterRequestSystem extends Model
     {
         return $this->belongsTo(WaterSystemCycle::class, 'water_system_cycle_id', 'id');
     }
+
+    public function GridIntegrationType() 
+    {
+        return $this->belongsTo(GridIntegrationType::class, 'grid_integration_type_id', 'id');
+    }
 }

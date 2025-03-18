@@ -1,7 +1,11 @@
 <?php
 
-namespace App\Exports;
+namespace App\Exports\Water;
 
+use App\Models\WaterRequestSystem;
+use App\Models\WaterSystemStatus;
+use App\Models\WaterSystemCycle;
+use App\Models\GridIntegrationType;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -17,9 +21,20 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use DB;
 
-class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSize, 
+class WaterProgressSummary implements FromCollection, WithTitle, ShouldAutoSize, 
     WithStyles, WithEvents,WithCustomStartCell
 {
+    private $newH2oConfirmed = 0, $replaceH2oConfirmed = 0, $gridIntegrationLargeConfirmed = 0, $gridIntegrationSmallConfirmed = 0, 
+        $gridIntegrationLargeReplaced = 0, $gridIntegrationSmallReplaced = 0,
+
+        $newH2oPaid = 0, $replaceH2oPaid = 0, $gridIntegrationLargePaid = 0, $gridIntegrationSmallPaid = 0, 
+        $newH2oPickedUp = 0, $replaceH2oPickedUp = 0, $gridIntegrationLargePickedUp = 0, $gridIntegrationSmallPickedUp = 0,
+        $newH2oInstalled = 0, $replaceH2oInstalled = 0, $gridIntegrationLargeInstalled = 0, $gridIntegrationSmallInstalled = 0,
+        $newH2oSharedHousehold = 0, $replaceH2oSharedHousehold = 0, $gridIntegrationLargeSharedHousehold = 0, 
+        $gridIntegrationSmallSharedHousehold = 0, $newH2oSharedPublic = 0, $replaceH2oSharedPublic = 0, 
+        $gridIntegrationLargeSharedPublic = 0, $gridIntegrationSmallSharedPublic = 0, 
+        $newH2oServed = 0, $replaceH2oServed = 0, $gridIntegrationLargeServed = 0, $gridIntegrationSmallServed = 0;
+
     protected $request; 
 
     function __construct($request) {
@@ -32,12 +47,67 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
     */ 
     public function collection()  
     { 
+        $new = "New"; $replacement = "Replacement"; 
+        $large = "Grid Integration Large"; $small = "Grid Integration Small";
 
+        $newSystem = WaterSystemStatus::where('status', 'like', '%' . $new. '%')->first(); 
+        $replacementSystem = WaterSystemStatus::where('status', 'like', '%' . $replacement. '%')->first(); 
+
+        $gridLarge = GridIntegrationType::where('name', 'like', '%' . $large. '%')->first(); 
+        $smallLarge = GridIntegrationType::where('name', 'like', '%' . $small. '%')->first(); 
+        
+        // New & Integration Large
+        $gridIntegrationLargeConfirmed = WaterRequestSystem::where("is_archived", 0)
+            ->where("grid_integration_type_id", $gridLarge->id)
+            ->where("water_system_status_id", $newSystem->id)
+            ->count();
+
+        // New & Integration Small
+        $gridIntegrationSmallConfirmed = WaterRequestSystem::where("is_archived", 0)
+            ->where("grid_integration_type_id", $smallLarge->id)
+            ->where("water_system_status_id", $newSystem->id)
+            ->count();
+
+        // Replaced & Integration Large
+        $gridIntegrationLargeReplaced = WaterRequestSystem::where("is_archived", 0)
+            ->where("grid_integration_type_id", $gridLarge->id)
+            ->where("water_system_status_id", $replacementSystem->id)
+            ->count();
+
+        // Replaced & Integration Large
+        $gridIntegrationSmallReplaced = WaterRequestSystem::where("is_archived", 0)
+            ->where("grid_integration_type_id", $smallLarge->id)
+            ->where("water_system_status_id", $replacementSystem->id)
+            ->count();
+        
+        // Network systems
+        $data = DB::table('water_systems')
+            ->join('water_system_types', 'water_system_types.id', 'water_systems.water_system_type_id')
+            ->join('communities', 'communities.id', 'water_systems.community_id')
+            ->join('households', 'communities.id', 'households.community_id')
+            ->whereNotNull('water_systems.water_system_cycle_id')
+            ->select(
+                'water_systems.name',    
+                'water_system_types.type',
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.water_holder_status_id = 2 THEN 1 END) 
+                    as sum_confirmed'), 
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.water_holder_status_id = 3 THEN 1 END) 
+                    as sum_delivered'), 
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.water_holder_status_id = 4 THEN 1 END) 
+                    as sum_in_progress'), 
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.water_holder_status_id = 5 THEN 1 END) 
+                    as sum_completed'), 
+                DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.water_holder_status_id = 6 THEN 1 END) 
+                    as sum_paid'), 
+            )->groupBy("water_systems.id");
+
+        die($data->get());
+        return $data->get();
     } 
 
     public function startCell(): string
     {
-        return 'A4';
+        return 'A6';
     }
 
     public function title(): string 
@@ -68,44 +138,38 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
     public function styles(Worksheet $sheet)
     {
         $sheet->setAutoFilter('A1:P1');
-        $sheet->setCellValue('A1', 'Name');   
-        $sheet->setCellValue('B1', 'Geographical Region'); 
-        $sheet->setCellValue('C1', 'FBS # confirmed'); 
-        $sheet->setCellValue('D1', 'MG # confirmed meters'); 
-        $sheet->setCellValue('E1', 'SMG # confirmed meters'); 
-        $sheet->setCellValue('F1', 'Electricity Room'); 
-        $sheet->setCellValue('G1', 'Grid'); 
-        $sheet->setCellValue('H1', 'Initial Households/Public'); 
-        $sheet->setCellValue('I1', 'Completed AC'); // household_status is in-progress
-        $sheet->setCellValue('J1', 'Activate Meter MG'); // household_status is served// MG
-        $sheet->setCellValue('K1', 'Activate Meter FBS');
-        $sheet->setCellValue('L1', 'Shared Households');
-        $sheet->setCellValue('M1', 'Public Structures MG');
-        $sheet->setCellValue('N1', 'Public Structures FBS');
-        $sheet->setCellValue('O1', 'Served');
-        $sheet->setCellValue('P1', 'Delta');
-        $sheet->setCellValue('Q1', 'Refrigerator');
+        $sheet->setCellValue('A1', 'System name');   
+        $sheet->setCellValue('B1', 'System type'); 
+        $sheet->setCellValue('C1', 'New'); 
+        $sheet->setCellValue('D1', 'Replaced'); 
+        $sheet->setCellValue('E1', 'Total confirmed'); 
+        $sheet->setCellValue('F1', 'Paid'); 
+        $sheet->setCellValue('G1', 'Picked up'); 
+        $sheet->setCellValue('H1', 'Installed'); 
+        $sheet->setCellValue('I1', 'Shared Households - household systems');
+        $sheet->setCellValue('J1', 'Public Structures Household systems'); 
+        $sheet->setCellValue('K1', 'Served');
+        $sheet->setCellValue('L1', 'Delta');
 
-        $sheet->setCellValue('A2', 'MISC FBS');  
-        $sheet->setCellValue('A3', 'Relocated Households');  
-        //$sheet->setCellValue('A4', 'Requested Households');     
+        $sheet->setCellValue('A2', 'H2O systems new users');  
+        $sheet->setCellValue('A3', 'H2O systems replacement');  
+        $sheet->setCellValue('A4', 'GI Large');   
+        $sheet->setCellValue('A5', 'GI Small');   
+        
+        $sheet->setCellValue('B2', 'H2O');  
+        $sheet->setCellValue('B3', 'H2O');  
+        $sheet->setCellValue('B4', 'Grid Integration');   
+        $sheet->setCellValue('B5', 'Grid Integration');  
+
         $sheet->setCellValue('B2', ' ');       
         $sheet->setCellValue('B3', ' ');      
-        $sheet->setCellValue('C2', $this->misc);
-        $sheet->setCellValue('C3', $this->relocatedHouseholds);
-        //$sheet->setCellValue('C4', $this->requestedHouseholds);
-        
-        $sheet->setCellValue('K2', $this->activateMisc);
-        $sheet->setCellValue('K3', $this->activateRelocated);
+        $sheet->setCellValue('C4', $this->gridIntegrationLargeConfirmed);
+        $sheet->setCellValue('C5', $this->gridIntegrationSmallConfirmed);
+        $sheet->setCellValue('D4', $this->gridIntegrationLargeReplaced);
+        $sheet->setCellValue('D5', $this->gridIntegrationSmallReplaced);
+        $sheet->setCellValue('E4', $this->gridIntegrationLargeReplaced + $this->gridIntegrationLargeConfirmed);
+        $sheet->setCellValue('E5', $this->gridIntegrationSmallReplaced + $this->gridIntegrationSmallConfirmed);
 
-        $sheet->setCellValue('P2', ($this->misc - $this->activateMisc));
-        $sheet->setCellValue('P3', ($this->relocatedHouseholds -$this->activateRelocated));
-
-        $sheet->setCellValue('O2', ($this->activateMisc));
-        $sheet->setCellValue('O3', ($this->activateRelocated));
-
-        $sheet->setCellValue('Q2', ($this->miscRefrigerator));
-        $sheet->setCellValue('Q3', ($this->relocatedRefrigerator));
 
         // Adding the summation row
         $lastRow = $sheet->getHighestRow() + 1;
@@ -118,50 +182,42 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->setCellValue('J'.$lastRow, '=SUM(J2:J'.($lastRow-1).')');
         $sheet->setCellValue('K'.$lastRow, '=SUM(K2:K'.($lastRow-1).')');
         $sheet->setCellValue('L'.$lastRow, '=SUM(L2:L'.($lastRow-1).')');
-        $sheet->setCellValue('M'.$lastRow, '=SUM(M2:M'.($lastRow-1).')');
-        $sheet->setCellValue('N'.$lastRow, '=SUM(N2:N'.($lastRow-1).')');
-        $sheet->setCellValue('O'.$lastRow, '=SUM(O2:O'.($lastRow-1).')');
-        $sheet->setCellValue('P'.$lastRow, '=SUM(P2:P'.($lastRow-1).')');
 
         // Confirmed 
-        $sheet->getStyle('C1:C' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
-        $sheet->getStyle('C1:C' . ($lastRow - 1))->getFill()->setStartColor(new Color('ADD8E6'));
-        $sheet->getStyle('C1:C' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('C1:C' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
-
-        $sheet->getStyle('D1:D' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
-        $sheet->getStyle('D1:D' . ($lastRow - 1))->getFill()->setStartColor(new Color('ADD8E6'));
-        $sheet->getStyle('D1:D' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('D1:D' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
-
         $sheet->getStyle('E1:E' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
         $sheet->getStyle('E1:E' . ($lastRow - 1))->getFill()->setStartColor(new Color('ADD8E6'));
         $sheet->getStyle('E1:E' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $sheet->getStyle('E1:E' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
 
-        // Initial
+        // Paid
+        $sheet->getStyle('F1:F' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('F1:F' . ($lastRow - 1))->getFill()->setStartColor(new Color('ADD8E6'));
+        $sheet->getStyle('F1:F' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('F1:F' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+
+        // Picked up
+        $sheet->getStyle('G1:G' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('G1:G' . ($lastRow - 1))->getFill()->setStartColor(new Color('ADD8E6'));
+        $sheet->getStyle('G1:G' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('G1:G' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+
+        // Installed
         $sheet->getStyle('H1:H' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
         $sheet->getStyle('H1:H' . ($lastRow - 1))->getFill()->setStartColor(new Color('e6e6ff'));
         $sheet->getStyle('H1:H' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $sheet->getStyle('H1:H' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
 
-        // AC Completed
-        $sheet->getStyle('I1:I' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
-        $sheet->getStyle('I1:I' . ($lastRow - 1))->getFill()->setStartColor(new Color('e6e600'));
-        $sheet->getStyle('I1:I' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('I1:I' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
-        
         // Served
-        $sheet->getStyle('O1:O' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
-        $sheet->getStyle('O1:O' . ($lastRow - 1))->getFill()->setStartColor(new Color('86af49'));
-        $sheet->getStyle('O1:O' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('O1:O' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+        $sheet->getStyle('K1:K' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('K1:K' . ($lastRow - 1))->getFill()->setStartColor(new Color('86af49'));
+        $sheet->getStyle('K1:K' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('K1:K' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
 
         // Delta
-        $sheet->getStyle('P1:P' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
-        $sheet->getStyle('P1:P' . ($lastRow - 1))->getFill()->setStartColor(new Color('e60000'));
-        $sheet->getStyle('P1:P' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('P1:P' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+        $sheet->getStyle('L1:L' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('L1:L' . ($lastRow - 1))->getFill()->setStartColor(new Color('e60000'));
+        $sheet->getStyle('L1:L' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('L1:L' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
 
         return [
             // Style the first row as bold text.
