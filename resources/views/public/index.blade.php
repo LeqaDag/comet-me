@@ -150,6 +150,17 @@ label, table {
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Main/Shared Public</label>
+                        <select name="main_shared" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByMainPublic">
+                            <option disabled selected>Choose one...</option>
+                            <option value="Yes">Main Public</option>
+                            <option value="No">Shared Public</option>
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Clear All Filters</label>
                         <button class="btn btn-dark" id="clearFiltersButton">
                             <i class='fa-solid fa-eraser'></i>
@@ -180,6 +191,7 @@ label, table {
                         <th class="text-center">English Name</th>
                         <th class="text-center">Arabic Name</th>
                         <th class="text-center">Community</th>
+                        <th class="text-center">Meter Number</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -205,6 +217,7 @@ label, table {
                     d.search = $('input[type="search"]').val();
                     d.filter = $('#filterByCommunity').val();
                     d.second_filter = $('#filterByCategory').val();
+                    d.third_filter = $('#filterByMainPublic').val();
                 }
             },
             dom: 'Blfrtip',
@@ -212,6 +225,7 @@ label, table {
                 {data: 'english_name', name: 'english_name'},
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'community_name', name: 'community_name'},
+                {data: 'meter_number', name: 'meter_number'},
                 {data: 'action'}
             ]
         });
@@ -225,6 +239,9 @@ label, table {
             table.ajax.reload(); 
         });
         $('#filterByCategory').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByMainPublic').on('change', function() {
             table.ajax.reload(); 
         });
 

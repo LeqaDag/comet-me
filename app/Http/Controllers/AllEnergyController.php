@@ -214,8 +214,7 @@ class AllEnergyController extends Controller
                 'energy_system_types.id')
             ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id', 
                 'all_energy_meter_donors.all_energy_meter_id')
-            ->join('households', 'households.id', 
-                'all_energy_meters.household_id')
+            ->join('households', 'households.id', 'all_energy_meters.household_id')
             ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
             ->whereNull('all_energy_meter_donors.all_energy_meter_id')
             ->where('all_energy_meters.energy_system_id', '!=', 100)

@@ -130,6 +130,7 @@ class HouseholdController extends Controller
             $communityFilter = $request->input('filter');
             $regionFilter = $request->input('second_filter');
             $statusFilter = $request->input('third_filter');
+            $mainSharedFilter = $request->input('fourth_filter');
 
             if ($request->ajax()) {
                  
@@ -137,6 +138,7 @@ class HouseholdController extends Controller
                     ->join('communities', 'households.community_id', 'communities.id')
                     ->join('regions', 'communities.region_id', 'regions.id')
                     ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
+                    ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
                     ->where('internet_holder_young', 0)
                     ->where('out_of_comet', 0)
                     ->where('households.is_archived', 0);
@@ -169,7 +171,8 @@ class HouseholdController extends Controller
                         'households.updated_at as updated_at',
                         'communities.english_name as name',
                         'communities.arabic_name as aname',
-                        'household_statuses.status'
+                        'household_statuses.status',
+                        'all_energy_meters.meter_number'
                     )
                     ->groupBy('households.id')
                     ->latest();
@@ -187,6 +190,10 @@ class HouseholdController extends Controller
                     $data->where('household_statuses.id', $statusFilter);
                 }
 
+                if ($mainSharedFilter != null) {
+                    $data->where('all_energy_meters.is_main', $mainSharedFilter);
+                }
+
                 if (!empty($request->get('search'))) {
                     $search = $request->get('search');
                     $data->where(function($w) use ($search) {
@@ -196,7 +203,8 @@ class HouseholdController extends Controller
                           ->orWhere('regions.arabic_name', 'LIKE', "%$search%")
                           ->orWhere('regions.english_name', 'LIKE', "%$search%")
                           ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                          ->orWhere('household_statuses.status', 'LIKE', "%$search%");
+                          ->orWhere('household_statuses.status', 'LIKE', "%$search%")
+                          ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%");
                           // ->orWhere('all_energy_meters.is_main', 'LIKE', "%$search%"); // Uncomment if needed
                     });
                 }

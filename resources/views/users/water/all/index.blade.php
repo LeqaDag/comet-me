@@ -570,23 +570,23 @@
                 id: id,
                 status: status 
             },
-            success: function(response) {
-                if(response.success == 1) {
+            // success: function(response) {
+            //     if(response.success == 1) {
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: response.msg,
-                        showDenyButton: false,
-                        showCancelButton: false,
-                        confirmButtonText: 'Okay!'
-                    }).then((result) => {
-                        $('#waterAllUsersTable').DataTable().draw();
-                    });
-                } else {
+            //         Swal.fire({
+            //             icon: 'success',
+            //             title: response.msg,
+            //             showDenyButton: false,
+            //             showCancelButton: false,
+            //             confirmButtonText: 'Okay!'
+            //         }).then((result) => {
+            //             $('#waterAllUsersTable').DataTable().draw();
+            //         });
+            //     } else {
 
-                    alert("Invalid ID.");
-                }
-            }
+            //         alert("Invalid ID.");
+            //     }
+            // }
         });
     });
 
@@ -604,23 +604,23 @@
                 id: id,
                 status: status 
             },
-            success: function(response) {
-                if(response.success == 1) {
+            // success: function(response) {
+            //     if(response.success == 1) {
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: response.msg,
-                        showDenyButton: false,
-                        showCancelButton: false,
-                        confirmButtonText: 'Okay!'
-                    }).then((result) => {
-                        $('#waterAllUsersTable').DataTable().draw();
-                    });
-                } else {
+            //         Swal.fire({
+            //             icon: 'success',
+            //             title: response.msg,
+            //             showDenyButton: false,
+            //             showCancelButton: false,
+            //             confirmButtonText: 'Okay!'
+            //         }).then((result) => {
+            //             $('#waterAllUsersTable').DataTable().draw();
+            //         });
+            //     } else {
 
-                    alert("Invalid ID.");
-                }
-            }
+            //         alert("Invalid ID.");
+            //     }
+            // }
         });
     });
 
@@ -638,23 +638,23 @@
                 id: id,
                 status: status 
             },
-            success: function(response) {
-                if(response.success == 1) {
+            // success: function(response) {
+            //     if(response.success == 1) {
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: response.msg,
-                        showDenyButton: false,
-                        showCancelButton: false,
-                        confirmButtonText: 'Okay!'
-                    }).then((result) => {
-                        $('#waterAllUsersTable').DataTable().draw();
-                    });
-                } else {
+            //         Swal.fire({
+            //             icon: 'success',
+            //             title: response.msg,
+            //             showDenyButton: false,
+            //             showCancelButton: false,
+            //             confirmButtonText: 'Okay!'
+            //         }).then((result) => {
+            //             $('#waterAllUsersTable').DataTable().draw();
+            //         });
+            //     } else {
 
-                    alert("Invalid ID.");
-                }
-            }
+            //         alert("Invalid ID.");
+            //     }
+            // }
         });
     });
 

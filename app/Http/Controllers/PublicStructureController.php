@@ -99,6 +99,7 @@ class PublicStructureController extends Controller
 
         $communityFilter = $request->input('filter');
         $categoryFilter = $request->input('second_filter');
+        $mainSharedFilter = $request->input('third_filter');
 
         if (Auth::guard('user')->user() != null) {
 
@@ -106,6 +107,7 @@ class PublicStructureController extends Controller
 
                 $data = DB::table('public_structures')
                     ->join('communities', 'public_structures.community_id', 'communities.id')
+                    ->leftJoin('all_energy_meters', 'all_energy_meters.public_structure_id', 'public_structures.id')
                     ->where('public_structures.is_archived', 0);
     
                 if($communityFilter != null) {
@@ -118,11 +120,15 @@ class PublicStructureController extends Controller
                         ->orWhere("public_structures.public_structure_category_id2", $categoryFilter)
                         ->orWhere("public_structures.public_structure_category_id3", $categoryFilter);
                 }
+                if ($mainSharedFilter != null) {
+                    
+                    $data->where('all_energy_meters.is_main', $mainSharedFilter);
+                }
 
                 $data->select(
                     'public_structures.english_name', 'public_structures.arabic_name',
                     'public_structures.id as id', 'public_structures.created_at as created_at', 
-                    'public_structures.updated_at as updated_at', 
+                    'public_structures.updated_at as updated_at', 'all_energy_meters.meter_number',
                     'communities.english_name as community_name')
                 ->latest(); 
 

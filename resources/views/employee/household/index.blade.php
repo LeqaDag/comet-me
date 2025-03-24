@@ -413,6 +413,17 @@ All<span class="text-muted fw-light"> Households</span>
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-3">
                     <fieldset class="form-group">
+                        <label class='col-md-12 control-label'>Filter By Main/Shared User</label>
+                        <select name="main_shared" class="selectpicker form-control" 
+                            data-live-search="true" id="filterByMainUser">
+                            <option disabled selected>Choose one...</option>
+                            <option value="Yes">Main User</option>
+                            <option value="No">Shared User</option>
+                        </select> 
+                    </fieldset>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-3">
+                    <fieldset class="form-group">
                         <label class='col-md-12 control-label'>Clear All Filters</label>
                         <button class="btn btn-dark" id="clearFiltersButton">
                             <i class='fa-solid fa-eraser'></i>
@@ -466,6 +477,7 @@ All<span class="text-muted fw-light"> Households</span>
                         <th class="text-center">Arabic Name</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Status</th>
+                        <th class="text-center">Meter Number</th>
                         @if(Auth::guard('user')->user()->user_type_id == 3)
                         <th class="text-center">Main User</th>
                         <th class="text-center">Refrigerator</th>
@@ -496,6 +508,7 @@ All<span class="text-muted fw-light"> Households</span>
                     d.filter = $('#filterByCommunity').val();
                     d.second_filter = $('#filterByRegion').val();
                     d.third_filter = $('#filterByHouseholdStatus').val();
+                    d.fourth_filter = $('#filterByMainUser').val();
                 }
             },
             columns: [
@@ -504,6 +517,7 @@ All<span class="text-muted fw-light"> Households</span>
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'name', name: 'name'},
                 {data: 'statusLabel'},
+                {data: 'meter_number', name: 'meter_number'},
                 @if(Auth::guard('user')->user()->user_type_id == 3)
                     {data: 'is_main', name: 'is_main'},
                     {data: 'icon' },
@@ -562,6 +576,9 @@ All<span class="text-muted fw-light"> Households</span>
             table.ajax.reload(); 
         });
         $('#filterByCommunity').on('change', function() {
+            table.ajax.reload(); 
+        });
+        $('#filterByMainUser').on('change', function() {
             table.ajax.reload(); 
         });
 

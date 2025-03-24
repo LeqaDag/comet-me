@@ -112,6 +112,18 @@ class Survey implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
                 'relevant' => false,
             ],
             [
+                'type' => 'select_one co_trainer', 
+                'name' => 'select_co_trainer',
+                'label:English (en)' => 'Co-trainer',
+                'label:Arabic (ar)' => 'مدرب مساعد',
+                'hint' => false,
+                'choices' => false,
+                'choice_filter' => false,
+                'calculation' => false,
+                'required' => 'yes',
+                'relevant' => false,
+            ],
+            [
                 'type' => 'integer', 
                 'name' => 'attendance_male',
                 'label:English (en)' => 'Attendance male',
@@ -173,6 +185,19 @@ class Survey implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
                 'relevant' => false,
                 'appearance' => 'long-text'
             ],
+            [
+                'type' => 'file', 
+                'name' => 'uploaded_files',
+                'label:English (en)' => 'Upload Files/Pictures',
+                'label:Arabic (ar)' => 'رفع الملفات/الصور',
+                'hint' => 'Please upload valid files or images. You can select multiple.',
+                'choices' => false,
+                'choice_filter' => false,
+                'calculation' => false,
+                'required' => 'yes',
+                'relevant' => true,
+                'multiple' => true, // This enables multiple file uploads
+            ]
         ];
         
         $fixedListCollection = collect($fixedList);
