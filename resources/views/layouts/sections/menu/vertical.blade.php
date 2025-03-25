@@ -659,6 +659,13 @@
         </ul>
     </li>
     
+    <li class="menu-item" id="workshop">
+        <a href="{{url('all-workshop')}}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-book-alt"></i>
+            <div>Workshops</div>
+        </a>
+    </li>
+
     @if(Auth::guard('user')->user()->user_type_id == 1 ||
         Auth::guard('user')->user()->user_type_id == 2)
     <li class="menu-item" id="donor">
@@ -1039,6 +1046,9 @@
 
         $("#water-incident").addClass("active");
         $("#incidents").addClass("open");
+    } else if(last_part == "workshop") {
+
+        $("#workshop").addClass("active");
     } else if(last_part == "donor") {
 
         $("#donor").addClass("active");

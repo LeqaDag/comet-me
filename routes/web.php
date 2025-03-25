@@ -591,3 +591,6 @@ Route::post('all-maintenance-export', [App\Http\Controllers\AllMaintenanceContro
 Route::get('/water-holder-delivery', [App\Http\Controllers\AllWaterController::class, 'checkboxDelivered'])->name('checkboxDelivered');
 Route::get('/water-holder-complete', [App\Http\Controllers\AllWaterController::class, 'checkboxCompleted'])->name('checkboxCompleted');
 Route::get('/water-holder-paid', [App\Http\Controllers\AllWaterController::class, 'checkboxPaid'])->name('checkboxPaid');
+
+Route::resource('all-workshop', App\Http\Controllers\AllWorkshopsController::class);
+Route::post('all-workshop-export', [App\Http\Controllers\AllWorkshopsController::class, 'export'])->name('all-workshop.export');

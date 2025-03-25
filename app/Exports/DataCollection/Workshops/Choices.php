@@ -68,6 +68,20 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             )
             ->get();
 
+        $compounds = DB::table('compounds')
+            ->join('communities', 'compounds.community_id', 'communities.id')
+            ->where('compounds.is_archived', 0)
+            ->select(
+                DB::raw('"compound" as list_name'), 
+                'compounds.english_name as name',
+                'compounds.english_name as label:English (en)',
+                'compounds.arabic_name as label:Arabic (ar)',
+                DB::raw('false as region'),
+                DB::raw('false as sub_region'),
+                'communities.english_name as community'
+            )
+            ->get();
+
         $workshopTypes = DB::table('workshop_types')
             ->where('workshop_types.is_archived', 0)
             ->select(
@@ -110,6 +124,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
         $query = collect($regions)
             ->merge($sub_regions)
             ->merge($communities)
+            ->merge($compounds)
             ->merge($workshopTypes)
             ->merge($users)
             ->merge($coTrainers); 
