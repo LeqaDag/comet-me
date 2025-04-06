@@ -29,6 +29,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
             ->join('communities', 'households.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->join('community_statuses', 'communities.community_status_id', 'community_statuses.id')
             ->leftJoin('household_statuses', 'households.household_status_id', 
                 'household_statuses.id')
             ->leftJoin('professions', 'households.profession_id', 
@@ -61,7 +62,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
             ->where('out_of_comet', 0) 
             ->select('households.english_name as english_name', 
                 'households.arabic_name as arabic_name', 
-                'communities.english_name as community_name',
+                'communities.english_name as community_name', 'community_statuses.name as community_status',
                 'regions.english_name as region', 'compounds.english_name as compound',
                 'households.phone_number', 'professions.profession_name', 'households.number_of_people',
                 'households.number_of_male', 'households.number_of_female', 'households.number_of_children',
@@ -233,8 +234,8 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function headings(): array
     {
-        return ["English Name", "Arabic Name", "Community", "Region", "Compound", "Phone Number", "Profession", 
-            "# of People", "# of Male", "# of Female", "# of Children", "# of Adults", "# of School students", 
+        return ["English Name", "Arabic Name", "Community", "Community Status", "Region", "Compound", "Phone Number", 
+            "Profession", "# of People", "# of Male", "# of Female", "# of Children", "# of Adults", "# of School students", 
             "# of University students", "Demolition order in house", "Energy System Status", "Main User", 
             "Energy System Type", "Meter Number", "Meter Case", "Energy Donors", "Requset Date", "Water System Status", 
             "Water Donors", "Internet System Status", "Internet Donors", "# of Structures", "# of kitchens", "# of Caves", 

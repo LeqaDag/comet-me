@@ -200,8 +200,16 @@
                     </fieldset>
                 </div>
             </div>
-        </div>
+        </div> 
+    
         <div class="card-body">
+            <div style="margin-top:30px">
+                <button type="button" class="btn btn-success" 
+                    id="getLatestTickets">
+                    Get Latest Tickets
+                </button>
+            </div>
+
             <table id="allMaintenanceTable" 
                 class="table table-striped data-table-all-maintenance my-2">
                 <thead>
@@ -284,7 +292,7 @@
         });
         $('#filterByMaintenanceType').on('change', function() {
             table.ajax.reload(); 
-        });
+        }); 
 
         // Clear Filter
         $('#clearFiltersButton').on('click', function() {
@@ -457,6 +465,31 @@
                 }
             });
         });
+
+        // Get all Contract Holders
+        $('#getLatestTickets').on('click', function() {
+
+            // AJAX request
+            $.ajax({
+                url: 'api/ticket',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tickets Gotten Successfully!',
+                        showDenyButton: false,
+                        showCancelButton: false,
+                        confirmButtonText: 'Okay!' 
+                    }).then((result) => {
+
+                        $('#allMaintenanceTable').DataTable().draw();
+                    });
+                }
+            });
+        });
+
     });
 </script>
 @endsection

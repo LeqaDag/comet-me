@@ -112,7 +112,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->where('users.is_archived', 0)
             ->select(
                 DB::raw('"co_trainer" as list_name'), 
-                'users.name as name',
+                DB::raw('REPLACE(users.name, " ", "_") as name'), 
                 'users.name as label:Arabic (ar)',
                 'users.name as label:English (en)',
                 DB::raw('false as region'),
