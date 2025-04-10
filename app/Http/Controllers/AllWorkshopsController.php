@@ -16,6 +16,7 @@ use App\Models\WorkshopCommunityCoTrainer;
 use App\Models\WorkshopCommunityPhoto;
 use App\Exports\AllWorkshopsExport;
 use App\Imports\ImportWorkshops;
+use Intervention\Image\Facades\Image;
 use Auth;
 use DB;
 use Route;
@@ -81,8 +82,9 @@ class AllWorkshopsController extends Controller
                     ->addColumn('action', function($row) {
     
                         $viewButton = "<a type='button' class='viewAllWorkshops' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewAllWorkshopModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-    
-                        return $viewButton;
+                        $updateButton = "<a type='button' class='updateAllWorkshops' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+
+                        return $viewButton." ". $updateButton;
                     })
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -143,17 +145,180 @@ class AllWorkshopsController extends Controller
             ->select('co_trainers.name')
             ->get();
         
-        WorkshopCommunityCoTrainer::where("is_archived")
-            ->where('workshop_community_id', $id)
-            ->get();
+        $workshopCommunityPhotos = WorkshopCommunityPhoto::where('workshop_community_id', $id)->get();
 
         $response['allWorkshop'] = $allWorkshop;
         $response['community'] = $community;
         $response['workshopType'] = $workshopType;
         $response['leadBy'] = $leadBy;
         $response['coTrainers'] = $coTrainers;
+        $response['workshopCommunityPhotos'] = $workshopCommunityPhotos;
 
         return response()->json($response);
+    }
+
+     /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) 
+    {
+        $workshopCommunity = WorkshopCommunity::findOrFail($id);
+
+        $workshopType = WorkshopType::findOrFail($workshopCommunity->workshop_type_id);
+ 
+        $workshopCommunityCoTrainers = DB::table('workshop_community_co_trainers')
+            ->join('workshop_communities', 'workshop_community_co_trainers.workshop_community_id', 'workshop_communities.id')
+            ->join('users as co_trainers', 'workshop_community_co_trainers.user_id', 'co_trainers.id')
+            ->where('workshop_community_co_trainers.workshop_community_id', $id)
+            ->select(
+                'co_trainers.name', 'co_trainers.id as co_trainer_id', 
+                'workshop_community_co_trainers.id as id'
+            )->get();
+
+        $workshopCommunityPhotos = WorkshopCommunityPhoto::where('workshop_community_id', $id)
+            ->get();
+
+        $users = User::where("is_archived", 0)->get();
+
+        $coTrainers = User::where("is_archived", 0)->get();
+
+        return view('workshop.edit', compact('workshopCommunity', 'workshopType', 'users',
+            'workshopCommunityPhotos', 'workshopCommunityCoTrainers', 'coTrainers'));
+    }
+
+    /**
+     * Update an existing resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $workshopCommunity = WorkshopCommunity::findOrFail($id);
+
+        if($request->number_of_hours) $workshopCommunity->number_of_hours = $request->number_of_hours;
+        if($request->number_of_male) $workshopCommunity->number_of_male = $request->number_of_male;
+        if($request->number_of_female) $workshopCommunity->number_of_female = $request->number_of_female;
+        if($request->number_of_youth) $workshopCommunity->number_of_youth = $request->number_of_youth;
+        if($request->lead_by) $workshopCommunity->lead_by = $request->lead_by;
+        if($request->notes) $workshopCommunity->notes = $request->notes;
+        if($request->stories) $workshopCommunity->stories = $request->stories;
+        $workshopCommunity->save();
+
+        if($request->new_co_trainers) {
+ 
+            for($i=0; $i < count($request->new_co_trainers); $i++) {
+
+                $workshopCoTrainer = new WorkshopCommunityCoTrainer();
+                $workshopCoTrainer->user_id = $request->new_co_trainers[$i];
+                $workshopCoTrainer->workshop_community_id = $workshopCommunity->id;
+                $workshopCoTrainer->save();
+            }
+        }
+
+        if($request->more_co_trainers) {
+
+            for($i=0; $i < count($request->more_co_trainers); $i++) {
+
+                $workshopCoTrainer = new WorkshopCommunityCoTrainer();
+                $workshopCoTrainer->user_id = $request->more_co_trainers[$i];
+                $workshopCoTrainer->workshop_community_id = $workshopCommunity->id;
+                $workshopCoTrainer->save();
+            }
+        }
+
+        if ($request->file('new_photos')) {
+
+            foreach($request->new_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid(). '.'. $photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/workshops' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $workshopPhoto = new WorkshopCommunityPhoto();
+                $workshopPhoto->name = $extra_name;
+                $workshopPhoto->workshop_community_id = $id;
+                $workshopPhoto->save();
+            }
+        }
+
+        if ($request->file('more_photos')) {
+
+            foreach($request->more_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid(). '.'. $photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/workshops' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $workshopPhoto = new WorkshopCommunityPhoto();
+                $workshopPhoto->name = $extra_name;
+                $workshopPhoto->workshop_community_id = $id;
+                $workshopPhoto->save();
+            }
+        }
+
+        return redirect('/all-workshop')->with('message', 'Workshop Data Updated Successfully!');
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteWorkshopPhoto(Request $request)
+    {
+        $id = $request->id;
+
+        $workshopPhoto = WorkshopCommunityPhoto::find($id);
+
+        if($workshopPhoto) {
+
+            $workshopPhoto->delete();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Photo Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteWorkshopCommunityCoTrainer(Request $request)
+    {
+        $id = $request->id;
+
+        $workshopCoTrainer = WorkshopCommunityCoTrainer::find($id);
+
+        if($workshopCoTrainer) {
+
+            $workshopCoTrainer->delete();
+            
+            $response['success'] = 1;
+            $response['msg'] = 'Co-Trainer Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
     }
 
     /**
@@ -172,7 +337,7 @@ class AllWorkshopsController extends Controller
      */
     public function import(Request $request)
     {
-        Excel::import(new ImportWorkshops, $request->file('file')); 
+        Excel::import(new ImportWorkshops, $request->file('excel_file')); 
             
         return back()->with('success', 'Excel Data Imported successfully.');
     }

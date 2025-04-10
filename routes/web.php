@@ -594,3 +594,6 @@ Route::get('/water-holder-paid', [App\Http\Controllers\AllWaterController::class
 
 Route::resource('all-workshop', App\Http\Controllers\AllWorkshopsController::class);
 Route::post('all-workshop-export', [App\Http\Controllers\AllWorkshopsController::class, 'export'])->name('all-workshop.export');
+Route::post('all-workshop-import', [App\Http\Controllers\AllWorkshopsController::class, 'import'])->name('all-workshop.import');
+Route::get('/delete-workshop-photo', [App\Http\Controllers\AllWorkshopsController::class, 'deleteWorkshopPhoto'])->name('deleteWorkshopPhoto');
+Route::get('/delete-workshop-co-trainer', [App\Http\Controllers\AllWorkshopsController::class, 'deleteWorkshopCommunityCoTrainer'])->name('deleteWorkshopCommunityCoTrainer');

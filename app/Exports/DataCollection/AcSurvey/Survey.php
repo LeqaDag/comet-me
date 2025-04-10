@@ -656,7 +656,7 @@ class Survey implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
 
             [
                 'type' => 'text', 
-                'name' => 'notes',
+                'name' => 'ac_notes',
                 'label:English (en)' => 'Enter notes',
                 'label:Arabic (ar)' => 'ملاحظات',
                 'hint' => false,

@@ -478,7 +478,7 @@ All<span class="text-muted fw-light"> Households</span>
                         <th class="text-center">Community</th>
                         <th class="text-center">Status</th>
                         <th class="text-center">Meter Number</th>
-                        @if(Auth::guard('user')->user()->user_type_id == 3)
+                        @if(Auth::guard('user')->user()->user_type_id == 3 || Auth::guard('user')->user()->user_role_type_id == 4)
                         <th class="text-center">Main User</th>
                         <th class="text-center">Refrigerator</th>
                         @endif
@@ -518,7 +518,7 @@ All<span class="text-muted fw-light"> Households</span>
                 {data: 'name', name: 'name'},
                 {data: 'statusLabel'},
                 {data: 'meter_number', name: 'meter_number'},
-                @if(Auth::guard('user')->user()->user_type_id == 3)
+                @if(Auth::guard('user')->user()->user_type_id == 3 || Auth::guard('user')->user()->user_role_type_id == 4)
                     {data: 'is_main', name: 'is_main'},
                     {data: 'icon' },
                 @endif

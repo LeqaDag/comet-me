@@ -252,7 +252,17 @@ label, table {
 </div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-  <span class="text-muted fw-light">All </span> Electricity Meter Users
+    <span class="text-muted fw-light">All </span> Electricity Meter Users
+    <h5 class="text-success">Toatl Meters: 
+        <span class="text-secondary">{{$totalMeters}}</span>
+        <span class="text-muted fw-light"> [ </span>
+        <span class="text-secondary">{{$totalHouseholdMeters}}</span>
+        <span class="text-muted fw-light"> Households</span>
+        <span class="text-success"> & </span>
+        <span class="text-secondary">{{$totalHouseholdPublicMeters}}</span>
+        <span class="text-muted fw-light"> Public</span>
+        <span class="text-muted fw-light"> ]</span>
+    </h5>
 </h4>
 
 @if(session()->has('message'))

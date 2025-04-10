@@ -90,6 +90,7 @@ class HouseholdController extends Controller
         //     }
         // }
         
+             
         if (Auth::guard('user')->user() != null) {
 
             $communities = Community::where('is_archived', 0)
@@ -144,9 +145,10 @@ class HouseholdController extends Controller
                     ->where('households.is_archived', 0);
 
                 if (Auth::guard('user')->user()->user_type_id == 3 || Auth::guard('user')->user()->user_role_type_id == 4) {
-                    $data->leftJoin('refrigerator_holders', 'households.id', 'refrigerator_holders.household_id')
+                    
+                     $data->leftJoin('refrigerator_holders', 'households.id', 'refrigerator_holders.household_id')
                         ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 'refrigerator_holder_receive_numbers.refrigerator_holder_id')
-                        ->leftJoin('all_energy_meters', 'households.id', 'all_energy_meters.household_id')
+                        ->leftJoin('all_energy_meters as energy_meters', 'households.id', 'energy_meters.household_id')
                         ->select(
                             'households.english_name as english_name',
                             'households.arabic_name as arabic_name',
@@ -157,12 +159,13 @@ class HouseholdController extends Controller
                             'communities.arabic_name as aname',
                             'household_statuses.status',
                             'refrigerator_holder_receive_numbers.receive_number',
-                            'all_energy_meters.is_main'
+                            'energy_meters.is_main', 'energy_meters.meter_number'
                         )
                         ->distinct()
                         ->groupBy('households.id')
                         ->latest();
                 } else {
+                    
                     $data->select(
                         'households.english_name as english_name',
                         'households.arabic_name as arabic_name',
@@ -177,6 +180,7 @@ class HouseholdController extends Controller
                     ->groupBy('households.id')
                     ->latest();
                 }
+                
 
                 if ($communityFilter != null) {
                     $data->where('communities.id', $communityFilter);

@@ -420,8 +420,26 @@ class AllEnergyController extends Controller
             $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
             $installationTypes = InstallationType::where('is_archived', 0)->get();
  
+            $totalMeters = AllEnergyMeter::where("is_archived", 0)
+                ->where('meter_number', '!=', 0)
+                ->count();
+
+            $totalHouseholdMeters = DB::table('all_energy_meters')
+                ->join('households', 'all_energy_meters.household_id', 'households.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('meter_number', '!=', 0)
+                ->count();
+
+            $totalHouseholdPublicMeters = DB::table('all_energy_meters')
+                ->join('public_structures', 'all_energy_meters.public_structure_id', 'public_structures.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where('public_structures.comet_meter', 0)
+                ->where('meter_number', '!=', 0)
+                ->count();
+
             return view('users.energy.not_active.index', compact('communities', 'energySystemTypes', 
-                'meterCases', 'installationTypes', 'regions'))
+                'meterCases', 'installationTypes', 'regions', 'totalMeters', 'totalHouseholdMeters',
+                'totalHouseholdPublicMeters'))
                 ->with('energy_users', json_encode($array)
             );
         } else {

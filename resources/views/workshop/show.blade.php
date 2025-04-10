@@ -127,6 +127,30 @@
                                     </div>
                                 </div>
                             </li>
+                            <li class="timeline-item timeline-item-info mb-4">
+                                <span class="timeline-indicator timeline-indicator-info">
+                                    <i class="bx bx-image"></i>
+                                </span>
+                                <div class="timeline-event">
+                                    <div>
+                                        <div class="timeline-header border-bottom mb-3">
+                                            <h6 class="mb-0">Workshop 
+                                                <span class="text-info">Photos</span>
+                                            </h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <ul class="list-unstyled">
+                                                <li class="d-flex justify-content-start align-items-center text-success mb-3">
+                                                    <div class="ps-3 border-start" id="workshopPhotos">
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
                         </ul>
                     </div>
                 </div>

@@ -175,7 +175,7 @@ class Survey implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize,
             ],
             [
                 'type' => 'text', 
-                'name' => 'notes',
+                'name' => 'displacement_notes',
                 'label:Arabic (ar)' => 'ملاحظات اخرى',
                 'label:English (en)' => 'Notes',
                 'hint' => false,

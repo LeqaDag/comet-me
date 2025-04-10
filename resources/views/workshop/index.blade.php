@@ -156,7 +156,32 @@
                 </div>
             </div>
         </div>
+
+        <hr>
         <div class="card-body">
+
+            <h5 class="py-3 breadcrumb-wrapper mb-4">
+                <span class="text-muted fw-light">Import </span>Workshop Details
+            </h5>
+
+            <div class="row">
+                <form action="{{route('all-workshop.import')}}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <input type="file" name="excel_file" class="form-control-file" id="excel_file"required>
+                        @error('excel_file')
+                        <div class="text-danger mt-2">{{ $message }}</div>
+                        @enderror
+                    </div> <br>
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <button id="workshopsImportButton" type="submit" class="btn btn-success btn-block">
+                            <i class='fa-solid fa-upload'></i>
+                            Proccess
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <br>
             <table id="allWorkshopTable" 
                 class="table table-striped data-table-all-workshop my-2">
                 <thead>
@@ -304,9 +329,41 @@
                             );
                         }
                     }
+
+                    $('#workshopPhotos').html('');
+
+                    // Check if photos exist
+                    if (response['workshopCommunityPhotos'].length > 0) {
+                        response['workshopCommunityPhotos'].forEach(function(photo) {
+                            let photoUrl = '/workshops/' + photo.name; // adjust if needed
+
+                            let imgElement = `
+                                <img src="${photoUrl}" 
+                                    class="img-thumbnail me-2 mb-2" 
+                                    style="max-width: 250px;" 
+                                    alt="Workshop Photo">
+                            `;
+
+                            $('#workshopPhotos').append(imgElement);
+                        });
+                    } else {
+                        $('#workshopPhotos').html('<p>No photos available.</p>');
+                    }
+
                 }
             });
         });
+
+        // View record
+        $('#allWorkshopTable').on('click', '.updateAllWorkshops',function() {
+            
+            var id = $(this).data('id');
+            var url = window.location.href; 
+            
+            url = url +'/'+ id +'/edit';
+            window.open(url, "_self"); 
+        });
     });
+
 </script>
 @endsection
