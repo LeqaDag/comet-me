@@ -561,7 +561,7 @@ Route::post('data-collection-export', [App\Http\Controllers\DataCollectionContro
 Route::post('data-collection-export-household', [App\Http\Controllers\DataCollectionController::class, 'exportHousehold'])->name('data-collection.export-household');
 Route::post('data-collection-export-all', [App\Http\Controllers\DataCollectionController::class, 'exportAll'])->name('data-collection.export-all');
 Route::post('data-collection-import', [App\Http\Controllers\DataCollectionController::class, 'import'])->name('data-collection.import');
-Route::post('data-collection-export-community', [App\Http\Controllers\DataCollectionController::class, 'exportCommunity'])->name('data-collection.export-community');
+Route::post('data-collection-export-community', [App\Http\Controllers\DataCollectionController::class, 'exportCommunity'])->name('data-collection.export-communities');
 Route::post('data-collection-import-ac', [App\Http\Controllers\DataCollectionController::class, 'importAc'])->name('data-collection.import-ac');
 Route::post('data-collection-export-incident', [App\Http\Controllers\DataCollectionController::class, 'exportIncident'])->name('data-collection.export-incident');
 Route::post('data-collection-export-displacement', [App\Http\Controllers\DataCollectionController::class, 'exportDisplacement'])->name('data-collection.export-displacement');
@@ -570,6 +570,8 @@ Route::post('data-collection-export-requested', [App\Http\Controllers\DataCollec
 Route::post('data-collection-export-requested-household', [App\Http\Controllers\DataCollectionController::class, 'exportRequestedHouseholds'])->name('data-collection.export-requested-household');
 Route::post('data-collection-export-workshop', [App\Http\Controllers\DataCollectionController::class, 'exportWorkshop'])->name('data-collection.export-workshop');
 Route::post('data-collection-import-requested', [App\Http\Controllers\DataCollectionController::class, 'importRequested'])->name('data-collection.import-requested');
+Route::post('data-collection-export-all-community', [App\Http\Controllers\DataCollectionController::class, 'exportAllCommunities'])->name('data-collection.export-all-community');
+Route::post('data-collection-import-community', [App\Http\Controllers\DataCollectionController::class, 'importCommunity'])->name('data-collection.import-community');
 
 Route::get('household/compound/{id}', [App\Http\Controllers\HouseholdController::class, 'getCompounds']);
 

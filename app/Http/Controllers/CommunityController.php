@@ -63,6 +63,17 @@ class CommunityController extends Controller
      */
     public function index(Request $request)
     {	
+        // $incrementalNumber = 1;
+        // $communities = Community::all();
+
+        // foreach($communities as $community) {
+
+        //     $community->comet_id = $incrementalNumber;
+        //     $community->save();
+            
+        //     $incrementalNumber++;
+        // }
+
         $data = DB::table('households')
             ->join('communities', 'communities.id', 'households.community_id')
             ->select(
@@ -359,9 +370,13 @@ class CommunityController extends Controller
      */
     public function store(Request $request)
     {      
+        // Get Last comet_id
+        $last_comet_id = Community::latest('id')->value('comet_id');
+
         $community = new Community();
         $community->english_name = $request->english_name;
         $community->arabic_name = $request->arabic_name;
+        $community->comet_id = ++$last_comet_id;
         $community->region_id = $request->region_id;
         $community->sub_region_id = $request->sub_region_id;
         $community->energy_system_cycle_id = $request->energy_system_cycle_id;

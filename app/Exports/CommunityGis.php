@@ -47,16 +47,25 @@ class CommunityGis implements FromCollection, WithHeadings, WithTitle, ShouldAut
                     ->where('internet_donors.service_id', 3);  
             })
             ->leftJoin('donors as internet_donor', 'internet_donors.donor_id', 'internet_donor.id')
+            
+            ->leftJoin('camera_communities', 'camera_communities.community_id', 'communities.id')
+            ->leftJoin('camera_community_donors as camera_donors', function ($join) {
+                $join->on('camera_communities.id', 'camera_donors.camera_community_id');
+            })
+            ->leftJoin('donors as camera_donor', 'camera_donors.donor_id', 'camera_donor.id')
+
             ->select(
                 'communities.english_name as english_name', 'communities.latitude', 
                 'communities.longitude', 'communities.location_gis', 'number_of_household', 
                 'communities.energy_service_beginning_year',
                 'communities.water_service_beginning_year',
                 'communities.internet_service_beginning_year', 
+                'communities.camera_service_beginning_year', 
                 DB::raw('YEAR(displaced_households.displacement_date) as displacement_year'),
                 DB::raw('group_concat(DISTINCT energy_donor.donor_name) as energy_donors'),
                 DB::raw('group_concat(DISTINCT water_donor.donor_name) as water_donors'),
-                DB::raw('group_concat(DISTINCT internet_donor.donor_name) as internet_donors')
+                DB::raw('group_concat(DISTINCT internet_donor.donor_name) as internet_donors'),
+                DB::raw('group_concat(DISTINCT camera_donor.donor_name) as camera_donors')
             )
             ->groupBy('communities.id');
 
@@ -87,7 +96,7 @@ class CommunityGis implements FromCollection, WithHeadings, WithTitle, ShouldAut
         return $data->get();
     }
 
-    /**
+    /** 
      * Write code on Method
      *
      * @return response()
@@ -96,8 +105,8 @@ class CommunityGis implements FromCollection, WithHeadings, WithTitle, ShouldAut
     {
         return ["Community Name", "Latitude", "Longitude", "Location", 
             "Number of Households", "Energy Service Year", "Water Service Year", 
-            "Internet Service Year", "Displacement year", "Energy Donors", "Water Donors", 
-            "Internet Donors"];
+            "Internet Service Year", "Camera Service Year", "Displacement year", 
+            "Energy Donors", "Water Donors", "Internet Donors", "Camera Donors"];
     }
 
 

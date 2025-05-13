@@ -176,7 +176,8 @@ label, table {
                 Auth::guard('user')->user()->user_type_id == 3 ||
                 Auth::guard('user')->user()->user_type_id == 4 ||
                 Auth::guard('user')->user()->user_type_id == 5 ||
-                Auth::guard('user')->user()->user_type_id == 6)
+                Auth::guard('user')->user()->user_type_id == 6 ||
+                Auth::guard('user')->user()->role_id == 21)
                 <div>
                     <button type="button" class="btn btn-success" 
                         data-bs-toggle="modal" data-bs-target="#createPublicStructure">

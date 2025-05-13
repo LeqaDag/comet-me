@@ -11,7 +11,7 @@
 </h4>
 
 <div class="container">
-<div class="row">
+    <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
@@ -33,7 +33,16 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xl-3 col-lg-3 col-md-3">
+                    <div class="col-xl-3 col-lg-3 col-md-3"> 
+                        <div class="card-body">
+                        <fieldset class="form-group">
+                            <h6 class="text-info">
+                                <i class='fa-solid fa-user'></i>
+                                Updating Households
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
                         <form method="POST" enctype='multipart/form-data' 
                             action="{{ route('data-collection.export-household') }}">
                             @csrf
@@ -63,6 +72,18 @@
                             </div>
                         </form>
                     </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3"> 
+                        <div class="card-body">
+                        <fieldset class="form-group">
+                            <h6 class="text-info">
+                                <i class='fa-solid fa-user'></i>
+                                Updating AC Households
+                            </h6>
+                        </div>
+                    </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <form method="POST" enctype='multipart/form-data' 
                             action="{{ route('data-collection.export-all') }}">
@@ -80,15 +101,81 @@
                         </form>
                     </div>
                 </div>
+
                 <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3"> 
+                        <div class="card-body">
+                        <fieldset class="form-group">
+                            <h6 class="text-info">
+                                <i class='fa-solid fa-user'></i>
+                                Updating Requested Households
+                            </h6>
+                        </div>
+                    </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <form method="POST" enctype='multipart/form-data' 
-                            action="{{ route('data-collection.export-community') }}">
+                            action="{{ route('data-collection.export-requested-household') }}">
+                            @csrf
+                            <div class="card-body">
+                                <fieldset class="form-group">
+                                    <button class="btn btn-info" type="submit">
+                                        <i class='fa-solid fa-download'></i>
+                                        Export requested_households.csv
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-xl-5 col-lg-5 col-md-5">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-requested') }}">
                             @csrf
                             <div class="card-body">
                                 <div class="row">
                                     <fieldset class="form-group">
                                         <button class="btn btn-info" type="submit">
+                                            <i class='fa-solid fa-download'></i>
+                                            Export Excel format "Requested Households"
+                                        </button>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3"> 
+                        <div class="card-body">
+                        <fieldset class="form-group">
+                            <h6 class="text-success">
+                                <i class='fa-solid fa-home'></i>
+                                Updating Communities/Compounds
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-all-community') }}">
+                            @csrf
+                            <div class="card-body">
+                                <fieldset class="form-group">
+                                    <button class="btn btn-success" type="submit">
+                                        <i class='fa-solid fa-download'></i>
+                                        Export communities.csv
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-xl-5 col-lg-5 col-md-5">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-communities') }}">
+                            @csrf
+                            <div class="card-body">
+                                <div class="row">
+                                    <fieldset class="form-group">
+                                        <button class="btn btn-success" type="submit">
                                             <i class='fa-solid fa-download'></i>
                                             Export Excel format "Community / Compound"
                                         </button>
@@ -96,6 +183,19 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3"> 
+                        <div class="card-body">
+                        <fieldset class="form-group">
+                            <h6 class="">
+                                <i class='fa-solid fa-file'></i>
+                                Export Other
+                            </h6>
+                        </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <form method="POST" enctype='multipart/form-data' 
@@ -131,6 +231,14 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3"> 
+                        <div class="card-body">
+                        <fieldset class="form-group">
+                            <h6 class="">
+                               
+                            </h6>
+                        </div>
+                    </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <form method="POST" enctype='multipart/form-data' 
                             action="{{ route('data-collection.export-agriculture') }}">
@@ -149,38 +257,6 @@
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <form method="POST" enctype='multipart/form-data' 
-                            action="{{ route('data-collection.export-requested') }}">
-                            @csrf
-                            <div class="card-body">
-                                <div class="row">
-                                    <fieldset class="form-group">
-                                        <button class="btn btn-warning" type="submit">
-                                            <i class='fa-solid fa-download'></i>
-                                            Export Excel format "Requested Households"
-                                        </button>
-                                    </fieldset>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="col-xl-4 col-lg-4 col-md-4">
-                        <form method="POST" enctype='multipart/form-data' 
-                            action="{{ route('data-collection.export-requested-household') }}">
-                            @csrf
-                            <div class="card-body">
-                                <fieldset class="form-group">
-                                    <button class="btn btn-info" type="submit">
-                                        <i class='fa-solid fa-download'></i>
-                                        Export requested_households.csv
-                                    </button>
-                                </fieldset>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xl-4 col-lg-4 col-md-4">
-                        <form method="POST" enctype='multipart/form-data' 
                             action="{{ route('data-collection.export-workshop') }}">
                             @csrf
                             <div class="card-body">
@@ -196,16 +272,12 @@
                         </form>
                     </div>
                 </div>
+                <div class="row">
+                </div>
             </div>  
         </div>
     </div> 
 </div>
-
-
-
-<h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
-  <span class="text-muted fw-light">Import </span>Households Details
-</h4>
 
 <div class="container">
     <!-- Success Message -->
@@ -217,6 +289,38 @@
         </button>
     </div>
     @endif
+
+
+    <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
+        <span class="text-muted fw-light">Import </span>Community/Compound
+    </h4>
+
+    <!-- File Upload Form -->
+    <div class="card">
+        <div class="card-body">
+            <form action="{{route('data-collection.import-community')}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <label for="excel_file">Choose Excel File</label>
+                    <input type="file" name="excel_file" class="form-control-file" id="excel_file"required>
+                    @error('excel_file')
+                    <div class="text-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div> <br>
+                <button type="submit" class="btn btn-success btn-block">
+                    
+                    <i class='fa-solid fa-upload'></i>
+                    Proccess
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
+        <span class="text-muted fw-light">Import </span>Households Details
+    </h4>
+
 
     <!-- File Upload Form -->
     <div class="card">

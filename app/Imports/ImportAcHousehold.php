@@ -77,7 +77,7 @@ class ImportAcHousehold implements ToModel, WithHeadingRow
                     $household->university_students = $row["university_students"]; 
                     $household->demolition_order = $row["demolition_order"]; 
                     $household->size_of_herd = $row["size_of_herd"];
-                    $household->ac_notes = $row["ac_notes"]; 
+                    $household->notes = $row["ac_notes"]; 
                     $household->is_surveyed = "yes"; 
                     $household->household_status_id = 2;
     

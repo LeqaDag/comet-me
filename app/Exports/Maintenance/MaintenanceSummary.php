@@ -13,8 +13,8 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithEvents; 
-use DB;
 use Carbon\Carbon;
+use DB;
 
 class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize, 
     WithStyles, WithCustomStartCell, WithEvents
@@ -292,7 +292,7 @@ class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize,
         $sheet->mergeCells('A17:C17');
         $sheet->mergeCells('A18:C18');
         
-        $sheet->setCellValue('D1', 'Energy');
+        $sheet->setCellValue('D1', 'Energy (not including refrigerator)');
         $sheet->setCellValue('E1', 'Water');
         $sheet->setCellValue('F1', 'Internet');
         $sheet->setCellValue('G1', 'Refrigerator');

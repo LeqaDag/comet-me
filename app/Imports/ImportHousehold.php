@@ -61,7 +61,7 @@ class ImportHousehold implements ToModel, WithHeadingRow
                     if($householdStatus) {
 
                         $household->household_status_id = $householdStatus->id;
-                        $household->household_notes = $row["household_notes"]; 
+                        $household->notes = $row["household_notes"]; 
                         $household->is_surveyed = "yes"; 
         
                         if(date_timestamp_get($reg_date)) {
@@ -118,7 +118,7 @@ class ImportHousehold implements ToModel, WithHeadingRow
                     $household->university_students = $row["university_students"]; 
                     $household->demolition_order = $row["demolition_order"]; 
                     $household->size_of_herd = $row["size_of_herd"];
-                    $household->household_notes = $row["household_notes"]; 
+                    $household->notes = $row["household_notes"]; 
                     $household->is_surveyed = "yes"; 
     
                     $reg_date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['submission_time']);

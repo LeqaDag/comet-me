@@ -37,7 +37,7 @@ class EnergyRelocatedHousehold implements FromCollection, WithHeadings, WithTitl
             ->leftJoin('all_energy_meter_donors', 'all_energy_meters.id','all_energy_meter_donors.all_energy_meter_id')
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', 'donors.id')
             ->where('all_energy_meters.is_archived', 0)
-            ->whereNotNull('communities.energy_system_cycle_id')
+           // ->whereNotNull('communities.energy_system_cycle_id')
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
             ->select(
                 'households.english_name as household',
@@ -76,7 +76,7 @@ class EnergyRelocatedHousehold implements FromCollection, WithHeadings, WithTitl
 
         if($this->request->energy_cycle_id) {
 
-            $query->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
+            $query->where("all_energy_meters.energy_system_cycle_id", $this->request->energy_cycle_id);
         }
 
         return $query->get();

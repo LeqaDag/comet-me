@@ -8,12 +8,14 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Imports\ImportAcHousehold;
 use App\Imports\ImportHousehold;
+use App\Imports\ImportCommunity;
 use App\Imports\ImportRequestedHousehold;
 use App\Exports\DataCollection\DataCollectionExport;
 use App\Exports\DataCollection\Households;
 use App\Exports\DataCollection\RequestedHouseholds;
 use App\Exports\DataCollection\AcSurvey\AllFormExport;
-use App\Exports\DataCollection\Updating\CommunityCompoundExport;
+use App\Exports\DataCollection\CommunityCompound\CommunityCompoundExport;
+use App\Exports\DataCollection\Community;
 use App\Exports\DataCollection\Incidents\MainFileExport;
 use App\Exports\DataCollection\Displacement\MainFileDisplacementExport;
 use App\Exports\DataCollection\Agriculture\MainFile;
@@ -98,7 +100,17 @@ class DataCollectionController extends Controller
     public function exportCommunity(Request $request) 
     {
                 
-        return Excel::download(new CommunityCompoundExport($request), 'Updating Communities/Compounds.xlsx');
+        return Excel::download(new CommunityCompoundExport($request), 'Updating Communities-Compounds.xlsx');
+    }
+
+    /** 
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportAllCommunities(Request $request) 
+    {
+                
+        return Excel::download(new Community($request), 'communities.xlsx');
     }
 
     /** 
@@ -151,6 +163,33 @@ class DataCollectionController extends Controller
         return Excel::download(new MainMisc($request), 'Requested Households.xlsx');
     }
 
+     /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function importCommunity(Request $request)
+    {
+        $file = $request->file('excel_file');
+
+        if ($file->isValid()) {
+
+            $extension = $file->getClientOriginalExtension();
+    
+            if (in_array($extension, ['xlsx', 'xls', 'csv'])) {
+
+                Excel::import(new ImportCommunity, $file);
+            } else {
+
+                return redirect()->back()->with('error', 'Invalid file format');
+            }
+    
+            return redirect()->back()->with('success', 'Community Data Imported Successfully!');
+        } else {
+
+            return redirect()->back()->with('error', 'File upload failed');
+        }
+    }
+
     /**
      * 
      * @return \Illuminate\Support\Collection
@@ -197,7 +236,7 @@ class DataCollectionController extends Controller
 
                 return redirect()->back()->with('error', 'Invalid file format');
             }
-    
+     
             return redirect()->back()->with('success', 'AC Data Imported Successfully!');
         } else {
 

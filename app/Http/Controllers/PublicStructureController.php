@@ -145,7 +145,8 @@ class PublicStructureController extends Controller
                             Auth::guard('user')->user()->user_type_id == 3 ||
                             Auth::guard('user')->user()->user_type_id == 4 ||
                             Auth::guard('user')->user()->user_type_id == 5 ||
-                            Auth::guard('user')->user()->user_type_id == 6) 
+                            Auth::guard('user')->user()->user_type_id == 6 ||
+                            Auth::guard('user')->user()->role_id == 21) 
                         { 
 
                             return $viewButton." ". $updateButton." ". $deleteButton;

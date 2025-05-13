@@ -27,7 +27,46 @@ class PurchaseEnergyExport implements FromCollection, WithHeadings, WithTitle, S
     */
     public function collection()  
     {
+        // $query = DB::table('all_energy_vending_meters')
+        //     ->join('all_energy_meters', 'all_energy_vending_meters.all_energy_meter_id', 'all_energy_meters.id')
+        //     ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+        //     ->join('regions', 'communities.region_id', 'regions.id')
+        //     ->join('energy_systems', 'all_energy_meters.energy_system_id', 'energy_systems.id')
+        //     ->join('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
+        //     ->leftJoin('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
+        //     ->leftJoin('households', 'households.id', 'all_energy_meters.household_id')
+        //     ->leftJoin('public_structures', 'public_structures.id', 'all_energy_meters.public_structure_id')
+        //     ->where('all_energy_meters.is_archived', 0)
+        //     ->select(
+        //         DB::raw('IFNULL(households.english_name, public_structures.english_name) 
+        //             as exported_value'),
+        //         'all_energy_meters.meter_number',
+        //         'communities.english_name as community',
+        //         'regions.english_name as region',
+        //         'energy_system_types.name as energy_type_name',
+        //         'all_energy_meters.daily_limit',
+        //         'all_energy_meters.installation_date',
+        //         DB::raw('DATE(all_energy_vending_meters.last_purchase_date) as last_purchase_date'), 
+        //         'all_energy_vending_meters.days',
+        //         DB::raw('CASE 
+        //             WHEN all_energy_vending_meters.days > 30 && all_energy_vending_meters.days < 60 THEN "Over month"
+        //             WHEN all_energy_vending_meters.days > 60  && all_energy_vending_meters.days < 120 THEN "Over 2 months"
+        //             WHEN all_energy_vending_meters.days > 120 THEN "Over 3 months"
+        //             ELSE "Within a month" 
+        //         END as days_flag'),
+        //         'meter_cases.meter_case_name_english'
+        //     )
+        //     ->groupBy("all_energy_meters.meter_number");
+        
+        $subquery = DB::table('all_energy_vending_meters as aevm')
+            ->select(DB::raw('MAX(aevm.last_purchase_date) as last_purchase_date'), 'aevm.all_energy_meter_id')
+            ->groupBy('aevm.all_energy_meter_id');
+    
         $query = DB::table('all_energy_vending_meters')
+            ->joinSub($subquery, 'latest', function ($join) {
+                $join->on('all_energy_vending_meters.all_energy_meter_id', '=', 'latest.all_energy_meter_id')
+                    ->on('all_energy_vending_meters.last_purchase_date', '=', 'latest.last_purchase_date');
+            })
             ->join('all_energy_meters', 'all_energy_vending_meters.all_energy_meter_id', 'all_energy_meters.id')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -38,8 +77,7 @@ class PurchaseEnergyExport implements FromCollection, WithHeadings, WithTitle, S
             ->leftJoin('public_structures', 'public_structures.id', 'all_energy_meters.public_structure_id')
             ->where('all_energy_meters.is_archived', 0)
             ->select(
-                DB::raw('IFNULL(households.english_name, public_structures.english_name) 
-                    as exported_value'),
+                DB::raw('IFNULL(households.english_name, public_structures.english_name) as exported_value'),
                 'all_energy_meters.meter_number',
                 'communities.english_name as community',
                 'regions.english_name as region',
@@ -49,14 +87,14 @@ class PurchaseEnergyExport implements FromCollection, WithHeadings, WithTitle, S
                 DB::raw('DATE(all_energy_vending_meters.last_purchase_date) as last_purchase_date'), 
                 'all_energy_vending_meters.days',
                 DB::raw('CASE 
-                    WHEN all_energy_vending_meters.days > 30 && all_energy_vending_meters.days < 60 THEN "Over month"
-                    WHEN all_energy_vending_meters.days > 60  && all_energy_vending_meters.days < 120 THEN "Over 2 months"
+                    WHEN all_energy_vending_meters.days > 30 AND all_energy_vending_meters.days < 60 THEN "Over month"
+                    WHEN all_energy_vending_meters.days > 60 AND all_energy_vending_meters.days < 120 THEN "Over 2 months"
                     WHEN all_energy_vending_meters.days > 120 THEN "Over 3 months"
                     ELSE "Within a month" 
                 END as days_flag'),
                 'meter_cases.meter_case_name_english'
             );
-
+        
 
         return $query->get();
     } 

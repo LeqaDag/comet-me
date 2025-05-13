@@ -52,6 +52,11 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
             ->leftJoin('internet_issues', 'internet_issues.comet_id', 'all_maintenance_ticket_actions.action_id')
             ->leftJoin('internet_actions', 'internet_issues.internet_action_id', 'internet_actions.id')
             ->leftJoin('action_categories as internet_categories', 'internet_categories.id', 'internet_actions.action_category_id')
+            
+            ->leftJoin('refrigerator_issues', 'refrigerator_issues.comet_id', 'all_maintenance_ticket_actions.action_id')
+            ->leftJoin('refrigerator_actions', 'refrigerator_issues.refrigerator_action_id', 'refrigerator_actions.id')
+            ->leftJoin('action_categories as refrigerator_categories', 'refrigerator_categories.id', 'refrigerator_actions.action_category_id')
+
             ->select([
                 DB::raw("CASE 
                             WHEN households.english_name IS NOT NULL THEN 'Household'
@@ -75,28 +80,51 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
                 'maintenance_statuses.name as status',
                 'maintenance_types.type',
                 DB::raw('CONCAT(
-                    COALESCE(energy_categories.arabic_name, water_categories.arabic_name, 
+                    COALESCE(energy_categories.arabic_name, refrigerator_categories.arabic_name, water_categories.arabic_name, 
                     internet_categories.arabic_name), " - ", 
-                    GROUP_CONCAT(DISTINCT COALESCE(energy_actions.arabic_name, water_actions.arabic_name, 
+                    GROUP_CONCAT(DISTINCT COALESCE(energy_actions.arabic_name, refrigerator_actions.arabic_name, water_actions.arabic_name, 
                     internet_actions.arabic_name)), " - ", 
-                    GROUP_CONCAT(DISTINCT COALESCE(energy_issues.arabic_name, water_issues.arabic_name, 
+                    GROUP_CONCAT(DISTINCT COALESCE(energy_issues.arabic_name, refrigerator_issues.arabic_name, water_issues.arabic_name, 
                     internet_issues.arabic_name))
                     ) as category_action_issue'
                 ),
-                DB::raw('COALESCE(energy_categories.english_name, water_categories.english_name, 
-                    internet_categories.english_name) as category'),
+                DB::raw('COALESCE(energy_categories.english_name, refrigerator_categories.english_name, 
+                    water_categories.english_name, internet_categories.english_name) as category'),
             
-                DB::raw('COALESCE(energy_actions.english_name, water_actions.english_name, 
-                    internet_actions.english_name) as action'),
+                DB::raw('COALESCE(energy_actions.english_name, refrigerator_actions.english_name,
+                    water_actions.english_name, internet_actions.english_name) as action'),
                 
-                DB::raw('COALESCE(energy_issues.english_name, water_issues.english_name, 
-                    internet_issues.english_name) as issue'),
+                DB::raw('COALESCE(energy_issues.english_name, refrigerator_issues.english_name, 
+                    water_issues.english_name, internet_issues.english_name) as issue'),
                 
                 'all_maintenance_tickets.start_date as visit_date', 
                 'all_maintenance_tickets.completed_date', 
-                'all_maintenance_tickets.last_hour', 
-                'all_maintenance_tickets.run_hour',
-                'all_maintenance_tickets.run_performed_hour',
+
+                DB::raw('IFNULL(TIMESTAMPDIFF(HOUR, all_maintenance_tickets.support_created_at, 
+                    all_maintenance_tickets.supported_updated_at), 0) as hours_difference'),
+
+                DB::raw('CASE 
+                    WHEN (TIMESTAMPDIFF(HOUR, all_maintenance_tickets.support_created_at, 
+                    all_maintenance_tickets.supported_updated_at)) <= 24 THEN "Within a day"
+
+                    WHEN (TIMESTAMPDIFF(HOUR, all_maintenance_tickets.support_created_at, 
+                    all_maintenance_tickets.supported_updated_at)) <= 168 THEN "Within a week"
+
+                    WHEN (TIMESTAMPDIFF(HOUR, all_maintenance_tickets.support_created_at, 
+                    all_maintenance_tickets.supported_updated_at)) <= 720 THEN "Within a month"
+
+                    WHEN (TIMESTAMPDIFF(HOUR, all_maintenance_tickets.support_created_at, 
+                    all_maintenance_tickets.supported_updated_at)) <= 1440 THEN "Over a month"
+
+                    WHEN (TIMESTAMPDIFF(HOUR, all_maintenance_tickets.support_created_at, 
+                    all_maintenance_tickets.supported_updated_at)) <= 2160 THEN "Over 2 months"
+
+                    ELSE "Over 3 months" 
+                END as days_flag'),
+
+                // 'all_maintenance_tickets.last_hour', 
+                // 'all_maintenance_tickets.run_hour',
+                // 'all_maintenance_tickets.run_performed_hour',
                 'all_maintenance_tickets.notes'
             ])->groupBy('all_maintenance_tickets.id', 'all_maintenance_ticket_actions.id', 
                 'energy_categories.english_name', 'water_categories.english_name', 'internet_categories.english_name');
@@ -129,8 +157,8 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
     public function headings(): array
     {
         return ["Agent Type", "Agent", "Community", "Region", "Sub Region", "Department", "Assigned to",  
-            "Status", "Type", "Resoultion (Arabic)", "Category", "Action", "Issue", "Visit Date",  
-            "Completed Date", "Last Run hours", "Run hours", "Run hours to do maintenance", "Notes"];
+            "Status", "Type", "Resoultion (Arabic)", "Category", "Action", "Issue", "Ticket created on",  
+            "Completed Date", "Hours (completed - created)", "Days Flag", "Notes"];
     }
 
     public function title(): string

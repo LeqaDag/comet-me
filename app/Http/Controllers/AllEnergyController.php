@@ -1011,7 +1011,7 @@ class AllEnergyController extends Controller
         }
 
         try {
-
+ 
             Excel::import(new PurchaseEnergyImport(1), $request->file('first_file'));
 
             return Excel::download(new PurchaseEnergyExport($request), 'purchase_report.xlsx');

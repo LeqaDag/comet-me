@@ -26,7 +26,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
     */
     public function collection()
     {
-        $regions = DB::table('regions')
+        $regions = DB::table('regions') 
             ->where('regions.is_archived', 0)
             ->select(
                 DB::raw('"region" as list_name'), 

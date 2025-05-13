@@ -15,13 +15,14 @@ use \Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use App\Models\HouseholdStatus;
 use DB;
 
 class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSize, 
     WithStyles, WithEvents,WithCustomStartCell
 {
-    private $confirmedMisc = 0, $misc = 0, $activateMisc = 0, $requestedHouseholds = 0, $relocatedHouseholds = 0,
-        $confirmedRelocated = 0, $activateRelocated = 0, $miscRefrigerator = 0, $relocatedRefrigerator;
+    private $misc = 0, $activateMisc = 0, $requestedHouseholds = 0, $relocatedHouseholds = 0,
+        $activateRelocated = 0, $miscRefrigerator = 0, $relocatedRefrigerator;
 
     protected $request; 
 
@@ -37,24 +38,6 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
     { 
         $oneYearAgo = Carbon::now()->subYear();
 
-        // MISC Confirmed
-        $this->confirmedMisc = DB::table('households')
-            ->join('communities', 'households.community_id', 'communities.id')
-            ->where('communities.energy_system_cycle_id', NULL)
-            ->where('households.is_archived', 0)
-            ->where('households.energy_system_type_id', 2)
-            ->where('households.energy_system_cycle_id', '!=', null)
-            ->where('households.household_status_id', 11); 
-
-        // Replacement Confirmed
-        $this->confirmedReplacement = DB::table('households')
-            ->join('communities', 'households.community_id', 'communities.id')
-            ->where('communities.energy_system_cycle_id', NULL)
-            ->where('households.is_archived', 0)
-            ->where('households.energy_system_type_id', 2)
-            ->where('households.energy_system_cycle_id', '!=', null)
-            ->where('households.household_status_id', 12);
-
         // MISC FBS 
         $this->misc = DB::table('all_energy_meters')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
@@ -63,8 +46,6 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('all_energy_meters.is_archived', 0)
             ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
-
-        die($this->confirmedMisc->get());
 
         $this->activateMisc = DB::table('households')
             ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
@@ -85,14 +66,26 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('households.household_status_id', 5);
 
         // Relocated Households
-        $this->relocatedHouseholds =  DB::table('all_energy_meters')
-            ->join('displaced_households', 'all_energy_meters.household_id', 'displaced_households.household_id')
+        // $this->relocatedHouseholds = DB::table('all_energy_meters')
+        //     ->join('displaced_households', 'all_energy_meters.household_id', 'displaced_households.household_id')
+        //     ->join('households', 'all_energy_meters.household_id', 'households.id')
+        //     ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
+        //     ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+        //   // ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
+        //     ->where('all_energy_meters.is_archived', 0)
+        //     ->where('households.is_archived', 0)
+        //     ->where('all_energy_meters.energy_system_cycle_id', 2);
+        //     //->whereNotNull('communities.energy_system_cycle_id')
+        //     //->where('all_energy_meters.energy_system_cycle_id', '!=', null);
+
+        // Relocated Households
+        $this->relocatedHouseholds = DB::table('displaced_households')
+            ->join('all_energy_meters', 'all_energy_meters.household_id', 'displaced_households.household_id')
             ->join('households', 'all_energy_meters.household_id', 'households.id')
             ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
-            ->join('communities', 'households.community_id', 'communities.id')
+            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
             ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
             ->where('all_energy_meters.is_archived', 0)
-            ->whereNotNull('communities.energy_system_cycle_id')
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
 
         // MISC Refrigerator
@@ -117,13 +110,17 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->whereNotNull('communities.energy_system_cycle_id')
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null); 
 
-        $this->activateRelocated =  DB::table('all_energy_meters')
-            ->join('displaced_households', 'all_energy_meters.household_id', 'displaced_households.household_id')
+        $this->activateRelocated = DB::table('displaced_households')
+            ->join('all_energy_meters', 'all_energy_meters.household_id', 'displaced_households.household_id')
+            ->join('households', 'all_energy_meters.household_id', 'households.id')
+            ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+            ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
             ->where('all_energy_meters.is_archived', 0)
-            ->whereNotNull('communities.energy_system_cycle_id')
             ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
             ->where('all_energy_meters.meter_active', "Yes");
+        
+        $householdStatus = HouseholdStatus::where('status', "On Hold")->first();
 
         $queryCommunities = DB::table('communities')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -135,6 +132,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->leftJoin('public_structures', 'public_structures.community_id', 'communities.id')
             ->where('communities.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
+            ->where('all_households.household_status_id', '!=',$householdStatus->id)
             ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
                     ->from('compounds')
@@ -219,6 +217,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             //->where('households.is_archived', 0)
             //->where('compound_households.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
+            ->where('households.household_status_id', '!=', $householdStatus->id)
             ->select(
                 'compounds.english_name',    
                 'regions.english_name as region',
@@ -301,14 +300,13 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             $queryCompounds->where("compounds.energy_system_cycle_id", $this->request->energy_cycle_id);
             $this->misc->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
             $this->activateMisc->where("households.energy_system_cycle_id", $this->request->energy_cycle_id);
-            $this->relocatedHouseholds->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
-            $this->activateRelocated->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
+            $this->relocatedHouseholds->where("all_energy_meters.energy_system_cycle_id", $this->request->energy_cycle_id);
+            $this->activateRelocated->where("all_energy_meters.energy_system_cycle_id", $this->request->energy_cycle_id);
             $this->requestedHouseholds->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
             $this->relocatedRefrigerator->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
             $this->miscRefrigerator->where("communities.energy_system_cycle_id", $this->request->energy_cycle_id);
         }
         
-
         $communitiesCollection = $queryCommunities->get()->map(function($item) {
         
             $item->delta = $item->delta == 0 ? "0" : $item->delta;

@@ -36,7 +36,7 @@ class AllTicketsController extends Controller
         // Fetch tickets from the API
         $data = Http::get('https://cometme.org/api/tickets');
         $ticketsData = json_decode($data, true);
-        $tickets = $ticketsData['tickets'];
+        $tickets = $ticketsData['tickets']; 
 
         // Loop through each ticket
         foreach ($tickets as $ticket) {
@@ -163,6 +163,7 @@ class AllTicketsController extends Controller
                 $existingTicket->start_date = $ticket["created_at"];
                 $existingTicket->completed_date = $ticket["updated_at"];
                 $existingTicket->support_created_at = $ticket["created_at"];
+                $existingTicket->supported_updated_at = $ticket["updated_at"];
                 $existingTicket->notes = $ticket["description"];
                 $existingTicket->save();
 
@@ -184,6 +185,7 @@ class AllTicketsController extends Controller
                 $newTicket->start_date = $ticket["created_at"];
                 $newTicket->completed_date = $ticket["updated_at"];
                 $newTicket->support_created_at = $ticket["created_at"];
+                $newTicket->supported_updated_at = $ticket["updated_at"];
                 $newTicket->notes = $ticket["description"];
                 $newTicket->save();
     

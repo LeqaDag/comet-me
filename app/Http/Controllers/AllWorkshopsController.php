@@ -93,9 +93,9 @@ class AllWorkshopsController extends Controller
                                 $w->orWhere('communities.english_name', 'LIKE', "%$search%")
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('workshop_types.english_name', 'LIKE', "%$search%")
-                                ->orWhere('workshop_types.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('lead.name', 'LIKE', "%$search%")
-                                ->orWhere('lead.co_trainer', 'LIKE', "%$search%");
+                                ->orWhere('workshop_types.arabic_name', 'LIKE', "%$search%");
+                              //  ->orWhere('lead.name', 'LIKE', "%$search%")
+                               // ->orWhere('lead.co_trainer', 'LIKE', "%$search%");
                             });
                         }
                     })
