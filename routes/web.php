@@ -599,3 +599,50 @@ Route::post('all-workshop-export', [App\Http\Controllers\AllWorkshopsController:
 Route::post('all-workshop-import', [App\Http\Controllers\AllWorkshopsController::class, 'import'])->name('all-workshop.import');
 Route::get('/delete-workshop-photo', [App\Http\Controllers\AllWorkshopsController::class, 'deleteWorkshopPhoto'])->name('deleteWorkshopPhoto');
 Route::get('/delete-workshop-co-trainer', [App\Http\Controllers\AllWorkshopsController::class, 'deleteWorkshopCommunityCoTrainer'])->name('deleteWorkshopCommunityCoTrainer');
+
+Route::resource('replacements', ReplacementController::class);
+Route::post('replacements/destroy', [ReplacementController::class, 'destroy'])->name('replacements.destroy');
+Route::post('/replacements/export', [ReplacementController::class, 'export'])->name('replacements.export');
+Route::post('/replacements/store', [ReplacementController::class, 'store'])->name('replacements.store');
+Route::get('/replacements/{id}/edit', [ReplacementController::class, 'edit'])->name('replacements.edit');
+Route::post('/replacements/delete', [ReplacementController::class, 'destroy'])->name('replacements.delete');
+
+Route::resource('camera-additions', CameraCommunityAdditionController::class);
+
+Route::post('camera-additions/destroy', [CameraCommunityAdditionController::class, 'destroy'])->name('camera-additions.destroy');
+Route::post('camera-additions/export', [CameraCommunityAdditionController::class, 'export'])->name('camera-additions.export');
+Route::post('camera-additions/store', [CameraCommunityAdditionController::class, 'store'])->name('camera-additions.store');
+Route::get('camera-additions/{id}/edit', [CameraCommunityAdditionController::class, 'edit'])->name('camera-additions.edit');
+Route::post('camera-additions/delete', [CameraCommunityAdditionController::class, 'destroy'])->name('camera-additions.delete');
+
+
+// New routes
+Route::resource('all-incident', App\Http\Controllers\AllIncidentController::class);
+Route::post('all-incident-export', [App\Http\Controllers\AllIncidentController::class, 'export'])->name('all-incident.export');
+Route::get('/delete-all-incident', [App\Http\Controllers\AllIncidentController::class, 'deleteAllIncident'])->name('deleteAllIncident');
+Route::get('/all-incident/get_energy_holder/{community_id}/{flag}', [App\Http\Controllers\AllIncidentController::class, 'getEnergyHolderSystemByCommunity']);
+Route::get('/all-incident/get_incident_statuses/{incident_id}', [App\Http\Controllers\AllIncidentController::class, 'getIncidentStatusesByType']);
+Route::get('/all-incident/get_water_holder/{community_id}/{flag}', [App\Http\Controllers\AllIncidentController::class, 'getWaterHolderSystemByCommunity']);
+Route::get('/all-incident/get_internet_holder/{community_id}/{flag}', [App\Http\Controllers\AllIncidentController::class, 'getInternetHolderSystemByCommunity']);
+Route::get('/update-water-tank/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateTank'])->name('updateTank');
+Route::get('/delete-water-tank', [App\Http\Controllers\WaterSystemController::class, 'deleteTank'])->name('deleteTank');
+Route::get('/update-water-pipe/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updatePipe'])->name('updatePipe');
+Route::get('/delete-water-pipe', [App\Http\Controllers\WaterSystemController::class, 'deletePipe'])->name('deletePipe');
+Route::get('/update-water-pump/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updatePump'])->name('updatePump');
+Route::get('/delete-water-pump', [App\Http\Controllers\WaterSystemController::class, 'deletePump'])->name('deletePump');
+Route::get('/update-water-connector/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateConnector'])->name('updateConnector');
+Route::get('/delete-water-connector', [App\Http\Controllers\WaterSystemController::class, 'deleteConnector'])->name('deleteConnector');
+Route::get('/update-water-filter/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateFilter'])->name('updateFilter');
+Route::get('/delete-water-filter', [App\Http\Controllers\WaterSystemController::class, 'deleteFilter'])->name('deleteFilter');
+Route::get('/update-water-tap/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateTap'])->name('updateTap');
+Route::get('/delete-water-tap', [App\Http\Controllers\WaterSystemController::class, 'deleteTap'])->name('deleteTap');
+Route::get('/update-water-valve/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateValve'])->name('updateValve');
+Route::get('/delete-water-valve', [App\Http\Controllers\WaterSystemController::class, 'deleteValve'])->name('deleteValve');
+
+Route::get('/update-internet-router/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateRouter'])->name('updateRouter');
+Route::get('/update-internet-switch/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateSwitch'])->name('updateSwitch');
+Route::get('/update-internet-controller/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateController'])->name('updateController');
+Route::get('/update-internet-ap/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateAp'])->name('updateAp');
+Route::get('/update-internet-ap-lite/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateApLite'])->name('updateApLite');
+Route::get('/update-internet-ptp/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updatePtp'])->name('updatePtp');
+Route::get('/update-internet-uisp/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateUisp'])->name('updateUisp');

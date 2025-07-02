@@ -29,4 +29,14 @@ class CameraCommunity extends Model
         
         return $this->belongsTo(Repository::class, 'repository_id', 'id');
     }
+
+    public function cameraCommunityTypes()
+    {
+        return $this->hasMany(CameraCommunityType::class, 'camera_community_id');
+    }
+
+    public function getTotalCamerasAttribute()
+    {
+        return $this->cameraCommunityTypes->sum('number');
+    }
 }

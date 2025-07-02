@@ -118,7 +118,7 @@
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Rated Power</label>
-                            <input type="number" name="total_rated_power" 
+                            <input type="text" name="total_rated_power" 
                             class="form-control"value="{{$energySystem->total_rated_power}}">
                         </fieldset>
                     </div>

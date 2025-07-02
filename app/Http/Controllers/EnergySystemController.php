@@ -130,6 +130,7 @@ class EnergySystemController extends Controller
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->user_type_id == 3 ||
                             Auth::guard('user')->user()->user_type_id == 4) 
                         {
                                 
@@ -270,10 +271,15 @@ class EnergySystemController extends Controller
      */
     public function store(Request $request)
     {       
+        // Get Last comet_id
+        $last_comet_id = EnergySystem::latest('id')->value('comet_id');
+
         $energySystem = new EnergySystem();
  
         if($request->community_id) $energySystem->community_id = $request->community_id;
         $energySystem->name = $request->name;
+        $energySystem->comet_id = ++$last_comet_id;
+        $energySystem->fake_meter_number = 'ES' . ++$last_comet_id;
         $energySystem->installation_year = $request->installation_year;
         if($request->energy_system_cycle_id) $energySystem->energy_system_cycle_id = $request->energy_system_cycle_id;
         $energySystem->energy_system_type_id = $request->energy_system_type_id;

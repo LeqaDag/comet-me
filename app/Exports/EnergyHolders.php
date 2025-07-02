@@ -20,7 +20,7 @@ class EnergyHolders implements FromCollection, WithHeadings, WithTitle, ShouldAu
     function __construct($request) {
         $this->request = $request;
     }
-
+ 
     /**
     * @return \Illuminate\Support\Collection
     */

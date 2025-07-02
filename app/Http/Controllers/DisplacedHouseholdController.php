@@ -21,8 +21,8 @@ use App\Models\DisplacedHousehold;
 use App\Models\DisplacedHouseholdStatus;
 use App\Models\EnergySystemType;
 use App\Models\EnergySystem;
-use App\Models\SubRegion;
 use App\Models\FbsUserIncident;
+use App\Models\SubRegion;
 use App\Exports\DisplacedHouseholdExport;
 use Carbon\Carbon;
 use DataTables;
@@ -198,6 +198,15 @@ class DisplacedHouseholdController extends Controller
     
                 foreach($households as $household) {
     
+                    $householdStatus = HouseholdStatus::where('status', "Displaced")->first();
+     
+                    $householdFamily = Household::findOrFail($household->id);
+                    if($householdStatus) {
+                        
+                        $householdFamily->household_status_id = $householdStatus->id;
+                        $householdFamily->save();
+                    }
+                    
                     $displacedHousehold = new DisplacedHousehold();
                     $displacedHousehold->household_id = $household->id;
 

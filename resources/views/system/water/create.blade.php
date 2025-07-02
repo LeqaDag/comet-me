@@ -120,7 +120,7 @@
                         </fieldset>
                     </div>
                 </div>
-
+<!-- 
                 <hr>
                 
                 <div class="row">
@@ -319,7 +319,7 @@
                             </tr>
                         </table>
                     </div>
-                </div>
+                </div> -->
 
 
                 <div class="row" style="margin-top:20px">

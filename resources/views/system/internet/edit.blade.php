@@ -117,743 +117,477 @@
                     </div>
                 @endif
 
-                <hr style="margin-top:30px">
-                <div class="row" >
-                    <h6>Routers</h6>
-                </div>
+
+                <hr class="mt-4">
+                <h5>Routers</h5>
+
                 @if(count($routerSystems) > 0)
-
-                    <table id="internetSystemRouterTable" class="table table-striped my-2">
-                        <tbody>
-                            @foreach($routerSystems as $routerSystem)
-                            <tr id="routerSystemsRow">
-                                <td class="text-center">
-                                    {{$routerSystem->model}}
-                                </td>
-                                <td class="text-center">
-                                    {{$routerSystem->router_units}}
-                                </td>
-                                <td class="text-center">
-                                    <a class="btn deleteInternetSystemRouter" 
-                                        id="deleteInternetSystemRouter"
-                                        data-id="{{$routerSystem->id}}">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </a>
-                                </td
+                    <table class="table table-striped my-2" id="routerTable">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Units</th>
+                                <th>Cost</th>
+                                <th>Total</th>
+                                <th>Action</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($routerSystems as $index => $router)
+                                <tr data-router-id="{{ $router->id }}">
+                                    <td class="text-center">{{ $router->model }}</td>
+                                    <td>
+                                        <input type="number" name="router_units[{{ $router->id }}]" class="form-control router-units" 
+                                        data-router-index="{{ $index }}" value="{{ $router->router_units }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="router_costs[{{ $router->id }}]" class="form-control router-costs" 
+                                        data-router-index="{{ $index }}" value="{{ $router->router_costs }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-router-{{ $index }}">{{ $router->router_units * $router->router_costs }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteRouter" data-id="{{ $router->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="row">
-                        <span>Add More Routers</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveRouter">
-                                <tr>
-                                    <th>Router Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="router_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($routers as $router)
-                                                <option value="{{$router->id}}">
-                                                    {{$router->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="router_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveRouterButton" 
-                                            class="btn btn-outline-primary">
-                                            Add Router Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    
-                @else
-                    <div class="row">
-                        <h6>Add New Routers</h6>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveRouter">
-                                <tr>
-                                    <th>Router Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="router_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($routers as $router)
-                                                <option value="{{$router->id}}">
-                                                    {{$router->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="router_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveRouterButton" 
-                                            class="btn btn-outline-primary">
-                                            Add Router Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                 @endif
 
-                <hr style="margin-top:30px">
-                <div class="row" >
-                    <h6>Switches</h6>
-                </div>
-                @if(count($switcheSystems) > 0)
+                {{-- Add More Routers --}}
+                <h6>Add New Routers</h6>
+                <table class="table table-bordered" id="addRemoveRouter">
+                    <thead>
+                        <tr>
+                            <th>Router Model</th>
+                            <th>Units</th>
+                            <th>Cost per Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="router_ids[]" class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($routers as $router)
+                                        <option value="{{ $router->id }}">{{ $router->model }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" name="router_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" name="router_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><button type="button" class="btn btn-outline-primary" id="addRemoveRouterButton">Add Router</button></td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                    <table id="internetSystemSwitchTable" class="table table-striped my-2">
-                        <tbody>
-                            @foreach($switcheSystems as $switcheSystem)
-                            <tr id="switcheSystemsRow">
-                                <td class="text-center">
-                                    {{$switcheSystem->model}}
-                                </td>
-                                <td class="text-center">
-                                    {{$switcheSystem->switch_units}}
-                                </td>
-                                <td class="text-center">
-                                    <a class="btn deleteInternetSystemSwitch" 
-                                        id="deleteInternetSystemSwitch"
-                                        data-id="{{$switcheSystem->id}}">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </a>
-                                </td
+
+                <hr class="mt-4">
+                <h5>Switches</h5>
+
+                @if(count($switchSystems) > 0)
+                    <table class="table table-striped my-2" id="switchTable">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Units</th>
+                                <th>Cost</th>
+                                <th>Total</th>
+                                <th>Action</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($switchSystems as $index => $switch)
+                                <tr data-switch-id="{{ $switch->id }}">
+                                    <td class="text-center">{{ $switch->model }}</td>
+                                    <td>
+                                        <input type="number" name="switch_units[{{ $switch->id }}]" class="form-control switch-units" 
+                                        data-switch-index="{{ $index }}" value="{{ $switch->switch_units }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="switch_costs[{{ $switch->id }}]" class="form-control switch-costs" 
+                                        data-switch-index="{{ $index }}" value="{{ $switch->switch_costs }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-switch-{{ $index }}">{{ $switch->switch_units * $switch->switch_costs }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteSwitch" data-id="{{ $switch->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="row">
-                        <span>Add More Switches</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveSwitch">
-                                <tr>
-                                    <th>Switch Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="switch_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($switches as $switch)
-                                                <option value="{{$switch->id}}">
-                                                    {{$switch->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="switch_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveSwitchButton" 
-                                            class="btn btn-outline-primary">
-                                            Add Switch Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    
-                @else
-                    <div class="row">
-                        <h6>Add New Switches</h6>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveSwitch">
-                                <tr>
-                                    <th>Switch Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="switch_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($switches as $switch)
-                                                <option value="{{$switch->id}}">
-                                                    {{$switch->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="switch_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveSwitchButton" 
-                                            class="btn btn-outline-primary">
-                                            Add Switch Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                 @endif
 
+                {{-- Add More Switchs --}}
+                <h6>Add New Switchs</h6>
+                <table class="table table-bordered" id="addRemoveSwitch">
+                    <thead>
+                        <tr>
+                            <th>Switch Model</th>
+                            <th>Units</th>
+                            <th>Cost per Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="switch_ids[]" class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($switchs as $switch)
+                                        <option value="{{ $switch->id }}">{{ $switch->model }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" name="switch_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" name="switch_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><button type="button" class="btn btn-outline-primary" id="addRemoveSwitchButton">Add Switch</button></td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <hr style="margin-top:30px">
-                <div class="row" >
-                    <h6>Controllers</h6>
-                </div>
+
+                <hr class="mt-4">
+                <h5>Controllers</h5>
+
                 @if(count($controllerSystems) > 0)
-
-                    <table id="internetSystemControllerTable" class="table table-striped my-2">
-                        <tbody>
-                            @foreach($controllerSystems as $controllerSystem)
-                            <tr id="controllerSystemsRow">
-                                <td class="text-center">
-                                    {{$controllerSystem->model}}
-                                </td>
-                                <td class="text-center">
-                                    {{$controllerSystem->controller_units}}
-                                </td>
-                                <td class="text-center">
-                                    <a class="btn deleteInternetSystemController" 
-                                        id="deleteInternetSystemController"
-                                        data-id="{{$controllerSystem->id}}">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </a>
-                                </td
+                    <table class="table table-striped my-2" id="controllerTable">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Units</th>
+                                <th>Cost</th>
+                                <th>Total</th>
+                                <th>Action</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($controllerSystems as $index => $controller)
+                                <tr data-controller-id="{{ $controller->id }}">
+                                    <td class="text-center">{{ $controller->model }}</td>
+                                    <td>
+                                        <input type="number" name="controller_units[{{ $controller->id }}]" class="form-control controller-units" 
+                                        data-controller-index="{{ $index }}" value="{{ $controller->controller_units }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="controller_costs[{{ $controller->id }}]" class="form-control controller-costs" 
+                                        data-controller-index="{{ $index }}" value="{{ $controller->controller_costs }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-controller-{{ $index }}">{{ $controller->controller_units * $controller->controller_costs }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteController" data-id="{{ $controller->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="row">
-                        <span>Add More Controllers</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveController">
-                                <tr>
-                                    <th>Controller Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="controller_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($controllers as $controller)
-                                                <option value="{{$controller->id}}">
-                                                    {{$controller->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="controller_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveControllerButton" 
-                                            class="btn btn-outline-primary">
-                                            Add Controller Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    
-                @else
-                    <div class="row">
-                        <h6>Add New Controllers</h6>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveController">
-                                <tr>
-                                    <th>Controller Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="controller_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($controllers as $controller)
-                                                <option value="{{$controller->id}}">
-                                                    {{$controller->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="controller_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveControllerButton" 
-                                            class="btn btn-outline-primary">
-                                            Add Controller Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                 @endif
 
+                {{-- Add More Controllers --}}
+                <h6>Add New Controllers</h6>
+                <table class="table table-bordered" id="addRemoveController">
+                    <thead>
+                        <tr>
+                            <th>Controller Model</th>
+                            <th>Units</th>
+                            <th>Cost per Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="controller_ids[]" class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($controllers as $controller)
+                                        <option value="{{ $controller->id }}">{{ $controller->model }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" name="controller_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" name="controller_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><button type="button" class="btn btn-outline-primary" id="addRemoveControllerButton">Add Controller</button></td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <hr style="margin-top:30px">
-                <div class="row" >
-                    <h6>APs</h6>
-                </div>
+
+                <hr class="mt-4">
+                <h5>APs</h5>
+
                 @if(count($apSystems) > 0)
-
-                    <table id="internetSystemApTable" class="table table-striped my-2">
-                        <tbody>
-                            @foreach($apSystems as $apSystem)
-                            <tr id="apSystemsRow">
-                                <td class="text-center">
-                                    {{$apSystem->model}}
-                                </td>
-                                <td class="text-center">
-                                    {{$apSystem->ap_units}}
-                                </td>
-                                <td class="text-center">
-                                    <a class="btn deleteInternetSystemAp" 
-                                        id="deleteInternetSystemAp"
-                                        data-id="{{$apSystem->id}}">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </a>
-                                </td
+                    <table class="table table-striped my-2" id="apTable">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Units</th>
+                                <th>Cost</th>
+                                <th>Total</th>
+                                <th>Action</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($apSystems as $index => $ap)
+                                <tr data-ap-id="{{ $ap->id }}">
+                                    <td class="text-center">{{ $ap->model }}</td>
+                                    <td>
+                                        <input type="number" name="ap_units[{{ $ap->id }}]" class="form-control ap-units" 
+                                        data-ap-index="{{ $index }}" value="{{ $ap->ap_units }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="ap_costs[{{ $ap->id }}]" class="form-control ap-costs" 
+                                        data-ap-index="{{ $index }}" value="{{ $ap->ap_costs }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-ap-{{ $index }}">{{ $ap->ap_units * $ap->ap_costs }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteAp" data-id="{{ $ap->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="row">
-                        <span>Add More APs</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveAp">
-                                <tr>
-                                    <th>AP Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="ap_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($aps as $ap)
-                                                <option value="{{$ap->id}}">
-                                                    {{$ap->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="ap_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveApButton" 
-                                            class="btn btn-outline-primary">
-                                            Add AP Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    
-                @else
-                    <div class="row">
-                        <h6>Add New APs</h6>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveAp">
-                                <tr>
-                                    <th>AP Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="ap_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($aps as $ap)
-                                                <option value="{{$ap->id}}">
-                                                    {{$ap->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="ap_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveApButton" 
-                                            class="btn btn-outline-primary">
-                                            Add AP Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                 @endif
 
-                <hr style="margin-top:30px">
-                <div class="row" >
-                    <h6>AP Lite</h6>
-                </div>
+                {{-- Add More Aps --}}
+                <h6>Add New Aps</h6>
+                <table class="table table-bordered" id="addRemoveAp">
+                    <thead>
+                        <tr>
+                            <th>AP Model</th>
+                            <th>Units</th>
+                            <th>Cost per Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="ap_ids[]" class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($aps as $ap)
+                                        <option value="{{ $ap->id }}">{{ $ap->model }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" name="ap_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" name="ap_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><button type="button" class="btn btn-outline-primary" id="addRemoveApButton">Add Ap</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+                <hr class="mt-4">
+                <h5>AP Lite</h5>
+
                 @if(count($apLiteSystems) > 0)
-
-                    <table id="internetSystemApLiteTable" class="table table-striped my-2">
-                        <tbody>
-                            @foreach($apLiteSystems as $apLiteSystem)
-                            <tr id="apLiteSystemsRow">
-                                <td class="text-center">
-                                    {{$apLiteSystem->model}}
-                                </td>
-                                <td class="text-center">
-                                    {{$apLiteSystem->ap_lite_units}}
-                                </td>
-                                <td class="text-center">
-                                    <a class="btn deleteInternetSystemApLite" 
-                                        id="deleteInternetSystemApLite"
-                                        data-id="{{$apLiteSystem->id}}">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </a>
-                                </td
+                    <table class="table table-striped my-2" id="apLiteTable">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Units</th>
+                                <th>Cost</th>
+                                <th>Total</th>
+                                <th>Action</th>
                             </tr>
-                            @endforeach
+                        </thead>
+                        <tbody>
+                        @foreach($apLiteSystems as $index => $apLite)
+                            <tr data-ap-lite-id="{{ $apLite->id }}">
+                                <td class="text-center">{{ $apLite->model }}</td>
+                                <td>
+                                    <input type="number" name="ap_lite_units[{{ $apLite->id }}]" class="form-control ap_lite-units" 
+                                    data-ap-lite-index="{{ $index }}" value="{{ $apLite->ap_lite_units }}">
+                                </td>
+                                <td>
+                                    <input type="number" name="ap_lite_costs[{{ $apLite->id }}]" class="form-control ap_lite-costs" 
+                                    data-ap-lite-index="{{ $index }}" value="{{ $apLite->ap_lite_costs }}">
+                                </td>
+                                <td>
+                                    <span id="total-ap-lite-{{ $index }}">{{ $apLite->ap_lite_units * $apLite->ap_lite_costs }}</span>
+                                </td>
+                                <td>
+                                    <a class="btn deleteApLite" data-id="{{ $apLite->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                </td>
+                            </tr>
+                        @endforeach
+
                         </tbody>
                     </table>
-                    <div class="row">
-                        <span>Add More AP Lite</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveApLite">
-                                <tr>
-                                    <th>AP Lite Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="ap_lite_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($aps as $ap)
-                                                <option value="{{$ap->id}}">
-                                                    {{$ap->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="ap_lite_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveApLiteButton" 
-                                            class="btn btn-outline-primary">
-                                            Add AP Lite Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    
-                @else
-                    <div class="row">
-                        <h6>Add New AP Lite</h6>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveApLite">
-                                <tr>
-                                    <th>AP Lite Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="ap_lite_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($aps as $ap)
-                                                <option value="{{$ap->id}}">
-                                                    {{$ap->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="ap_lite_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveApLiteButton" 
-                                            class="btn btn-outline-primary">
-                                            Add AP Lite Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                 @endif
 
+                {{-- Add More Aps Lite --}}
+                <h6>Add New Ap Lites</h6>
+                <table class="table table-bordered" id="addRemoveApLite">
+                    <thead>
+                        <tr>
+                            <th>APLite Model</th>
+                            <th>Units</th>
+                            <th>Cost per Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="ap_lite_ids[]" class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($aps as $ap)
+                                        <option value="{{ $ap->id }}">{{ $ap->model }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" name="ap_lite_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" name="ap_lite_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><button type="button" class="btn btn-outline-primary" id="addRemoveApLiteButton">Add Ap Lite</button></td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <hr style="margin-top:30px">
-                <div class="row" >
-                    <h6>Air Max / PTP</h6>
-                </div>
+
+                <hr class="mt-4">
+                <h5>Air Max / PTP</h5>
+
                 @if(count($ptpSystems) > 0)
-
-                    <table id="internetSystemPtpTable" class="table table-striped my-2">
-                        <tbody>
-                            @foreach($ptpSystems as $ptpSystem)
-                            <tr id="ptpSystemsRow">
-                                <td class="text-center">
-                                    {{$ptpSystem->model}}
-                                </td>
-                                <td class="text-center">
-                                    {{$ptpSystem->ptp_units}}
-                                </td>
-                                <td class="text-center">
-                                    <a class="btn deleteInternetSystemPtp" 
-                                        id="deleteInternetSystemPtp"
-                                        data-id="{{$ptpSystem->id}}">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </a>
-                                </td
+                    <table class="table table-striped my-2" id="ptpTable">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Units</th>
+                                <th>Cost</th>
+                                <th>Total</th>
+                                <th>Action</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($ptpSystems as $index => $ptp)
+                                <tr data-ptp-id="{{ $ptp->id }}">
+                                    <td class="text-center">{{ $ptp->model }}</td>
+                                    <td>
+                                        <input type="number" name="ptp_units[{{ $ptp->id }}]" class="form-control ptp-units" 
+                                        data-ptp-index="{{ $index }}" value="{{ $ptp->ptp_units }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="ptp_costs[{{ $ptp->id }}]" class="form-control ptp-costs" 
+                                        data-ptp-index="{{ $index }}" value="{{ $ptp->ptp_costs }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-ptp-{{ $index }}">{{ $ptp->ptp_units * $ptp->ptp_costs }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deletePtp" data-id="{{ $ptp->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="row">
-                        <span>Add More PTPs</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemovePtp">
-                                <tr>
-                                    <th>PTP Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="ptp_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($ptps as $ptp)
-                                                <option value="{{$ptp->id}}">
-                                                    {{$ptp->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="ptp_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemovePtpButton" 
-                                            class="btn btn-outline-primary">
-                                            Add PTP Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    
-                @else
-                    <div class="row">
-                        <h6>Add New PTPs</h6>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemovePtp">
-                                <tr>
-                                    <th>PTP Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="ptp_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($ptps as $ptp)
-                                                <option value="{{$ptp->id}}">
-                                                    {{$ptp->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="ptp_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemovePtpButton" 
-                                            class="btn btn-outline-primary">
-                                            Add PTP Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                 @endif
-                
-                <hr style="margin-top:30px">
-                <div class="row" >
-                    <h6>UISP Air Max</h6>
-                </div>
+
+                {{-- Add More ptps --}}
+                <h6>Add New PTPs</h6>
+                <table class="table table-bordered" id="addRemovePtp">
+                    <thead>
+                        <tr>
+                            <th>Ptp Model</th>
+                            <th>Units</th>
+                            <th>Cost per Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="ptp_ids[]" class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($ptps as $ptp)
+                                        <option value="{{ $ptp->id }}">{{ $ptp->model }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" name="ptp_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" name="ptp_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><button type="button" class="btn btn-outline-primary" id="addRemovePtpButton">Add Ptp</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+
+                <hr class="mt-4">
+                <h5>UISP Air Max</h5>
+
                 @if(count($uispSystems) > 0)
-
-                    <table id="internetSystemUispTable" class="table table-striped my-2">
-                        <tbody>
-                            @foreach($uispSystems as $uispSystem)
-                            <tr id="uispSystemsRow">
-                                <td class="text-center">
-                                    {{$uispSystem->model}}
-                                </td>
-                                <td class="text-center">
-                                    {{$uispSystem->uisp_units}}
-                                </td>
-                                <td class="text-center">
-                                    <a class="btn deleteInternetSystemUisp" 
-                                        id="deleteInternetSystemUisp"
-                                        data-id="{{$uispSystem->id}}">
-                                        <i class="fa fa-trash text-danger"></i>
-                                    </a>
-                                </td
+                    <table class="table table-striped my-2" id="uispTable">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Units</th>
+                                <th>Cost</th>
+                                <th>Total</th>
+                                <th>Action</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($uispSystems as $index => $uisp)
+                                <tr data-uisp-id="{{ $uisp->id }}">
+                                    <td class="text-center">{{ $uisp->model }}</td>
+                                    <td>
+                                        <input type="number" name="uisp_units[{{ $uisp->id }}]" class="form-control uisp-units" 
+                                        data-uisp-index="{{ $index }}" value="{{ $uisp->uisp_units }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="uisp_costs[{{ $uisp->id }}]" class="form-control uisp-costs" 
+                                        data-uisp-index="{{ $index }}" value="{{ $uisp->uisp_costs }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-uisp-{{ $index }}">{{ $uisp->uisp_units * $uisp->uisp_costs }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteUisp" data-id="{{ $uisp->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="row">
-                        <span>Add More UISPs</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveUisp">
-                                <tr>
-                                    <th>UISP Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="uisp_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($uisps as $uisp)
-                                                <option value="{{$uisp->id}}">
-                                                    {{$uisp->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="uisp_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveUispButton" 
-                                            class="btn btn-outline-primary">
-                                            Add UISP Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                    
-                @else
-                    <div class="row">
-                        <h6>Add New UISPs</h6>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
-                            <table class="table table-bordered" id="addRemoveUisp">
-                                <tr>
-                                    <th>UISP Models</th>
-                                    <th>Units</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select name="uisp_id[]" class="selectpicker form-control"
-                                            multiple data-live-search="true">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($uisps as $uisp)
-                                                <option value="{{$uisp->id}}">
-                                                    {{$uisp->model}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="number" name="uisp_units[0][subject]" class="form-control"
-                                            data-id="0">
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addRemoveUispButton" 
-                                            class="btn btn-outline-primary">
-                                            Add UISP Units
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                 @endif
+
+                {{-- Add More UISPs --}}
+                <h6>Add New UISPs</h6>
+                <table class="table table-bordered" id="addRemoveUisp">
+                    <thead>
+                        <tr>
+                            <th>Uisp Model</th>
+                            <th>Units</th>
+                            <th>Cost per Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="uisp_ids[]" class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($uisps as $uisp)
+                                        <option value="{{ $uisp->id }}">{{ $uisp->model }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" name="uisp_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" name="uisp_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><button type="button" class="btn btn-outline-primary" id="addRemoveUispButton">Add Uisp</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+
 
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -868,6 +602,664 @@
 </div>
 
 <script>
+$(function () {
+    let routerIndex = 1;
+    const routersData = @json($routers);
+
+    $('#addRemoveRouterButton').on('click', function () {
+        let options = '<option disabled selected>Choose one...</option>';
+        routersData.forEach(t => {
+            options += `<option value="${t.id}">${t.model}</option>`;
+        });
+
+        const newRow = `
+            <tr>
+                <td><select name="router_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
+                <td><input type="number" name="router_units[${routerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" name="router_costs[${routerIndex}][subject]" class="form-control"></td>
+                <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
+            </tr>
+        `;
+
+        $('#addRemoveRouter tbody').append(newRow);
+        $('.selectpicker').selectpicker('refresh');
+        routerIndex++;
+    });
+
+    $(document).on('click', '.remove-input-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Auto-calculate total
+    const debounceTimersRouter = {};
+    $(document).on('input', '.router-units, .router-costs', function () {
+        const indexRouter = $(this).data('router-index'); 
+
+        // Use correct attribute selector data-router-index
+        const unit = parseFloat($(`.router-units[data-router-index="${indexRouter}"]`).val()) || 0;
+        const cost = parseFloat($(`.router-costs[data-router-index="${indexRouter}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-router-${indexRouter}`).text(total);
+
+        clearTimeout(debounceTimersRouter[indexRouter]);
+        debounceTimersRouter[indexRouter] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const routerId = row.data('router-id');
+
+            $.ajax({
+                url: `/update-internet-router/${routerId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete internet system router
+    $('#routerTable').on('click', '.deleteRouter',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this router?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetSystemRouter') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+
+    let switchIndex = 1;
+    const switchsData = @json($switchs);
+
+    $('#addRemoveSwitchButton').on('click', function () {
+        let options = '<option disabled selected>Choose one...</option>';
+        switchsData.forEach(t => {
+            options += `<option value="${t.id}">${t.model}</option>`;
+        });
+
+        const newRow = `
+            <tr>
+                <td><select name="switch_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
+                <td><input type="number" name="switch_units[${switchIndex}][subject]" class="form-control"></td>
+                <td><input type="number" name="switch_costs[${switchIndex}][subject]" class="form-control"></td>
+                <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
+            </tr>
+        `;
+
+        $('#addRemoveSwitch tbody').append(newRow);
+        $('.selectpicker').selectpicker('refresh');
+        switchIndex++;
+    });
+
+    $(document).on('click', '.remove-input-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Auto-calculate total
+    const debounceTimersSwitch = {};
+    $(document).on('input', '.switch-units, .switch-costs', function () {
+        const indexSwitch = $(this).data('switch-index'); 
+
+        // Use correct attribute selector data-switch-index
+        const unit = parseFloat($(`.switch-units[data-switch-index="${indexSwitch}"]`).val()) || 0;
+        const cost = parseFloat($(`.switch-costs[data-switch-index="${indexSwitch}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-switch-${indexSwitch}`).text(total);
+
+        clearTimeout(debounceTimersSwitch[indexSwitch]);
+        debounceTimersSwitch[indexSwitch] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const switchId = row.data('switch-id');
+
+            $.ajax({
+                url: `/update-internet-switch/${switchId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete internet system switch
+    $('#switchTable').on('click', '.deleteSwitch',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this switch?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetSystemSwitch') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    let controllerIndex = 1;
+    const controllersData = @json($controllers);
+
+    $('#addRemoveControllerButton').on('click', function () {
+        let options = '<option disabled selected>Choose one...</option>';
+        controllersData.forEach(t => {
+            options += `<option value="${t.id}">${t.model}</option>`;
+        });
+
+        const newRow = `
+            <tr>
+                <td><select name="controller_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
+                <td><input type="number" name="controller_units[${controllerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" name="controller_costs[${controllerIndex}][subject]" class="form-control"></td>
+                <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
+            </tr>
+        `;
+
+        $('#addRemoveController tbody').append(newRow);
+        $('.selectpicker').selectpicker('refresh');
+        controllerIndex++;
+    });
+
+    $(document).on('click', '.remove-input-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Auto-calculate total
+    const debounceTimersController = {};
+    $(document).on('input', '.controller-units, .controller-costs', function () {
+
+        const indexController = $(this).data('controller-index'); 
+        const unit = parseFloat($(`.controller-units[data-controller-index="${indexController}"]`).val()) || 0;
+        const cost = parseFloat($(`.controller-costs[data-controller-index="${indexController}"]`).val()) || 0;
+        const total = (unit * cost).toFixed(2);
+        $(`#total-controller-${indexController}`).text(total);
+
+        clearTimeout(debounceTimersController[indexController]);
+        debounceTimersController[indexController] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const controllerId = row.data('controller-id');
+
+            $.ajax({
+                url: `/update-internet-controller/${controllerId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete internet system controller
+    $('#controllerTable').on('click', '.deleteController',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this controller?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetSystemController') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    
+    let apIndex = 1;
+    const apsData = @json($aps);
+
+    $('#addRemoveApButton').on('click', function () {
+        let options = '<option disabled selected>Choose one...</option>';
+        apsData.forEach(t => {
+            options += `<option value="${t.id}">${t.model}</option>`;
+        });
+
+        const newRow = `
+            <tr>
+                <td><select name="ap_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
+                <td><input type="number" name="ap_units[${apIndex}][subject]" class="form-control"></td>
+                <td><input type="number" name="ap_costs[${apIndex}][subject]" class="form-control"></td>
+                <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
+            </tr>
+        `;
+
+        $('#addRemoveAp tbody').append(newRow);
+        $('.selectpicker').selectpicker('refresh');
+        apIndex++;
+    });
+
+    $(document).on('click', '.remove-input-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Auto-calculate total
+    const debounceTimersAp = {};
+    $(document).on('input', '.ap-units, .ap-costs', function () {
+
+        const indexAp = $(this).data('ap-index'); 
+        const unit = parseFloat($(`.ap-units[data-ap-index="${indexAp}"]`).val()) || 0;
+        const cost = parseFloat($(`.ap-costs[data-ap-index="${indexAp}"]`).val()) || 0;
+        const total = (unit * cost).toFixed(2);
+        $(`#total-ap-${indexAp}`).text(total);
+
+        clearTimeout(debounceTimersAp[indexAp]);
+        debounceTimersAp[indexAp] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const apId = row.data('ap-id');
+
+            $.ajax({
+                url: `/update-internet-ap/${apId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+    
+    // delete internet system ap
+    $('#apTable').on('click', '.deleteAp',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this ap?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetSystemAp') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+
+    let apLiteIndex = 1;
+    const apsLiteData = @json($aps);
+
+    $('#addRemoveApLiteButton').on('click', function () {
+        let options = '<option disabled selected>Choose one...</option>';
+        apsLiteData.forEach(t => {
+            options += `<option value="${t.id}">${t.model}</option>`;
+        });
+
+        const newRow = `
+            <tr>
+                <td><select name="ap_lite_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
+                <td><input type="number" name="ap_lite_units[${apLiteIndex}][subject]" class="form-control"></td>
+                <td><input type="number" name="ap_lite_costs[${apLiteIndex}][subject]" class="form-control"></td>
+                <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
+            </tr>
+        `;
+
+        $('#addRemoveApLite tbody').append(newRow);
+        $('.selectpicker').selectpicker('refresh');
+        apLiteIndex++;
+    });
+
+    $(document).on('click', '.remove-input-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Auto-calculate total
+    const debounceTimersApLite = {};
+    $(document).on('input', '.ap_lite-units, .ap_lite-costs', function () {
+
+        const indexApLite = $(this).data('ap-lite-index'); 
+                const unit = parseFloat($(`.ap_lite-units[data-ap-lite-index="${indexApLite}"]`).val()) || 0;
+        const cost = parseFloat($(`.ap_lite-costs[data-ap-lite-index="${indexApLite}"]`).val()) || 0;
+        const total = (unit * cost).toFixed(2);
+        
+        $(`#total-ap-lite-${indexApLite}`).text(total);
+
+        clearTimeout(debounceTimersApLite[indexApLite]);
+        debounceTimersApLite[indexApLite] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const apLiteId = row.data('ap-lite-id');
+
+            $.ajax({
+                url: `/update-internet-ap-lite/${apLiteId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete internet system ap lite
+    $('#apLiteTable').on('click', '.deleteApLite',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this ap lite?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetSystemApLite') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+
+    let ptpIndex = 1;
+    const ptpsData = @json($ptps);
+
+    $('#addRemovePtpButton').on('click', function () {
+        let options = '<option disabled selected>Choose one...</option>';
+        ptpsData.forEach(t => {
+            options += `<option value="${t.id}">${t.model}</option>`;
+        });
+
+        const newRow = `
+            <tr>
+                <td><select name="ptp_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
+                <td><input type="number" name="ptp_units[${ptpIndex}][subject]" class="form-control"></td>
+                <td><input type="number" name="ptp_costs[${ptpIndex}][subject]" class="form-control"></td>
+                <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
+            </tr>
+        `;
+
+        $('#addRemovePtp tbody').append(newRow);
+        $('.selectpicker').selectpicker('refresh');
+        ptpIndex++;
+    });
+
+    $(document).on('click', '.remove-input-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Auto-calculate total
+    const debounceTimersPtp = {};
+    $(document).on('input', '.ptp-units, .ptp-costs', function () {
+
+        const indexPtp = $(this).data('ptp-index'); 
+        const unit = parseFloat($(`.ptp-units[data-ptp-index="${indexPtp}"]`).val()) || 0;
+        const cost = parseFloat($(`.ptp-costs[data-ptp-index="${indexPtp}"]`).val()) || 0;
+        const total = (unit * cost).toFixed(2);
+        $(`#total-ptp-${indexPtp}`).text(total);
+
+        clearTimeout(debounceTimersPtp[indexPtp]);
+        debounceTimersPtp[indexPtp] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const ptpId = row.data('ptp-id');
+
+            $.ajax({
+                url: `/update-internet-ptp/${ptpId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete internet system ptp
+    $('#ptpTable').on('click', '.deletePtp',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this ptp?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetSystemPtp') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+
+    let uispIndex = 1;
+    const uispsData = @json($uisps);
+
+    $('#addRemoveUispButton').on('click', function () {
+        let options = '<option disabled selected>Choose one...</option>';
+        uispsData.forEach(t => {
+            options += `<option value="${t.id}">${t.model}</option>`;
+        });
+
+        const newRow = `
+            <tr>
+                <td><select name="uisp_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
+                <td><input type="number" name="uisp_units[${uispIndex}][subject]" class="form-control"></td>
+                <td><input type="number" name="uisp_costs[${uispIndex}][subject]" class="form-control"></td>
+                <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
+            </tr>
+        `;
+
+        $('#addRemoveUisp tbody').append(newRow);
+        $('.selectpicker').selectpicker('refresh');
+        uispIndex++;
+    });
+
+    $(document).on('click', '.remove-input-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Auto-calculate total
+    const debounceTimersUisp = {};
+    $(document).on('input', '.uisp-units, .uisp-costs', function () {
+
+        const indexUisp = $(this).data('uisp-index'); 
+        const unit = parseFloat($(`.uisp-units[data-uisp-index="${indexUisp}"]`).val()) || 0;
+        const cost = parseFloat($(`.uisp-costs[data-uisp-index="${indexUisp}"]`).val()) || 0;
+        const total = (unit * cost).toFixed(2);
+        $(`#total-uisp-${indexUisp}`).text(total);
+
+        clearTimeout(debounceTimersUisp[indexUisp]);
+        debounceTimersUisp[indexUisp] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const uispId = row.data('uisp-id');
+
+            $.ajax({
+                url: `/update-internet-uisp/${uispId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete internet system uisp
+    $('#uispTable').on('click', '.deleteUisp',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this uisp?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetSystemUisp') }}",
+                    type: 'get',
+                    data: {id: id},
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
 
     // delete internet system type
     $('#internetSystemTypesTable').on('click', '.deleteInternetSystemType',function() {
@@ -906,386 +1298,7 @@
             }
         });
     });
-
-    // delete internet system router
-    $('#internetSystemRouterTable').on('click', '.deleteInternetSystemRouter',function() {
-        var id = $(this).data('id');
-        var $ele = $(this).parent().parent();
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure you want to delete this router?',
-            showDenyButton: true,
-            confirmButtonText: 'Confirm'
-        }).then((result) => {
-            if(result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('deleteInternetSystemRouter') }}",
-                    type: 'get',
-                    data: {id: id},
-                    success: function(response) {
-                        if(response.success == 1) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.msg,
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-                                $ele.fadeOut(1000, function () {
-                                    $ele.remove();
-                                });
-                            });
-                        } 
-                    }
-                });
-            } else if (result.isDenied) {
-                Swal.fire('Changes are not saved', '', 'info')
-            }
-        });
-    });
-
-    // delete internet system switch
-    $('#internetSystemSwitchTable').on('click', '.deleteInternetSystemSwitch',function() {
-        var id = $(this).data('id');
-        var $ele = $(this).parent().parent();
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure you want to delete this switch?',
-            showDenyButton: true,
-            confirmButtonText: 'Confirm'
-        }).then((result) => {
-            if(result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('deleteInternetSystemSwitch') }}",
-                    type: 'get',
-                    data: {id: id},
-                    success: function(response) {
-                        if(response.success == 1) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.msg,
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-                                $ele.fadeOut(1000, function () {
-                                    $ele.remove();
-                                });
-                            });
-                        } 
-                    }
-                });
-            } else if (result.isDenied) {
-                Swal.fire('Changes are not saved', '', 'info')
-            }
-        });
-    });
-
-    // delete internet system controller
-    $('#internetSystemControllerTable').on('click', '.deleteInternetSystemController',function() {
-        var id = $(this).data('id');
-        var $ele = $(this).parent().parent();
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure you want to delete this controller?',
-            showDenyButton: true,
-            confirmButtonText: 'Confirm'
-        }).then((result) => {
-            if(result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('deleteInternetSystemController') }}",
-                    type: 'get',
-                    data: {id: id},
-                    success: function(response) {
-                        if(response.success == 1) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.msg,
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-                                $ele.fadeOut(1000, function () {
-                                    $ele.remove();
-                                });
-                            });
-                        } 
-                    }
-                });
-            } else if (result.isDenied) {
-                Swal.fire('Changes are not saved', '', 'info')
-            }
-        });
-    });
-
-    // delete internet system ap
-    $('#internetSystemApTable').on('click', '.deleteInternetSystemAp',function() {
-        var id = $(this).data('id');
-        var $ele = $(this).parent().parent();
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure you want to delete this ap?',
-            showDenyButton: true,
-            confirmButtonText: 'Confirm'
-        }).then((result) => {
-            if(result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('deleteInternetSystemAp') }}",
-                    type: 'get',
-                    data: {id: id},
-                    success: function(response) {
-                        if(response.success == 1) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.msg,
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-                                $ele.fadeOut(1000, function () {
-                                    $ele.remove();
-                                });
-                            });
-                        } 
-                    }
-                });
-            } else if (result.isDenied) {
-                Swal.fire('Changes are not saved', '', 'info')
-            }
-        });
-    });
-
-    // delete internet system ap lite
-    $('#internetSystemApLiteTable').on('click', '.deleteInternetSystemApLite',function() {
-        var id = $(this).data('id');
-        var $ele = $(this).parent().parent();
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure you want to delete this ap lite?',
-            showDenyButton: true,
-            confirmButtonText: 'Confirm'
-        }).then((result) => {
-            if(result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('deleteInternetSystemApLite') }}",
-                    type: 'get',
-                    data: {id: id},
-                    success: function(response) {
-                        if(response.success == 1) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.msg,
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-                                $ele.fadeOut(1000, function () {
-                                    $ele.remove();
-                                });
-                            });
-                        } 
-                    }
-                });
-            } else if (result.isDenied) {
-                Swal.fire('Changes are not saved', '', 'info')
-            }
-        });
-    });
-
-    // delete internet system ptp
-    $('#internetSystemPtpTable').on('click', '.deleteInternetSystemPtp',function() {
-        var id = $(this).data('id');
-        var $ele = $(this).parent().parent();
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure you want to delete this ptp?',
-            showDenyButton: true,
-            confirmButtonText: 'Confirm'
-        }).then((result) => {
-            if(result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('deleteInternetSystemPtp') }}",
-                    type: 'get',
-                    data: {id: id},
-                    success: function(response) {
-                        if(response.success == 1) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.msg,
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-                                $ele.fadeOut(1000, function () {
-                                    $ele.remove();
-                                });
-                            });
-                        } 
-                    }
-                });
-            } else if (result.isDenied) {
-                Swal.fire('Changes are not saved', '', 'info')
-            }
-        });
-    });
-
-    // delete internet system uisp
-    $('#internetSystemUispTable').on('click', '.deleteInternetSystemUisp',function() {
-        var id = $(this).data('id');
-        var $ele = $(this).parent().parent();
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure you want to delete this uisp?',
-            showDenyButton: true,
-            confirmButtonText: 'Confirm'
-        }).then((result) => {
-            if(result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('deleteInternetSystemUisp') }}",
-                    type: 'get',
-                    data: {id: id},
-                    success: function(response) {
-                        if(response.success == 1) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.msg,
-                                showDenyButton: false,
-                                showCancelButton: false,
-                                confirmButtonText: 'Okay!'
-                            }).then((result) => {
-                                $ele.fadeOut(1000, function () {
-                                    $ele.remove();
-                                });
-                            });
-                        } 
-                    }
-                });
-            } else if (result.isDenied) {
-                Swal.fire('Changes are not saved', '', 'info')
-            }
-        });
-    });
-
-    var router_counter = 0;
-    var switch_counter = 0;
-    var controller_counter = 0;
-    var ap_counter = 0;
-    var ap_lite_counter = 0;
-    var ptp_counter = 0;
-    var uisp_counter = 0;
-
-    // Routers
-    $(document).on('click', '#addRemoveRouterButton', function () {
-
-        ++router_counter;
-        $("#addRemoveRouter").append('<tr><td></td>' +
-            '<td><input class="form-control" data-id="'+ router_counter +'" name="router_units[][subject]"></td>' +
-            '<td><button type="button"' +
-            'class="btn btn-outline-danger removeRouter">Delete</button></td>' +
-            '</tr>'
-        );
-    });
-    $(document).on('click', '.removeRouter', function () {
-        $(this).parents('tr').remove();
-    });
-
-    // Switchs
-    $(document).on('click', '#addRemoveSwitchButton', function () {
-
-        ++switch_counter;
-        $("#addRemoveSwitch").append('<tr><td></td>' +
-            '<td><input class="form-control" data-id="'+ switch_counter +'"' +
-            'name="switch_units[][subject]"></td><td><button type="button"' +
-            'class="btn btn-outline-danger removeSwitch">Delete</button></td>' +
-            '</tr>'
-        );
-    });
-    $(document).on('click', '.removeSwitch', function () {
-        $(this).parents('tr').remove();
-    });
-   
-    // Controllers
-    $(document).on('click', '#addRemoveControllerButton', function () {
-
-        ++controller_counter;
-        $("#addRemoveController").append('<tr><td></td>' +
-            '<td><input class="form-control" data-id="'+ controller_counter +'"' +
-            'name="controller_units[][subject]"></td><td><button type="button"' +
-            'class="btn btn-outline-danger removeController">Delete</button></td>' +
-            '</tr>'
-        );
-    });
-    $(document).on('click', '.removeController', function () {
-        $(this).parents('tr').remove();
-    });
-    
-    // AP
-    $(document).on('click', '#addRemoveApButton', function () {
-
-        ++ap_counter;
-        $("#addRemoveAp").append('<tr><td></td>' +
-            '<td><input class="form-control" data-id="'+ ap_counter +'"' +
-            'name="ap_units[][subject]"></td><td><button type="button"' +
-            'class="btn btn-outline-danger removeAp">Delete</button></td>' +
-            '</tr>'
-        );
-    });
-    $(document).on('click', '.removeAp', function () {
-        $(this).parents('tr').remove();
-    });
-    
-    // AP Lite
-    $(document).on('click', '#addRemoveApLiteButton', function () {
-
-        ++ap_lite_counter;
-        $("#addRemoveApLite").append('<tr><td></td>' +
-            '<td><input class="form-control" data-id="'+ ap_lite_counter +'"' +
-            'name="ap_lite_units[][subject]"></td><td><button type="button"' +
-            'class="btn btn-outline-danger removeAp">Delete</button></td>' +
-            '</tr>'
-        );
-    });
-    $(document).on('click', '.removeAp', function () {
-        $(this).parents('tr').remove();
-    });
-    
-    // PTP
-    $(document).on('click', '#addRemovePtpButton', function () {
-
-        ++ptp_counter;
-        $("#addRemovePtp").append('<tr><td></td>' +
-            '<td><input class="form-control" data-id="'+ ptp_counter +'"' +
-            'name="ptp_units[][subject]"></td><td><button type="button"' +
-            'class="btn btn-outline-danger removePtp">Delete</button></td>' +
-            '</tr>'
-        );
-    });
-    $(document).on('click', '.removePtp', function () {
-        $(this).parents('tr').remove();
-    });
-    
-    // UISP
-    $(document).on('click', '#addRemoveUispButton', function () {
-
-        ++uisp_counter;
-        $("#addRemoveUisp").append('<tr><td></td>' +
-            '<td><input class="form-control" data-id="'+ uisp_counter +'"' +
-            'name="uisp_units[][subject]"></td><td><button type="button"' +
-            'class="btn btn-outline-danger removeUisp">Delete</button></td>' +
-            '</tr>'
-        );
-    });
-    $(document).on('click', '.removeUisp', function () {
-        $(this).parents('tr').remove();
-    });
-
+});
 </script>
 
 @endsection

@@ -9,7 +9,9 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB; 
 use Route;
-use App\Models\AllEnergyMeter; 
+use App\Models\AllEnergyMeter;
+use App\Models\AllMissingMeter; 
+use App\Models\AllEnergyPurchaseMeter; 
 use App\Models\AllEnergyMeterHistoryCase; 
 use App\Models\AllEnergyMeterDonor;
 use App\Models\AllEnergyVendingMeter;
@@ -44,7 +46,9 @@ use App\Models\VendorUserName;
 use App\Models\EnergySystemCycle;
 use App\Exports\AllEnergyExport;
 use App\Exports\PurchaseEnergyExport;
+use App\Exports\Purchase\PurchaseEnergyExport1;
 use App\Imports\PurchaseEnergyImport;
+use App\Imports\PurchaseEnergyImport1;
 use App\Helpers\SequenceHelper;
 use Carbon\Carbon;
 use Image;
@@ -61,7 +65,6 @@ class AllEnergyController extends Controller
      */
     public function index(Request $request)
     {
-   
         // $allEnergyDonors = AllEnergyMeterDonor::all();
 
         // foreach($allEnergyDonors as $allEnergyDonor) {
@@ -227,7 +230,6 @@ class AllEnergyController extends Controller
                 )
             ->get();
 
-        //dd($missingUserEnergDonors->count());
         if(count($missingUserEnergDonors) > 0) {
 
             foreach($missingUserEnergDonors as $missingUserEnergDonor) {
@@ -837,10 +839,10 @@ class AllEnergyController extends Controller
             foreach($householdMeters as $householdMeter) {
 
                 $allEnergyMeter = AllEnergyMeter::where('household_id', $householdMeter->household_id)->first();
-                for($i=0; $i < count($request->donors); $i++) {
+                for($i=0; $i < count($request->new_donors); $i++) {
 
                     $energyMeterDonor = new AllEnergyMeterDonor();
-                    $energyMeterDonor->donor_id = $request->donors[$i];
+                    $energyMeterDonor->donor_id = $request->new_donors[$i];
                     $energyMeterDonor->all_energy_meter_id = $allEnergyMeter->id;
                     $energyMeterDonor->community_id = $energyUser->community_id;
                     $energyMeterDonor->save();
@@ -998,23 +1000,55 @@ class AllEnergyController extends Controller
      */
     public function import(Request $request) 
     {
-        try {
-            if (DB::transactionLevel() > 0) {
-                DB::commit();
-            }
+        // $allEnergyMeters = AllEnergyMeter::where("is_archived", 0)
+        //     ->where("meter_number", "!=", 0)
+        //     ->get();
+
+        $allPurchaseMeters = AllEnergyPurchaseMeter::get();
+
+        // // First, get all the IDs from the AllEnergyPurchaseMeter
+        // $usedMeterIds = AllEnergyPurchaseMeter::pluck('all_energy_meter_id');
+
+        // // Now get all energy meters that are not in the usedMeterIds
+        // $unusedEnergyMeters = AllEnergyMeter::where("is_archived", 0)
+        //     ->where("meter_number", "!=", 0)
+        //     ->whereNotIn('id', $usedMeterIds)
+        //     ->select("meter_number", "id", "community_id")
+        //     ->get();
+
+        // foreach($allPurchaseMeters as $allPurchaseMeter) {
+
+        //     if($allPurchaseMeter->purchase_date2 ==  $allPurchaseMeter->purchase_date3 ) {
+
+        //         $allPurchaseMeter->purchase_date3 = NULL;
+        //         $allPurchaseMeter->days3 = NULL;
+        //         $allPurchaseMeter->payment3 = NULL;
+        //         $allPurchaseMeter->save();
+        //     }
+        // }
+
+        
+       // die($unusedEnergyMeters);
+
+        // try {
+        //     if (DB::transactionLevel() > 0) {
+        //         DB::commit();
+        //     }
             
-            AllEnergyVendingMeter::truncate();
+        //     AllEnergyVendingMeter::truncate();
     
-        } catch (\Exception $e) {
+        // } catch (\Exception $e) {
             
-            DB::rollBack();
-        }
+        //     DB::rollBack();
+        // }
 
         try {
  
-            Excel::import(new PurchaseEnergyImport(1), $request->file('first_file'));
+            //Excel::import(new PurchaseEnergyImport1(1), $request->file('first_file'));
 
-            return Excel::download(new PurchaseEnergyExport($request), 'purchase_report.xlsx');
+            //return Excel::download(new PurchaseEnergyExport($request), 'Purchase Report.xlsx');
+
+            return Excel::download(new PurchaseEnergyExport1($request), 'Purchase Report.xlsx');
 
             return back()->with('success', 'Purchase Report Exported successfully!');
         } catch (\Exception $e) {

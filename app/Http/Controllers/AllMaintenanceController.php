@@ -58,6 +58,7 @@ class AllMaintenanceController extends Controller
                     ->join('maintenance_statuses', 'all_maintenance_tickets.maintenance_status_id', 'maintenance_statuses.id')
                     ->join('users', 'all_maintenance_tickets.assigned_to', 'users.id')
                     ->where('all_maintenance_tickets.is_archived', 0) 
+                    ->where('all_maintenance_tickets.is_duplicated', 0) 
                     ->leftJoin('households', 'all_maintenance_tickets.comet_id', 'households.comet_id')
                     ->leftJoin('public_structures', 'all_maintenance_tickets.comet_id', 'public_structures.comet_id')
                     ->leftJoin('energy_systems', 'all_maintenance_tickets.comet_id', 'energy_systems.comet_id')
@@ -161,12 +162,6 @@ class AllMaintenanceController extends Controller
             $maintenanceStatuses = MaintenanceStatus::where('is_archived', 0)->get();
             $users = User::where('is_archived', 0)->get();
             $serviceTypes = ServiceType::where('is_archived', 0)->get();
-
-            // This code is to get the tickets from the API
-            $ticketsData =  Http::get('https://cometme.org/api/tickets');
-            $ticketMaintainances = json_decode($ticketsData, true);
-
-           // dd($ticketMaintainances);
 
             return view('ticket.index', compact('communities', 'maintenanceTypes', 'maintenanceStatuses', 
                 'serviceTypes', 'users'));

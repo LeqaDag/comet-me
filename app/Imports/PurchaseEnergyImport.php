@@ -2,18 +2,14 @@
 
 namespace App\Imports;
 
-use Maatwebsite\Excel\Concerns\ToModel;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use App\Models\Community;
-use App\Models\PublicStructure;
 use App\Models\AllEnergyMeter;
-use App\Models\AllEnergyVendingMeter;
-use App\Models\Household;
+use App\Models\AllEnergyPurchaseMeter;
 use Carbon\Carbon;
-use Excel;
-use DB;
 
-class PurchaseEnergyImport implements ToModel, WithHeadingRow
+class PurchaseEnergyImport implements ToCollection, WithHeadingRow
 { 
     protected $tpe; 
 
@@ -65,6 +61,7 @@ class PurchaseEnergyImport implements ToModel, WithHeadingRow
                 $meterVending->community_id = $allEnergyMeter->community_id;
                 $meterVending->meter_case_id = $allEnergyMeter->meter_case_id;
             }
+            
             $meterVending->last_purchase_date = $row["date"];
             $firstDate = Carbon::parse($row["date"]);
             $secondDate = Carbon::now(); 

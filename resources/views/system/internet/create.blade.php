@@ -80,17 +80,20 @@
                             class="form-control" required>
                         </fieldset>
                     </div>
-                    <div class="col-xl-8 col-lg-8 col-md-8 mb-1">
+                </div>
+               
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label>
                             <textarea name="notes" class="form-control" 
-                                style="resize:none" cols="20" rows="1">
+                                style="resize:none" cols="20" rows="2">
                             </textarea>
                         </fieldset>
                     </div>
                 </div>
-               
-                <hr>
+
+                <!-- <hr>
                 
                 <div class="row">
                     <h6>Routers</h6>
@@ -364,7 +367,7 @@
                             </tr>
                         </table>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">

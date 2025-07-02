@@ -26,7 +26,7 @@ class AllIncidentExport implements WithMultipleSheets, ShouldAutoSize
         $sheets = [
             new MgIncidentSystem($this->request),
             new MgIncidentHouseholdsAffected($this->request),
-            new FbsMainUsers($this->request),
+            new FbsMainUsers($this->request), 
             new FbsSharedUsers($this->request),
             new WaterMainUsers($this->request),
             new WaterSharedUsers($this->request), 

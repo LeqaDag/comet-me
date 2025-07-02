@@ -156,6 +156,8 @@ class AllTicketsController extends Controller
                 // Update existing ticket
                 $existingTicket->comet_id = $ticket["comet_id"];
                 $existingTicket->meter_number = $ticket["meter_number"];
+                if($ticket["duplicated_ticket"] == null) $existingTicket->is_duplicated = 0;
+                else $existingTicket->is_duplicated = $ticket["duplicated_ticket"];
                 $existingTicket->service_type_id = $serviceType->id;
                 $existingTicket->assigned_to = $assignedTo ? $assignedTo->id : null;
                 $existingTicket->maintenance_type_id = $maintenanceType->id;
@@ -177,6 +179,8 @@ class AllTicketsController extends Controller
                 $newTicket = new AllMaintenanceTicket();
                 $newTicket->comet_id = $ticket["comet_id"];
                 $newTicket->meter_number = $ticket["meter_number"];
+                if($ticket["duplicated_ticket"] == null) $newTicket->is_duplicated = 0;
+                else $newTicket->is_duplicated = $ticket["duplicated_ticket"];
                 $newTicket->community_id = $community->id;
                 $newTicket->service_type_id = $serviceType->id;
                 $newTicket->assigned_to = $assignedTo ? $assignedTo->id : null;

@@ -26,4 +26,42 @@ class AllWaterHolder extends Model
         
         return $this->belongsTo(PublicStructure::class, 'public_structure_id', 'id');
     }
+
+    public function h2oUser()
+    {
+        return $this->hasOne(H2oUser::class, 'household_id', 'household_id');
+    }
+
+    public function gridUser()
+    {
+        return $this->hasOne(GridUser::class, 'household_id', 'household_id');
+    }
+
+    public function getSystemType()
+    {
+        $types = [];
+
+        if ($this->h2oUser) {
+            $types[] = 'H2O';
+        }
+
+        if ($this->gridUser) {
+            $types[] = 'Grid Integration';
+        }
+
+        return implode(' / ', $types);
+    }
+
+    public function getInstallationDate()
+    {
+        if ($this->h2oUser) {
+            return $this->h2oUser->h2o_installation_date;
+        }
+
+        if ($this->gridUser) {
+            return $this->gridUser->grid_installation_date; // adjust field name
+        }
+
+        return null;
+    }
 }

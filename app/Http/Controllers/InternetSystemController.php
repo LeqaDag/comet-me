@@ -48,6 +48,7 @@ class InternetSystemController extends Controller
      */
     public function index(Request $request)
     {
+
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
@@ -55,13 +56,13 @@ class InternetSystemController extends Controller
                 $data = DB::table('internet_system_communities')
                     ->where('internet_system_communities.is_archived', 0)
                     ->join('communities', 'internet_system_communities.community_id', 
-                        '=', 'communities.id')
+                        'communities.id')
                     ->join('internet_systems', 'internet_system_communities.internet_system_id', 
-                        '=', 'internet_systems.id')
+                        'internet_systems.id')
                     ->join('internet_system_community_types', 'internet_system_community_types.internet_system_id', 
-                        '=', 'internet_systems.id')
+                        'internet_systems.id')
                     ->join('internet_system_types', 'internet_system_community_types.internet_system_type_id', 
-                        '=', 'internet_system_types.id')
+                        'internet_system_types.id')
                     ->where('internet_system_community_types.is_archived', 0)
                     ->select('internet_system_types.name', 'internet_systems.start_year', 
                         'internet_system_types.upgrade_year', 'internet_systems.system_name',
@@ -142,9 +143,13 @@ class InternetSystemController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {       
-        //dd($request->all());
+    {        
+        // Get Last comet_id
+        $last_comet_id = InternetSystem::latest('id')->value('comet_id');
+
         $internetSystem = new InternetSystem();
+        $internetSystem->comet_id = ++$last_comet_id;
+        $internetSystem->fake_meter_number = 'IS' . ++$last_comet_id;
         $internetSystem->system_name = $request->system_name;
         $internetSystem->start_year = $request->start_year;
         $internetSystem->notes = $request->notes;
@@ -296,17 +301,17 @@ class InternetSystemController extends Controller
         // Router
         $routerSystems = DB::table('router_internet_systems')
             ->join('internet_systems', 'router_internet_systems.internet_system_id', 
-                '=', 'internet_systems.id')
+                'internet_systems.id')
             ->join('routers', 'router_internet_systems.router_id', 
-                '=', 'routers.id')
-            ->where('router_internet_systems.internet_system_id', '=', $id)
+                'routers.id')
+            ->where('router_internet_systems.internet_system_id', $id)
             ->select('router_internet_systems.router_units', 'routers.model', 
                 'routers.brand_name', 'internet_systems.system_name', 
-                'router_internet_systems.id')
+                'router_internet_systems.id', 'router_internet_systems.router_costs')
             ->get(); 
 
         // Switch
-        $switcheSystems = DB::table('switch_internet_systems')
+        $switchSystems = DB::table('switch_internet_systems')
             ->join('internet_systems', 'switch_internet_systems.internet_system_id', 
                 '=', 'internet_systems.id')
             ->join('switches', 'switch_internet_systems.switch_id', 
@@ -314,7 +319,7 @@ class InternetSystemController extends Controller
             ->where('switch_internet_systems.internet_system_id', '=', $id)
             ->select('switch_internet_systems.switch_units', 'switches.model', 
                 'switches.brand_name', 'internet_systems.system_name',
-                'switch_internet_systems.id')
+                'switch_internet_systems.id', 'switch_internet_systems.switch_costs')
             ->get(); 
 
         // Controller
@@ -326,7 +331,7 @@ class InternetSystemController extends Controller
             ->where('controller_internet_systems.internet_system_id', '=', $id)
             ->select('controller_internet_systems.controller_units', 'internet_controllers.model', 
                 'internet_controllers.brand', 'internet_systems.system_name',
-                'controller_internet_systems.id')
+                'controller_internet_systems.id', 'controller_internet_systems.controller_costs')
             ->get();
 
         // PTP 
@@ -338,7 +343,7 @@ class InternetSystemController extends Controller
             ->where('ptp_internet_systems.internet_system_id', '=', $id)
             ->select('ptp_internet_systems.ptp_units', 'internet_ptps.model', 
                 'internet_ptps.brand', 'internet_systems.system_name',
-                'ptp_internet_systems.id')
+                'ptp_internet_systems.id', 'ptp_internet_systems.ptp_costs')
             ->get();
 
         // AP
@@ -350,7 +355,7 @@ class InternetSystemController extends Controller
             ->where('ap_internet_systems.internet_system_id', '=', $id)
             ->select('ap_internet_systems.ap_units', 'internet_aps.model', 
                 'internet_aps.brand', 'internet_systems.system_name',
-                'ap_internet_systems.id')
+                'ap_internet_systems.id', 'ap_internet_systems.ap_costs')
             ->get();
 
         // AP Lite
@@ -362,7 +367,7 @@ class InternetSystemController extends Controller
             ->where('ap_lite_internet_systems.internet_system_id', '=', $id)
             ->select('ap_lite_internet_systems.ap_lite_units', 'internet_aps.model', 
                 'internet_aps.brand', 'internet_systems.system_name',
-                'ap_lite_internet_systems.id')
+                'ap_lite_internet_systems.id', 'ap_lite_internet_systems.ap_lite_costs')
             ->get();
 
         // UISP
@@ -374,21 +379,98 @@ class InternetSystemController extends Controller
             ->where('uisp_internet_systems.internet_system_id', '=', $id)
             ->select('uisp_internet_systems.uisp_units', 'internet_uisps.model', 
                 'internet_uisps.brand', 'internet_systems.system_name',
-                'uisp_internet_systems.id')
+                'uisp_internet_systems.id', 'uisp_internet_systems.uisp_costs')
             ->get();
 
 
         $aps = InternetAp::all();
         $controllers = InternetController::all();
         $routers = Router::all();
-        $switches = Switche::all();
+        $switchs = Switche::all();
         $ptps = InternetPtp::all();
         $uisps = InternetUisp::all();
 
-        return view('system.internet.edit', compact('routers', 'switches', 'controllers',
+        return view('system.internet.edit', compact('routers', 'switchs', 'controllers',
             'ptps', 'uisps', 'internetSystem', 'internetSystemTypes', 'aps',
             'internetTypes', 'routerSystems', 'ptpSystems', 'controllerSystems', 
-            'switcheSystems', 'apSystems', 'apLiteSystems', 'uispSystems'));
+            'switchSystems', 'apSystems', 'apLiteSystems', 'uispSystems'));
+    }
+
+    // This function is to update the internet unit & costs
+    public function updateRouter($id, $units, $cost)
+    {
+        $router = RouterInternetSystem::findOrFail($id);
+        $router->router_units = $units;
+        $router->router_costs = $cost;
+        $router->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Router updated successfully']);
+    }
+
+    // This function is to update the switch unit & costs
+    public function updateSwitch($id, $units, $cost)
+    {
+        $switch = SwitchInternetSystem::findOrFail($id);
+        $switch->switch_units = $units;
+        $switch->switch_costs = $cost;
+        $switch->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Switch updated successfully']);
+    }
+
+    // This function is to update the controller unit & costs
+    public function updateController($id, $units, $cost)
+    {
+        $controller = ControllerInternetSystem::findOrFail($id);
+        $controller->controller_units = $units;
+        $controller->controller_costs = $cost;
+        $controller->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Controller updated successfully']);
+    }
+
+    // This function is to update the ap unit & costs
+    public function updateAp($id, $units, $cost)
+    {
+        $ap = ApInternetSystem::findOrFail($id);
+        $ap->ap_units = $units;
+        $ap->ap_costs = $cost;
+        $ap->save();
+
+        return response()->json(['success' => 1, 'msg' => 'AP updated successfully']);
+    }
+
+    // This function is to update the apLite unit & costs
+    public function updateApLite($id, $units, $cost)
+    {
+        $ap = ApLiteInternetSystem::findOrFail($id);
+        $ap->ap_lite_units = $units;
+        $ap->ap_lite_costs = $cost;
+        $ap->save();
+
+        return response()->json(['success' => 1, 'msg' => 'AP Lite updated successfully']);
+    }
+
+    // This function is to update the ptp unit & costs
+    public function updatePtp($id, $units, $cost)
+    {
+        $ptp = PtpInternetSystem::findOrFail($id);
+        $ptp->ptp_units = $units;
+        $ptp->ptp_costs = $cost;
+        $ptp->save();
+
+        return response()->json(['success' => 1, 'msg' => 'PTP updated successfully']);
+    }
+
+    // This function is to update the UISP unit & costs
+    public function updateUisp($id, $units, $cost)
+    {
+        $uisp = UispInternetSystem::findOrFail($id);
+        $uisp->uisp_units = $units;
+        $uisp->uisp_costs = $cost;
+        $uisp->save();
+
+        return response()->json(['success' => 1, 'msg' => 'UISP updated successfully']);
     }
 
     /**
@@ -416,93 +498,104 @@ class InternetSystemController extends Controller
             }
         }
 
-        // Router
-        if($request->router_id) {
-            for($i=0; $i < count($request->router_id); $i++) {
+        // Router 
+        if ($request->router_ids) {
+            for ($cnq = 0; $cnq < count($request->router_ids); $cnq++) {
 
-                $routerInternetSystem = new RouterInternetSystem();
-                $routerInternetSystem->router_id = $request->router_id[$i];
-                $routerInternetSystem->router_units = $request->router_units[$i]["subject"];
-                $routerInternetSystem->internet_system_id = $internetSystem->id;
-                $routerInternetSystem->save();
+                $internetRouter = new RouterInternetSystem();
+                $internetRouter->router_id = $request->router_ids[$cnq];
+                $internetRouter->internet_system_id = $id;
+                $internetRouter->router_units = $request->input("router_units.$cnq.subject");
+                $internetRouter->router_costs = $request->input("router_costs.$cnq.subject");
+        
+                $internetRouter->save();
             }
         }
 
-        // Switch
-        if($request->switch_id) {
-            for($i=0; $i < count($request->switch_id); $i++) {
+        // Switch 
+        if ($request->switch_ids) {
+            for ($sw = 0; $sw < count($request->switch_ids); $sw++) {
 
-                $switchInternetSystem = new SwitchInternetSystem();
-                $switchInternetSystem->switch_id = $request->switch_id[$i];
-                $switchInternetSystem->switch_units = $request->switch_units[$i]["subject"];
-                $switchInternetSystem->internet_system_id = $internetSystem->id;
-                $switchInternetSystem->save();
+                $internetSwitch = new SwitchInternetSystem();
+                $internetSwitch->switch_id = $request->switch_ids[$sw];
+                $internetSwitch->internet_system_id = $id;
+                $internetSwitch->switch_units = $request->input("switch_units.$sw.subject");
+                $internetSwitch->switch_costs = $request->input("switch_costs.$sw.subject");
+        
+                $internetSwitch->save();
             }
         }
 
         // Controller
-        if($request->controller_id) {
-            for($i=0; $i < count($request->controller_id); $i++) {
+        if ($request->controller_ids) {
+            for ($contr = 0; $contr < count($request->controller_ids); $contr++) {
 
-                $switchInternetSystem = new ControllerInternetSystem();
-                $switchInternetSystem->internet_controller_id = $request->controller_id[$i];
-                $switchInternetSystem->controller_units = $request->controller_units[$i]["subject"];
-                $switchInternetSystem->internet_system_id = $internetSystem->id;
-                $switchInternetSystem->save();
+                $internetController = new ControllerInternetSystem();
+                $internetController->internet_controller_id = $request->controller_ids[$contr];
+                $internetController->internet_system_id = $id;
+                $internetController->controller_units = $request->input("controller_units.$contr.subject");
+                $internetController->controller_costs = $request->input("controller_costs.$contr.subject");
+        
+                $internetController->save();
             }
         }
 
         // AP
-        if($request->ap_units) {
-            if($request->ap_id) {
-                for($i=0; $i < count($request->ap_id); $i++) {
-    
-                    $switchInternetSystem = new ApInternetSystem();
-                    $switchInternetSystem->internet_ap_id = $request->ap_id[$i];
-                    $switchInternetSystem->ap_units = $request->ap_units[$i]["subject"];
-                    $switchInternetSystem->internet_system_id = $internetSystem->id;
-                    $switchInternetSystem->save();
-                }
+        if ($request->ap_ids) {
+            for ($aps = 0; $aps < count($request->ap_ids); $aps++) {
+
+                $internetAp = new ApInternetSystem();
+                $internetAp->internet_ap_id = $request->ap_ids[$aps];
+                $internetAp->internet_system_id = $id;
+                $internetAp->ap_units = $request->input("ap_units.$aps.subject");
+                $internetAp->ap_costs = $request->input("ap_costs.$aps.subject");
+        
+                $internetAp->save();
             }
         }
 
         // AP Lite
-        if($request->ap_lite_units) {
-            if($request->ap_lite_id) {
-                for($i=0; $i < count($request->ap_lite_id); $i++) {
+        if ($request->ap_lite_ids) {
+            for ($apl = 0; $apl < count($request->ap_lite_ids); $apl++) {
 
-                    $switchInternetSystem = new ApLiteInternetSystem();
-                    $switchInternetSystem->internet_ap_id = $request->ap_lite_id[$i];
-                    $switchInternetSystem->ap_lite_units = $request->ap_lite_units[$i]["subject"];
-                    $switchInternetSystem->internet_system_id = $internetSystem->id;
-                    $switchInternetSystem->save();
-                }
+                $internetApLite = new ApLiteInternetSystem();
+                $internetApLite->internet_ap_id = $request->ap_lite_ids[$apl];
+                $internetApLite->internet_system_id = $id;
+                $internetApLite->ap_lite_units = $request->input("ap_lite_units.$apl.subject");
+                $internetApLite->ap_lite_costs = $request->input("ap_lite_costs.$apl.subject");
+        
+                $internetApLite->save();
             }
         }
 
         // PTP
-        if($request->ptp_id) {
-            for($i=0; $i < count($request->ptp_id); $i++) {
+        if ($request->ptp_id) {
+            for ($pt = 0; $pt < count($request->ptp_id); $pt++) {
 
-                $ptpInternetSystem = new PtpInternetSystem();
-                $ptpInternetSystem->internet_ptp_id = $request->ptp_id[$i];
-                $ptpInternetSystem->ptp_units = $request->ptp_units[$i]["subject"];
-                $ptpInternetSystem->internet_system_id = $internetSystem->id;
-                $ptpInternetSystem->save();
+                $internetPtp = new PtpInternetSystem();
+                $internetPtp->internet_ptp_id = $request->ptp_id[$pt];
+                $internetPtp->internet_system_id = $id;
+                $internetPtp->ptp_units = $request->input("ptp_units.$pt.subject");
+                $internetPtp->ptp_costs = $request->input("ptp_costs.$pt.subject");
+        
+                $internetPtp->save();
             }
         }
 
         // UISP
-        if($request->uisp_id) {
-            for($i=0; $i < count($request->uisp_id); $i++) {
+        if ($request->uisp_ids) {
+            for ($iuis = 0; $iuis < count($request->uisp_ids); $iuis++) {
 
-                $uispInternetSystem = new UispInternetSystem();
-                $uispInternetSystem->internet_uisp_id = $request->uisp_id[$i];
-                $uispInternetSystem->uisp_units = $request->uisp_units[$i]["subject"];
-                $uispInternetSystem->internet_system_id = $internetSystem->id;
-                $uispInternetSystem->save();
+                $internetUisp = new UispInternetSystem();
+                $internetUisp->internet_uisp_id = $request->uisp_ids[$iuis];
+                $internetUisp->internet_system_id = $id;
+                $internetUisp->uisp_units = $request->input("uisp_units.$iuis.subject");
+                $internetUisp->uisp_costs = $request->input("uisp_costs.$iuis.subject");
+        
+                $internetUisp->save();
             }
         }
+
 
         return redirect('/internet-system')->with('message', 'Internet System Updated Successfully!');
     }
@@ -550,7 +643,8 @@ class InternetSystemController extends Controller
                 '=', 'routers.id')
             ->where('router_internet_systems.internet_system_id', '=', $id)
             ->select('router_internet_systems.router_units', 'routers.model', 
-                'routers.brand_name', 'internet_systems.system_name')
+                'routers.brand_name', 'internet_systems.system_name',
+                'router_internet_systems.router_costs')
             ->get(); 
 
         // Switch
@@ -561,7 +655,8 @@ class InternetSystemController extends Controller
                 '=', 'switches.id')
             ->where('switch_internet_systems.internet_system_id', '=', $id)
             ->select('switch_internet_systems.switch_units', 'switches.model', 
-                'switches.brand_name', 'internet_systems.system_name')
+                'switches.brand_name', 'internet_systems.system_name',
+                'switch_internet_systems.switch_costs')
             ->get(); 
 
         // Controller
@@ -572,7 +667,8 @@ class InternetSystemController extends Controller
                 '=', 'internet_controllers.id')
             ->where('controller_internet_systems.internet_system_id', '=', $id)
             ->select('controller_internet_systems.controller_units', 'internet_controllers.model', 
-                'internet_controllers.brand', 'internet_systems.system_name')
+                'internet_controllers.brand', 'internet_systems.system_name',
+                'controller_internet_systems.controller_costs')
             ->get();
 
         // PTP 
@@ -583,7 +679,8 @@ class InternetSystemController extends Controller
                 '=', 'internet_ptps.id')
             ->where('ptp_internet_systems.internet_system_id', '=', $id)
             ->select('ptp_internet_systems.ptp_units', 'internet_ptps.model', 
-                'internet_ptps.brand', 'internet_systems.system_name')
+                'internet_ptps.brand', 'internet_systems.system_name',
+                'ptp_internet_systems.ptp_costs')
             ->get();
 
         // AP
@@ -594,7 +691,8 @@ class InternetSystemController extends Controller
                 '=', 'internet_aps.id')
             ->where('ap_internet_systems.internet_system_id', '=', $id)
             ->select('ap_internet_systems.ap_units', 'internet_aps.model', 
-                'internet_aps.brand', 'internet_systems.system_name')
+                'internet_aps.brand', 'internet_systems.system_name',
+                'ap_internet_systems.ap_costs')
             ->get();
 
         // AP Lite
@@ -605,7 +703,8 @@ class InternetSystemController extends Controller
                 '=', 'internet_aps.id')
             ->where('ap_lite_internet_systems.internet_system_id', '=', $id)
             ->select('ap_lite_internet_systems.ap_lite_units', 'internet_aps.model', 
-                'internet_aps.brand', 'internet_systems.system_name')
+                'internet_aps.brand', 'internet_systems.system_name',
+                'ap_lite_internet_systems.ap_lite_costs')
             ->get();
 
         // UISP
@@ -616,7 +715,8 @@ class InternetSystemController extends Controller
                 '=', 'internet_uisps.id')
             ->where('uisp_internet_systems.internet_system_id', '=', $id)
             ->select('uisp_internet_systems.uisp_units', 'internet_uisps.model', 
-                'internet_uisps.brand', 'internet_systems.system_name')
+                'internet_uisps.brand', 'internet_systems.system_name',
+                'uisp_internet_systems.uisp_costs')
             ->get();
 
         return view('system.internet.show', compact('routers', 'switches', 'controllers',

@@ -586,6 +586,12 @@
             <div>Incidents</div>
         </a>
         <ul class="menu-sub">
+            <li class="menu-item" id="all-incident">
+                <a href="{{url('all-incident')}}" class="menu-link" >
+                    <i class=""></i>
+                    <div>All Incidents</div>
+                </a>
+            </li>
             <li class="menu-item" id="mg-incident">
                 <a href="{{url('mg-incident')}}" class="menu-link" >
                     <i class=""></i>
@@ -1034,6 +1040,10 @@
         $("#internet-cluster").addClass("active");
         $("#internet-system-tab").addClass("open");
         $("#systems").addClass("open");
+    } else if(last_part == "all-incident") {
+
+        $("#all-incident").addClass("active");
+        $("#incidents").addClass("open");
     } else if(last_part == "mg-incident") {
 
         $("#mg-incident").addClass("active");

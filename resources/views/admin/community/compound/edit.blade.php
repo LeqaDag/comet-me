@@ -113,14 +113,17 @@ label {
                                 <label class='col-md-12 control-label'>Community Status</label>
                                 <select name="community_status_id" data-live-search="true"
                                 class="selectpicker form-control" >
+                                    @if($compound->community_status_id)
                                     <option disabled selected>
                                         {{$compound->CommunityStatus->name}}
                                     </option>
+                                    @endif
                                     @foreach($communityStatuses as $communityStatus)
                                     <option value="{{$communityStatus->id}}">
                                         {{$communityStatus->name}}
                                     </option>
                                     @endforeach
+
                                 </select>
                             </fieldset>
                         </div>

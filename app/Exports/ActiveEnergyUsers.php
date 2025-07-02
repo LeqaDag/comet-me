@@ -19,7 +19,7 @@ class ActiveEnergyUsers implements FromCollection, WithHeadings, WithTitle, Shou
     function __construct($request) {
         $this->request = $request;
     }
-
+ 
     /**
     * @return \Illuminate\Support\Collection
     */
@@ -44,7 +44,7 @@ class ActiveEnergyUsers implements FromCollection, WithHeadings, WithTitle, Shou
                 'donors.id')
             ->where('all_energy_meters.is_archived', 0)
             ->where('all_energy_meters.meter_number', '!=', 0) 
-            ->where('all_energy_meter_donors.is_archived', 0) 
+            //->where('all_energy_meter_donors.is_archived', 0) 
             ->select([
                 DB::raw('IFNULL(households.english_name, public_structures.english_name) 
                     as exported_value'),
@@ -60,7 +60,7 @@ class ActiveEnergyUsers implements FromCollection, WithHeadings, WithTitle, Shou
                 'households.number_of_adults', 'households.number_of_children', 
                 'households.phone_number', 'all_energy_meters.meter_number', 
                 'all_energy_meters.daily_limit', 'all_energy_meters.installation_date',
-                    DB::raw('group_concat(donors.donor_name) as donors'),
+                    DB::raw('group_concat(DISTINCT donors.donor_name) as donors'),
                 ]) 
             ->groupBy('all_energy_meters.id');
 

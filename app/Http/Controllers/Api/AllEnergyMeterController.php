@@ -188,6 +188,7 @@ class AllEnergyMeterController extends Controller
                     'households.english_name as holder_name_english',
                     'households.arabic_name as holder_name_arabic',
                     'households.comet_id',
+                    'households.fake_meter_number',
                     'households.phone_number', 'household_statuses.status as energy_system_status',
                     DB::raw('IFNULL(all_energy_meters.meter_number,
                         IFNULL(all_energy_meters.fake_meter_number, young_holders.fake_meter_number)) as meter_number'),
@@ -313,6 +314,29 @@ class AllEnergyMeterController extends Controller
                 ->get();
         });
 
+        $internetSystems = Cache::remember('internet_systems', 3600, function () {
+            return DB::table('internet_systems')
+                ->leftJoin('internet_system_communities', 'internet_systems.id', 'internet_system_communities.internet_system_id')
+                ->leftJoin('communities', 'internet_system_communities.community_id', 'communities.id')
+                ->select(
+                    'communities.english_name as english_community_name',
+                    'communities.arabic_name as arabic_community_name',
+                    DB::raw('false as english_compound_name'),
+                    DB::raw('false as arabic_compound_name'),
+                    'internet_systems.comet_id',
+                    'internet_systems.system_name as holder_name_english',
+                    'internet_systems.system_name as holder_name_arabic',
+                    DB::raw('false as phone_number'),
+                    'internet_systems.fake_meter_number as meter_number',
+                    DB::raw('false as energy_type'), DB::raw('false as meter_case'),
+                    DB::raw('false as is_main'), DB::raw('false as is_archived'),
+                    DB::raw('false as internet_system_status'), DB::raw('false as internet_system_status'),
+                    DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder')
+
+                )
+                ->get();
+        });
+
         $generators = Cache::remember('energy_generator_communities', 3600, function () {
             return DB::table('energy_generator_communities')
             ->join('communities', 'energy_generator_communities.community_id', 'communities.id')
@@ -335,7 +359,7 @@ class AllEnergyMeterController extends Controller
             ->get();
         });
 
-        $data = collect([$households, $publics, $turbines, $generators, $energySystems, $waterSystems])->flatten();
+        $data = collect([$households, $publics, $turbines, $generators, $energySystems, $waterSystems, $internetSystems])->flatten();
 
 
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);

@@ -188,18 +188,21 @@ class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize,
         } 
 
         $this->completedEnergyPhone = AllMaintenanceTicket::where("is_archived", 0)
+            ->where('is_duplicated', 0) 
             ->where("maintenance_type_id", 2)
             ->where('maintenance_status_id', 3)
             ->where('service_type_id', 1)
             ->count();
         
         $this->completedWaterPhone = AllMaintenanceTicket::where("is_archived", 0)
+            ->where('is_duplicated', 0) 
             ->where("maintenance_type_id", 2)
             ->where('maintenance_status_id', 3)
             ->where('service_type_id', 2)
             ->count();
 
         $this->completedInternetPhone = AllMaintenanceTicket::where("is_archived", 0)
+            ->where('is_duplicated', 0) 
             ->where("maintenance_type_id", 2)
             ->where('maintenance_status_id', 3)
             ->where('service_type_id', 3)

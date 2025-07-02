@@ -23,4 +23,9 @@ class WaterSystem extends Model
     {
         return $this->belongsTo(WaterSystemCycle::class, 'water_system_cycle_id', 'id');
     }
+
+    public function waterTankSystem()
+    {
+        return $this->hasMany(WaterSystemTank::class, 'water_system_id');
+    }
 }

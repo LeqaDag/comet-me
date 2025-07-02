@@ -11,7 +11,11 @@ class CameraCommunityType extends Model
 
     public function Camera()
     {
-        
         return $this->belongsTo(Camera::class, 'camera_id', 'id');
+    }
+
+    public function CameraCommunity()
+    {
+        return $this->belongsTo(CameraCommunity::class, 'camera_community_id', 'id');
     }
 }

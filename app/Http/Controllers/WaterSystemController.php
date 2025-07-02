@@ -22,7 +22,11 @@ use App\Models\WaterElectrical;
 use App\Models\WaterFilter;
 use App\Models\WaterPipe;
 use App\Models\WaterPump;
+use App\Models\WaterTap;
+use App\Models\WaterValve;
 use App\Models\WaterSystemConnector;
+use App\Models\WaterSystemTap;
+use App\Models\WaterSystemValve;
 use App\Models\WaterSystemElectrical;  
 use App\Models\WaterSystemCycle;
 use App\Models\WaterSystemFilter;
@@ -189,7 +193,12 @@ class WaterSystemController extends Controller
      */
     public function store(Request $request)
     {       
+        // Get Last comet_id
+        $last_comet_id = WaterSystem::latest('id')->value('comet_id');
+
         $waterSystem = new WaterSystem();
+        $waterSystem->comet_id = ++$last_comet_id;
+        $waterSystem->fake_meter_number = 'WS' . ++$last_comet_id;
         $waterSystem->water_system_type_id = $request->water_system_type_id;
         $waterSystem->name = $request->name;
         $waterSystem->description = $request->description;
@@ -204,6 +213,10 @@ class WaterSystemController extends Controller
 
             $waterSystem->community_id = $request->community_id;
             $waterSystem->save();
+
+            $community = Community::findOrFail($request->community_id);
+            $community->water_service = "Yes";
+            $community->save();
 
             $left = "Left";
             $leftStatus = HouseholdStatus::where('status', 'like', '%' . $left. '%')->first(); 
@@ -344,7 +357,7 @@ class WaterSystemController extends Controller
             ->join('water_connectors', 'water_system_connectors.water_connector_id', 
                 'water_connectors.id')
             ->where('water_system_connectors.water_system_id', $id)
-            ->select('water_connectors.model', 'water_system_connectors.connector_units')
+            ->select('water_connectors.model', 'water_system_connectors.connector_units', 'water_system_connectors.connector_costs')
             ->get();
 
         $waterSystemFilters = DB::table('water_system_filters')
@@ -353,7 +366,7 @@ class WaterSystemController extends Controller
             ->join('water_filters', 'water_system_filters.water_filter_id', 
                 'water_filters.id')
             ->where('water_system_filters.water_system_id', $id)
-            ->select('water_filters.model', 'water_system_filters.filter_units')
+            ->select('water_filters.model', 'water_system_filters.filter_units', 'water_system_filters.filter_costs')
             ->get();
         
         $waterSystemPipes = DB::table('water_system_pipes')
@@ -362,7 +375,7 @@ class WaterSystemController extends Controller
             ->join('water_pipes', 'water_system_pipes.water_pipe_id', 
                 'water_pipes.id')
             ->where('water_system_pipes.water_system_id', $id)
-            ->select('water_pipes.model', 'water_system_pipes.pipe_units')
+            ->select('water_pipes.model', 'water_system_pipes.pipe_units', 'water_system_pipes.pipe_costs')
             ->get();
 
         $waterSystemPumps = DB::table('water_system_pumps')
@@ -371,7 +384,7 @@ class WaterSystemController extends Controller
             ->join('water_pumps', 'water_system_pumps.water_pump_id', 
                 'water_pumps.id')
             ->where('water_system_pumps.water_system_id', $id)
-            ->select('water_pumps.model', 'water_system_pumps.pump_units')
+            ->select('water_pumps.model', 'water_system_pumps.pump_units', 'water_system_pumps.pump_costs')
             ->get();
 
         $waterSystemTanks = DB::table('water_system_tanks')
@@ -380,7 +393,25 @@ class WaterSystemController extends Controller
             ->join('water_tanks', 'water_system_tanks.water_tank_id', 
                 'water_tanks.id')
             ->where('water_system_tanks.water_system_id', $id)
-            ->select('water_tanks.model', 'water_system_tanks.tank_units')
+            ->select('water_tanks.model', 'water_system_tanks.tank_units', 'water_system_tanks.tank_costs')
+            ->get();
+
+        $waterSystemTaps = DB::table('water_system_taps')
+            ->join('water_systems', 'water_system_taps.water_system_id', 
+                'water_systems.id')
+            ->join('water_taps', 'water_system_taps.water_tap_id', 
+                'water_taps.id')
+            ->where('water_system_taps.water_system_id', $id)
+            ->select('water_taps.model', 'water_system_taps.tap_units', 'water_system_taps.tap_costs')
+            ->get();
+
+        $waterSystemValves = DB::table('water_system_valves')
+            ->join('water_systems', 'water_system_valves.water_system_id', 
+                'water_systems.id')
+            ->join('water_valves', 'water_system_valves.water_valve_id', 
+                'water_valves.id')
+            ->where('water_system_valves.water_system_id', $id)
+            ->select('water_valves.model', 'water_system_valves.valve_units', 'water_system_valves.valve_costs')
             ->get();
 
         $response['waterSystem'] = $waterSystem;
@@ -392,6 +423,8 @@ class WaterSystemController extends Controller
         $response['waterSystemPipes'] = $waterSystemPipes;
         $response['waterSystemPumps'] = $waterSystemPumps;
         $response['waterSystemTanks'] = $waterSystemTanks;
+        $response['waterSystemTaps'] = $waterSystemTaps;
+        $response['waterSystemValves'] = $waterSystemValves;
 
         return response()->json($response);
     }
@@ -414,6 +447,8 @@ class WaterSystemController extends Controller
         $pipes = WaterPipe::orderBy('model', 'ASC')->get();
         $filters = WaterFilter::orderBy('model', 'ASC')->get();
         $connectors = WaterConnector::orderBy('model', 'ASC')->get();
+        $taps = WaterTap::orderBy('model', 'ASC')->get();
+        $valves = WaterValve::orderBy('model', 'ASC')->get();
 
         $waterConnectors = DB::table('water_system_connectors')
             ->join('water_systems', 'water_system_connectors.water_system_id', 
@@ -421,7 +456,8 @@ class WaterSystemController extends Controller
             ->join('water_connectors', 'water_system_connectors.water_connector_id', 
                 'water_connectors.id')
             ->where('water_system_connectors.water_system_id', $id)
-            ->select('water_connectors.id', 'water_connectors.model', 'water_system_connectors.connector_units')
+            ->select('water_system_connectors.id', 'water_connectors.model', 'water_system_connectors.connector_units', 
+                'water_system_connectors.connector_costs')
             ->get();
 
         $waterFilters = DB::table('water_system_filters')
@@ -430,7 +466,8 @@ class WaterSystemController extends Controller
             ->join('water_filters', 'water_system_filters.water_filter_id', 
                 'water_filters.id')
             ->where('water_system_filters.water_system_id', $id)
-            ->select('water_filters.id', 'water_filters.model', 'water_system_filters.filter_units')
+            ->select('water_system_filters.id', 'water_filters.model', 'water_system_filters.filter_units', 
+                'water_system_filters.filter_costs')
             ->get();
         
         $waterPipes = DB::table('water_system_pipes')
@@ -439,7 +476,7 @@ class WaterSystemController extends Controller
             ->join('water_pipes', 'water_system_pipes.water_pipe_id', 
                 'water_pipes.id')
             ->where('water_system_pipes.water_system_id', $id)
-            ->select('water_pipes.id', 'water_pipes.model', 'water_system_pipes.pipe_units')
+            ->select('water_system_pipes.id', 'water_pipes.model', 'water_system_pipes.pipe_units', 'water_system_pipes.pipe_costs')
             ->get();
 
         $waterPumps = DB::table('water_system_pumps')
@@ -448,7 +485,7 @@ class WaterSystemController extends Controller
             ->join('water_pumps', 'water_system_pumps.water_pump_id', 
                 'water_pumps.id')
             ->where('water_system_pumps.water_system_id', $id)
-            ->select('water_pumps.id', 'water_pumps.model', 'water_system_pumps.pump_units')
+            ->select('water_system_pumps.id', 'water_pumps.model', 'water_system_pumps.pump_units', 'water_system_pumps.pump_costs')
             ->get();
 
         $waterTanks = DB::table('water_system_tanks')
@@ -457,7 +494,25 @@ class WaterSystemController extends Controller
             ->join('water_tanks', 'water_system_tanks.water_tank_id', 
                 'water_tanks.id')
             ->where('water_system_tanks.water_system_id', $id)
-            ->select('water_tanks.id', 'water_tanks.model', 'water_system_tanks.tank_units')
+            ->select('water_system_tanks.id', 'water_tanks.model', 'water_system_tanks.tank_units', 'water_system_tanks.tank_costs')
+            ->get();
+
+        $waterTaps = DB::table('water_system_taps')
+            ->join('water_systems', 'water_system_taps.water_system_id', 
+                'water_systems.id')
+            ->join('water_taps', 'water_system_taps.water_tap_id', 
+                'water_taps.id')
+            ->where('water_system_taps.water_system_id', $id)
+            ->select('water_system_taps.id', 'water_taps.model', 'water_system_taps.tap_units', 'water_system_taps.tap_costs')
+            ->get();
+
+        $waterValves = DB::table('water_system_valves')
+            ->join('water_systems', 'water_system_valves.water_system_id', 
+                'water_systems.id')
+            ->join('water_valves', 'water_system_valves.water_valve_id', 
+                'water_valves.id')
+            ->where('water_system_valves.water_system_id', $id)
+            ->select('water_system_valves.id', 'water_valves.model', 'water_system_valves.valve_units', 'water_system_valves.valve_costs')
             ->get();
 
         $waterSystem = WaterSystem::findOrFail($id);
@@ -465,11 +520,89 @@ class WaterSystemController extends Controller
         $waterSystemCycles = WaterSystemCycle::orderBy('name', 'ASC')->get();
 
         return view('system.water.edit', compact('connectors', 'filters', 'waterSystemTypes',
-            'pipes', 'pumps', 'tanks', 'waterConnectors', 'waterSystem', 'communities',
-            'waterFilters', 'waterPipes', 'waterPumps', 'waterTanks', 'waterSystemCycles'));
+            'pipes', 'pumps', 'tanks', 'waterConnectors', 'waterSystem', 'communities', 
+            'waterFilters', 'waterPipes', 'waterPumps', 'waterTanks', 'waterSystemCycles',
+            'waterTaps', 'taps', 'waterValves', 'valves'));
     }
 
-       /**
+    // This function is to update the water tank costs
+    public function updateTank($id, $units, $cost)
+    {
+        $tank = WaterSystemTank::findOrFail($id);
+        $tank->tank_units = $units;
+        $tank->tank_costs = $cost;
+        $tank->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Tank updated successfully']);
+    }
+
+    // This function is to update the water pipe costs
+    public function updatePipe($id, $units, $cost)
+    {
+        $pipe = WaterSystemPipe::findOrFail($id);
+        $pipe->pipe_units = $units;
+        $pipe->pipe_costs = $cost;
+        $pipe->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Pipe updated successfully']);
+    }
+
+    // This function is to update the water pump costs
+    public function updatePump($id, $units, $cost)
+    {
+        $pump = WaterSystemPump::findOrFail($id);
+        $pump->pump_units = $units;
+        $pump->pump_costs = $cost;
+        $pump->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Pump updated successfully']);
+    }
+
+    // This function is to update the water connector costs
+    public function updateConnector($id, $units, $cost)
+    {
+        $connector = WaterSystemConnector::findOrFail($id);
+        $connector->connector_units = $units;
+        $connector->connector_costs = $cost;
+        $connector->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Connector updated successfully']);
+    }
+
+    // This function is to update the water Filter costs
+    public function updateFilter($id, $units, $cost)
+    {
+        $filter = WaterSystemFilter::findOrFail($id);
+        $filter->filter_units = $units;
+        $filter->filter_costs = $cost;
+        $filter->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Filter updated successfully']);
+    }
+
+    // This function is to update the water Tap costs
+    public function updateTap($id, $units, $cost)
+    {
+        $tap = WaterSystemTap::findOrFail($id);
+        $tap->tap_units = $units;
+        $tap->tap_costs = $cost;
+        $tap->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Tap updated successfully']);
+    }
+
+    // This function is to update the water Valve costs
+    public function updateValve($id, $units, $cost)
+    {
+        $valve = WaterSystemValve::findOrFail($id);
+        $valve->valve_units = $units;
+        $valve->valve_costs = $cost;
+        $valve->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Valve updated successfully']);
+    }
+
+    /**
      * Update an existing resource in storage.
      *
      * @param  \Illuminate\Http\Request $request, int $id
@@ -528,6 +661,105 @@ class WaterSystemController extends Controller
             }
         }
         
+
+        if ($request->tank_ids) {
+
+            for ($cnq = 0; $cnq < count($request->tank_ids); $cnq++) {
+
+                $waterTank = new WaterSystemTank();
+                $waterTank->water_tank_id = $request->tank_ids[$cnq];
+                $waterTank->water_system_id = $id;
+                $waterTank->tank_units = $request->input("tank_units.$cnq.subject");
+                $waterTank->tank_costs = $request->input("tank_costs.$cnq.subject");
+        
+                $waterTank->save();
+            }
+        }
+
+        if ($request->pipe_ids) {
+
+            for ($pip = 0; $pip < count($request->pipe_ids); $pip++) {
+
+                $waterPipe = new WaterSystemPipe();
+                $waterPipe->water_pipe_id = $request->pipe_ids[$pip];
+                $waterPipe->water_system_id = $id;
+                $waterPipe->pipe_units = $request->input("pipe_units.$pip.subject");
+                $waterPipe->pipe_costs = $request->input("pipe_costs.$pip.subject");
+        
+                $waterPipe->save();
+            }
+        }
+
+        if ($request->pump_ids) {
+
+            for ($pum = 0; $pum < count($request->pump_ids); $pum++) {
+
+                $waterPump = new WaterSystemPump();
+                $waterPump->water_pump_id = $request->pump_ids[$pum];
+                $waterPump->water_system_id = $id;
+                $waterPump->pump_units = $request->input("pump_units.$pum.subject");
+                $waterPump->pump_costs = $request->input("pump_costs.$pum.subject");
+        
+                $waterPump->save();
+            }
+        }
+
+        if ($request->connector_ids) {
+
+            for ($conn = 0; $conn < count($request->connector_ids); $conn++) {
+
+                $waterConnector = new WaterSystemConnector();
+                $waterConnector->water_connector_id = $request->connector_ids[$conn];
+                $waterConnector->water_system_id = $id;
+                $waterConnector->connector_units = $request->input("connector_units.$conn.subject");
+                $waterConnector->connector_costs = $request->input("connector_costs.$conn.subject");
+        
+                $waterConnector->save();
+            }
+        }
+
+        if ($request->filter_ids) {
+
+            for ($conn = 0; $conn < count($request->filter_ids); $conn++) {
+
+                $waterFilter = new WaterSystemFilter();
+                $waterFilter->water_filter_id = $request->filter_ids[$conn];
+                $waterFilter->water_system_id = $id;
+                $waterFilter->filter_units = $request->input("filter_units.$conn.subject");
+                $waterFilter->filter_costs = $request->input("filter_costs.$conn.subject");
+        
+                $waterFilter->save();
+            }
+        }
+
+        if ($request->tap_ids) {
+
+            for ($conn = 0; $conn < count($request->tap_ids); $conn++) {
+
+                $waterTap = new WaterSystemTap();
+                $waterTap->water_tap_id = $request->tap_ids[$conn];
+                $waterTap->water_system_id = $id;
+                $waterTap->tap_units = $request->input("tap_units.$conn.subject");
+                $waterTap->tap_costs = $request->input("tap_costs.$conn.subject");
+        
+                $waterTap->save();
+            }
+        }
+
+        if ($request->valve_ids) {
+
+            for ($conn = 0; $conn < count($request->valve_ids); $conn++) {
+
+                $waterValve = new WaterSystemValve();
+                $waterValve->water_valve_id = $request->valve_ids[$conn];
+                $waterValve->water_system_id = $id;
+                $waterValve->valve_units = $request->input("valve_units.$conn.subject");
+                $waterValve->valve_costs = $request->input("valve_costs.$conn.subject");
+        
+                $waterValve->save();
+            }
+        }
+
         return redirect('/water-system')->with('message', 'Water System Updated Successfully!');
     }
 
@@ -589,6 +821,181 @@ class WaterSystemController extends Controller
 
             $response['success'] = 1;
             $response['msg'] = 'Water System Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteTank(Request $request)
+    {
+        $id = $request->id;
+
+        $waterSystemTank = WaterSystemTank::find($id);
+
+        if($waterSystemTank->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Tank Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deletePipe(Request $request)
+    {
+        $id = $request->id;
+
+        $waterSystemPipe = WaterSystemPipe::find($id);
+
+        if($waterSystemPipe->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Pipe Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deletePump(Request $request)
+    {
+        $id = $request->id;
+
+        $waterSystemPump = WaterSystemPump::find($id);
+
+        if($waterSystemPump->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Pump Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteConnector(Request $request)
+    {
+        $id = $request->id;
+
+        $waterSystemConnector = WaterSystemConnector::find($id);
+
+        if($waterSystemConnector->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Connector Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteFilter(Request $request)
+    {
+        $id = $request->id;
+
+        $waterSystemFilter = WaterSystemFilter::find($id);
+
+        if($waterSystemFilter->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Filter Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+     /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteTap(Request $request)
+    {
+        $id = $request->id;
+
+        $waterSystemTap = WaterSystemTap::find($id);
+
+        if($waterSystemTap->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Tap Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+     /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteValve(Request $request)
+    {
+        $id = $request->id;
+
+        $waterSystemValve = WaterSystemValve::find($id);
+
+        if($waterSystemValve->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Valve Deleted successfully'; 
         } else {
 
             $response['success'] = 0;
