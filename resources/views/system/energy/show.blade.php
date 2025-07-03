@@ -118,6 +118,7 @@
                                     <th>Model</th>
                                     <th>Brand</th>
                                     <th>Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($battarySystems as $battarySystem)
@@ -125,12 +126,14 @@
                                     <td>{{$battarySystem->battery_model}}</td>
                                     <td>{{$battarySystem->battery_brand}}</td>
                                     <td>{{$battarySystem->battery_units}}</td>
+                                    <td>{{$battarySystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$battarySystems->sum('battery_units') }}</td>
+                                    <td>{{$battarySystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -160,6 +163,7 @@
                                     <th>Model</th>
                                     <th>Brand</th>
                                     <th>Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($battaryMountSystems as $battaryMountSystem)
@@ -167,12 +171,14 @@
                                     <td>{{$battaryMountSystem->model}}</td>
                                     <td>{{$battaryMountSystem->brand}}</td>
                                     <td>{{$battaryMountSystem->unit}}</td>
+                                    <td>{{$battaryMountSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$battaryMountSystems->sum('unit') }}</td>
+                                    <td>{{$battaryMountSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -202,6 +208,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($pvSystems as $pvSystem)
@@ -209,12 +216,14 @@
                                     <td>{{$pvSystem->pv_model}}</td>
                                     <td>{{$pvSystem->pv_brand}}</td>
                                     <td>{{$pvSystem->pv_units}}</td>
+                                    <td>{{$pvSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$pvSystems->sum('pv_units') }}</td>
+                                    <td>{{$pvSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -244,6 +253,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($pvMountSystems as $pvSystem)
@@ -251,12 +261,14 @@
                                     <td>{{$pvSystem->model}}</td>
                                     <td>{{$pvSystem->brand}}</td>
                                     <td>{{$pvSystem->unit}}</td>
+                                    <td>{{$pvSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$pvMountSystems->sum('unit') }}</td>
+                                    <td>{{$pvMountSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -287,6 +299,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($controllerSystems as $controllerSystem)
@@ -294,12 +307,14 @@
                                     <td>{{$controllerSystem->charge_controller_model}}</td>
                                     <td>{{$controllerSystem->charge_controller_brand}}</td>
                                     <td>{{$controllerSystem->controller_units}}</td>
+                                    <td>{{$controllerSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$controllerSystems->sum('controller_units') }}</td>
+                                    <td>{{$controllerSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -329,6 +344,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($inverterSystems as $inverterSystem)
@@ -336,12 +352,14 @@
                                     <td>{{$inverterSystem->inverter_model}}</td>
                                     <td>{{$inverterSystem->inverter_brand}}</td>
                                     <td>{{$inverterSystem->inverter_units}}</td>
+                                    <td>{{$inverterSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$inverterSystems->sum('inverter_units') }}</td>
+                                    <td>{{$inverterSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -372,6 +390,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($relayDriverSystems as $relayDriverSystem)
@@ -379,12 +398,14 @@
                                     <td>{{$relayDriverSystem->model}}</td>
                                     <td>{{$relayDriverSystem->brand}}</td>
                                     <td>{{$relayDriverSystem->relay_driver_units}}</td>
+                                    <td>{{$relayDriverSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$relayDriverSystems->sum('relay_driver_units') }}</td>
+                                    <td>{{$relayDriverSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -414,6 +435,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($loadRelaySystems as $loadRelaySystem)
@@ -421,12 +443,14 @@
                                     <td>{{$loadRelaySystem->load_relay_model}}</td>
                                     <td>{{$loadRelaySystem->load_relay_brand}}</td>
                                     <td>{{$loadRelaySystem->load_relay_units}}</td>
+                                    <td>{{$loadRelaySystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$loadRelaySystems->sum('load_relay_units') }}</td>
+                                    <td>{{$loadRelaySystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -456,6 +480,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($bspSystems as $bspSystem)
@@ -463,12 +488,14 @@
                                     <td>{{$bspSystem->model}}</td>
                                     <td>{{$bspSystem->brand}}</td>
                                     <td>{{$bspSystem->bsp_units}}</td>
+                                    <td>{{$bspSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-light">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$bspSystems->sum('bsp_units') }}</td>
+                                    <td>{{$bspSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -498,6 +525,7 @@
                                     <th>Model</th>
                                     <th>Brand</th>
                                     <th>Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($rccSystems as $rccSystem)
@@ -505,12 +533,14 @@
                                     <td>{{$rccSystem->model}}</td>
                                     <td>{{$rccSystem->brand}}</td>
                                     <td>{{$rccSystem->rcc_units}}</td>
+                                    <td>{{$rccSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$rccSystems->sum('rcc_units') }}</td>
+                                    <td>{{$rccSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -540,6 +570,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($loggerSystems as $loggerSystem)
@@ -547,12 +578,14 @@
                                     <td>{{$loggerSystem->monitoring_model}}</td>
                                     <td>{{$loggerSystem->monitoring_brand}}</td>
                                     <td>{{$loggerSystem->monitoring_units}}</td>
+                                    <td>{{$loggerSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$loggerSystems->sum('monitoring_units') }}</td>
+                                    <td>{{$loggerSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -582,6 +615,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($generatorSystems as $generatorSystem)
@@ -589,12 +623,14 @@
                                     <td>{{$generatorSystem->generator_model}}</td>
                                     <td>{{$generatorSystem->generator_brand}}</td>
                                     <td>{{$generatorSystem->generator_units}}</td>
+                                    <td>{{$generatorSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$generatorSystems->sum('generator_units') }}</td>
+                                    <td>{{$generatorSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -624,6 +660,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($turbineSystems as $turbineSystem)
@@ -631,12 +668,14 @@
                                     <td>{{$turbineSystem->wind_turbine_model}}</td>
                                     <td>{{$turbineSystem->wind_turbine_brand}}</td>
                                     <td>{{$turbineSystem->turbine_units}}</td>
+                                    <td>{{$turbineSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$turbineSystems->sum('turbine_units') }}</td>
+                                    <td>{{$turbineSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -667,6 +706,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($pvMcbSystems as $pvMcbSystem)
@@ -674,12 +714,14 @@
                                     <td>{{$pvMcbSystem->model}}</td>
                                     <td>{{$pvMcbSystem->brand}}</td>
                                     <td>{{$pvMcbSystem->mcb_pv_units}}</td>
+                                    <td>{{$pvMcbSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$pvMcbSystems->sum('mcb_pv_units') }}</td>
+                                    <td>{{$pvMcbSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -709,6 +751,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($controllerMcbSystems as $controllerMcbSystem)
@@ -716,12 +759,14 @@
                                     <td>{{$controllerMcbSystem->model}}</td>
                                     <td>{{$controllerMcbSystem->brand}}</td>
                                     <td>{{$controllerMcbSystem->mcb_controller_units}}</td>
+                                    <td>{{$controllerMcbSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$controllerMcbSystems->sum('mcb_controller_units') }}</td>
+                                    <td>{{$controllerMcbSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -751,6 +796,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($inventerMcbSystems as $inventerMcbSystem)
@@ -758,12 +804,14 @@
                                     <td>{{$inventerMcbSystem->inverter_MCB_model}}</td>
                                     <td>{{$inventerMcbSystem->inverter_MCB_brand}}</td>
                                     <td>{{$inventerMcbSystem->mcb_inverter_units}}</td>
+                                    <td>{{$inventerMcbSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-light">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$inventerMcbSystems->sum('mcb_inverter_units') }}</td>
+                                    <td>{{$inventerMcbSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -793,6 +841,7 @@
                                     <th >Model</th>
                                     <th >Brand</th>
                                     <th >Units</th>
+                                    <th>Cost per unit</th>
                                 </tr>
                             </thead>
                             @foreach($airConditionerSystems as $airConditionerSystem)
@@ -800,12 +849,14 @@
                                     <td>{{$airConditionerSystem->model}}</td>
                                     <td>{{$airConditionerSystem->brand}}</td>
                                     <td>{{$airConditionerSystem->energy_air_conditioner_units}}</td>
+                                    <td>{{$airConditionerSystem->cost}}</td>
                                 </tr>
                             @endforeach 
                             <tfoot>
                                 <tr class="table-light">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$airConditionerSystems->sum('energy_air_conditioner_units') }}</td>
+                                    <td>{{$airConditionerSystems->sum('cost') }}</td>
                                 </tr>
                             </tfoot>
                          </table>

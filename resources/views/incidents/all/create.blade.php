@@ -81,6 +81,19 @@
                             <input type="date" name="date" class="form-control" required>
                         </fieldset>
                     </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Incident Attack Type</label>
+                            <select name="all_incident_impact_type_id" class="selectpicker form-control">
+                                <option disabled selected>Choose one...</option>
+                                @foreach($impactTypes as $impactType)
+                                <option value="{{$impactType->id}}">
+                                    {{$impactType->name}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </fieldset>
+                    </div>
                 </div>
 
                 <div class="row" id="energyIncidentsDiv" style="margin-top:20px"> 
@@ -141,43 +154,11 @@
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <table class="table table-bordered" id="dynamicAddRemoveEnergyEquipment">
-                                <tr>
-                                    <th>Equipment</th>
-                                    <th>Unit</th>
-                                    <th>Cost</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr> 
-                                    <td  style="white-space: nowrap; width: 300px;">
-                                        <select class="selectpicker form-control" 
-                                            data-live-search="true" name="energy_equipment[]">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($energyEquipments as $energyEquipment)
-                                            <option value="{{$energyEquipment->id}}">
-                                                {{$energyEquipment->name}}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                        <div id="energy_equipment_error" style="color: red;"></div>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="addMoreInputFieldsEnergyUnit[0][subject]" 
-                                        placeholder="Unit" class="target_point form-control" 
-                                        data-id="0"/>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="addMoreInputFieldsEnergyCost[0][subject]" 
-                                        placeholder="Cost" class="target_point form-control" 
-                                        data-id="0"/>
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addEnergyEquipmentButton" 
-                                        class="btn btn-outline-primary">
-                                            Add More
-                                        </button>
-                                    </td>
-                                </tr>
+                                <tbody></tbody>
                             </table>
+                            <button type="button" name="add" id="addEnergyEquipmentButton" class="btn btn-outline-primary mt-2" style="display:none;">
+                                Add More
+                            </button>
                         </div>
                     </div>
 
@@ -750,7 +731,7 @@
                                     <th>Unit</th>
                                     <th>Cost</th>
                                     <th>Options</th>
-                                </tr>
+                                </tr> 
                                 <tr> 
                                     <td  style="white-space: nowrap; width: 300px;">
                                         <select class="selectpicker form-control" 
@@ -1058,39 +1039,139 @@
         $(document).on('change', '#incidentTypeSelected', handleIncidentAndServiceChange);
         $(document).on('change', '#serviceTypeSelected', handleIncidentAndServiceChange);
 
+
+        // This for choosing the system
+        $(document).on('change', '#energyHolderSelected', function() {
+
+            const systemId = $(this).val();
+            const agent = $("#chooseEnergyHolderSystem").val();
+
+            if (!systemId) {
+                $('#dynamicAddRemoveEnergyEquipment tbody').empty();
+                $('#addEnergyEquipmentButton').hide();
+                return;
+            }
+
+            if (agent == "system") {
+                $.ajax({
+                    url: `/energy-systems/${systemId}/components`,
+                    method: 'GET',
+                    success: function(response) {
+
+                        currentEquipmentData = response.equipment || [];
+                        $('#dynamicAddRemoveEnergyEquipment tbody').empty();
+
+                        if (currentEquipmentData.length) {
+
+                            appendEnergyEquipmentRow(currentEquipmentData);
+                            $('#addEnergyEquipmentButton').show();
+                        } else {
+                            $('#addEnergyEquipmentButton').hide();
+                        }
+                    },
+                    error: function() {
+                        
+                        alert('Failed to load components for selected system');
+                        $('#addEnergyEquipmentButton').hide();
+                    }
+                });
+            }
+        });
+
+
+
+        // Add More Energy Equipment
+        let energyRowIndex = 1; 
+        function appendEnergyEquipmentRow(equipmentList) {
+            let options = '<option disabled selected>Choose one...</option>';
+
+            for (const item of equipmentList) {
+                options += `<option value="${item.id}">${item.name}</option>`;
+            }
+
+            const newRow = `
+                <tr>
+                    <td style="white-space: nowrap; width: 300px;">
+                        <select class="selectpicker form-control" data-live-search="true" name="energy_equipment[]">
+                            ${options}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="addMoreInputFieldsEnergyUnit[${energyRowIndex}][subject]" 
+                            placeholder="Unit" class="form-control" data-id="${energyRowIndex}" />
+                    </td>
+                    <td>
+                        <input type="text" name="addMoreInputFieldsEnergyCost[${energyRowIndex}][subject]" 
+                            placeholder="Cost" class="form-control" data-id="${energyRowIndex}" />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger remove-input-energy-target-points">Delete</button>
+                    </td>
+                </tr>
+            `;
+
+            $('#dynamicAddRemoveEnergyEquipment tbody').append(newRow);
+            $('.selectpicker').selectpicker('refresh');
+            energyRowIndex++;
+        }
+
+        $(document).on('click', '#addEnergyEquipmentButton', function () {
+
+            if(currentEquipmentData.length > 0) {
+
+                appendEnergyEquipmentRow(currentEquipmentData);
+            } else {
+
+                alert("Please select a system or user first.");
+            }
+        });
+
+
+        $(document).on('click', '.remove-input-energy-target-points', function () {
+            $(this).closest('tr').remove();
+        });
+
+
         // This event handles the change of #chooseEnergyHolderSystem
+        let currentEquipmentData = [];  // to store equipment list for current selection
+
         $(document).on('change', '#chooseEnergyHolderSystem', function () {
 
             var community_id = $('#communitySelected').val();
             var publicUserSystem = $(this).val();
 
+            $('#addEnergyEquipmentButton').hide(); // Hide Add button
+            $('#dynamicAddRemoveEnergyEquipment tbody').empty(); // Clear table
+
             var selectAffectedHouseholds = $('#affectedHouseholds');
-            selectAffectedHouseholds.empty(); 
-            selectAffectedHouseholds.prop('disabled', true); 
-            selectAffectedHouseholds.selectpicker('refresh'); 
+            selectAffectedHouseholds.empty().prop('disabled', true).selectpicker('refresh');
 
             var select = $('#energyHolderSelected');
-            select.prop('disabled', false);
-            select.empty(); 
-            select.selectpicker('refresh');
+            select.prop('disabled', false).empty().selectpicker('refresh');
 
             $.ajax({
                 url: "/all-incident/get_energy_holder/" + community_id + "/" + publicUserSystem,
                 method: 'GET',
                 success: function(data) {
-
-                    select.html(data.html);
-                    select.selectpicker('refresh');
+                    select.html(data.html).selectpicker('refresh');
 
                     if(publicUserSystem === "system") {
-
-                        selectAffectedHouseholds.prop('disabled', false); 
-                        selectAffectedHouseholds.html(data.htmlAffectedHouseholds);
-                        selectAffectedHouseholds.selectpicker('refresh');
+                        selectAffectedHouseholds.prop('disabled', false);
+                        selectAffectedHouseholds.html(data.htmlAffectedHouseholds).selectpicker('refresh');
+                    } else {
+                        // Only for user/public: load general equipment list now
+                        currentEquipmentData = data.userPublicEquipments || [];
+                        if (currentEquipmentData.length) {
+                            appendEnergyEquipmentRow(currentEquipmentData);
+                            $('#addEnergyEquipmentButton').show();
+                        }
                     }
                 }
             });
         });
+
+
+
 
         // This event handles the change of #chooseWaterHolderSystem
         $(document).on('change', '#chooseWaterHolderSystem', function () {
@@ -1202,47 +1283,10 @@
     });
 
 
-    // Add More Energy Equipment
-    let i = 1; // Start from 1 because 0 is already in Blade
+    
 
-    const energyEquipments = {!! json_encode($energyEquipments) !!};
 
-    $('#addEnergyEquipmentButton').click(function () {
-        let options = '<option disabled selected>Choose one...</option>';
-        for (const key in energyEquipments) {
-            options += `<option value="${energyEquipments[key].id}">${energyEquipments[key].name}</option>`;
-        }
-
-        const newRow = `
-            <tr>
-                <td style="white-space: nowrap; width: 300px;">
-                    <select class="selectpicker form-control" data-live-search="true" name="energy_equipment[]">
-                        ${options}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="addMoreInputFieldsEnergyUnit[${i}][subject]" 
-                           placeholder="Unit" class="form-control" data-id="${i}" />
-                </td>
-                <td>
-                    <input type="text" name="addMoreInputFieldsEnergyCost[${i}][subject]" 
-                           placeholder="Cost" class="form-control" data-id="${i}" />
-                </td>
-                <td>
-                    <button type="button" class="btn btn-outline-danger remove-input-energy-target-points">Delete</button>
-                </td>
-            </tr>
-        `;
-
-        $('#dynamicAddRemoveEnergyEquipment tbody').append(newRow);
-        $('.selectpicker').selectpicker('refresh');
-
-        i++;
-    });
-
-    $(document).on('click', '.remove-input-energy-target-points', function () {
-        $(this).closest('tr').remove();
-    });
+    
 
     // Add More Water Equipment
     let j = 1; 

@@ -23,6 +23,7 @@ use App\Models\AllIncidentOccurredStatus;
 use App\Models\AllIncidentStatus;
 use App\Models\AllInternetIncident;
 use App\Models\AllInternetIncidentPhoto;
+use App\Models\AllIncidentImpactType;
 use App\Models\AllInternetIncidentAffectedArea;
 use App\Models\AllInternetIncidentAffectedHousehold;
 use App\Models\AllInternetIncidentDamagedEquipment;
@@ -715,9 +716,11 @@ class AllIncidentController extends Controller
 
         $serviceTypes = ServiceType::get();
 
+        $impactTypes = AllIncidentImpactType::get();
+
         return view('incidents.all.create', compact('communities', 'energySystems', 'incidents', 
             'energyEquipments', 'waterEquipments', 'internetEquipments', 'cameraEquipments',
-            'households', 'waterUsers', 'incidentStatuses', 'serviceTypes'));
+            'households', 'waterUsers', 'incidentStatuses', 'serviceTypes', 'impactTypes'));
     }
 
     // This function is to store the common fields in AllIncident Model
@@ -727,6 +730,7 @@ class AllIncidentController extends Controller
         $allIncident->service_type_id = $serviceTypeId;
         $allIncident->community_id = $request->community_id;
         $allIncident->incident_id = $request->incident_id;
+        $allIncident->all_incident_impact_type_id = $request->all_incident_impact_type_id;
         $allIncident->date = $request->date;
         $year = explode('-', $request->date);
         $allIncident->year = $year[0];
@@ -1194,12 +1198,75 @@ class AllIncidentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function getSystemComponents($systemId)
+    {
+        $system = EnergySystem::with([
+            'batteries',
+            'pvs',
+            'airConditioners',
+            'batteryMount',
+            'bsp',
+            'bts',
+            'chargeController',
+            'generator',
+            'inverter',
+            'loadRelay',
+            'mcbChargeController',
+            'mcbInverter',
+            'mcbPv',
+            'monitoring',
+            'pvMount',
+            'relayDriver',
+        ])->find($systemId);
+    
+        die($system);
+
+        if (!$system) {
+            return response()->json(['message' => 'System not found'], 404);
+        }
+    
+        // Merge all components into one collection for simplicity
+        $components = collect();
+    
+        $components = $components->merge($system->batteries)
+            ->merge($system->pvs)->merge($system->airConditioners)
+            ->merge($system->batteryMount)->merge($system->bsp)
+            ->merge($system->generator)->merge($system->chargeController)
+            ->merge($system->loadRelay)->merge($system->mcbChargeController)
+            ->merge($system->mcbInverter)->merge($system->mcbPv);
+                                
+    
+        // Format to simple array (id, name)
+        $equipmentList = $components->map(function($component) {
+            return [
+                'id' => $component->id,
+                'name' => $component->model ?? 'Unnamed Component', 
+            ];
+        })->values();
+    
+        return response()->json([
+            'equipment' => $equipmentList,
+        ]);
+    }
+
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function getEnergyHolderSystemByCommunity($community_id, $flag)
     {
         $html = "<option disabled selected>Choose one...</option>";
         $htmlAffectedHouseholds = "<option disabled selected>Choose one...</option>";
         $systems = null;
-        
+        $energySystemEquipments = null;
+        $userPublicEquipments = IncidentEquipment::where('is_archived', 0)
+            ->where("incident_equipment_type_id", 2)
+            ->orderBy('name', 'ASC')
+            ->get(); 
+
         $households = DB::table('all_energy_meters')
             ->join('households', 'all_energy_meters.household_id', 'households.id')
             ->where('all_energy_meters.is_archived', 0)
@@ -1207,10 +1274,11 @@ class AllIncidentController extends Controller
             ->orderBy('households.english_name', 'ASC')
             ->select('households.id as id', 'households.english_name')
             ->get();
-
+ 
         if($flag == "user") {
 
             $households = $households;
+            $userPublicEquipments = $userPublicEquipments;
             
         } else if($flag == "public") {
 
@@ -1220,6 +1288,7 @@ class AllIncidentController extends Controller
                 ->where("all_energy_meters.community_id", $community_id)
                 ->select('public_structures.id as id', 'public_structures.english_name')
                 ->get();
+            $userPublicEquipments = $userPublicEquipments;
         } else if($flag == "system") {
 
             $systems = DB::table('energy_systems')
@@ -1248,7 +1317,11 @@ class AllIncidentController extends Controller
             }    
         }
 
-        return response()->json(['html' => $html, 'htmlAffectedHouseholds' => $htmlAffectedHouseholds]);
+        return response()->json([
+            'html' => $html, 
+            'htmlAffectedHouseholds' => $htmlAffectedHouseholds,
+            'userPublicEquipments' => $userPublicEquipments
+        ]);
     }
 
     /**

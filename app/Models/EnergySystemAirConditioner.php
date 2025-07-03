@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class EnergySystemAirConditioner extends Model
 {
     use HasFactory;
+
+    public function energySystem()
+    {
+        return $this->belongsTo(EnergySystem::class, 'energy_system_id');
+    }
 }

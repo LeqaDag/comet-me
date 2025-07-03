@@ -13,4 +13,9 @@ class EnergySystemPv extends Model
     {
         return $this->belongsTo(EnergyPv::class, 'pv_type_id', 'id');
     }
+
+    public function energySystem()
+    {
+        return $this->belongsTo(EnergySystem::class, 'energy_system_id');
+    }
 }

@@ -646,3 +646,25 @@ Route::get('/update-internet-ap/{id}/{units}/{cost}', [App\Http\Controllers\Inte
 Route::get('/update-internet-ap-lite/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateApLite'])->name('updateApLite');
 Route::get('/update-internet-ptp/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updatePtp'])->name('updatePtp');
 Route::get('/update-internet-uisp/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateUisp'])->name('updateUisp');
+
+Route::get('/update-energy-battery/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateBattery'])->name('updateBattery');
+Route::get('/update-energy-battery-mount/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateBatteryMount'])->name('updateBatteryMount');
+Route::get('/update-energy-pv/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updatePv'])->name('updatePv');
+Route::get('/update-energy-pv-mount/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updatePvMount'])->name('updatePvMount');
+Route::get('/update-energy-controller/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateChargeController'])->name('updateChargeController');
+Route::get('/update-energy-inverter/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateInverter'])->name('updateInverter');
+Route::get('/update-energy-relay-driver/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateRelayDriver'])->name('updateRelayDriver');
+Route::get('/update-energy-load-relay/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateLoadRelay'])->name('updateLoadRelay');
+Route::get('/update-energy-conditioner/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateConditioner'])->name('updateConditioner');
+Route::get('/update-energy-bsp/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateBsp'])->name('updateBsp');
+Route::get('/update-energy-bts/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateBts'])->name('updateBts');
+Route::get('/update-energy-rcc/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateRcc'])->name('updateRcc');
+Route::get('/update-energy-generator/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateGenerator'])->name('updateGenerator');
+Route::get('/update-energy-logger/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateLogger'])->name('updateLogger');
+Route::get('/update-energy-turbine/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateTurbine'])->name('updateTurbine');
+Route::get('/update-energy-mcb-pv/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateMcbPv'])->name('updateMcbPv');
+Route::get('/update-energy-mcb-controller/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateMcbController'])->name('updateMcbController');
+Route::get('/update-energy-mcb-inverter/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateMcbInverter'])->name('updateMcbInverter');
+
+
+Route::get('/energy-systems/{id}/components', [App\Http\Controllers\AllIncidentController::class, 'getSystemComponents']);
