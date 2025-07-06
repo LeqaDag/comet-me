@@ -669,8 +669,8 @@ class WaterSystemController extends Controller
                 $waterTank = new WaterSystemTank();
                 $waterTank->water_tank_id = $request->tank_ids[$cnq];
                 $waterTank->water_system_id = $id;
-                $waterTank->tank_units = $request->input("tank_units.$cnq.subject");
-                $waterTank->tank_costs = $request->input("tank_costs.$cnq.subject");
+                $waterTank->tank_units = $request->input("tank_units.$cnq.subject") ?? 0;
+                $waterTank->tank_costs = $request->input("tank_costs.$cnq.subject") ?? 0;
         
                 $waterTank->save();
             }
@@ -683,8 +683,8 @@ class WaterSystemController extends Controller
                 $waterPipe = new WaterSystemPipe();
                 $waterPipe->water_pipe_id = $request->pipe_ids[$pip];
                 $waterPipe->water_system_id = $id;
-                $waterPipe->pipe_units = $request->input("pipe_units.$pip.subject");
-                $waterPipe->pipe_costs = $request->input("pipe_costs.$pip.subject");
+                $waterPipe->pipe_units = $request->input("pipe_units.$pip.subject") ?? 0;
+                $waterPipe->pipe_costs = $request->input("pipe_costs.$pip.subject") ?? 0;
         
                 $waterPipe->save();
             }
@@ -697,8 +697,8 @@ class WaterSystemController extends Controller
                 $waterPump = new WaterSystemPump();
                 $waterPump->water_pump_id = $request->pump_ids[$pum];
                 $waterPump->water_system_id = $id;
-                $waterPump->pump_units = $request->input("pump_units.$pum.subject");
-                $waterPump->pump_costs = $request->input("pump_costs.$pum.subject");
+                $waterPump->pump_units = $request->input("pump_units.$pum.subject") ?? 0;
+                $waterPump->pump_costs = $request->input("pump_costs.$pum.subject") ?? 0;
         
                 $waterPump->save();
             }
@@ -711,8 +711,8 @@ class WaterSystemController extends Controller
                 $waterConnector = new WaterSystemConnector();
                 $waterConnector->water_connector_id = $request->connector_ids[$conn];
                 $waterConnector->water_system_id = $id;
-                $waterConnector->connector_units = $request->input("connector_units.$conn.subject");
-                $waterConnector->connector_costs = $request->input("connector_costs.$conn.subject");
+                $waterConnector->connector_units = $request->input("connector_units.$conn.subject") ?? 0;
+                $waterConnector->connector_costs = $request->input("connector_costs.$conn.subject") ?? 0;
         
                 $waterConnector->save();
             }
@@ -725,8 +725,8 @@ class WaterSystemController extends Controller
                 $waterFilter = new WaterSystemFilter();
                 $waterFilter->water_filter_id = $request->filter_ids[$conn];
                 $waterFilter->water_system_id = $id;
-                $waterFilter->filter_units = $request->input("filter_units.$conn.subject");
-                $waterFilter->filter_costs = $request->input("filter_costs.$conn.subject");
+                $waterFilter->filter_units = $request->input("filter_units.$conn.subject") ?? 0;
+                $waterFilter->filter_costs = $request->input("filter_costs.$conn.subject") ?? 0;
         
                 $waterFilter->save();
             }
@@ -739,8 +739,8 @@ class WaterSystemController extends Controller
                 $waterTap = new WaterSystemTap();
                 $waterTap->water_tap_id = $request->tap_ids[$conn];
                 $waterTap->water_system_id = $id;
-                $waterTap->tap_units = $request->input("tap_units.$conn.subject");
-                $waterTap->tap_costs = $request->input("tap_costs.$conn.subject");
+                $waterTap->tap_units = $request->input("tap_units.$conn.subject") ?? 0;
+                $waterTap->tap_costs = $request->input("tap_costs.$conn.subject") ?? 0;
         
                 $waterTap->save();
             }
@@ -753,8 +753,8 @@ class WaterSystemController extends Controller
                 $waterValve = new WaterSystemValve();
                 $waterValve->water_valve_id = $request->valve_ids[$conn];
                 $waterValve->water_system_id = $id;
-                $waterValve->valve_units = $request->input("valve_units.$conn.subject");
-                $waterValve->valve_costs = $request->input("valve_costs.$conn.subject");
+                $waterValve->valve_units = $request->input("valve_units.$conn.subject") ?? 0;
+                $waterValve->valve_costs = $request->input("valve_costs.$conn.subject") ?? 0;
         
                 $waterValve->save();
             }

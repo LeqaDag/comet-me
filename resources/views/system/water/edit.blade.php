@@ -127,11 +127,11 @@
                                 <tr data-tank-id="{{ $tank->id }}">
                                     <td class="text-center">{{ $tank->model }}</td>
                                     <td>
-                                        <input type="number" name="tank_units[{{ $tank->id }}]" class="form-control tank-units" 
+                                        <input type="number"step="any" name="tank_units[{{ $tank->id }}]" class="form-control tank-units" 
                                         data-index="{{ $index }}" value="{{ $tank->tank_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="tank_costs[{{ $tank->id }}]" class="form-control tank-costs" 
+                                        <input type="number"step="any" name="tank_costs[{{ $tank->id }}]" class="form-control tank-costs" 
                                         data-index="{{ $index }}" value="{{ $tank->tank_costs }}">
                                     </td>
                                     <td>
@@ -167,8 +167,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="tank_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="tank_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number"step="any" name="tank_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="tank_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveTankButton">Add Tank</button></td>
                         </tr>
                     </tbody>
@@ -193,11 +193,11 @@
                                 <tr data-pipe-id="{{ $pipe->id }}">
                                     <td class="text-center">{{ $pipe->model }}</td>
                                     <td>
-                                        <input type="number" name="pipe_units[{{ $pipe->id }}]" class="form-control pipe-units" 
+                                        <input type="number" step="any"name="pipe_units[{{ $pipe->id }}]" class="form-control pipe-units" 
                                         data-pipe-index="{{ $index }}" value="{{ $pipe->pipe_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="pipe_costs[{{ $pipe->id }}]" class="form-control pipe-costs" 
+                                        <input type="number"step="any" name="pipe_costs[{{ $pipe->id }}]" class="form-control pipe-costs" 
                                         data-pipe-index="{{ $index }}" value="{{ $pipe->pipe_costs }}">
                                     </td>
                                     <td>
@@ -233,8 +233,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="pipe_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="pipe_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="pipe_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="pipe_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemovePipeButton">Add Pipe</button></td>
                         </tr>
                     </tbody>
@@ -259,11 +259,11 @@
                                 <tr data-pump-id="{{ $pump->id }}">
                                     <td class="text-center">{{ $pump->model }}</td>
                                     <td>
-                                        <input type="number" name="pump_units[{{ $pump->id }}]" class="form-control pump-units" 
+                                        <input type="number"step="any" name="pump_units[{{ $pump->id }}]" class="form-control pump-units" 
                                         data-pump-index="{{ $index }}" value="{{ $pump->pump_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="pump_costs[{{ $pump->id }}]" class="form-control pump-costs" 
+                                        <input type="number"step="any" name="pump_costs[{{ $pump->id }}]" class="form-control pump-costs" 
                                         data-pump-index="{{ $index }}" value="{{ $pump->pump_costs }}">
                                     </td>
                                     <td>
@@ -299,8 +299,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="pump_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="pump_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="pump_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="pump_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemovePumpButton">Add Pump</button></td>
                         </tr>
                     </tbody>
@@ -326,11 +326,11 @@
                                 <tr data-connector-id="{{ $connector->id }}">
                                     <td class="text-center">{{ $connector->model }}</td>
                                     <td>
-                                        <input type="number" name="connector_units[{{ $connector->id }}]" class="form-control connector-units" 
+                                        <input type="number" step="any"name="connector_units[{{ $connector->id }}]" class="form-control connector-units" 
                                         data-connector-index="{{ $index }}" value="{{ $connector->connector_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="connector_costs[{{ $connector->id }}]" class="form-control connector-costs" 
+                                        <input type="number" step="any"name="connector_costs[{{ $connector->id }}]" class="form-control connector-costs" 
                                         data-connector-index="{{ $index }}" value="{{ $connector->connector_costs }}">
                                     </td>
                                     <td>
@@ -366,8 +366,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="connector_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="connector_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number"step="any" name="connector_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="connector_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveConnectorButton">Add Connector</button></td>
                         </tr>
                     </tbody>
@@ -393,11 +393,11 @@
                                 <tr data-filter-id="{{ $filter->id }}">
                                     <td class="text-center">{{ $filter->model }}</td>
                                     <td>
-                                        <input type="number" name="filter_units[{{ $filter->id }}]" class="form-control filter-units" 
+                                        <input type="number" step="any"name="filter_units[{{ $filter->id }}]" class="form-control filter-units" 
                                         data-filter-index="{{ $index }}" value="{{ $filter->filter_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="filter_costs[{{ $filter->id }}]" class="form-control filter-costs" 
+                                        <input type="number" step="any"name="filter_costs[{{ $filter->id }}]" class="form-control filter-costs" 
                                         data-filter-index="{{ $index }}" value="{{ $filter->filter_costs }}">
                                     </td>
                                     <td>
@@ -433,8 +433,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="filter_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="filter_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number"step="any" name="filter_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number"step="any" name="filter_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveFilterButton">Add Filter</button></td>
                         </tr>
                     </tbody>
@@ -460,11 +460,11 @@
                                 <tr data-tap-id="{{ $tap->id }}">
                                     <td class="text-center">{{ $tap->model }}</td>
                                     <td>
-                                        <input type="number" name="tap_units[{{ $tap->id }}]" class="form-control tap-units" 
+                                        <input type="number" step="any"name="tap_units[{{ $tap->id }}]" class="form-control tap-units" 
                                         data-tap-index="{{ $index }}" value="{{ $tap->tap_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="tap_costs[{{ $tap->id }}]" class="form-control tap-costs" 
+                                        <input type="number"step="any" name="tap_costs[{{ $tap->id }}]" class="form-control tap-costs" 
                                         data-tap-index="{{ $index }}" value="{{ $tap->tap_costs }}">
                                     </td>
                                     <td>
@@ -500,8 +500,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="tap_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="tap_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="tap_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="tap_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveTapButton">Add Tap</button></td>
                         </tr>
                     </tbody>
@@ -527,11 +527,11 @@
                                 <tr data-valve-id="{{ $valve->id }}">
                                     <td class="text-center">{{ $valve->model }}</td>
                                     <td>
-                                        <input type="number" name="valve_units[{{ $valve->id }}]" class="form-control valve-units" 
+                                        <input type="number" step="any"name="valve_units[{{ $valve->id }}]" class="form-control valve-units" 
                                         data-valve-index="{{ $index }}" value="{{ $valve->valve_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="valve_costs[{{ $valve->id }}]" class="form-control valve-costs" 
+                                        <input type="number" step="any"name="valve_costs[{{ $valve->id }}]" class="form-control valve-costs" 
                                         data-valve-index="{{ $index }}" value="{{ $valve->valve_costs }}">
                                     </td>
                                     <td>
@@ -567,8 +567,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="valve_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="valve_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="valve_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="valve_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveValveButton">Add Valve</button></td>
                         </tr>
                     </tbody>
@@ -598,8 +598,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="tank_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="tank_units[${tankIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="tank_costs[${tankIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="tank_units[${tankIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="tank_costs[${tankIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -653,8 +653,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteTank') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -689,8 +692,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="pipe_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="pipe_units[${pipeIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="pipe_costs[${pipeIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="pipe_units[${pipeIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="pipe_costs[${pipeIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -746,8 +749,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deletePipe') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -783,8 +789,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="pump_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="pump_units[${pumpIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="pump_costs[${pumpIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="pump_units[${pumpIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="pump_costs[${pumpIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -840,8 +846,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deletePump') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -878,8 +887,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="connector_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="connector_units[${connectorIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="connector_costs[${connectorIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="connector_units[${connectorIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="connector_costs[${connectorIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -935,8 +944,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteConnector') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -973,8 +985,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="filter_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="filter_units[${filterIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="filter_costs[${filterIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="filter_units[${filterIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="filter_costs[${filterIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1030,8 +1042,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteFilter') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1068,8 +1083,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="tap_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="tap_units[${tapIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="tap_costs[${tapIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="tap_units[${tapIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="tap_costs[${tapIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1125,8 +1140,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteTap') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1162,8 +1180,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="valve_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="valve_units[${valveIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="valve_costs[${valveIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="valve_units[${valveIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="valve_costs[${valveIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1219,8 +1237,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteValve') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({

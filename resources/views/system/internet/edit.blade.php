@@ -137,11 +137,11 @@
                                 <tr data-router-id="{{ $router->id }}">
                                     <td class="text-center">{{ $router->model }}</td>
                                     <td>
-                                        <input type="number" name="router_units[{{ $router->id }}]" class="form-control router-units" 
+                                        <input type="number" step="any"name="router_units[{{ $router->id }}]" class="form-control router-units" 
                                         data-router-index="{{ $index }}" value="{{ $router->router_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="router_costs[{{ $router->id }}]" class="form-control router-costs" 
+                                        <input type="number" step="any"name="router_costs[{{ $router->id }}]" class="form-control router-costs" 
                                         data-router-index="{{ $index }}" value="{{ $router->router_costs }}">
                                     </td>
                                     <td>
@@ -177,8 +177,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="router_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="router_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="router_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="router_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveRouterButton">Add Router</button></td>
                         </tr>
                     </tbody>
@@ -204,11 +204,11 @@
                                 <tr data-switch-id="{{ $switch->id }}">
                                     <td class="text-center">{{ $switch->model }}</td>
                                     <td>
-                                        <input type="number" name="switch_units[{{ $switch->id }}]" class="form-control switch-units" 
+                                        <input type="number" step="any"name="switch_units[{{ $switch->id }}]" class="form-control switch-units" 
                                         data-switch-index="{{ $index }}" value="{{ $switch->switch_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="switch_costs[{{ $switch->id }}]" class="form-control switch-costs" 
+                                        <input type="number" step="any"name="switch_costs[{{ $switch->id }}]" class="form-control switch-costs" 
                                         data-switch-index="{{ $index }}" value="{{ $switch->switch_costs }}">
                                     </td>
                                     <td>
@@ -244,8 +244,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="switch_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="switch_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="switch_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="switch_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveSwitchButton">Add Switch</button></td>
                         </tr>
                     </tbody>
@@ -271,11 +271,11 @@
                                 <tr data-controller-id="{{ $controller->id }}">
                                     <td class="text-center">{{ $controller->model }}</td>
                                     <td>
-                                        <input type="number" name="controller_units[{{ $controller->id }}]" class="form-control controller-units" 
+                                        <input type="number" step="any"name="controller_units[{{ $controller->id }}]" class="form-control controller-units" 
                                         data-controller-index="{{ $index }}" value="{{ $controller->controller_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="controller_costs[{{ $controller->id }}]" class="form-control controller-costs" 
+                                        <input type="number"step="any" name="controller_costs[{{ $controller->id }}]" class="form-control controller-costs" 
                                         data-controller-index="{{ $index }}" value="{{ $controller->controller_costs }}">
                                     </td>
                                     <td>
@@ -311,8 +311,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="controller_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="controller_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="controller_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="controller_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveControllerButton">Add Controller</button></td>
                         </tr>
                     </tbody>
@@ -338,11 +338,11 @@
                                 <tr data-ap-id="{{ $ap->id }}">
                                     <td class="text-center">{{ $ap->model }}</td>
                                     <td>
-                                        <input type="number" name="ap_units[{{ $ap->id }}]" class="form-control ap-units" 
+                                        <input type="number"step="any" name="ap_units[{{ $ap->id }}]" class="form-control ap-units" 
                                         data-ap-index="{{ $index }}" value="{{ $ap->ap_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="ap_costs[{{ $ap->id }}]" class="form-control ap-costs" 
+                                        <input type="number" step="any"name="ap_costs[{{ $ap->id }}]" class="form-control ap-costs" 
                                         data-ap-index="{{ $index }}" value="{{ $ap->ap_costs }}">
                                     </td>
                                     <td>
@@ -378,8 +378,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="ap_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="ap_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="ap_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="ap_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveApButton">Add Ap</button></td>
                         </tr>
                     </tbody>
@@ -405,11 +405,11 @@
                             <tr data-ap-lite-id="{{ $apLite->id }}">
                                 <td class="text-center">{{ $apLite->model }}</td>
                                 <td>
-                                    <input type="number" name="ap_lite_units[{{ $apLite->id }}]" class="form-control ap_lite-units" 
+                                    <input type="number" step="any"name="ap_lite_units[{{ $apLite->id }}]" class="form-control ap_lite-units" 
                                     data-ap-lite-index="{{ $index }}" value="{{ $apLite->ap_lite_units }}">
                                 </td>
                                 <td>
-                                    <input type="number" name="ap_lite_costs[{{ $apLite->id }}]" class="form-control ap_lite-costs" 
+                                    <input type="number" step="any"name="ap_lite_costs[{{ $apLite->id }}]" class="form-control ap_lite-costs" 
                                     data-ap-lite-index="{{ $index }}" value="{{ $apLite->ap_lite_costs }}">
                                 </td>
                                 <td>
@@ -446,8 +446,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="ap_lite_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="ap_lite_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="ap_lite_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="ap_lite_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveApLiteButton">Add Ap Lite</button></td>
                         </tr>
                     </tbody>
@@ -473,11 +473,11 @@
                                 <tr data-ptp-id="{{ $ptp->id }}">
                                     <td class="text-center">{{ $ptp->model }}</td>
                                     <td>
-                                        <input type="number" name="ptp_units[{{ $ptp->id }}]" class="form-control ptp-units" 
+                                        <input type="number" step="any"name="ptp_units[{{ $ptp->id }}]" class="form-control ptp-units" 
                                         data-ptp-index="{{ $index }}" value="{{ $ptp->ptp_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="ptp_costs[{{ $ptp->id }}]" class="form-control ptp-costs" 
+                                        <input type="number"step="any" name="ptp_costs[{{ $ptp->id }}]" class="form-control ptp-costs" 
                                         data-ptp-index="{{ $index }}" value="{{ $ptp->ptp_costs }}">
                                     </td>
                                     <td>
@@ -513,8 +513,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="ptp_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="ptp_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="ptp_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="ptp_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemovePtpButton">Add Ptp</button></td>
                         </tr>
                     </tbody>
@@ -541,11 +541,11 @@
                                 <tr data-uisp-id="{{ $uisp->id }}">
                                     <td class="text-center">{{ $uisp->model }}</td>
                                     <td>
-                                        <input type="number" name="uisp_units[{{ $uisp->id }}]" class="form-control uisp-units" 
+                                        <input type="number" step="any"name="uisp_units[{{ $uisp->id }}]" class="form-control uisp-units" 
                                         data-uisp-index="{{ $index }}" value="{{ $uisp->uisp_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="uisp_costs[{{ $uisp->id }}]" class="form-control uisp-costs" 
+                                        <input type="number" step="any"name="uisp_costs[{{ $uisp->id }}]" class="form-control uisp-costs" 
                                         data-uisp-index="{{ $index }}" value="{{ $uisp->uisp_costs }}">
                                     </td>
                                     <td>
@@ -581,8 +581,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="uisp_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="uisp_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="uisp_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="uisp_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveUispButton">Add Uisp</button></td>
                         </tr>
                     </tbody>
@@ -615,8 +615,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="router_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="router_units[${routerIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="router_costs[${routerIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="router_units[${routerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="router_costs[${routerIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -675,8 +675,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteInternetSystemRouter') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -712,8 +715,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="switch_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="switch_units[${switchIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="switch_costs[${switchIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="switch_units[${switchIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="switch_costs[${switchIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -772,8 +775,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteInternetSystemSwitch') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -808,8 +814,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="controller_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="controller_units[${controllerIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="controller_costs[${controllerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="controller_units[${controllerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="controller_costs[${controllerIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -864,8 +870,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteInternetSystemController') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -901,8 +910,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="ap_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="ap_units[${apIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="ap_costs[${apIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="ap_units[${apIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="ap_costs[${apIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -957,8 +966,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteInternetSystemAp') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -994,8 +1006,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="ap_lite_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="ap_lite_units[${apLiteIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="ap_lite_costs[${apLiteIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="ap_lite_units[${apLiteIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="ap_lite_costs[${apLiteIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1051,8 +1063,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteInternetSystemApLite') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1088,8 +1103,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="ptp_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="ptp_units[${ptpIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="ptp_costs[${ptpIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="ptp_units[${ptpIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="ptp_costs[${ptpIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1144,8 +1159,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteInternetSystemPtp') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1181,8 +1199,8 @@ $(function () {
         const newRow = `
             <tr>
                 <td><select name="uisp_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="uisp_units[${uispIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="uisp_costs[${uispIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="uisp_units[${uispIndex}][subject]" class="form-control"></td>
+                <td><input type="number"step="any" name="uisp_costs[${uispIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1237,8 +1255,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteInternetSystemUisp') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1275,8 +1296,11 @@ $(function () {
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteInternetSystemType') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({

@@ -168,11 +168,11 @@
                                 <tr data-battery-id="{{ $battery->id }}">
                                     <td class="text-center">{{ $battery->battery_model }}</td>
                                     <td>
-                                        <input type="number" name="battery_units[{{ $battery->id }}]" class="form-control battery-units" 
+                                        <input type="number" step="any" name="battery_units[{{ $battery->id }}]" class="form-control battery-units" 
                                         data-battery-index="{{ $index }}" value="{{ $battery->battery_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="battery_costs[{{ $battery->id }}]" class="form-control battery-costs" 
+                                        <input type="number" step="any" name="battery_costs[{{ $battery->id }}]" class="form-control battery-costs" 
                                         data-battery-index="{{ $index }}" value="{{ $battery->cost }}">
                                     </td>
                                     <td>
@@ -208,8 +208,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="battery_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="battery_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="battery_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="battery_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveBatteryButton">Add Battery</button></td>
                         </tr>
                     </tbody>
@@ -235,11 +235,11 @@
                                 <tr data-battery-mount-id="{{ $battery->id }}">
                                     <td class="text-center">{{ $battery->model }}</td>
                                     <td>
-                                        <input type="number" name="battery_mount_units[{{ $battery->id }}]" class="form-control battery-mount-units" 
+                                        <input type="number" step="any" name="battery_mount_units[{{ $battery->id }}]" class="form-control battery-mount-units" 
                                         data-battery-mount-index="{{ $index }}" value="{{ $battery->unit }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="battery_mount_costs[{{ $battery->id }}]" class="form-control battery-mount-costs" 
+                                        <input type="number" step="any" name="battery_mount_costs[{{ $battery->id }}]" class="form-control battery-mount-costs" 
                                         data-battery-mount-index="{{ $index }}" value="{{ $battery->cost }}">
                                     </td>
                                     <td>
@@ -275,8 +275,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="battery_mount_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="battery_mount_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number"step="any" name="battery_mount_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number"step="any" name="battery_mount_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveBatteryMountButton">Add Battery Mount</button></td>
                         </tr>
                     </tbody>
@@ -302,11 +302,11 @@
                                 <tr data-pv-id="{{ $pv->id }}">
                                     <td class="text-center">{{ $pv->pv_model }}</td>
                                     <td>
-                                        <input type="number" name="pv_units[{{ $pv->id }}]" class="form-control pv-units" 
+                                        <input type="number" step="any" name="pv_units[{{ $pv->id }}]" class="form-control pv-units" 
                                         data-pv-index="{{ $index }}" value="{{ $pv->pv_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="pv_costs[{{ $pv->id }}]" class="form-control pv-costs" 
+                                        <input type="number" step="any" name="pv_costs[{{ $pv->id }}]" class="form-control pv-costs" 
                                         data-pv-index="{{ $index }}" value="{{ $pv->cost }}">
                                     </td>
                                     <td>
@@ -342,8 +342,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="pv_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="pv_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="pv_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="pv_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemovePvButton">Add PV</button></td>
                         </tr>
                     </tbody>
@@ -369,11 +369,11 @@
                                 <tr data-pv-mount-id="{{ $pv->id }}">
                                     <td class="text-center">{{ $pv->model }}</td>
                                     <td>
-                                        <input type="number" name="pv_mount_units[{{ $pv->id }}]" class="form-control pv-mount-units" 
+                                        <input type="number"step="any" name="pv_mount_units[{{ $pv->id }}]" class="form-control pv-mount-units" 
                                         data-pv-mount-index="{{ $index }}" value="{{ $pv->unit }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="pv_mount_costs[{{ $pv->id }}]" class="form-control pv-mount-costs" 
+                                        <input type="number" step="any"name="pv_mount_costs[{{ $pv->id }}]" class="form-control pv-mount-costs" 
                                         data-pv-mount-index="{{ $index }}" value="{{ $pv->cost }}">
                                     </td>
                                     <td>
@@ -409,8 +409,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="pv_mount_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="pv_mount_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="pv_mount_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="pv_mount_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemovePvMountButton">Add PV Mount</button></td>
                         </tr>
                     </tbody>
@@ -435,11 +435,11 @@
                                 <tr data-controller-id="{{ $controller->id }}">
                                     <td class="text-center">{{ $controller->charge_controller_model }}</td>
                                     <td>
-                                        <input type="number" name="controller_units[{{ $controller->id }}]" class="form-control controller-units" 
+                                        <input type="number" step="any" name="controller_units[{{ $controller->id }}]" class="form-control controller-units" 
                                         data-controller-index="{{ $index }}" value="{{ $controller->controller_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="controller_costs[{{ $controller->id }}]" class="form-control controller-costs" 
+                                        <input type="number" step="any" name="controller_costs[{{ $controller->id }}]" class="form-control controller-costs" 
                                         data-controller-index="{{ $index }}" value="{{ $controller->cost }}">
                                     </td>
                                     <td>
@@ -475,8 +475,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="controller_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="controller_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="controller_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="controller_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveControllerButton">Add Controller</button></td>
                         </tr>
                     </tbody>
@@ -502,11 +502,11 @@
                                 <tr data-inverter-id="{{ $inverter->id }}">
                                     <td class="text-center">{{ $inverter->inverter_model }}</td>
                                     <td>
-                                        <input type="number" name="inverter_units[{{ $inverter->id }}]" class="form-control inverter-units" 
+                                        <input type="number" step="any"  name="inverter_units[{{ $inverter->id }}]" class="form-control inverter-units" 
                                         data-inverter-index="{{ $index }}" value="{{ $inverter->inverter_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="inverter_costs[{{ $inverter->id }}]" class="form-control inverter-costs" 
+                                        <input type="number" step="any"  name="inverter_costs[{{ $inverter->id }}]" class="form-control inverter-costs" 
                                         data-inverter-index="{{ $index }}" value="{{ $inverter->cost }}">
                                     </td>
                                     <td>
@@ -542,8 +542,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="inverter_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="inverter_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="inverter_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"  name="inverter_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveInverterButton">Add Inverter</button></td>
                         </tr>
                     </tbody>
@@ -569,11 +569,11 @@
                                 <tr data-relay-driver-id="{{ $relayDriver->id }}">
                                     <td class="text-center">{{ $relayDriver->model }}</td>
                                     <td>
-                                        <input type="number" name="relay-driver_units[{{ $relayDriver->id }}]" class="form-control relay-driver-units" 
+                                        <input type="number" step="any"  name="relay-driver_units[{{ $relayDriver->id }}]" class="form-control relay-driver-units" 
                                         data-relay-driver-index="{{ $index }}" value="{{ $relayDriver->relay_driver_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="relay-driver_costs[{{ $relayDriver->id }}]" class="form-control relay-driver-costs" 
+                                        <input type="number" step="any"  name="relay-driver_costs[{{ $relayDriver->id }}]" class="form-control relay-driver-costs" 
                                         data-relay-driver-index="{{ $index }}" value="{{ $relayDriver->cost }}">
                                     </td>
                                     <td>
@@ -609,8 +609,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="relay-driver_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="relay-driver_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="relay-driver_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="relay-driver_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveRelayDriverButton">Add Relay Driver</button></td>
                         </tr>
                     </tbody>
@@ -637,13 +637,13 @@
                             <tr data-load-relay-id="{{ $loadRelay->id }}">
                                 <td class="text-center">{{ $loadRelay->load_relay_model }}</td>
                                 <td>
-                                    <input type="number" name="load-relay-units[{{ $index }}][subject]" 
+                                    <input type="number" step="any" name="load-relay-units[{{ $index }}][subject]" 
                                         class="form-control load-relay-units" 
                                         data-load-relay-index="{{ $index }}" 
                                         value="{{ $loadRelay->load_relay_units }}">
                                 </td>
                                 <td>
-                                    <input type="number" name="load-relay-costs[{{ $index }}][subject]" 
+                                    <input type="number" step="any" name="load-relay-costs[{{ $index }}][subject]" 
                                         class="form-control load-relay-costs" 
                                         data-load-relay-index="{{ $index }}" 
                                         value="{{ $loadRelay->cost }}">
@@ -684,8 +684,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="relay-driver_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="relay-driver_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="relay-driver_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="relay-driver_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveLoadRelayButton">Add Load Relay</button></td>
                         </tr>
                     </tbody>
@@ -711,11 +711,11 @@
                                 <tr data-bsp-id="{{ $bsp->id }}">
                                     <td class="text-center">{{ $bsp->model }}</td>
                                     <td>
-                                        <input type="number" name="bsp_units[{{ $bsp->id }}]" class="form-control bsp-units" 
+                                        <input type="number" step="any" name="bsp_units[{{ $bsp->id }}]" class="form-control bsp-units" 
                                         data-bsp-index="{{ $index }}" value="{{ $bsp->bsp_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="bsp_costs[{{ $bsp->id }}]" class="form-control bsp-costs" 
+                                        <input type="number" step="any" name="bsp_costs[{{ $bsp->id }}]" class="form-control bsp-costs" 
                                         data-bsp-index="{{ $index }}" value="{{ $bsp->cost }}">
                                     </td>
                                     <td>
@@ -751,8 +751,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="bsp_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="bsp_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="bsp_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="bsp_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveBspButton">Add Battery Proccessor</button></td>
                         </tr>
                     </tbody>
@@ -778,11 +778,11 @@
                                 <tr data-bts-id="{{ $bts->id }}">
                                     <td class="text-center">{{ $bts->BTS_model }}</td>
                                     <td>
-                                        <input type="number" name="bts_units[{{ $bts->id }}]" class="form-control bts-units" 
+                                        <input type="number" step="any" name="bts_units[{{ $bts->id }}]" class="form-control bts-units" 
                                         data-bts-index="{{ $index }}" value="{{ $bts->bts_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="bts_costs[{{ $bts->id }}]" class="form-control bts-costs" 
+                                        <input type="number" step="any" name="bts_costs[{{ $bts->id }}]" class="form-control bts-costs" 
                                         data-bts-index="{{ $index }}" value="{{ $bts->cost }}">
                                     </td>
                                     <td>
@@ -818,8 +818,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="bts_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="bts_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="bts_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="bts_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveBtsButton">Add BTS</button></td>
                         </tr>
                     </tbody>
@@ -845,11 +845,11 @@
                                 <tr data-rcc-id="{{ $rcc->id }}">
                                     <td class="text-center">{{ $rcc->model }}</td>
                                     <td>
-                                        <input type="number" name="rcc_units[{{ $rcc->id }}]" class="form-control rcc-units" 
+                                        <input type="number" step="any" name="rcc_units[{{ $rcc->id }}]" class="form-control rcc-units" 
                                         data-rcc-index="{{ $index }}" value="{{ $rcc->rcc_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="rcc_costs[{{ $rcc->id }}]" class="form-control rcc-costs" 
+                                        <input type="number" step="any" name="rcc_costs[{{ $rcc->id }}]" class="form-control rcc-costs" 
                                         data-rcc-index="{{ $index }}" value="{{ $rcc->cost }}">
                                     </td>
                                     <td>
@@ -885,8 +885,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="rcc_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="rcc_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="rcc_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="rcc_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveRccButton">Add Control Center</button></td>
                         </tr>
                     </tbody>
@@ -913,11 +913,11 @@
                                 <tr data-logger-id="{{ $logger->id }}">
                                     <td class="text-center">{{ $logger->monitoring_model }}</td>
                                     <td>
-                                        <input type="number" name="logger_units[{{ $logger->id }}]" class="form-control logger-units" 
+                                        <input type="number" step="any" name="logger_units[{{ $logger->id }}]" class="form-control logger-units" 
                                         data-logger-index="{{ $index }}" value="{{ $logger->monitoring_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="logger_costs[{{ $logger->id }}]" class="form-control logger-costs" 
+                                        <input type="number" step="any" name="logger_costs[{{ $logger->id }}]" class="form-control logger-costs" 
                                         data-logger-index="{{ $index }}" value="{{ $logger->cost }}">
                                     </td>
                                     <td>
@@ -953,8 +953,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="logger_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="logger_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="logger_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="logger_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveLoggerButton">Add Logger</button></td>
                         </tr>
                     </tbody>
@@ -980,11 +980,11 @@
                                 <tr data-generator-id="{{ $generator->id }}">
                                     <td class="text-center">{{ $generator->generator_model }}</td>
                                     <td>
-                                        <input type="number" name="generator_units[{{ $generator->id }}]" class="form-control generator-units" 
+                                        <input type="number" step="any" name="generator_units[{{ $generator->id }}]" class="form-control generator-units" 
                                         data-generator-index="{{ $index }}" value="{{ $generator->generator_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="generator_costs[{{ $generator->id }}]" class="form-control generator-costs" 
+                                        <input type="number" step="any" name="generator_costs[{{ $generator->id }}]" class="form-control generator-costs" 
                                         data-generator-index="{{ $index }}" value="{{ $generator->cost }}">
                                     </td>
                                     <td>
@@ -1020,8 +1020,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="generator_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="generator_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="generator_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="generator_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveGeneratorButton">Add Generator</button></td>
                         </tr>
                     </tbody>
@@ -1047,11 +1047,11 @@
                                 <tr data-turbine-id="{{ $turbine->id }}">
                                     <td class="text-center">{{ $turbine->wind_turbine_model }}</td>
                                     <td>
-                                        <input type="number" name="turbine_units[{{ $turbine->id }}]" class="form-control turbine-units" 
+                                        <input type="number" step="any" name="turbine_units[{{ $turbine->id }}]" class="form-control turbine-units" 
                                         data-turbine-index="{{ $index }}" value="{{ $turbine->turbine_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="turbine_costs[{{ $turbine->id }}]" class="form-control turbine-costs" 
+                                        <input type="number" step="any" name="turbine_costs[{{ $turbine->id }}]" class="form-control turbine-costs" 
                                         data-turbine-index="{{ $index }}" value="{{ $turbine->cost }}">
                                     </td>
                                     <td>
@@ -1087,8 +1087,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="turbine_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="turbine_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="turbine_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="turbine_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveTurbineButton">Add Wind Turbine</button></td>
                         </tr>
                     </tbody>
@@ -1113,11 +1113,11 @@
                                 <tr data-mcb-pv-id="{{ $mcbPv->id }}">
                                     <td class="text-center">{{ $mcbPv->model }}</td>
                                     <td>
-                                        <input type="number" name="mcb_pv_units[{{ $mcbPv->id }}]" class="form-control mcb-pv-units" 
+                                        <input type="number" step="any" name="mcb_pv_units[{{ $mcbPv->id }}]" class="form-control mcb-pv-units" 
                                         data-mcb-pv-index="{{ $index }}" value="{{ $mcbPv->mcb_pv_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="mcb_pv_costs[{{ $mcbPv->id }}]" class="form-control mcb-pv-costs" 
+                                        <input type="number" step="any" name="mcb_pv_costs[{{ $mcbPv->id }}]" class="form-control mcb-pv-costs" 
                                         data-mcb-pv-index="{{ $index }}" value="{{ $mcbPv->cost }}">
                                     </td>
                                     <td>
@@ -1153,8 +1153,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="mcb_pv_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="mcb_pv_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="mcb_pv_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="mcb_pv_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveMcbPvButton">Add Solar Panel MCB</button></td>
                         </tr>
                     </tbody>
@@ -1180,11 +1180,11 @@
                                 <tr data-mcb-controller-id="{{ $mcbController->id }}">
                                     <td class="text-center">{{ $mcbController->model }}</td>
                                     <td>
-                                        <input type="number" name="mcb_controller_units[{{ $mcbController->id }}]" class="form-control mcb-controller-units" 
+                                        <input type="number" step="any" name="mcb_controller_units[{{ $mcbController->id }}]" class="form-control mcb-controller-units" 
                                         data-mcb-controller-index="{{ $index }}" value="{{ $mcbController->mcb_controller_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="mcb_controller_costs[{{ $mcbController->id }}]" class="form-control mcb-controller-costs" 
+                                        <input type="number" step="any" name="mcb_controller_costs[{{ $mcbController->id }}]" class="form-control mcb-controller-costs" 
                                         data-mcb-controller-index="{{ $index }}" value="{{ $mcbController->cost }}">
                                     </td>
                                     <td>
@@ -1220,8 +1220,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="mcb_controller_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="mcb_controller_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="mcb_controller_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="mcb_controller_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveMcbControllerButton">Add Charge Controller MCB</button></td>
                         </tr>
                     </tbody>
@@ -1248,11 +1248,11 @@
                                 <tr data-mcb-inverter-id="{{ $mcbInventor->id }}">
                                     <td class="text-center">{{ $mcbInventor->inverter_MCB_model }}</td>
                                     <td>
-                                        <input type="number" name="mcb_inverter_units[{{ $mcbInventor->id }}]" class="form-control mcb-inverter-units" 
+                                        <input type="number" step="any" name="mcb_inverter_units[{{ $mcbInventor->id }}]" class="form-control mcb-inverter-units" 
                                         data-mcb-inverter-index="{{ $index }}" value="{{ $mcbInventor->mcb_inverter_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="mcb_inverter_costs[{{ $mcbInventor->id }}]" class="form-control mcb-inverter-costs" 
+                                        <input type="number" step="any" name="mcb_inverter_costs[{{ $mcbInventor->id }}]" class="form-control mcb-inverter-costs" 
                                         data-mcb-inverter-index="{{ $index }}" value="{{ $mcbInventor->cost }}">
                                     </td>
                                     <td>
@@ -1288,8 +1288,8 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="mcb_inverter_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="mcb_inverter_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="mcb_inverter_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="mcb_inverter_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveMcbInverterButton">Add Inverter MCB</button></td>
                         </tr>
                     </tbody>
@@ -1317,11 +1317,11 @@
                                 <tr data-conditioner-id="{{ $conditioner->id }}">
                                     <td class="text-center">{{ $conditioner->model }}</td>
                                     <td>
-                                        <input type="number" name="conditioner_units[{{ $conditioner->id }}]" class="form-control conditioner-units" 
+                                        <input type="number" step="any" name="conditioner_units[{{ $conditioner->id }}]" class="form-control conditioner-units" 
                                         data-conditioner-index="{{ $index }}" value="{{ $conditioner->energy_air_conditioner_units }}">
                                     </td>
                                     <td>
-                                        <input type="number" name="conditioner_costs[{{ $conditioner->id }}]" class="form-control conditioner-costs" 
+                                        <input type="number" step="any" name="conditioner_costs[{{ $conditioner->id }}]" class="form-control conditioner-costs" 
                                         data-conditioner-index="{{ $index }}" value="{{ $conditioner->cost }}">
                                     </td>
                                     <td>
@@ -1341,7 +1341,7 @@
                 <table class="table table-bordered" id="addRemoveAirConditioner">
                     <thead>
                         <tr>
-                            <th>Inverter Model</th>
+                            <th>Air Conditioner Model</th>
                             <th>Units</th>
                             <th>Cost per Unit</th>
                             <th>Actions</th>
@@ -1357,13 +1357,507 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td><input type="number" name="conditioner_units[0][subject]" class="form-control" data-id="0"></td>
-                            <td><input type="number" name="conditioner_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="conditioner_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any" name="conditioner_costs[0][subject]" class="form-control" data-id="0"></td>
                             <td><button type="button" class="btn btn-outline-primary" id="addRemoveAirConditionerButton">Add Conditioner</button></td>
                         </tr>
                     </tbody>
                 </table>
 
+                @if($energySystem->energy_system_type_id == 2) 
+
+                    <hr class="mt-4">
+                    <h5>FBS Cabinets</h5>
+
+                    @if(count($fbsCabinets) > 0)
+                        <table class="table table-striped my-2" id="fbsCabinetTable">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per unit</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($fbsCabinets as $index => $cabinet)
+                                    <tr data-cabinet-id="{{ $cabinet->id }}">
+                                        <td>
+                                            <input type="number" step="any" name="cabinet_units[{{ $cabinet->id }}]" class="form-control cabinet-units" 
+                                            data-cabinet-index="{{ $index }}" value="{{ $cabinet->unit }}">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="any" name="cabinet_costs[{{ $cabinet->id }}]" class="form-control cabinet-costs" 
+                                            data-cabinet-index="{{ $index }}" value="{{ $cabinet->cost }}">
+                                        </td>
+                                        <td>
+                                            <span id="total-cabinet-{{ $index }}">{{ $cabinet->unit * $cabinet->cost }}</span>
+                                        </td>
+                                        <td>
+                                            <a class="btn deleteCabinet" data-id="{{ $cabinet->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                    @else 
+                        {{-- Add More FBS Cabinets --}}
+                        <h6>Add New FBS Cabinets</h6>
+                        <table class="table table-bordered" id="addRemoveCabinet">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number"  step="any"name="cabinet_units[0][subject]" class="form-control" data-id="0"></td>
+                                    <td><input type="number"  step="any"name="cabinet_costs[0][subject]" class="form-control" data-id="0"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    @endif
+
+                    
+
+                    <hr class="mt-4">
+                    <h5>FBS Fans</h5>
+
+                    @if(count($fbsFans) > 0)
+                        <table class="table table-striped my-2" id="fbsFanTable">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per unit</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($fbsFans as $index => $fan)
+                                    <tr data-fan-id="{{ $fan->id }}">
+                                        <td>
+                                            <input type="number" step="any" name="fan_units[{{ $fan->id }}]" class="form-control fan-units" 
+                                            data-fan-index="{{ $index }}" value="{{ $fan->unit }}">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="any" name="fan_costs[{{ $fan->id }}]" class="form-control fan-costs" 
+                                            data-fan-index="{{ $index }}" value="{{ $fan->cost }}">
+                                        </td>
+                                        <td>
+                                            <span id="total-fan-{{ $index }}">{{ $fan->unit * $fan->cost }}</span>
+                                        </td>
+                                        <td>
+                                            <a class="btn deleteFan" data-id="{{ $fan->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                    @else
+                        {{-- Add More FBS Fans --}}
+                        <h6>Add New FBS Fans</h6>
+                        <table class="table table-bordered" id="addRemoveFan">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" step="any" name="fan_units[0][subject]" class="form-control" data-id="0"></td>
+                                    <td><input type="number" step="any" name="fan_costs[0][subject]" class="form-control" data-id="0"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    @endif
+
+                    
+
+                    <hr class="mt-4">
+                    <h5>FBS Locks</h5>
+
+                    @if(count($fbsLocks) > 0)
+                        <table class="table table-striped my-2" id="fbsLockTable">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per unit</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($fbsLocks as $index => $lock)
+                                    <tr data-lock-id="{{ $lock->id }}">
+                                        <td>
+                                            <input type="number" step="any" name="lock_units[{{ $lock->id }}]" class="form-control lock-units" 
+                                            data-lock-index="{{ $index }}" value="{{ $lock->unit }}">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="any" name="lock_costs[{{ $lock->id }}]" class="form-control lock-costs" 
+                                            data-lock-index="{{ $index }}" value="{{ $lock->cost }}">
+                                        </td>
+                                        <td>
+                                            <span id="total-lock-{{ $index }}">{{ $lock->unit * $lock->cost }}</span>
+                                        </td>
+                                        <td>
+                                            <a class="btn deleteLock" data-id="{{ $lock->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        @else
+                            {{-- Add More FBS Locks --}}
+                            <h6>Add New FBS Locks</h6>
+                            <table class="table table-bordered" id="addRemoveLock">
+                                <thead>
+                                    <tr>
+                                        <th>Units</th>
+                                        <th>Cost per Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="number" step="any" name="lock_units[0][subject]" class="form-control" data-id="0"></td>
+                                        <td><input type="number" step="any" name="lock_costs[0][subject]" class="form-control" data-id="0"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                    @endif
+
+                    <hr class="mt-4">
+                    <h5>FBS Wirings</h5>
+
+                    @if(count($fbsWirings) > 0)
+                        <table class="table table-striped my-2" id="fbsWiringTable">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per unit</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($fbsWirings as $index => $wiring)
+                                    <tr data-wiring-id="{{ $wiring->id }}">
+                                        <td>
+                                            <input type="number" step="any" name="wiring_units[{{ $wiring->id }}]" class="form-control wiring-units" 
+                                            data-wiring-index="{{ $index }}" value="{{ $wiring->unit }}">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="any" name="wiring_costs[{{ $wiring->id }}]" class="form-control wiring-costs" 
+                                            data-wiring-index="{{ $index }}" value="{{ $wiring->cost }}">
+                                        </td>
+                                        <td>
+                                            <span id="total-wiring-{{ $index }}">{{ $wiring->unit * $wiring->cost }}</span>
+                                        </td>
+                                        <td>
+                                            <a class="btn deleteFbsWiring" data-id="{{ $wiring->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        @else
+                            {{-- Add More FBS Wirings --}}
+                            <h6>Add New FBS Wirings</h6>
+                            <table class="table table-bordered" id="addRemoveWiring">
+                                <thead>
+                                    <tr>
+                                        <th>Units</th>
+                                        <th>Cost per Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="number" step="any" name="wiring_units[0][subject]" class="form-control" data-id="0"></td>
+                                        <td><input type="number" step="any" name="wiring_costs[0][subject]" class="form-control" data-id="0"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                    @endif
+
+                @endif
+
+                <hr class="mt-4">
+                <h5>House Wirings</h5>
+
+                @if(count($houseWirings) > 0)
+                    <table class="table table-striped my-2" id="wiringHouseTable">
+                        <thead>
+                            <tr>
+                                <th>Units</th>
+                                <th>Cost per unit</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($houseWirings as $index => $wiringHouse)
+                                <tr data-wiring-house-id="{{ $wiringHouse->id }}">
+                                    <td>
+                                        <input type="number" step="any" name="wiring_house_units[{{ $wiringHouse->id }}]" class="form-control wiring-house-units" 
+                                        data-wiring-house-index="{{ $index }}" value="{{ $wiringHouse->unit }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="any" name="wiring_house_costs[{{ $wiringHouse->id }}]" class="form-control wiring-house-costs" 
+                                        data-wiring-house-index="{{ $index }}" value="{{ $wiringHouse->cost }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-wiring-house-{{ $index }}">{{ $wiringHouse->unit * $wiringHouse->cost }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteWiringHouse" data-id="{{ $wiringHouse->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    @else
+                        {{-- Add More House Wirings --}}
+                        <h6>Add New House Wirings</h6>
+                        <table class="table table-bordered" id="addRemoveWiringHouse">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number"  step="any"name="wiring_house_units[0][subject]" class="form-control" data-id="0"></td>
+                                    <td><input type="number" step="any" name="wiring_house_costs[0][subject]" class="form-control" data-id="0"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                @endif
+                    
+                <hr class="mt-4">
+                <h5>Electricity rooms</h5>
+
+                @if(count($electricityRooms) > 0)
+                    <table class="table table-striped my-2" id="electricityRoomTable">
+                        <thead>
+                            <tr>
+                                <th>Units</th>
+                                <th>Cost per unit</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($electricityRooms as $index => $electricityRoom)
+                                <tr data-electricity-room-id="{{ $electricityRoom->id }}">
+                                    <td>
+                                        <input type="number" step="any" name="electricity_room_units[{{ $electricityRoom->id }}]" class="form-control electricity-room-units" 
+                                        data-electricity-room-index="{{ $index }}" value="{{ $electricityRoom->unit }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="any" name="electricity_room_costs[{{ $electricityRoom->id }}]" class="form-control electricity-room-costs" 
+                                        data-electricity-room-index="{{ $index }}" value="{{ $electricityRoom->cost }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-electricity-room-{{ $index }}">{{ $electricityRoom->unit * $electricityRoom->cost }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteElectricityRoom" data-id="{{ $electricityRoom->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    @else
+                        {{-- Add More Electricity rooms --}}
+                        <h6>Add New Electricity rooms</h6>
+                        <table class="table table-bordered" id="addRemoveElectricityRoom">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" step="any" name="electricity_room_units[0][subject]" class="form-control" data-id="0"></td>
+                                    <td><input type="number" step="any" name="electricity_room_costs[0][subject]" class="form-control" data-id="0"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                @endif
+
+                <hr class="mt-4">
+                <h5>Electricity Bos rooms</h5>
+
+                @if(count($electricityBosRooms) > 0)
+                    <table class="table table-striped my-2" id="electricityBosRoomTable">
+                        <thead>
+                            <tr>
+                                <th>Units</th>
+                                <th>Cost per unit</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($electricityBosRooms as $index => $electricityBosRoom)
+                                <tr data-electricity-bos-room-id="{{ $electricityBosRoom->id }}">
+                                    <td>
+                                        <input type="number" step="any" name="electricity_bos_room_units[{{ $electricityBosRoom->id }}]" class="form-control electricity-bos-room-units" 
+                                        data-electricity-bos-room-index="{{ $index }}" value="{{ $electricityBosRoom->unit }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="any" name="electricity_bos_room_costs[{{ $electricityBosRoom->id }}]" class="form-control electricity-bos-room-costs" 
+                                        data-electricity-bos-room-index="{{ $index }}" value="{{ $electricityBosRoom->cost }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-electricity-bos-room-{{ $index }}">{{ $electricityBosRoom->unit * $electricityBosRoom->cost }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteElectricityBosRoom" data-id="{{ $electricityBosRoom->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    @else
+                        {{-- Add More Electricity bos rooms --}}
+                        <h6>Add New Electricity bos rooms</h6>
+                        <table class="table table-bordered" id="addRemoveElectricityBosRoom">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" step="any" name="electricity_bos_room_units[0][subject]" class="form-control" data-id="0"></td>
+                                    <td><input type="number" step="any" name="electricity_bos_room_costs[0][subject]" class="form-control" data-id="0"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                @endif
+
+
+                <hr class="mt-4">
+                <h5>Community/Compound Grid</h5>
+
+                @if(count($communityGrids) > 0)
+                    <table class="table table-striped my-2" id="gridTable">
+                        <thead>
+                            <tr>
+                                <th>Units</th>
+                                <th>Cost per unit</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($communityGrids as $index => $communityGrid)
+                                <tr data-grid-id="{{ $communityGrid->id }}">
+                                    <td>
+                                        <input type="number" step="any" name="grid_units[{{ $communityGrid->id }}]" class="form-control grid-units" 
+                                        data-grid-index="{{ $index }}" value="{{ $communityGrid->unit }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="any" name="grid_costs[{{ $communityGrid->id }}]" class="form-control grid-costs" 
+                                        data-grid-index="{{ $index }}" value="{{ $communityGrid->cost }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-grid-{{ $index }}">{{ $communityGrid->unit * $communityGrid->cost }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteGrid" data-id="{{ $communityGrid->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    @else
+                        {{-- Add More Community/Compound Grid --}}
+                        <h6>Add New Community/Compound Grid</h6>
+                        <table class="table table-bordered" id="addRemoveGrid">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" step="any" name="grid_units[0][subject]" class="form-control" data-id="0"></td>
+                                    <td><input type="number" step="any" name="grid_costs[0][subject]" class="form-control" data-id="0"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                @endif
+
+                <hr class="mt-4">
+                <h5>Refrigerator</h5>
+
+                @if(count($refrigerators) > 0)
+                    <table class="table table-striped my-2" id="refrigeratorTable">
+                        <thead>
+                            <tr>
+                                <th>Units</th>
+                                <th>Cost per unit</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($refrigerators as $index => $refrigerator)
+                                <tr data-refrigerator-id="{{ $refrigerator->id }}">
+                                    <td>
+                                        <input type="number" step="any" name="refrigerator_units[{{ $refrigerator->id }}]" class="form-control refrigerator-units" 
+                                        data-refrigerator-index="{{ $index }}" value="{{ $refrigerator->unit }}">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="any" name="refrigerator_costs[{{ $refrigerator->id }}]" class="form-control refrigerator-costs" 
+                                        data-refrigerator-index="{{ $index }}" value="{{ $refrigerator->cost }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-refrigerator-{{ $index }}">{{ $refrigerator->unit * $refrigerator->cost }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteRefrigerator" data-id="{{ $refrigerator->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    @else
+                        {{-- Add More Refrigerator --}}
+                        <h6>Add New Refrigerator</h6>
+                        <table class="table table-bordered" id="addRemoveRefrigerator">
+                            <thead>
+                                <tr>
+                                    <th>Units</th>
+                                    <th>Cost per Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" step="any" name="refrigerator_units[0][subject]" class="form-control" data-id="0"></td>
+                                    <td><input type="number" step="any" name="refrigerator_costs[0][subject]" class="form-control" data-id="0"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                @endif
 
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
@@ -1391,8 +1885,8 @@
         const newRow = `
             <tr>
                 <td><select name="battery_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="battery_units[${batteryIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="battery_costs[${batteryIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="battery_units[${batteryIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="battery_costs[${batteryIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1451,8 +1945,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemBattery') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1488,8 +1985,8 @@
         const newRow = `
             <tr>
                 <td><select name="battery_mount_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="battery_mount_units[${batteryMountIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="battery_mount_costs[${batteryMountIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="battery_mount_units[${batteryMountIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="battery_mount_costs[${batteryMountIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1548,8 +2045,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemBatteryMount') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1585,8 +2085,8 @@
         const newRow = `
             <tr>
                 <td><select name="pv_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="pv_units[${pvIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="pv_costs[${pvIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="pv_units[${pvIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="pv_costs[${pvIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1645,8 +2145,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemPv') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1681,8 +2184,8 @@
         const newRow = `
             <tr>
                 <td><select name="pv_mount_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="pv_mount_units[${pvMountIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="pv_mount_costs[${pvMountIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="pv_mount_units[${pvMountIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="pv_mount_costs[${pvMountIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1741,8 +2244,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemPvMount') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1777,8 +2283,8 @@
         const newRow = `
             <tr>
                 <td><select name="controller_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="controller_units[${controllerIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="controller_costs[${controllerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="controller_units[${controllerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="controller_costs[${controllerIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1837,8 +2343,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemController') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1873,8 +2382,8 @@
         const newRow = `
             <tr>
                 <td><select name="mcb_pv_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="mcb_pv_units[${mcbPvIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="mcb_pv_costs[${mcbPvIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="mcb_pv_units[${mcbPvIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="mcb_pv_costs[${mcbPvIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -1933,8 +2442,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemMcbPv') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -1969,8 +2481,8 @@
         const newRow = `
             <tr>
                 <td><select name="bsp_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="bsp_units[${bspIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="bsp_costs[${bspIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="bsp_units[${bspIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="bsp_costs[${bspIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -2029,8 +2541,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemBsp') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2066,8 +2581,8 @@
         const newRow = `
             <tr>
                 <td><select name="logger_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="logger_units[${loggerIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="logger_costs[${loggerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="logger_units[${loggerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="logger_costs[${loggerIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -2126,8 +2641,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemMonitoring') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2167,12 +2685,12 @@
                     </select>
                 </td>
                 <td>
-                    <input type="number" name="load-relay-units[${loadRelayIndex}][subject]" 
+                    <input type="number" step="any" name="load-relay-units[${loadRelayIndex}][subject]" 
                         class="form-control load-relay-units" 
                         data-load-relay-index="${loadRelayIndex}">
                 </td>
                 <td>
-                    <input type="number" name="load-relay-costs[${loadRelayIndex}][subject]" 
+                    <input type="number" step="any" name="load-relay-costs[${loadRelayIndex}][subject]" 
                         class="form-control load-relay-costs" 
                         data-load-relay-index="${loadRelayIndex}">
                 </td>
@@ -2239,8 +2757,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemLoadRelay') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2275,8 +2796,8 @@
         const newRow = `
             <tr>
                 <td><select name="inverter_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="inverter_units[${inverterIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="inverter_costs[${inverterIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="inverter_units[${inverterIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="inverter_costs[${inverterIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -2335,8 +2856,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemInverter') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2372,8 +2896,8 @@
         const newRow = `
             <tr>
                 <td><select name="bts_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="bts_units[${btsIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="bts_costs[${btsIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="bts_units[${btsIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="bts_costs[${btsIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -2432,8 +2956,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemBts') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2469,8 +2996,8 @@
         const newRow = `
             <tr>
                 <td><select name="generator_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="generator_units[${generatorIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="generator_costs[${generatorIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="generator_units[${generatorIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="generator_costs[${generatorIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -2529,8 +3056,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemGenerator') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2566,8 +3096,8 @@
         const newRow = `
             <tr>
                 <td><select name="rcc_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="rcc_units[${rccIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="rcc_costs[${rccIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="rcc_units[${rccIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="rcc_costs[${rccIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -2626,8 +3156,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemRcc') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2662,8 +3195,8 @@
         const newRow = `
             <tr>
                 <td><select name="relay_driver_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="relay-driver_units[${relayDriverIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="relay-driver_costs[${relayDriverIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="relay-driver_units[${relayDriverIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="relay-driver_costs[${relayDriverIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -2722,8 +3255,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemRelayDriver') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2758,8 +3294,8 @@
         const newRow = `
             <tr>
                 <td><select name="turbine_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="turbine_units[${turbineIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="turbine_costs[${turbineIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="turbine_units[${turbineIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="turbine_costs[${turbineIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -2818,8 +3354,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemTurbine') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2855,8 +3394,8 @@
         const newRow = `
             <tr>
                 <td><select name="mcb_controller_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="mcb_controller_units[${mcbControllerIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="mcb_controller_costs[${mcbControllerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="mcb_controller_units[${mcbControllerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="mcb_controller_costs[${mcbControllerIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -2914,8 +3453,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemMcbController') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -2951,8 +3493,8 @@
         const newRow = `
             <tr>
                 <td><select name="mcb_inverter_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="mcb_inverter_units[${mcbInverterIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="mcb_inverter_costs[${mcbInverterIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="mcb_inverter_units[${mcbInverterIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="mcb_inverter_costs[${mcbInverterIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -3010,8 +3552,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemMcbInverter') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -3049,8 +3594,8 @@
         const newRow = `
             <tr>
                 <td><select name="conditioner_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
-                <td><input type="number" name="conditioner_units[${airConditionerIndex}][subject]" class="form-control"></td>
-                <td><input type="number" name="conditioner_costs[${airConditionerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="conditioner_units[${airConditionerIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any" name="conditioner_costs[${airConditionerIndex}][subject]" class="form-control"></td>
                 <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
             </tr>
         `;
@@ -3109,8 +3654,11 @@
             if(result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('deleteEnergySystemAirConditioner') }}",
-                    type: 'get',
-                    data: {id: id},
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
                     success: function(response) {
                         if(response.success == 1) {
                             Swal.fire({
@@ -3132,6 +3680,668 @@
             }
         });
     });
+
+    // FBS Cabinet
+    // Auto-calculate total Cabinet
+    const debounceTimersCabinet = {};
+    $(document).on('input', '.cabinet-units, .cabinet-costs', function () {
+        const indexcabinet = $(this).data('cabinet-index'); 
+
+        // Use correct attribute selector data-cabinet-index
+        const unit = parseFloat($(`.cabinet-units[data-cabinet-index="${indexcabinet}"]`).val()) || 0;
+        const cost = parseFloat($(`.cabinet-costs[data-cabinet-index="${indexcabinet}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-cabinet-${indexcabinet}`).text(total);
+
+        clearTimeout(debounceTimersCabinet[indexcabinet]);
+        debounceTimersCabinet[indexcabinet] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const cabinetId = row.data('cabinet-id');
+
+            $.ajax({
+                url: `/update-energy-cabinet/${cabinetId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete energy system cabinet
+    $('#fbsCabinetTable').on('click', '.deleteCabinet',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Cabinet?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemCabinet') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // FBS Fan
+    // Auto-calculate total Fan
+    const debounceTimersFan = {};
+    $(document).on('input', '.fan-units, .fan-costs', function () {
+        const indexfan = $(this).data('fan-index'); 
+
+        // Use correct attribute selector data-fan-index
+        const unit = parseFloat($(`.fan-units[data-fan-index="${indexfan}"]`).val()) || 0;
+        const cost = parseFloat($(`.fan-costs[data-fan-index="${indexfan}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-fan-${indexfan}`).text(total);
+
+        clearTimeout(debounceTimersFan[indexfan]);
+        debounceTimersFan[indexfan] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const fanId = row.data('fan-id');
+
+            $.ajax({
+                url: `/update-energy-fan/${fanId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete energy system fan
+    $('#fbsFanTable').on('click', '.deleteFan',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Fan?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemFan') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // FBS Lock
+    // Auto-calculate total Lock
+    const debounceTimersLock = {};
+    $(document).on('input', '.lock-units, .lock-costs', function () {
+        const indexlock = $(this).data('lock-index'); 
+
+        // Use correct attribute selector data-lock-index
+        const unit = parseFloat($(`.lock-units[data-lock-index="${indexlock}"]`).val()) || 0;
+        const cost = parseFloat($(`.lock-costs[data-lock-index="${indexlock}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-lock-${indexlock}`).text(total);
+
+        clearTimeout(debounceTimersLock[indexlock]);
+        debounceTimersLock[indexlock] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const lockId = row.data('lock-id');
+
+            $.ajax({
+                url: `/update-energy-lock/${lockId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete energy system lock
+    $('#fbsLockTable').on('click', '.deleteLock',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Lock?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemLock') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // FBS Wiring
+    // Auto-calculate total wiring
+    const debounceTimersWiring = {};
+    $(document).on('input', '.wiring-units, .wiring-costs', function () {
+        const indexwiring = $(this).data('wiring-index'); 
+
+        // Use correct attribute selector data-wiring-index
+        const unit = parseFloat($(`.wiring-units[data-wiring-index="${indexwiring}"]`).val()) || 0;
+        const cost = parseFloat($(`.wiring-costs[data-wiring-index="${indexwiring}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-wiring-${indexwiring}`).text(total);
+
+        clearTimeout(debounceTimersWiring[indexwiring]);
+        debounceTimersWiring[indexwiring] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const wiringId = row.data('wiring-id');
+
+            $.ajax({
+                url: `/update-energy-wiring/${wiringId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete energy system wiring
+    $('#fbsWiringTable').on('click', '.deleteFbsWiring', function() {
+        var id = $(this).data('id');
+        var $ele = $(this).closest('tr'); 
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this FBS Wiring?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemWiring') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                confirmButtonText: 'Okay!'
+                            }).then(() => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info');
+            }
+        });
+    });
+
+
+
+
+
+    // electricity room
+    // Auto-calculate total ElectricityRoom
+    const debounceTimersElectricityRoom = {};
+    $(document).on('input', '.electricity-room-units, .electricity-room-costs', function () {
+        const indexElectricityRoom = $(this).data('electricity-room-index'); 
+
+        // Use correct attribute selector data-electricity-room-index
+        const unit = parseFloat($(`.electricity-room-units[data-electricity-room-index="${indexElectricityRoom}"]`).val()) || 0;
+        const cost = parseFloat($(`.electricity-room-costs[data-electricity-room-index="${indexElectricityRoom}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-electricity-room-${indexElectricityRoom}`).text(total);
+
+        clearTimeout(debounceTimersElectricityRoom[indexElectricityRoom]);
+        debounceTimersElectricityRoom[indexElectricityRoom] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const electricityRoomId = row.data('electricity-room-id');
+
+            $.ajax({
+                url: `/update-energy-electricity-room/${electricityRoomId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete energy system ElectricityRoom
+    $('#electricityRoomTable').on('click', '.deleteElectricityRoom',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Electricity Room?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemElectricityRoom') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                confirmButtonText: 'Okay!'
+                            }).then(() => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // electricity bos room
+    // Auto-calculate total ElectricityRoom
+    const debounceTimersElectricityBosRoom = {};
+    $(document).on('input', '.electricity-bos-room-units, .electricity-bos-room-costs', function () {
+        const indexElectricityBosRoom = $(this).data('electricity-bos-room-index'); 
+
+        // Use correct attribute selector data-electricity-room-index
+        const unit = parseFloat($(`.electricity-bos-room-units[data-electricity-bos-room-index="${indexElectricityBosRoom}"]`).val()) || 0;
+        const cost = parseFloat($(`.electricity-bos-room-costs[data-electricity-bos-room-index="${indexElectricityBosRoom}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-electricity-bos-room-${indexElectricityBosRoom}`).text(total);
+
+        clearTimeout(debounceTimersElectricityBosRoom[indexElectricityBosRoom]);
+        debounceTimersElectricityBosRoom[indexElectricityBosRoom] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const electricityBosRoomId = row.data('electricity-bos-room-id');
+
+            $.ajax({
+                url: `/update-energy-electricity-room-bos/${electricityBosRoomId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete energy system Electricity Bos Room
+    $('#electricityBosRoomTable').on('click', '.deleteElectricityBosRoom',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Electricity Bos Room?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemElectricityBosRoom') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+
+    // House Wiring
+    // Auto-calculate total Wiring
+    const debounceTimersWiringHouse = {};
+    $(document).on('input', '.wiring-house-units, .wiring-house-costs', function () {
+        const indexwiringHouse = $(this).data('wiring-house-index'); 
+
+        // Use correct attribute selector data-wiring-index
+        const unit = parseFloat($(`.wiring-house-units[data-wiring-house-index="${indexwiringHouse}"]`).val()) || 0;
+        const cost = parseFloat($(`.wiring-house-costs[data-wiring-house-index="${indexwiringHouse}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-wiring-house-${indexwiringHouse}`).text(total);
+
+        clearTimeout(debounceTimersWiringHouse[indexwiringHouse]);
+        debounceTimersWiringHouse[indexwiringHouse] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const wiringHouseId = row.data('wiring-house-id');
+
+            $.ajax({
+                url: `/update-energy-wiring-house/${wiringHouseId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete energy system Wiring House
+    $('#wiringHouseTable').on('click', '.deleteWiringHouse',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this House Wiring?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemWiringHouse') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+
+    // Grids
+    // Auto-calculate total Grid
+    const debounceTimersGrid = {};
+    $(document).on('input', '.grid-units, .grid-costs', function () {
+
+        const indexGrid = $(this).data('grid-index'); 
+
+        // Use correct attribute selector data-grid-index
+        const unit = parseFloat($(`.grid-units[data-grid-index="${indexGrid}"]`).val()) || 0;
+        const cost = parseFloat($(`.grid-costs[data-grid-index="${indexGrid}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-grid-${indexGrid}`).text(total);
+
+        clearTimeout(debounceTimersGrid[indexGrid]);
+        debounceTimersGrid[indexGrid] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const gridId = row.data('grid-id');
+
+            $.ajax({
+                url: `/update-energy-grid/${gridId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete energy system Grid
+    $('#gridTable').on('click', '.deleteGrid',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Grid?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemGrid') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // refrigerator
+    // Auto-calculate total Refrigerator
+    const debounceTimersRefrigerator = {};
+    $(document).on('input', '.refrigerator-units, .refrigerator-costs', function () {
+
+        const indexRefrigerator = $(this).data('refrigerator-index'); 
+
+        // Use correct attribute selector data-refrigerator-index
+        const unit = parseFloat($(`.refrigerator-units[data-refrigerator-index="${indexRefrigerator}"]`).val()) || 0;
+        const cost = parseFloat($(`.refrigerator-costs[data-refrigerator-index="${indexRefrigerator}"]`).val()) || 0;
+        
+        const total = (unit * cost).toFixed(2);
+
+        // Update total with correct ID selector
+        $(`#total-refrigerator-${indexRefrigerator}`).text(total);
+
+        clearTimeout(debounceTimersRefrigerator[indexRefrigerator]);
+        debounceTimersRefrigerator[indexRefrigerator] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const refrigeratorId = row.data('refrigerator-id');
+
+            $.ajax({
+                url: `/update-energy-refrigerator/${refrigeratorId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete energy system refrigerator
+    $('#refrigeratorTable').on('click', '.deleteRefrigerator',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Rrefrigerator?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergySystemRefrigerator') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
 </script>
 
 @endsection

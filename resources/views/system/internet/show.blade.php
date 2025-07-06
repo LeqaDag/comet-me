@@ -7,6 +7,30 @@
 
 @section('content')
  
+@php
+    $systems = [
+        'router' => $routers,
+        'switch' => $switches,
+        'controller' => $controllers,
+        'ptp' => $ptps,
+        'ap' => $aps,
+        'ap_lite' => $apLites,
+        'uisp' => $uisps
+    ];
+
+    $grandTotalCost = 0;
+@endphp
+
+@foreach($systems as $label => $system)
+
+    @php
+
+        $totalCost = $system->sum($label . '_costs');
+        $grandTotalCost += $totalCost;
+    @endphp
+@endforeach
+
+
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light"> {{$internetSystem->system_name}}</span> Details
 </h4>
@@ -44,6 +68,14 @@
                     </h6>
                 </div>
             </div>
+            <div class="row mt-4">
+                <div class="col-xl-12 col-lg-12 col-md-12">
+                    <div class="alert alert-success text-center">
+                        <h5>Total System Cost: <strong>{{ number_format($grandTotalCost, 2) }}</strong> ₪</h5>
+                    </div>
+                </div>
+            </div>
+
             <hr>
             @if(count($routers) < 1)
                 <div class="alert alert-warning">

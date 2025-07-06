@@ -301,7 +301,7 @@
     <div class="row overflow-hidden collapse multi-collapse container" id="IncidentsReportFiles">
         <div class=" mb-4">
             <form method="POST" enctype='multipart/form-data' 
-                action="{{ route('all-report-incident.export') }}">
+                action="{{ route('all-incident.export') }}">
                 @csrf
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4">

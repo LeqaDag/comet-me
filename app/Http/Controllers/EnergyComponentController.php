@@ -62,6 +62,15 @@ use App\Models\PublicStructureCategory;
 use App\Models\ProductType;
 use App\Models\CommunityWaterSource;
 use App\Models\IncidentStatusSmallInfrastructure;
+use App\Models\EnergySystemFbsCabinet;
+use App\Models\EnergySystemFbsFan;
+use App\Models\EnergySystemFbsLock;
+use App\Models\EnergySystemFbsWiring;
+use App\Models\EnergySystemWiringHouse;
+use App\Models\EnergySystemElectricityRoom;
+use App\Models\EnergySystemElectricityBosRoom;
+use App\Models\EnergySystemGrid;
+use App\Models\EnergySystemRefrigeratorCost;
 use App\Models\FbsSystem;
 use App\Models\Town;
 use Carbon\Carbon;
@@ -263,7 +272,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyBattery = EnergySystemBattery::find($id);
+        $energyBattery = EnergySystemBattery::find($request->id);
 
         if($energyBattery->delete()) {
 
@@ -288,7 +297,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyBattery = EnergySystemBatteryMount::find($id);
+        $energyBattery = EnergySystemBatteryMount::find($request->id);
 
         if($energyBattery->delete()) {
 
@@ -313,7 +322,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyPv = EnergySystemPv::find($id);
+        $energyPv = EnergySystemPv::find($request->id);
 
         if($energyPv->delete()) {
 
@@ -338,7 +347,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyPv = EnergySystemPvMount::find($id);
+        $energyPv = EnergySystemPvMount::find($request->id);
 
         if($energyPv->delete()) {
 
@@ -363,7 +372,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyController = EnergySystemChargeController::find($id);
+        $energyController = EnergySystemChargeController::find($request->id);
 
         if($energyController->delete()) {
 
@@ -388,7 +397,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyRelayDriver = EnergySystemRelayDriver::find($id);
+        $energyRelayDriver = EnergySystemRelayDriver::find($request->id);
 
         if($energyRelayDriver->delete()) {
 
@@ -414,7 +423,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyGenerator = EnergySystemGenerator::find($id);
+        $energyGenerator = EnergySystemGenerator::find($request->id);
 
         if($energyGenerator->delete()) {
 
@@ -439,7 +448,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyRcc = EnergySystemRemoteControlCenter::find($id);
+        $energyRcc = EnergySystemRemoteControlCenter::find($request->id);
 
         if($energyRcc->delete()) {
 
@@ -464,7 +473,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyInverter = EnergySystemInverter::find($id);
+        $energyInverter = EnergySystemInverter::find($request->id);
 
         if($energyInverter->delete()) {
 
@@ -489,7 +498,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyLoadRelay = EnergySystemLoadRelay::find($id);
+        $energyLoadRelay = EnergySystemLoadRelay::find($request->id);
 
         if($energyLoadRelay->delete()) {
 
@@ -514,7 +523,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyMonitoring = EnergySystemMonitoring::find($id);
+        $energyMonitoring = EnergySystemMonitoring::find($request->id);
 
         if($energyMonitoring->delete()) {
 
@@ -539,7 +548,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyBsp = EnergySystemBatteryStatusProcessor::find($id);
+        $energyBsp = EnergySystemBatteryStatusProcessor::find($request->id);
 
         if($energyBsp->delete()) {
 
@@ -564,7 +573,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyPv = EnergySystemMcbPv::find($id);
+        $energyPv = EnergySystemMcbPv::find($request->id);
 
         if($energyPv->delete()) {
 
@@ -589,7 +598,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyController = EnergySystemMcbChargeController::find($id);
+        $energyController = EnergySystemMcbChargeController::find($request->id);
 
         if($energyController->delete()) {
 
@@ -614,7 +623,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyInverter = EnergySystemMcbInverter::find($id);
+        $energyInverter = EnergySystemMcbInverter::find($request->id);
 
         if($energyInverter->delete()) {
 
@@ -639,7 +648,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyTurbine = EnergySystemWindTurbine::find($id);
+        $energyTurbine = EnergySystemWindTurbine::find($request->id);
 
         if($energyTurbine->delete()) {
 
@@ -664,7 +673,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyAir = EnergySystemAirConditioner::find($id);
+        $energyAir = EnergySystemAirConditioner::find($request->id);
 
         if($energyAir->delete()) {
 
@@ -689,7 +698,7 @@ class EnergyComponentController extends Controller
     {
         $id = $request->id;
 
-        $energyBts = EnergySystemBatteryTemperatureSensor::find($id);
+        $energyBts = EnergySystemBatteryTemperatureSensor::find($request->id);
 
         if($energyBts->delete()) {
 
@@ -704,4 +713,229 @@ class EnergyComponentController extends Controller
         return response()->json($response); 
     }
 
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemCabinet(Request $request)
+    {
+        $id = $request->id;
+
+        $fbsCabinet = EnergySystemFbsCabinet::find($request->id);
+
+        if($fbsCabinet->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'FBS Cabinet Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemFan(Request $request)
+    {
+        $id = $request->id;
+
+        $fbsFan = EnergySystemFbsFan::find($request->id);
+
+        if($fbsFan->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'FBS Fan Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemLock(Request $request)
+    {
+        $id = $request->id;
+
+        $fbsLock = EnergySystemFbsLock::find($request->id);
+
+        if($fbsLock->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'FBS Lock Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemWiring(Request $request)
+    {
+        $id = $request->id;
+
+        $fbsWiring = EnergySystemFbsWiring::find($request->id);
+
+        if($fbsWiring->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'FBS Wiring Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemWiringHouse(Request $request)
+    {
+        $id = $request->id;
+
+        $houseWiring = EnergySystemWiringHouse::find($request->id);
+
+        if($houseWiring->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'House Wiring Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemElectricityRoom(Request $request)
+    {
+        $id = $request->id;
+
+        $electricityRoom = EnergySystemElectricityRoom::find($request->id);
+
+        if($electricityRoom->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Electricity Room Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemElectricityBosRoom(Request $request)
+    {
+        $id = $request->id;
+
+        $electricityRoomBos = EnergySystemElectricityBosRoom::find($request->id);
+
+        if($electricityRoomBos->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Electricity Bos Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+    
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemGrid(Request $request)
+    {
+        $id = $request->id;
+
+        $energyGrid = EnergySystemGrid::find($request->id);
+
+        if($energyGrid->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Community Grid Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemRefrigerator(Request $request)
+    {
+        $id = $request->id;
+
+        $energyRefrigerator = EnergySystemRefrigeratorCost::find($request->id);
+
+        if($energyRefrigerator->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Refrigerator Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+    
 }

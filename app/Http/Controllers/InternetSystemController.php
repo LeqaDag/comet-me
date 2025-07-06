@@ -505,8 +505,8 @@ class InternetSystemController extends Controller
                 $internetRouter = new RouterInternetSystem();
                 $internetRouter->router_id = $request->router_ids[$cnq];
                 $internetRouter->internet_system_id = $id;
-                $internetRouter->router_units = $request->input("router_units.$cnq.subject");
-                $internetRouter->router_costs = $request->input("router_costs.$cnq.subject");
+                $internetRouter->router_units = $request->input("router_units.$cnq.subject") ?? 0;
+                $internetRouter->router_costs = $request->input("router_costs.$cnq.subject") ?? 0;
         
                 $internetRouter->save();
             }
@@ -519,8 +519,8 @@ class InternetSystemController extends Controller
                 $internetSwitch = new SwitchInternetSystem();
                 $internetSwitch->switch_id = $request->switch_ids[$sw];
                 $internetSwitch->internet_system_id = $id;
-                $internetSwitch->switch_units = $request->input("switch_units.$sw.subject");
-                $internetSwitch->switch_costs = $request->input("switch_costs.$sw.subject");
+                $internetSwitch->switch_units = $request->input("switch_units.$sw.subject") ?? 0;
+                $internetSwitch->switch_costs = $request->input("switch_costs.$sw.subject") ?? 0;
         
                 $internetSwitch->save();
             }
@@ -533,8 +533,8 @@ class InternetSystemController extends Controller
                 $internetController = new ControllerInternetSystem();
                 $internetController->internet_controller_id = $request->controller_ids[$contr];
                 $internetController->internet_system_id = $id;
-                $internetController->controller_units = $request->input("controller_units.$contr.subject");
-                $internetController->controller_costs = $request->input("controller_costs.$contr.subject");
+                $internetController->controller_units = $request->input("controller_units.$contr.subject") ?? 0;
+                $internetController->controller_costs = $request->input("controller_costs.$contr.subject") ?? 0;
         
                 $internetController->save();
             }
@@ -547,8 +547,8 @@ class InternetSystemController extends Controller
                 $internetAp = new ApInternetSystem();
                 $internetAp->internet_ap_id = $request->ap_ids[$aps];
                 $internetAp->internet_system_id = $id;
-                $internetAp->ap_units = $request->input("ap_units.$aps.subject");
-                $internetAp->ap_costs = $request->input("ap_costs.$aps.subject");
+                $internetAp->ap_units = $request->input("ap_units.$aps.subject") ?? 0;
+                $internetAp->ap_costs = $request->input("ap_costs.$aps.subject") ?? 0;
         
                 $internetAp->save();
             }
@@ -561,8 +561,8 @@ class InternetSystemController extends Controller
                 $internetApLite = new ApLiteInternetSystem();
                 $internetApLite->internet_ap_id = $request->ap_lite_ids[$apl];
                 $internetApLite->internet_system_id = $id;
-                $internetApLite->ap_lite_units = $request->input("ap_lite_units.$apl.subject");
-                $internetApLite->ap_lite_costs = $request->input("ap_lite_costs.$apl.subject");
+                $internetApLite->ap_lite_units = $request->input("ap_lite_units.$apl.subject") ?? 0;
+                $internetApLite->ap_lite_costs = $request->input("ap_lite_costs.$apl.subject") ?? 0;
         
                 $internetApLite->save();
             }
@@ -575,8 +575,8 @@ class InternetSystemController extends Controller
                 $internetPtp = new PtpInternetSystem();
                 $internetPtp->internet_ptp_id = $request->ptp_id[$pt];
                 $internetPtp->internet_system_id = $id;
-                $internetPtp->ptp_units = $request->input("ptp_units.$pt.subject");
-                $internetPtp->ptp_costs = $request->input("ptp_costs.$pt.subject");
+                $internetPtp->ptp_units = $request->input("ptp_units.$pt.subject") ?? 0;
+                $internetPtp->ptp_costs = $request->input("ptp_costs.$pt.subject") ?? 0;
         
                 $internetPtp->save();
             }
@@ -589,8 +589,8 @@ class InternetSystemController extends Controller
                 $internetUisp = new UispInternetSystem();
                 $internetUisp->internet_uisp_id = $request->uisp_ids[$iuis];
                 $internetUisp->internet_system_id = $id;
-                $internetUisp->uisp_units = $request->input("uisp_units.$iuis.subject");
-                $internetUisp->uisp_costs = $request->input("uisp_costs.$iuis.subject");
+                $internetUisp->uisp_units = $request->input("uisp_units.$iuis.subject") ?? 0;
+                $internetUisp->uisp_costs = $request->input("uisp_costs.$iuis.subject") ?? 0;
         
                 $internetUisp->save();
             }
@@ -634,7 +634,7 @@ class InternetSystemController extends Controller
             $lineOfSightMainCommunities = LineOfSight::where("main_community_id", $internetCommunity->community_id)->get();
             $lineOfSightSubCommunities = LineOfSight::where("sub_community_id", $internetCommunity->community_id)->get();
         }
-
+ 
         // Router
         $routers = DB::table('router_internet_systems')
             ->join('internet_systems', 'router_internet_systems.internet_system_id', 

@@ -209,15 +209,6 @@ label, table {
             </div>
         </div>
         <div class="card-body">
-            @if(Auth::guard('user')->user()->user_type_id == 1 || 
-                Auth::guard('user')->user()->user_type_id == 2 )
-                <div>
-                    <a type="button" class="btn btn-success" 
-                        href="{{url('energy-cost', 'create')}}">
-                        Create New Energy Cost	
-                    </a>
-                </div>
-            @endif
             <table id="costEnergyTable" class="table table-striped data-table-energy-cost my-2">
                 <thead>
                     <tr>
@@ -225,7 +216,6 @@ label, table {
                         <th>Type</th>
                         <th>Installtion Year</th>
                         <th>Cost <i class="menu-icon tf-icons bx bx-shekel"></i></th>
-                        <th class="text-center">Options</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -256,8 +246,7 @@ label, table {
                 {data: 'name', name: 'name'},
                 {data: 'type', name: 'type'},
                 {data: 'installation_year', name: 'installation_year'},
-                {data: 'total_costs', name: 'total_costs'},
-                {data: 'action'},
+                {data: 'total_costs', name: 'total_costs'}
             ]
         });
     }

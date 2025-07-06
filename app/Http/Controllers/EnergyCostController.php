@@ -285,20 +285,20 @@ class EnergyCostController extends Controller
 
                 return Datatables::of($data)
                     ->addIndexColumn()
-                    ->addColumn('action', function($row) {
+                    // ->addColumn('action', function($row) {
     
-                        $viewButton = "<a type='button' class='viewEnergyCost' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyCostModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                        $updateButton = "<a type='button' class='updateEnergyCost' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                        $deleteButton = "<a type='button' class='deleteEnergyCost' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                    //     $viewButton = "<a type='button' class='viewEnergyCost' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyCostModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                    //     $updateButton = "<a type='button' class='updateEnergyCost' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                    //     $deleteButton = "<a type='button' class='deleteEnergyCost' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
-                        if(Auth::guard('user')->user()->user_type_id == 1 || 
-                            Auth::guard('user')->user()->user_type_id == 2 ||
-                            Auth::guard('user')->user()->user_type_id == 4) 
-                        {
+                    //     if(Auth::guard('user')->user()->user_type_id == 1 || 
+                    //         Auth::guard('user')->user()->user_type_id == 2 ||
+                    //         Auth::guard('user')->user()->user_type_id == 4) 
+                    //     {
                                 
-                            return $viewButton." ". $updateButton." ".$deleteButton;
-                        } else return $viewButton;
-                    })
+                    //         return $viewButton." ". $updateButton." ".$deleteButton;
+                    //     } else return $viewButton;
+                    // })
                    
                     ->filter(function ($instance) use ($request) {
                         if (!empty($request->get('search'))) {
@@ -311,7 +311,6 @@ class EnergyCostController extends Controller
                             });
                         }
                     })
-                ->rawColumns(['action'])
                 ->make(true);
             }
     

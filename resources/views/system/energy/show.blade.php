@@ -7,6 +7,48 @@
 
 @section('content')
  
+@php
+    $systems = [
+        'Battery' => $battarySystems,
+        'Battery Mount' => $battaryMountSystems,
+        'PV' => $pvSystems,
+        'PV Mount' => $pvMountSystems,
+        'Controller' => $controllerSystems,
+        'Inverter' => $inverterSystems,
+        'Relay Driver' => $relayDriverSystems,
+        'Load Relay' => $loadRelaySystems,
+        'BSP' => $bspSystems,
+        'RCC' => $rccSystems,
+        'Logger' => $loggerSystems,
+        'Generator' => $generatorSystems,
+        'Turbine' => $turbineSystems,
+        'PV MCB' => $pvMcbSystems,
+        'Controller MCB' => $controllerMcbSystems,
+        'Inverter MCB' => $inventerMcbSystems,
+        'Air Conditioner' => $airConditionerSystems,
+        'BTS' => $btsSystems,
+        'FBS Cabinet' => $fbsCabinets,
+        'FBS Fan' => $fbsFans,
+        'FBS Lock' => $fbsLocks,
+        'House Wiring' => $houseWirings,
+        'Electricity Rooms' => $electricityRooms,
+        'Electricity Bos Rooms' => $electricityBosRooms,
+        'Community Grids' => $communityGrids,
+        'Refrigerators' => $refrigerators,
+    ];
+
+    $grandTotalCost = 0;
+@endphp
+
+@foreach($systems as $label => $system)
+    @php
+        $totalCost = $system->sum('cost');
+        $grandTotalCost += $totalCost;
+    @endphp
+@endforeach
+
+
+
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light"> {{$energySystem->name}}</span> Details
 </h4>
@@ -96,6 +138,15 @@
                     </h6>
                 </div>
             </div>
+
+            <div class="row mt-4">
+                <div class="col-xl-12 col-lg-12 col-md-12">
+                    <div class="alert alert-success text-center">
+                        <h5>Total System Cost: <strong>{{ number_format($grandTotalCost, 2) }}</strong> ₪</h5>
+                    </div>
+                </div>
+            </div>
+
             <hr>
             @if(count($battarySystems) < 1)
                 <div class="alert alert-warning">
@@ -368,6 +419,52 @@
                 <hr>
             @endif
                 
+
+            @if(count($btsSystems) < 1)
+                <div class="alert alert-warning">
+                    No BTS Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        BTS:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-success">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($btsSystems as $btsSystem)
+                                <tr>
+                                    <td>{{$btsSystem->BTS_model}}</td>
+                                    <td>{{$btsSystem->BTS_brand}}</td>
+                                    <td>{{$btsSystem->bts_units}}</td>
+                                    <td>{{$btsSystem->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan=2>Total Units</td>
+                                    <td>{{$btsSystems->sum('bts_units') }}</td>
+                                    <td>{{$btsSystems->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
 
             @if(count($relayDriverSystems) < 1)
                 <div class="alert alert-warning">
@@ -864,6 +961,401 @@
                 </div>
                 <hr>
             @endif
+       
+       
+            @if(count($fbsCabinets) < 1)
+                <div class="alert alert-warning">
+                    No FBS Cabinet Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        FBS Cabinet:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-primary">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($fbsCabinets as $fbsCabinet)
+                                <tr>
+                                    <th></th>
+                                    <td>{{$fbsCabinet->unit}}</td>
+                                    <td>{{$fbsCabinet->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td >Total Units</td>
+                                    <td>{{$fbsCabinets->sum('unit') }}</td>
+                                    <td>{{$fbsCabinets->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+
+            @if(count($fbsFans) < 1)
+                <div class="alert alert-warning">
+                    No FBS Fan Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        FBS Fan:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-primary">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($fbsFans as $fbsFan)
+                                <tr>
+                                    <th></th>
+                                    <td>{{$fbsFan->unit}}</td>
+                                    <td>{{$fbsFan->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td >Total Units</td>
+                                    <td>{{$fbsFans->sum('unit') }}</td>
+                                    <td>{{$fbsFans->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+
+            @if(count($fbsLocks) < 1)
+                <div class="alert alert-warning">
+                    No FBS Lock Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        FBS Lock:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-primary">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($fbsLocks as $fbsLock)
+                                <tr>
+                                    <th></th>
+                                    <td>{{$fbsLock->unit}}</td>
+                                    <td>{{$fbsLock->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td >Total Units</td>
+                                    <td>{{$fbsLocks->sum('unit') }}</td>
+                                    <td>{{$fbsLocks->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+
+            @if(count($fbsWirings) < 1)
+                <div class="alert alert-warning">
+                    No FBS Wiring Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        FBS Wiring:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-primary">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($fbsWirings as $fbsWiring)
+                                <tr>
+                                    <th></th>
+                                    <td>{{$fbsWiring->unit}}</td>
+                                    <td>{{$fbsWiring->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td >Total Units</td>
+                                    <td>{{$fbsWirings->sum('unit') }}</td>
+                                    <td>{{$fbsWirings->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+
+            @if(count($refrigerators) < 1)
+                <div class="alert alert-warning">
+                    No Refrigerators Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Refrigerators:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-primary">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($refrigerators as $refrigerator)
+                                <tr>
+                                    <th></th>
+                                    <td>{{$refrigerator->unit}}</td>
+                                    <td>{{$refrigerator->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td >Total Units</td>
+                                    <td>{{$refrigerators->sum('unit') }}</td>
+                                    <td>{{$refrigerators->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+       
+            @if(count($electricityRooms) < 1)
+                <div class="alert alert-danger">
+                    No Electricity Rooms Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Electricity Rooms:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-danger">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($electricityRooms as $electricityRoom)
+                                <tr>
+                                    <th></th>
+                                    <td>{{$electricityRoom->unit}}</td>
+                                    <td>{{$electricityRoom->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td >Total Units</td>
+                                    <td>{{$electricityRooms->sum('unit') }}</td>
+                                    <td>{{$electricityRooms->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+            @if(count($electricityBosRooms) < 1)
+                <div class="alert alert-danger">
+                    No Electricity Bos Rooms Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Electricity Bos Rooms:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-danger">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($electricityBosRooms as $electricityBosRoom)
+                                <tr>
+                                    <th></th>
+                                    <td>{{$electricityBosRoom->unit}}</td>
+                                    <td>{{$electricityBosRoom->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td >Total Units</td>
+                                    <td>{{$electricityBosRooms->sum('unit') }}</td>
+                                    <td>{{$electricityBosRooms->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+            @if(count($communityGrids) < 1)
+                <div class="alert alert-warning">
+                    No Community Grids Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Community Grids:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-primary">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($communityGrids as $communityGrid)
+                                <tr>
+                                    <th></th>
+                                    <td>{{$communityGrid->unit}}</td>
+                                    <td>{{$communityGrid->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td >Total Units</td>
+                                    <td>{{$communityGrids->sum('unit') }}</td>
+                                    <td>{{$communityGrids->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+            @if(count($houseWirings) < 1)
+                <div class="alert alert-warning">
+                    No House Wirings Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        House Wirings:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-primary">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th >Units</th>
+                                    <th>Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($houseWirings as $houseWiring)
+                                <tr>
+                                    <th></th>
+                                    <td>{{$houseWiring->unit}}</td>
+                                    <td>{{$houseWiring->cost}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td >Total Units</td>
+                                    <td>{{$houseWirings->sum('unit') }}</td>
+                                    <td>{{$houseWirings->sum('cost') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+       
         </div>
     </div>
 </div>

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
+use App\Http\Controllers\CameraCommunityAdditionController;
+use App\Http\Controllers\ReplacementController;
 
 
 /*
@@ -157,24 +159,24 @@ Route::get('energy-system/{id}/showPage', [App\Http\Controllers\EnergySystemCont
 Route::get('/delete-energy-system', [App\Http\Controllers\EnergySystemController::class, 'deleteEnergySystem'])->name('deleteEnergySystem');
 Route::post('energy-system-export', [App\Http\Controllers\EnergySystemController::class, 'export'])->name('energy-system.export');
 
-Route::get('/delete-energy-system-battery', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBattery'])->name('deleteEnergySystemBattery');
-Route::get('/delete-energy-system-battery-mount', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBatteryMount'])->name('deleteEnergySystemBatteryMount');
-Route::get('/delete-energy-system-pv-mount', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemPvMount'])->name('deleteEnergySystemPvMount');
-Route::get('/delete-energy-system-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemPv'])->name('deleteEnergySystemPv');
-Route::get('/delete-energy-system-controller', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemController'])->name('deleteEnergySystemController');
-Route::get('/delete-energy-system-mcb-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbPv'])->name('deleteEnergySystemMcbPv');
-Route::get('/delete-energy-system-bsp', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBsp'])->name('deleteEnergySystemBsp');
-Route::get('/delete-energy-system-monitoring', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMonitoring'])->name('deleteEnergySystemMonitoring');
-Route::get('/delete-energy-system-load-relay', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemLoadRelay'])->name('deleteEnergySystemLoadRelay');
-Route::get('/delete-energy-system-inventer', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemInverter'])->name('deleteEnergySystemInverter');
-Route::get('/delete-energy-system-generator', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemGenerator'])->name('deleteEnergySystemGenerator');
-Route::get('/delete-energy-system-relay-driver', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemRelayDriver'])->name('deleteEnergySystemRelayDriver');
-Route::get('/delete-energy-system-turbine', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemTurbine'])->name('deleteEnergySystemTurbine');
-Route::get('/delete-energy-system-rcc', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemRcc'])->name('deleteEnergySystemRcc');
-Route::get('/delete-energy-system-mcb-controller', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbController'])->name('deleteEnergySystemMcbController');
-Route::get('/delete-energy-system-mcb-inventer', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbInverter'])->name('deleteEnergySystemMcbInverter');
-Route::get('/delete-energy-system-air', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemAirConditioner'])->name('deleteEnergySystemAirConditioner');
-Route::get('/delete-energy-system-bts', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBts'])->name('deleteEnergySystemBts');
+Route::post('/delete-energy-system-battery', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBattery'])->name('deleteEnergySystemBattery');
+Route::post('/delete-energy-system-battery-mount', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBatteryMount'])->name('deleteEnergySystemBatteryMount');
+Route::post('/delete-energy-system-pv-mount', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemPvMount'])->name('deleteEnergySystemPvMount');
+Route::post('/delete-energy-system-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemPv'])->name('deleteEnergySystemPv');
+Route::post('/delete-energy-system-controller', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemController'])->name('deleteEnergySystemController');
+Route::post('/delete-energy-system-mcb-pv', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbPv'])->name('deleteEnergySystemMcbPv');
+Route::post('/delete-energy-system-bsp', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBsp'])->name('deleteEnergySystemBsp');
+Route::post('/delete-energy-system-monitoring', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMonitoring'])->name('deleteEnergySystemMonitoring');
+Route::post('/delete-energy-system-load-relay', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemLoadRelay'])->name('deleteEnergySystemLoadRelay');
+Route::post('/delete-energy-system-inventer', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemInverter'])->name('deleteEnergySystemInverter');
+Route::post('/delete-energy-system-generator', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemGenerator'])->name('deleteEnergySystemGenerator');
+Route::post('/delete-energy-system-relay-driver', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemRelayDriver'])->name('deleteEnergySystemRelayDriver');
+Route::post('/delete-energy-system-turbine', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemTurbine'])->name('deleteEnergySystemTurbine');
+Route::post('/delete-energy-system-rcc', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemRcc'])->name('deleteEnergySystemRcc');
+Route::post('/delete-energy-system-mcb-controller', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbController'])->name('deleteEnergySystemMcbController');
+Route::post('/delete-energy-system-mcb-inventer', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemMcbInverter'])->name('deleteEnergySystemMcbInverter');
+Route::post('/delete-energy-system-air', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemAirConditioner'])->name('deleteEnergySystemAirConditioner');
+Route::post('/delete-energy-system-bts', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemBts'])->name('deleteEnergySystemBts');
 
 Route::resource('water-system', App\Http\Controllers\WaterSystemController::class);
 Route::get('water_user/get_by_community/{community_id}', [App\Http\Controllers\WaterUserController::class, 'getWaterUserByCommunity']);
@@ -253,15 +255,15 @@ Route::resource('internet-system', App\Http\Controllers\InternetSystemController
 Route::get('internet-system/{id}/showPage', [App\Http\Controllers\InternetSystemController::class, 'showPage']);
 Route::get('/delete-internet-system', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystem'])->name('deleteInternetSystem');
 Route::get('internet-system/{id}/editpage', [App\Http\Controllers\InternetSystemController::class, 'editPage']);
-Route::get('/delete-internet-system-type', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemType'])->name('deleteInternetSystemType');
+Route::post('/delete-internet-system-type', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemType'])->name('deleteInternetSystemType');
 
-Route::get('/delete-internet-system-router', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemRouter'])->name('deleteInternetSystemRouter');
-Route::get('/delete-internet-system-switch', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemSwitch'])->name('deleteInternetSystemSwitch');
-Route::get('/delete-internet-system-controller', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemController'])->name('deleteInternetSystemController');
-Route::get('/delete-internet-system-ap', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemAp'])->name('deleteInternetSystemAp');
-Route::get('/delete-internet-system-aplite', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemApLite'])->name('deleteInternetSystemApLite');
-Route::get('/delete-internet-system-uisp', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemUisp'])->name('deleteInternetSystemUisp');
-Route::get('/delete-internet-system-ptp', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemPtp'])->name('deleteInternetSystemPtp');
+Route::post('/delete-internet-system-router', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemRouter'])->name('deleteInternetSystemRouter');
+Route::post('/delete-internet-system-switch', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemSwitch'])->name('deleteInternetSystemSwitch');
+Route::post('/delete-internet-system-controller', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemController'])->name('deleteInternetSystemController');
+Route::post('/delete-internet-system-ap', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemAp'])->name('deleteInternetSystemAp');
+Route::post('/delete-internet-system-aplite', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemApLite'])->name('deleteInternetSystemApLite');
+Route::post('/delete-internet-system-uisp', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemUisp'])->name('deleteInternetSystemUisp');
+Route::post('/delete-internet-system-ptp', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemPtp'])->name('deleteInternetSystemPtp');
 
 Route::resource('internet-component', App\Http\Controllers\InternetComponentController::class);
 
@@ -600,21 +602,6 @@ Route::post('all-workshop-import', [App\Http\Controllers\AllWorkshopsController:
 Route::get('/delete-workshop-photo', [App\Http\Controllers\AllWorkshopsController::class, 'deleteWorkshopPhoto'])->name('deleteWorkshopPhoto');
 Route::get('/delete-workshop-co-trainer', [App\Http\Controllers\AllWorkshopsController::class, 'deleteWorkshopCommunityCoTrainer'])->name('deleteWorkshopCommunityCoTrainer');
 
-Route::resource('replacements', ReplacementController::class);
-Route::post('replacements/destroy', [ReplacementController::class, 'destroy'])->name('replacements.destroy');
-Route::post('/replacements/export', [ReplacementController::class, 'export'])->name('replacements.export');
-Route::post('/replacements/store', [ReplacementController::class, 'store'])->name('replacements.store');
-Route::get('/replacements/{id}/edit', [ReplacementController::class, 'edit'])->name('replacements.edit');
-Route::post('/replacements/delete', [ReplacementController::class, 'destroy'])->name('replacements.delete');
-
-Route::resource('camera-additions', CameraCommunityAdditionController::class);
-
-Route::post('camera-additions/destroy', [CameraCommunityAdditionController::class, 'destroy'])->name('camera-additions.destroy');
-Route::post('camera-additions/export', [CameraCommunityAdditionController::class, 'export'])->name('camera-additions.export');
-Route::post('camera-additions/store', [CameraCommunityAdditionController::class, 'store'])->name('camera-additions.store');
-Route::get('camera-additions/{id}/edit', [CameraCommunityAdditionController::class, 'edit'])->name('camera-additions.edit');
-Route::post('camera-additions/delete', [CameraCommunityAdditionController::class, 'destroy'])->name('camera-additions.delete');
-
 
 // New routes
 Route::resource('all-incident', App\Http\Controllers\AllIncidentController::class);
@@ -625,19 +612,19 @@ Route::get('/all-incident/get_incident_statuses/{incident_id}', [App\Http\Contro
 Route::get('/all-incident/get_water_holder/{community_id}/{flag}', [App\Http\Controllers\AllIncidentController::class, 'getWaterHolderSystemByCommunity']);
 Route::get('/all-incident/get_internet_holder/{community_id}/{flag}', [App\Http\Controllers\AllIncidentController::class, 'getInternetHolderSystemByCommunity']);
 Route::get('/update-water-tank/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateTank'])->name('updateTank');
-Route::get('/delete-water-tank', [App\Http\Controllers\WaterSystemController::class, 'deleteTank'])->name('deleteTank');
+Route::post('/delete-water-tank', [App\Http\Controllers\WaterSystemController::class, 'deleteTank'])->name('deleteTank');
 Route::get('/update-water-pipe/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updatePipe'])->name('updatePipe');
-Route::get('/delete-water-pipe', [App\Http\Controllers\WaterSystemController::class, 'deletePipe'])->name('deletePipe');
+Route::post('/delete-water-pipe', [App\Http\Controllers\WaterSystemController::class, 'deletePipe'])->name('deletePipe');
 Route::get('/update-water-pump/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updatePump'])->name('updatePump');
-Route::get('/delete-water-pump', [App\Http\Controllers\WaterSystemController::class, 'deletePump'])->name('deletePump');
+Route::post('/delete-water-pump', [App\Http\Controllers\WaterSystemController::class, 'deletePump'])->name('deletePump');
 Route::get('/update-water-connector/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateConnector'])->name('updateConnector');
-Route::get('/delete-water-connector', [App\Http\Controllers\WaterSystemController::class, 'deleteConnector'])->name('deleteConnector');
+Route::post('/delete-water-connector', [App\Http\Controllers\WaterSystemController::class, 'deleteConnector'])->name('deleteConnector');
 Route::get('/update-water-filter/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateFilter'])->name('updateFilter');
-Route::get('/delete-water-filter', [App\Http\Controllers\WaterSystemController::class, 'deleteFilter'])->name('deleteFilter');
+Route::post('/delete-water-filter', [App\Http\Controllers\WaterSystemController::class, 'deleteFilter'])->name('deleteFilter');
 Route::get('/update-water-tap/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateTap'])->name('updateTap');
-Route::get('/delete-water-tap', [App\Http\Controllers\WaterSystemController::class, 'deleteTap'])->name('deleteTap');
+Route::post('/delete-water-tap', [App\Http\Controllers\WaterSystemController::class, 'deleteTap'])->name('deleteTap');
 Route::get('/update-water-valve/{id}/{units}/{cost}', [App\Http\Controllers\WaterSystemController::class, 'updateValve'])->name('updateValve');
-Route::get('/delete-water-valve', [App\Http\Controllers\WaterSystemController::class, 'deleteValve'])->name('deleteValve');
+Route::post('/delete-water-valve', [App\Http\Controllers\WaterSystemController::class, 'deleteValve'])->name('deleteValve');
 
 Route::get('/update-internet-router/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateRouter'])->name('updateRouter');
 Route::get('/update-internet-switch/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateSwitch'])->name('updateSwitch');
@@ -666,5 +653,42 @@ Route::get('/update-energy-mcb-pv/{id}/{units}/{cost}', [App\Http\Controllers\En
 Route::get('/update-energy-mcb-controller/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateMcbController'])->name('updateMcbController');
 Route::get('/update-energy-mcb-inverter/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateMcbInverter'])->name('updateMcbInverter');
 
+Route::get('/update-energy-cabinet/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateCabinet'])->name('updateCabinet');
+Route::get('/update-energy-fan/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateFan'])->name('updateFan');
+Route::get('/update-energy-lock/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateLock'])->name('updateLock');
+Route::get('/update-energy-wiring/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateWiring'])->name('updateWiring');
+Route::get('/update-energy-wiring-house/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateWiringHouse'])->name('updateWiringHouse');
+Route::get('/update-energy-electricity-room/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateElectricityRoom'])->name('updateElectricityRoom');
+Route::get('/update-energy-electricity-room-bos/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateElectricityBosRoom'])->name('updateElectricityBosRoom');
+Route::get('/update-energy-grid/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateGrid'])->name('updateGrid');
+Route::get('/update-energy-refrigerator/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateRefrigerator'])->name('updateRefrigerator');
+ 
+Route::post('/delete-energy-wiring', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemWiring'])->name('deleteEnergySystemWiring');
+Route::post('/delete-energy-cabinet', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemCabinet'])->name('deleteEnergySystemCabinet');
+Route::post('/delete-energy-fan', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemFan'])->name('deleteEnergySystemFan');
+Route::post('/delete-energy-lock', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemLock'])->name('deleteEnergySystemLock');
+Route::post('/delete-energy-wiring-house', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemWiringHouse'])->name('deleteEnergySystemWiringHouse');
+Route::post('/delete-energy-electricity-room', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemElectricityRoom'])->name('deleteEnergySystemElectricityRoom');
+Route::post('/delete-energy-electricity-room-bos', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemElectricityBosRoom'])->name('deleteEnergySystemElectricityBosRoom');
+Route::post('/delete-energy-grid', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemGrid'])->name('deleteEnergySystemGrid');
+Route::post('/delete-energy-refrigerator', [App\Http\Controllers\EnergyComponentController::class, 'deleteEnergySystemRefrigerator'])->name('deleteEnergySystemRefrigerator');
+
 
 Route::get('/energy-systems/{id}/components', [App\Http\Controllers\AllIncidentController::class, 'getSystemComponents']);
+
+
+
+Route::resource('replacements', ReplacementController::class);
+Route::post('replacements/destroy', [ReplacementController::class, 'destroy'])->name('replacements.destroy');
+Route::post('/replacements/export', [ReplacementController::class, 'export'])->name('replacements.export');
+Route::post('/replacements/store', [ReplacementController::class, 'store'])->name('replacements.store');
+Route::get('/replacements/{id}/edit', [ReplacementController::class, 'edit'])->name('replacements.edit');
+Route::post('/replacements/delete', [ReplacementController::class, 'destroy'])->name('replacements.delete');
+
+Route::resource('camera-additions', CameraCommunityAdditionController::class);
+
+Route::post('camera-additions/destroy', [CameraCommunityAdditionController::class, 'destroy'])->name('camera-additions.destroy');
+Route::post('camera-additions/export', [CameraCommunityAdditionController::class, 'export'])->name('camera-additions.export');
+Route::post('camera-additions/store', [CameraCommunityAdditionController::class, 'store'])->name('camera-additions.store');
+Route::get('camera-additions/{id}/edit', [CameraCommunityAdditionController::class, 'edit'])->name('camera-additions.edit');
+Route::post('camera-additions/delete', [CameraCommunityAdditionController::class, 'destroy'])->name('camera-additions.delete');
