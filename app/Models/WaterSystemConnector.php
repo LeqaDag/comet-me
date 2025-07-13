@@ -21,4 +21,9 @@ class WaterSystemConnector extends Model
     {
         return $this->belongsTo(WaterConnector::class, 'water_connector_id', 'id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(WaterConnector::class, 'water_connector_id', 'id');
+    }
 }

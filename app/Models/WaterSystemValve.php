@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class WaterSystemValve extends Model
 {
     use HasFactory;
+    
+    public function WaterSystem()
+    {
+        return $this->belongsTo(WaterSystem::class, 'water_system_id', 'id');
+    }
+
+    public function model()
+    {
+        return $this->belongsTo(WaterValve::class, 'water_valve_id', 'id');
+    }
 }

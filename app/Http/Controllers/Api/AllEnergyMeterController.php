@@ -187,7 +187,7 @@ class AllEnergyMeterController extends Controller
                     'compounds.arabic_name as arabic_compound_name',
                     'households.english_name as holder_name_english',
                     'households.arabic_name as holder_name_arabic',
-                    'households.comet_id',
+                    'households.comet_id as comet_id',
                     'households.fake_meter_number',
                     'households.phone_number', 'household_statuses.status as energy_system_status',
                     DB::raw('IFNULL(all_energy_meters.meter_number,
@@ -226,7 +226,7 @@ class AllEnergyMeterController extends Controller
                     DB::raw('false as arabic_compound_name'),
                     'public_structures.english_name as holder_name_english',
                     'public_structures.arabic_name as holder_name_arabic',
-                    'public_structures.comet_id',
+                    'public_structures.comet_id as comet_id',
                     'public_structures.phone_number',
                     'public_structure_statuses.status as energy_system_status',
                     DB::raw('IFNULL(all_energy_meters.meter_number, public_structures.fake_meter_number)
@@ -255,7 +255,7 @@ class AllEnergyMeterController extends Controller
                     'communities.arabic_name as arabic_community_name',
                     DB::raw('false as english_compound_name'),
                     DB::raw('false as arabic_compound_name'),
-                    'energy_turbine_communities.comet_id',
+                    'energy_turbine_communities.comet_id as comet_id',
                     'energy_turbine_communities.name as holder_name_english',
                     'energy_turbine_communities.name as holder_name_arabic',
                     DB::raw('false as phone_number'),
@@ -278,7 +278,7 @@ class AllEnergyMeterController extends Controller
                     'communities.arabic_name as arabic_community_name',
                     DB::raw('false as english_compound_name'),
                     DB::raw('false as arabic_compound_name'),
-                    'energy_systems.comet_id',
+                    'energy_systems.comet_id as comet_id',
                     'energy_systems.name as holder_name_english',
                     'energy_systems.name as holder_name_arabic',
                     DB::raw('false as phone_number'),
@@ -291,29 +291,28 @@ class AllEnergyMeterController extends Controller
                 ->get();
         });
 
-        $waterSystems = Cache::remember('water_systems', 3600, function () {
-            return DB::table('water_systems')
-                ->leftJoin('water_system_types', 'water_systems.water_system_type_id', 'water_system_types.id')
-                ->leftJoin('communities', 'water_systems.community_id', 'communities.id')
-                ->select(
-                    'communities.english_name as english_community_name',
-                    'communities.arabic_name as arabic_community_name',
-                    DB::raw('false as english_compound_name'),
-                    DB::raw('false as arabic_compound_name'),
-                    'water_systems.comet_id',
-                    'water_systems.name as holder_name_english',
-                    'water_systems.name as holder_name_arabic',
-                    DB::raw('false as phone_number'),
-                    'water_systems.fake_meter_number as meter_number',
-                    DB::raw('false as energy_type'), DB::raw('false as meter_case'),
-                    DB::raw('false as is_main'), DB::raw('false as is_archived'),
-                    DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'),
-                    DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder')
+        $waterSystems = DB::table('water_systems')
+            ->leftJoin('water_system_types', 'water_systems.water_system_type_id', 'water_system_types.id')
+            ->leftJoin('communities', 'water_systems.community_id', 'communities.id')
+            ->select(
+                DB::raw("'water_system' as source_type"),
+                'communities.english_name as english_community_name',
+                'communities.arabic_name as arabic_community_name',
+                DB::raw('false as english_compound_name'),
+                DB::raw('false as arabic_compound_name'),
+                'water_systems.comet_id as comet_id',
+                'water_systems.name as holder_name_english',
+                'water_systems.name as holder_name_arabic',
+                DB::raw('false as phone_number'),
+                'water_systems.fake_meter_number as meter_number',
+                DB::raw('false as energy_type'), DB::raw('false as meter_case'),
+                DB::raw('false as is_main'), DB::raw('false as is_archived'),
+                DB::raw('false as water_system_status'), DB::raw('false as internet_system_status'),
+                DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder')
 
-                )
-                ->get();
-        });
-
+            )
+            ->get();
+        
         $internetSystems = Cache::remember('internet_systems', 3600, function () {
             return DB::table('internet_systems')
                 ->leftJoin('internet_system_communities', 'internet_systems.id', 'internet_system_communities.internet_system_id')
@@ -323,7 +322,7 @@ class AllEnergyMeterController extends Controller
                     'communities.arabic_name as arabic_community_name',
                     DB::raw('false as english_compound_name'),
                     DB::raw('false as arabic_compound_name'),
-                    'internet_systems.comet_id',
+                    'internet_systems.comet_id as comet_id',
                     'internet_systems.system_name as holder_name_english',
                     'internet_systems.system_name as holder_name_arabic',
                     DB::raw('false as phone_number'),
@@ -345,7 +344,7 @@ class AllEnergyMeterController extends Controller
                 'communities.arabic_name as arabic_community_name',
                 DB::raw('false as english_compound_name'),
                 DB::raw('false as arabic_compound_name'),
-                'energy_generator_communities.comet_id',
+                'energy_generator_communities.comet_id as comet_id',
                 'energy_generator_communities.name as holder_name_english',
                 'energy_generator_communities.name as holder_name_arabic',
                 DB::raw('false as phone_number'),
@@ -359,7 +358,8 @@ class AllEnergyMeterController extends Controller
             ->get();
         });
 
-        $data = collect([$households, $publics, $turbines, $generators, $energySystems, $waterSystems, $internetSystems])->flatten();
+        $data = collect([$households, $publics, $turbines, $generators, $energySystems, 
+            $waterSystems, $internetSystems])->flatten();
 
 
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);

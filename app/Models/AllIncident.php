@@ -23,7 +23,7 @@ class AllIncident extends Model
     {
         return $this->belongsTo(ServiceType::class, 'service_type_id', 'id');
     }
-
+ 
     public function incidentStatuses()
     {
         return $this->hasMany(AllIncidentOccurredStatus::class, 'all_incident_id');

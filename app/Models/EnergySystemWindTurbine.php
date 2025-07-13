@@ -13,4 +13,9 @@ class EnergySystemWindTurbine extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyWindTurbine::class, 'energy_wind_turbine_id');
+    }
 }

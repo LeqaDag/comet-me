@@ -21,4 +21,9 @@ class WaterSystemPump extends Model
     {
         return $this->belongsTo(WaterPump::class, 'water_pump_id', 'id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(WaterPump::class, 'water_pump_id', 'id');
+    }
 }

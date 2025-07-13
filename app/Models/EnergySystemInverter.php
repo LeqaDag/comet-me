@@ -13,4 +13,9 @@ class EnergySystemInverter extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyInverter::class, 'energy_inverter_id');
+    }
 }

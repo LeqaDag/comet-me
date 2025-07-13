@@ -30,93 +30,147 @@ class EnergySystem extends Model
         return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
     }
 
-    public function batteries() {
-
-        return $this->hasMany(EnergySystemBattery::class, 'energy_system_id');
+    public function batteries()
+    {
+        return $this->belongsToMany(
+            EnergyBattery::class, 
+            'energy_system_batteries', 'energy_system_id', 'battery_type_id')
+        ->withPivot('id', 'cost'); 
     }
 
     public function pvs() {
 
-        return $this->hasMany(EnergySystemPv::class, 'energy_system_id');
-    }
-
-    public function airConditioners() {
-
-        return $this->hasMany(EnergySystemAirConditioner::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyPv::class, 
+            'energy_system_pvs', 'energy_system_id', 'pv_type_id')
+        ->withPivot('id', 'cost');
     }
 
     public function batteryMount() {
 
-        return $this->hasMany(EnergySystemBatteryMount::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyBatteryMount::class, 
+            'energy_system_battery_mounts', 'energy_system_id', 'energy_battery_mount_id')
+        ->withPivot('id', 'cost');
     }
 
+    public function airConditioners() {
+
+        return $this->belongsToMany(
+            EnergyAirConditioner::class, 
+            'energy_system_air_conditioners', 'energy_system_id', 'energy_air_conditioner_id')
+        ->withPivot('id', 'cost');
+    }
+    
     public function bsp() {
 
-        return $this->hasMany(EnergySystemBatteryStatusProcessor::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyBatteryStatusProcessor::class, 
+            'energy_system_battery_status_processors', 'energy_system_id', 'energy_battery_status_processor_id')
+        ->withPivot('id', 'cost');
     }
 
     public function bts() {
 
-        return $this->hasMany(EnergySystemBatteryTemperatureSensor::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyBatteryTemperatureSensor::class, 
+            'energy_system_battery_temperature_sensors', 'energy_system_id', 'energy_battery_temperature_sensor_id')
+        ->withPivot('id', 'cost');
     }
 
     public function chargeController() {
 
-        return $this->hasMany(EnergySystemChargeController::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyChargeController::class, 
+            'energy_system_charge_controllers', 'energy_system_id', 'energy_charge_controller_id')
+        ->withPivot('id', 'cost');
     }
 
     public function generator() {
 
-        return $this->hasMany(EnergySystemGenerator::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyGenerator::class, 
+            'energy_system_generators', 'energy_system_id', 'energy_generator_id')
+        ->withPivot('id', 'cost');
     }
 
     public function inverter() {
 
-        return $this->hasMany(EnergySystemInverter::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyInverter::class, 
+            'energy_system_inverters', 'energy_system_id', 'energy_inverter_id')
+        ->withPivot('id', 'cost');
     }
 
     public function loadRelay() {
 
-        return $this->hasMany(EnergySystemLoadRelay::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyLoadRelay::class, 
+            'energy_system_load_relays', 'energy_system_id', 'energy_load_relay_id')
+        ->withPivot('id', 'cost');
     }
 
     public function mcbChargeController() {
 
-        return $this->hasMany(EnergySystemMcbChargeController::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyMcbChargeController::class, 
+            'energy_system_mcb_charge_controllers', 'energy_system_id', 'energy_mcb_charge_controller_id')
+        ->withPivot('id', 'cost');
     }
 
     public function mcbInverter() {
 
-        return $this->hasMany(EnergySystemMcbInverter::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyMcbInverter::class, 
+            'energy_system_mcb_inverters', 'energy_system_id', 'energy_mcb_inverter_id')
+        ->withPivot('id', 'cost');
     }
 
     public function mcbPv() {
 
-        return $this->hasMany(EnergySystemMcbPv::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyMcbPv::class, 
+            'energy_system_mcb_pvs', 'energy_system_id', 'energy_mcb_pv_id')
+        ->withPivot('id', 'cost');
     }
 
     public function monitoring() {
 
-        return $this->hasMany(EnergySystemMonitoring::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyMonitoring::class, 
+            'energy_system_monitorings', 'energy_system_id', 'energy_monitoring_id')
+        ->withPivot('id', 'cost');
     }
 
     public function pvMount() {
 
-        return $this->hasMany(EnergySystemPvMount::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyPvMount::class, 
+            'energy_system_pv_mounts', 'energy_system_id', 'energy_pv_mount_id')
+        ->withPivot('id', 'cost');
     }
 
     public function relayDriver() {
 
-        return $this->hasMany(EnergySystemRelayDriver::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyRelayDriver::class, 
+            'energy_system_relay_drivers', 'energy_system_id', 'relay_driver_type_id')
+        ->withPivot('id', 'cost');
     }
 
     public function remoteControlCenter() {
 
-        return $this->hasMany(EnergySystemRemoteControlCenter::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyRemoteControlCenter::class, 
+            'energy_system_remote_control_centers', 'energy_system_id', 'energy_remote_control_center_id')
+        ->withPivot('id', 'cost');
     }
 
     public function windTurbine() {
 
-        return $this->hasMany(EnergySystemWindTurbine::class, 'energy_system_id');
+        return $this->belongsToMany(
+            EnergyWindTurbine::class, 
+            'energy_system_wind_turbines', 'energy_system_id', 'energy_wind_turbine_id')
+        ->withPivot('id', 'cost');
     }
 }

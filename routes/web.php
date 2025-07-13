@@ -264,6 +264,8 @@ Route::post('/delete-internet-system-ap', [App\Http\Controllers\InternetSystemCo
 Route::post('/delete-internet-system-aplite', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemApLite'])->name('deleteInternetSystemApLite');
 Route::post('/delete-internet-system-uisp', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemUisp'])->name('deleteInternetSystemUisp');
 Route::post('/delete-internet-system-ptp', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemPtp'])->name('deleteInternetSystemPtp');
+Route::post('/delete-internet-system-connector', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemConnector'])->name('deleteInternetSystemConnector');
+Route::post('/delete-internet-system-electrician', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemElectrician'])->name('deleteInternetSystemElectrician');
 
 Route::resource('internet-component', App\Http\Controllers\InternetComponentController::class);
 
@@ -633,6 +635,8 @@ Route::get('/update-internet-ap/{id}/{units}/{cost}', [App\Http\Controllers\Inte
 Route::get('/update-internet-ap-lite/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateApLite'])->name('updateApLite');
 Route::get('/update-internet-ptp/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updatePtp'])->name('updatePtp');
 Route::get('/update-internet-uisp/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateUisp'])->name('updateUisp');
+Route::get('/update-internet-connector/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateInternetConnector'])->name('updateInternetConnector');
+Route::get('/update-internet-electrician/{id}/{units}/{cost}', [App\Http\Controllers\InternetSystemController::class, 'updateElectrician'])->name('updateElectrician');
 
 Route::get('/update-energy-battery/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateBattery'])->name('updateBattery');
 Route::get('/update-energy-battery-mount/{id}/{units}/{cost}', [App\Http\Controllers\EnergySystemController::class, 'updateBatteryMount'])->name('updateBatteryMount');
@@ -675,6 +679,31 @@ Route::post('/delete-energy-refrigerator', [App\Http\Controllers\EnergyComponent
 
 
 Route::get('/energy-systems/{id}/components', [App\Http\Controllers\AllIncidentController::class, 'getSystemComponents']);
+Route::get('/water-systems/{id}/components', [App\Http\Controllers\AllIncidentController::class, 'getWaterSystemComponents']);
+Route::get('/internet-systems/{id}/components', [App\Http\Controllers\AllIncidentController::class, 'getInternetSystemComponents']);
+Route::get('/update-energy-equipment/{id}/{units}/{cost}', [App\Http\Controllers\AllIncidentController::class, 'updateEnergyEquipmentDamaged'])->name('updateEnergyEquipmentDamaged');
+Route::get('/update-water-equipment/{id}/{units}/{cost}', [App\Http\Controllers\AllIncidentController::class, 'updateWaterEquipmentDamaged'])->name('updateWaterEquipmentDamaged');
+Route::get('/update-internet-equipment/{id}/{units}/{cost}', [App\Http\Controllers\AllIncidentController::class, 'updateInternetEquipmentDamaged'])->name('updateInternetEquipmentDamaged');
+Route::get('/update-camera-equipment/{id}/{units}/{cost}', [App\Http\Controllers\AllIncidentController::class, 'updateCameraEquipmentDamaged'])->name('updateCameraEquipmentDamaged');
+
+Route::get('/update-energy-system-equipment/{id}/{units}/{cost}', [App\Http\Controllers\AllIncidentController::class, 'updateEnergySystemEquipmentDamaged'])->name('updateEnergySystemEquipmentDamaged');
+Route::get('/update-water-system-equipment/{id}/{units}/{cost}', [App\Http\Controllers\AllIncidentController::class, 'updateWaterSystemEquipmentDamaged'])->name('updateWaterSystemEquipmentDamaged');
+Route::get('/update-internet-system-equipment/{id}/{units}/{cost}', [App\Http\Controllers\AllIncidentController::class, 'updateInternetSystemEquipmentDamaged'])->name('updateInternetSystemEquipmentDamaged');
+
+
+Route::post('/delete-incident-status', [App\Http\Controllers\AllIncidentController::class, 'deleteAllIncidentStatus'])->name('deleteAllIncidentStatus');
+Route::post('/delete-energy-photo', [App\Http\Controllers\AllIncidentController::class, 'deleteEnergyPhoto'])->name('deleteEnergyPhoto');
+Route::post('/delete-water-photo', [App\Http\Controllers\AllIncidentController::class, 'deleteWaterPhoto'])->name('deleteWaterPhoto');
+Route::post('/delete-internet-photo', [App\Http\Controllers\AllIncidentController::class, 'deleteInternetPhoto'])->name('deleteInternetPhoto');
+Route::post('/delete-camera-photo', [App\Http\Controllers\AllIncidentController::class, 'deleteCameraPhoto'])->name('deleteCameraPhoto');
+
+Route::post('/delete-energy-equipment', [App\Http\Controllers\AllIncidentController::class, 'deleteEnergyEquipmentDamaged'])->name('deleteEnergyEquipmentDamaged');
+Route::post('/delete-water-equipment', [App\Http\Controllers\AllIncidentController::class, 'deleteWaterEquipmentDamaged'])->name('deleteWaterEquipmentDamaged');
+Route::post('/delete-internet-equipment', [App\Http\Controllers\AllIncidentController::class, 'deleteInternetEquipmentDamaged'])->name('deleteInternetEquipmentDamaged');
+Route::post('/delete-camera-equipment', [App\Http\Controllers\AllIncidentController::class, 'deleteCameraEquipmentDamaged'])->name('deleteCameraEquipmentDamaged');
+Route::post('/delete-energy-system-equipment', [App\Http\Controllers\AllIncidentController::class, 'deleteEnergySystemEquipmentDamaged'])->name('deleteEnergySystemEquipmentDamaged');
+Route::post('/delete-water-system-equipment', [App\Http\Controllers\AllIncidentController::class, 'deleteWaterSystemEquipmentDamaged'])->name('deleteWaterSystemEquipmentDamaged');
+Route::post('/delete-internet-system-equipment', [App\Http\Controllers\AllIncidentController::class, 'deleteInternetSystemEquipmentDamaged'])->name('deleteInternetSystemEquipmentDamaged');
 
 
 

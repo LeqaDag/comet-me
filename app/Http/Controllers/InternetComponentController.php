@@ -34,6 +34,8 @@ use App\Models\InternetPtp;
 use App\Models\InternetUisp;
 use App\Models\UispInternetSystem;
 use App\Models\LineOfSight;
+use App\Models\InternetElectrician;
+use App\Models\InternetConnector;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -57,9 +59,10 @@ class InternetComponentController extends Controller
         $switches = Switche::all();
         $ptps = InternetPtp::all();
         $uisps = InternetUisp::all();
+        $electricians = InternetElectrician::all();
 
         return view('system.internet.component.create', compact('aps', 'communities', 'controllers',
-            'internetSystemTypes', 'routers', 'switches', 'ptps', 'uisps'));
+            'internetSystemTypes', 'routers', 'switches', 'ptps', 'uisps', 'electricians'));
     }
 
     /**
@@ -78,7 +81,7 @@ class InternetComponentController extends Controller
 
                 $newRouter = new Router();
                 $newRouter->model = $request->router_models[$i]["subject"];
-                $newRouter->brand_name = $request->router_brands[$i]["subject"];
+                $newRouter->brand_name = $request->router_brands[$i]["subject"] ?? null;
                 $newRouter->save();
             }
         }
@@ -89,7 +92,7 @@ class InternetComponentController extends Controller
 
                 $newSwitch = new Switche();
                 $newSwitch->model = $request->switch_models[$i]["subject"];
-                $newSwitch->brand_name = $request->switch_brands[$i]["subject"];
+                $newSwitch->brand_name = $request->switch_brands[$i]["subject"] ?? null;
                 $newSwitch->save();
             }
         }
@@ -100,7 +103,7 @@ class InternetComponentController extends Controller
 
                 $newController = new InternetController();
                 $newController->model = $request->controller_models[$i]["subject"];
-                $newController->brand = $request->controller_brands[$i]["subject"];
+                $newController->brand = $request->controller_brands[$i]["subject"] ?? null;
                 $newController->save();
             }
         }
@@ -111,7 +114,7 @@ class InternetComponentController extends Controller
 
                 $newAp = new InternetAp();
                 $newAp->model = $request->ap_models[$i]["subject"];
-                $newAp->brand = $request->ap_brands[$i]["subject"];
+                $newAp->brand = $request->ap_brands[$i]["subject"] ?? null;
                 $newAp->save();
             }
         }
@@ -125,7 +128,7 @@ class InternetComponentController extends Controller
 
                 $newPtp = new InternetPtp();
                 $newPtp->model = $request->ptp_models[$i]["subject"];
-                $newPtp->brand = $request->ptp_brands[$i]["subject"];
+                $newPtp->brand = $request->ptp_brands[$i]["subject"] ?? null;
                 $newPtp->save();
             }
         }
@@ -136,10 +139,33 @@ class InternetComponentController extends Controller
 
                 $newUisp = new InternetUisp();
                 $newUisp->model = $request->uisp_models[$i]["subject"];
-                $newUisp->brand = $request->uisp_brands[$i]["subject"];
+                $newUisp->brand = $request->uisp_brands[$i]["subject"] ?? null;
                 $newUisp->save();
             }
         }
+
+        // Electrician
+        if($request->electrician_models[0]["subject"] != null) {
+            for($i=0; $i < count($request->electrician_models); $i++) {
+
+                $newElectrician = new InternetElectrician();
+                $newElectrician->model = $request->electrician_models[$i]["subject"];
+                $newElectrician->brand = $request->electrician_brands[$i]["subject"] ?? null;
+                $newElectrician->save();
+            }
+        }
+
+        // Connector
+        if($request->connector_models[0]["subject"] != null) {
+            for($i=0; $i < count($request->connector_models); $i++) {
+
+                $newConnector = new InternetConnector();
+                $newConnector->model = $request->connector_models[$i]["subject"];
+                $newConnector->brand = $request->connector_brands[$i]["subject"] ?? null;
+                $newConnector->save();
+            }
+        }
+
 
         return redirect('/internet-system')
             ->with('message', 'New Internet Components Added Successfully!');

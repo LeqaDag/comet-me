@@ -182,11 +182,19 @@
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||  
                 Auth::guard('user')->user()->user_type_id == 2 )
-                <div>
-                    <a type="button" class="btn btn-success" 
-                        href="{{url('all-incident', 'create')}}">
-                        Add Incident	
-                    </a>
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3">
+                        <button type="button" class="btn btn-warning" 
+                            id="getLatestTickets">
+                            Get Latest Incident Tickets
+                        </button>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <a type="button" class="btn btn-success" 
+                            href="{{url('all-incident', 'create')}}">
+                            Add New Incident	
+                        </a>
+                    </div>
                 </div>
             @endif
             <table id="allIncidentsTable" class="table table-striped data-table-all-incidents my-2">
@@ -356,6 +364,30 @@
                     Swal.fire('Changes are not saved', '', 'info')
                 }
             });
+        });
+    });
+
+    // Get the incident tickets
+    $('#getLatestTickets').on('click', function() {
+
+        // AJAX request
+        $.ajax({
+            url: 'api/ticket',
+            type: 'get',
+            dataType: 'json',
+            success: function(response) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Tickets Gotten Successfully!',
+                    showDenyButton: false,
+                    showCancelButton: false,
+                    confirmButtonText: 'Okay!' 
+                }).then((result) => {
+
+                    $('#allIncidentsTable').DataTable().draw();
+                });
+            }
         });
     });
 </script>

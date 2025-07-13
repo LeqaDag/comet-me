@@ -21,4 +21,9 @@ class WaterSystemPipe extends Model
     {
         return $this->belongsTo(WaterPipe::class, 'water_pipe_id', 'id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(WaterPipe::class, 'water_pipe_id', 'id');
+    }
 }

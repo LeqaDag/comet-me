@@ -589,6 +589,140 @@
                 </table>
 
 
+                <hr class="mt-4">
+                <h5>Electricians</h5>
+
+                @if(count($electricianSystems) > 0)
+                    <table class="table table-striped my-2" id="electricianTable">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Units</th>
+                                <th>Cost</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($electricianSystems as $index => $electrician)
+                                <tr data-electrician-id="{{ $electrician->id }}">
+                                    <td class="text-center">{{ $electrician->model }}</td>
+                                    <td>
+                                        <input type="number" step="any"name="electrician_units[{{ $electrician->id }}]" class="form-control electrician-units" 
+                                        data-electrician-index="{{ $index }}" value="{{ $electrician->electrician_units }}">
+                                    </td>
+                                    <td>
+                                        <input type="number"step="any" name="electrician_costs[{{ $electrician->id }}]" class="form-control electrician-costs" 
+                                        data-electrician-index="{{ $index }}" value="{{ $electrician->electrician_costs }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-electrician-{{ $index }}">{{ $electrician->electrician_units * $electrician->electrician_costs }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteElectrician" data-id="{{ $electrician->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+
+                {{-- Add More Electricians --}}
+                <h6>Add New Electricians</h6>
+                <table class="table table-bordered" id="addRemoveElectrician">
+                    <thead>
+                        <tr>
+                            <th>Electrician Model</th>
+                            <th>Units</th>
+                            <th>Cost per Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="electrician_ids[]" class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($electricians as $electrician)
+                                        <option value="{{ $electrician->id }}">{{ $electrician->model }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" step="any"name="electrician_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="electrician_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><button type="button" class="btn btn-outline-primary" id="addRemoveElectricianButton">Add Electrician</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+
+                <hr class="mt-4">
+                <h5>Connectors</h5>
+
+                @if(count($connectorSystems) > 0)
+                    <table class="table table-striped my-2" id="connectorTable">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Units</th>
+                                <th>Cost</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($connectorSystems as $index => $connector)
+                                <tr data-connector-id="{{ $connector->id }}">
+                                    <td class="text-center">{{ $connector->model }}</td>
+                                    <td>
+                                        <input type="number" step="any"name="connector_units[{{ $connector->id }}]" class="form-control connector-units" 
+                                        data-connector-index="{{ $index }}" value="{{ $connector->connector_units }}">
+                                    </td>
+                                    <td>
+                                        <input type="number"step="any" name="connector_costs[{{ $connector->id }}]" class="form-control connector-costs" 
+                                        data-connector-index="{{ $index }}" value="{{ $connector->connector_costs }}">
+                                    </td>
+                                    <td>
+                                        <span id="total-connector-{{ $index }}">{{ $connector->connector_units * $connector->connector_costs }}</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn deleteConnector" data-id="{{ $connector->id }}"><i class="fa fa-trash text-danger"></i></a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+
+                {{-- Add More Connectors --}}
+                <h6>Add New Connectors</h6>
+                <table class="table table-bordered" id="addRemoveConnector">
+                    <thead>
+                        <tr>
+                            <th>Connector Model</th>
+                            <th>Units</th>
+                            <th>Cost per Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select name="connector_ids[]" class="selectpicker form-control" data-live-search="true">
+                                    <option disabled selected>Choose one...</option>
+                                    @foreach($connectors as $connector)
+                                        <option value="{{ $connector->id }}">{{ $connector->model }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td><input type="number" step="any"name="connector_units[0][subject]" class="form-control" data-id="0"></td>
+                            <td><input type="number" step="any"name="connector_costs[0][subject]" class="form-control" data-id="0"></td>
+                            <td><button type="button" class="btn btn-outline-primary" id="addRemoveConnectorButton">Add Connector</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -603,6 +737,7 @@
 
 <script>
 $(function () {
+
     let routerIndex = 1;
     const routersData = @json($routers);
 
@@ -1322,6 +1457,200 @@ $(function () {
             }
         });
     });
+
+    
+
+    let connectorIndex = 1;
+    const connectorsData = @json($connectors);
+
+    $('#addRemoveConnectorButton').on('click', function () {
+        let options = '<option disabled selected>Choose one...</option>';
+        connectorsData.forEach(t => {
+            options += `<option value="${t.id}">${t.model}</option>`;
+        });
+
+        const newRow = `
+            <tr>
+                <td><select name="connector_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
+                <td><input type="number" step="any"name="connector_units[${connectorIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="connector_costs[${connectorIndex}][subject]" class="form-control"></td>
+                <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
+            </tr>
+        `;
+
+        $('#addRemoveConnector tbody').append(newRow);
+        $('.selectpicker').selectpicker('refresh');
+        connectorIndex++;
+    });
+
+    $(document).on('click', '.remove-input-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Auto-calculate total
+    const debounceTimersConnector = {};
+    $(document).on('input', '.connector-units, .connector-costs', function () {
+
+        const indexConnector = $(this).data('connector-index'); 
+        const unit = parseFloat($(`.connector-units[data-connector-index="${indexConnector}"]`).val()) || 0;
+        const cost = parseFloat($(`.connector-costs[data-connector-index="${indexConnector}"]`).val()) || 0;
+        const total = (unit * cost).toFixed(2);
+        $(`#total-connector-${indexConnector}`).text(total);
+
+        clearTimeout(debounceTimersConnector[indexConnector]);
+        debounceTimersConnector[indexConnector] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const connectorId = row.data('connector-id');
+
+            $.ajax({
+                url: `/update-internet-connector/${connectorId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete internet system connector
+    $('#connectorTable').on('click', '.deleteConnector',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this connector?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetSystemConnector') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+
+    let electricianIndex = 1;
+    const electriciansData = @json($electricians);
+
+    $('#addRemoveElectricianButton').on('click', function () {
+        let options = '<option disabled selected>Choose one...</option>';
+        electriciansData.forEach(t => {
+            options += `<option value="${t.id}">${t.model}</option>`;
+        });
+
+        const newRow = `
+            <tr>
+                <td><select name="electrician_ids[]" class="selectpicker form-control" data-live-search="true">${options}</select></td>
+                <td><input type="number" step="any"name="electrician_units[${electricianIndex}][subject]" class="form-control"></td>
+                <td><input type="number" step="any"name="electrician_costs[${electricianIndex}][subject]" class="form-control"></td>
+                <td><button type="button" class="btn btn-outline-danger remove-input-row">Delete</button></td>
+            </tr>
+        `;
+
+        $('#addRemoveElectrician tbody').append(newRow);
+        $('.selectpicker').selectpicker('refresh');
+        electricianIndex++;
+    });
+
+    $(document).on('click', '.remove-input-row', function () {
+        $(this).closest('tr').remove();
+    });
+
+    // Auto-calculate total
+    const debounceTimersElectrician = {};
+    $(document).on('input', '.electrician-units, .electrician-costs', function () {
+
+        const indexElectrician = $(this).data('electrician-index'); 
+        const unit = parseFloat($(`.electrician-units[data-electrician-index="${indexElectrician}"]`).val()) || 0;
+        const cost = parseFloat($(`.electrician-costs[data-electrician-index="${indexElectrician}"]`).val()) || 0;
+        const total = (unit * cost).toFixed(2);
+        $(`#total-electrician-${indexElectrician}`).text(total);
+
+        clearTimeout(debounceTimersElectrician[indexElectrician]);
+        debounceTimersElectrician[indexElectrician] = setTimeout(() => {
+            const row = $(this).closest('tr');
+            const electricianId = row.data('electrician-id');
+
+            $.ajax({
+                url: `/update-internet-electrician/${electricianId}/${unit}/${cost}`,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success === 1) {
+                        Swal.fire({ icon: 'success', title: response.msg, confirmButtonText: 'Okay!' });
+                    }
+                }
+            });
+        }, 500);
+    });
+
+    // delete internet system electrician
+    $('#electricianTable').on('click', '.deleteElectrician',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Electrician?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetSystemElectrician') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
 });
 </script>
 

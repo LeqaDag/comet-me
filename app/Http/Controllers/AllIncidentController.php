@@ -18,6 +18,7 @@ use App\Models\AllEnergyIncident;
 use App\Models\AllEnergyIncidentPhoto;
 use App\Models\AllEnergyIncidentAffectedHousehold;
 use App\Models\AllEnergyIncidentDamagedEquipment;
+use App\Models\AllEnergyIncidentSystemDamagedEquipment;
 use App\Models\AllIncident;
 use App\Models\AllIncidentOccurredStatus;
 use App\Models\AllIncidentStatus;
@@ -27,9 +28,11 @@ use App\Models\AllIncidentImpactType;
 use App\Models\AllInternetIncidentAffectedArea;
 use App\Models\AllInternetIncidentAffectedHousehold;
 use App\Models\AllInternetIncidentDamagedEquipment;
+use App\Models\AllInternetIncidentSystemDamagedEquipment;
 use App\Models\AllWaterIncident;
 use App\Models\AllWaterIncidentPhoto;
 use App\Models\AllWaterIncidentDamagedEquipment;
+use App\Models\AllWaterIncidentSystemDamagedEquipment;
 use App\Models\AllWaterIncidentAffectedHousehold;
 use App\Models\User;
 use App\Models\Community;
@@ -37,6 +40,7 @@ use App\Models\Donor;
 use App\Models\DisplacedHousehold;
 use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
+use App\Models\MeterCase;
 use App\Models\Household;
 use App\Models\ServiceType;
 use App\Models\PublicStructure;
@@ -45,13 +49,20 @@ use App\Models\Incident;
 use App\Models\IncidentEquipment;
 use App\Models\InternetUser;
 use App\Models\WaterSystem;
+use App\Models\InternetSystem;
+use App\Models\InternetSystemCommunity;
+use App\Models\Router;
+use App\Models\Switche;
+use App\Models\InternetPtp;
+use App\Models\InternetUisp;
+use App\Models\InternetController;
+use App\Models\InternetAp;
 
 use App\Models\MgIncident;
 use App\Models\IncidentStatusMgSystem;
 use App\Models\MgIncidentEquipment;
 use App\Models\MgAffectedHousehold;
 use App\Models\MgIncidentPhoto;
-
 
 use App\Models\FbsUserIncident;
 use App\Models\FbsIncidentEquipment;
@@ -777,6 +788,8 @@ class AllIncidentController extends Controller
      */
     public function store(Request $request)
     {     
+        //dd($request->all());
+
         if($request->service_type_ids) {
 
             foreach ($request->service_type_ids as $serviceTypeId) {
@@ -790,6 +803,7 @@ class AllIncidentController extends Controller
                     // Energy Incidents
                     $newAllEnergyIncident = new AllEnergyIncident();
                     $newAllEnergyIncident->all_incident_id = $allIncidentId;
+                    $meterCase = MeterCase::where('meter_case_name_english', "%Incident%")->first();
 
                     if($request->energy_system_holder == "user") {
 
@@ -797,14 +811,24 @@ class AllIncidentController extends Controller
                             ->where("household_id", $request->energy_holder_system)
                             ->first();
 
-                        if($allEnergyMeter) $newAllEnergyIncident->all_energy_meter_id = $allEnergyMeter->id;
+                        if($allEnergyMeter) {
+
+                            $newAllEnergyIncident->all_energy_meter_id = $allEnergyMeter->id;
+                            $allEnergyMeter->meter_case_id = $meterCase->id;
+                            $allEnergyMeter->save();
+                        }
                     } else if ($request->energy_system_holder == "public") {
 
                         $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
                             ->where("public_structure_id", $request->energy_holder_system)
                             ->first();
 
-                        if($allEnergyMeter) $newAllEnergyIncident->all_energy_meter_id = $allEnergyMeter->id;
+                        if($allEnergyMeter) {
+
+                            $newAllEnergyIncident->all_energy_meter_id = $allEnergyMeter->id;
+                            $allEnergyMeter->meter_case_id = $meterCase->id;
+                            $allEnergyMeter->save();
+                        }
                     } else if ($request->energy_system_holder == "system") {
 
                         $energySystem = EnergySystem::findOrFail($request->energy_holder_system);
@@ -814,38 +838,143 @@ class AllIncidentController extends Controller
                     
                     $newAllEnergyIncident->save();
 
-                    if ($request->energy_equipment) {
+                    if($request->energy_system_holder == "system") {
 
-                        for ($eq = 0; $eq  < count($request->energy_equipment); $eq++) {
+                        if ($request->energy_equipment && $request->equipment_type) {
 
-                            $energyEquipment = new AllEnergyIncidentDamagedEquipment();
-                            $energyEquipment->incident_equipment_id = $request->energy_equipment[$eq];
-                            $energyEquipment->all_energy_incident_id = $newAllEnergyIncident->id;
+                            $equipmentIds = array_values($request->energy_equipment);
+                            $equipmentTypes = array_values($request->equipment_type);
+    
+                            for ($eq = 0; $eq < count($equipmentIds); $eq++) {
+                        
+                                $equipmentId = $equipmentIds[$eq];
+                                $equipmentType = $equipmentTypes[$eq];
+                        
+                                $energyEquipment = new AllEnergyIncidentSystemDamagedEquipment();
+                                $energyEquipment->all_energy_incident_id = $newAllEnergyIncident->id;
+                                $energyEquipment->count = $request->input("addMoreInputFieldsEnergyUnit.$eq.subject");
+                                $energyEquipment->cost = $request->input("addMoreInputFieldsEnergyCost.$eq.subject");
+                        
+                                // Set the correct foreign key based on the equipment type
+                                switch ($equipmentType) {
+                                    case "EnergyBattery":
+                                        $energyEquipment->energy_system_battery_id = $equipmentId;
+                                        break;
+                        
+                                    case "EnergyBatteryMount":
+                                        $energyEquipment->energy_system_battery_mount_id = $equipmentId;
+                                        break;
+                        
+                                    case "EnergyBatteryStatusProcessor":
+                                        $energyEquipment->energy_system_battery_status_processor_id = $equipmentId;
+                                        break;
+                        
+                                    case "EnergyBatteryTemperatureSensor":
+                                        $energyEquipment->energy_system_battery_temperature_sensor_id = $equipmentId;
+                                        break;
+                        
+                                    case "EnergyChargeController":
+                                        $energyEquipment->energy_system_charge_controller_id = $equipmentId;
+                                        break;
+                        
+                                    case "EnergyGenerator":
+                                        $energyEquipment->energy_system_generator_id = $equipmentId;
+                                        break;
+                        
+                                    case "EnergyInverter":
+                                        $energyEquipment->energy_system_inverter_id = $equipmentId;
+                                        break;
+                        
+                                    case "EnergyLoadRelay":
+                                        $energyEquipment->energy_system_load_relay_id = $equipmentId;
+                                        break;
                     
-                            $energyEquipment->count = $request->input("addMoreInputFieldsEnergyUnit.$eq.subject");
-                            $energyEquipment->cost = $request->input("addMoreInputFieldsEnergyCost.$eq.subject");
+                                    case "EnergyMcbChargeController":
+                                        $energyEquipment->energy_system_mcb_charge_controller_id = $equipmentId;
+                                        break;
                     
-                            $energyEquipment->save();
+                                    case "EnergyMcbInverter":
+                                        $energyEquipment->energy_system_mcb_inverter_id = $equipmentId;
+                                        break;
+            
+                                    case "EnergyMcbPv":
+                                        $energyEquipment->energy_system_mcb_pv_id = $equipmentId;
+                                        break;
+    
+                                    case "EnergyMonitoring":
+                                        $energyEquipment->energy_system_monitoring_id = $equipmentId;
+                                        break;
+    
+                                    case "EnergyPv":
+                                        $energyEquipment->energy_system_pv_id = $equipmentId;
+                                        break;
+                                
+                                    case "EnergyPvMount":
+                                        $energyEquipment->energy_system_pv_mount_id = $equipmentId;
+                                        break;
+                                            
+                                    case "EnergyRelayDriver":
+                                        $energyEquipment->energy_system_relay_driver_id = $equipmentId;
+                                        break;
+                                        
+                                    case "EnergyRemoteControlCenter":
+                                        $energyEquipment->energy_system_remote_control_center_id = $equipmentId;
+                                        break;
+                                        
+                                    case "EnergyWindTurbine":
+                                        $energyEquipment->energy_system_wind_turbine_id = $equipmentId;
+                                        break;    
+                                    
+                                    case "EnergyAirConditioner":
+                                        $energyEquipment->energy_system_air_conditioner_id = $equipmentId;
+                                        break;  
+                                        
+                                    default:
+                                        break;
+                                }
+                        
+                                $energyEquipment->save();
+                            }
                         }
-                    }
-                    
-                    if($request->affected_households) { 
 
-                        for($eah=0; $eah < count($request->affected_households); $eah++) {
-            
-                            $energyAffectedHousehold = new AllEnergyIncidentAffectedHousehold();
-                            $energyAffectedHousehold->household_id = $request->affected_households[$eah];
-                            $energyAffectedHousehold->all_energy_incident_id = $newAllEnergyIncident->id;
-                            $energyAffectedHousehold->save();
-            
-                            $energyUser = AllEnergyMeter::where("is_archived", 0)
-                                ->where("household_id", $request->affected_households[$eah])
-                                ->first();
-            
-                            if($energyUser) {
-            
-                                $energyUser->meter_case_id = 20;
-                                $energyUser->save();
+                        if($request->affected_households) { 
+
+                            for($eah=0; $eah < count($request->affected_households); $eah++) {
+                
+                                $energyAffectedHousehold = new AllEnergyIncidentAffectedHousehold();
+                                $energyAffectedHousehold->household_id = $request->affected_households[$eah];
+                                $energyAffectedHousehold->all_energy_incident_id = $newAllEnergyIncident->id;
+                                $energyAffectedHousehold->save();
+                
+                                $energyUser = AllEnergyMeter::where("is_archived", 0)
+                                    ->where("household_id", $request->affected_households[$eah])
+                                    ->first();
+                
+                                if($energyUser) {
+                
+                                    $energyUser->meter_case_id = 20;
+                                    $energyUser->save();
+                                }
+                            }
+                        }
+                    } else {
+
+                        if ($request->energy_equipment) {
+
+                            $equipmentIds = array_values($request->energy_equipment);
+                            $units = array_values($request->addMoreInputFieldsEnergyUnit);
+                            $costs = array_values($request->addMoreInputFieldsEnergyCost);
+    
+                            for ($eq = 0; $eq  < count($equipmentIds); $eq++) {
+    
+                                $energyEquipment = new AllEnergyIncidentDamagedEquipment();
+                                $energyEquipment->incident_equipment_id = $request->energy_equipment[$eq];
+                                $energyEquipment->all_energy_incident_id = $newAllEnergyIncident->id;
+                        
+                                $energyEquipment->count = $units[$eq]['subject'];
+                                $energyEquipment->cost = $costs[$eq]['subject'];
+                        
+                                $energyEquipment->save();
                             }
                         }
                     }
@@ -901,29 +1030,90 @@ class AllIncidentController extends Controller
                     
                     $newAllWaterIncident->save();
 
-                    if ($request->water_equipment) {
+                    if($request->water_system_holder == "system") {
 
-                        for ($wq = 0; $wq < count($request->water_equipment); $wq++) {
+                        if ($request->water_equipment && $request->equipment_type) {
 
-                            $waterEquipment = new AllWaterIncidentDamagedEquipment();
-                            $waterEquipment->incident_equipment_id = $request->water_equipment[$wq];
-                            $waterEquipment->all_water_incident_id = $newAllWaterIncident->id;
-                    
-                            $waterEquipment->count = $request->input("addMoreInputFieldsWaterUnit.$wq.subject");
-                            $waterEquipment->cost = $request->input("addMoreInputFieldsWaterCost.$wq.subject");
-                    
-                            $waterEquipment->save();
+                            $equipmentIds = array_values($request->water_equipment);
+                            $equipmentTypes = array_values($request->equipment_type);
+    
+                            for ($eq = 0; $eq < count($equipmentIds); $eq++) {
+                        
+                                $equipmentId = $equipmentIds[$eq];
+                                $equipmentType = $equipmentTypes[$eq];
+                        
+                                $waterEquipment = new AllWaterIncidentSystemDamagedEquipment();
+                                $waterEquipment->all_water_incident_id = $newAllWaterIncident->id;
+                                $waterEquipment->count = $request->input("addMoreInputFieldsWaterUnit.$eq.subject");
+                                $waterEquipment->cost = $request->input("addMoreInputFieldsWaterCost.$eq.subject");
+                        
+                                // Set the correct foreign key based on the equipment type
+                                switch ($equipmentType) {
+                                    case "WaterTank":
+                                        $waterEquipment->water_system_tank_id = $equipmentId;
+                                        break;
+                        
+                                    case "WaterPipe":
+                                        $waterEquipment->water_system_pipe_id = $equipmentId;
+                                        break;
+                        
+                                    case "WaterPump":
+                                        $waterEquipment->water_system_pump_id = $equipmentId;
+                                        break;
+                        
+                                    case "WaterFilter":
+                                        $waterEquipment->water_system_filter_id = $equipmentId;
+                                        break;
+                        
+                                    case "WaterConnector":
+                                        $waterEquipment->water_system_connector_id = $equipmentId;
+                                        break;
+                        
+                                    case "WaterValve":
+                                        $waterEquipment->water_system_valve_id = $equipmentId;
+                                        break;
+                        
+                                    case "WaterTap":
+                                        $waterEquipment->water_system_tap_id = $equipmentId;
+                                        break;
+                                        
+                                    default:
+                                        break;
+                                }
+                        
+                                $waterEquipment->save();
+                            }
                         }
-                    }
-                    
-                    if($request->water_affected_households) { 
 
-                        for($wah=0; $wah < count($request->water_affected_households); $wah++) {
-            
-                            $waterAffectedHousehold = new AllWaterIncidentAffectedHousehold();
-                            $waterAffectedHousehold->household_id = $request->water_affected_households[$wah];
-                            $waterAffectedHousehold->all_water_incident_id = $newAllWaterIncident->id;
-                            $waterAffectedHousehold->save();
+                        if($request->water_affected_households) { 
+
+                            for($wah=0; $wah < count($request->water_affected_households); $wah++) {
+                
+                                $waterAffectedHousehold = new AllWaterIncidentAffectedHousehold();
+                                $waterAffectedHousehold->household_id = $request->water_affected_households[$wah];
+                                $waterAffectedHousehold->all_water_incident_id = $newAllWaterIncident->id;
+                                $waterAffectedHousehold->save();
+                            }
+                        }
+                    } else {
+
+                        if ($request->water_equipment) {
+
+                            $equipmentIds = array_values($request->water_equipment);
+                            $units = array_values($request->addMoreInputFieldsWaterUnit);
+                            $costs = array_values($request->addMoreInputFieldsWaterCost);
+    
+                            for ($eq = 0; $eq  < count($equipmentIds); $eq++) {
+    
+                                $waterEquipment = new AllWaterIncidentDamagedEquipment();
+                                $waterEquipment->incident_equipment_id = $request->water_equipment[$eq];
+                                $waterEquipment->all_water_incident_id = $newAllWaterIncident->id;
+                        
+                                $waterEquipment->count = $units[$eq]['subject'];
+                                $waterEquipment->cost = $costs[$eq]['subject'];
+                        
+                                $waterEquipment->save();
+                            }
                         }
                     }
             
@@ -975,42 +1165,112 @@ class AllIncidentController extends Controller
                     
                     $newAllInternetIncident->save();
 
-                    if ($request->internet_equipment) {
+                    if($request->internet_system_holder == "system") {
 
-                        for ($inq = 0; $inq < count($request->internet_equipment); $inq++) {
+                        if ($request->internet_equipment && $request->equipment_type) {
 
-                            $internetEquipment = new AllInternetIncidentDamagedEquipment();
-                            $internetEquipment->incident_equipment_id = $request->internet_equipment[$inq];
-                            $internetEquipment->all_internet_incident_id = $newAllInternetIncident->id;
-                    
-                            $internetEquipment->count = $request->input("addMoreInputFieldsInternetUnit.$inq.subject");
-                            $internetEquipment->cost = $request->input("addMoreInputFieldsInternetCost.$inq.subject");
-                    
-                            $internetEquipment->save();
+                            $equipmentIds = array_values($request->internet_equipment);
+                            $equipmentTypes = array_values($request->equipment_type);
+    
+                            for ($eq = 0; $eq < count($equipmentIds); $eq++) {
+                        
+                                $equipmentId = $equipmentIds[$eq];
+                                $equipmentType = $equipmentTypes[$eq];
+                        
+                                $internetEquipment = new AllInternetIncidentSystemDamagedEquipment();
+                                $internetEquipment->all_internet_incident_id = $newAllInternetIncident->id;
+                                $internetEquipment->count = $request->input("addMoreInputFieldsInternetUnit.$eq.subject");
+                                $internetEquipment->cost = $request->input("addMoreInputFieldsInternetCost.$eq.subject");
+                        
+                                // Set the correct foreign key based on the equipment type
+                                switch ($equipmentType) {
+                                    case "Router":
+                                        $internetEquipment->router_internet_system_id = $equipmentId;
+                                        break;
+                        
+                                    case "Switche":
+                                        $internetEquipment->switch_internet_system_id = $equipmentId;
+                                        break;
+                        
+                                    case "InternetController":
+                                        $internetEquipment->controller_internet_system_id = $equipmentId;
+                                        break;
+                        
+                                    case "InternetPtp":
+                                        $internetEquipment->ptp_internet_system_id = $equipmentId;
+                                        break;
+                        
+                                    case "InternetAp":
+                                        $internetEquipment->ap_internet_system_id = $equipmentId;
+                                        break;
+                        
+                                    case "InternetApLite":
+                                        $internetEquipment->ap_lite_internet_system_id = $equipmentId;
+                                        break;
+                        
+                                    case "InternetUisp":
+                                        $internetEquipment->uisp_internet_system_id = $equipmentId;
+                                        break;
+                        
+                                    case "InternetConnector":
+                                        $internetEquipment->connector_internet_system_id = $equipmentId;
+                                        break;
+                        
+                                    case "InternetElectrician":
+                                        $internetEquipment->electrician_internet_system_id = $equipmentId;
+                                        break;
+                                        
+                                    default:
+                                        break;
+                                }
+                        
+                                $internetEquipment->save();
+                            }
+                        }
+
+                        if($request->internet_affected_households) { 
+
+                            for($inah=0; $inah < count($request->internet_affected_households); $inah++) {
+                
+                                $internetAffectedHousehold = new AllInternetIncidentAffectedHousehold();
+                                $internetAffectedHousehold->household_id = $request->internet_affected_households[$inah];
+                                $internetAffectedHousehold->all_internet_incident_id = $newAllInternetIncident->id;
+                                $internetAffectedHousehold->save();
+                            }
+                        }
+
+                        if($request->internet_affected_areas) { 
+
+                            for($inaa=0; $inaa < count($request->internet_affected_areas); $inaa++) {
+                
+                                $internetAffectedArea = new AllInternetIncidentAffectedArea();
+                                $internetAffectedArea->affected_community_id = $request->internet_affected_areas[$inaa];
+                                $internetAffectedArea->all_internet_incident_id = $newAllInternetIncident->id;
+                                $internetAffectedArea->save();
+                            }
+                        }
+                    } else {
+
+                        if ($request->internet_equipment) {
+
+                            $equipmentIds = array_values($request->internet_equipment);
+                            $units = array_values($request->addMoreInputFieldsInternetUnit);
+                            $costs = array_values($request->addMoreInputFieldsInternetCost);
+    
+                            for ($eq = 0; $eq  < count($equipmentIds); $eq++) {
+    
+                                $internetEquipment = new AllInternetIncidentDamagedEquipment();
+                                $internetEquipment->incident_equipment_id = $request->internet_equipment[$eq];
+                                $internetEquipment->all_internet_incident_id = $newAllInternetIncident->id;
+                        
+                                $internetEquipment->count = $units[$eq]['subject'];
+                                $internetEquipment->cost = $costs[$eq]['subject'];
+                        
+                                $internetEquipment->save();
+                            }
                         }
                     }
                     
-                    if($request->internet_affected_households) { 
-
-                        for($inah=0; $inah < count($request->internet_affected_households); $inah++) {
-            
-                            $internetAffectedHousehold = new AllInternetIncidentAffectedHousehold();
-                            $internetAffectedHousehold->household_id = $request->internet_affected_households[$inah];
-                            $internetAffectedHousehold->all_internet_incident_id = $newAllInternetIncident->id;
-                            $internetAffectedHousehold->save();
-                        }
-                    }
-
-                    if($request->internet_affected_areas) { 
-
-                        for($inaa=0; $inaa < count($request->internet_affected_areas); $inaa++) {
-            
-                            $internetAffectedArea = new AllInternetIncidentAffectedArea();
-                            $internetAffectedArea->affected_community_id = $request->internet_affected_areas[$inaa];
-                            $internetAffectedArea->all_internet_incident_id = $newAllInternetIncident->id;
-                            $internetAffectedArea->save();
-                        }
-                    }
             
                     if ($request->file('internet_photos')) {
             
@@ -1096,7 +1356,12 @@ class AllIncidentController extends Controller
         $allInternetIncident = null;
         $allCameraIncident = null;
 
-        if($allIncident->service_type_id === 1) $allEnergyIncident = AllEnergyIncident::where("all_incident_id", $id)->first();
+        if($allIncident->service_type_id === 1)  {
+
+            $allEnergyIncident = AllEnergyIncident::where("all_incident_id", $id)->firstOrFail();
+
+           //die($allEnergyIncident);
+        }
        
         else if($allIncident->service_type_id === 2) $allWaterIncident = AllWaterIncident::where("all_incident_id", $id)->first();
 
@@ -1130,53 +1395,123 @@ class AllIncidentController extends Controller
      */
     public function edit($id)
     {
-        $energyUser = AllEnergyMeter::findOrFail($id);
+        $allIncident = AllIncident::findOrFail($id);
+        $incidents = Incident::where('is_archived', 0)->get();
+        $incidentStatuses = AllIncidentOccurredStatus::where("all_incident_id", $id)->get();
+        $allEnergyIncident = AllEnergyIncident::where("all_incident_id", $id)->first();
+        $allWaterIncident = AllWaterIncident::where("all_incident_id", $id)->first();
+        $allInternetIncident = AllInternetIncident::where("all_incident_id", $id)->first();
+        $allCameraIncident = AllCameraIncident::where("all_incident_id", $id)->first();
+        $statuses = AllIncidentStatus::get();
+        $userPublicEnergyEquipments = IncidentEquipment::where('is_archived', 0)
+            ->orderBy('name', 'ASC')
+            ->get(); 
 
-        $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
-            ->where("is_archived", 0)
-            ->get();
+        $energySystemComponents = null;
+        if ($allEnergyIncident && $allEnergyIncident->energy_system_id) {
 
-        $community_id = Community::findOrFail($energyUser->community_id);
-        $communities = Community::where('is_archived', 0)
-            ->orderBy('english_name', 'ASC')
-            ->get();
-        $communityVendors = DB::table('community_vendors')
-            //->where('community_id', $community_id->id)
-            ->where('community_vendors.is_archived', 0)
-            ->join('vendor_user_names', 'community_vendors.vendor_username_id', 
-                '=', 'vendor_user_names.id')
-            ->select('vendor_user_names.name', 'community_vendors.id as id',
-                'vendor_user_names.id as vendor_username_id')
-            ->groupBy('vendor_user_names.id')
-            ->get();
-        
-        $energySystems = EnergySystem::where('is_archived', 0)->get();
-        $household = Household::findOrFail($energyUser->household_id);
-        $meterCases = MeterCase::where('is_archived', 0)->get();
-        $vendor = VendorUserName::where('id', $energyUser->vendor_username_id)->first();
-        $donors = Donor::where('is_archived', 0)->get();
+            $energySystemComponents = $this->extractSystemComponents($allEnergyIncident->energy_system_id);
+        }
 
-        $energyDonorsId = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
-            ->where("is_archived", 0)
-            ->pluck('donor_id'); 
+        $waterSystemComponents = null;
+        if ($allWaterIncident && $allWaterIncident->water_system_id) {
 
-        $moreDonors = Donor::where('is_archived', 0)
-            ->whereNotIn('id', $energyDonorsId) 
-            ->get();
+            $waterSystemComponents = $this->extractWaterSystemComponents($allWaterIncident->water_system_id);
+        }
 
-        $installationTypes = InstallationType::where('is_archived', 0)->get();
-        $energyCycles = EnergySystemCycle::get();
 
-        $electricityCollectionBoxes = ElectricityCollectionBox::where('is_archived', 0)->get();
-        $electricityPhases = ElectricityPhase::where('is_archived', 0)->get();
-        $allEnergyMeterPhase = AllEnergyMeterPhase::where('is_archived', 0)
-            ->where('all_energy_meter_id', $id)
-            ->first();
+        $internetSystemComponents = null;
+        if ($allInternetIncident && $allInternetIncident->community_id) {
 
-        return view('users.energy.not_active.edit_energy', compact('household', 'communities',
-            'meterCases', 'energyUser', 'communityVendors', 'vendor', 'energySystems', 'electricityPhases',
-            'energyDonors', 'donors', 'installationTypes', 'energyCycles', 'electricityCollectionBoxes',
-            'allEnergyMeterPhase', 'moreDonors'));
+            $internetSystemCommunity = InternetSystemCommunity::where("is_archived", 0)
+                ->where("community_id", $allInternetIncident->community_id)
+                ->select("internet_system_id")
+                ->first();
+
+            $internetSystemComponents = $this->extractInternetSystemComponents($internetSystemCommunity->internet_system_id);
+        }
+
+        return view('incidents.all.edit', compact('allIncident', 'incidents', 'allEnergyIncident', 
+            'allWaterIncident', 'allInternetIncident', 'allCameraIncident', 'incidentStatuses',
+            'statuses', 'userPublicEnergyEquipments', 'energySystemComponents', 'waterSystemComponents',
+            'internetSystemComponents'));
+    }
+
+    // This function is to update the Energy Equipment Damaged
+    public function updateEnergyEquipmentDamaged($id, $units, $cost)
+    {
+        $energyEquipmentDamaged = AllEnergyIncidentDamagedEquipment::findOrFail($id);
+        $energyEquipmentDamaged->count = $units;
+        $energyEquipmentDamaged->cost = $cost;
+        $energyEquipmentDamaged->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Energy Equipment Damaged updated successfully']);
+    }
+
+    // This function is to update the Water Equipment Damaged
+    public function updateWaterEquipmentDamaged($id, $units, $cost)
+    {
+        $waterEquipmentDamaged = AllWaterIncidentDamagedEquipment::findOrFail($id);
+        $waterEquipmentDamaged->count = $units;
+        $waterEquipmentDamaged->cost = $cost;
+        $waterEquipmentDamaged->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Water Equipment Damaged updated successfully']);
+    }
+
+    // This function is to update the Internet Equipment Damaged
+    public function updateInternetEquipmentDamaged($id, $units, $cost)
+    {
+        $internetEquipmentDamaged = AllInternetIncidentDamagedEquipment::findOrFail($id);
+        $internetEquipmentDamaged->count = $units;
+        $internetEquipmentDamaged->cost = $cost;
+        $internetEquipmentDamaged->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Internet Equipment Damaged updated successfully']);
+    }
+
+    // This function is to update the Camera Equipment Damaged
+    public function updateCameraEquipmentDamaged($id, $units, $cost)
+    {
+        $cameraEquipmentDamaged = AllCameraIncidentDamagedEquipment::findOrFail($id);
+        $cameraEquipmentDamaged->count = $units;
+        $cameraEquipmentDamaged->cost = $cost;
+        $cameraEquipmentDamaged->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Camera Equipment Damaged updated successfully']);
+    }
+
+    // This function is to update the Energy System Equipment Damaged
+    public function updateEnergySystemEquipmentDamaged($id, $units, $cost)
+    {
+        $energySystemEquipmentDamaged = AllEnergyIncidentSystemDamagedEquipment::findOrFail($id);
+        $energySystemEquipmentDamaged->count = $units;
+        $energySystemEquipmentDamaged->cost = $cost;
+        $energySystemEquipmentDamaged->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Energy System Equipment Damaged updated successfully']);
+    }
+
+    // This function is to update the Water System Equipment Damaged
+    public function updateWaterSystemEquipmentDamaged($id, $units, $cost)
+    {
+        $waterSystemEquipmentDamaged = AllWaterIncidentSystemDamagedEquipment::findOrFail($id);
+        $waterSystemEquipmentDamaged->count = $units;
+        $waterSystemEquipmentDamaged->cost = $cost;
+        $waterSystemEquipmentDamaged->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Water System Equipment Damaged updated successfully']);
+    }
+
+    // This function is to update the Internet System Equipment Damaged
+    public function updateInternetSystemEquipmentDamaged($id, $units, $cost)
+    {
+        $internetSystemEquipmentDamaged = AllInternetIncidentSystemDamagedEquipment::findOrFail($id);
+        $internetSystemEquipmentDamaged->count = $units;
+        $internetSystemEquipmentDamaged->cost = $cost;
+        $internetSystemEquipmentDamaged->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Internet System Equipment Damaged updated successfully']);
     }
 
     /**
@@ -1187,10 +1522,472 @@ class AllIncidentController extends Controller
      */
     public function update(Request $request, $id)
     {
+        //dd($request->all());
+        $allIncident = AllIncident::findOrFail($id);
+        if($request->date) {
+
+            $allIncident->date = $request->date;
+            $year = explode('-', $request->date);
+            $allIncident->year = $year[0];
+        }
+        $allIncident->response_date = $request->response_date;
+        $allIncident->description = $request->description;
+        if($request->order_number) $allIncident->order_number = $request->order_number;
+        if($request->order_date) $allIncident->order_date = $request->order_date;
+        if($request->geolocation_lat) $allIncident->geolocation_lat = $request->geolocation_lat;
+        if($request->geolocation_long) $allIncident->geolocation_long = $request->geolocation_long;
+        if($request->hearing_date) $allIncident->hearing_date = $request->hearing_date;
+        if($request->structure_description) $allIncident->structure_description = $request->structure_description;
+        if($request->case_chronology) $allIncident->case_chronology = $request->case_chronology;
+        if($request->building_permit_request_number) $allIncident->building_permit_request_number = $request->building_permit_request_number;
+        if($request->building_permit_request_submission_date) $allIncident->building_permit_request_submission_date = $request->building_permit_request_submission_date;
+        if($request->illegal_construction_case_number) $allIncident->illegal_construction_case_number = $request->illegal_construction_case_number;
+        if($request->district_court_case_number) $allIncident->district_court_case_number = $request->district_court_case_number;
+        if($request->supreme_court_case_number) $allIncident->supreme_court_case_number = $request->supreme_court_case_number;
+        if($request->monetary_losses) $allIncident->monetary_losses = $request->monetary_losses;
+        if($request->next_step) $allIncident->next_step = $request->next_step;
+        if($request->notes) $allIncident->notes = $request->notes;
+        $allIncident->save();
+
+        if($request->new_statuses) {
+
+            for ($stas = 0; $stas < count($request->new_statuses); $stas++) {
+
+                $incidentStatus = new AllIncidentOccurredStatus();
+                $incidentStatus->all_incident_status_id = $request->new_statuses[$stas];
+                $incidentStatus->all_incident_id = $id;
+                $incidentStatus->save();
+            }
+        }
+
+        $allEnergyIncident = AllEnergyIncident::where("all_incident_id", $id)->first();
+
+        // Energy equipment damaged (USER/PUBLIC)
+        if ($request->energy_equipment_damaged_ids && $allEnergyIncident) {
+            
+            for ($enrEqp = 0; $enrEqp < count($request->energy_equipment_damaged_ids); $enrEqp++) {
+
+                $energyDamagedEquipment = new AllEnergyIncidentDamagedEquipment();
+                $energyDamagedEquipment->incident_equipment_id = $request->energy_equipment_damaged_ids[$enrEqp];
+                $energyDamagedEquipment->all_energy_incident_id = $allEnergyIncident->id;
+                $energyDamagedEquipment->count = $request->input("energy_equipment_damaged_units.$enrEqp.subject") ?? 0;
+                $energyDamagedEquipment->cost = $request->input("energy_equipment_damaged_costs.$enrEqp.subject") ?? 0;
         
+                $energyDamagedEquipment->save();
+            }
+        }
+
+        // Store new Energy photos
+        if ($request->file('more_photos') && $allEnergyIncident) {
+
+            foreach($request->more_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                if($allEnergyIncident->all_energy_meter_id) $destinationPath = public_path().'/incidents/energy/' ;
+                else $destinationPath = public_path().'/incidents/mg/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $energyIncidentPhoto = new AllEnergyIncidentPhoto();
+                $energyIncidentPhoto->slug = $extra_name;
+                $energyIncidentPhoto->all_energy_incident_id = $allEnergyIncident->id;
+                $energyIncidentPhoto->save();
+            }
+        }
+
+        $allWaterIncident = AllWaterIncident::where("all_incident_id", $id)->first();
+
+        // Water equipment damaged (USER/PUBLIC)
+        if ($request->water_equipment_damaged_ids && $allWaterIncident) {
+            
+            for ($enrEqp = 0; $enrEqp < count($request->water_equipment_damaged_ids); $enrEqp++) {
+
+                $waterDamagedEquipment = new AllWaterIncidentDamagedEquipment();
+                $waterDamagedEquipment->incident_equipment_id = $request->water_equipment_damaged_ids[$enrEqp];
+                $waterDamagedEquipment->all_water_incident_id = $allWaterIncident->id;
+                $waterDamagedEquipment->count = $request->input("water_equipment_damaged_units.$enrEqp.subject") ?? 0;
+                $waterDamagedEquipment->cost = $request->input("water_equipment_damaged_costs.$enrEqp.subject") ?? 0;
+        
+                $waterDamagedEquipment->save();
+            }
+        }
+
+        // Store new Water photos
+        if ($request->file('more_photos') && $allWaterIncident) {
+
+            foreach($request->more_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/incidents/water/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $waterIncidentPhoto = new AllWaterIncidentPhoto();
+                $waterIncidentPhoto->slug = $extra_name;
+                $waterIncidentPhoto->all_water_incident_id = $allWaterIncident->id;
+                $waterIncidentPhoto->save();
+            }
+        }
+
+        $allInternetIncident = AllInternetIncident::where("all_incident_id", $id)->first();
+
+        // Internet equipment damaged (USER/PUBLIC)
+        if ($request->internet_equipment_damaged_ids && $allInternetIncident) {
+            
+            for ($enrEqp = 0; $enrEqp < count($request->internet_equipment_damaged_ids); $enrEqp++) {
+
+                $internetDamagedEquipment = new AllInternetIncidentDamagedEquipment();
+                $internetDamagedEquipment->incident_equipment_id = $request->internet_equipment_damaged_ids[$enrEqp];
+                $internetDamagedEquipment->all_internet_incident_id = $allInternetIncident->id;
+                $internetDamagedEquipment->count = $request->input("internet_equipment_damaged_units.$enrEqp.subject") ?? 0;
+                $internetDamagedEquipment->cost = $request->input("internet_equipment_damaged_costs.$enrEqp.subject") ?? 0;
+        
+                $internetDamagedEquipment->save();
+            }
+        }
+
+        // Store new internet photos
+        if ($request->file('more_photos') && $allInternetIncident) {
+
+            foreach($request->more_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/incidents/internet/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $internetIncidentPhoto = new AllInternetIncidentPhoto();
+                $internetIncidentPhoto->slug = $extra_name;
+                $internetIncidentPhoto->all_internet_incident_id = $allInternetIncident->id;
+                $internetIncidentPhoto->save();
+            }
+        }
+
+        $allCameraIncident = AllCameraIncident::where("all_incident_id", $id)->first();
+
+        // Camera equipment damaged 
+        if ($request->camera_equipment_damaged_ids && $allCameraIncident) {
+            
+            for ($enrEqp = 0; $enrEqp < count($request->camera_equipment_damaged_ids); $enrEqp++) {
+
+                $cameraDamagedEquipment = new AllCameraIncidentDamagedEquipment();
+                $cameraDamagedEquipment->incident_equipment_id = $request->camera_equipment_damaged_ids[$enrEqp];
+                $cameraDamagedEquipment->all_camera_incident_id = $allCameraIncident->id;
+                $cameraDamagedEquipment->count = $request->input("camera_equipment_damaged_units.$enrEqp.subject") ?? 0;
+                $cameraDamagedEquipment->cost = $request->input("camera_equipment_damaged_costs.$enrEqp.subject") ?? 0;
+        
+                $cameraDamagedEquipment->save();
+            }
+        }
+
+        // Store new camera photos
+        if ($request->file('more_photos') && $allCameraIncident) {
+
+            foreach($request->more_photos as $photo) {
+
+                $original_name = $photo->getClientOriginalName();
+                $extra_name  = uniqid().'_'.time().'_'.uniqid().'.'.$photo->extension();
+                $encoded_base64_image = substr($photo, strpos($photo, ',') + 1); 
+                $destinationPath = public_path().'/incidents/camera/' ;
+                $photo->move($destinationPath, $extra_name);
+    
+                $cameraIncidentPhoto = new AllCameraIncidentPhoto();
+                $cameraIncidentPhoto->slug = $extra_name;
+                $cameraIncidentPhoto->all_camera_incident_id = $allCameraIncident->id;
+                $cameraIncidentPhoto->save();
+            }
+        }
+
+
+        // This for update the energy system equipments
+        if ($request->energy_system_equipment_damaged_ids && $request->energy_system_equipment_types && $allEnergyIncident) {
+
+            $equipmentIds = array_values($request->energy_system_equipment_damaged_ids);
+            $equipmentTypes = array_values($request->energy_system_equipment_types);
+
+            for ($eq = 0; $eq < count($equipmentIds); $eq++) {
+
+                $equipmentId = $equipmentIds[$eq];
+                $equipmentType = $equipmentTypes[$eq]['subject'] ?? null;
+
+                $count = $request->input("energy_system_equipment_damaged_units.$eq.subject");
+                $cost = $request->input("energy_system_equipment_damaged_costs.$eq.subject");
+
+                if (!$equipmentId || !$equipmentType || !is_numeric($count) || !is_numeric($cost)) {
+                    continue; // skip invalid or incomplete rows
+                }
+
+                $energyEquipment = new AllEnergyIncidentSystemDamagedEquipment();
+                $energyEquipment->all_energy_incident_id = $allEnergyIncident->id;
+                $energyEquipment->count = $count;
+                $energyEquipment->cost = $cost;
+
+                switch ($equipmentType) {
+                    case "EnergyBattery":
+                        $energyEquipment->energy_system_battery_id = $equipmentId;
+                        break;
+                    case "EnergyBatteryMount":
+                        $energyEquipment->energy_system_battery_mount_id = $equipmentId;
+                        break;
+                    case "EnergyBatteryStatusProcessor":
+                        $energyEquipment->energy_system_battery_status_processor_id = $equipmentId;
+                        break;
+                    case "EnergyBatteryTemperatureSensor":
+                        $energyEquipment->energy_system_battery_temperature_sensor_id = $equipmentId;
+                        break;
+                    case "EnergyChargeController":
+                        $energyEquipment->energy_system_charge_controller_id = $equipmentId;
+                        break;
+                    case "EnergyGenerator":
+                        $energyEquipment->energy_system_generator_id = $equipmentId;
+                        break;
+                    case "EnergyInverter":
+                        $energyEquipment->energy_system_inverter_id = $equipmentId;
+                        break;
+                    case "EnergyLoadRelay":
+                        $energyEquipment->energy_system_load_relay_id = $equipmentId;
+                        break;
+                    case "EnergyMcbChargeController":
+                        $energyEquipment->energy_system_mcb_charge_controller_id = $equipmentId;
+                        break;
+                    case "EnergyMcbInverter":
+                        $energyEquipment->energy_system_mcb_inverter_id = $equipmentId;
+                        break;
+                    case "EnergyMcbPv":
+                        $energyEquipment->energy_system_mcb_pv_id = $equipmentId;
+                        break;
+                    case "EnergyMonitoring":
+                        $energyEquipment->energy_system_monitoring_id = $equipmentId;
+                        break;
+                    case "EnergyPv":
+                        $energyEquipment->energy_system_pv_id = $equipmentId;
+                        break;
+                    case "EnergyPvMount":
+                        $energyEquipment->energy_system_pv_mount_id = $equipmentId;
+                        break;
+                    case "EnergyRelayDriver":
+                        $energyEquipment->energy_system_relay_driver_id = $equipmentId;
+                        break;
+                    case "EnergyRemoteControlCenter":
+                        $energyEquipment->energy_system_remote_control_center_id = $equipmentId;
+                        break;
+                    case "EnergyWindTurbine":
+                        $energyEquipment->energy_system_wind_turbine_id = $equipmentId;
+                        break;
+                    case "EnergyAirConditioner":
+                        $energyEquipment->energy_system_air_conditioner_id = $equipmentId;
+                        break;
+                    default:
+                        continue 2;
+                }
+
+                $energyEquipment->save();
+            }
+        }
+
+        // This for update the water system equipments
+        if ($request->water_system_equipment_damaged_ids && $request->water_system_equipment_types && $allWaterIncident) {
+
+            $equipmentIds = array_values($request->water_system_equipment_damaged_ids);
+            $equipmentTypes = array_values($request->water_system_equipment_types);
+
+            for ($eq = 0; $eq < count($equipmentIds); $eq++) {
+
+                $equipmentId = $equipmentIds[$eq];
+                $equipmentType = $equipmentTypes[$eq]['subject'] ?? null;
+
+                $count = $request->input("water_system_equipment_damaged_units.$eq.subject");
+                $cost = $request->input("water_system_equipment_damaged_costs.$eq.subject");
+
+                if (!$equipmentId || !$equipmentType || !is_numeric($count) || !is_numeric($cost)) {
+                    continue; // skip invalid or incomplete rows
+                }
+
+                $waterEquipment = new AllWaterIncidentSystemDamagedEquipment();
+                $waterEquipment->all_water_incident_id = $allWaterIncident->id;
+                $waterEquipment->count = $count;
+                $waterEquipment->cost = $cost;
+
+                switch ($equipmentType) {
+                    case "WaterTank":
+                        $waterEquipment->water_system_tank_id = $equipmentId;
+                    break;
+        
+                    case "WaterPipe":
+                        $waterEquipment->water_system_pipe_id = $equipmentId;
+                    break;
+                    case "WaterPump":
+                        $waterEquipment->water_system_pump_id = $equipmentId;
+                    break;
+                    case "WaterFilter":
+                        $waterEquipment->water_system_filter_id = $equipmentId;
+                    break;
+                    case "WaterConnector":
+                        $waterEquipment->water_system_connector_id = $equipmentId;
+                    break;
+                    case "WaterValve":
+                        $waterEquipment->water_system_valve_id = $equipmentId;
+                    break;
+                    case "WaterTap":
+                        $waterEquipment->water_system_tap_id = $equipmentId;
+                        break;
+                    default:
+                        continue 2;
+                }
+
+                $waterEquipment->save();
+            }
+        }
+
+        // This for update the internet system equipments
+        if ($request->internet_system_equipment_damaged_ids && $request->internet_system_equipment_types && $allInternetIncident) {
+
+            $equipmentIds = array_values($request->internet_system_equipment_damaged_ids);
+            $equipmentTypes = array_values($request->internet_system_equipment_types);
+
+            for ($eq = 0; $eq < count($equipmentIds); $eq++) {
+
+                $equipmentId = $equipmentIds[$eq];
+                $equipmentType = $equipmentTypes[$eq]['subject'] ?? null;
+
+                $count = $request->input("internet_system_equipment_damaged_units.$eq.subject");
+                $cost = $request->input("internet_system_equipment_damaged_costs.$eq.subject");
+
+                if (!$equipmentId || !$equipmentType || !is_numeric($count) || !is_numeric($cost)) {
+                    continue; 
+                }
+
+                $internetEquipment = new AllInternetIncidentSystemDamagedEquipment();
+                $internetEquipment->all_internet_incident_id = $allInternetIncident->id;
+                $internetEquipment->count = $count;
+                $internetEquipment->cost = $cost;
+
+                switch ($equipmentType) {
+                    case "Router":
+                        $internetEquipment->router_internet_system_id = $equipmentId;
+                        break;
+        
+                    case "Switche":
+                        $internetEquipment->switch_internet_system_id = $equipmentId;
+                        break;
+        
+                    case "InternetController":
+                        $internetEquipment->controller_internet_system_id = $equipmentId;
+                        break;
+        
+                    case "InternetPtp":
+                        $internetEquipment->ptp_internet_system_id = $equipmentId;
+                        break;
+        
+                    case "InternetAp":
+                        $internetEquipment->ap_internet_system_id = $equipmentId;
+                        break;
+        
+                    case "InternetApLite":
+                        $internetEquipment->ap_lite_internet_system_id = $equipmentId;
+                        break;
+        
+                    case "InternetUisp":
+                        $internetEquipment->uisp_internet_system_id = $equipmentId;
+                        break;
+        
+                    case "InternetConnector":
+                        $internetEquipment->connector_internet_system_id = $equipmentId;
+                        break;
+        
+                    case "InternetElectrician":
+                        $internetEquipment->electrician_internet_system_id = $equipmentId;
+                        break;
+                    default:
+                        continue 2;
+                }
+
+                $internetEquipment->save();
+            }
+        }
 
         return redirect('/all-incident')->with('message', 'Incident Record Updated Successfully!');
     }
+
+    protected function extractSystemComponents($systemId)
+    {
+        $system = EnergySystem::with([
+            'batteries', 'batteryMount', 'pvs', 'pvMount', 'chargeController',
+            'inverter', 'loadRelay', 'relayDriver', 'bsp', 'bts', 'monitoring',
+            'remoteControlCenter', 'mcbChargeController', 'mcbInverter', 'mcbPv',
+            'airConditioners', 'generator', 'windTurbine'
+        ])->find($systemId);
+
+        if (!$system) {
+            return null;
+        }
+
+        $components = collect()
+            ->merge($system->batteries)->merge($system->batteryMount)
+            ->merge($system->pvs)->merge($system->pvMount)
+            ->merge($system->chargeController)->merge($system->inverter)
+            ->merge($system->loadRelay)->merge($system->relayDriver)
+            ->merge($system->bsp)->merge($system->bts)->merge($system->monitoring)
+            ->merge($system->remoteControlCenter)->merge($system->mcbChargeController)
+            ->merge($system->mcbInverter)->merge($system->mcbPv)
+            ->merge($system->airConditioners)->merge($system->generator)
+            ->merge($system->windTurbine);
+
+        return $components->map(function ($component) {
+            switch (get_class($component)) {
+ 
+                case \App\Models\EnergyBattery::class:
+                    $name = $component->battery_model;
+                    break;
+                case \App\Models\EnergyPv::class:
+                    $name = $component->pv_model;
+                    break;
+                case \App\Models\EnergyChargeController::class:
+                    $name = $component->charge_controller_model;
+                    break;
+                case \App\Models\EnergyInverter::class:
+                    $name = $component->inverter_model;
+                    break;
+                case \App\Models\EnergyLoadRelay::class:
+                    $name = $component->load_relay_model;
+                    break;
+                case \App\Models\EnergyMonitoring::class:
+                    $name = $component->monitoring_model;
+                    break;
+                case \App\Models\EnergyGenerator::class:
+                    $name = $component->generator_model;
+                    break;
+                case \App\Models\EnergyWindTurbine::class:
+                    $name = $component->wind_turbine_model;
+                    break;
+                case \App\Models\EnergyBatteryTemperatureSensor::class:
+                    $name = $component->BTS_model;
+                    break;
+                case \App\Models\EnergyPvMount::class:
+                    $name = $component->model;
+                    break;
+                case \App\Models\EnergyBatteryMount::class:
+                    $name = $component->model;
+                    break;
+                case \App\Models\EnergyMcbInverter::class:
+                    $name = $component->inverter_MCB_model;
+                    break;
+                default:
+                    $name = $component->model ?? 'Unnamed Component';
+            }
+
+            return [
+                'component_energy_system_id' => $component->pivot->id ?? $component->id,
+                'model_name' => $name,
+                'type' => class_basename($component),
+                'cost' => $component->pivot->cost ?? null,
+            ];
+        })->values();
+    }
+
 
     /**
      * Get resources from storage.
@@ -1200,55 +1997,156 @@ class AllIncidentController extends Controller
      */
     public function getSystemComponents($systemId)
     {
-        $system = EnergySystem::with([
-            'batteries',
-            'pvs',
-            'airConditioners',
-            'batteryMount',
-            'bsp',
-            'bts',
-            'chargeController',
-            'generator',
-            'inverter',
-            'loadRelay',
-            'mcbChargeController',
-            'mcbInverter',
-            'mcbPv',
-            'monitoring',
-            'pvMount',
-            'relayDriver',
-        ])->find($systemId);
-    
-        die($system);
+        $equipmentList = $this->extractSystemComponents($systemId);
 
-        if (!$system) {
+        if (!$equipmentList) {
             return response()->json(['message' => 'System not found'], 404);
         }
-    
-        // Merge all components into one collection for simplicity
-        $components = collect();
-    
-        $components = $components->merge($system->batteries)
-            ->merge($system->pvs)->merge($system->airConditioners)
-            ->merge($system->batteryMount)->merge($system->bsp)
-            ->merge($system->generator)->merge($system->chargeController)
-            ->merge($system->loadRelay)->merge($system->mcbChargeController)
-            ->merge($system->mcbInverter)->merge($system->mcbPv);
-                                
-    
-        // Format to simple array (id, name)
-        $equipmentList = $components->map(function($component) {
-            return [
-                'id' => $component->id,
-                'name' => $component->model ?? 'Unnamed Component', 
-            ];
-        })->values();
-    
+
         return response()->json([
             'equipment' => $equipmentList,
         ]);
     }
 
+
+    protected function extractWaterSystemComponents($systemId)
+    {
+        $system = WaterSystem::with([
+            'tanks',
+            'pipes',
+            'pumps',
+            'filters',
+            'connectors',
+            'valves',
+            'taps'
+        ])->find($systemId);
+
+        if (!$system) {
+            return null;
+        }
+
+        $components = collect();
+
+        $components = $components->merge($system->tanks)
+            ->merge($system->pipes)
+            ->merge($system->pumps)
+            ->merge($system->filters)
+            ->merge($system->connectors)
+            ->merge($system->valves)
+            ->merge($system->taps);
+
+        return $components->map(function ($component) {
+            $class = get_class($component);
+            $type = class_basename($component);
+            $name = $component->model ?? 'Unnamed Component';
+
+            // Set pivot cost field based on the component type
+            $pivotCost = match ($class) {
+                \App\Models\WaterTank::class      => $component->pivot->tank_costs ?? null,
+                \App\Models\WaterPipe::class      => $component->pivot->pipe_costs ?? null,
+                \App\Models\WaterPump::class      => $component->pivot->pump_costs ?? null,
+                \App\Models\WaterFilter::class    => $component->pivot->filter_costs ?? null,
+                \App\Models\WaterConnector::class => $component->pivot->connector_costs ?? null,
+                \App\Models\WaterValve::class     => $component->pivot->valve_costs ?? null,
+                \App\Models\WaterTap::class       => $component->pivot->tap_costs ?? null,
+                default                           => null,
+            };
+
+            return [
+                'component_water_system_id' => $component->pivot->id ?? $component->id,
+                'model_name' => $name,
+                'type'       => $type,
+                'cost'       => $pivotCost,
+            ];
+        })->values();
+    }
+
+  
+    protected function extractInternetSystemComponents($systemId)
+    {
+        $system = InternetSystem::with([
+            'routers',
+            'ptps',
+            'uisps',
+            'aps',
+            'aplites',
+            'switches',
+            'controllers',
+            'connectors',
+            'electricians'
+        ])->find($systemId);
+
+        if (!$system) {
+            return null; 
+        }
+
+        $componentSources = [
+            ['relation' => $system->routers,     'type' => 'Router',             'pivotCostField' => 'router_costs'],
+            ['relation' => $system->ptps,        'type' => 'InternetPtp',        'pivotCostField' => 'ptp_costs'],
+            ['relation' => $system->uisps,       'type' => 'InternetUisp',       'pivotCostField' => 'uisp_costs'],
+            ['relation' => $system->aps,         'type' => 'InternetAp',         'pivotCostField' => 'ap_costs'],
+            ['relation' => $system->aplites,     'type' => 'InternetApLite',     'pivotCostField' => 'ap_lite_costs'],
+            ['relation' => $system->switches,    'type' => 'Switche',            'pivotCostField' => 'switch_costs'],
+            ['relation' => $system->controllers, 'type' => 'InternetController', 'pivotCostField' => 'controller_costs'],
+            ['relation' => $system->connectors,  'type' => 'InternetConnector',  'pivotCostField' => 'connector_costs'],
+            ['relation' => $system->electricians, 'type' => 'InternetElectrician', 'pivotCostField' => 'electrician_costs'],
+        ];
+
+        $components = collect();
+
+        foreach ($componentSources as $source) {
+            $components = $components->merge(
+                $source['relation']->map(function ($component) use ($source) {
+                    return [
+                        'component_internet_system_id' => $component->pivot->id ?? $component->id,
+                        'model_name' => $component->model ?? 'Unnamed Component',
+                        'type'       => $source['type'],
+                        'cost'       => $component->pivot->{$source['pivotCostField']} ?? null,
+                    ];
+                })
+            );
+        }
+
+        return $components->values();
+    }
+
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getWaterSystemComponents($systemId)
+    {
+        $equipmentList = $this->extractWaterSystemComponents($systemId);
+
+        if (!$equipmentList) {
+            return response()->json(['message' => 'System not found'], 404);
+        }
+
+        return response()->json([
+
+            'equipmentWater' => $equipmentList,
+        ]);
+    }
+
+    /**
+     * Get resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getInternetSystemComponents($systemId)
+    {
+       $components = $this->extractInternetSystemComponents($systemId);
+
+        if (!$components) {
+            return response()->json(['message' => 'System not found'], 404);
+        }
+
+        return response()->json(['equipmentInternet' => $components]);
+    }
 
     /**
      * Get resources from storage.
@@ -1261,7 +2159,6 @@ class AllIncidentController extends Controller
         $html = "<option disabled selected>Choose one...</option>";
         $htmlAffectedHouseholds = "<option disabled selected>Choose one...</option>";
         $systems = null;
-        $energySystemEquipments = null;
         $userPublicEquipments = IncidentEquipment::where('is_archived', 0)
             ->where("incident_equipment_type_id", 2)
             ->orderBy('name', 'ASC')
@@ -1335,6 +2232,10 @@ class AllIncidentController extends Controller
         $html = "<option disabled selected>Choose one...</option>";
         $htmlAffectedHouseholds = "<option disabled selected>Choose one...</option>";
         $systems = null;
+        $userPublicEquipments = IncidentEquipment::where('is_archived', 0)
+            ->where("incident_equipment_type_id", 1)
+            ->orderBy('name', 'ASC')
+            ->get(); 
         
         $households = DB::table('all_water_holders')
             ->join('households', 'all_water_holders.household_id', 'households.id')
@@ -1347,6 +2248,7 @@ class AllIncidentController extends Controller
         if($flag == "user") {
 
             $households = $households;
+            $userPublicEquipments = $userPublicEquipments;
             
         } else if($flag == "public") {
 
@@ -1356,6 +2258,7 @@ class AllIncidentController extends Controller
                 ->where("all_water_holders.community_id", $community_id)
                 ->select('public_structures.id as id', 'public_structures.english_name')
                 ->get();
+            $userPublicEquipments = $userPublicEquipments;
         } else if($flag == "system") {
 
             $systems = DB::table('water_systems')
@@ -1384,7 +2287,12 @@ class AllIncidentController extends Controller
             }    
         }
 
-        return response()->json(['html' => $html, 'htmlAffectedHouseholds' => $htmlAffectedHouseholds]);
+        return response()->json([
+            'html' => $html, 
+            'htmlAffectedHouseholds' => $htmlAffectedHouseholds,
+            'userPublicEquipments' => $userPublicEquipments
+        
+        ]);
     }
 
     /**
@@ -1399,6 +2307,10 @@ class AllIncidentController extends Controller
         $htmlAffectedHouseholds = "<option disabled selected>Choose one...</option>";
         $htmlAffectedAreas = "<option disabled selected>Choose one...</option>";
         $systems = null;
+        $userPublicEquipments = IncidentEquipment::where('is_archived', 0)
+            ->where("incident_equipment_type_id", 4)
+            ->orderBy('name', 'ASC')
+            ->get(); 
         
         $households = DB::table('internet_users')
             ->join('households', 'internet_users.household_id', 'households.id')
@@ -1411,7 +2323,7 @@ class AllIncidentController extends Controller
         if($flag == "user") {
 
             $households = $households;
-            
+            $userPublicEquipments = $userPublicEquipments;
         } else if($flag == "public") {
 
             $households = DB::table('internet_users')
@@ -1420,6 +2332,7 @@ class AllIncidentController extends Controller
                 ->where("internet_users.community_id", $community_id)
                 ->select('public_structures.id as id', 'public_structures.english_name')
                 ->get();
+            $userPublicEquipments = $userPublicEquipments;
         } else if($flag == "system") {
 
             $systems = DB::table('internet_system_communities')
@@ -1462,7 +2375,8 @@ class AllIncidentController extends Controller
         return response()->json([
             'html' => $html, 
             'htmlAffectedHouseholds' => $htmlAffectedHouseholds,
-            'htmlAffectedAreas' => $htmlAffectedAreas
+            'htmlAffectedAreas' => $htmlAffectedAreas,
+            'userPublicEquipments' => $userPublicEquipments
         ]);
     }
 
@@ -1510,6 +2424,283 @@ class AllIncidentController extends Controller
 
             $response['success'] = 1;
             $response['msg'] = 'Incident Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */ 
+    public function deleteAllIncidentStatus(Request $request)
+    {
+        $incidentStatus = AllIncidentOccurredStatus::find($request->id);
+
+        if($incidentStatus->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Incident Status Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */ 
+    public function deleteEnergyPhoto(Request $request)
+    {
+        $energyPhoto = AllEnergyIncidentPhoto::find($request->id);
+
+        if($energyPhoto->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Energy Photo Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */ 
+    public function deleteWaterPhoto(Request $request)
+    {
+        $waterPhoto = AllWaterIncidentPhoto::find($request->id);
+
+        if($waterPhoto->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Photo Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */ 
+    public function deleteInternetPhoto(Request $request)
+    {
+        $internetPhoto = AllInternetIncidentPhoto::find($request->id);
+
+        if($internetPhoto->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet Photo Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */ 
+    public function deleteCameraPhoto(Request $request)
+    {
+        $cameraPhoto = AllCameraIncidentPhoto::find($request->id);
+
+        if($cameraPhoto->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Camera Photo Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergyEquipmentDamaged(Request $request)
+    {
+        $energyEqipment = AllEnergyIncidentDamagedEquipment::find($request->id);
+
+        if($energyEqipment->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Energy Equipment Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteEnergySystemEquipmentDamaged(Request $request)
+    {
+        $energySystemEqipment = AllEnergyIncidentSystemDamagedEquipment::find($request->id);
+
+        if($energySystemEqipment->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Energy System Equipment Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteWaterEquipmentDamaged(Request $request)
+    {
+        $waterEqipment = AllWaterIncidentDamagedEquipment::find($request->id);
+
+        if($waterEqipment->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Equipment Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteWaterSystemEquipmentDamaged(Request $request)
+    {
+        $waterSystemEqipment = AllWaterIncidentSystemDamagedEquipment::find($request->id);
+
+        if($waterSystemEqipment->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water System Equipment Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetEquipmentDamaged(Request $request)
+    {
+        $internetEqipment = AllInternetIncidentDamagedEquipment::find($request->id);
+
+        if($internetEqipment->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet Equipment Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemEquipmentDamaged(Request $request)
+    {
+        $internetSystemEqipment = AllInternetIncidentSystemDamagedEquipment::find($request->id);
+
+        if($internetSystemEqipment->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Equipment Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteCameraEquipmentDamaged(Request $request)
+    {
+        $cameraEqipment = AllCameraIncidentDamagedEquipment::find($request->id);
+
+        if($cameraEqipment->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Camera Equipment Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

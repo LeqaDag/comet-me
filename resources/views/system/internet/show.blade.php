@@ -15,8 +15,10 @@
         'ptp' => $ptps,
         'ap' => $aps,
         'ap_lite' => $apLites,
-        'uisp' => $uisps
-    ];
+        'uisp' => $uisps,
+        'electrician' => $electricians,
+        'connector' => $connectors
+    ]; 
 
     $grandTotalCost = 0;
 @endphp
@@ -385,6 +387,97 @@
                                     <td colspan=2>Total</td>
                                     <td>{{$uisps->sum('uisp_units') }}</td>
                                     <td>{{$uisps->sum('uisp_costs') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+             
+            @if(count($electricians) < 1)
+                <div class="alert alert-warning">
+                    <strong>Sorry!</strong> No Electrician Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Electricians:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-warning">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th >Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($electricians as $electrician)
+                                <tr>
+                                    <td>{{$electrician->model}}</td>
+                                    <td>{{$electrician->brand}}</td>
+                                    <td>{{$electrician->electrician_units}}</td>
+                                    <td>{{$electrician->electrician_costs}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td colspan=2>Total</td>
+                                    <td>{{$electricians->sum('electrician_units') }}</td>
+                                    <td>{{$electricians->sum('electrician_costs') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+             
+
+            @if(count($connectors) < 1)
+                <div class="alert alert-warning">
+                    <strong>Sorry!</strong> No Connector Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Connector:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-primary">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th >Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($connectors as $connector)
+                                <tr>
+                                    <td>{{$connector->model}}</td>
+                                    <td>{{$connector->brand}}</td>
+                                    <td>{{$connector->connector_units}}</td>
+                                    <td>{{$connector->connector_costs}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td colspan=2>Total</td>
+                                    <td>{{$connectors->sum('connector_units') }}</td>
+                                    <td>{{$connectors->sum('connector_costs') }}</td>
                                 </tr>
                             </tfoot>
                          </table>

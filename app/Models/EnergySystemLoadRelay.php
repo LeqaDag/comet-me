@@ -13,4 +13,9 @@ class EnergySystemLoadRelay extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyLoadRelay::class, 'energy_load_relay_id');
+    }
 }

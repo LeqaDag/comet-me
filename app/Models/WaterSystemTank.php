@@ -21,4 +21,9 @@ class WaterSystemTank extends Model
     {
         return $this->belongsTo(WaterTank::class, 'water_tank_id', 'id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(WaterTank::class, 'water_tank_id', 'id');
+    }
 }

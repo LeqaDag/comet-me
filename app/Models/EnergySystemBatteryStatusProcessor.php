@@ -13,4 +13,9 @@ class EnergySystemBatteryStatusProcessor extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyBatteryStatusProcessor::class, 'energy_battery_status_processor_id');
+    }
 }

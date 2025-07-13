@@ -13,4 +13,9 @@ class EnergySystemMcbChargeController extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyMcbChargeController::class, 'energy_mcb_charge_controller_id');
+    }
 }

@@ -5,7 +5,18 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
+use App\Models\AllEnergyMeter;
 use App\Models\AllMaintenanceTicket;
+use App\Models\AllIncident;
+use App\Models\AllIncidentStatus;
+use App\Models\AllIncidentOccurredStatus;
+use App\Models\AllEnergyIncident;
+use App\Models\AllWaterIncident;
+use App\Models\AllCameraIncident;
+use App\Models\InternetUser;
+use App\Models\AllWaterHolder;
+use App\Models\AllInternetIncident;
+use App\Models\Incident;
 use App\Models\AllMaintenanceTicketAction;
 use App\Models\User;
 use App\Models\Community;
@@ -13,11 +24,15 @@ use App\Models\ServiceType;
 use App\Models\MaintenanceStatus;
 use App\Models\MaintenanceType;
 use App\Models\Household;
+use App\Models\MeterCase;
 use App\Models\PublicStructure;
 use App\Models\EnergySystem;
 use App\Models\WaterSystem;
+use App\Models\InternetSystemCommunity;
+use App\Models\InternetSystem;
 use App\Models\EnergyTurbineCommunity;
 use App\Models\EnergyGeneratorCommunity;
+use Carbon\Carbon;
 
 class AllTicketsController extends Controller
 {
@@ -51,15 +66,24 @@ class AllTicketsController extends Controller
             else $assignedTo = null;
             $maintenanceType = $this->getMaintenanceType($ticket['channel']);
             $maintenanceStatus = $this->getMaintenanceStatus($ticket['status']);
-            $community = $this->getCommunityFromTicket($ticket['comet_id']);
+            $community = $this->getCommunityFromTicket($ticket['comet_id'], $ticket["is_camera"], 
+                $ticket['department'], $ticket["community_name_arabic"]);
+
+            // This code is for incidents tickets
+            if($ticket['is_incident'] === 1) {
+
+                $this->saveIncidentTicket($ticket, $community);
+            }
 
             // Check if maintenance ticket exists
+            //$existingTicket = AllMaintenanceTicket::where("comet_id_from_uss", $ticket["ticket_comet_id"])->first();
             $existingTicket = AllMaintenanceTicket::where("comet_id", $ticket["comet_id"])
                 ->where("support_created_at", $ticket["created_at"])
                 ->first();
 
             // If ticket exists, update it, otherwise create a new one
-            $maintenanceTicketID = $this->saveOrUpdateTicket($ticket, $existingTicket, $serviceType, $assignedTo, $maintenanceType, $maintenanceStatus, $community);
+            if($community) $maintenanceTicketID = $this->saveOrUpdateTicket($ticket, $existingTicket, $serviceType, 
+                $assignedTo, $maintenanceType, $maintenanceStatus, $community);
 
             // Handle ticket resolutions (actions)
             $this->handleTicketActions($ticket['resolution'], $maintenanceTicketID);
@@ -114,14 +138,27 @@ class AllTicketsController extends Controller
     }
 
     // Get the community based on comet_id
-    private function getCommunityFromTicket($comet_id)
+    private function getCommunityFromTicket($comet_id, $is_camera, $department, $community_arabic)
     {
-        $household = Household::where("comet_id", $comet_id)->first();
-        $publicStructure = PublicStructure::where("comet_id", $comet_id)->first();
+        $internetSystem = null;
+        $communityArabic = null;
+        $household = null;
+        $publicStructure = null;
+
+        if($is_camera == 0 && $department === "internet") $internetSystem = InternetSystem::where("comet_id", $comet_id)->first();
+        if($is_camera == 1 && $department === "internet") {
+
+            $communityArabic = Community::where("is_archived", 0)
+                ->where("arabic_name", $community_arabic)
+                ->first();
+        }
+        if($is_camera == 0) $household = Household::where("comet_id", $comet_id)->first();
+        if($is_camera == 0) $publicStructure = PublicStructure::where("comet_id", $comet_id)->first();
         $energySystem = EnergySystem::where("comet_id", $comet_id)->first();
         $waterSystem = WaterSystem::where("comet_id", $comet_id)->first();
         $turbine = EnergyTurbineCommunity::where("comet_id", $comet_id)->first();
         $generator = EnergyGeneratorCommunity::where("comet_id", $comet_id)->first();
+        
 
         if ($household) {
 
@@ -135,6 +172,15 @@ class AllTicketsController extends Controller
         } elseif ($waterSystem) {
             
             return Community::findOrFail($waterSystem->community_id);
+        }  elseif ($internetSystem) {
+            
+            $internetSystemCommunity = InternetSystemCommunity::where("is_archived", 0)
+                ->where("internet_system_id", $internetSystem->id)
+                ->first();
+            return Community::findOrFail($internetSystemCommunity->community_id);
+        } elseif ($communityArabic) {
+            
+            return $communityArabic;
         } elseif ($turbine) {
 
             return Community::findOrFail($turbine->community_id);
@@ -147,7 +193,8 @@ class AllTicketsController extends Controller
     }
 
     // Save or update the maintenance ticket
-    private function saveOrUpdateTicket($ticket, $existingTicket, $serviceType, $assignedTo, $maintenanceType, $maintenanceStatus, $community)
+    private function saveOrUpdateTicket($ticket, $existingTicket, $serviceType, $assignedTo, $maintenanceType, 
+        $maintenanceStatus, $community)
     {
         if ($existingTicket) {
     
@@ -155,6 +202,7 @@ class AllTicketsController extends Controller
 
                 // Update existing ticket
                 $existingTicket->comet_id = $ticket["comet_id"];
+                $existingTicket->comet_id_from_uss = $ticket["ticket_comet_id"];
                 $existingTicket->meter_number = $ticket["meter_number"];
                 if($ticket["duplicated_ticket"] == null) $existingTicket->is_duplicated = 0;
                 else $existingTicket->is_duplicated = $ticket["duplicated_ticket"];
@@ -178,6 +226,7 @@ class AllTicketsController extends Controller
                 // Create new ticket
                 $newTicket = new AllMaintenanceTicket();
                 $newTicket->comet_id = $ticket["comet_id"];
+                $newTicket->comet_id_from_uss = $ticket["ticket_comet_id"];
                 $newTicket->meter_number = $ticket["meter_number"];
                 if($ticket["duplicated_ticket"] == null) $newTicket->is_duplicated = 0;
                 else $newTicket->is_duplicated = $ticket["duplicated_ticket"];
@@ -222,6 +271,183 @@ class AllTicketsController extends Controller
                     \Log::info('Action already exists for ticket ' . $maintenanceTicketID . ' - Action ID: ' . $actionId);
                 }
             }
+        }
+    }
+
+
+    // This function for getting the holder depends on both service & comet_id
+    private function getHolderForIncident($incidentId, $comet_id, $department, $cameraFlag, $communityId)
+    {
+        $household = Household::where("comet_id", $comet_id)->first();
+        $publicStructure = PublicStructure::where("comet_id", $comet_id)->first();
+        $energySystem = EnergySystem::where("comet_id", $comet_id)->first();
+        $waterSystem = WaterSystem::where("comet_id", $comet_id)->first();
+        $internetSystem = InternetSystem::where("comet_id", $comet_id)->first();
+
+        $newAllEnergyIncident = new AllEnergyIncident();
+        $newAllWaterIncident = new AllWaterIncident();
+        $newAllCameraIncident = new AllCameraIncident();
+        $newAllInternetIncident = new AllInternetIncident();
+
+        $meterCase = MeterCase::where('meter_case_name_english', "Incident")->first();
+ 
+        if ($household && $department == "energy") {
+            
+            $newAllEnergyIncident->all_incident_id = $incidentId;
+
+            $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
+                ->where("household_id", $household->id)
+                ->first();
+
+            if($allEnergyMeter) {
+
+                $newAllEnergyIncident->all_energy_meter_id = $allEnergyMeter->id;
+                $allEnergyMeter->meter_case_id = $meterCase->id;
+                $allEnergyMeter->save();
+            }
+            $newAllEnergyIncident->save();
+        } elseif ($publicStructure && $department == "energy") {
+
+            $newAllEnergyIncident->all_incident_id = $incidentId;
+
+            $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
+                ->where("public_structure_id", $publicStructure->id)
+                ->first();
+
+            if($allEnergyMeter) {
+
+                $newAllEnergyIncident->all_energy_meter_id = $allEnergyMeter->id;
+                $allEnergyMeter->meter_case_id = $meterCase->id;
+                $allEnergyMeter->save();
+            }
+            $newAllEnergyIncident->save();
+        } elseif ($household && $department == "water") {
+
+            $newAllWaterIncident->all_incident_id = $incidentId;
+
+            $allWaterHolder = AllWaterHolder::where("is_archived", 0)
+                ->where("household_id", $household->id)
+                ->first();
+
+            if($allWaterHolder) $newAllWaterIncident->all_water_holder_id = $allWaterHolder->id;
+            $newAllWaterIncident->save();
+        } elseif ($publicStructure && $department == "water") {
+
+            $newAllWaterIncident->all_incident_id = $incidentId;
+            $allWaterHolder = AllWaterHolder::where("is_archived", 0)
+                ->where("public_structure_id", $publicStructure->id)
+                ->first();
+
+            if($allWaterHolder) $newAllWaterIncident->all_water_holder_id = $allWaterHolder->id;
+            $newAllWaterIncident->save();
+        } elseif ($household && $department == "internet" && $cameraFlag === 0) {
+
+            $newAllInternetIncident->all_incident_id = $incidentId;
+            $internetUser = InternetUser::where("is_archived", 0)
+                ->where("household_id", $household->id)
+                ->first();
+
+            if($internetUser) $newAllInternetIncident->internet_user_id = $internetUser->id;
+            $newAllInternetIncident->save();
+        } elseif ($publicStructure && $department == "internet" && $cameraFlag === 0) {
+
+            $newAllInternetIncident->all_incident_id = $incidentId;
+            $internetUser = InternetUser::where("is_archived", 0)
+                ->where("public_structure_id", $publicStructure->id)
+                ->first();
+
+            if($internetUser) $newAllInternetIncident->internet_user_id = $internetUser->id;
+            $newAllInternetIncident->save();
+        } elseif ($energySystem && $department == "energy") {
+
+            $newAllEnergyIncident->all_incident_id = $incidentId;
+            if($energySystem) $newAllEnergyIncident->energy_system_id = $energySystem->id;
+            $newAllEnergyIncident->save();
+        } elseif ($waterSystem && $department == "water") {
+
+            $newAllWaterIncident->all_incident_id = $incidentId;
+            if($waterSystem) $newAllWaterIncident->water_system_id = $waterSystem->id;
+            $newAllWaterIncident->save();
+        } elseif ($internetSystem && $department == "internet" && $cameraFlag === 0) {
+
+            $newAllInternetIncident->all_incident_id = $incidentId;
+            if($internetSystem) {
+
+                $internetSystemCommunity = InternetSystemCommunity::where("is_archived")
+                    ->where("internet_system_id", $internetSystem->id)
+                    ->first();
+                if($internetSystemCommunity) $newAllInternetIncident->community_id = $internetSystemCommunity->id;
+            }
+            $newAllInternetIncident->save();
+        } elseif ($department == "internet" && $cameraFlag === 1) {
+             
+            $newAllCameraIncident->all_incident_id = $incidentId;
+            $newAllCameraIncident->community_id = $communityId;
+            $newAllCameraIncident->save();
+        }
+    }
+
+    // Save the incidents tickets 
+    private function saveIncidentTicket($ticket, $community) {
+        
+        // This is for the Base details for AllIncident table
+        $existingIncidentTicket = AllIncident::where("comet_id", $ticket["ticket_comet_id"])->first();
+        $incidentTypeID = null;
+
+        if(!$existingIncidentTicket) {
+
+            $newIncident = new AllIncident();
+            $newIncident->comet_id = $ticket["ticket_comet_id"];
+            $newIncident->description = $ticket["description"];
+
+            $newIncident->community_id = $community->id;
+
+            if($ticket['department'] === "energy") $newIncident->service_type_id = 1;
+        
+            else if($ticket['department'] === "water") $newIncident->service_type_id = 2;
+    
+            else if($ticket['department'] === "internet" && $ticket['is_camera'] === 0) $newIncident->service_type_id = 3;
+    
+            else if($ticket['department'] === "internet" && $ticket['is_camera'] === 1) $newIncident->service_type_id = 4;
+
+            if(!empty($ticket['incident'])) {
+
+                foreach ($ticket['incident'] as $incident) {
+
+                    $incidentType = Incident::where('arabic_name', 'like', $incident['incident_type'])->first();
+                    $incidentTime = Carbon::parse($incident['incident_time'])->toDateString();
+                    $newIncident->date = $incidentTime;
+                    $year = explode('-', $incidentTime);
+                    $newIncident->year = $year[0];
+                    if($incidentType) {
+
+                        $newIncident->incident_id = $incidentType->id;
+                        $incidentTypeID = $incidentType->id;
+                    }
+                }
+            }
+
+            $newIncident->save();
+
+            $status = AllIncidentStatus::where('status', "New")
+                ->where("incident_id", $incidentTypeID)
+                ->first();
+    
+            if($status) {
+
+                $incidentStatus = new AllIncidentOccurredStatus();
+                $incidentStatus->all_incident_status_id = $status->id;
+                $incidentStatus->all_incident_id = $newIncident->id;
+                $incidentStatus->save();
+            }
+
+            // Now we should filter the agent on Enrgy, water, internet, camera
+            $this->getHolderForIncident($newIncident->id, $ticket["comet_id"], $ticket['department'], 
+                $ticket['is_camera'], $community->id);
+        } else {
+
+            $existingIncidentTicket->description = $ticket["description"];
+            $existingIncidentTicket->save();
         }
     }
 }

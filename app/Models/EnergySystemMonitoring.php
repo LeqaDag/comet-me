@@ -13,4 +13,9 @@ class EnergySystemMonitoring extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyMonitoring::class, 'energy_monitoring_id');
+    }
 }

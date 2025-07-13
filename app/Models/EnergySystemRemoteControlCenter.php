@@ -13,4 +13,9 @@ class EnergySystemRemoteControlCenter extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyRemoteControlCenter::class, 'energy_remote_control_center_id');
+    }
 }

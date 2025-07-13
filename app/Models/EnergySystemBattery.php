@@ -13,4 +13,9 @@ class EnergySystemBattery extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model() 
+    {
+        return $this->belongsTo(EnergyBattery::class, 'battery_type_id');
+    }
 }

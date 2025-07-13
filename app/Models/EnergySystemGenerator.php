@@ -13,4 +13,9 @@ class EnergySystemGenerator extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyGenerator::class, 'energy_generator_id');
+    }
 }

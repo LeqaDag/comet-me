@@ -1642,6 +1642,7 @@
                         </table>
                 @endif
                     
+                @if($energySystem->energy_system_type_id != 2) 
                 <hr class="mt-4">
                 <h5>Electricity rooms</h5>
 
@@ -1805,6 +1806,7 @@
                         </table>
                 @endif
 
+                @endif
                 <hr class="mt-4">
                 <h5>Refrigerator</h5>
 

@@ -23,7 +23,7 @@
 <h4 class="py-3 breadcrumb-wrapper mb-4">
   <span class="text-muted fw-light">Add </span> New Internet Components
 </h4>
-
+ 
 <div class="card">
     <div class="card-content collapse show">
         <div class="card-body">
@@ -259,6 +259,72 @@
                     </div>
                 </div>
             
+                <hr>
+
+                <div class="row">
+                    <h6>Electricians</h6> 
+                </div>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <table class="table table-bordered" id="addRemoveNewElectrician">
+                            <tr>
+                                <th>Electrician Models</th>
+                                <th>Electrician Brand</th>
+                                <th>Options</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" name="electrician_models[0][subject]" class="form-control"
+                                        data-id="0">
+                                </td>
+                                <td>
+                                    <input type="text" name="electrician_brands[0][subject]" class="form-control"
+                                        data-id="0">
+                                </td>
+                                <td>
+                                    <button type="button" name="add" id="addRemoveNewElectricianButton" 
+                                        class="btn btn-outline-primary">
+                                        Add More Electrician Units
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            
+                <hr>
+
+                <div class="row">
+                    <h6>Connectors</h6> 
+                </div>
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <table class="table table-bordered" id="addRemoveNewConnector">
+                            <tr>
+                                <th>Connector Models</th>
+                                <th>Connector Brand</th>
+                                <th>Options</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" name="connector_models[0][subject]" class="form-control"
+                                        data-id="0">
+                                </td>
+                                <td>
+                                    <input type="text" name="connector_brands[0][subject]" class="form-control"
+                                        data-id="0">
+                                </td>
+                                <td>
+                                    <button type="button" name="add" id="addRemoveNewConnectorButton" 
+                                        class="btn btn-outline-primary">
+                                        Add More Connector Units
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">
@@ -280,6 +346,8 @@
     var ap_lite_counter = 0;
     var ptp_counter = 0;
     var uisp_counter = 0;
+    var electrician_counter = 0;
+    var connector_counter = 0;
 
     // Routers
     $(document).on('click', '#addRemoveNewRouterButton', function () {
@@ -383,6 +451,36 @@
         );
     });
     $(document).on('click', '.removeUisp', function () {
+        $(this).parents('tr').remove();
+    });
+    
+    // Electrician
+    $(document).on('click', '#addRemoveNewElectricianButton', function () {
+
+        ++electrician_counter;
+        $("#addRemoveNewElectrician").append('<tr><td><input class="form-control data-id="'+ electrician_counter +'" name="electrician_models[][subject]"></td>' +
+            '<td><input class="form-control" data-id="'+ electrician_counter +'"' +
+            'name="electrician_brands[][subject]"></td><td><button type="button"' +
+            'class="btn btn-outline-danger removeElectrician">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.removeElectrician', function () {
+        $(this).parents('tr').remove();
+    });
+    
+    // Connectors
+    $(document).on('click', '#addRemoveNewConnectorButton', function () {
+
+        ++connector_counter;
+        $("#addRemoveNewConnector").append('<tr><td><input class="form-control data-id="'+ connector_counter +'" name="connector_models[][subject]"></td>' +
+            '<td><input class="form-control" data-id="'+ connector_counter +'"' +
+            'name="connector_brands[][subject]"></td><td><button type="button"' +
+            'class="btn btn-outline-danger removeConnector">Delete</button></td>' +
+            '</tr>'
+        );
+    });
+    $(document).on('click', '.removeConnector', function () {
         $(this).parents('tr').remove();
     });
 

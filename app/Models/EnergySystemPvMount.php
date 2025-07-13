@@ -13,4 +13,9 @@ class EnergySystemPvMount extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyPvMount::class, 'energy_pv_mount_id');
+    }
 }

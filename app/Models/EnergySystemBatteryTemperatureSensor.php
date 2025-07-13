@@ -13,4 +13,9 @@ class EnergySystemBatteryTemperatureSensor extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyBatteryTemperatureSensor::class, 'energy_battery_temperature_sensor_id');
+    }
 }

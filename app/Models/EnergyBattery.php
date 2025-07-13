@@ -9,5 +9,11 @@ class EnergyBattery extends Model
 {
     use HasFactory;
 
+    protected $table = 'energy_batteries'; 
     protected $fillable = ['battery_model'];
+    
+    public function getComponentNameAttribute()
+    {
+        return $this->battery_model;
+    }
 }

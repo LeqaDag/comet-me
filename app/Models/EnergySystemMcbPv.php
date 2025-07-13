@@ -13,4 +13,9 @@ class EnergySystemMcbPv extends Model
     {
         return $this->belongsTo(EnergySystem::class, 'energy_system_id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(EnergyMcbPv::class, 'energy_mcb_pv_id');
+    }
 }

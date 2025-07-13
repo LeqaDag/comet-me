@@ -13,7 +13,7 @@ use App\Models\User;
 use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\Donor;
-use App\Models\InternetUser;
+use App\Models\InternetUser; 
 use App\Models\InternetUserDonor;
 use App\Models\InternetSystemType;
 use App\Models\InternetSystem;
@@ -35,6 +35,10 @@ use App\Models\InternetUisp;
 use App\Models\UispInternetSystem;
 use App\Models\InternetSystemCommunityType;
 use App\Models\LineOfSight;
+use App\Models\InternetElectrician;
+use App\Models\ElectricianInternetSystem;
+use App\Models\ConnectorInternetSystem;
+use App\Models\InternetConnector;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -131,9 +135,12 @@ class InternetSystemController extends Controller
         $switches = Switche::all();
         $ptps = InternetPtp::all();
         $uisps = InternetUisp::all();
+        $electricians = InternetElectrician::all();
+        $connectors = InternetConnector::all();
 
         return view('system.internet.create', compact('aps', 'communities', 'controllers',
-            'internetSystemTypes', 'routers', 'switches', 'ptps', 'uisps'));
+            'internetSystemTypes', 'routers', 'switches', 'ptps', 'uisps', 'electricians',
+            'connectors'));
     }
 
     /**
@@ -382,6 +389,29 @@ class InternetSystemController extends Controller
                 'uisp_internet_systems.id', 'uisp_internet_systems.uisp_costs')
             ->get();
 
+        // Electrician
+        $electricianSystems = DB::table('electrician_internet_systems')
+            ->join('internet_systems', 'electrician_internet_systems.internet_system_id', 
+                'internet_systems.id')
+            ->join('internet_electricians', 'electrician_internet_systems.internet_electrician_id', 
+                'internet_electricians.id')
+            ->where('electrician_internet_systems.internet_system_id', $id)
+            ->select('electrician_internet_systems.electrician_units', 'internet_electricians.model', 
+                'internet_electricians.brand', 'internet_systems.system_name',
+                'electrician_internet_systems.id', 'electrician_internet_systems.electrician_costs')
+            ->get();
+
+        // Connector
+        $connectorSystems = DB::table('connector_internet_systems')
+            ->join('internet_systems', 'connector_internet_systems.internet_system_id', 
+                'internet_systems.id')
+            ->join('internet_connectors', 'connector_internet_systems.internet_connector_id', 
+                'internet_connectors.id')
+            ->where('connector_internet_systems.internet_system_id', $id)
+            ->select('connector_internet_systems.connector_units', 'internet_connectors.model', 
+                'internet_connectors.brand', 'internet_systems.system_name',
+                'connector_internet_systems.id', 'connector_internet_systems.connector_costs')
+            ->get();
 
         $aps = InternetAp::all();
         $controllers = InternetController::all();
@@ -389,11 +419,14 @@ class InternetSystemController extends Controller
         $switchs = Switche::all();
         $ptps = InternetPtp::all();
         $uisps = InternetUisp::all();
+        $electricians = InternetElectrician::all();
+        $connectors = InternetConnector::all();
 
         return view('system.internet.edit', compact('routers', 'switchs', 'controllers',
-            'ptps', 'uisps', 'internetSystem', 'internetSystemTypes', 'aps',
+            'ptps', 'uisps', 'internetSystem', 'internetSystemTypes', 'aps', 'connectors',
             'internetTypes', 'routerSystems', 'ptpSystems', 'controllerSystems', 
-            'switchSystems', 'apSystems', 'apLiteSystems', 'uispSystems'));
+            'switchSystems', 'apSystems', 'apLiteSystems', 'uispSystems', 'electricians',
+            'electricianSystems', 'connectorSystems'));
     }
 
     // This function is to update the internet unit & costs
@@ -471,6 +504,29 @@ class InternetSystemController extends Controller
         $uisp->save();
 
         return response()->json(['success' => 1, 'msg' => 'UISP updated successfully']);
+    }
+
+    // This function is to update the Connector unit & costs
+    public function updateInternetConnector($id, $units, $cost)
+    {
+        $connector = ConnectorInternetSystem::findOrFail($id);
+        $connector->connector_units = $units;
+        $connector->connector_costs = $cost;
+        $connector->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Connector updated successfully']);
+    }
+
+
+    // This function is to update the Electrician unit & costs
+    public function updateElectrician($id, $units, $cost)
+    {
+        $electrician = ElectricianInternetSystem::findOrFail($id);
+        $electrician->electrician_units = $units;
+        $electrician->electrician_costs = $cost;
+        $electrician->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Electrician updated successfully']);
     }
 
     /**
@@ -596,6 +652,34 @@ class InternetSystemController extends Controller
             }
         }
 
+        // Connector
+        if ($request->connector_ids) {
+            for ($conntr = 0; $conntr < count($request->connector_ids); $conntr++) {
+
+                $internetConnector = new ConnectorInternetSystem();
+                $internetConnector->internet_connector_id = $request->connector_ids[$conntr];
+                $internetConnector->internet_system_id = $id;
+                $internetConnector->connector_units = $request->input("connector_units.$conntr.subject") ?? 0;
+                $internetConnector->connector_costs = $request->input("connector_costs.$conntr.subject") ?? 0;
+        
+                $internetConnector->save();
+            }
+        }
+        
+        // Electrician
+        if ($request->electrician_ids) {
+            for ($elctra = 0; $elctra < count($request->electrician_ids); $elctra++) {
+
+                $internetElectrician = new ElectricianInternetSystem();
+                $internetElectrician->internet_electrician_id = $request->electrician_ids[$elctra];
+                $internetElectrician->internet_system_id = $id;
+                $internetElectrician->electrician_units = $request->input("electrician_units.$elctra.subject") ?? 0;
+                $internetElectrician->electrician_costs = $request->input("electrician_costs.$elctra.subject") ?? 0;
+        
+                $internetElectrician->save();
+            }
+        }
+
 
         return redirect('/internet-system')->with('message', 'Internet System Updated Successfully!');
     }
@@ -642,7 +726,7 @@ class InternetSystemController extends Controller
             ->join('routers', 'router_internet_systems.router_id', 
                 '=', 'routers.id')
             ->where('router_internet_systems.internet_system_id', '=', $id)
-            ->select('router_internet_systems.router_units', 'routers.model', 
+            ->select('router_internet_systems.router_units', 'routers.model',  
                 'routers.brand_name', 'internet_systems.system_name',
                 'router_internet_systems.router_costs')
             ->get(); 
@@ -719,9 +803,34 @@ class InternetSystemController extends Controller
                 'uisp_internet_systems.uisp_costs')
             ->get();
 
+        // Electrician
+        $electricians = DB::table('electrician_internet_systems')
+            ->join('internet_systems', 'electrician_internet_systems.internet_system_id', 
+                'internet_systems.id')
+            ->join('internet_electricians', 'electrician_internet_systems.internet_electrician_id', 
+                'internet_electricians.id')
+            ->where('electrician_internet_systems.internet_system_id', $id)
+            ->select('electrician_internet_systems.electrician_units', 'internet_electricians.model', 
+                'internet_electricians.brand', 'internet_systems.system_name',
+                'electrician_internet_systems.id', 'electrician_internet_systems.electrician_costs')
+            ->get();
+
+        // Connector
+        $connectors = DB::table('connector_internet_systems')
+            ->join('internet_systems', 'connector_internet_systems.internet_system_id', 
+                'internet_systems.id')
+            ->join('internet_connectors', 'connector_internet_systems.internet_connector_id', 
+                'internet_connectors.id')
+            ->where('connector_internet_systems.internet_system_id', $id)
+            ->select('connector_internet_systems.connector_units', 'internet_connectors.model', 
+                'internet_connectors.brand', 'internet_systems.system_name',
+                'connector_internet_systems.id', 'connector_internet_systems.connector_costs')
+            ->get();
+
         return view('system.internet.show', compact('routers', 'switches', 'controllers',
             'ptps', 'aps', 'apLites', 'uisps', 'internetSystem', 'internetSystemTypes', 
-            'lineOfSightMainCommunities', 'lineOfSightSubCommunities'));
+            'lineOfSightMainCommunities', 'lineOfSightSubCommunities', 'electricians',
+            'connectors'));
     }
 
     /**
@@ -945,6 +1054,56 @@ class InternetSystemController extends Controller
 
             $response['success'] = 1;
             $response['msg'] = 'Internet System UISP Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete internet system Connector.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemConnector(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemConnector = ConnectorInternetSystem::find($id);
+
+        if($internetSystemConnector->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Connector Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete internet system Electrician.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemElectrician(Request $request)
+    {
+        $id = $request->id;
+
+        $internetSystemElectrician = ElectricianInternetSystem::find($id);
+
+        if($internetSystemElectrician->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet System Electrician Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

@@ -330,43 +330,11 @@
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <table class="table table-bordered" id="dynamicAddRemoveWaterEquipment">
-                                <tr>
-                                    <th>Equipment</th>
-                                    <th>Unit</th>
-                                    <th>Cost</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr> 
-                                    <td  style="white-space: nowrap; width: 300px;">
-                                        <select class="selectpicker form-control" 
-                                            data-live-search="true" name="water_equipment[]">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($waterEquipments as $waterEquipment)
-                                            <option value="{{$waterEquipment->id}}">
-                                                {{$waterEquipment->name}}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                        <div id="water_equipment_error" style="color: red;"></div>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="addMoreInputFieldsWaterUnit[0][subject]" 
-                                        placeholder="Unit" class="target_point form-control" 
-                                        data-id="0"/>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="addMoreInputFieldsWaterCost[0][subject]" 
-                                        placeholder="Cost" class="target_point form-control" 
-                                        data-id="0"/>
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addWaterEquipmentButton" 
-                                        class="btn btn-outline-primary">
-                                            Add More
-                                        </button>
-                                    </td>
-                                </tr>
+                                <tbody></tbody>
                             </table>
+                            <button type="button" name="add" id="addWaterEquipmentButton" class="btn btn-outline-primary mt-2" style="display:none;">
+                                Add More
+                            </button>
                         </div>
                     </div>
 
@@ -547,43 +515,11 @@
                     <div class="row">
                         <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                             <table class="table table-bordered" id="dynamicAddRemoveInternetEquipment">
-                                <tr>
-                                    <th>Equipment</th>
-                                    <th>Unit</th>
-                                    <th>Cost</th>
-                                    <th>Options</th>
-                                </tr>
-                                <tr> 
-                                    <td  style="white-space: nowrap; width: 300px;">
-                                        <select class="selectpicker form-control" 
-                                            data-live-search="true" name="internet_equipment[]">
-                                            <option disabled selected>Choose one...</option>
-                                            @foreach($internetEquipments as $internetEquipment)
-                                            <option value="{{$internetEquipment->id}}">
-                                                {{$internetEquipment->name}}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                        <div id="internet_equipment_error" style="color: red;"></div>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="addMoreInputFieldsInternetUnit[0][subject]" 
-                                        placeholder="Unit" class="target_point form-control" 
-                                        data-id="0"/>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="addMoreInputFieldsInternetCost[0][subject]" 
-                                        placeholder="Cost" class="target_point form-control" 
-                                        data-id="0"/>
-                                    </td>
-                                    <td>
-                                        <button type="button" name="add" id="addInternetEquipmentButton" 
-                                        class="btn btn-outline-primary">
-                                            Add More
-                                        </button>
-                                    </td>
-                                </tr>
+                                <tbody></tbody>
                             </table>
+                            <button type="button" name="add" id="addInternetEquipmentButton" class="btn btn-outline-primary mt-2" style="display:none;">
+                                Add More
+                            </button>
                         </div>
                     </div>
 
@@ -897,6 +833,32 @@
 
     $(document).ready(function() {
 
+        function handleIncidentAndServiceChange() {
+            
+            var incident_id = $('#incidentTypeSelected').val();
+            var service_ids = $('#serviceTypeSelected').val(); 
+
+            // Check if incident is SWO and service type includes Energy
+            if (incident_id === "4" && service_ids && service_ids.includes("1")) $("#energyIncidentsSWO").show();
+            else $("#energyIncidentsSWO").hide();
+           
+            // Check if incident is SWO and service type includes Water
+            if (incident_id === "4" && service_ids && service_ids.includes("2")) $("#waterIncidentsSWO").show();
+            else $("#waterIncidentsSWO").hide();
+           
+           // Check if incident is SWO and service type includes Internet
+           if (incident_id === "4" && service_ids && service_ids.includes("3")) $("#internetIncidentsSWO").show();
+           else $("#internetIncidentsSWO").hide();
+           
+           // Check if incident is SWO and service type includes Camera
+           if (incident_id === "4" && service_ids && service_ids.includes("4")) $("#cameraIncidentsSWO").show();
+           else $("#cameraIncidentsSWO").hide();
+
+        }
+
+        $(document).on('change', '#incidentTypeSelected', handleIncidentAndServiceChange);
+        $(document).on('change', '#serviceTypeSelected', handleIncidentAndServiceChange);
+        
         
         $('#allIncidentForm').on('submit', function (event) {
 
@@ -1013,32 +975,7 @@
             });
         });
 
-        function handleIncidentAndServiceChange() {
-            
-            var incident_id = $('#incidentTypeSelected').val();
-            var service_ids = $('#serviceTypeSelected').val(); 
-
-            // Check if incident is SWO and service type includes Energy
-            if (incident_id === "4" && service_ids && service_ids.includes("1")) $("#energyIncidentsSWO").show();
-            else $("#energyIncidentsSWO").hide();
-           
-            // Check if incident is SWO and service type includes Water
-            if (incident_id === "4" && service_ids && service_ids.includes("2")) $("#waterIncidentsSWO").show();
-            else $("#waterIncidentsSWO").hide();
-           
-           // Check if incident is SWO and service type includes Internet
-           if (incident_id === "4" && service_ids && service_ids.includes("3")) $("#internetIncidentsSWO").show();
-           else $("#internetIncidentsSWO").hide();
-           
-           // Check if incident is SWO and service type includes Camera
-           if (incident_id === "4" && service_ids && service_ids.includes("4")) $("#cameraIncidentsSWO").show();
-           else $("#cameraIncidentsSWO").hide();
-
-        }
-
-        $(document).on('change', '#incidentTypeSelected', handleIncidentAndServiceChange);
-        $(document).on('change', '#serviceTypeSelected', handleIncidentAndServiceChange);
-
+    
 
         // This for choosing the system
         $(document).on('change', '#energyHolderSelected', function() {
@@ -1047,13 +984,14 @@
             const agent = $("#chooseEnergyHolderSystem").val();
 
             if (!systemId) {
+
                 $('#dynamicAddRemoveEnergyEquipment tbody').empty();
                 $('#addEnergyEquipmentButton').hide();
                 return;
             }
 
             if (agent == "system") {
-                $.ajax({
+                $.ajax({ 
                     url: `/energy-systems/${systemId}/components`,
                     method: 'GET',
                     success: function(response) {
@@ -1063,9 +1001,10 @@
 
                         if (currentEquipmentData.length) {
 
-                            appendEnergyEquipmentRow(currentEquipmentData);
+                            appendEnergyEquipmentRow(currentEquipmentData, agent);
                             $('#addEnergyEquipmentButton').show();
                         } else {
+
                             $('#addEnergyEquipmentButton').hide();
                         }
                     },
@@ -1078,48 +1017,106 @@
             }
         });
 
-
-
         // Add More Energy Equipment
-        let energyRowIndex = 1; 
-        function appendEnergyEquipmentRow(equipmentList) {
+        let energyRowIndex = 0; 
+        let energyHolderIndex = 0;
+        function appendEnergyEquipmentRow(equipmentList, agent) {
+
             let options = '<option disabled selected>Choose one...</option>';
 
-            for (const item of equipmentList) {
-                options += `<option value="${item.id}">${item.name}</option>`;
+            if(agent === "system") {
+
+                for (const item of equipmentList) {
+
+                    options += `<option value="${item.component_energy_system_id}" data-cost="${item.cost}"
+                        data-type="${item.type}"> ${item.model_name} (${item.type}) </option>`;
+                }
+
+                const newRow = `
+                    <tr>
+                        <td style="white-space: nowrap; width: 300px;">
+                            <select class="selectpicker form-control" data-live-search="true" name="energy_equipment[]">
+                                ${options}
+                            </select>
+                            <input type="hidden" name="equipment_type[${energyRowIndex}]" class="equipment-type-hidden" />
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsEnergyUnit[${energyRowIndex}][subject]" 
+                                placeholder="Unit" class="form-control" data-id="${energyRowIndex}" />
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsEnergyCost[${energyRowIndex}][subject]" 
+                                placeholder="Cost" class="form-control" data-id="${energyRowIndex}" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger remove-input-energy-target-points">Delete</button>
+                        </td>
+                    </tr>
+                `;
+
+                $('#dynamicAddRemoveEnergyEquipment tbody').append(newRow);
+                $('.selectpicker').selectpicker('refresh');
+                energyRowIndex++;
+            } else {
+
+                for (const item of equipmentList) {
+                    options += `<option value="${item.id}">
+                        ${item.name}</option>`;
+                }
+
+                const newRow = `
+                    <tr>
+                        <td style="white-space: nowrap; width: 300px;">
+                            <select class="selectpicker form-control" data-live-search="true" name="energy_equipment[]">
+                                ${options}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsEnergyUnit[${energyHolderIndex}][subject]" 
+                                placeholder="Unit" class="form-control" data-id="${energyHolderIndex}" />
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsEnergyCost[${energyHolderIndex}][subject]" 
+                                placeholder="Cost" class="form-control" data-id="${energyHolderIndex}" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger remove-input-energy-target-points">Delete</button>
+                        </td>
+                    </tr>
+                `;
+
+                $('#dynamicAddRemoveEnergyEquipment tbody').append(newRow);
+                $('.selectpicker').selectpicker('refresh');
+                energyHolderIndex++;
+            }
+        }
+
+        $(document).on('change', 'select[name="energy_equipment[]"]', function () {
+
+            const selectedOption = $(this).find('option:selected');
+            const cost = selectedOption.data('cost');
+            const type = selectedOption.data('type');
+
+            const row = $(this).closest('tr');
+
+            // Find the closest <tr> and the corresponding cost input
+            const costInput = row.find('input[name^="addMoreInputFieldsEnergyCost"]');
+
+            if (cost !== undefined) {
+                costInput.val(cost);
             }
 
-            const newRow = `
-                <tr>
-                    <td style="white-space: nowrap; width: 300px;">
-                        <select class="selectpicker form-control" data-live-search="true" name="energy_equipment[]">
-                            ${options}
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text" name="addMoreInputFieldsEnergyUnit[${energyRowIndex}][subject]" 
-                            placeholder="Unit" class="form-control" data-id="${energyRowIndex}" />
-                    </td>
-                    <td>
-                        <input type="text" name="addMoreInputFieldsEnergyCost[${energyRowIndex}][subject]" 
-                            placeholder="Cost" class="form-control" data-id="${energyRowIndex}" />
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-outline-danger remove-input-energy-target-points">Delete</button>
-                    </td>
-                </tr>
-            `;
+            // Set hidden type
+            type = row.find('.equipment-type-hidden').val(type);
+        });
 
-            $('#dynamicAddRemoveEnergyEquipment tbody').append(newRow);
-            $('.selectpicker').selectpicker('refresh');
-            energyRowIndex++;
-        }
 
         $(document).on('click', '#addEnergyEquipmentButton', function () {
 
+            const agent = $("#chooseEnergyHolderSystem").val(); 
             if(currentEquipmentData.length > 0) {
 
-                appendEnergyEquipmentRow(currentEquipmentData);
+                appendEnergyEquipmentRow(currentEquipmentData, agent);
             } else {
 
                 alert("Please select a system or user first.");
@@ -1130,7 +1127,6 @@
         $(document).on('click', '.remove-input-energy-target-points', function () {
             $(this).closest('tr').remove();
         });
-
 
         // This event handles the change of #chooseEnergyHolderSystem
         let currentEquipmentData = [];  // to store equipment list for current selection
@@ -1156,13 +1152,15 @@
                     select.html(data.html).selectpicker('refresh');
 
                     if(publicUserSystem === "system") {
+
                         selectAffectedHouseholds.prop('disabled', false);
                         selectAffectedHouseholds.html(data.htmlAffectedHouseholds).selectpicker('refresh');
                     } else {
                         // Only for user/public: load general equipment list now
                         currentEquipmentData = data.userPublicEquipments || [];
                         if (currentEquipmentData.length) {
-                            appendEnergyEquipmentRow(currentEquipmentData);
+
+                            appendEnergyEquipmentRow(currentEquipmentData, "user/public");
                             $('#addEnergyEquipmentButton').show();
                         }
                     }
@@ -1172,244 +1170,470 @@
 
 
 
+        // This for choosing the water system
+        $(document).on('change', '#waterHolderSelected', function() {
+
+            const systemId = $(this).val();
+            const agent = $("#chooseWaterHolderSystem").val();
+
+            if (!systemId) {
+
+                $('#dynamicAddRemoveWaterEquipment tbody').empty();
+                $('#addWaterEquipmentButton').hide();
+                return;
+            }
+
+            if (agent == "system") {
+                $.ajax({ 
+                    url: `/water-systems/${systemId}/components`,
+                    method: 'GET',
+                    success: function(response) {
+
+                        currentWaterEquipmentData = response.equipmentWater || [];
+                        $('#dynamicAddRemoveWaterEquipment tbody').empty();
+
+                        if (currentWaterEquipmentData.length) {
+
+                            appendWaterEquipmentRow(currentWaterEquipmentData, agent);
+                            $('#addWaterEquipmentButton').show();
+                        } else {
+
+                            $('#addWaterEquipmentButton').hide();
+                        }
+                    },
+                    error: function() {
+                        
+                        alert('Failed to load components for selected system');
+                        $('#addWaterEquipmentButton').hide();
+                    }
+                });
+            }
+        });
+
+        // Add More Water Equipment
+        let waterRowIndex = 0; 
+        let waterHolderIndex = 0;
+        function appendWaterEquipmentRow(equipmentList, agent) {
+
+            let options = '<option disabled selected>Choose one...</option>';
+
+            if(agent === "system") {
+
+                for (const item of equipmentList) {
+
+                    options += `<option value="${item.component_water_system_id}" data-cost="${item.cost}"
+                        data-type="${item.type}"> ${item.model_name} (${item.type}) </option>`;
+                }
+
+                const newRow = `
+                    <tr>
+                        <td style="white-space: nowrap; width: 300px;">
+                            <select class="selectpicker form-control" data-live-search="true" name="water_equipment[]">
+                                ${options}
+                            </select>
+                            <input type="hidden" name="equipment_type[${waterRowIndex}]" class="equipment-type-hidden" />
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsWaterUnit[${waterRowIndex}][subject]" 
+                                placeholder="Unit" class="form-control" data-id="${waterRowIndex}" />
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsWaterCost[${waterRowIndex}][subject]" 
+                                placeholder="Cost" class="form-control" data-id="${waterRowIndex}" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger remove-input-water-target-points">Delete</button>
+                        </td>
+                    </tr>
+                `;
+
+                $('#dynamicAddRemoveWaterEquipment tbody').append(newRow);
+                $('.selectpicker').selectpicker('refresh');
+                waterRowIndex++;
+            } else {
+
+                for (const item of equipmentList) {
+                    options += `<option value="${item.id}">
+                        ${item.name}</option>`;
+                }
+
+                const newRow = `
+                    <tr>
+                        <td style="white-space: nowrap; width: 300px;">
+                            <select class="selectpicker form-control" data-live-search="true" name="water_equipment[]">
+                                ${options}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsWaterUnit[${waterHolderIndex}][subject]" 
+                                placeholder="Unit" class="form-control" data-id="${waterHolderIndex}" />
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsWaterCost[${waterHolderIndex}][subject]" 
+                                placeholder="Cost" class="form-control" data-id="${waterHolderIndex}" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger remove-input-water-target-points">Delete</button>
+                        </td>
+                    </tr>
+                `;
+
+                $('#dynamicAddRemoveWaterEquipment tbody').append(newRow);
+                $('.selectpicker').selectpicker('refresh');
+                waterHolderIndex++;
+            }
+        }
+
+        $(document).on('change', 'select[name="water_equipment[]"]', function () {
+
+            const selectedOption = $(this).find('option:selected');
+            const cost = selectedOption.data('cost');
+            const type = selectedOption.data('type');
+
+            const row = $(this).closest('tr');
+
+            // Find the closest <tr> and the corresponding cost input
+            const costInput = row.find('input[name^="addMoreInputFieldsWaterCost"]');
+
+            if (cost !== undefined) {
+                costInput.val(cost);
+            }
+
+            // Set hidden type
+            type = row.find('.equipment-type-hidden').val(type);
+        });
+
+
+        $(document).on('click', '#addWaterEquipmentButton', function () {
+
+            const agent = $("#chooseWaterHolderSystem").val(); 
+            if(currentWaterEquipmentData.length > 0) {
+
+                appendWaterEquipmentRow(currentWaterEquipmentData, agent);
+            } else {
+
+                alert("Please select a system or user first.");
+            }
+        });
+
+
+        $(document).on('click', '.remove-input-water-target-points', function () {
+            $(this).closest('tr').remove();
+        });
 
         // This event handles the change of #chooseWaterHolderSystem
+        let currentWaterEquipmentData = [];  // to store equipment list for current selection
+
         $(document).on('change', '#chooseWaterHolderSystem', function () {
 
             var community_id = $('#communitySelected').val();
             var publicUserSystem = $(this).val();
 
-            var selectWaterAffectedHouseholds = $('#waterAffectedHouseholds');
-            selectWaterAffectedHouseholds.empty(); 
-            selectWaterAffectedHouseholds.prop('disabled', true); 
-            selectWaterAffectedHouseholds.selectpicker('refresh'); 
+            $('#addWaterEquipmentButton').hide(); // Hide Add button
+            $('#dynamicAddRemoveWaterEquipment tbody').empty(); // Clear table
+
+            var selectAffectedHouseholds = $('#waterAffectedHouseholds');
+            selectAffectedHouseholds.empty().prop('disabled', true).selectpicker('refresh');
 
             var select = $('#waterHolderSelected');
-            select.prop('disabled', false);
-            select.empty(); 
-            select.selectpicker('refresh');
+            select.prop('disabled', false).empty().selectpicker('refresh');
 
             $.ajax({
                 url: "/all-incident/get_water_holder/" + community_id + "/" + publicUserSystem,
                 method: 'GET',
                 success: function(data) {
 
-                    select.html(data.html);
-                    select.selectpicker('refresh');
+                    select.html(data.html).selectpicker('refresh');
 
                     if(publicUserSystem === "system") {
 
-                        selectWaterAffectedHouseholds.prop('disabled', false); 
-                        selectWaterAffectedHouseholds.html(data.htmlAffectedHouseholds);
-                        selectWaterAffectedHouseholds.selectpicker('refresh');
+                        selectAffectedHouseholds.prop('disabled', false);
+                        selectAffectedHouseholds.html(data.htmlAffectedHouseholds).selectpicker('refresh');
+                    } else {
+                        // Only for user/public: load general equipment list now
+                        currentWaterEquipmentData = data.userPublicEquipments || [];
+                        if (currentWaterEquipmentData.length) {
+
+                            appendWaterEquipmentRow(currentWaterEquipmentData, "user/public");
+                            $('#addWaterEquipmentButton').show();
+                        }
                     }
                 }
             });
         });
 
+ 
+        // This for choosing the internet system
+        $(document).on('change', '#internetHolderSelected', function() {
+
+            const systemId = $(this).val();
+            const agent = $("#chooseInternetHolderSystem").val();
+
+            if (!systemId) {
+
+                $('#dynamicAddRemoveInternetEquipment tbody').empty();
+                $('#addInternetEquipmentButton').hide();
+                return;
+            }
+
+            if (agent == "system") {
+                $.ajax({ 
+                    url: `/internet-systems/${systemId}/components`,
+                    method: 'GET',
+                    success: function(response) {
+
+                        currentInternetEquipmentData = response.equipmentInternet || [];
+                        $('#dynamicAddRemoveInternetEquipment tbody').empty();
+
+                        if (currentInternetEquipmentData.length) {
+
+                            appendInternetEquipmentRow(currentInternetEquipmentData, agent);
+                            $('#addInternetEquipmentButton').show();
+                        } else {
+
+                            $('#addInternetEquipmentButton').hide();
+                        }
+                    },
+                    error: function() {
+                        
+                        alert('Failed to load components for selected system');
+                        $('#addInternetEquipmentButton').hide();
+                    }
+                });
+            }
+        });
+
+        // Add More internet Equipment
+        let internetRowIndex = 0; 
+        let internetHolderIndex = 0;
+        function appendInternetEquipmentRow(equipmentList, agent) {
+
+            let options = '<option disabled selected>Choose one...</option>';
+
+            if(agent === "system") {
+
+                for (const item of equipmentList) {
+
+                    options += `<option value="${item.component_internet_system_id}" data-cost="${item.cost}"
+                        data-type="${item.type}"> ${item.model_name} (${item.type}) </option>`;
+                }
+
+                const newRow = `
+                    <tr>
+                        <td style="white-space: nowrap; width: 300px;">
+                            <select class="selectpicker form-control" data-live-search="true" name="internet_equipment[]">
+                                ${options}
+                            </select>
+                            <input type="hidden" name="equipment_type[${internetRowIndex}]" class="equipment-type-hidden" />
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsInternetUnit[${internetRowIndex}][subject]" 
+                                placeholder="Unit" class="form-control" data-id="${internetRowIndex}" />
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsInternetCost[${internetRowIndex}][subject]" 
+                                placeholder="Cost" class="form-control" data-id="${internetRowIndex}" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger remove-input-internet-target-points">Delete</button>
+                        </td>
+                    </tr>
+                `;
+
+                $('#dynamicAddRemoveInternetEquipment tbody').append(newRow);
+                $('.selectpicker').selectpicker('refresh');
+                internetRowIndex++;
+            } else {
+
+                for (const item of equipmentList) {
+                    options += `<option value="${item.id}">
+                        ${item.name}</option>`;
+                }
+
+                const newRow = `
+                    <tr>
+                        <td style="white-space: nowrap; width: 300px;">
+                            <select class="selectpicker form-control" data-live-search="true" name="internet_equipment[]">
+                                ${options}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsInternetUnit[${internetHolderIndex}][subject]" 
+                                placeholder="Unit" class="form-control" data-id="${internetHolderIndex}" />
+                        </td>
+                        <td>
+                            <input type="text" step="any" name="addMoreInputFieldsInternetCost[${internetHolderIndex}][subject]" 
+                                placeholder="Cost" class="form-control" data-id="${internetHolderIndex}" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger remove-input-internet-target-points">Delete</button>
+                        </td>
+                    </tr>
+                `;
+
+                $('#dynamicAddRemoveInternetEquipment tbody').append(newRow);
+                $('.selectpicker').selectpicker('refresh');
+                internetHolderIndex++;
+            }
+        }
+
+        $(document).on('change', 'select[name="internet_equipment[]"]', function () {
+
+            const selectedOption = $(this).find('option:selected');
+            const cost = selectedOption.data('cost');
+            const type = selectedOption.data('type');
+
+            const row = $(this).closest('tr');
+
+            // Find the closest <tr> and the corresponding cost input
+            const costInput = row.find('input[name^="addMoreInputFieldsInternetCost"]');
+
+            if (cost !== undefined) {
+                costInput.val(cost);
+            }
+
+            // Set hidden type
+            type = row.find('.equipment-type-hidden').val(type);
+        });
+
+
+        $(document).on('click', '#addInternetEquipmentButton', function () {
+
+            const agent = $("#chooseInternetHolderSystem").val(); 
+            if(currentInternetEquipmentData.length > 0) {
+
+                appendInternetEquipmentRow(currentInternetEquipmentData, agent);
+            } else {
+
+                alert("Please select a system or user first.");
+            }
+        });
+
+
+        $(document).on('click', '.remove-input-internet-target-points', function () {
+            $(this).closest('tr').remove();
+        });
 
         // This event handles the change of #chooseInternetHolderSystem
+        let currentInternetEquipmentData = [];  // to store equipment list for current selection
+
         $(document).on('change', '#chooseInternetHolderSystem', function () {
 
             var community_id = $('#communitySelected').val();
             var publicUserSystem = $(this).val();
 
-            var selectInternetAffectedHouseholds = $('#internetAffectedHouseholds');
-            selectInternetAffectedHouseholds.empty(); 
-            selectInternetAffectedHouseholds.prop('disabled', true); 
-            selectInternetAffectedHouseholds.selectpicker('refresh'); 
+            $('#addInternetEquipmentButton').hide(); // Hide Add button
+            $('#dynamicAddRemoveInternetEquipment tbody').empty(); // Clear table
 
-            var selectInternetAffectedAreas = $('#internetAffectedAreas');
-            selectInternetAffectedAreas.empty(); 
-            selectInternetAffectedAreas.prop('disabled', true); 
-            selectInternetAffectedAreas.selectpicker('refresh'); 
+            var selectAffectedHouseholds = $('#internetAffectedHouseholds');
+            selectAffectedHouseholds.empty().prop('disabled', true).selectpicker('refresh');
+
+            var selectAffectedAreas = $('#internetAffectedAreas');
+            selectAffectedAreas.empty().prop('disabled', true).selectpicker('refresh');
 
             var select = $('#internetHolderSelected');
-            select.prop('disabled', false);
-            select.empty(); 
-            select.selectpicker('refresh');
+            select.prop('disabled', false).empty().selectpicker('refresh');
 
             $.ajax({
                 url: "/all-incident/get_internet_holder/" + community_id + "/" + publicUserSystem,
                 method: 'GET',
                 success: function(data) {
 
-                    select.html(data.html);
-                    select.selectpicker('refresh');
+                    select.html(data.html).selectpicker('refresh');
 
                     if(publicUserSystem === "system") {
 
-                        selectInternetAffectedHouseholds.prop('disabled', false); 
-                        selectInternetAffectedHouseholds.html(data.htmlAffectedHouseholds);
-                        selectInternetAffectedHouseholds.selectpicker('refresh');
+                        selectAffectedHouseholds.prop('disabled', false);
+                        selectAffectedHouseholds.html(data.htmlAffectedHouseholds).selectpicker('refresh');
 
-                        selectInternetAffectedAreas.prop('disabled', false); 
-                        selectInternetAffectedAreas.html(data.htmlAffectedAreas);
-                        selectInternetAffectedAreas.selectpicker('refresh');
+                        selectAffectedAreas.prop('disabled', false);
+                        selectAffectedAreas.html(data.htmlAffectedAreas).selectpicker('refresh');
+                    } else {
+                        // Only for user/public: load general equipment list now
+                        currentInternetEquipmentData = data.userPublicEquipments || [];
+                        if (currentInternetEquipmentData.length) {
+
+                            appendInternetEquipmentRow(currentInternetEquipmentData, "user/public");
+                            $('#addInternetEquipmentButton').show();
+                        }
                     }
                 }
             });
         });
+
+
+        // This code is to open the selected div while selecting the service type
+        $(document).on('change', '#serviceTypeSelected', function () {
+
+            var selectedValues = $(this).val();
+
+            // First, hide all divs
+            $('#energyIncidentsDiv').hide();
+            $('#waterIncidentsDiv').hide();
+            $('#internetIncidentsDiv').hide();
+            $('#cameraIncidentsDiv').hide();
+
+            if (selectedValues.includes("1")) {
+
+                $('#energyIncidentsDiv').show();
+            }
+            if (selectedValues.includes("2")) {
+
+                $('#waterIncidentsDiv').show();
+            }
+            if (selectedValues.includes("3")) {
+
+                $('#internetIncidentsDiv').show();
+            }
+            if (selectedValues.includes("4")) {
+
+                $('#cameraIncidentsDiv').show();
+            }
+
+        });
+
+
+
+        // Add More Camera Equipment
+        let y = 1; 
+        const cameraEquipments = {!! json_encode($cameraEquipments) !!};
+        $('#addCameraEquipmentButton').click(function () {
+            let options = '<option disabled selected>Choose one...</option>';
+            for (const key in cameraEquipments) {
+                options += `<option value="${cameraEquipments[key].id}">${cameraEquipments[key].name}</option>`;
+            }
+
+            const newRow = `
+                <tr>
+                    <td style="white-space: nowrap; width: 300px;">
+                        <select class="selectpicker form-control" data-live-search="true" name="camera_equipment[]">
+                            ${options}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="addMoreInputFieldsCameraUnit[${y}][subject]" 
+                            placeholder="Unit" class="form-control" data-id="${y}" />
+                    </td>
+                    <td>
+                        <input type="text" name="addMoreInputFieldsCameraCost[${y}][subject]" 
+                            placeholder="Cost" class="form-control" data-id="${y}" />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger remove-input-camera-target-points">Delete</button>
+                    </td>
+                </tr>
+            `;
+
+            $('#dynamicAddRemoveCameraEquipment tbody').append(newRow);
+            $('.selectpicker').selectpicker('refresh');
+
+            y++;
+        });
+        $(document).on('click', '.remove-input-camera-target-points', function () {
+
+            $(this).parents('tr').remove();
+        });
+
     });
-
-    // This code is to open the selected div while selecting the service type
-    $(document).on('change', '#serviceTypeSelected', function () {
-
-        var selectedValues = $(this).val();
-
-        // First, hide all divs
-        $('#energyIncidentsDiv').hide();
-        $('#waterIncidentsDiv').hide();
-        $('#internetIncidentsDiv').hide();
-        $('#cameraIncidentsDiv').hide();
-
-        if (selectedValues.includes("1")) {
-
-            $('#energyIncidentsDiv').show();
-        }
-        if (selectedValues.includes("2")) {
-
-            $('#waterIncidentsDiv').show();
-        }
-        if (selectedValues.includes("3")) {
-
-            $('#internetIncidentsDiv').show();
-        }
-        if (selectedValues.includes("4")) {
-
-            $('#cameraIncidentsDiv').show();
-        }
-
-    });
-
-
-    
-
-
-    
-
-    // Add More Water Equipment
-    let j = 1; 
-    const waterEquipments = {!! json_encode($waterEquipments) !!};
-    $('#addWaterEquipmentButton').click(function () {
-        let options = '<option disabled selected>Choose one...</option>';
-        for (const key in waterEquipments) {
-            options += `<option value="${waterEquipments[key].id}">${waterEquipments[key].name}</option>`;
-        }
-
-        const newRow = `
-            <tr>
-                <td style="white-space: nowrap; width: 300px;">
-                    <select class="selectpicker form-control" data-live-search="true" name="water_equipment[]">
-                        ${options}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="addMoreInputFieldsWaterUnit[${j}][subject]" 
-                           placeholder="Unit" class="form-control" data-id="${j}" />
-                </td>
-                <td>
-                    <input type="text" name="addMoreInputFieldsWaterCost[${j}][subject]" 
-                           placeholder="Cost" class="form-control" data-id="${j}" />
-                </td>
-                <td>
-                    <button type="button" class="btn btn-outline-danger remove-input-water-target-points">Delete</button>
-                </td>
-            </tr>
-        `;
-
-        $('#dynamicAddRemoveWaterEquipment tbody').append(newRow);
-        $('.selectpicker').selectpicker('refresh');
-
-        j++;
-    });
-
-    $(document).on('click', '.remove-input-water-target-points', function () {
-        $(this).closest('tr').remove();
-    });
-
-
-    // Add More Internet Equipment
-    let x = 1; 
-    const internetEquipments = {!! json_encode($internetEquipments) !!};
-    $('#addInternetEquipmentButton').click(function () {
-        let options = '<option disabled selected>Choose one...</option>';
-        for (const key in internetEquipments) {
-            options += `<option value="${internetEquipments[key].id}">${internetEquipments[key].name}</option>`;
-        }
-
-        const newRow = `
-            <tr>
-                <td style="white-space: nowrap; width: 300px;">
-                    <select class="selectpicker form-control" data-live-search="true" name="internet_equipment[]">
-                        ${options}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="addMoreInputFieldsInternetUnit[${x}][subject]" 
-                           placeholder="Unit" class="form-control" data-id="${x}" />
-                </td>
-                <td>
-                    <input type="text" name="addMoreInputFieldsInternetCost[${x}][subject]" 
-                           placeholder="Cost" class="form-control" data-id="${x}" />
-                </td>
-                <td>
-                    <button type="button" class="btn btn-outline-danger remove-input-internet-target-points">Delete</button>
-                </td>
-            </tr>
-        `;
-
-        $('#dynamicAddRemoveInternetEquipment tbody').append(newRow);
-        $('.selectpicker').selectpicker('refresh');
-
-        x++;
-    });
-
-    $(document).on('click', '.remove-input-internet-target-points', function () {
-
-        $(this).parents('tr').remove();
-    });
-
-    // Add More Camera Equipment
-    let y = 1; 
-    const cameraEquipments = {!! json_encode($cameraEquipments) !!};
-    $('#addCameraEquipmentButton').click(function () {
-        let options = '<option disabled selected>Choose one...</option>';
-        for (const key in cameraEquipments) {
-            options += `<option value="${cameraEquipments[key].id}">${cameraEquipments[key].name}</option>`;
-        }
-
-        const newRow = `
-            <tr>
-                <td style="white-space: nowrap; width: 300px;">
-                    <select class="selectpicker form-control" data-live-search="true" name="camera_equipment[]">
-                        ${options}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="addMoreInputFieldsCameraUnit[${y}][subject]" 
-                        placeholder="Unit" class="form-control" data-id="${y}" />
-                </td>
-                <td>
-                    <input type="text" name="addMoreInputFieldsCameraCost[${y}][subject]" 
-                        placeholder="Cost" class="form-control" data-id="${y}" />
-                </td>
-                <td>
-                    <button type="button" class="btn btn-outline-danger remove-input-camera-target-points">Delete</button>
-                </td>
-            </tr>
-        `;
-
-        $('#dynamicAddRemoveCameraEquipment tbody').append(newRow);
-        $('.selectpicker').selectpicker('refresh');
-
-        y++;
-    });
-    $(document).on('click', '.remove-input-camera-target-points', function () {
-
-        $(this).parents('tr').remove();
-    });
-
 </script>
 @endsection
-

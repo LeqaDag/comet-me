@@ -517,7 +517,7 @@ class EnergySystemController extends Controller
             ->join('energy_systems', 'energy_system_charge_controllers.energy_system_id', 
                 '=', 'energy_systems.id')
             ->join('energy_charge_controllers', 'energy_system_charge_controllers.energy_charge_controller_id', 
-                '=', 'energy_charge_controllers.id')
+                '=', 'energy_charge_controllers.id') 
             ->where('energy_system_charge_controllers.energy_system_id', '=', $id)
             ->select('energy_system_charge_controllers.controller_units', 
                 'energy_charge_controllers.charge_controller_model', 
@@ -1376,16 +1376,12 @@ class EnergySystemController extends Controller
         
             if (!$existing) {
                 for ($elcro = 0; $elcro < count($request->electricity_room_units); $elcro++) {
+
                     $electricityRoom = new EnergySystemElectricityRoom();
                     $electricityRoom->energy_system_id = $id;
         
-                    if ($energySystem->energy_system_type_id == 2) {
-                        $allEnergyMetersCount = AllEnergyMeter::where("is_archived", 0)
-                            ->where("energy_system_id", $id)
-                            ->where("energy_system_type_id", 2)
-                            ->count();
-                        $electricityRoom->unit = $allEnergyMetersCount;
-                    } else {
+                    if ($energySystem->energy_system_type_id != 2) {
+                        
                         $electricityRoom->unit = $request->input("electricity_room_units.$elcro.subject") ?? 0;
                     }
         
@@ -1406,13 +1402,8 @@ class EnergySystemController extends Controller
                     $electricityBosRoom = new EnergySystemElectricityBosRoom();
                     $electricityBosRoom->energy_system_id = $id;
 
-                    if ($energySystem->energy_system_type_id == 2) {
-                        $allEnergyMetersCount = AllEnergyMeter::where("is_archived", 0)
-                            ->where("energy_system_id", $id)
-                            ->where("energy_system_type_id", 2)
-                            ->count();
-                        $electricityBosRoom->unit = $allEnergyMetersCount;
-                    } else {
+                    if ($energySystem->energy_system_type_id != 2) {
+                        
                         $electricityBosRoom->unit = $request->input("electricity_bos_room_units.$elcbr.subject") ?? 0;
                     }
 
@@ -1435,14 +1426,7 @@ class EnergySystemController extends Controller
                     $energyGrid = new EnergySystemGrid();
                     $energyGrid->energy_system_id = $id;
 
-                    if ($energySystem->energy_system_type_id == 2) {
-
-                        $allEnergyMetersCount = AllEnergyMeter::where("is_archived", 0)
-                            ->where("energy_system_id", $id)
-                            ->where("energy_system_type_id", 2)
-                            ->count();
-                        $energyGrid->unit = $allEnergyMetersCount;
-                    } else {
+                    if ($energySystem->energy_system_type_id != 2) {
 
                         $energyGrid->unit = $request->input("grid_units.$enrg.subject") ?? 0;
                     }

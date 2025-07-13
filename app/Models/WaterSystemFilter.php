@@ -21,4 +21,9 @@ class WaterSystemFilter extends Model
     {
         return $this->belongsTo(WaterFilter::class, 'water_filter_id', 'id');
     }
+
+    public function model()
+    {
+        return $this->belongsTo(WaterFilter::class, 'water_filter_id', 'id');
+    }
 }

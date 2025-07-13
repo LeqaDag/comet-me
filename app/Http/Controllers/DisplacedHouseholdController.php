@@ -15,6 +15,7 @@ use App\Models\Community;
 use App\Models\CommunityHousehold;
 use App\Models\Household;
 use App\Models\HouseholdMeter;
+use App\Models\MeterCase;
 use App\Models\HouseholdStatus;
 use App\Models\AllEnergyMeterDonor;
 use App\Models\DisplacedHousehold;
@@ -217,6 +218,14 @@ class DisplacedHouseholdController extends Controller
 
                         $displacedHousehold->old_meter_number = $energyUser->meter_number; 
                         $displacedHousehold->old_energy_system_id = $energyUser->energy_system_id;
+
+                        $meterStatus = MeterCase::where('meter_case_name_english', "Displaced")->first();
+
+                        if($meterStatus) {
+
+                            $energyUser->meter_case_id = $meterStatus->id;
+                            $energyUser->save();
+                        }
                     }
 
                     $sharedHousehold =  HouseholdMeter::where("is_archived", 0)
@@ -288,7 +297,15 @@ class DisplacedHouseholdController extends Controller
 
                 for($i=0; $i < count($request->households); $i++) {
 
+                    $householdStatus = HouseholdStatus::where('status', "Displaced")->first();
+
                     $displacedHousehold = new DisplacedHousehold();
+                    $householdFamily = Household::findOrFail($request->households[$i]);
+                    if($householdStatus) {
+                        
+                        $householdFamily->household_status_id = $householdStatus->id;
+                        $householdFamily->save();
+                    }
                     $displacedHousehold->household_id = $request->households[$i];
                     $energyUser = AllEnergyMeter::where("is_archived", 0)
                         ->where("household_id", $request->households[$i])
@@ -297,6 +314,14 @@ class DisplacedHouseholdController extends Controller
 
                         $displacedHousehold->old_meter_number = $energyUser->meter_number; 
                         $displacedHousehold->old_energy_system_id = $energyUser->energy_system_id;
+
+                        $meterStatus = MeterCase::where('meter_case_name_english', "Displaced")->first();
+
+                        if($meterStatus) {
+
+                            $energyUser->meter_case_id = $meterStatus->id;
+                            $energyUser->save();
+                        }
                     }
 
                     $sharedHousehold =  HouseholdMeter::where("is_archived", 0)

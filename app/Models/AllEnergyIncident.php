@@ -32,10 +32,15 @@ class AllEnergyIncident extends Model
     public function equipmentDamaged()
     {
         return $this->hasMany(AllEnergyIncidentDamagedEquipment::class, 'all_energy_incident_id');
-    }
+    } 
 
     public function photos()
     {
         return $this->hasMany(AllEnergyIncidentPhoto::class, 'all_energy_incident_id');
+    }
+
+    public function damagedSystemEquipments()
+    {
+        return $this->hasMany(AllEnergyIncidentSystemDamagedEquipment::class, 'all_energy_incident_id');
     }
 }

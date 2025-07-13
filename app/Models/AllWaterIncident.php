@@ -38,4 +38,9 @@ class AllWaterIncident extends Model
     {
         return $this->hasMany(AllWaterIncidentPhoto::class, 'all_water_incident_id');
     }
+
+    public function damagedSystemEquipments()
+    {
+        return $this->hasMany(AllWaterIncidentSystemDamagedEquipment::class, 'all_water_incident_id');
+    }
 }
