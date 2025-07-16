@@ -186,6 +186,7 @@ Route::get('/delete-shared-public', [App\Http\Controllers\WaterPublicStructureCo
 Route::get('/delete-waterSystem', [App\Http\Controllers\WaterSystemController::class, 'deleteWaterSystem'])->name('deleteWaterSystem');
 Route::post('water-system/export', [App\Http\Controllers\WaterSystemController::class, 'exportWaterHolders'])->name('water-system.export');
 Route::get('water-system/getHolders/{id}', [App\Http\Controllers\WaterSystemController::class, 'getWaterHolders']);
+Route::get('water-system/{id}/showPage', [App\Http\Controllers\WaterSystemController::class, 'showPage']);
 
 Route::get('/details/incident', [App\Http\Controllers\HomeController::class, 'incidentDetails'])->name('incidentDetails');
 Route::get('/water/chart/', [App\Http\Controllers\WaterUserController::class, 'chartWater'])->name('chartWater');
@@ -705,6 +706,10 @@ Route::post('/delete-energy-system-equipment', [App\Http\Controllers\AllIncident
 Route::post('/delete-water-system-equipment', [App\Http\Controllers\AllIncidentController::class, 'deleteWaterSystemEquipmentDamaged'])->name('deleteWaterSystemEquipmentDamaged');
 Route::post('/delete-internet-system-equipment', [App\Http\Controllers\AllIncidentController::class, 'deleteInternetSystemEquipmentDamaged'])->name('deleteInternetSystemEquipmentDamaged');
 
+Route::post('/delete-energy-household', [App\Http\Controllers\AllIncidentController::class, 'deleteEnergyAffectedHousehold'])->name('deleteEnergyAffectedHousehold');
+Route::post('/delete-water-household', [App\Http\Controllers\AllIncidentController::class, 'deleteWaterAffectedHousehold'])->name('deleteWaterAffectedHousehold');
+Route::post('/delete-internet-household', [App\Http\Controllers\AllIncidentController::class, 'deleteInternetAffectedHousehold'])->name('deleteInternetAffectedHousehold');
+Route::post('/delete-internet-area', [App\Http\Controllers\AllIncidentController::class, 'deleteInternetAffectedArea'])->name('deleteInternetAffectedArea');
 
 
 Route::resource('replacements', ReplacementController::class);

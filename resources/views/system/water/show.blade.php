@@ -1,226 +1,432 @@
-<style>
-    .spanDetails {
-        color: blue;
-        font-size: 14px;
-    }
-</style> 
-<div id="waterSystemModal" class="modal fade" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">
-                    <span id="waterSystemModalTitle"></span> - Details
-                </h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" 
-                    aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="col-xl-12">
-                    <div class="">
-                        <ul class="timeline timeline-dashed mt-4">
-                            <li class="timeline-item timeline-item-primary mb-4">
-                                <span class="timeline-indicator timeline-indicator-primary">
-                                    <i class="bx bx-water"></i>
-                                </span>
-                                <div class="timeline-event">
-                                    <div>
-                                        <div class="timeline-header border-bottom mb-3">
-                                            <h6 class="mb-0">General 
-                                                <span class="text-primary">Details</span>
-                                            </h6>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <ul class="list-unstyled">
-                                                <li class="d-flex justify-content-start align-items-center text-primary mb-3">
-                                                    <i class="bx bx-water bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">System Name</small>
-                                                        <h6 class="mb-0" id="waterSystemName"></h6>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <ul class="list-unstyled">
-                                                <li class="d-flex justify-content-start align-items-center text-success mb-3">
-                                                    <i class="bx bx-home bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Community</small>
-                                                        <h6 class="mb-0" id="communityWaterSystem"></h6>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            
-                            <li class="timeline-item timeline-item-info mb-4">
-                                <span class="timeline-indicator timeline-indicator-info">
-                                    <i class="bx bx-droplet"></i>
-                                </span>
-                                <div class="timeline-event">
-                                    <div>
-                                        <div class="timeline-header border-bottom mb-3">
-                                            <h6 class="mb-0">System
-                                                <span class="text-info">Details</span>
-                                            </h6>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <ul class="list-unstyled">
-                                                <li class="d-flex justify-content-start align-items-center text-black mb-3">
-                                                    <i class="bx bx-droplet bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Water System Type:</small>
-                                                        <h6 class="mb-0" id="waterSystemType"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-warning mb-3">
-                                                    <i class="bx bx-calendar bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Upgrade Year1: </small>
-                                                        <h6 class="mb-0" id="waterSystemUpgrade1"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-secondary mb-3">
-                                                    <i class="bx bx-text bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Description: </small>
-                                                        <h6 class="mb-0" id="waterSystemDescription"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-info mb-3">
-                                                    <i class="bx bx-cylinder bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Tanks: </small>
-                                                        <h6 class="mb-0" id="waterSystemTanks"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-success mb-3">
-                                                    <i class="bx bx-link bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Pipes: </small>
-                                                        <h6 class="mb-0" id="waterSystemPipes"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-secondary mb-3">
-                                                    <i class="bx bx-dots-horizontal-rounded bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Connectors: </small>
-                                                        <h6 class="mb-0" id="waterSystemConnectors"></h6>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <ul class="list-unstyled">
-                                                <li class="d-flex justify-content-start align-items-center text-primary mb-3">
-                                                    <i class="bx bx-calendar bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Cycle Year: </small>
-                                                        <h6 class="mb-0" id="waterCycleYear"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-primary mb-3">
-                                                    <i class="bx bx-calendar bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Installation Year: </small>
-                                                        <h6 class="mb-0" id="waterSystemYear"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-info mb-3">
-                                                    <i class="bx bx-calendar bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Upgrade Year2:</small>
-                                                        <h6 class="mb-0" id="waterSystemUpgrade2"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-success mb-3">
-                                                    <i class="bx bx-text bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1"> Notes: </small>
-                                                        <h6 class="mb-0" id="systemNotesUser"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-primary mb-3">
-                                                    <i class="bx bx-microchip bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Pumps: </small>
-                                                        <h6 class="mb-0" id="waterSystemPumps"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-warning mb-3">
-                                                    <i class="bx bx-filter bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Filters: </small>
-                                                        <h6 class="mb-0" id="waterSystemFilters"></h6>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
+@extends('layouts/layoutMaster')
 
-                            <li class="timeline-item timeline-item-warning mb-4">
-                                <span class="timeline-indicator timeline-indicator-warning">
-                                    <i class="bx bx-grid"></i>
-                                </span>
-                                <div class="timeline-event">
-                                    <div>
-                                        <div class="timeline-header border-bottom mb-3">
-                                            <h6 class="mb-0">Other
-                                                <span class="text-warning">Details</span>
-                                            </h6>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <ul class="list-unstyled">
-                                                <li class="d-flex justify-content-start align-items-center text-info mb-3">
-                                                    <i class="bx bx-shekel bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Donors:</small>
-                                                        <h6 class="mb-0" id="donorsDetails"></h6>
-                                                    </div>
-                                                </li>
-                                                <li class="d-flex justify-content-start align-items-center text-light mb-3">
-                                                    <i class="bx bx-calendar bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Incident Date: </small>
-                                                        <h6 class="mb-0" id="incidentDate"></h6>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <ul class="list-unstyled">
-                                                <li class="d-flex justify-content-start align-items-center text-danger mb-3">
-                                                    <i class="bx bx-error bx-sm me-3"></i>
-                                                    <div class="ps-3 border-start">
-                                                        <small class="text-muted mb-1">Incident: </small>
-                                                        <h6 class="mb-0" id="incidentUser"></h6>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
+@section('title', 'water systems')
+
+@include('layouts.all')
+
+@section('content')
+ 
+@php
+    $systems = [
+        'connector' => $waterSystemConnectors,
+        'filter' => $waterSystemFilters,
+        'pipe' => $waterSystemPipes,
+        'pump' => $waterSystemPumps,
+        'tank' => $waterSystemTanks,
+        'tap' => $waterSystemTaps,
+        'valve' => $waterSystemValves
+    ]; 
+
+    $grandTotalCost = 0;
+@endphp
+
+@foreach($systems as $label => $system)
+
+    @php
+
+        $totalCost = $system->sum($label . '_costs');
+        $grandTotalCost += $totalCost;
+    @endphp
+@endforeach
+
+
+<h4 class="py-3 breadcrumb-wrapper mb-4">
+  <span class="text-muted fw-light"> {{$waterSystem->name}}</span> Details
+</h4>
+
+<div class="container">
+    <div class="card my-2">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <h6>
+                        System Name: 
+                        <span class="spanDetails">
+                            {{$waterSystem->name}}
+                        </span>
+                    </h6>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <h6>
+                        Community: 
+                        <span class="spanDetails">
+                            {{$waterSystem->Community->english_name}}
+                        </span>
+                    </h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <h6>
+                        System Type: 
+                        <span class="spanDetails">
+                            {{$waterSystem->WaterSystemType->type}}
+                        </span>
+                    </h6>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <h6>
+                        Installion year: 
+                        <span class="spanDetails">
+                            {{$waterSystem->year}}
+                        </span>
+                    </h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <h6>
+                        Upgrade Year 1: 
+                        <span class="spanDetails">
+                            {{$waterSystem->upgrade_year1}}
+                        </span>
+                    </h6>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <h6>
+                        Upgrade Year 2: 
+                        <span class="spanDetails">
+                            {{$waterSystem->upgrade_year2}}
+                        </span>
+                    </h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12">
+                    <h6>
+                        Description: 
+                        <span>
+                            {{$waterSystem->description}}
+                        </span>
+                    </h6>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-xl-12 col-lg-12 col-md-12">
+                    <div class="alert alert-success text-center">
+                        <h5>Total System Cost: <strong>{{ number_format($grandTotalCost, 2) }}</strong> ₪</h5>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Close
-                    </button>
-                </div>
             </div>
+
+            <hr>
+            @if(count($waterSystemTanks) < 1)
+                <div class="alert alert-warning">
+                    <strong>Sorry!</strong> No Tank Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                            Tanks:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table id="internetSystemWaterSystemTanks" class="table table-info">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th >Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($waterSystemTanks as $waterSystemTank)
+                                <tr>
+                                    <td>{{$waterSystemTank->model}}</td>
+                                    <td>{{$waterSystemTank->brand}}</td>
+                                    <td>{{$waterSystemTank->tank_units}}</td>
+                                    <td>{{$waterSystemTank->tank_costs}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan=2>Total</td>
+                                    <td>{{$waterSystemTanks->sum('tank_units') }}</td>
+                                    <td>{{$waterSystemTanks->sum('tank_costs') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+            
+            @if(count($waterSystemPumps) < 1)
+                <div class="alert alert-warning">
+                    <strong>Sorry!</strong> No Pumps Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Pumps:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-warning">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th >Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($waterSystemPumps as $waterSystemPump)
+                                <tr>
+                                    <td>{{$waterSystemPump->model}}</td>
+                                    <td>{{$waterSystemPump->brand}}</td>
+                                    <td>{{$waterSystemPump->pump_units}}</td>
+                                    <td>{{$waterSystemPump->pump_costs}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan=2>Total</td>
+                                    <td>{{$waterSystemPumps->sum('pump_units') }}</td>
+                                    <td>{{$waterSystemPumps->sum('pump_costs') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+   
+            @if(count($waterSystemTaps) < 1)
+                <div class="alert alert-warning">
+                    <strong>Sorry!</strong> No Taps Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Taps:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-primary">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th >Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($waterSystemTaps as $waterSystemTap)
+                                <tr>
+                                    <td>{{$waterSystemTap->model}}</td>
+                                    <td>{{$waterSystemTap->brand}}</td>
+                                    <td>{{$waterSystemTap->tap_units}}</td>
+                                    <td>{{$waterSystemTap->tap_costs}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan=2>Total</td>
+                                    <td>{{$waterSystemTaps->sum('tap_units') }}</td>
+                                    <td>{{$waterSystemTaps->sum('tap_costs') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+
+            @if(count($waterSystemFilters) < 1)
+                <div class="alert alert-warning">
+                    <strong>Sorry!</strong> No Filters Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Filters:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-success">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th >Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($waterSystemFilters as $waterSystemFilter)
+                                <tr>
+                                    <td>{{$waterSystemFilter->model}}</td>
+                                    <td>{{$waterSystemFilter->brand}}</td>
+                                    <td>{{$waterSystemFilter->filter_units}}</td>
+                                    <td>{{$waterSystemFilter->filter_costs}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan=2>Total</td>
+                                    <td>{{$waterSystemFilters->sum('filter_units') }}</td>
+                                    <td>{{$waterSystemFilters->sum('filter_costs') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+    
+            @if(count($waterSystemPipes) < 1)
+                <div class="alert alert-warning">
+                    <strong>Sorry!</strong> No Pipe Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        Pipe:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-secondary">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th >Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($waterSystemPipes as $waterSystemPipe)
+                                <tr>
+                                    <td>{{$waterSystemPipe->model}}</td>
+                                    <td>{{$waterSystemPipe->brand}}</td>
+                                    <td>{{$waterSystemPipe->pipe_units}}</td>
+                                    <td>{{$waterSystemPipe->pipe_costs}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan=2>Total</td>
+                                    <td>{{$waterSystemPipes->sum('pipe_units') }}</td>
+                                    <td>{{$waterSystemPipes->sum('pipe_costs') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+             
+            @if(count($waterSystemConnectors) < 1)
+                <div class="alert alert-warning">
+                    <strong>Sorry!</strong> No UISP Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        UISP:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-dark">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th >Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($waterSystemConnectors as $waterSystemConnector)
+                                <tr>
+                                    <td>{{$waterSystemConnector->model}}</td>
+                                    <td>{{$waterSystemConnector->brand}}</td>
+                                    <td>{{$waterSystemConnector->connector_units}}</td>
+                                    <td>{{$waterSystemConnector->connector_costs}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td colspan=2>Total</td>
+                                    <td>{{$waterSystemConnectors->sum('connector_units') }}</td>
+                                    <td>{{$waterSystemConnectors->sum('connector_costs') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+             
+            @if(count($waterSystemValves) < 1)
+                <div class="alert alert-warning">
+                    <strong>Sorry!</strong> No Electrician Found.
+                </div>                                      
+            @else
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <h6>
+                        waterSystemValves:
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12" >
+                        <table  class="table table-warning">
+                            <thead>
+                                <tr>
+                                    <th >Model</th>
+                                    <th >Brand</th>
+                                    <th >Units</th>
+                                    <th >Cost per unit</th>
+                                </tr>
+                            </thead>
+                            @foreach($waterSystemValves as $waterSystemValve)
+                                <tr>
+                                    <td>{{$waterSystemValve->model}}</td>
+                                    <td>{{$waterSystemValve->brand}}</td>
+                                    <td>{{$waterSystemValve->valve_units}}</td>
+                                    <td>{{$waterSystemValve->valve_costs}}</td>
+                                </tr>
+                            @endforeach 
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td colspan=2>Total</td>
+                                    <td>{{$waterSystemValves->sum('valve_units') }}</td>
+                                    <td>{{$waterSystemValves->sum('valve_costs') }}</td>
+                                </tr>
+                            </tfoot>
+                         </table>
+                    </div>
+                </div>
+                <hr>
+            @endif
+             
         </div>
     </div>
 </div>
+
+@endsection

@@ -1408,19 +1408,37 @@ class AllIncidentController extends Controller
             ->get(); 
 
         $energySystemComponents = null;
+        $energyAffectedHouseholds = null;
         if ($allEnergyIncident && $allEnergyIncident->energy_system_id) {
 
             $energySystemComponents = $this->extractSystemComponents($allEnergyIncident->energy_system_id);
+            $energyAffectedHouseholds = DB::table('all_energy_meters')
+                ->join('households', 'all_energy_meters.household_id', 'households.id')
+                ->where('all_energy_meters.is_archived', 0)
+                ->where("all_energy_meters.community_id", $allIncident->community_id)
+                ->orderBy('households.english_name', 'ASC')
+                ->select('households.id as id', 'households.english_name')
+                ->get();
         }
 
         $waterSystemComponents = null;
+        $waterAffectedHouseholds = null;
         if ($allWaterIncident && $allWaterIncident->water_system_id) {
 
             $waterSystemComponents = $this->extractWaterSystemComponents($allWaterIncident->water_system_id);
+            $waterAffectedHouseholds = DB::table('all_water_holders')
+                ->join('households', 'all_water_holders.household_id', 'households.id')
+                ->where('all_water_holders.is_archived', 0)
+                ->where("all_water_holders.community_id", $allIncident->community_id)
+                ->orderBy('households.english_name', 'ASC')
+                ->select('households.id as id', 'households.english_name')
+                ->get();
         }
 
 
         $internetSystemComponents = null;
+        $internetAffectedHouseholds = null;
+        $internetAffectedAreas = null;
         if ($allInternetIncident && $allInternetIncident->community_id) {
 
             $internetSystemCommunity = InternetSystemCommunity::where("is_archived", 0)
@@ -1429,12 +1447,25 @@ class AllIncidentController extends Controller
                 ->first();
 
             $internetSystemComponents = $this->extractInternetSystemComponents($internetSystemCommunity->internet_system_id);
+            $internetAffectedHouseholds = DB::table('internet_users')
+                ->join('households', 'internet_users.household_id', 'households.id')
+                ->where('internet_users.is_archived', 0)
+                ->where("internet_users.community_id", $allInternetIncident->community_id)
+                ->orderBy('households.english_name', 'ASC')
+                ->select('households.id as id', 'households.english_name')
+                ->get();
+            $internetAffectedAreas = Community::where('is_archived', 0)
+                ->where('internet_service', 'yes')
+                ->orderBy('english_name', 'ASC')
+                ->select('id', 'english_name')
+                ->get();
         }
 
         return view('incidents.all.edit', compact('allIncident', 'incidents', 'allEnergyIncident', 
             'allWaterIncident', 'allInternetIncident', 'allCameraIncident', 'incidentStatuses',
             'statuses', 'userPublicEnergyEquipments', 'energySystemComponents', 'waterSystemComponents',
-            'internetSystemComponents'));
+            'internetSystemComponents', 'energyAffectedHouseholds', 'waterAffectedHouseholds',
+            'internetAffectedHouseholds', 'internetAffectedAreas'));
     }
 
     // This function is to update the Energy Equipment Damaged
@@ -1596,6 +1627,29 @@ class AllIncidentController extends Controller
             }
         }
 
+        // Store energy affected households
+        if($request->energy_affected_households_ids) { 
+
+            for($eah=0; $eah < count($request->energy_affected_households_ids); $eah++) {
+
+                $energyAffectedHousehold = new AllEnergyIncidentAffectedHousehold();
+                $energyAffectedHousehold->household_id = $request->energy_affected_households_ids[$eah];
+                $energyAffectedHousehold->all_energy_incident_id = $allEnergyIncident->id;
+                $energyAffectedHousehold->save();
+
+                $energyUser = AllEnergyMeter::where("is_archived", 0)
+                    ->where("household_id", $request->energy_affected_households_ids[$eah])
+                    ->first();
+
+                if($energyUser) {
+
+                    $energyUser->meter_case_id = 20;
+                    $energyUser->save();
+                }
+            }
+        }
+
+
         $allWaterIncident = AllWaterIncident::where("all_incident_id", $id)->first();
 
         // Water equipment damaged (USER/PUBLIC)
@@ -1631,6 +1685,18 @@ class AllIncidentController extends Controller
             }
         }
 
+        // Store water affected households
+        if($request->water_affected_households_ids) { 
+
+            for($wahs=0; $wahs < count($request->water_affected_households_ids); $wahs++) {
+
+                $waterAffectedHousehold = new AllWaterIncidentAffectedHousehold();
+                $waterAffectedHousehold->household_id = $request->water_affected_households_ids[$wahs];
+                $waterAffectedHousehold->all_water_incident_id = $allWaterIncident->id;
+                $waterAffectedHousehold->save();
+            }
+        }
+
         $allInternetIncident = AllInternetIncident::where("all_incident_id", $id)->first();
 
         // Internet equipment damaged (USER/PUBLIC)
@@ -1663,6 +1729,30 @@ class AllIncidentController extends Controller
                 $internetIncidentPhoto->slug = $extra_name;
                 $internetIncidentPhoto->all_internet_incident_id = $allInternetIncident->id;
                 $internetIncidentPhoto->save();
+            }
+        }
+
+        // Store internet affected households
+        if($request->internet_affected_households_ids) { 
+
+            for($itahs=0; $itahs < count($request->internet_affected_households_ids); $itahs++) {
+
+                $internetAffectedHousehold = new AllInternetIncidentAffectedHousehold();
+                $internetAffectedHousehold->household_id = $request->internet_affected_households_ids[$itahs];
+                $internetAffectedHousehold->all_internet_incident_id = $allInternetIncident->id;
+                $internetAffectedHousehold->save();
+            }
+        }
+
+        // Store internet affected areas
+        if($request->internet_affected_areas_ids) { 
+
+            for($inaa=0; $inaa < count($request->internet_affected_areas_ids); $inaa++) {
+
+                $internetAffectedArea = new AllInternetIncidentAffectedArea();
+                $internetAffectedArea->affected_community_id = $request->internet_affected_areas_ids[$inaa];
+                $internetAffectedArea->all_internet_incident_id = $allInternetIncident->id;
+                $internetAffectedArea->save();
             }
         }
 
@@ -2539,6 +2629,98 @@ class AllIncidentController extends Controller
 
             $response['success'] = 1;
             $response['msg'] = 'Camera Photo Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */ 
+    public function deleteEnergyAffectedHousehold(Request $request)
+    {
+        $energyHousehold = AllEnergyIncidentAffectedHousehold::find($request->id);
+
+        if($energyHousehold->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Energy Affected Household Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */ 
+    public function deleteWaterAffectedHousehold(Request $request)
+    {
+        $waterHousehold = AllWaterIncidentAffectedHousehold::find($request->id);
+
+        if($waterHousehold->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Water Affected Household Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */ 
+    public function deleteInternetAffectedHousehold(Request $request)
+    {
+        $internetHousehold = AllInternetIncidentAffectedHousehold::find($request->id);
+
+        if($internetHousehold->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet Affected Household Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Delete a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */ 
+    public function deleteInternetAffectedArea(Request $request)
+    {
+        $internetArea = AllInternetIncidentAffectedArea::find($request->id);
+
+        if($internetArea->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet Affected Area Deleted successfully'; 
         } else {
 
             $response['success'] = 0;

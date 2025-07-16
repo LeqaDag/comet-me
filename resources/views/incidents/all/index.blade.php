@@ -189,6 +189,9 @@
                             Get Latest Incident Tickets
                         </button>
                     </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3" id="loader" style="display: none;">
+                        <p>Loading...</p> 
+                    </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <a type="button" class="btn btn-success" 
                             href="{{url('all-incident', 'create')}}">
@@ -368,25 +371,36 @@
     });
 
     // Get the incident tickets
-    $('#getLatestTickets').on('click', function() {
+    $('#getLatestTickets').on('click', function () {
+   
+        $('#loader').show();
 
         // AJAX request
         $.ajax({
             url: 'api/ticket',
             type: 'get',
             dataType: 'json',
-            success: function(response) {
-
+            success: function (response) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Tickets Gotten Successfully!',
                     showDenyButton: false,
                     showCancelButton: false,
-                    confirmButtonText: 'Okay!' 
+                    confirmButtonText: 'Okay!'
                 }).then((result) => {
-
                     $('#allIncidentsTable').DataTable().draw();
                 });
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to fetch tickets!',
+                    text: 'Please try again later.'
+                });
+            },
+            complete: function () {
+                
+                $('#loader').hide();
             }
         });
     });

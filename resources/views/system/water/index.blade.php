@@ -76,7 +76,6 @@
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 
-@include('system.water.show')
 @include('system.water.system_holder')
 
 <script type="text/javascript">
@@ -227,117 +226,17 @@
     // View record details
     $('#systemWaterTable').on('click', '.viewWaterSystem',function() {
         var id = $(this).data('id');
-    
+        var url = window.location.href; 
+        url = url +'/'+ id;
+
         // AJAX request
         $.ajax({
-            url: 'water-system/' + id,
+            url: 'water-system/' + id + '/showPage',
             type: 'get',
-            dataType: 'json', 
-            success: function(response) { 
+            dataType: 'json',
+            success: function(response) {
 
-                $('#waterSystemModalTitle').html(" ");
-                $('#waterSystemModalTitle').html(response['waterSystem'].name);
-                $('#waterSystemName').html(" ");
-                $('#waterSystemName').html(response['waterSystem'].name);
-                $('#communityWaterSystem').html(" ");
-                if(response['community']) $('#communityWaterSystem').html(response['community'].english_name);
-                $('#waterSystemType').html(" ");
-                $('#waterSystemType').html(response['waterSystemType'].type);
-                $('#waterSystemYear').html(" ");
-                $('#waterSystemYear').html(response['waterSystem'].year);
-                $('#waterCycleYear').html(" ");
-                if(response['waterCycle']) $('#waterCycleYear').html(response['waterCycle'].name);
-                $('#waterSystemUpgrade1').html(" ");
-                if(response['waterSystem'].upgrade_year1) $('#waterSystemUpgrade1').html(response['waterSystem'].upgrade_year1);
-                $('#waterSystemUpgrade2').html(" ");
-                if(response['waterSystem'].upgrade_year2) $('#waterSystemUpgrade2').html(response['waterSystem'].upgrade_year2);
-                $('#systemNotesUser').html(" ");
-                if(response['waterSystem'].notes) $('#systemNotesUser').html(response['waterSystem'].notes);
-                $('#waterSystemDescription').html(" ");
-                if(response['waterSystem'].description) $('#waterSystemDescription').html(response['waterSystem'].description);
-             
-                $('#waterSystemTanks').html(" ");
-                if(response['waterSystemTanks'] != []) {
-                    for (var i = 0; i < response['waterSystemTanks'].length; i++) {
-
-                        if(response['waterSystemTanks'][i].tank_units == null) {
-                            $("#waterSystemTanks").append(
-                                '<ul><li>'+ response['waterSystemTanks'][i].model +'</span></li></ul>');
-
-                        } else {
-
-                            $("#waterSystemTanks").append(
-                                '<ul><li>'+ response['waterSystemTanks'][i].model +'<span class="text-info">  / '+ response['waterSystemTanks'][i].tank_units  +'</span></li></ul>');
-                        }
-                    }
-                }
-
-                $('#waterSystemPumps').html(" ");
-                if(response['waterSystemPumps'] != []) {
-                    for (var i = 0; i < response['waterSystemPumps'].length; i++) {
-
-                        if(response['waterSystemPumps'][i].pump_units == null) {
-
-                            $("#waterSystemPumps").append(
-                                '<ul><li>'+ response['waterSystemPumps'][i].model +'</span></li></ul>');
-                        } else {
-
-                            $("#waterSystemPumps").append(
-                                '<ul><li>'+ response['waterSystemPumps'][i].model +'<span class="text-primary">  / '+ response['waterSystemPumps'][i].pump_units  +'</span></li></ul>');
-                        }
-                    }
-                }
-
-                $('#waterSystemConnectors').html(" ");
-                if(response['waterSystemConnectors'] != []) {
-                    for (var i = 0; i < response['waterSystemConnectors'].length; i++) {
-
-                        if(response['waterSystemConnectors'][i].connector_units == null) {
-                            $("#waterSystemConnectors").append(
-                                '<ul><li>'+ response['waterSystemConnectors'][i].model +'</li></ul>');
-
-                        } else {
-
-                            $("#waterSystemConnectors").append(
-                                '<ul><li>'+ response['waterSystemConnectors'][i].model +'<span class="text-info">  / '+ response['waterSystemConnectors'][i].connector_units  +'</span></li></ul>');
-                        }
-                    }
-                }
-
-
-                $('#waterSystemPipes').html(" ");
-                if(response['waterSystemPipes'] != []) {
-                    for (var i = 0; i < response['waterSystemPipes'].length; i++) {
-
-                        if(response['waterSystemPipes'][i].pipe_units == null) {
-
-                            $("#waterSystemPipes").append(
-                                '<ul><li>'+ response['waterSystemPipes'][i].model +'</li></ul>');
-                        } else {
-                            
-                            $("#waterSystemPipes").append(
-                                '<ul><li>'+ response['waterSystemPipes'][i].model +'<span class="text-success">  / '+ response['waterSystemPipes'][i].pipe_units  +'</span></li></ul>');
-                        }
-                    }
-                }
-
-
-                $('#waterSystemFilters').html(" ");
-                if(response['waterSystemFilters'] != []) {
-                    for (var i = 0; i < response['waterSystemFilters'].length; i++) {
-
-                        if(response['waterSystemFilters'][i].filter_units == null) {
-
-                            $("#waterSystemFilters").append(
-                                '<ul><li>'+ response['waterSystemFilters'][i].model +'</span></li></ul>');
-                        } else {
-
-                            $("#waterSystemFilters").append(
-                                '<ul><li>'+ response['waterSystemFilters'][i].model +'<span class="text-warning">  / '+ response['waterSystemFilters'][i].filter_units  +'</span></li></ul>');
-                        }
-                    }
-                }
-
+                window.open(url, "_self"); 
             }
         });
     }); 

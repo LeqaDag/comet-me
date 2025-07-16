@@ -78,7 +78,7 @@ class WaterSystemController extends Controller
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
     
-                        $viewButton = "<a type='button' class='viewWaterSystem' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#waterSystemModal' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $viewButton = "<a type='button' class='viewWaterSystem' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
                         $updateButton = "<a type='button' class='updateWaterSystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
                         $deleteButton = "<a type='button' class='deleteWaterSystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
@@ -344,12 +344,22 @@ class WaterSystemController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
+    public function showPage($id)
+    {
+        $waterSystem = WaterSystem::findOrFail($id);
+
+        return response()->json($waterSystem);
+    }
+
+    /**
+     * Show the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
     public function show($id)
     {
         $waterSystem = WaterSystem::findOrFail($id);
-        $waterSystemType = WaterSystemType::where('id', $waterSystem->water_system_type_id)->first();
-        $community = Community::where('id', $waterSystem->community_id)->first();
-        $waterCycle = WaterSystemCycle::where('id', $waterSystem->water_system_cycle_id)->first();
 
         $waterSystemConnectors = DB::table('water_system_connectors')
             ->join('water_systems', 'water_system_connectors.water_system_id', 
@@ -357,7 +367,8 @@ class WaterSystemController extends Controller
             ->join('water_connectors', 'water_system_connectors.water_connector_id', 
                 'water_connectors.id')
             ->where('water_system_connectors.water_system_id', $id)
-            ->select('water_connectors.model', 'water_system_connectors.connector_units', 'water_system_connectors.connector_costs')
+            ->select('water_connectors.model', 'water_system_connectors.connector_units', 
+                'water_system_connectors.connector_costs', 'water_connectors.brand')
             ->get();
 
         $waterSystemFilters = DB::table('water_system_filters')
@@ -366,7 +377,8 @@ class WaterSystemController extends Controller
             ->join('water_filters', 'water_system_filters.water_filter_id', 
                 'water_filters.id')
             ->where('water_system_filters.water_system_id', $id)
-            ->select('water_filters.model', 'water_system_filters.filter_units', 'water_system_filters.filter_costs')
+            ->select('water_filters.model', 'water_system_filters.filter_units', 
+                'water_system_filters.filter_costs', 'water_filters.brand')
             ->get();
         
         $waterSystemPipes = DB::table('water_system_pipes')
@@ -375,7 +387,8 @@ class WaterSystemController extends Controller
             ->join('water_pipes', 'water_system_pipes.water_pipe_id', 
                 'water_pipes.id')
             ->where('water_system_pipes.water_system_id', $id)
-            ->select('water_pipes.model', 'water_system_pipes.pipe_units', 'water_system_pipes.pipe_costs')
+            ->select('water_pipes.model', 'water_system_pipes.pipe_units', 
+                'water_system_pipes.pipe_costs', 'water_pipes.brand')
             ->get();
 
         $waterSystemPumps = DB::table('water_system_pumps')
@@ -384,7 +397,8 @@ class WaterSystemController extends Controller
             ->join('water_pumps', 'water_system_pumps.water_pump_id', 
                 'water_pumps.id')
             ->where('water_system_pumps.water_system_id', $id)
-            ->select('water_pumps.model', 'water_system_pumps.pump_units', 'water_system_pumps.pump_costs')
+            ->select('water_pumps.model', 'water_system_pumps.pump_units', 
+                'water_system_pumps.pump_costs', 'water_pumps.brand')
             ->get();
 
         $waterSystemTanks = DB::table('water_system_tanks')
@@ -393,7 +407,8 @@ class WaterSystemController extends Controller
             ->join('water_tanks', 'water_system_tanks.water_tank_id', 
                 'water_tanks.id')
             ->where('water_system_tanks.water_system_id', $id)
-            ->select('water_tanks.model', 'water_system_tanks.tank_units', 'water_system_tanks.tank_costs')
+            ->select('water_tanks.model', 'water_system_tanks.tank_units', 
+                'water_system_tanks.tank_costs', 'water_tanks.brand')
             ->get();
 
         $waterSystemTaps = DB::table('water_system_taps')
@@ -402,7 +417,8 @@ class WaterSystemController extends Controller
             ->join('water_taps', 'water_system_taps.water_tap_id', 
                 'water_taps.id')
             ->where('water_system_taps.water_system_id', $id)
-            ->select('water_taps.model', 'water_system_taps.tap_units', 'water_system_taps.tap_costs')
+            ->select('water_taps.model', 'water_system_taps.tap_units', 
+                'water_system_taps.tap_costs', 'water_taps.brand')
             ->get();
 
         $waterSystemValves = DB::table('water_system_valves')
@@ -411,23 +427,17 @@ class WaterSystemController extends Controller
             ->join('water_valves', 'water_system_valves.water_valve_id', 
                 'water_valves.id')
             ->where('water_system_valves.water_system_id', $id)
-            ->select('water_valves.model', 'water_system_valves.valve_units', 'water_system_valves.valve_costs')
+            ->select('water_valves.model', 'water_system_valves.valve_units', 
+                'water_system_valves.valve_costs', 'water_valves.brand')
             ->get();
 
-        $response['waterSystem'] = $waterSystem;
-        $response['waterSystemType'] = $waterSystemType;
-        $response['waterCycle'] = $waterCycle;
-        $response['community'] = $community;
-        $response['waterSystemConnectors'] = $waterSystemConnectors;
-        $response['waterSystemFilters'] = $waterSystemFilters;
-        $response['waterSystemPipes'] = $waterSystemPipes;
-        $response['waterSystemPumps'] = $waterSystemPumps;
-        $response['waterSystemTanks'] = $waterSystemTanks;
-        $response['waterSystemTaps'] = $waterSystemTaps;
-        $response['waterSystemValves'] = $waterSystemValves;
 
-        return response()->json($response);
+        return view('system.water.show', compact('waterSystem', 'waterSystemConnectors', 'waterSystemFilters',
+            'waterSystemPipes', 'waterSystemPumps', 'waterSystemTanks', 'waterSystemTaps', 
+            'waterSystemValves'));
     }
+
+
 
     /**
      * View Edit page.

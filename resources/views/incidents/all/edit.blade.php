@@ -308,7 +308,7 @@
                 </div>
 
 
-               <hr>
+                <hr>
                 <div class="row" style="margin-top: 40px">
                     <h5 class="text-danger">Equipments Damaged</h5>
                 </div>
@@ -1066,6 +1066,219 @@
 
                 <hr>
                 <div class="row" style="margin-top: 40px">
+                    <h5 class="text-primary">Affected Households</h5>
+                </div>
+
+                @if($allEnergyIncident && $allEnergyIncident->affectedHouseholds)
+                    @if(count($allEnergyIncident->affectedHouseholds) > 0)
+                        <table class="table table-striped my-2" id="energyAffectedHouseholdsTable">
+                            <tbody>
+                                @foreach($allEnergyIncident->affectedHouseholds as $index => $household)
+ 
+                                    <tr data-energy-household-id="{{ $household->id }}">
+                                        <td class="text-center">
+                                            {{$household->Household->english_name}}
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="btn deleteEnergyAffectedHousehold" 
+                                            data-id="{{ $household->id }}">
+                                                <i class="fa fa-trash text-danger"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                @endif
+
+                @if($allEnergyIncident && $allEnergyIncident->EnergySystem)
+
+                    <h6>Add New Energy Affected Households</h6>
+                    <table class="table table-bordered" id="addRemoveEnergyAffectedHouseholds">
+                        <thead>
+                            <tr>
+                                <th>Energy Affected Households</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <select name="energy_affected_households_ids[]" class="selectpicker form-control" 
+                                        data-live-search="true" multiple>
+                                        <option disabled selected>Choose one...</option>
+                                        @foreach($energyAffectedHouseholds as $energyAffectedHousehold)
+                                            <option value="{{ $energyAffectedHousehold->id }}">
+                                                {{ $energyAffectedHousehold->english_name }} 
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                @endif
+
+
+                @if($allWaterIncident && $allWaterIncident->affectedHouseholds)
+                    @if(count($allWaterIncident->affectedHouseholds) > 0)
+                        <table class="table table-striped my-2" id="waterAffectedHouseholdsTable">
+                            <tbody>
+                                @foreach($allWaterIncident->affectedHouseholds as $index => $household)
+ 
+                                    <tr data-water-household-id="{{ $household->id }}">
+                                        <td class="text-center">
+                                            {{$household->Household->english_name}}
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="btn deleteWaterAffectedHousehold" 
+                                            data-id="{{ $household->id }}">
+                                                <i class="fa fa-trash text-danger"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                @endif
+
+                @if($allWaterIncident && $allWaterIncident->WaterSystem)
+
+                    <h6>Add New Water Affected Households</h6>
+                    <table class="table table-bordered" id="addRemoveWaterAffectedHouseholds">
+                        <thead>
+                            <tr>
+                                <th>Water Affected Households</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <select name="water_affected_households_ids[]" class="selectpicker form-control" 
+                                        data-live-search="true" multiple>
+                                        <option disabled selected>Choose one...</option>
+                                        @foreach($waterAffectedHouseholds as $waterAffectedHousehold)
+                                            <option value="{{ $waterAffectedHousehold->id }}">
+                                                {{ $waterAffectedHousehold->english_name }} 
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                @endif
+
+
+                @if($allInternetIncident && $allInternetIncident->affectedHouseholds)
+                    @if(count($allInternetIncident->affectedHouseholds) > 0)
+                        <table class="table table-striped my-2" id="internetAffectedHouseholdsTable">
+                            <tbody>
+                                @foreach($allInternetIncident->affectedHouseholds as $index => $household)
+ 
+                                    <tr data-internet-household-id="{{ $household->id }}">
+                                        <td class="text-center">
+                                            {{$household->Household->english_name}}
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="btn deleteInternetAffectedHousehold" 
+                                            data-id="{{ $household->id }}">
+                                                <i class="fa fa-trash text-danger"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                @endif
+
+                @if($allInternetIncident && $allInternetIncident->Community)
+
+                    <h6>Add New Internet Affected Households</h6>
+                    <table class="table table-bordered" id="addRemoveInternetAffectedHouseholds">
+                        <thead>
+                            <tr>
+                                <th>Internet Affected Households</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <select name="internet_affected_households_ids[]" class="selectpicker form-control" 
+                                        data-live-search="true" multiple>
+                                        <option disabled selected>Choose one...</option>
+                                        @foreach($internetAffectedHouseholds as $internetAffectedHousehold)
+                                            <option value="{{ $internetAffectedHousehold->id }}">
+                                                {{ $internetAffectedHousehold->english_name }} 
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                @endif
+
+
+                <hr>
+                <div class="row" style="margin-top: 40px">
+                    <h5 class="text-primary">Affected Areas</h5>
+                </div>
+                @if($allInternetIncident && $allInternetIncident->affectedAreas)
+                    @if(count($allInternetIncident->affectedAreas) > 0)
+                        <table class="table table-striped my-2" id="internetAffectedAreasTable">
+                            <tbody>
+                                @foreach($allInternetIncident->affectedAreas as $index => $area)
+ 
+                                    <tr data-internet-area-id="{{ $area->id }}">
+                                        <td class="text-center">
+                                            {{$area->AffectedCommunity->english_name}}
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="btn deleteInternetAffectedAreas" 
+                                            data-id="{{ $area->id }}">
+                                                <i class="fa fa-trash text-danger"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                @endif
+
+                @if($allInternetIncident && $allInternetIncident->Community)
+
+                    <h6>Add New Internet Affected Areas</h6>
+                    <table class="table table-bordered" id="addRemoveInternetAffectedAreas">
+                        <thead>
+                            <tr>
+                                <th>Internet Affected Areas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <select name="internet_affected_areas_ids[]" class="selectpicker form-control" 
+                                        data-live-search="true" multiple>
+                                        <option disabled selected>Choose one...</option>
+                                        @foreach($internetAffectedAreas as $internetAffectedArea)
+                                            <option value="{{ $internetAffectedArea->id }}">
+                                                {{ $internetAffectedArea->english_name }} 
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                @endif
+
+
+                <hr>
+                <div class="row" style="margin-top: 40px">
                     <h5 class="text-info">Incident Photos</h5>
                 </div>
 
@@ -1401,6 +1614,172 @@
         });
     });
 
+
+    // delete energy afeected household
+    $('#energyAffectedHouseholdsTable').on('click', '.deleteEnergyAffectedHousehold',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this household?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteEnergyAffectedHousehold') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+
+    // delete water afeected household
+    $('#waterAffectedHouseholdsTable').on('click', '.deleteWaterAffectedHousehold',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this household?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteWaterAffectedHousehold') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+
+    // delete internet afeected household
+    $('#internetAffectedHouseholdsTable').on('click', '.deleteInternetAffectedHousehold',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this household?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetAffectedHousehold') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
+
+    // delete internet affected area
+    $('#internetAffectedAreasTable').on('click', '.deleteInternetAffectedAreas',function() {
+        var id = $(this).data('id');
+        var $ele = $(this).parent().parent();
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure you want to delete this Area?',
+            showDenyButton: true,
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('deleteInternetAffectedArea') }}",
+                    type: 'post',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        if(response.success == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.msg,
+                                showDenyButton: false,
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay!'
+                            }).then((result) => {
+                                $ele.fadeOut(1000, function () {
+                                    $ele.remove();
+                                });
+                            });
+                        } 
+                    }
+                });
+            } else if (result.isDenied) {
+                Swal.fire('Changes are not saved', '', 'info')
+            }
+        });
+    });
 
     // Energy USER/PUBLIC
     function initEnergyEquipmentDamagedHandler(equipmentData = []) {
