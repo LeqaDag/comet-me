@@ -1064,12 +1064,11 @@
                 @endif 
 
 
-                <hr>
-                <div class="row" style="margin-top: 40px">
-                    <h5 class="text-primary">Affected Households</h5>
-                </div>
-
-                @if($allEnergyIncident && $allEnergyIncident->affectedHouseholds)
+                @if($allEnergyIncident && $allEnergyIncident->EnergySystem && $allEnergyIncident->affectedHouseholds)
+                    <hr>
+                    <div class="row" style="margin-top: 40px">
+                        <h5 class="text-primary">Affected Households</h5>
+                    </div>
                     @if(count($allEnergyIncident->affectedHouseholds) > 0)
                         <table class="table table-striped my-2" id="energyAffectedHouseholdsTable">
                             <tbody>
@@ -1120,7 +1119,11 @@
                 @endif
 
 
-                @if($allWaterIncident && $allWaterIncident->affectedHouseholds)
+                @if($allWaterIncident && $allWaterIncident->WaterSystem && $allWaterIncident->affectedHouseholds)
+                    <hr>
+                    <div class="row" style="margin-top: 40px">
+                        <h5 class="text-primary">Affected Households</h5>
+                    </div>
                     @if(count($allWaterIncident->affectedHouseholds) > 0)
                         <table class="table table-striped my-2" id="waterAffectedHouseholdsTable">
                             <tbody>
@@ -1171,7 +1174,11 @@
                 @endif
 
 
-                @if($allInternetIncident && $allInternetIncident->affectedHouseholds)
+                @if($allInternetIncident && $allInternetIncident->Community && $allInternetIncident->affectedHouseholds)
+                    <hr>
+                    <div class="row" style="margin-top: 40px">
+                        <h5 class="text-primary">Affected Households</h5>
+                    </div>
                     @if(count($allInternetIncident->affectedHouseholds) > 0)
                         <table class="table table-striped my-2" id="internetAffectedHouseholdsTable">
                             <tbody>
@@ -1222,11 +1229,12 @@
                 @endif
 
 
-                <hr>
-                <div class="row" style="margin-top: 40px">
-                    <h5 class="text-primary">Affected Areas</h5>
-                </div>
-                @if($allInternetIncident && $allInternetIncident->affectedAreas)
+                
+                @if($allInternetIncident && $allInternetIncident->Community && $allInternetIncident->affectedAreas)
+                    <hr>
+                    <div class="row" style="margin-top: 40px">
+                        <h5 class="text-primary">Affected Areas</h5>
+                    </div>
                     @if(count($allInternetIncident->affectedAreas) > 0)
                         <table class="table table-striped my-2" id="internetAffectedAreasTable">
                             <tbody>

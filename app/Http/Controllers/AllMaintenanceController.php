@@ -56,7 +56,7 @@ class AllMaintenanceController extends Controller
                     ->join('communities', 'all_maintenance_tickets.community_id', 'communities.id')
                     ->join('maintenance_types', 'all_maintenance_tickets.maintenance_type_id', 'maintenance_types.id')
                     ->join('maintenance_statuses', 'all_maintenance_tickets.maintenance_status_id', 'maintenance_statuses.id')
-                    ->join('users', 'all_maintenance_tickets.assigned_to', 'users.id')
+                    ->leftJoin('users', 'all_maintenance_tickets.assigned_to', 'users.id')
                     ->where('all_maintenance_tickets.is_archived', 0) 
                     ->where('all_maintenance_tickets.is_duplicated', 0) 
                     ->leftJoin('households', 'all_maintenance_tickets.comet_id', 'households.comet_id')
@@ -107,13 +107,15 @@ class AllMaintenanceController extends Controller
 
                     $data->select(
                         'all_maintenance_tickets.id as id', 
-                        DB::raw('IFNULL(households.english_name, 
-                        IFNULL(public_structures.english_name, 
-                               IFNULL(energy_systems.name, 
-                                      IFNULL(energy_generator_communities.name, 
-                                             IFNULL(energy_turbine_communities.name, water_systems.name))))) 
-                         as agent_name'),
-        
+                        DB::raw('COALESCE(
+                            households.english_name,
+                            public_structures.english_name,
+                            energy_systems.name,
+                            energy_generator_communities.name,
+                            energy_turbine_communities.name,
+                            water_systems.name,
+                            communities.english_name
+                        ) AS agent_name'),
                         'service_types.service_name',
                         'all_maintenance_tickets.start_date', 
                         'all_maintenance_tickets.completed_date', 'all_maintenance_tickets.notes',

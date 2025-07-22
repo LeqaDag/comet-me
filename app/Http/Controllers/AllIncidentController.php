@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -97,6 +98,117 @@ use Excel;
 
 class AllIncidentController extends Controller
 {
+
+    public function getTickets()
+    {
+        // Fetch tickets from the API
+        $data = Http::get('https://cometme.org/api/tickets');
+        $ticketsData = json_decode($data, true);
+        $tickets = $ticketsData['tickets']; 
+
+        // Loop through each ticket
+        foreach ($tickets as $ticket) {
+
+            //This code is for incidents tickets
+            if($ticket['is_incident'] === 1) $this->handleIncidentStatuses($ticket);
+        }
+    }
+
+    private function checkResolutionStatus($resolutionId)
+    {
+        $issueTypes = [
+            'energy' => ['issues' => 'energy_issues', 'actions' => 'energy_actions', 'column' => 'energy_action_id'],
+            'refrigerator' => ['issues' => 'refrigerator_issues', 'actions' => 'refrigerator_actions', 'column' => 'refrigerator_action_id'],
+            'water' => ['issues' => 'water_issues', 'actions' => 'water_actions', 'column' => 'water_action_id'],
+            'internet' => ['issues' => 'internet_issues', 'actions' => 'internet_actions', 'column' => 'internet_action_id'],
+        ];
+
+        foreach ($issueTypes as $type) {
+
+            $result = DB::table('all_maintenance_ticket_actions')
+                ->leftJoin($type['issues'], "{$type['issues']}.comet_id", 'all_maintenance_ticket_actions.action_id')
+                ->leftJoin($type['actions'], "{$type['issues']}.{$type['column']}", "{$type['actions']}.id")
+                ->leftJoin('action_categories', 'action_categories.id', "{$type['actions']}.action_category_id")
+                ->where('all_maintenance_ticket_actions.action_id', $resolutionId)
+                ->select("{$type['actions']}.english_name as action_name")
+                ->first();
+
+            if ($result && isset($result->action_name)) {
+
+                return $this->getStatusFromActionName($result->action_name);
+            }
+        }
+
+        return 'unknown';
+    }
+
+
+    private function getStatusFromActionName($actionName)
+    {
+        $name = strtolower(trim(preg_replace('/\s+/', ' ', $actionName)));
+
+        if (str_contains($name, 'replace') || str_contains($name, 'replacement')) {
+            return 'Replaced';
+        }
+
+        if (str_contains($name, 'repair')) {
+            return 'Repaired';
+        }
+
+        return 'unchanged';
+
+    }
+
+
+    // Main function to handle incident statuses
+    private function handleIncidentStatuses($ticket)
+    {
+        if (!empty($ticket['resolution'])) {
+
+            $uniqueActions = array_unique($ticket['resolution']);
+
+            foreach ($uniqueActions as $actionId) {
+                $status = $this->checkResolutionStatus($actionId);
+
+                if (!empty($ticket["ticket_comet_id"])) {
+
+                    $incidentRecord = AllIncident::where("is_archived", 0)
+                        ->where("comet_id", $ticket["ticket_comet_id"])
+                        ->first();
+                        
+                    if ($incidentRecord) {
+                        $incidentOccurredStatus = AllIncidentOccurredStatus::where("all_incident_id", $incidentRecord->id)
+                            ->first();
+
+                        if ($incidentRecord->incident_id === 1 && $incidentOccurredStatus) {
+                            // Demolition
+                            $statusId = AllIncidentStatus::where("incident_id", $incidentRecord->incident_id)
+                                ->where(function ($query) {
+                                    $query->where("status", "New");
+                                        //->orWhere("status", "In Progress");
+                                })->first();
+
+                                
+                            if ($statusId && $incidentOccurredStatus->all_incident_status_id === $statusId->id && 
+                                $status !== 'unknown') {
+                                $newStatus = AllIncidentStatus::where("incident_id", $incidentRecord->incident_id)
+                                    ->where("status", $status)
+                                    ->first();
+
+                                if ($newStatus) {
+                                    $incidentOccurredStatus->all_incident_status_id = $newStatus->id;
+                                    $incidentOccurredStatus->save();
+                                }
+                            }
+
+                        } else if ($incidentRecord->incident_id === 2 && $incidentOccurredStatus) {
+                            // Settler (placeholder - you can implement logic here)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Display a listing of the resource.
@@ -544,6 +656,8 @@ class AllIncidentController extends Controller
 
         if (Auth::guard('user')->user() != null) {
 
+            $this->getTickets();
+
             if ($request->ajax()) {  
  
                 $data = DB::table('all_incidents')
@@ -799,7 +913,7 @@ class AllIncidentController extends Controller
                     $allIncidentId = $this->createBaseIncident($request, 1, 'energy_notes', 'energy');
 
                     $this->attachIncidentStatuses($request->energy_incident_status_ids ?? [], $allIncidentId);
-
+ 
                     // Energy Incidents
                     $newAllEnergyIncident = new AllEnergyIncident();
                     $newAllEnergyIncident->all_incident_id = $allIncidentId;
@@ -814,7 +928,7 @@ class AllIncidentController extends Controller
                         if($allEnergyMeter) {
 
                             $newAllEnergyIncident->all_energy_meter_id = $allEnergyMeter->id;
-                            $allEnergyMeter->meter_case_id = $meterCase->id;
+                            if($meterCase) $allEnergyMeter->meter_case_id = $meterCase->id;
                             $allEnergyMeter->save();
                         }
                     } else if ($request->energy_system_holder == "public") {

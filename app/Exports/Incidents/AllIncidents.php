@@ -99,7 +99,7 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle, ShouldAut
 
 
             ->select([
-                DB::raw('ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS row_number'),
+                DB::raw('ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS row_number'),
                 'all_incidents.date',
                 DB::raw("GROUP_CONCAT(DISTINCT COALESCE(energy_users.english_name, energy_publics.english_name, 
                     water_users.english_name, water_publics.english_name, 

@@ -79,6 +79,7 @@
         <div class="row">
             <div class="col-lg-6">
                 <ul class="list-unstyled">
+                    @if($allEnergyIncident->AllEnergyMeter->meter_number) 
                     <li class="d-flex justify-content-start align-items-center text-success mb-3">
                         <i class="bx bx-barcode bx-sm me-3"></i>
                         <div class="ps-3 border-start">
@@ -86,24 +87,6 @@
                             <h6 class="mb-0">{{$allEnergyIncident->AllEnergyMeter->meter_number}}</h6>
                         </div>
                     </li>
-                    <li class="d-flex justify-content-start align-items-center text-warning mb-3">
-                        <i class="bx bx-bulb bx-sm me-3"></i>
-                        <div class="ps-3 border-start">
-                            <small class="text-muted mb-1">Energy System</small>
-                            <h6 class="mb-0">{{$allEnergyIncident->AllEnergyMeter->EnergySystem->name}}</h6>
-                        </div>
-                    </li>
-                    <li class="d-flex justify-content-start align-items-center text-primary">
-                        <i class="bx bx-circle bx-sm me-3"></i>
-                        <div class="ps-3 border-start">
-                            <small class="text-muted mb-1">Installation Type</small>
-                            <h6 class="mb-0">{{$allEnergyIncident->AllEnergyMeter->InstallationType->type}}</h6>
-                        </div>
-                    </li>
-                </ul>
-            </div> 
-            <div class="col-lg-6">
-                <ul class="list-unstyled">
                     <li class="d-flex justify-content-start align-items-center text-info mb-3">
                         <i class="bx bx-calendar bx-sm me-3"></i>
                         <div class="ps-3 border-start">
@@ -118,6 +101,35 @@
                             @if($allEnergyIncident->AllEnergyMeter->meter_case_id)
                             <h6 class="mb-0">{{$allEnergyIncident->AllEnergyMeter->MeterCase->meter_case_name_english}}</h6>
                             @endif
+                        </div>
+                    </li>
+                    @else
+                    <li class="d-flex justify-content-start align-items-center text-info mb-3">
+                        <i class="bx bx-user bx-sm me-3"></i>
+                        <div class="ps-3 border-start">
+                            <small class="text-muted mb-1">Main Holder</small>
+                            <h6 class="mb-0">
+                                {{ $allEnergyIncident->AllEnergyMeter->sharedHouseholdLink->mainEnergyMeter->Household->english_name ?? 'N/A' }}
+                            </h6>
+                        </div>
+                    </li>
+                    @endif
+                </ul>
+            </div> 
+            <div class="col-lg-6">
+                <ul class="list-unstyled">
+                    <li class="d-flex justify-content-start align-items-center text-warning mb-3">
+                        <i class="bx bx-bulb bx-sm me-3"></i>
+                        <div class="ps-3 border-start">
+                            <small class="text-muted mb-1">Energy System</small>
+                            <h6 class="mb-0">{{$allEnergyIncident->AllEnergyMeter->EnergySystem->name}}</h6>
+                        </div>
+                    </li>
+                    <li class="d-flex justify-content-start align-items-center text-primary">
+                        <i class="bx bx-circle bx-sm me-3"></i>
+                        <div class="ps-3 border-start">
+                            <small class="text-muted mb-1">Installation Type</small>
+                            <h6 class="mb-0">{{$allEnergyIncident->AllEnergyMeter->InstallationType->type}}</h6>
                         </div>
                     </li>
                 </ul>

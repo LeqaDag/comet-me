@@ -15,7 +15,7 @@ class AllEnergyMeter extends Model
     {
         return $this->belongsTo(Community::class, 'community_id', 'id');
     }
-
+ 
     public function Household()
     {
         return $this->belongsTo(Household::class, 'household_id', 'id');
@@ -47,4 +47,10 @@ class AllEnergyMeter extends Model
     {
         return $this->belongsTo(EnergySystemCycle::class, 'energy_system_cycle_id', 'id');
     }
+
+    public function sharedHouseholdLink()
+    {
+        return $this->hasOne(HouseholdMeter::class, 'household_id', 'household_id');
+    }
+
 }

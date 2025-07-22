@@ -330,6 +330,23 @@
                         </a>
                     </li>
                 </ul>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="camera-additions">
+                        <a href="{{url('camera-additions')}}" class="menu-link" >
+                            <i class=""></i>
+                            <div>Additions</div>
+                        </a>
+                        
+                    </li>
+                </ul>
+                <ul class="menu-sub">
+                   <li class="menu-item" id="replacements">
+                        <a href="{{ url('replacements') }}" class="menu-link">
+                            <i class=""></i>
+                            <div>Replacements</div>
+                        </a>
+                    </li>
+                </ul>
                 @if(Auth::guard('user')->user()->user_type_id == 1 ||
                     Auth::guard('user')->user()->user_type_id == 6 ||
                     Auth::guard('user')->user()->user_type_id == 10)
@@ -592,49 +609,6 @@
                     <div>All Incidents</div>
                 </a>
             </li>
-            <li class="menu-item" id="mg-incident">
-                <a href="{{url('mg-incident')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>MG System</div>
-                </a>
-            </li>
-            <li class="menu-item" id="fbs-incident">
-                <a href="{{url('fbs-incident')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Energy Users</div>
-                </a>
-            </li>
-            <li class="menu-item" id="water-incident">
-                <a href="{{url('water-incident')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Water Holders</div>
-                </a>
-            </li>
-            <li class="menu-item" id="internet-incidents">
-                <a class="menu-link menu-toggle">
-                    <div>Internet Incidents</div>
-                </a>
-                <ul class="menu-sub">
-                    <li class="menu-item" id="incident-network">
-                        <a href="{{url('incident-network')}}" class="menu-link" >
-                            <i class=""></i>
-                            <div>Network</div>
-                        </a>
-                    </li>
-                    <li class="menu-item" id="incident-internet-user">
-                        <a href="{{url('incident-internet-user')}}" class="menu-link" >
-                            <i class=""></i>
-                            <div>Internet Users</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="menu-item" id="incident-camera">
-                <a href="{{url('incident-camera')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Cameras</div>
-                </a>
-            </li>
         </ul>
     </li>
 
@@ -894,7 +868,15 @@
         $("#shared-grid").addClass("active");
         $("#water-service").addClass("open");
         $("#services").addClass("open");
-    }  else if(last_part == "camera-component") {
+    }  else if(last_part == "camera-additions") {
+        $("#camera-additions").addClass("active");
+        $("#camera-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "replacements") {
+        $("#replacements").addClass("active");
+        $("#camera-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "camera-component") {
 
         $("#camera-component").addClass("active");
         $("#internet-service").addClass("open");
@@ -1085,5 +1067,11 @@
 
         $("#incident-camera").addClass("active");
         $("#incidents").addClass("open");
+    } else if(last_part == "camera-additions" || last_part == "replacements" || last_part == "camera-component") {
+        $("#camera-additions").addClass("active");
+        $("#replacements").addClass("active");
+        $("#camera-component").addClass("active");
+        $("#camera-service").addClass("open");
+        $("#services").addClass("open");
     }
 </script>

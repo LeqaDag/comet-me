@@ -68,20 +68,24 @@ class InternetSystemController extends Controller
                     ->join('internet_system_types', 'internet_system_community_types.internet_system_type_id', 
                         'internet_system_types.id')
                     ->where('internet_system_community_types.is_archived', 0)
-                    ->select('internet_system_types.name', 'internet_systems.start_year', 
+                    ->select(
+                         DB::raw("GROUP_CONCAT(DISTINCT COALESCE(internet_system_types.name) 
+                        SEPARATOR ', ') as name"),
+                        'internet_systems.start_year', 
                         'internet_system_types.upgrade_year', 'internet_systems.system_name',
                         'internet_systems.id as id',
                         'internet_system_communities.created_at as created_at', 
                         'internet_system_communities.updated_at as updated_at', 
                         'communities.english_name as community_name')
-                    ->latest(); 
+                    ->latest()
+                    ->groupBy('internet_system_communities.id'); 
     
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
-                        $viewButton = "<a type='button' class='viewInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-eye fa-lg text-info'></i></a>";
-                        $updateButton = "<a type='button' class='updateInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square fa-lg text-success'></i></a>";
-                        $deleteButton = "<a type='button' class='deleteInternetSystem' data-id='".$row->id."'><i class='fa-solid fa-trash fa-lg text-danger'></i></a>";
+                        $viewButton = "<a type='button' class='viewInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
+                        $updateButton = "<a type='button' class='updateInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteInternetSystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
                             Auth::guard('user')->user()->user_type_id == 2 ||

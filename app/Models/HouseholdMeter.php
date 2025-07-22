@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class HouseholdMeter extends Model
 {
     use HasFactory;
+
+    public function mainEnergyMeter()
+    {
+        return $this->belongsTo(AllEnergyMeter::class, 'energy_user_id');
+    }
 }
