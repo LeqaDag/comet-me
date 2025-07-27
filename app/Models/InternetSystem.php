@@ -134,4 +134,9 @@ class InternetSystem extends Model
             'id'                            // Local key on NetworkCabinetInternetSystem table
         );
     }
+
+    public function networkCabinetInternetSystems()
+    {
+        return $this->hasMany(NetworkCabinetInternetSystem::class);
+    }
 }

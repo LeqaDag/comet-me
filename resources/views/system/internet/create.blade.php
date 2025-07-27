@@ -51,7 +51,7 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Compound</label>
                             <select class="selectpicker form-control" name="compound_id" 
-                                data-live-search="true" id="compoundSelected" required>
+                                data-live-search="true" id="compoundSelected">
                             </select>
                         </fieldset>
                     </div> 

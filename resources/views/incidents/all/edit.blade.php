@@ -814,9 +814,22 @@
                                 @foreach($allInternetIncident->damagedSystemEquipments as $index => $equipment)
                                 @php
                                     $model = '';
-                                    $type = '';
+                                    $type = ''; 
                                     
-                                    if ($equipment->router) {
+                                    if ($equipment->networkCabinetComponent) {
+                    
+                                        $componentModel = $equipment->networkCabinetComponent->component->model 
+                                            ?? 'Unknown Model';
+                                        $componentType = class_basename($equipment->networkCabinetComponent->component_type 
+                                            ?? 'Unknown');
+                                        $cabinet = $equipment->networkCabinetComponent->networkCabinetInternetSystem->networkCabinet 
+                                            ?? null;
+
+                                        $cabinetModel = $cabinet->model ?? 'Unknown Cabinet';
+
+                                        $model = "{$cabinetModel} - {$componentModel} ";
+                                        $type = $componentType; 
+                                    } elseif ($equipment->router) {
 
                                         $model = $equipment->router->model->model ?? '-';
                                         $type = "Router";
@@ -948,13 +961,17 @@
                                         <option disabled selected>Choose one...</option>
                                         @foreach($internetSystemComponents as $systemComponent)
                                             <option value="{{ $systemComponent['component_internet_system_id'] }}"
-                                            data-cost="{{$systemComponent['cost']}}" data-type="{{$systemComponent['type']}}">
+                                            data-cost="{{$systemComponent['cost']}}" 
+                                            data-type="{{$systemComponent['type']}}"
+                                            data-cabinet-model="{{ $systemComponent['cabinet_model'] }}">
                                                 {{ $systemComponent['model_name'] }} - ({{ $systemComponent['type'] }})
                                             </option>
                                         @endforeach
                                     </select>
                                     <input type="hidden" name="internet_system_equipment_types[0][subject]" 
                                         class="internet-system-equipment-type-hidden" />
+                                    <input type="hidden" name="equipment_is_cabinet[0]" 
+                                        class="equipment-cabinet-hidden" />
                                 </td>
                                 <td>
                                     <input type="number" step="any" name="internet_system_equipment_damaged_units[0][subject]"
@@ -2031,6 +2048,7 @@
 
     // Internet USER/PUBLIC
     function initInternetEquipmentDamagedHandler(equipmentData = []) {
+
         let equipmentInternetDamagedIndex = 1;
         const equipmentInternetDamagedsData = equipmentData;
 
@@ -2564,15 +2582,18 @@
 
     // INTERNET SYSTEM
     function initInternetSystemEquipmentDamagedHandler(equipmentData = []) {
+
         let equipmentInternetSystemDamagedIndex = 1;
         const equipmentInternetSystemDamagedsData = equipmentData;
 
         $('#addRemoveInternetSystemEquipmentsDamagedButton').on('click', function () {
+
             let options = '<option disabled selected>Choose one...</option>';
             equipmentInternetSystemDamagedsData.forEach(t => {
 
                 options += `<option value="${t.component_internet_system_id}" data-cost="${t.cost}"
-                    data-type="${t.type}"> ${t.model_name} (${t.type}) </option>`;
+                    data-type="${t.type}" data-cabinet-model="${t.cabinet_model}"> 
+                    ${t.model_name} (${t.type}) </option>`;
 
             });
 
@@ -2585,6 +2606,8 @@
                         </select>
                         <input type="hidden" name="internet_system_equipment_types[${equipmentInternetSystemDamagedIndex}][subject]" 
                             class="internet-system-equipment-type-hidden" />
+                        <input type="hidden" name="equipment_is_cabinet[${equipmentInternetSystemDamagedIndex}]" 
+                            class="equipment-cabinet-hidden" />
                     </td>
                     <td>
                         <input type="number" step="any" name="internet_system_equipment_damaged_units[${equipmentInternetSystemDamagedIndex}][subject]"
@@ -2610,6 +2633,7 @@
             const selectedOption = $(this).find('option:selected');
             const cost = selectedOption.data('cost');
             const type = selectedOption.data('type');
+            const isCabinet = selectedOption.data('cabinet-model') ? '1' : '0';
 
             const row = $(this).closest('tr');
 
@@ -2622,6 +2646,7 @@
 
             // Set hidden type
             row.find('.internet-system-equipment-type-hidden').val(type);
+            row.find('.equipment-cabinet-hidden').val(isCabinet);
         });
 
         $(document).on('click', '.remove-input-row', function () {

@@ -199,14 +199,9 @@ class AllTicketsController extends Controller
             if($serviceType != null) {
 
                 // Update existing ticket
-                if($serviceType->service_name === "Camera") $existingTicket->comet_id = 0;
-                else $existingTicket->comet_id = $ticket["comet_id"];
-
+                $existingTicket->comet_id = $ticket["comet_id"];
                 $existingTicket->comet_id_from_uss = $ticket["ticket_comet_id"];
-
-                if($serviceType->service_name === "Camera") $existingTicket->meter_number = null;
-                else $existingTicket->meter_number = $ticket["meter_number"];
-
+                $existingTicket->meter_number = $ticket["meter_number"];
                 if($ticket["duplicated_ticket"] == null) $existingTicket->is_duplicated = 0;
                 else $existingTicket->is_duplicated = $ticket["duplicated_ticket"];
                 $existingTicket->service_type_id = $serviceType->id;
@@ -229,13 +224,9 @@ class AllTicketsController extends Controller
                 // Create new ticket
                 $newTicket = new AllMaintenanceTicket();
 
-                if($serviceType->service_name === "Camera") $newTicket->comet_id = 0;
-                else $newTicket->comet_id = $ticket["comet_id"];
-
+                $newTicket->comet_id = $ticket["comet_id"];
                 $newTicket->comet_id_from_uss = $ticket["ticket_comet_id"];
-
-                if($serviceType->service_name === "Camera") $newTicket->meter_number = null;
-                else $newTicket->meter_number = $ticket["meter_number"];
+                $newTicket->meter_number = $ticket["meter_number"];
 
                 if($ticket["duplicated_ticket"] == null) $newTicket->is_duplicated = 0;
                 else $newTicket->is_duplicated = $ticket["duplicated_ticket"];

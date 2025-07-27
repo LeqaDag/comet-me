@@ -28,7 +28,14 @@
 @elseif($allInternetIncident)
 
     @if($allInternetIncident->community_id)
-        {{ optional($allInternetIncident->Community)->english_name }}
+
+        @if($allInternetIncident->InternetSystemCommunity->Compound)
+        
+            {{$allInternetIncident->InternetSystemCommunity->Compound->english_name}}
+        @else 
+
+            {{ optional($allInternetIncident->Community)->english_name }}
+        @endif
     
     @elseif($allInternetIncident->internet_user_id)
         @if($allInternetIncident->InternetUser->household_id)

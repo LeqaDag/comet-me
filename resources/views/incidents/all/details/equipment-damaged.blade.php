@@ -246,9 +246,18 @@
                 @foreach($allInternetIncident->damagedSystemEquipments as $equipment)
 
                     @php
-                        $model = '';
+                        $model = '-';
 
-                        if ($equipment->router) {
+                        if ($equipment->networkCabinetComponent) {
+                    
+                            $componentModel = $equipment->networkCabinetComponent->component->model ?? 'Unknown Model';
+                            $componentType = class_basename($equipment->networkCabinetComponent->component_type ?? 'Unknown');
+                            $cabinet = $equipment->networkCabinetComponent->networkCabinetInternetSystem->networkCabinet ?? null;
+
+                            $cabinetModel = $cabinet->model ?? 'Unknown Cabinet';
+
+                            $model = "{$cabinetModel} - {$componentModel} ({$componentType})";
+                        } elseif ($equipment->router) {
 
                             $model = $equipment->router->model->model ?? '-';
                         } elseif ($equipment->switch) {
@@ -279,10 +288,10 @@
                     @endphp
                     <ul>
                         <li class="text-muted">
-                            {{$model}} 
+                            {{ $model }} 
                             @if($equipment->count)
-                            <span> ( {{$equipment->count}}</span> )
-                            <span>{{$equipment->cost}} ₪</span>
+                                <span> ( {{ $equipment->count }} )</span>
+                                <span>{{ $equipment->cost }} ₪</span>
                             @endif
                         </li>
                     </ul>

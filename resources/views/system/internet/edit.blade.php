@@ -505,7 +505,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>
+                            <td> 
                                 <select name="ptp_ids[]" class="selectpicker form-control" data-live-search="true">
                                     <option disabled selected>Choose one...</option>
                                     @foreach($ptps as $ptp)

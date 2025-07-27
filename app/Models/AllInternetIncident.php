@@ -19,7 +19,7 @@ class AllInternetIncident extends Model
         return $this->belongsTo(Community::class, 'community_id', 'id');
     }
 
-    public function InternetSystemCommunity()
+    public function InternetSystemCommunity() 
     {
         return $this->hasOne(InternetSystemCommunity::class, 'community_id', 'community_id');
     }

@@ -1412,10 +1412,11 @@
 
             if(agent === "system") {
 
-                for (const item of equipmentList) {
+                for (const item of equipmentList) { 
 
                     options += `<option value="${item.component_internet_system_id}" data-cost="${item.cost}"
-                        data-type="${item.type}"> ${item.model_name} (${item.type}) </option>`;
+                        data-type="${item.type}" data-is-cabinet="${item.cabinet_model}"
+                        > ${item.model_name} (${item.type}) </option>`;
                 }
 
                 const newRow = `
@@ -1425,6 +1426,8 @@
                                 ${options}
                             </select>
                             <input type="hidden" name="equipment_type[${internetRowIndex}]" class="equipment-type-hidden" />
+                            <input type="hidden" name="equipment_is_cabinet[${internetRowIndex}]" 
+                                class="equipment-cabinet-hidden" />
                         </td>
                         <td>
                             <input type="text" step="any" name="addMoreInputFieldsInternetUnit[${internetRowIndex}][subject]" 
@@ -1446,8 +1449,16 @@
             } else {
 
                 for (const item of equipmentList) {
-                    options += `<option value="${item.id}">
-                        ${item.name}</option>`;
+
+                    const isCabinet = item.cabinet_model !== null;
+
+                    options += `<option 
+                        value="${item.component_internet_system_id}" 
+                        data-cost="${item.cost}" 
+                        data-type="${item.type}" 
+                        data-is-cabinet="${isCabinet ? 1 : 0}">
+                        ${item.model_name} (${item.type})
+                    </option>`;
                 }
 
                 const newRow = `
@@ -1482,6 +1493,7 @@
             const selectedOption = $(this).find('option:selected');
             const cost = selectedOption.data('cost');
             const type = selectedOption.data('type');
+            const isCabinet = selectedOption.data('is-cabinet');
 
             const row = $(this).closest('tr');
 
@@ -1493,7 +1505,8 @@
             }
 
             // Set hidden type
-            type = row.find('.equipment-type-hidden').val(type);
+            row.find('.equipment-type-hidden').val(type);
+            row.find('.equipment-cabinet-hidden').val(isCabinet);
         });
 
 
@@ -1627,7 +1640,7 @@
             $('#dynamicAddRemoveCameraEquipment tbody').append(newRow);
             $('.selectpicker').selectpicker('refresh');
 
-            y++;
+            y++; 
         });
         $(document).on('click', '.remove-input-camera-target-points', function () {
 

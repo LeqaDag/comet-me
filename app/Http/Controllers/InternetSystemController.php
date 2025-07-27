@@ -608,11 +608,11 @@ class InternetSystemController extends Controller
         }
 
         // PTP
-        if ($request->ptp_id) {
-            for ($pt = 0; $pt < count($request->ptp_id); $pt++) {
+        if ($request->ptp_ids) {
+            for ($pt = 0; $pt < count($request->ptp_ids); $pt++) {
 
                 $internetPtp = new PtpInternetSystem();
-                $internetPtp->internet_ptp_id = $request->ptp_id[$pt];
+                $internetPtp->internet_ptp_id = $request->ptp_ids[$pt];
                 $internetPtp->internet_system_id = $id;
                 $internetPtp->ptp_units = $request->input("ptp_units.$pt.subject") ?? 0;
                 $internetPtp->ptp_costs = $request->input("ptp_costs.$pt.subject") ?? 0;

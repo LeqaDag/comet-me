@@ -902,7 +902,7 @@ class AllIncidentController extends Controller
      */
     public function store(Request $request)
     {     
-        //dd($request->all());
+        //dd($request->all()); 
 
         if($request->service_type_ids) {
 
@@ -1267,7 +1267,7 @@ class AllIncidentController extends Controller
                         if($internetUser) $newAllInternetIncident->internet_user_id = $internetUser->id;
                     } else if ($request->internet_system_holder == "public") {
 
-                        $internetUser = InternetUser::where("is_archived", 0)
+                        $internetUser = InternetUser::where("is_archived", 0) 
                             ->where("public_structure_id", $request->internet_holder_system)
                             ->first();
 
@@ -1285,11 +1285,14 @@ class AllIncidentController extends Controller
 
                             $equipmentIds = array_values($request->internet_equipment);
                             $equipmentTypes = array_values($request->equipment_type);
+                            $equipmentCabinetFlags = array_values($request->equipment_is_cabinet);
     
+                           // dd($equipmentCabinetFlags);
                             for ($eq = 0; $eq < count($equipmentIds); $eq++) {
                         
                                 $equipmentId = $equipmentIds[$eq];
                                 $equipmentType = $equipmentTypes[$eq];
+                                $isCabinet = $equipmentCabinetFlags[$eq];
                         
                                 $internetEquipment = new AllInternetIncidentSystemDamagedEquipment();
                                 $internetEquipment->all_internet_incident_id = $newAllInternetIncident->id;
@@ -1297,47 +1300,53 @@ class AllIncidentController extends Controller
                                 $internetEquipment->cost = $request->input("addMoreInputFieldsInternetCost.$eq.subject");
                         
                                 // Set the correct foreign key based on the equipment type
-                                switch ($equipmentType) {
-                                    case "Router":
-                                        $internetEquipment->router_internet_system_id = $equipmentId;
-                                        break;
-                        
-                                    case "Switche":
-                                        $internetEquipment->switch_internet_system_id = $equipmentId;
-                                        break;
-                        
-                                    case "InternetController":
-                                        $internetEquipment->controller_internet_system_id = $equipmentId;
-                                        break;
-                        
-                                    case "InternetPtp":
-                                        $internetEquipment->ptp_internet_system_id = $equipmentId;
-                                        break;
-                        
-                                    case "InternetAp":
-                                        $internetEquipment->ap_internet_system_id = $equipmentId;
-                                        break;
-                        
-                                    case "InternetApLite":
-                                        $internetEquipment->ap_lite_internet_system_id = $equipmentId;
-                                        break;
-                        
-                                    case "InternetUisp":
-                                        $internetEquipment->uisp_internet_system_id = $equipmentId;
-                                        break;
-                        
-                                    case "InternetConnector":
-                                        $internetEquipment->connector_internet_system_id = $equipmentId;
-                                        break;
-                        
-                                    case "InternetElectrician":
-                                        $internetEquipment->electrician_internet_system_id = $equipmentId;
-                                        break;
-                                        
-                                    default:
-                                        break;
+                                if ($isCabinet) {
+
+                                    $internetEquipment->network_cabinet_component_id = $equipmentId;
+                                } else {
+
+                                    switch ($equipmentType) {
+
+                                        case "Router":
+                                            $internetEquipment->router_internet_system_id = $equipmentId;
+                                            break;
+                            
+                                        case "Switche":
+                                            $internetEquipment->switch_internet_system_id = $equipmentId;
+                                            break;
+                            
+                                        case "InternetController":
+                                            $internetEquipment->controller_internet_system_id = $equipmentId;
+                                            break;
+                            
+                                        case "InternetPtp":
+                                            $internetEquipment->ptp_internet_system_id = $equipmentId;
+                                            break;
+                            
+                                        case "InternetAp":
+                                            $internetEquipment->ap_internet_system_id = $equipmentId;
+                                            break;
+                            
+                                        case "InternetApLite":
+                                            $internetEquipment->ap_lite_internet_system_id = $equipmentId;
+                                            break;
+                            
+                                        case "InternetUisp":
+                                            $internetEquipment->uisp_internet_system_id = $equipmentId;
+                                            break;
+                            
+                                        case "InternetConnector":
+                                            $internetEquipment->connector_internet_system_id = $equipmentId;
+                                            break;
+                            
+                                        case "InternetElectrician":
+                                            $internetEquipment->electrician_internet_system_id = $equipmentId;
+                                            break;
+                                            
+                                        default:
+                                            break;
+                                    }
                                 }
-                        
                                 $internetEquipment->save();
                             }
                         }
@@ -2051,11 +2060,13 @@ class AllIncidentController extends Controller
 
             $equipmentIds = array_values($request->internet_system_equipment_damaged_ids);
             $equipmentTypes = array_values($request->internet_system_equipment_types);
+            $equipmentCabinetFlags = array_values($request->equipment_is_cabinet);
 
             for ($eq = 0; $eq < count($equipmentIds); $eq++) {
 
                 $equipmentId = $equipmentIds[$eq];
                 $equipmentType = $equipmentTypes[$eq]['subject'] ?? null;
+                $isCabinet = $equipmentCabinetFlags[$eq] ?? '0';
 
                 $count = $request->input("internet_system_equipment_damaged_units.$eq.subject");
                 $cost = $request->input("internet_system_equipment_damaged_costs.$eq.subject");
@@ -2069,46 +2080,51 @@ class AllIncidentController extends Controller
                 $internetEquipment->count = $count;
                 $internetEquipment->cost = $cost;
 
-                switch ($equipmentType) {
-                    case "Router":
-                        $internetEquipment->router_internet_system_id = $equipmentId;
-                        break;
-        
-                    case "Switche":
-                        $internetEquipment->switch_internet_system_id = $equipmentId;
-                        break;
-        
-                    case "InternetController":
-                        $internetEquipment->controller_internet_system_id = $equipmentId;
-                        break;
-        
-                    case "InternetPtp":
-                        $internetEquipment->ptp_internet_system_id = $equipmentId;
-                        break;
-        
-                    case "InternetAp":
-                        $internetEquipment->ap_internet_system_id = $equipmentId;
-                        break;
-        
-                    case "InternetApLite":
-                        $internetEquipment->ap_lite_internet_system_id = $equipmentId;
-                        break;
-        
-                    case "InternetUisp":
-                        $internetEquipment->uisp_internet_system_id = $equipmentId;
-                        break;
-        
-                    case "InternetConnector":
-                        $internetEquipment->connector_internet_system_id = $equipmentId;
-                        break;
-        
-                    case "InternetElectrician":
-                        $internetEquipment->electrician_internet_system_id = $equipmentId;
-                        break;
-                    default:
-                        continue 2;
-                }
+                if ($isCabinet == 1) {
 
+                    $internetEquipment->network_cabinet_component_id = $equipmentId;
+                } else {
+
+                    switch ($equipmentType) {
+                        case "Router":
+                            $internetEquipment->router_internet_system_id = $equipmentId;
+                            break;
+            
+                        case "Switche":
+                            $internetEquipment->switch_internet_system_id = $equipmentId;
+                            break;
+            
+                        case "InternetController":
+                            $internetEquipment->controller_internet_system_id = $equipmentId;
+                            break;
+            
+                        case "InternetPtp":
+                            $internetEquipment->ptp_internet_system_id = $equipmentId;
+                            break;
+            
+                        case "InternetAp":
+                            $internetEquipment->ap_internet_system_id = $equipmentId;
+                            break;
+            
+                        case "InternetApLite":
+                            $internetEquipment->ap_lite_internet_system_id = $equipmentId;
+                            break;
+            
+                        case "InternetUisp":
+                            $internetEquipment->uisp_internet_system_id = $equipmentId;
+                            break;
+            
+                        case "InternetConnector":
+                            $internetEquipment->connector_internet_system_id = $equipmentId;
+                            break;
+            
+                        case "InternetElectrician":
+                            $internetEquipment->electrician_internet_system_id = $equipmentId;
+                            break;
+                        default:
+                            continue 2;
+                    }
+                }
                 $internetEquipment->save();
             }
         }
@@ -2277,7 +2293,8 @@ class AllIncidentController extends Controller
             'switches',
             'controllers',
             'connectors',
-            'electricians'
+            'electricians',
+            'networkCabinetInternetSystems.networkCabinet.components.component', // eager load polymorphic components
         ])->find($systemId);
 
         if (!$system) {
@@ -2298,6 +2315,7 @@ class AllIncidentController extends Controller
 
         $components = collect();
 
+        // Regular internet components
         foreach ($componentSources as $source) {
             $components = $components->merge(
                 $source['relation']->map(function ($component) use ($source) {
@@ -2306,13 +2324,43 @@ class AllIncidentController extends Controller
                         'model_name' => $component->model ?? 'Unnamed Component',
                         'type'       => $source['type'],
                         'cost'       => $component->pivot->{$source['pivotCostField']} ?? null,
+                        'unit'       => null,
+                        'cabinet_model' => null,
+                        'cabinet_brand' => null,
+                        'cabinet_cost'  => null,
                     ];
                 })
             );
         }
 
+        // Cabinet-based components
+        foreach ($system->networkCabinetInternetSystems as $cabinetSystem) {
+
+            $cabinet = $cabinetSystem->networkCabinet;
+
+            //die($cabinet);
+            foreach ($cabinet->components as $cabinetComponent) {
+                $componentModel = $cabinetComponent->component;
+                $componentName = $componentModel->model ?? 'Unnamed';
+                $componentType = class_basename($cabinetComponent->component_type); // e.g., "Router"
+                $fullName = "{$cabinet->model} - {$componentName} ";
+
+                $components->push([
+                    'component_internet_system_id' => $cabinetComponent->id,
+                    'model_name' => $fullName,
+                    'type'       => $componentType,
+                    'cost'       => $cabinetComponent->cost,
+                    'unit'       => $cabinetComponent->unit ?? null,
+                    'cabinet_model' => $cabinet->model,
+                    'cabinet_brand' => $cabinet->brand,
+                    'cabinet_cost'  => $cabinetSystem->cost,
+                ]);
+            }
+        }
+
         return $components->values();
     }
+
 
 
     /**

@@ -53,4 +53,9 @@ class AllInternetIncidentSystemDamagedEquipment extends Model
     {
         return $this->belongsTo(ElectricianInternetSystem::class, 'electrician_internet_system_id');
     }
+
+    public function networkCabinetComponent()
+    {
+        return $this->belongsTo(NetworkCabinetComponent::class, 'network_cabinet_component_id');
+    }
 }
