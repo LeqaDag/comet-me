@@ -182,9 +182,9 @@ class AllEnergyMeterController extends Controller
             ->leftJoin('young_holders', 'young_holders.household_id', 'households.id')
             ->leftJoin('compound_households', 'households.id', 'compound_households.household_id')
             ->leftJoin('compounds', 'compound_households.compound_id', 'compounds.id')
-            ->leftJoin('refrigerator_holders', 'households.id', 'refrigerator_holders.household_id')                       
-            ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
-                'refrigerator_holder_receive_numbers.refrigerator_holder_id')
+            // ->leftJoin('refrigerator_holders', 'households.id', 'refrigerator_holders.household_id')                       
+            // ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
+            //     'refrigerator_holder_receive_numbers.refrigerator_holder_id')
             ->where('households.is_archived', 0)
             ->select(
                 'communities.english_name as english_community_name',
@@ -212,10 +212,11 @@ class AllEnergyMeterController extends Controller
                 'main_users.english_name as main_holder',
                 'all_energy_meters.daily_limit',
                 'households.is_surveyed', 'households.last_surveyed_date',
-                DB::raw("CASE WHEN refrigerator_holder_receive_numbers.receive_number IS NOT NULL THEN 'Yes'
-                    ELSE 'No' END AS refrigerator_status"),
+                // DB::raw("CASE WHEN refrigerator_holder_receive_numbers.receive_number IS NOT NULL THEN 'Yes'
+                //     ELSE 'No' END AS refrigerator_status"),
             )
             ->distinct()
+            ->groupBy('households.id')
             ->get();
 
         $publics = DB::table('public_structures')
@@ -234,9 +235,9 @@ class AllEnergyMeterController extends Controller
             ->leftJoin('all_energy_meters as main_energy', 'main_energy.id', 'household_meters.energy_user_id')
             ->leftJoin('households as main_users', 'main_energy.household_id', 'main_users.id')
             ->leftJoin('public_structures as main_public', 'main_energy.public_structure_id', 'main_public.id')
-            ->leftJoin('refrigerator_holders', 'public_structures.id', 'refrigerator_holders.public_structure_id')                       
-            ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
-                'refrigerator_holder_receive_numbers.refrigerator_holder_id')
+            // ->leftJoin('refrigerator_holders', 'public_structures.id', 'refrigerator_holders.public_structure_id')                       
+            // ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
+            //     'refrigerator_holder_receive_numbers.refrigerator_holder_id')
             ->where('public_structures.is_archived', 0)
             ->select(
                 'communities.english_name as english_community_name',
@@ -266,8 +267,8 @@ class AllEnergyMeterController extends Controller
                     as main_holder'),
                 'all_energy_meters.daily_limit',
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
-                DB::raw("CASE WHEN refrigerator_holder_receive_numbers.receive_number IS NOT NULL THEN 'Yes'
-                    ELSE 'No' END AS refrigerator_status"),
+                // DB::raw("CASE WHEN refrigerator_holder_receive_numbers.receive_number IS NOT NULL THEN 'Yes'
+                //     ELSE 'No' END AS refrigerator_status"),
             )
             ->distinct()
             ->get();
@@ -297,7 +298,7 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'), 
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
-                DB::raw('false as refrigerator_status'),
+                // DB::raw('false as refrigerator_status'),
             )
             ->get();
 
@@ -326,7 +327,7 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'),
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
-                DB::raw('false as refrigerator_status'),
+                // DB::raw('false as refrigerator_status'),
             )
             ->get();
 
@@ -356,7 +357,7 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'),
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
-                DB::raw('false as refrigerator_status'),
+                // DB::raw('false as refrigerator_status'),
 
             )
             ->get();
@@ -386,7 +387,7 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'),
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
-                DB::raw('false as refrigerator_status'),
+                // DB::raw('false as refrigerator_status'),
             )
             ->get();
 
@@ -414,7 +415,7 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'),
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
-                DB::raw('false as refrigerator_status'),
+                // DB::raw('false as refrigerator_status'),
             )
             ->get();
 

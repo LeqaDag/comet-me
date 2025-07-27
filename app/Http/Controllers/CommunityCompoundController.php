@@ -310,7 +310,7 @@ class CommunityCompoundController extends Controller
                 $htmlEnergySystems .= '<option value="'.$energySystem->id.'">'.$energySystem->name.'</option>';
             }
         }
-
+ 
         return response()->json([
             'htmlHouseholds' => $htmlHouseholds,
             'htmlCompounds' => $htmlCompounds,

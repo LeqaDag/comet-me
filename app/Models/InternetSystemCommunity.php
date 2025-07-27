@@ -10,7 +10,7 @@ class InternetSystemCommunity extends Model
     use HasFactory;
 
     public function InternetSystem()
-    {
+    { 
         return $this->belongsTo(InternetSystem::class, 'internet_system_id', 'id');
     }
 }

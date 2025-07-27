@@ -9,9 +9,38 @@ class InternetSystem extends Model
 {
     use HasFactory;
 
+    public function communityLink()
+    {
+        return $this->hasOne(InternetSystemCommunity::class, 'internet_system_id');
+    }
+
     public function Community()
     {
-        return $this->belongsTo(Community::class, 'community_id', 'id');
+        return $this->hasOneThrough(
+            Community::class,
+            InternetSystemCommunity::class,
+            'internet_system_id', 
+            'id', 
+            'id',                 
+            'community_id'      
+        );
+    }
+
+    public function Compound()
+    {
+        return $this->hasOneThrough(
+            Compound::class,
+            InternetSystemCommunity::class,
+            'internet_system_id', 
+            'id', 
+            'id',                 
+            'compound_id'      
+        );
+    }
+
+    public function InternetSystemCommunity()
+    {
+        return $this->belongsTo(InternetSystemCommunity::class, 'internet_system_id', 'id');
     }
 
     public function routers() 
@@ -84,5 +113,25 @@ class InternetSystem extends Model
             InternetElectrician::class, 
             'electrician_internet_systems', 'internet_system_id', 'internet_electrician_id')
         ->withPivot('id', 'electrician_costs');
+    }
+
+
+    public function networkCabinets()
+    {
+        return $this->belongsToMany(NetworkCabinet::class, 'network_cabinet_internet_systems')
+            ->withPivot('id', 'cost') 
+            ->withTimestamps();
+    }
+
+    public function components()
+    {
+        return $this->hasManyThrough(
+            NetworkCabinetComponent::class,
+            NetworkCabinetInternetSystem::class,
+            'internet_system_id',            // Foreign key on NetworkCabinetInternetSystem table
+            'network_cabinet_internet_system_id', // Foreign key on NetworkCabinetComponent table
+            'id',                           // Local key on InternetSystem table
+            'id'                            // Local key on NetworkCabinetInternetSystem table
+        );
     }
 }

@@ -36,6 +36,15 @@ use App\Models\UispInternetSystem;
 use App\Models\LineOfSight;
 use App\Models\InternetElectrician;
 use App\Models\InternetConnector;
+use App\Models\CameraShelve; 
+use App\Models\NetworkCabinet; 
+use App\Models\AirPatchPanel; 
+use App\Models\PatchPanel; 
+use App\Models\PatchCord; 
+use App\Models\PowerDistributor; 
+use App\Models\Keystone; 
+use App\Models\NetworkCabinetInternetSystem;
+use App\Models\NetworkCabinetComponent;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -166,8 +175,220 @@ class InternetComponentController extends Controller
             }
         }
 
+        // NetwrokCabinet
+        if($request->cabinet_models[0]["subject"] != null) {
+            for($i=0; $i < count($request->cabinet_models); $i++) {
+
+                $newCabinet = new NetworkCabinet();
+                $newCabinet->model = $request->cabinet_models[$i]["subject"];
+                $newCabinet->brand = $request->cabinet_brands[$i]["subject"] ?? null;
+                $newCabinet->save();
+            }
+        }
+
+        // PatchPanel
+        if($request->patchpanel_models[0]["subject"] != null) {
+            for($i=0; $i < count($request->patchpanel_models); $i++) {
+
+                $patchPanel = new PatchPanel();
+                $patchPanel->model = $request->patchpanel_models[$i]["subject"];
+                $patchPanel->brand = $request->patchpanel_brands[$i]["subject"] ?? null;
+                $patchPanel->save();
+            }
+        }
+
+        // AirPatchPanel
+        if($request->airpatchpanel_models[0]["subject"] != null) {
+            for($air=0; $air < count($request->airpatchpanel_models); $air++) {
+
+                $airPatchPanel = new AirPatchPanel();
+                $airPatchPanel->model = $request->airpatchpanel_models[$air]["subject"];
+                $airPatchPanel->brand = $request->airpatchpanel_brands[$air]["subject"] ?? null;
+                $airPatchPanel->save();
+            }
+        }
+
+        // CameraShelve
+        if($request->camerashelve_models[0]["subject"] != null) {
+            for($cmrsh=0; $cmrsh < count($request->camerashelve_models); $cmrsh++) {
+
+                $cameraShelve = new CameraShelve();
+                $cameraShelve->model = $request->camerashelve_models[$cmrsh]["subject"];
+                $cameraShelve->brand = $request->camerashelve_brands[$cmrsh]["subject"] ?? null;
+                $cameraShelve->save();
+            }
+        }
+
+        // PatchCord
+        if($request->patchcord_models[0]["subject"] != null) {
+            for($ptchc=0; $ptchc < count($request->patchcord_models); $ptchc++) {
+
+                $patchCord = new PatchCord();
+                $patchCord->model = $request->patchcord_models[$ptchc]["subject"];
+                $patchCord->brand = $request->patchcord_brands[$ptchc]["subject"] ?? null;
+                $patchCord->save();
+            }
+        }
+
+        // Keystone
+        if($request->keystone_models[0]["subject"] != null) {
+            for($kst=0; $kst < count($request->keystone_models); $kst++) {
+
+                $keystone = new Keystone();
+                $keystone->model = $request->keystone_models[$kst]["subject"];
+                $keystone->brand = $request->keystone_brands[$kst]["subject"] ?? null;
+                $keystone->save();
+            }
+        }
+
+        // PowerDistributor
+        if($request->powerdistributor_models[0]["subject"] != null) {
+            for($pwod=0; $pwod < count($request->powerdistributor_models); $pwod++) {
+
+                $powerDistributor = new PowerDistributor();
+                $powerDistributor->model = $request->powerdistributor_models[$pwod]["subject"];
+                $powerDistributor->brand = $request->powerdistributor_brands[$pwod]["subject"] ?? null;
+                $powerDistributor->save();
+            }
+        }
 
         return redirect('/internet-system')
             ->with('message', 'New Internet Components Added Successfully!');
     }
+
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function storeComponents(Request $request)
+    {
+        if ($request->has('components')) {
+
+            foreach ($request->input('components') as $cabinetId => $componentTypes) {
+
+                foreach ($componentTypes as $componentType => $components) {
+
+                    foreach ($components as $index => $newComponent) {
+
+                        $component = new NetworkCabinetComponent();
+
+                        $component->network_cabinet_internet_system_id = $cabinetId;
+                        $component->component_type = $componentType;
+                        $component->component_id = $newComponent['component_id'] ?? null;
+                        $component->unit = $newComponent['unit'] ?? 0;
+                        $component->cost = $newComponent['cost'] ?? 0;
+                        $component->save();
+                    }
+                }
+            }
+        }
+
+        return redirect('/internet-system')->with('message', 'Components updated and/or added successfully.');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request, $id
+     * @return \Illuminate\Http\Response
+     */
+    public function storeNetworkCabinet(Request $request, $internetSystemId)
+    {
+        $internetSystem = InternetSystem::findOrFail($internetSystemId);
+
+        if($request->new_cabinets) {
+
+            foreach ($request->new_cabinets as $cabinetData) {
+
+                $cabinetId = $cabinetData['cabinet_id'];
+
+                // Prevent duplicate insert
+                $alreadyLinked = DB::table('network_cabinet_internet_systems')
+                    ->where('internet_system_id', $internetSystemId)
+                    ->where('network_cabinet_id', $cabinetId)
+                    ->exists();
+
+                if (!$alreadyLinked) {
+                    DB::table('network_cabinet_internet_systems')->insert([
+                        'internet_system_id' => $internetSystemId,
+                        'network_cabinet_id' => $cabinetId,
+                        'cost' => $cabinetData['cost']
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'success' => 1,
+                'msg' => 'Cabinets added successfully.',
+            ]);
+        }
+    }
+
+    // This function is to update cabinet cost
+    public function updateNetworkCabinetCost(Request $request,)
+    {
+        $networkCabinet = NetworkCabinetInternetSystem::where("internet_system_id", $request->internet_system_id)
+            ->where("network_cabinet_id", $request->cabinet_id)
+            ->first();
+            
+        if($networkCabinet) {
+
+            $networkCabinet->cost = $request->cost;
+            $networkCabinet->save();
+
+            return response()->json(['success' => true]);
+        } else {
+
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Delete internet system Electrician.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $component = NetworkCabinetComponent::findOrFail($id);
+
+        if (!$component) {
+
+            return response()->json(['success' => false, 'msg' => 'Component not found.']);
+        }
+
+        $component->delete();
+
+        return response()->json(['success' => true, 'msg' => 'Component deleted successfully.']);
+    }
+
+    /**
+     * Delete internet system Cabinet.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteInternetSystemCabinet($internetSystemId, $cabinetId)
+    {
+        $networkCabinetInternetSystem = NetworkCabinetInternetSystem::where("internet_system_id", $internetSystemId)
+            ->where("network_cabinet_id", $cabinetId)
+            ->first();
+ 
+        if($networkCabinetInternetSystem->delete()) {
+
+            $response['success'] = 1;
+            $response['msg'] = 'Internet Cabinet Deleted successfully'; 
+        } else {
+
+            $response['success'] = 0;
+            $response['msg'] = 'Invalid ID.';
+        }
+
+        return response()->json($response); 
+    }
+
 }

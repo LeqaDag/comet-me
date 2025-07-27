@@ -32,25 +32,25 @@
                     <h6>General Details</h6> 
                 </div>
                 <div class="row">
-                    <div class="col-xl-3 col-lg-3 col-md-3 mb-1">
+                    <div class="col-xl-8 col-lg-8 col-md-8 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Name</label>
                             <input type="text" name="system_name" 
                             class="form-control" value="{{$internetSystem->system_name}}">
                         </fieldset>
                     </div>
-                    <div class="col-xl-3 col-lg-3 col-md-3 mb-1">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Start Year</label>
                             <input type="number" name="start_year" 
                             class="form-control" value="{{$internetSystem->start_year}}">
                         </fieldset>
                     </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Notes</label>
                             <textarea name="notes" class="form-control" 
-                                style="resize:none" cols="20" rows="1">
+                                style="resize:none" cols="20" rows="2">
                                 {{$internetSystem->notes}}
                             </textarea>
                         </fieldset>
@@ -656,7 +656,6 @@
                 </table>
 
 
-
                 <hr class="mt-4">
                 <h5>Connectors</h5>
 
@@ -722,7 +721,7 @@
                         </tr>
                     </tbody>
                 </table>
-
+ 
                 <div class="row" style="margin-top:20px">
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <button type="submit" class="btn btn-primary">

@@ -99,7 +99,7 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle, ShouldAut
 
 
             ->select([
-                DB::raw('ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS row_number'),
+             
                 'all_incidents.date',
                 DB::raw("GROUP_CONCAT(DISTINCT COALESCE(energy_users.english_name, energy_publics.english_name, 
                     water_users.english_name, water_publics.english_name, 
@@ -218,7 +218,7 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle, ShouldAut
      */
     public function headings(): array
     {
-        return ["Incident ID # (General)", "Incident Date", "User/Public (any energy user - MG or FBS); Water user, Internet user",
+        return ["Incident Date", "User/Public (any energy user - MG or FBS); Water user, Internet user",
             "System", "Community", "Region", "# of Children", "Incident Type", "Service Types", "Energy Incident Status", 
             "Energy Equipment Damaged", "Losses Energy (ILS)", "Water Incident Status", "Water Equipment Damaged", "Losses Water (ILS)", 
             "Internet Incident Status", "Internet Equipment Damaged", "Losses Internet (ILS)", "Camera Incident Status", 

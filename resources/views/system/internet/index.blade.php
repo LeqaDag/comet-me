@@ -122,6 +122,15 @@
         });
     });
 
+    // View cabinet record edit page
+    $('#internetAllSystemsTable').on('click', '.cabinetInternetSystem', function () {
+        
+        var id = $(this).data('id');
+        var url = window.location.origin + '/internet-system/' + id + '/cabinet';
+        window.location.href = url;
+    });
+
+
     // View record details
     $('#internetAllSystemsTable').on('click', '.viewInternetSystem',function() {
         var id = $(this).data('id');

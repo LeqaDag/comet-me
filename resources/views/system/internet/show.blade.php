@@ -20,8 +20,24 @@
         'connector' => $connectors
     ]; 
 
+
     $grandTotalCost = 0;
+
+    // Add system costs
+    foreach ($systems as $label => $system) {
+
+        $grandTotalCost += $system->sum($label . '_costs');
+    }
+
+    // Add cabinet costs (pivot + components)
+    foreach ($internetSystem->networkCabinets as $cabinet) {
+
+        $cabinetCost = $cabinet->pivot->cost ?? 0;
+        $componentCost = $cabinet->components->sum(fn($c) => $c->unit * $c->cost);
+        $grandTotalCost += ($cabinetCost + $componentCost);
+    }
 @endphp
+
 
 @foreach($systems as $label => $system)
 
@@ -67,6 +83,24 @@
                                 {{$internetSystemType->InternetSystemType->name}},
                             </span>
                         @endforeach 
+                    </h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <h6>
+                        Community: 
+                        <span class="spanDetails">
+                            {{ $internetSystem->Community->english_name ?? 'N/A' }}
+                        </span>
+                    </h6>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6">
+                    <h6>
+                        Compound: 
+                        <span class="spanDetails">
+                            {{ $internetSystem->Compound->english_name ?? 'N/A' }}
+                        </span>
                     </h6>
                 </div>
             </div>
@@ -485,6 +519,72 @@
                 </div>
                 <hr>
             @endif
+
+
+        @if($internetSystem->networkCabinets->isEmpty())
+    <div class="alert alert-warning text-center">
+        <strong>Sorry!</strong> No Network Cabinets Found.
+    </div>
+@else
+    <div class="row">
+        <div class="col-12 mb-3">
+            <h5><i class="fa fa-server me-1"></i> Network Cabinets</h5>
+        </div>
+    </div>
+
+    @foreach($internetSystem->networkCabinets as $cabinet)
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+                <strong>{{ $cabinet->model }}</strong>
+                <span class="badge bg-light text-dark">Cabinet Cost: {{ number_format($cabinet->pivot->cost ?? 0, 2) }} ₪</span>
+            </div>
+
+            <div class="card-body">
+                @php
+                    $componentTotal = $cabinet->components->sum(fn($c) => $c->unit * $c->cost);
+                    $grandCabinetTotal = ($cabinet->pivot->cost ?? 0) + $componentTotal;
+                    $grouped = $cabinet->components->groupBy('component_type');
+                @endphp
+
+                <p>
+                    <strong>Total Cost for Cabinet & its components:</strong> 
+                    <span class="badge bg-success">{{ number_format($grandCabinetTotal, 2) }} ₪</span>
+                </p>
+
+                @foreach($grouped as $type => $components)
+                    <div class="mt-4">
+                        <h6 class="text-muted">{{ class_basename($type) }}s</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Model</th>
+                                        <th>Units</th>
+                                        <th>Cost</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($components as $component)
+                                        <tr>
+                                            <td>{{ $component->component->model ?? '—' }}</td>
+                                            <td>{{ $component->unit }}</td>
+                                            <td>{{ number_format($component->cost, 2) }} ₪</td>
+                                            <td class="fw-bold">
+                                                {{ number_format($component->unit * $component->cost, 2) }} ₪
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endforeach
+@endif
+
         </div>
     </div>
 </div>

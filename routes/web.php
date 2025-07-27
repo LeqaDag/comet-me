@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
 use App\Http\Controllers\CameraCommunityAdditionController;
 use App\Http\Controllers\ReplacementController;
-
+use App\Http\Controllers\InternetSystemController;
+use App\Http\Controllers\InternetComponentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -257,6 +258,7 @@ Route::get('internet-system/{id}/showPage', [App\Http\Controllers\InternetSystem
 Route::get('/delete-internet-system', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystem'])->name('deleteInternetSystem');
 Route::get('internet-system/{id}/editpage', [App\Http\Controllers\InternetSystemController::class, 'editPage']);
 Route::post('/delete-internet-system-type', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemType'])->name('deleteInternetSystemType');
+Route::get('internet-system/{id}/cabinet', [App\Http\Controllers\InternetSystemController::class, 'cabinet']);
 
 Route::post('/delete-internet-system-router', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemRouter'])->name('deleteInternetSystemRouter');
 Route::post('/delete-internet-system-switch', [App\Http\Controllers\InternetSystemController::class, 'deleteInternetSystemSwitch'])->name('deleteInternetSystemSwitch');
@@ -711,7 +713,6 @@ Route::post('/delete-water-household', [App\Http\Controllers\AllIncidentControll
 Route::post('/delete-internet-household', [App\Http\Controllers\AllIncidentController::class, 'deleteInternetAffectedHousehold'])->name('deleteInternetAffectedHousehold');
 Route::post('/delete-internet-area', [App\Http\Controllers\AllIncidentController::class, 'deleteInternetAffectedArea'])->name('deleteInternetAffectedArea');
 
-
 Route::resource('replacements', ReplacementController::class);
 Route::post('replacements/destroy', [ReplacementController::class, 'destroy'])->name('replacements.destroy');
 Route::post('/replacements/export', [ReplacementController::class, 'export'])->name('replacements.export');
@@ -726,3 +727,13 @@ Route::post('camera-additions/export', [CameraCommunityAdditionController::class
 Route::post('camera-additions/store', [CameraCommunityAdditionController::class, 'store'])->name('camera-additions.store');
 Route::get('camera-additions/{id}/edit', [CameraCommunityAdditionController::class, 'edit'])->name('camera-additions.edit');
 Route::post('camera-additions/delete', [CameraCommunityAdditionController::class, 'destroy'])->name('camera-additions.delete');
+
+
+Route::post('/update-internet-cabinet-component/{id}', [InternetSystemController::class, 'updateInternetSystemCabinetComponent'])->name('updateInternetSystemCabinetComponent');
+Route::delete('/components/{id}', [InternetComponentController::class, 'destroy'])->name('components.destroy');
+Route::put('/components', [InternetComponentController::class, 'storeComponents'])->name('components.storeComponents');
+Route::post('/internet-system-cabinet/{id}', [InternetComponentController::class, 'storeNetworkCabinet'])->name('storeNetworkCabinet');
+Route::delete('/internet-system/{internetSystem}/cabinet/{cabinet}', [InternetComponentController::class, 'deleteInternetSystemCabinet'])
+    ->name('deleteInternetSystemCabinet');
+Route::get('internet-system-cabinet/update-cost', [InternetComponentController::class, 'updateNetworkCabinetCost'])
+    ->name('updateNetworkCabinetCost');

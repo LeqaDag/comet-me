@@ -22,6 +22,13 @@ use App\Models\Household;
 use App\Models\Region;
 use App\Models\Router;
 use App\Models\Switche;
+use App\Models\CameraShelve; 
+use App\Models\NetworkCabinet; 
+use App\Models\AirPatchPanel; 
+use App\Models\PatchPanel; 
+use App\Models\PatchCord; 
+use App\Models\PowerDistributor; 
+use App\Models\Keystone; 
 use App\Models\SwitchInternetSystem;
 use App\Models\RouterInternetSystem;
 use App\Models\ApInternetSystem;
@@ -39,6 +46,9 @@ use App\Models\InternetElectrician;
 use App\Models\ElectricianInternetSystem;
 use App\Models\ConnectorInternetSystem;
 use App\Models\InternetConnector;
+use App\Models\NvrCamera;
+use App\Models\NetworkCabinetInternetSystem;
+use App\Models\NetworkCabinetComponent;
 use Carbon\Carbon;
 use Image;
 use DataTables;
@@ -52,7 +62,6 @@ class InternetSystemController extends Controller
      */
     public function index(Request $request)
     {
-
         if (Auth::guard('user')->user() != null) {
 
             if ($request->ajax()) {
@@ -85,6 +94,7 @@ class InternetSystemController extends Controller
                     ->addColumn('action', function($row) {
                         $viewButton = "<a type='button' class='viewInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
                         $updateButton = "<a type='button' class='updateInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $cabinetButton = "<a type='button' class='cabinetInternetSystem' data-id='".$row->id."' ><i class='fa-solid fa-server text-primary'></i></a>";
                         $deleteButton = "<a type='button' class='deleteInternetSystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
@@ -94,7 +104,7 @@ class InternetSystemController extends Controller
                             Auth::guard('user')->user()->user_type_id == 13) 
                         {
                                 
-                            return $viewButton." ". $updateButton." ".$deleteButton;
+                            return $viewButton." ". $updateButton." ". $cabinetButton. " ". $deleteButton;
                         } else return $viewButton;
                         
                     })
@@ -121,7 +131,7 @@ class InternetSystemController extends Controller
             return view('errors.not-found');
         }
     }
-
+ 
     /**
      * Show the form for creating a new resource.
      *
@@ -167,6 +177,7 @@ class InternetSystemController extends Controller
         $internetSystem->save();
 
         if($request->internet_system_type_id) {
+
             for($i=0; $i < count($request->internet_system_type_id); $i++) {
 
                 $internetSystemType = new InternetSystemCommunityType();
@@ -178,103 +189,18 @@ class InternetSystemController extends Controller
 
         $internetSystemCommunity = new InternetSystemCommunity();
         $internetSystemCommunity->community_id = $request->community_id;
+        if($request->compound_id) $internetSystemCommunity->compound_id = $request->compound_id; 
         $internetSystemCommunity->internet_system_id = $internetSystem->id;
         $internetSystemCommunity->save();
 
         $community = Community::findOrFail($request->community_id);
         $community->internet_service = "Yes";
         if($community->internet_service_beginning_year == Null) {
+
             $community->internet_service_beginning_year = $request->start_year;
         }
         $community->save();
 
-        // Router
-        if($request->router_id) {
-            for($i=0; $i < count($request->router_id); $i++) {
-
-                $routerInternetSystem = new RouterInternetSystem();
-                $routerInternetSystem->router_id = $request->router_id[$i];
-                $routerInternetSystem->router_units = $request->router_units[$i]["subject"];
-                $routerInternetSystem->internet_system_id = $internetSystem->id;
-                $routerInternetSystem->save();
-            }
-        }
-
-        // Switch
-        if($request->switch_id) {
-            for($i=0; $i < count($request->switch_id); $i++) {
-
-                $switchInternetSystem = new SwitchInternetSystem();
-                $switchInternetSystem->switch_id = $request->switch_id[$i];
-                $switchInternetSystem->switch_units = $request->switch_units[$i]["subject"];
-                $switchInternetSystem->internet_system_id = $internetSystem->id;
-                $switchInternetSystem->save();
-            }
-        }
-
-        // Controller
-        if($request->controller_id) {
-            for($i=0; $i < count($request->controller_id); $i++) {
-
-                $switchInternetSystem = new ControllerInternetSystem();
-                $switchInternetSystem->internet_controller_id = $request->controller_id[$i];
-                $switchInternetSystem->controller_units = $request->controller_units[$i]["subject"];
-                $switchInternetSystem->internet_system_id = $internetSystem->id;
-                $switchInternetSystem->save();
-            }
-        }
-
-        // AP
-        if($request->ap_units) {
-            if($request->ap_id) {
-                for($i=0; $i < count($request->ap_id); $i++) {
-    
-                    $switchInternetSystem = new ApInternetSystem();
-                    $switchInternetSystem->internet_ap_id = $request->ap_id[$i];
-                    $switchInternetSystem->ap_units = $request->ap_units[$i]["subject"];
-                    $switchInternetSystem->internet_system_id = $internetSystem->id;
-                    $switchInternetSystem->save();
-                }
-            }
-        }
-
-        // AP Lite
-        if($request->ap_lite_units) {
-            if($request->ap_lite_id) {
-                for($i=0; $i < count($request->ap_lite_id); $i++) {
-
-                    $switchInternetSystem = new ApLiteInternetSystem();
-                    $switchInternetSystem->internet_ap_id = $request->ap_lite_id[$i];
-                    $switchInternetSystem->ap_lite_units = $request->ap_lite_units[$i]["subject"];
-                    $switchInternetSystem->internet_system_id = $internetSystem->id;
-                    $switchInternetSystem->save();
-                }
-            }
-        }
-
-        // PTP
-        if($request->ptp_id) {
-            for($i=0; $i < count($request->ptp_id); $i++) {
-
-                $ptpInternetSystem = new PtpInternetSystem();
-                $ptpInternetSystem->internet_ptp_id = $request->ptp_id[$i];
-                $ptpInternetSystem->ptp_units = $request->ptp_units[$i]["subject"];
-                $ptpInternetSystem->internet_system_id = $internetSystem->id;
-                $ptpInternetSystem->save();
-            }
-        }
-
-        // UISP
-        if($request->uisp_id) {
-            for($i=0; $i < count($request->uisp_id); $i++) {
-
-                $uispInternetSystem = new UispInternetSystem();
-                $uispInternetSystem->internet_uisp_id = $request->uisp_id[$i];
-                $uispInternetSystem->uisp_units = $request->uisp_units[$i]["subject"];
-                $uispInternetSystem->internet_system_id = $internetSystem->id;
-                $uispInternetSystem->save();
-            }
-        }
 
         return redirect('/internet-system')
             ->with('message', 'New Internet System Added Successfully!');
@@ -425,12 +351,50 @@ class InternetSystemController extends Controller
         $uisps = InternetUisp::all();
         $electricians = InternetElectrician::all();
         $connectors = InternetConnector::all();
+        $cameraShelves = CameraShelve::all();
+        $patchPaneles = PatchPanel::all();
+        $airPatchPaneles = AirPatchPanel::all();
+        $patchCords = PatchCord::all();
+        $powerDistributors = PowerDistributor::all();
+        $Keystones = Keystone::all();
+
 
         return view('system.internet.edit', compact('routers', 'switchs', 'controllers',
             'ptps', 'uisps', 'internetSystem', 'internetSystemTypes', 'aps', 'connectors',
             'internetTypes', 'routerSystems', 'ptpSystems', 'controllerSystems', 
             'switchSystems', 'apSystems', 'apLiteSystems', 'uispSystems', 'electricians',
-            'electricianSystems', 'connectorSystems'));
+            'electricianSystems', 'connectorSystems', 'Keystones', 'powerDistributors',
+            'cameraShelves', 'patchPaneles', 'airPatchPaneles', 'patchCords'));
+    }
+
+    /**
+     * View Edit page.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function cabinet($id)
+    {
+        $internetSystem = InternetSystem::findOrFail($id);
+        $internetSystemTypes = InternetSystemCommunityType::where('internet_system_id', $id)
+            ->where("is_archived", 0)
+            ->get();
+        $internetCommunities = InternetSystemCommunity::where('internet_system_id', $id)->get();
+
+        $routers = Router::all();
+        $switchs = Switche::all();
+        $cameraShelves = CameraShelve::all();
+        $patchPaneles = PatchPanel::all();
+        $airPatchPaneles = AirPatchPanel::all();
+        $patchCords = PatchCord::all();
+        $powerDistributors = PowerDistributor::all();
+        $Keystones = Keystone::all();
+        $nvrs = NvrCamera::all();
+        $cabinets = NetworkCabinet::all();
+
+        return view('system.internet.cabinet.edit', compact('routers', 'switchs', 'internetSystem', 'internetSystemTypes', 
+            'Keystones', 'powerDistributors', 'cameraShelves', 'patchPaneles', 'airPatchPaneles', 'patchCords', 'nvrs',
+            'cabinets'));
     }
 
     // This function is to update the internet unit & costs
@@ -521,7 +485,6 @@ class InternetSystemController extends Controller
         return response()->json(['success' => 1, 'msg' => 'Connector updated successfully']);
     }
 
-
     // This function is to update the Electrician unit & costs
     public function updateElectrician($id, $units, $cost)
     {
@@ -531,6 +494,22 @@ class InternetSystemController extends Controller
         $electrician->save();
 
         return response()->json(['success' => 1, 'msg' => 'Electrician updated successfully']);
+    }
+
+    // This function is to update the Electrician unit & costs
+    public function updateInternetSystemCabinetComponent(Request $request, $id)
+    {
+        $request->validate([
+            'units' => 'required|numeric|min:0',
+            'cost' => 'required|numeric|min:0',
+        ]);
+
+        $networkComponent = NetworkCabinetComponent::findOrFail($id);
+        $networkComponent->unit = $request->units;
+        $networkComponent->cost = $request->cost;
+        $networkComponent->save();
+
+        return response()->json(['success' => 1, 'msg' => 'Component updated successfully']);
     }
 
     /**
