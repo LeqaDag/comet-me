@@ -20,33 +20,40 @@
         'connector' => $connectors
     ]; 
 
-
     $grandTotalCost = 0;
 
     // Add system costs
     foreach ($systems as $label => $system) {
 
-        $grandTotalCost += $system->sum($label . '_costs');
+        $grandTotalCost += $system->sum(function ($item) use ($label) {
+
+            $cost = $item->{$label . '_costs'} ?? 0;
+            $units = $item->{$label . '_units'} ?? 0;
+            return $cost * $units;
+        });
     }
 
-    // Add cabinet costs (pivot + components)
-    foreach ($internetSystem->networkCabinets as $cabinet) {
 
+    // Add cabinet + component costs
+    foreach ($internetSystem->networkCabinets as $cabinet) {
         $cabinetCost = $cabinet->pivot->cost ?? 0;
-        $componentCost = $cabinet->components->sum(fn($c) => $c->unit * $c->cost);
+
+        // Only sum components linked to this internet system
+        $cabinetPivotSystem = $internetSystem->networkCabinetInternetSystems->firstWhere('id', $cabinet->pivot->id);
+        $componentCost = $cabinetPivotSystem?->components->sum(fn($c) => $c->unit * $c->cost) ?? 0;
+
         $grandTotalCost += ($cabinetCost + $componentCost);
     }
 @endphp
 
 
+
 @foreach($systems as $label => $system)
-
     @php
-
         $totalCost = $system->sum($label . '_costs');
-        $grandTotalCost += $totalCost;
     @endphp
 @endforeach
+
 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -149,7 +156,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$routers->sum('router_units') }}</td>
-                                    <td>{{$routers->sum('router_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $routers->sum(function ($router) {
+                                                return ($router->router_costs ?? 0) * ($router->router_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -194,7 +207,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$switches->sum('switch_units') }}</td>
-                                    <td>{{$switches->sum('switch_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $switches->sum(function ($switch) {
+                                                return ($switch->switch_costs ?? 0) * ($switch->switch_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -239,7 +258,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$controllers->sum('controller_units') }}</td>
-                                    <td>{{$controllers->sum('controller_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $controllers->sum(function ($controller) {
+                                                return ($controller->controller_costs ?? 0) * ($controller->controller_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -284,7 +309,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$aps->sum('ap_units') }}</td>
-                                    <td>{{$aps->sum('ap_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $aps->sum(function ($ap) {
+                                                return ($ap->ap_costs ?? 0) * ($ap->ap_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -330,7 +361,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$apLites->sum('ap_lite_units') }}</td>
-                                    <td>{{$apLites->sum('ap_lite_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $apLites->sum(function ($ap) {
+                                                return ($ap->ap_lite_costs ?? 0) * ($ap->ap_lite_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -375,7 +412,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$ptps->sum('ptp_units') }}</td>
-                                    <td>{{$ptps->sum('ptp_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $ptps->sum(function ($ptp) {
+                                                return ($ptp->ptp_costs ?? 0) * ($ptp->ptp_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -420,7 +463,13 @@
                                 <tr class="table-light">
                                     <td colspan=2>Total</td>
                                     <td>{{$uisps->sum('uisp_units') }}</td>
-                                    <td>{{$uisps->sum('uisp_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $uisps->sum(function ($uisp) {
+                                                return ($uisp->uisp_costs ?? 0) * ($uisp->uisp_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -465,7 +514,13 @@
                                 <tr class="table-light">
                                     <td colspan=2>Total</td>
                                     <td>{{$electricians->sum('electrician_units') }}</td>
-                                    <td>{{$electricians->sum('electrician_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $electricians->sum(function ($electrician) {
+                                                return ($electrician->electrician_costs ?? 0) * ($electrician->electrician_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -511,7 +566,13 @@
                                 <tr class="table-light">
                                     <td colspan=2>Total</td>
                                     <td>{{$connectors->sum('connector_units') }}</td>
-                                    <td>{{$connectors->sum('connector_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $connectors->sum(function ($connector) {
+                                                return ($connector->connector_costs ?? 0) * ($connector->connector_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -522,68 +583,70 @@
 
 
         @if($internetSystem->networkCabinets->isEmpty())
-    <div class="alert alert-warning text-center">
-        <strong>Sorry!</strong> No Network Cabinets Found.
-    </div>
-@else
-    <div class="row">
-        <div class="col-12 mb-3">
-            <h5><i class="fa fa-server me-1"></i> Network Cabinets</h5>
-        </div>
-    </div>
-
-    @foreach($internetSystem->networkCabinets as $cabinet)
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
-                <strong>{{ $cabinet->model }}</strong>
-                <span class="badge bg-light text-dark">Cabinet Cost: {{ number_format($cabinet->pivot->cost ?? 0, 2) }} ₪</span>
+            <div class="alert alert-warning text-center">
+                <strong>Sorry!</strong> No Network Cabinets Found.
+            </div>
+        @else 
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <h5><i class="fa fa-server me-1"></i> Network Cabinets</h5>
+                </div>
             </div>
 
-            <div class="card-body">
-                @php
-                    $componentTotal = $cabinet->components->sum(fn($c) => $c->unit * $c->cost);
-                    $grandCabinetTotal = ($cabinet->pivot->cost ?? 0) + $componentTotal;
-                    $grouped = $cabinet->components->groupBy('component_type');
-                @endphp
-
-                <p>
-                    <strong>Total Cost for Cabinet & its components:</strong> 
-                    <span class="badge bg-success">{{ number_format($grandCabinetTotal, 2) }} ₪</span>
-                </p>
-
-                @foreach($grouped as $type => $components)
-                    <div class="mt-4">
-                        <h6 class="text-muted">{{ class_basename($type) }}s</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-bordered align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Model</th>
-                                        <th>Units</th>
-                                        <th>Cost</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($components as $component)
-                                        <tr>
-                                            <td>{{ $component->component->model ?? '—' }}</td>
-                                            <td>{{ $component->unit }}</td>
-                                            <td>{{ number_format($component->cost, 2) }} ₪</td>
-                                            <td class="fw-bold">
-                                                {{ number_format($component->unit * $component->cost, 2) }} ₪
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+            @foreach($internetSystem->networkCabinets as $cabinet)
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+                        <strong>{{ $cabinet->model }}</strong>
+                        <span class="badge bg-light text-dark">Cabinet Cost: {{ number_format($cabinet->pivot->cost ?? 0, 2) }} ₪</span>
                     </div>
-                @endforeach
-            </div>
-        </div>
-    @endforeach
-@endif
+
+                    <div class="card-body">
+                        @php
+                            $cabinetPivotSystem = $internetSystem->networkCabinetInternetSystems->firstWhere('id', $cabinet->pivot->id);
+                            $components = $cabinetPivotSystem?->components ?? collect();
+                            $componentTotal = $components->sum(fn($c) => $c->unit * $c->cost);
+                            $grandCabinetTotal = ($cabinet->pivot->cost ?? 0) + $componentTotal;
+                            $grouped = $components->groupBy('component_type');
+                        @endphp
+
+                        <p>
+                            <strong>Total Cost for Cabinet & its components:</strong> 
+                            <span class="badge bg-success">{{ number_format($grandCabinetTotal, 2) }} ₪</span>
+                        </p>
+
+                        @foreach($grouped as $type => $components)
+                            <div class="mt-4">
+                                <h6 class="text-muted">{{ class_basename($type) }}s</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Model</th>
+                                                <th>Units</th>
+                                                <th>Cost</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($components as $component)
+                                                <tr>
+                                                    <td>{{ $component->component->model ?? '—' }}</td>
+                                                    <td>{{ $component->unit }}</td>
+                                                    <td>{{ number_format($component->cost, 2) }} ₪</td>
+                                                    <td class="fw-bold">
+                                                        {{ number_format($component->unit * $component->cost, 2) }} ₪
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        @endif
 
         </div>
     </div>

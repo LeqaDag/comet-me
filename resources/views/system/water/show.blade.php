@@ -18,16 +18,19 @@
     ]; 
 
     $grandTotalCost = 0;
+
+    foreach($systems as $label => $system) {
+
+        $grandTotalCost += $system->sum(function ($item) use ($label) {
+
+            $cost = $item->{$label . '_costs'} ?? 0;
+            $units = $item->{$label . '_units'} ?? 0;
+            return $cost * $units;
+        });
+    }
+
 @endphp
 
-@foreach($systems as $label => $system)
-
-    @php
-
-        $totalCost = $system->sum($label . '_costs');
-        $grandTotalCost += $totalCost;
-    @endphp
-@endforeach
 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -146,7 +149,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$waterSystemTanks->sum('tank_units') }}</td>
-                                    <td>{{$waterSystemTanks->sum('tank_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $waterSystemTanks->sum(function ($tank) {
+                                                return ($tank->tank_costs ?? 0) * ($tank->tank_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -191,7 +200,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$waterSystemPumps->sum('pump_units') }}</td>
-                                    <td>{{$waterSystemPumps->sum('pump_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $waterSystemPumps->sum(function ($pump) {
+                                                return ($pump->pump_costs ?? 0) * ($pump->pump_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -236,7 +251,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$waterSystemTaps->sum('tap_units') }}</td>
-                                    <td>{{$waterSystemTaps->sum('tap_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $waterSystemTaps->sum(function ($tap) {
+                                                return ($tap->tap_costs ?? 0) * ($tap->tap_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -281,7 +302,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$waterSystemFilters->sum('filter_units') }}</td>
-                                    <td>{{$waterSystemFilters->sum('filter_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $waterSystemFilters->sum(function ($filter) {
+                                                return ($filter->filter_costs ?? 0) * ($filter->filter_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -326,7 +353,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total</td>
                                     <td>{{$waterSystemPipes->sum('pipe_units') }}</td>
-                                    <td>{{$waterSystemPipes->sum('pipe_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $waterSystemPipes->sum(function ($pipe) {
+                                                return ($pipe->pipe_costs ?? 0) * ($pipe->pipe_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -371,7 +404,13 @@
                                 <tr class="table-light">
                                     <td colspan=2>Total</td>
                                     <td>{{$waterSystemConnectors->sum('connector_units') }}</td>
-                                    <td>{{$waterSystemConnectors->sum('connector_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $waterSystemConnectors->sum(function ($connector) {
+                                                return ($connector->connector_costs ?? 0) * ($connector->connector_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -416,7 +455,13 @@
                                 <tr class="table-light">
                                     <td colspan=2>Total</td>
                                     <td>{{$waterSystemValves->sum('valve_units') }}</td>
-                                    <td>{{$waterSystemValves->sum('valve_costs') }}</td>
+                                    <td>
+                                        {{
+                                            $waterSystemValves->sum(function ($valve) {
+                                                return ($valve->valve_costs ?? 0) * ($valve->valve_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>

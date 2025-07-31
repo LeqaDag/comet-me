@@ -1534,7 +1534,7 @@
 
             var community_id = $('#communitySelected').val();
             var publicUserSystem = $(this).val();
-
+ 
             $('#addInternetEquipmentButton').hide(); // Hide Add button
             $('#dynamicAddRemoveInternetEquipment tbody').empty(); // Clear table
 

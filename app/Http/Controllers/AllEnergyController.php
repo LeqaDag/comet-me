@@ -625,19 +625,19 @@ class AllEnergyController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $existMeterEnergyHolder = AllEnergyMeter::where("meter_number", $request->meter_number)
-            ->where('id', "!=", $id)
-            ->first();
+        // $existMeterEnergyHolder = AllEnergyMeter::where("meter_number", $request->meter_number)
+        //     ->where('id', "!=", $id)
+        //     ->first();
 
-        if ($existMeterEnergyHolder) {
+        // if ($existMeterEnergyHolder) {
             
-            $holder = null;
+        //     $holder = null;
 
-            if($existMeterEnergyHolder->household_id) $holder = Household::findOrFail($existMeterEnergyHolder->household_id);
-            else if($existMeterEnergyHolder->public_structure_id) $holder = PublicStructure::findOrFail($existMeterEnergyHolder->public_structure_id);
+        //     if($existMeterEnergyHolder->household_id) $holder = Household::findOrFail($existMeterEnergyHolder->household_id);
+        //     else if($existMeterEnergyHolder->public_structure_id) $holder = PublicStructure::findOrFail($existMeterEnergyHolder->public_structure_id);
 
-            return redirect()->back()->with('error', 'Attension, this meter number ' . $request->meter_number . ' is already exist for '. $holder->english_name);
-        }
+        //     return redirect()->back()->with('error', 'Attension, this meter number ' . $request->meter_number . ' is already exist for '. $holder->english_name);
+        // }
    
         $energyUser = AllEnergyMeter::find($id);
 

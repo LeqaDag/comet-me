@@ -24,7 +24,7 @@ use App\Models\InternetNetworkAffectedArea;
 use App\Models\Incident;
 use App\Models\Household;
 use App\Models\Region;
-use App\Exports\InternetNetworkIncidentExport;
+use App\Exports\InternetNetworkIncidentExport; 
 use App\Exports\AllIncidentExport;
 use Carbon\Carbon;
 use Intervention\Image\Facades\Image;

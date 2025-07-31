@@ -58,4 +58,14 @@ class AllInternetIncidentSystemDamagedEquipment extends Model
     {
         return $this->belongsTo(NetworkCabinetComponent::class, 'network_cabinet_component_id');
     }
+
+    public function internetSystem()
+    {
+        return $this->belongsTo(InternetSystem::class, 'internet_system_id', 'id');
+    }
+
+    public function getModelName()
+    {
+        return optional($this->internetSystem)->system_name ?? 'Unknown';
+    }
 }

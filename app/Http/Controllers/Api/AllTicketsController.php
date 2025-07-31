@@ -212,6 +212,7 @@ class AllTicketsController extends Controller
                 $existingTicket->completed_date = $ticket["updated_at"];
                 $existingTicket->support_created_at = $ticket["created_at"];
                 $existingTicket->supported_updated_at = $ticket["updated_at"];
+                $existingTicket->created_by = $ticket["created_by"];
                 $existingTicket->notes = $ticket["description"];
                 $existingTicket->save();
 
@@ -240,6 +241,7 @@ class AllTicketsController extends Controller
                 $newTicket->completed_date = $ticket["updated_at"];
                 $newTicket->support_created_at = $ticket["created_at"];
                 $newTicket->supported_updated_at = $ticket["updated_at"];
+                $newTicket->created_by = $ticket["created_by"];
                 $newTicket->notes = $ticket["description"];
                 $newTicket->save();
     

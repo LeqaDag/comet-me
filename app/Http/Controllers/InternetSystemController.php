@@ -376,6 +376,7 @@ class InternetSystemController extends Controller
     public function cabinet($id)
     {
         $internetSystem = InternetSystem::findOrFail($id);
+   
         $internetSystemTypes = InternetSystemCommunityType::where('internet_system_id', $id)
             ->where("is_archived", 0)
             ->get();

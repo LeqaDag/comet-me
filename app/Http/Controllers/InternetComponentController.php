@@ -265,6 +265,9 @@ class InternetComponentController extends Controller
      */
     public function storeComponents(Request $request)
     {
+        $cabinetInternetSystem = NetworkCabinetInternetSystem::where("internet_system_id", $request->internet_system_id)
+            ->first();
+            
         if ($request->has('components')) {
 
             foreach ($request->input('components') as $cabinetId => $componentTypes) {
@@ -275,7 +278,7 @@ class InternetComponentController extends Controller
 
                         $component = new NetworkCabinetComponent();
 
-                        $component->network_cabinet_internet_system_id = $cabinetId;
+                        $component->network_cabinet_internet_system_id = $cabinetInternetSystem->id;
                         $component->component_type = $componentType;
                         $component->component_id = $newComponent['component_id'] ?? null;
                         $component->unit = $newComponent['unit'] ?? 0;

@@ -8,45 +8,73 @@
 @section('content')
  
 @php
-    $systems = [
-        'Battery' => $battarySystems,
+
+    $systemsWithoutPrefix = [
+
         'Battery Mount' => $battaryMountSystems,
-        'PV' => $pvSystems,
         'PV Mount' => $pvMountSystems,
-        'Controller' => $controllerSystems,
-        'Inverter' => $inverterSystems,
-        'Relay Driver' => $relayDriverSystems,
-        'Load Relay' => $loadRelaySystems,
-        'BSP' => $bspSystems,
-        'RCC' => $rccSystems,
-        'Logger' => $loggerSystems,
-        'Generator' => $generatorSystems,
-        'Turbine' => $turbineSystems,
-        'PV MCB' => $pvMcbSystems,
-        'Controller MCB' => $controllerMcbSystems,
-        'Inverter MCB' => $inventerMcbSystems,
-        'Air Conditioner' => $airConditionerSystems,
-        'BTS' => $btsSystems,
         'FBS Cabinet' => $fbsCabinets,
         'FBS Fan' => $fbsFans,
         'FBS Lock' => $fbsLocks,
+        'FBS Wiring' => $fbsWirings,
         'House Wiring' => $houseWirings,
         'Electricity Rooms' => $electricityRooms,
         'Electricity Bos Rooms' => $electricityBosRooms,
         'Community Grids' => $communityGrids,
-        'Refrigerators' => $refrigerators,
+        'Refrigerators' => $refrigerators
+    ]; 
+
+    $systemsWithPrefix = [
+
+        'Battery' => ['data' => $battarySystems, 'unit_prefix' => 'battery'],
+        'PV' => ['data' => $pvSystems, 'unit_prefix' => 'pv'],
+        'Controller' => ['data' => $controllerSystems, 'unit_prefix' => 'controller'],
+        'Inverter' => ['data' => $inverterSystems, 'unit_prefix' => 'inverter'],
+        'Relay Driver' => ['data' => $relayDriverSystems, 'unit_prefix' => 'relay_driver'],
+        'Load Relay' => ['data' => $loadRelaySystems, 'unit_prefix' => 'load_relay'],
+        'BSP' => ['data' => $bspSystems, 'unit_prefix' => 'bsp'],
+        'RCC' => ['data' => $rccSystems, 'unit_prefix' => 'rcc'],
+        'Logger' => ['data' => $loggerSystems, 'unit_prefix' => 'monitoring'],
+        'Generator' => ['data' => $generatorSystems, 'unit_prefix' => 'generator'],
+        'Turbine' => ['data' => $turbineSystems, 'unit_prefix' => 'turbine'],
+        'PV MCB' => ['data' => $pvMcbSystems, 'unit_prefix' => 'mcb_pv'],
+        'Controller MCB' => ['data' => $controllerMcbSystems, 'unit_prefix' => 'mcb_controller'],
+        'Inverter MCB' => ['data' => $inventerMcbSystems, 'unit_prefix' => 'mcb_inverter'],
+        'Air Conditioner' => ['data' => $airConditionerSystems, 'unit_prefix' => 'energy_air_conditioner'],
+        'BTS' => ['data' => $btsSystems, 'unit_prefix' => 'bts']
     ];
 
+
+    $totalSystemWithoutPrefix = 0;
+    $totalSystemWithPrefix = 0;
     $grandTotalCost = 0;
+
+    foreach ($systemsWithoutPrefix as $label => $systemInfo) {
+
+        $totalSystemWithoutPrefix += $systemInfo->sum(function ($item) use ($label) {
+
+            $cost = $item->cost ?? 0;
+            $units = $item->unit ?? 0;
+            return $cost * $units;
+        });
+    }
+
+    foreach ($systemsWithPrefix as $label => $system) {
+        $data = $system['data'];
+        $prefix = $system['unit_prefix']; 
+
+        $totalSystemWithPrefix += $data->sum(function ($item) use ($prefix) {
+
+            $unitsField = $prefix ? $prefix . '_units' : 'units';
+            $units = $item->{$unitsField} ?? 0;
+            $cost = $item->cost ?? 0;
+
+            return $units * $cost;
+        });
+    }
+
+    $grandTotalCost = $totalSystemWithoutPrefix + $totalSystemWithPrefix;
 @endphp
-
-@foreach($systems as $label => $system)
-    @php
-        $totalCost = $system->sum('cost');
-        $grandTotalCost += $totalCost;
-    @endphp
-@endforeach
-
 
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -184,7 +212,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$battarySystems->sum('battery_units') }}</td>
-                                    <td>{{$battarySystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $battarySystems->sum(function ($battary) {
+                                                return ($battary->cost ?? 0) * ($battary->battery_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -229,7 +263,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$battaryMountSystems->sum('unit') }}</td>
-                                    <td>{{$battaryMountSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $battaryMountSystems->sum(function ($battaryMount) {
+                                                return ($battaryMount->cost ?? 0) * ($battaryMount->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -274,7 +314,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$pvSystems->sum('pv_units') }}</td>
-                                    <td>{{$pvSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $pvSystems->sum(function ($pvSystem) {
+                                                return ($pvSystem->cost ?? 0) * ($pvSystem->pv_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -319,7 +365,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$pvMountSystems->sum('unit') }}</td>
-                                    <td>{{$pvMountSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $pvMountSystems->sum(function ($pvMountSystem) {
+                                                return ($pvMountSystem->cost ?? 0) * ($pvMountSystem->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -365,7 +417,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$controllerSystems->sum('controller_units') }}</td>
-                                    <td>{{$controllerSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $controllerSystems->sum(function ($controllerSystem) {
+                                                return ($controllerSystem->cost ?? 0) * ($controllerSystem->controller_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -410,7 +468,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$inverterSystems->sum('inverter_units') }}</td>
-                                    <td>{{$inverterSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $inverterSystems->sum(function ($inverterSystem) {
+                                                return ($inverterSystem->cost ?? 0) * ($inverterSystem->inverter_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -456,7 +520,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$btsSystems->sum('bts_units') }}</td>
-                                    <td>{{$btsSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $btsSystems->sum(function ($btsSystem) {
+                                                return ($btsSystem->cost ?? 0) * ($btsSystem->bts_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -502,7 +572,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$relayDriverSystems->sum('relay_driver_units') }}</td>
-                                    <td>{{$relayDriverSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $relayDriverSystems->sum(function ($relayDriverSystem) {
+                                                return ($relayDriverSystem->cost ?? 0) * ($relayDriverSystem->relay_driver_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -547,7 +623,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$loadRelaySystems->sum('load_relay_units') }}</td>
-                                    <td>{{$loadRelaySystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $loadRelaySystems->sum(function ($loadRelaySystem) {
+                                                return ($loadRelaySystem->cost ?? 0) * ($loadRelaySystem->load_relay_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -592,7 +674,13 @@
                                 <tr class="table-light">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$bspSystems->sum('bsp_units') }}</td>
-                                    <td>{{$bspSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $bspSystems->sum(function ($bspSystem) {
+                                                return ($bspSystem->cost ?? 0) * ($bspSystem->bsp_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -637,7 +725,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$rccSystems->sum('rcc_units') }}</td>
-                                    <td>{{$rccSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $rccSystems->sum(function ($rccSystem) {
+                                                return ($rccSystem->cost ?? 0) * ($rccSystem->rcc_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -682,7 +776,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$loggerSystems->sum('monitoring_units') }}</td>
-                                    <td>{{$loggerSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $loggerSystems->sum(function ($loggerSystem) {
+                                                return ($loggerSystem->cost ?? 0) * ($loggerSystem->monitoring_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -727,7 +827,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$generatorSystems->sum('generator_units') }}</td>
-                                    <td>{{$generatorSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $generatorSystems->sum(function ($generatorSystem) {
+                                                return ($generatorSystem->cost ?? 0) * ($generatorSystem->generator_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -772,7 +878,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$turbineSystems->sum('turbine_units') }}</td>
-                                    <td>{{$turbineSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $turbineSystems->sum(function ($turbineSystem) {
+                                                return ($turbineSystem->cost ?? 0) * ($turbineSystem->turbine_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -818,7 +930,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$pvMcbSystems->sum('mcb_pv_units') }}</td>
-                                    <td>{{$pvMcbSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $pvMcbSystems->sum(function ($pvMcbSystem) {
+                                                return ($pvMcbSystem->cost ?? 0) * ($pvMcbSystem->mcb_pv_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -863,7 +981,13 @@
                                 <tr class="table-dark">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$controllerMcbSystems->sum('mcb_controller_units') }}</td>
-                                    <td>{{$controllerMcbSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $controllerMcbSystems->sum(function ($controllerMcbSystem) {
+                                                return ($controllerMcbSystem->cost ?? 0) * ($controllerMcbSystem->mcb_controller_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -908,7 +1032,13 @@
                                 <tr class="table-light">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$inventerMcbSystems->sum('mcb_inverter_units') }}</td>
-                                    <td>{{$inventerMcbSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $inventerMcbSystems->sum(function ($inventerMcbSystem) {
+                                                return ($inventerMcbSystem->cost ?? 0) * ($inventerMcbSystem->mcb_inverter_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -953,7 +1083,13 @@
                                 <tr class="table-light">
                                     <td colspan=2>Total Units</td>
                                     <td>{{$airConditionerSystems->sum('energy_air_conditioner_units') }}</td>
-                                    <td>{{$airConditionerSystems->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $airConditionerSystems->sum(function ($airConditionerSystem) {
+                                                return ($airConditionerSystem->cost ?? 0) * ($airConditionerSystem->energy_air_conditioner_units ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -997,7 +1133,13 @@
                                 <tr class="table-light">
                                     <td >Total Units</td>
                                     <td>{{$fbsCabinets->sum('unit') }}</td>
-                                    <td>{{$fbsCabinets->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $fbsCabinets->sum(function ($fbsCabinet) {
+                                                return ($fbsCabinet->cost ?? 0) * ($fbsCabinet->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -1041,7 +1183,13 @@
                                 <tr class="table-light">
                                     <td >Total Units</td>
                                     <td>{{$fbsFans->sum('unit') }}</td>
-                                    <td>{{$fbsFans->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $fbsFans->sum(function ($fbsFan) {
+                                                return ($fbsFan->cost ?? 0) * ($fbsFan->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -1085,7 +1233,13 @@
                                 <tr class="table-light">
                                     <td >Total Units</td>
                                     <td>{{$fbsLocks->sum('unit') }}</td>
-                                    <td>{{$fbsLocks->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $fbsLocks->sum(function ($fbsLock) {
+                                                return ($fbsLock->cost ?? 0) * ($fbsLock->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -1129,7 +1283,13 @@
                                 <tr class="table-light">
                                     <td >Total Units</td>
                                     <td>{{$fbsWirings->sum('unit') }}</td>
-                                    <td>{{$fbsWirings->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $fbsWirings->sum(function ($fbsWiring) {
+                                                return ($fbsWiring->cost ?? 0) * ($fbsWiring->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -1173,7 +1333,13 @@
                                 <tr class="table-light">
                                     <td >Total Units</td>
                                     <td>{{$refrigerators->sum('unit') }}</td>
-                                    <td>{{$refrigerators->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $refrigerators->sum(function ($refrigerator) {
+                                                return ($refrigerator->cost ?? 0) * ($refrigerator->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -1217,7 +1383,13 @@
                                 <tr class="table-light">
                                     <td >Total Units</td>
                                     <td>{{$electricityRooms->sum('unit') }}</td>
-                                    <td>{{$electricityRooms->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $electricityRooms->sum(function ($electricityRoom) {
+                                                return ($electricityRoom->cost ?? 0) * ($electricityRoom->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -1260,7 +1432,13 @@
                                 <tr class="table-light">
                                     <td >Total Units</td>
                                     <td>{{$electricityBosRooms->sum('unit') }}</td>
-                                    <td>{{$electricityBosRooms->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $electricityBosRooms->sum(function ($electricityBosRoom) {
+                                                return ($electricityBosRoom->cost ?? 0) * ($electricityBosRoom->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -1303,7 +1481,13 @@
                                 <tr class="table-light">
                                     <td >Total Units</td>
                                     <td>{{$communityGrids->sum('unit') }}</td>
-                                    <td>{{$communityGrids->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $communityGrids->sum(function ($communityGrid) {
+                                                return ($communityGrid->cost ?? 0) * ($communityGrid->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>
@@ -1346,7 +1530,13 @@
                                 <tr class="table-light">
                                     <td >Total Units</td>
                                     <td>{{$houseWirings->sum('unit') }}</td>
-                                    <td>{{$houseWirings->sum('cost') }}</td>
+                                    <td>
+                                        {{
+                                            $houseWirings->sum(function ($houseWiring) {
+                                                return ($houseWiring->cost ?? 0) * ($houseWiring->unit ?? 0);
+                                            })
+                                        }}
+                                    </td>
                                 </tr>
                             </tfoot>
                          </table>

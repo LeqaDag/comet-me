@@ -17,7 +17,7 @@
 @section('content')
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
-    <span class="text-muted fw-light">Edit </span> {{$internetSystem->name}}
+    <span class="text-muted fw-light">Edit </span> {{$internetSystem->system_name}}
     <span class="text-muted fw-light">Network Cabinets </span> 
 </h4>
 
@@ -53,6 +53,10 @@
                         data-cabinet-id="{{ $cabinet->id }}"
                         data-internet-id="{{ $internetSystem->id }}"
                     >
+                    <input hidden 
+                        name="internet_system_id" 
+                        value="{{ $cabinet->pivot->internet_system_id ?? 0 }}"
+                    >
                     <button type="button"
                         class="btn btn-sm btn-danger deleteCabinetBtn"
                         data-id="{{ $cabinet->id }}"
@@ -63,11 +67,18 @@
                 </div>
 
                 <div class="card-body">
-                    <p><strong>Total Components Cost:</strong> {{ $cabinet->components->sum(fn($c) => $c->unit * $c->cost) }} ₪</p>
-
                     @php
-                        $grouped = $cabinet->components->groupBy('component_type');
+                        $cabinetPivotSystem = $internetSystem->networkCabinetInternetSystems->firstWhere('id', $cabinet->pivot->id);
+                        $totalCost = $cabinetPivotSystem?->components->sum(fn($c) => $c->unit * $c->cost) ?? 0;
+                    @endphp
+                    <p><strong>Total Components Cost:</strong> 
+                        {{ $totalCost }} ₪
+                    </p>
+ 
+                    @php
                         $pivot = $cabinet->pivot ?? null;
+                        $cabinetPivot = $internetSystem->networkCabinetInternetSystems->firstWhere('id', $pivot?->id);
+                        $grouped = $cabinetPivot?->components->groupBy('component_type') ?? collect();
                     @endphp
 
                     {{-- Tabs --}}
@@ -377,18 +388,18 @@ $(function() {
             <div class="row g-2 align-items-end mb-2 component-input-group" data-index="${index}">
                 <div class="col-md-4">
                     <label class="form-label">Select ${label}</label>
-                    <select name="components[${cabinetId}][${componentClass}][${index}][component_id]" class="form-select form-select-sm" required>
+                    <select name="components[${cabinetId}][${componentClass}][${index}][component_id]" class="form-select form-select-sm">
                         ${options}
                     </select>
                     <input type="hidden" name="components[${cabinetId}][${componentClass}][${index}][component_type]" value="${componentClass}">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Units</label>
-                    <input type="number" name="components[${cabinetId}][${componentClass}][${index}][unit]" class="form-control form-control-sm" min="1" required>
+                    <input type="number" name="components[${cabinetId}][${componentClass}][${index}][unit]" class="form-control form-control-sm" min="1">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Cost</label>
-                    <input type="number" name="components[${cabinetId}][${componentClass}][${index}][cost]" class="form-control form-control-sm" step="0.01" min="0" required>
+                    <input type="number" name="components[${cabinetId}][${componentClass}][${index}][cost]" class="form-control form-control-sm" step="0.01" min="0">
                 </div>
                 <div class="col-md-2">
                     <button type="button" class="btn btn-sm btn-danger removeComponentBtn">Remove</button>

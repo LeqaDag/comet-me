@@ -28,4 +28,20 @@ class AllIncident extends Model
     {
         return $this->hasMany(AllIncidentOccurredStatus::class, 'all_incident_id');
     }
+
+    public function energyIncident()
+    {
+        return $this->hasOne(AllEnergyIncident::class, 'all_incident_id', 'id');
+    }
+
+    public function waterIncident()
+    {
+        return $this->hasOne(AllWaterIncident::class, 'all_incident_id', 'id');
+    }
+
+    public function internetIncident()
+    {
+        return $this->hasOne(AllInternetIncident::class, 'all_incident_id', 'id');
+    }
+
 }

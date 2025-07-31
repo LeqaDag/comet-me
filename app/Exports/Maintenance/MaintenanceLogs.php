@@ -98,6 +98,7 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
                 DB::raw('COALESCE(energy_issues.english_name, refrigerator_issues.english_name, 
                     water_issues.english_name, internet_issues.english_name) as issue'),
                 
+                'all_maintenance_tickets.created_by',
                 'all_maintenance_tickets.start_date as visit_date', 
                 'all_maintenance_tickets.completed_date', 
 
@@ -158,8 +159,8 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
     public function headings(): array
     {
         return ["Agent Type", "Agent", "Community", "Region", "Sub Region", "Department", "Assigned to",  
-            "Status", "Type", "Resoultion (Arabic)", "Category", "Action", "Issue", "Ticket created on",  
-            "Completed Date", "Hours (completed - created)", "Days Flag", "Notes"];
+            "Status", "Type", "Resoultion (Arabic)", "Category", "Action", "Issue", "Created by", 
+            "Ticket created on", "Completed Date", "Hours (completed - created)", "Days Flag", "Notes"];
     }
 
     public function title(): string

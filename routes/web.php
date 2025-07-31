@@ -732,7 +732,7 @@ Route::post('camera-additions/delete', [CameraCommunityAdditionController::class
 Route::post('/update-internet-cabinet-component/{id}', [InternetSystemController::class, 'updateInternetSystemCabinetComponent'])->name('updateInternetSystemCabinetComponent');
 Route::delete('/components/{id}', [InternetComponentController::class, 'destroy'])->name('components.destroy');
 Route::put('/components', [InternetComponentController::class, 'storeComponents'])->name('components.storeComponents');
-Route::post('/internet-system-cabinet/{id}', [InternetComponentController::class, 'storeNetworkCabinet'])->name('storeNetworkCabinet');
+Route::post('/internet-system-cabinet/{internetSystemId}', [InternetComponentController::class, 'storeNetworkCabinet'])->name('storeNetworkCabinet');
 Route::delete('/internet-system/{internetSystem}/cabinet/{cabinet}', [InternetComponentController::class, 'deleteInternetSystemCabinet'])
     ->name('deleteInternetSystemCabinet');
 Route::get('internet-system-cabinet/update-cost', [InternetComponentController::class, 'updateNetworkCabinetCost'])

@@ -24,9 +24,12 @@ class AllMaintenanceExport implements WithMultipleSheets, ShouldAutoSize
      */ 
     public function sheets(): array
     {
-        $sheets = [   
-            
+        $sheets = [
+
             new MaintenanceSummary($this->request),
+            new EnergySummary($this->request),
+            new WaterSummary($this->request),
+            new InternetSummary($this->request),
             new MaintenanceLogs($this->request), 
         ];
 

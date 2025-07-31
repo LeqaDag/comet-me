@@ -27,71 +27,6 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle, ShouldAut
     */
     public function collection()
     { 
-        // $test = DB::table('all_incidents')
-          
-        //     ->leftJoin('all_internet_incidents', 'all_incidents.id', 'all_internet_incidents.all_incident_id')
-        //     ->leftJoin('internet_users', 'internet_users.id', 'all_internet_incidents.internet_user_id')
-        //     ->leftJoin('households as internet_holders', 'internet_holders.id', 'internet_users.household_id')
-        //     ->leftJoin('public_structures as internet_publics', 'internet_users.public_structure_id', 'internet_publics.id')
-        //     ->leftJoin('internet_system_communities', 'internet_system_communities.community_id', 'all_internet_incidents.community_id')
-        //     ->leftJoin('internet_systems', 'internet_systems.id', 'internet_system_communities.internet_system_id')
-        //     ->leftJoin('all_internet_incident_damaged_equipment', 'all_internet_incidents.id', 
-        //         'all_internet_incident_damaged_equipment.all_internet_incident_id')
-        //     ->leftJoin('incident_equipment as internet_equipment', 'all_internet_incident_damaged_equipment.incident_equipment_id', 
-        //         'internet_equipment.id')
-
-        //     ->leftJoin('all_internet_incident_system_damaged_equipment', 'all_internet_incidents.id', 
-        //         'all_internet_incident_system_damaged_equipment.all_internet_incident_id')
-        //     ->leftJoin('network_cabinet_components', 'network_cabinet_components.id',
-        //         'all_internet_incident_system_damaged_equipment.network_cabinet_component_id')
-        //     ->leftJoin('router_internet_systems', 'router_internet_systems.id',
-        //         'all_internet_incident_system_damaged_equipment.router_internet_system_id')
-        //     ->leftJoin('switch_internet_systems', 'switch_internet_systems.id',
-        //         'all_internet_incident_system_damaged_equipment.switch_internet_system_id')
-        //     ->leftJoin('controller_internet_systems', 'controller_internet_systems.id',
-        //         'all_internet_incident_system_damaged_equipment.controller_internet_system_id')
-        //     ->leftJoin('ptp_internet_systems', 'ptp_internet_systems.id',
-        //         'all_internet_incident_system_damaged_equipment.ptp_internet_system_id')
-        //     ->leftJoin('ap_internet_systems', 'ap_internet_systems.id',
-        //         'all_internet_incident_system_damaged_equipment.ap_internet_system_id')
-        //     ->leftJoin('ap_lite_internet_systems', 'ap_lite_internet_systems.id',
-        //         'all_internet_incident_system_damaged_equipment.ap_lite_internet_system_id')
-        //     ->leftJoin('uisp_internet_systems', 'uisp_internet_systems.id',
-        //         'all_internet_incident_system_damaged_equipment.uisp_internet_system_id')
-        //     ->leftJoin('connector_internet_systems', 'connector_internet_systems.id',
-        //         'all_internet_incident_system_damaged_equipment.connector_internet_system_id')
-        //     ->leftJoin('electrician_internet_systems', 'electrician_internet_systems.id',
-        //         'all_internet_incident_system_damaged_equipment.electrician_internet_system_id')
-        //     ->select(
-
-        //         DB::raw("GROUP_CONCAT(DISTINCT COALESCE(internet_holders.english_name ,internet_publics.english_name) SEPARATOR ', ') as user"),
-        //         DB::raw("GROUP_CONCAT(DISTINCT COALESCE(internet_systems.system_name) SEPARATOR ', ') as system"),
-        //         DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_internet_incident_damaged_equipment.count IS NULL 
-        //             THEN internet_equipment.name ELSE CONCAT(internet_equipment.name, 
-        //             ' (', all_internet_incident_damaged_equipment.count, ')') END SEPARATOR ', ') as internet_equipment"),
-
-        //         DB::raw("GROUP_CONCAT(DISTINCT all_internet_incident_system_damaged_equipment.network_cabinet_component_id)
-        //             as network_cabinet_componentIDS"),
-
-        //         DB::raw("GROUP_CONCAT(DISTINCT network_cabinet_components.component_id)
-        //             as componentIDS"),
-
-        //         DB::raw("GROUP_CONCAT(DISTINCT network_cabinet_components.component_type)
-        //             as componentTypes"),
-
-        //         DB::raw("GROUP_CONCAT(DISTINCT network_cabinet_components.cost)
-        //             as componentCostS"),
-
-        //         DB::raw("GROUP_CONCAT(DISTINCT network_cabinet_components.unit)
-        //             as componentUnitS"),
-
-        //     )
-        //     ->get();
-
-
-        //     die($test);
-
-
         $query = DB::table('all_incidents')
             ->join('communities', 'all_incidents.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -101,7 +36,7 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle, ShouldAut
             ->join('all_incident_statuses', 'all_incident_statuses.id', 'all_incident_occurred_statuses.all_incident_status_id')
             ->where('all_incidents.is_archived', 0)
             ->where('all_incidents.incident_id', '!=', 4)
-            ->where('all_incidents.date', "2025-07-13")
+            //->where('all_incidents.date', "2025-07-13")
 
             ->leftJoin('all_energy_incidents', 'all_incidents.id', 'all_energy_incidents.all_incident_id')
             ->leftJoin('all_energy_meters', 'all_energy_meters.id', 'all_energy_incidents.all_energy_meter_id')
@@ -233,21 +168,6 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle, ShouldAut
                 internet_holder_donors.donor_name,
                 camera_donors.donor_name
             ) SEPARATOR ', ') as donor_name"),
-
-            // Include the network_cabinet_components info for polymorphic components (fetch component_type and component_id)
-         
-            DB::raw("GROUP_CONCAT(DISTINCT network_cabinet_components.component_id)
-                as componentIDS"),
-
-            DB::raw("GROUP_CONCAT(DISTINCT network_cabinet_components.component_type)
-                as componentTypes"),
-
-                // DB::raw("GROUP_CONCAT(DISTINCT network_cabinet_components.cost)
-                //     as componentCostS"),
-
-            DB::raw("GROUP_CONCAT(DISTINCT network_cabinet_components.unit)
-                as componentCounts"),
-
         ])
         ->orderBy('all_incidents.date', 'desc')
         ->groupBy('all_incidents.date');
@@ -366,73 +286,8 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle, ShouldAut
 
         $results = $query->get();
 
-        // Map component types to models
-        $componentModelMap = [
-            'NvrCamera' => \App\Models\NvrCamera::class,
-            'CameraShelve' => \App\Models\CameraShelve::class,
-            'PatchCord' => \App\Models\PatchCord::class,
-            'PowerDistributor' => \App\Models\PowerDistributor::class,
-            'Keystone' => \App\Models\Keystone::class,
-            // Add other mappings if needed
-        ];
 
-        foreach ($results as $result) {
-
-            $all_damaged = [];
-            if (!empty($result->energy_equipment)) {
-                $all_damaged[] = $result->energy_equipment;
-            }
-            if (!empty($result->water_equipment)) {
-                $all_damaged[] = $result->water_equipment;
-            }
-            if (!empty($result->internet_equipment)) {
-                $all_damaged[] = $result->internet_equipment;
-            }
-            if (!empty($result->camera_equipment)) {
-                $all_damaged[] = $result->camera_equipment;
-            }
-
-            $result->all_equipment_damaged = implode(", ", $all_damaged);
-
-            // Handle network cabinet components
-            $all_components = [];
-            if (!empty($result->componentTypes) && !empty($result->componentIDS) && !empty($result->componentCounts)) {
-
-                $componentTypes = explode(",", $result->componentTypes);
-                $componentIDs = explode(",", $result->componentIDS);
-                $componentCounts = explode(",", $result->componentCounts);
-
-                //dd($componentTypes);
-                for ($i = 0; $i < count($componentTypes); $i++) {
-
-                    $typeKey = strtolower(str_replace(' ', '', $componentTypes[$i]));
-                    $modelClass = $componentModelMap[$typeKey] ?? null;
-                    $id = $componentIDs[$i] ?? null;
-                    $count = $componentCounts[$i] ?? null;
-
-                    if ($modelClass && $id) {
-
-                        $model = $modelClass::find($id);
-                        if ($model) {
-
-                            $all_components[] = $model->model . " (" . $count . ")";
-                        } else {
-
-                            $all_components[] = "Error loading component";
-                        }
-                    } else {
-
-                        $all_components[] = "Unknown component type";
-                    }
-                }
-            }
-
-            $result->all_components = implode(", ", $all_components);
-        }
-
-
-
-
+  
         die($results);
         return $results;
     }
