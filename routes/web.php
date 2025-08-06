@@ -737,3 +737,8 @@ Route::delete('/internet-system/{internetSystem}/cabinet/{cabinet}', [InternetCo
     ->name('deleteInternetSystemCabinet');
 Route::get('internet-system-cabinet/update-cost', [InternetComponentController::class, 'updateNetworkCabinetCost'])
     ->name('updateNetworkCabinetCost');
+
+Route::get('/back-misc-household', [App\Http\Controllers\MiscHouseholdController::class, 'backMISCHousehold'])->name('backMISCHousehold');
+Route::get('/back-misc-public', [App\Http\Controllers\MiscHouseholdController::class, 'backMISCPublic'])->name('backMISCPublic');
+Route::get('/note-misc-household', [App\Http\Controllers\MiscHouseholdController::class, 'notesMISCHousehold'])->name('notesMISCHousehold');
+Route::get('/note-misc-public', [App\Http\Controllers\MiscHouseholdController::class, 'notesMISCPublic'])->name('notesMISCPublic');

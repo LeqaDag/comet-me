@@ -47,9 +47,14 @@
                                     {{$allIncident->date}}
                                 </small>
                             </div>
-                            <p>
-                                {{$allIncident->notes}}
-                            </p>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Description (USS)</p>
+                                <span class="text-muted">{{$allIncident->description}}</span>
+                            </div> <br>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Description (Platform)</p>
+                                <span class="text-muted">{{$allIncident->notes}}</span>
+                            </div> <br>
                         </div>
                         <div class="d-flex justify-content-between flex-wrap flex-sm-row flex-column text-center">
                             <div class="mb-sm-0 mb-2">

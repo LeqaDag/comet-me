@@ -107,7 +107,7 @@ class AllIncidentController extends Controller
         $tickets = $ticketsData['tickets']; 
 
         // Loop through each ticket
-        foreach ($tickets as $ticket) {
+        foreach ($tickets as $ticket) { 
 
             //This code is for incidents tickets
             if($ticket['is_incident'] === 1) $this->handleIncidentStatuses($ticket);
@@ -159,7 +159,6 @@ class AllIncidentController extends Controller
 
     }
 
-
     // Main function to handle incident statuses
     private function handleIncidentStatuses($ticket)
     {
@@ -184,8 +183,8 @@ class AllIncidentController extends Controller
                             // Demolition
                             $statusId = AllIncidentStatus::where("incident_id", $incidentRecord->incident_id)
                                 ->where(function ($query) {
-                                    $query->where("status", "New");
-                                        //->orWhere("status", "In Progress");
+                                    $query->where("status", "New")
+                                        ->orWhere("status", "In Progress");
                                 })->first();
 
                                 
@@ -202,7 +201,35 @@ class AllIncidentController extends Controller
                             }
 
                         } else if ($incidentRecord->incident_id === 2 && $incidentOccurredStatus) {
-                            // Settler (placeholder - you can implement logic here)
+                            // Settler 
+                            $statusId = AllIncidentStatus::where("incident_id", $incidentRecord->incident_id)
+                                ->where(function ($query) {
+                                    $query->where("status", "New")
+                                        ->orWhere("status", "In Progress");
+                                })->first();
+
+                                
+                            if ($statusId && $incidentOccurredStatus->all_incident_status_id === $statusId->id && 
+                                $status !== 'unknown') {
+                                $newStatus = AllIncidentStatus::where("incident_id", $incidentRecord->incident_id)
+                                    ->where("status", $status)
+                                    ->first();
+
+                                if ($newStatus) {
+                                    $incidentOccurredStatus->all_incident_status_id = $newStatus->id;
+                                    $incidentOccurredStatus->save();
+                                }
+                            }
+                        }
+
+                        if(!empty($ticket['incident'])) {
+
+                            foreach ($ticket['incident'] as $incident) {
+
+                                $responseTime = Carbon::parse($incident['response_time'])->toDateString();
+                                $incidentRecord->response_date = $responseTime;
+                                $incidentRecord->save();
+                            }
                         }
                     }
                 }
@@ -217,438 +244,6 @@ class AllIncidentController extends Controller
      */
     public function index(Request $request)
     {
-        static $executed = false;
-
-        // // get all camera incidents
-        // $cameraIncidents = CameraIncident::where("is_archived", 0)->get();
-
-        // foreach($cameraIncidents as $cameraIncident) {
-
-        //     $allIncident = new AllIncident(); 
-        //     $allIncident->community_id = $cameraIncident->community_id;
-        //     $allIncident->incident_id = $cameraIncident->incident_id;
-        //     $allIncident->service_type_id = 4;
-        //     $allIncident->year = $cameraIncident->year;
-        //     $allIncident->date = $cameraIncident->date;
-        //     $allIncident->response_date = $cameraIncident->response_date;
-        //     $allIncident->description = $cameraIncident->description;
-        //     $allIncident->order_number = $cameraIncident->order_number;
-        //     $allIncident->order_date = $cameraIncident->order_date;
-        //     $allIncident->geolocation_lat = $cameraIncident->geolocation_lat;
-        //     $allIncident->geolocation_long = $cameraIncident->geolocation_long;
-        //     $allIncident->hearing_date = $cameraIncident->hearing_date;
-        //     $allIncident->structure_description = $cameraIncident->structure_description;
-        //     $allIncident->case_chronology = $cameraIncident->case_chronology;
-        //     $allIncident->building_permit_request_number = $cameraIncident->building_permit_request_number;
-        //     $allIncident->building_permit_request_submission_date = $cameraIncident->building_permit_request_submission_date;
-        //     $allIncident->illegal_construction_case_number = $cameraIncident->illegal_construction_case_number;
-        //     $allIncident->district_court_case_number = $cameraIncident->district_court_case_number;
-        //     $allIncident->supreme_court_case_number = $cameraIncident->supreme_court_case_number;
-        //     $allIncident->monetary_losses = $cameraIncident->monetary_losses;
-        //     $allIncident->notes = $cameraIncident->notes;
-        //     $allIncident->save();
-
-        //     // Create new internet incident
-        //     $allCameraIncident = new AllCameraIncident();
-        //     $allCameraIncident->all_incident_id = $allIncident->id;
-        //     $allCameraIncident->community_id = $cameraIncident->community_id;
-        //     $allCameraIncident->save();
-            
-        //     // Create incident status
-        //     $existInternetStatus = InternetIncidentStatus::findOrFail($cameraIncident->internet_incident_status_id);
-
-        //     $allStatuses = AllIncidentStatus::all();
-
-        //     $matchedStatus = $allStatuses->first(function ($status) use ($existInternetStatus) {
-        //         return stripos($existInternetStatus->name, $status->status) !== false;
-        //     });
-
-        //     if ($matchedStatus) {
-
-        //         $allIncidentOccurredStatus = new AllIncidentOccurredStatus();
-        //         $allIncidentOccurredStatus->all_incident_id = $allIncident->id;
-        //         $allIncidentOccurredStatus->all_incident_status_id = $matchedStatus->id;
-        //         $allIncidentOccurredStatus->save();
-        //     }
-            
-        //     // Get all equipment damaged
-        //     $cameraDamagedEquipments = CameraIncidentEquipment::where("camera_incident_id", $cameraIncident->id)->get();
-
-        //     foreach($cameraDamagedEquipments as $cameraDamagedEquipment) {
-
-        //         $allCameraIncidentDamagedEquipment = new AllCameraIncidentDamagedEquipment();
-        //         $allCameraIncidentDamagedEquipment->all_camera_incident_id = $allCameraIncident->id;
-        //         $allCameraIncidentDamagedEquipment->incident_equipment_id = $cameraDamagedEquipment->incident_equipment_id;
-        //         $allCameraIncidentDamagedEquipment->save();
-        //     }
-
-        //     // Get all photos
-        //     $internetPhotos = CameraIncidentPhoto::where("camera_incident_id", $cameraIncident->id)->get();
-
-        //     foreach($internetPhotos as $internetPhoto) {
-
-        //         $allCameraIncidentPhoto = new AllCameraIncidentPhoto();
-        //         $allCameraIncidentPhoto->all_camera_incident_id = $allCameraIncident->id;
-        //         $allCameraIncidentPhoto->slug = $internetPhoto->slug;
-        //         $allCameraIncidentPhoto->save();
-        //     }
-        // }
-
-
-        // // get all internet incidents (network)
-        // $internetIncidents = InternetNetworkIncident::where("is_archived", 0)->get();
-
-        // foreach($internetIncidents as $internetIncident) {
-
-        //     $allIncident = new AllIncident(); 
-        //     $allIncident->community_id = $internetIncident->community_id;
-        //     $allIncident->incident_id = $internetIncident->incident_id;
-        //     $allIncident->service_type_id = 3;
-        //     $allIncident->year = $internetIncident->year;
-        //     $allIncident->date = $internetIncident->date;
-        //     $allIncident->response_date = $internetIncident->response_date;
-        //     $allIncident->description = $internetIncident->description;
-        //     $allIncident->order_number = $internetIncident->order_number;
-        //     $allIncident->order_date = $internetIncident->order_date;
-        //     $allIncident->geolocation_lat = $internetIncident->geolocation_lat;
-        //     $allIncident->geolocation_long = $internetIncident->geolocation_long;
-        //     $allIncident->hearing_date = $internetIncident->hearing_date;
-        //     $allIncident->structure_description = $internetIncident->structure_description;
-        //     $allIncident->case_chronology = $internetIncident->case_chronology;
-        //     $allIncident->building_permit_request_number = $internetIncident->building_permit_request_number;
-        //     $allIncident->building_permit_request_submission_date = $internetIncident->building_permit_request_submission_date;
-        //     $allIncident->illegal_construction_case_number = $internetIncident->illegal_construction_case_number;
-        //     $allIncident->district_court_case_number = $internetIncident->district_court_case_number;
-        //     $allIncident->supreme_court_case_number = $internetIncident->supreme_court_case_number;
-        //     $allIncident->monetary_losses = $internetIncident->monetary_losses;
-        //     $allIncident->notes = $internetIncident->notes;
-        //     $allIncident->next_step = $internetIncident->next_step;
-        //     $allIncident->save();
-
-        //     // Create new internet incident
-        //     $allInternetIncident = new AllInternetIncident();
-        //     $allInternetIncident->all_incident_id = $allIncident->id;
-        //     $allInternetIncident->community_id = $internetIncident->community_id;
-        //     $allInternetIncident->save();
-            
-        //     // Create incident status
-        //     $existInternetStatus = InternetIncidentStatus::findOrFail($internetIncident->internet_incident_status_id);
-
-        //     $allStatuses = AllIncidentStatus::all();
-
-        //     $matchedStatus = $allStatuses->first(function ($status) use ($existInternetStatus) {
-        //         return stripos($existInternetStatus->name, $status->status) !== false;
-        //     });
-
-        //     if ($matchedStatus) {
-
-        //         $allIncidentOccurredStatus = new AllIncidentOccurredStatus();
-        //         $allIncidentOccurredStatus->all_incident_id = $allIncident->id;
-        //         $allIncidentOccurredStatus->all_incident_status_id = $matchedStatus->id;
-        //         $allIncidentOccurredStatus->save();
-        //     }
-            
-        //     // Get all equipment damaged
-        //     $internetDamagedEquipments = InternetNetworkIncidentEquipment::where("internet_network_incident_id", $internetIncident->id)->get();
-
-        //     foreach($internetDamagedEquipments as $internetDamagedEquipment) {
-
-        //         $allInternetIncidentDamagedEquipment = new allInternetIncidentDamagedEquipment();
-        //         $allInternetIncidentDamagedEquipment->all_internet_incident_id = $allInternetIncident->id;
-        //         $allInternetIncidentDamagedEquipment->incident_equipment_id = $internetDamagedEquipment->incident_equipment_id;
-        //         $allInternetIncidentDamagedEquipment->save();
-        //     }
-
-        //     // Get all eaffected areas
-        //     $internetAreas = InternetNetworkAffectedArea::where("internet_network_incident_id", $internetIncident->id)->get();
-
-        //     foreach($internetAreas as $internetArea) {
-
-        //         $allInternetIncidentArea = new AllInternetIncidentAffectedArea();
-        //         $allInternetIncidentArea->all_internet_incident_id = $allInternetIncident->id;
-        //         $allInternetIncidentArea->affected_community_id = $internetArea->affected_community_id;
-        //         $allInternetIncidentArea->save();
-        //     }
-
-        //     // Get all affected households
-        //     $internetAffectedHouseholds = InternetNetworkAffectedHousehold::where("internet_network_incident_id", $internetIncident->id)->get();
-
-        //     foreach($internetAffectedHouseholds as $internetAffectedHousehold) {
-
-        //         $allInternetIncidentAffectedHousehold = new AllInternetIncidentAffectedHousehold();
-        //         $allInternetIncidentAffectedHousehold->all_internet_incident_id = $allInternetIncident->id;
-        //         $allInternetIncidentAffectedHousehold->household_id = $internetAffectedHousehold->household_id;
-        //         $allInternetIncidentAffectedHousehold->save();
-        //     }
-
-        //     // Get all photos
-        //     $internetPhotos = InternetNetworkIncidentPhoto::where("internet_network_incident_id", $internetIncident->id)->get();
-
-        //     foreach($internetPhotos as $internetPhoto) {
-
-        //         $allInternetIncidentPhoto = new allInternetIncidentPhoto();
-        //         $allInternetIncidentPhoto->all_internet_incident_id = $allInternetIncident->id;
-        //         $allInternetIncidentPhoto->slug = $internetPhoto->slug;
-        //         $allInternetIncidentPhoto->save();
-        //     }
-        // }
-
-        
-        // // get all Energy users from and store it into AllIncident
-        // $energyIncidentUsers = FbsUserIncident::where("is_archived", 0)->get();
-        
-        // foreach($energyIncidentUsers as $energyIncidentUser) {
-
-        //     $allIncident = new AllIncident(); 
-        //     $allIncident->community_id = $energyIncidentUser->community_id;
-        //     $allIncident->incident_id = $energyIncidentUser->incident_id;
-        //     $allIncident->service_type_id = 1;
-        //     $allIncident->year = $energyIncidentUser->year;
-        //     $allIncident->date = $energyIncidentUser->date;
-        //     $allIncident->response_date = $energyIncidentUser->response_date;
-        //     $allIncident->description = $energyIncidentUser->description;
-        //     $allIncident->order_number = $energyIncidentUser->order_number;
-        //     $allIncident->order_date = $energyIncidentUser->order_date;
-        //     $allIncident->geolocation_lat = $energyIncidentUser->geolocation_lat;
-        //     $allIncident->geolocation_long = $energyIncidentUser->geolocation_long;
-        //     $allIncident->hearing_date = $energyIncidentUser->hearing_date;
-        //     $allIncident->structure_description = $energyIncidentUser->structure_description;
-        //     $allIncident->case_chronology = $energyIncidentUser->case_chronology;
-        //     $allIncident->building_permit_request_number = $energyIncidentUser->building_permit_request_number;
-        //     $allIncident->building_permit_request_submission_date = $energyIncidentUser->building_permit_request_submission_date;
-        //     $allIncident->illegal_construction_case_number = $energyIncidentUser->illegal_construction_case_number;
-        //     $allIncident->district_court_case_number = $energyIncidentUser->district_court_case_number;
-        //     $allIncident->supreme_court_case_number = $energyIncidentUser->supreme_court_case_number;
-        //     $allIncident->monetary_losses = $energyIncidentUser->losses_energy;
-        //     $allIncident->notes = $energyIncidentUser->notes;
-        //     $allIncident->save();
-
-        //     // Create new energy user incident
-        //     $allEnergyIncident = new AllEnergyIncident();
-        //     $allEnergyIncident->all_incident_id = $allIncident->id;
-        //     $allEnergyIncident->all_energy_meter_id = $energyIncidentUser->energy_user_id;
-        //     $allEnergyIncident->save();
-            
-
-        //     // Create incident status
-        //     $fbsStatuses = FbsIncidentStatus::where("fbs_user_incident_id", $energyIncidentUser->id)->get();
-
-        //     foreach($fbsStatuses as $fbsStatus) {
-
-        //         $existStatus = IncidentStatusSmallInfrastructure::findOrFail($fbsStatus->incident_status_small_infrastructure_id);
-
-        //         $allStatuses = AllIncidentStatus::all();
-
-        //         $matchedStatus = $allStatuses->first(function ($status) use ($existStatus) {
-        //             return stripos($existStatus->name, $status->status) !== false;
-        //         });
-    
-        //         if ($matchedStatus) {
-    
-        //             $allIncidentOccurredStatus = new AllIncidentOccurredStatus();
-        //             $allIncidentOccurredStatus->all_incident_id = $allIncident->id;
-        //             $allIncidentOccurredStatus->all_incident_status_id = $matchedStatus->id;
-        //             $allIncidentOccurredStatus->save();
-        //         }
-        //     }
-
-        //     // Get all equipment damaged
-        //     $damagedEquipments = FbsIncidentEquipment::where("fbs_user_incident_id", $energyIncidentUser->id)->get();
-
-        //     foreach($damagedEquipments as $damagedEquipment) {
-
-        //         $allEnergyIncidentDamagedEquipment = new AllEnergyIncidentDamagedEquipment();
-        //         $allEnergyIncidentDamagedEquipment->all_energy_incident_id = $allEnergyIncident->id;
-        //         $allEnergyIncidentDamagedEquipment->incident_equipment_id = $damagedEquipment->incident_equipment_id;
-        //         $allEnergyIncidentDamagedEquipment->save();
-        //     }
-
-        //     // Get all photos
-        //     $incidentPhotos = FbsIncidentPhoto::where("fbs_user_incident_id", $energyIncidentUser->id)->get();
-
-        //     foreach($incidentPhotos as $incidentPhoto) {
-
-        //         $allEnergyIncidentPhoto = new AllEnergyIncidentPhoto();
-        //         $allEnergyIncidentPhoto->all_energy_incident_id = $allEnergyIncident->id;
-        //         $allEnergyIncidentPhoto->slug = $incidentPhoto->slug;
-        //         $allEnergyIncidentPhoto->save();
-        //     }
-        // }
-
-
-        // // get all MG inicdent from MgIncident and store it into AllIncident
-
-        // $mgIncidents = MgIncident::where("is_archived", 0)->get();
-
-        // foreach($mgIncidents as $mgIncident) {
-
-        //     $allIncident = new AllIncident(); 
-        //     $allIncident->community_id = $mgIncident->community_id;
-        //     $allIncident->incident_id = $mgIncident->incident_id;
-        //     $allIncident->service_type_id = 1;
-        //     $allIncident->year = $mgIncident->year;
-        //     $allIncident->date = $mgIncident->date;
-        //     $allIncident->response_date = $mgIncident->response_date;
-        //     $allIncident->description = $mgIncident->description;
-        //     $allIncident->order_number = $mgIncident->order_number;
-        //     $allIncident->order_date = $mgIncident->order_date;
-        //     $allIncident->geolocation_lat = $mgIncident->geolocation_lat;
-        //     $allIncident->geolocation_long = $mgIncident->geolocation_long;
-        //     $allIncident->hearing_date = $mgIncident->hearing_date;
-        //     $allIncident->structure_description = $mgIncident->structure_description;
-        //     $allIncident->case_chronology = $mgIncident->case_chronology;
-        //     $allIncident->building_permit_request_number = $mgIncident->building_permit_request_number;
-        //     $allIncident->building_permit_request_submission_date = $mgIncident->building_permit_request_submission_date;
-        //     $allIncident->illegal_construction_case_number = $mgIncident->illegal_construction_case_number;
-        //     $allIncident->district_court_case_number = $mgIncident->district_court_case_number;
-        //     $allIncident->supreme_court_case_number = $mgIncident->supreme_court_case_number;
-        //     $allIncident->monetary_losses = $mgIncident->monetary_losses;
-        //     $allIncident->notes = $mgIncident->notes;
-        //     $allIncident->save();
-
-        //     // Create new energy incident
-        //     $allEnergyIncident = new AllEnergyIncident();
-        //     $allEnergyIncident->all_incident_id = $allIncident->id;
-        //     $allEnergyIncident->energy_system_id = $mgIncident->energy_system_id;
-        //     $allEnergyIncident->save();
-            
-
-        //     // Create incident status
-        //     $existMgStatus = IncidentStatusMgSystem::findOrFail($mgIncident->incident_status_mg_system_id);
-
-        //     $allStatuses = AllIncidentStatus::all();
-
-        //     $matchedStatus = $allStatuses->first(function ($status) use ($existMgStatus) {
-        //         return stripos($existMgStatus->name, $status->status) !== false;
-        //     });
-
-        //     if ($matchedStatus) {
-
-        //         $allIncidentOccurredStatus = new AllIncidentOccurredStatus();
-        //         $allIncidentOccurredStatus->all_incident_id = $allIncident->id;
-        //         $allIncidentOccurredStatus->all_incident_status_id = $matchedStatus->id;
-        //         $allIncidentOccurredStatus->save();
-        //     }
-
-        //     // Get all affected households
-        //     $mgAffectedHouseholds = MgAffectedHousehold::where("mg_incident_id", $mgIncident->id)->get();
-
-        //     foreach($mgAffectedHouseholds as $mgAffectedHousehold) {
-
-        //         $allEnergyIncidentAffectedHousehold = new AllEnergyIncidentAffectedHousehold();
-        //         $allEnergyIncidentAffectedHousehold->all_energy_incident_id = $allEnergyIncident->id;
-        //         $allEnergyIncidentAffectedHousehold->household_id = $mgAffectedHousehold->household_id;
-        //         $allEnergyIncidentAffectedHousehold->save();
-        //     }
-
-        //     // Get all equipment damaged
-        //     $mgDamagedEquipments = MgIncidentEquipment::where("mg_incident_id", $mgIncident->id)->get();
-
-        //     foreach($mgDamagedEquipments as $mgDamagedEquipment) {
-
-        //         $allEnergyIncidentDamagedEquipment = new AllEnergyIncidentDamagedEquipment();
-        //         $allEnergyIncidentDamagedEquipment->all_energy_incident_id = $allEnergyIncident->id;
-        //         $allEnergyIncidentDamagedEquipment->incident_equipment_id = $mgDamagedEquipment->incident_equipment_id;
-        //         $allEnergyIncidentDamagedEquipment->save();
-        //     }
-
-        //     // Get all photos
-        //     $mgPhotos = MgIncidentPhoto::where("mg_incident_id", $mgIncident->id)->get();
-
-        //     foreach($mgPhotos as $mgPhoto) {
-
-        //         $allEnergyIncidentPhoto = new AllEnergyIncidentPhoto();
-        //         $allEnergyIncidentPhoto->all_energy_incident_id = $allEnergyIncident->id;
-        //         $allEnergyIncidentPhoto->slug = $mgPhoto->slug;
-        //         $allEnergyIncidentPhoto->save();
-        //     }
-        // }
-        
-        
-        // get all water incidents
-        // if (!$executed) {
-        //     $executed = true;
-        //     $h2oIncidents = H2oSystemIncident::where("is_archived", 0)->get();
-
-        //     foreach($h2oIncidents as $h2oIncident) {
-
-        //         $allIncident = new AllIncident(); 
-        //         $allIncident->community_id = $h2oIncident->community_id;
-        //         $allIncident->incident_id = $h2oIncident->incident_id;
-        //         $allIncident->service_type_id = 2;
-        //         $allIncident->year = $h2oIncident->year;
-        //         $allIncident->date = $h2oIncident->date;
-        //         $allIncident->response_date = $h2oIncident->response_date;
-        //         $allIncident->description = $h2oIncident->description;
-        //         $allIncident->order_number = $h2oIncident->order_number;
-        //         $allIncident->order_date = $h2oIncident->order_date;
-        //         $allIncident->geolocation_lat = $h2oIncident->geolocation_lat;
-        //         $allIncident->geolocation_long = $h2oIncident->geolocation_long;
-        //         $allIncident->hearing_date = $h2oIncident->hearing_date;
-        //         $allIncident->structure_description = $h2oIncident->structure_description;
-        //         $allIncident->case_chronology = $h2oIncident->case_chronology;
-        //         $allIncident->building_permit_request_number = $h2oIncident->building_permit_request_number;
-        //         $allIncident->building_permit_request_submission_date = $h2oIncident->building_permit_request_submission_date;
-        //         $allIncident->illegal_construction_case_number = $h2oIncident->illegal_construction_case_number;
-        //         $allIncident->district_court_case_number = $h2oIncident->district_court_case_number;
-        //         $allIncident->supreme_court_case_number = $h2oIncident->supreme_court_case_number;
-        //         $allIncident->monetary_losses = $h2oIncident->monetary_losses;
-        //         $allIncident->notes = $h2oIncident->notes;
-        //         $allIncident->save();
-
-        //         // Create new water incident
-        //         $allWaterIncident = new AllWaterIncident();
-        //         $allWaterIncident->all_incident_id = $allIncident->id;
-        //         if($h2oIncident->water_system_id) $allWaterIncident->water_system_id = $h2oIncident->water_system_id;
-        //         if($h2oIncident->all_water_holder_id) $allWaterIncident->all_water_holder_id = $h2oIncident->all_water_holder_id;
-        //         $allWaterIncident->save();
-                
-        //         // Create incident status
-        //         $waterStatuses = H2oIncidentStatus::where("h2o_system_incident_id", $h2oIncident->id)->get();
-
-        //         foreach($waterStatuses as $waterStatus) {
-
-        //             $existStatus = IncidentStatus::findOrFail($waterStatus->incident_status_id);
-
-        //             $allStatuses = AllIncidentStatus::all();
-
-        //             $matchedStatus = $allStatuses->first(function ($status) use ($existStatus) {
-        //                 return stripos($existStatus->name, $status->status) !== false;
-        //             });
-        
-        //             if ($matchedStatus) {
-        
-        //                 $allIncidentOccurredStatus = new AllIncidentOccurredStatus();
-        //                 $allIncidentOccurredStatus->all_incident_id = $allIncident->id;
-        //                 $allIncidentOccurredStatus->all_incident_status_id = $matchedStatus->id;
-        //                 $allIncidentOccurredStatus->save();
-        //             }
-        //         }
-
-        //         // Get all equipment damaged
-        //         $waterDamagedEquipments = WaterIncidentEquipment::where("h2o_system_incident_id", $h2oIncident->id)->get();
-
-        //         foreach($waterDamagedEquipments as $waterDamagedEquipment) {
-
-        //             $allWaterIncidentDamagedEquipment = new AllWaterIncidentDamagedEquipment();
-        //             $allWaterIncidentDamagedEquipment->all_water_incident_id = $allWaterIncident->id;
-        //             $allWaterIncidentDamagedEquipment->incident_equipment_id = $waterDamagedEquipment->incident_equipment_id;
-        //             $allWaterIncidentDamagedEquipment->save();
-        //         }
-
-        //         // Get all photos
-        //         $waterPhotos = H2oIncidentPhoto::where("h2o_system_incident_id", $h2oIncident->id)->get();
-
-        //         foreach($waterPhotos as $waterPhoto) {
-
-        //             $allWaterIncidentPhoto = new AllWaterIncidentPhoto();
-        //             $allWaterIncidentPhoto->all_water_incident_id = $allWaterIncident->id;
-        //             $allWaterIncidentPhoto->slug = $waterPhoto->slug;
-        //             $allWaterIncidentPhoto->save();
-        //         }
-        //     }
-        // }
-
         $serviceFilter = $request->input('service_filter');
         $communityFilter = $request->input('community_filter');
         $incidentTypeFilter = $request->input('incident_filter');
@@ -818,7 +413,7 @@ class AllIncidentController extends Controller
         $internetEquipments = IncidentEquipment::where('is_archived', 0)
             ->where("incident_equipment_type_id", 4)
             ->orderBy('name', 'ASC')
-            ->get();
+            ->get(); 
 
         $cameraEquipments = IncidentEquipment::where('is_archived', 0)
             ->where("incident_equipment_type_id", 5)
@@ -2339,7 +1934,8 @@ class AllIncidentController extends Controller
             $cabinet = $cabinetSystem->networkCabinet;
 
             //die($cabinet);
-            foreach ($cabinet->components as $cabinetComponent) {
+            foreach ($cabinet->components->where('network_cabinet_internet_system_id', $cabinetSystem->id) as $cabinetComponent) {
+
                 $componentModel = $cabinetComponent->component;
                 $componentName = $componentModel->model ?? 'Unnamed';
                 $componentType = class_basename($cabinetComponent->component_type); // e.g., "Router"

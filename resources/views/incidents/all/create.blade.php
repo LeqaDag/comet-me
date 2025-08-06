@@ -1453,11 +1453,9 @@
                     const isCabinet = item.cabinet_model !== null;
 
                     options += `<option 
-                        value="${item.component_internet_system_id}" 
-                        data-cost="${item.cost}" 
-                        data-type="${item.type}" 
-                        data-is-cabinet="${isCabinet ? 1 : 0}">
-                        ${item.model_name} (${item.type})
+                        value="${item.id}" 
+                        data-cost="${item.cost}" >
+                        ${item.name} 
                     </option>`;
                 }
 
@@ -1556,6 +1554,9 @@
 
                     if(publicUserSystem === "system") {
 
+                        select.prop('disabled', false);
+                        select.html(data.html).selectpicker('refresh');
+
                         selectAffectedHouseholds.prop('disabled', false);
                         selectAffectedHouseholds.html(data.htmlAffectedHouseholds).selectpicker('refresh');
 
@@ -1606,7 +1607,7 @@
         });
 
 
-
+ 
         // Add More Camera Equipment
         let y = 1; 
         const cameraEquipments = {!! json_encode($cameraEquipments) !!};

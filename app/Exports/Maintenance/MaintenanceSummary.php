@@ -413,7 +413,6 @@ class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize,
         }
     }
 
-
     // Get tickets by reolved method
     protected function fetchResolvedMethodCounts(): void
     {

@@ -16,7 +16,7 @@ use App\Models\AllWaterHolderDonor;
 use App\Models\CommunityRepresentative;
 use App\Models\ElectricityMaintenanceCall;
 use App\Models\FbsUserIncident;
-use App\Models\GridUser;
+use App\Models\GridUser; 
 use App\Models\H2oUser;
 use App\Models\H2oMaintenanceCall;
 use App\Models\InternetUser;
@@ -101,6 +101,7 @@ class MiscHouseholdController extends Controller
                     'regions.english_name as region_name',
                     'communities.english_name as name',
                     'communities.arabic_name as aname',
+                    'households.confirmation_notes',
                     DB::raw("'household' as source"))
                 ->latest(); 
                 
@@ -113,6 +114,7 @@ class MiscHouseholdController extends Controller
                     'regions.english_name as region_name',
                     'communities.english_name as name',
                     'communities.arabic_name as aname',
+                    'public_structures.confirmation_notes',
                     DB::raw("'public' as source")
                 )->latest(); 
                 
@@ -127,10 +129,14 @@ class MiscHouseholdController extends Controller
 
                             $detailsButton = "<a type='button' class='detailsHouseholdButton' data-bs-toggle='modal' data-bs-target='#householdDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
                             $moveButton = "<a type='button' title='Start Working' class='moveMISCHousehold' data-id='".$row->id."'><i class='fa-solid fa-check text-success'></i></a>";
+                            $backButton = "<a type='button' title='Back to request' class='backMISCHousehold' data-id='".$row->id."'><i class='fa-solid fa-rotate-right text-danger'></i></a>";
+                            $noteButton = "<a type='button' title='Add notes' class='notesMISCHousehold' data-id='".$row->id."'><i class='fa-solid fa-note-sticky text-info'></i></a>";
                         } else if($row->source == "public") {
 
                             $detailsButton = "<a type='button' class='detailsPublicButton' data-bs-toggle='modal' data-bs-target='#publicDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
                             $moveButton = "<a type='button' title='Start Working' class='moveMISCPublic' data-id='".$row->id."'><i class='fa-solid fa-check text-success'></i></a>";
+                            $backButton = "<a type='button' title='Back to request' class='backMISCPublic' data-id='".$row->id."'><i class='fa-solid fa-rotate-right text-danger'></i></a>";
+                            $noteButton = "<a type='button' title='Add notes' class='notesMISCPublic' data-id='".$row->id."'><i class='fa-solid fa-sticky-note text-info'></i></a>";
                         } 
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
@@ -139,7 +145,7 @@ class MiscHouseholdController extends Controller
                             Auth::guard('user')->user()->user_type_id == 4) 
                         {
                                 
-                            return $moveButton. " " .$detailsButton;
+                            return $moveButton. " " .$detailsButton. " ". $backButton. " ". $noteButton;
                         } else return $detailsButton; 
                     })
                    
@@ -266,6 +272,114 @@ class MiscHouseholdController extends Controller
 
         $response['success'] = 1;
         $response['msg'] = 'MISC Public Confirmed successfully'; 
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Move a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function backMISCHousehold(Request $request)
+    {
+        $id = $request->id;
+
+        $household = Household::find($id);
+        $status = "Requested";
+        $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
+
+        if($household) {
+            
+            if($statusHousehold) {
+
+                $household->household_status_id = $statusHousehold->id;
+                $household->energy_system_cycle_id = null; 
+                $household->save();
+            }
+        } 
+
+        $response['success'] = 1;
+        $response['msg'] = 'MISC Household Backed successfully to requested list'; 
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Move a resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function backMISCPublic(Request $request)
+    {
+        $id = $request->id;
+
+        $public = PublicStructure::find($id);
+        $status = "Requested";
+        $statusPublic = PublicStructureStatus::where('status', 'like', '%' . $status . '%')->first();
+
+        if($public) {
+            
+            if($statusPublic) {
+
+                $public->public_structure_status_id = $statusPublic->id;
+                $public->energy_system_cycle_id = null; 
+                $public->save();
+            }
+        } 
+
+        $response['success'] = 1;
+        $response['msg'] = 'MISC Public Backed successfully to requested list'; 
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Add Notes
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function notesMISCHousehold(Request $request)
+    {
+        $id = $request->id;
+
+        $household = Household::find($id);
+    
+        if($household) {
+            
+            $household->confirmation_notes = $request->note;
+            $household->save();
+        } 
+
+        $response['success'] = 1;
+        $response['msg'] = 'Notes added successfully'; 
+
+        return response()->json($response); 
+    }
+
+    /**
+     * Add Notes
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function notesMISCPublic(Request $request)
+    {
+        $id = $request->id;
+
+        $public = PublicStructure::find($id);
+    
+        if($public) {
+            
+            $public->confirmation_notes = $request->note;
+            $public->save();
+        } 
+
+        $response['success'] = 1;
+        $response['msg'] = 'Notes added successfully'; 
 
         return response()->json($response); 
     }

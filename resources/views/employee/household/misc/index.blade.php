@@ -171,6 +171,7 @@
                         <th class="text-center">Arabic Name</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Region</th>
+                        <th class="text-center">Notes</th>
                         <th class="text-center">Options</th>
                     </tr>
                 </thead>
@@ -202,6 +203,7 @@
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'name', name: 'name'},
                 {data: 'region_name', name: 'region_name'},
+                {data: 'confirmation_notes', name: 'confirmation_notes'},
                 {data: 'action' }
             ]
         });
@@ -480,6 +482,199 @@
                 }
             });
         });
+
+        // Back household to energy request
+        $('#miscHouseholdsTable').on('click', '.backMISCHousehold',function() {
+
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to back this to requested list?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('backMISCHousehold') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#miscHouseholdsTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+
+        // Back public to energy request
+        $('#miscHouseholdsTable').on('click', '.backMISCPublic',function() {
+
+            var id = $(this).data('id');
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure you want to back this to requested list?',
+                showDenyButton: true,
+                confirmButtonText: 'Confirm'
+            }).then((result) => {
+
+                if(result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('backMISCPublic') }}",
+                        type: 'get',
+                        data: {id: id},
+                        success: function(response) {
+                            if(response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    showDenyButton: false,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Okay!'
+                                }).then((result) => {
+                                    $('#miscHouseholdsTable').DataTable().draw();
+                                });
+                            } else {
+
+                                alert("Invalid ID.");
+                            }
+                        }
+                    });
+                } else if (result.isDenied) {
+
+                    Swal.fire('Changes are not saved', '', 'info')
+                }
+            });
+        });
+
+        // Add notes for misc household
+        $('#miscHouseholdsTable').on('click', '.notesMISCHousehold', function () {
+            var id = $(this).data('id');
+
+            // Get the existing note from the current row
+            var currentRow = $(this).closest('tr');
+            var existingNote = table.row(currentRow).data().confirmation_notes || '';
+
+            Swal.fire({
+                title: 'Edit Note',
+                input: 'textarea',
+                inputValue: existingNote, // Pre-fill the textarea
+                inputPlaceholder: 'Type your note here...',
+                inputAttributes: {
+                    'aria-label': 'Type your note here'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Save Note'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var note = result.value;
+
+                    if (!note || note.trim() === "") {
+                        Swal.fire('Note cannot be empty.', '', 'error');
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "{{ route('notesMISCHousehold') }}",
+                        type: 'GET', // Use POST if you're updating data
+                        data: {
+                            id: id,
+                            note: note
+                        },
+                        success: function (response) {
+                            if (response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    confirmButtonText: 'Okay!'
+                                }).then(() => {
+                                    table.draw(); // Refresh the DataTable
+                                });
+                            } else {
+                                Swal.fire('Failed to save note.', '', 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Server error. Please try again.', '', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Add notes for misc public
+        $('#miscHouseholdsTable').on('click', '.notesMISCPublic', function () {
+            var id = $(this).data('id');
+
+            // Get the existing note from the current row
+            var currentRow = $(this).closest('tr');
+            var existingNote = table.row(currentRow).data().confirmation_notes || '';
+
+            Swal.fire({
+                title: 'Edit Note',
+                input: 'textarea',
+                inputValue: existingNote, // Pre-fill the textarea
+                inputPlaceholder: 'Type your note here...',
+                inputAttributes: {
+                    'aria-label': 'Type your note here'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Save Note'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var note = result.value;
+
+                    if (!note || note.trim() === "") {
+                        Swal.fire('Note cannot be empty.', '', 'error');
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "{{ route('notesMISCPublic') }}",
+                        type: 'GET', 
+                        data: {
+                            id: id,
+                            note: note
+                        },
+                        success: function (response) {
+                            if (response.success == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.msg,
+                                    confirmButtonText: 'Okay!'
+                                }).then(() => {
+                                    table.draw(); // Refresh the DataTable
+                                });
+                            } else {
+                                Swal.fire('Failed to save note.', '', 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Server error. Please try again.', '', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
     });
 </script>
 @endsection

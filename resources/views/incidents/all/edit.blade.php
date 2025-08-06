@@ -252,12 +252,21 @@
                 @endif
 
                 <div class="row">
-                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Description</label>
+                            <label class='col-md-12 control-label'>Description (USS)</label>
                             <textarea name="description" class="form-control" 
                                 style="resize:none" cols="20" rows="5">
                             {{$allIncident->description}}
+                            </textarea>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Description (Platform)</label>
+                            <textarea name="notes" class="form-control" 
+                                style="resize:none" cols="20" rows="5">
+                            {{$allIncident->notes}}
                             </textarea>
                         </fieldset>
                     </div>
@@ -492,7 +501,8 @@
                                             $userPublicEnergyEquipments = $userPublicEnergyEquipments->where('incident_equipment_type_id', 2);
                                         @endphp
                                         @foreach($userPublicEnergyEquipments as $equipment)
-                                            <option value="{{ $equipment->id }}">{{ $equipment->name }}</option>
+                                            <option value="{{ $equipment->id }}"
+                                            data-cost="{{$equipment['cost']}}">{{ $equipment->name }}</option>
                                         @endforeach
                                     </select>
                                 </td>
@@ -696,7 +706,9 @@
                                         $userPublicWaterEquipments = $userPublicEnergyEquipments->where('incident_equipment_type_id', 1);
                                     @endphp
                                     @foreach($userPublicWaterEquipments as $equipment)
-                                        <option value="{{ $equipment->id }}">{{ $equipment->name }}</option>
+                                        <option value="{{ $equipment->id }}"
+                                            data-cost="{{$equipment['cost']}}">
+                                            {{ $equipment->name }}</option>
                                     @endforeach
                                 </select>
                             </td>
@@ -921,7 +933,10 @@
                                         $userPublicInternetEquipments = $userPublicEnergyEquipments->where('incident_equipment_type_id', 4);
                                     @endphp
                                     @foreach($userPublicInternetEquipments as $equipment)
-                                        <option value="{{ $equipment->id }}">{{ $equipment->name }}</option>
+                                        <option value="{{ $equipment->id }}"
+                                            data-cost="{{$equipment['cost']}}" >
+                                            {{ $equipment->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </td>
@@ -1814,7 +1829,7 @@
         $('#addRemoveEnergyEquipmentsDamagedButton').on('click', function () {
             let options = '<option disabled selected>Choose one...</option>';
             equipmentEnergyDamagedsData.forEach(t => {
-                options += `<option value="${t.id}">${t.name}</option>`;
+                options += `<option value="${t.id}" data-cost="${t.cost}">${t.name}</option>`;
             });
 
             const newRow = `
@@ -1845,6 +1860,21 @@
 
         $(document).on('click', '.remove-input-row', function () {
             $(this).closest('tr').remove();
+        });
+
+        $(document).on('change', 'select[name="energy_equipment_damaged_ids[]"]', function () {
+
+            const selectedOption = $(this).find('option:selected');
+            const cost = selectedOption.data('cost');
+
+            const row = $(this).closest('tr');
+
+            // Find the closest <tr> and the corresponding cost input
+            const costInput = row.find('input[name^="energy_equipment_damaged_costs"]');
+
+            if (cost !== undefined) {
+                costInput.val(cost);
+            }
         });
 
         const debounceTimers = {};
@@ -1934,7 +1964,7 @@
         $('#addRemoveWaterEquipmentsDamagedButton').on('click', function () {
             let options = '<option disabled selected>Choose one...</option>';
             equipmentWaterDamagedsData.forEach(t => {
-                options += `<option value="${t.id}">${t.name}</option>`;
+                options += `<option value="${t.id}" data-cost="${t.cost}">${t.name}</option>`;
             });
 
             const newRow = `
@@ -1965,6 +1995,21 @@
 
         $(document).on('click', '.remove-input-row', function () {
             $(this).closest('tr').remove();
+        });
+
+        $(document).on('change', 'select[name="water_equipment_damaged_ids[]"]', function () {
+
+            const selectedOption = $(this).find('option:selected');
+            const cost = selectedOption.data('cost');
+
+            const row = $(this).closest('tr');
+
+            // Find the closest <tr> and the corresponding cost input
+            const costInput = row.find('input[name^="water_equipment_damaged_costs"]');
+
+            if (cost !== undefined) {
+                costInput.val(cost);
+            }
         });
 
         const debounceTimers = {};
@@ -2055,7 +2100,8 @@
         $('#addRemoveInternetEquipmentsDamagedButton').on('click', function () {
             let options = '<option disabled selected>Choose one...</option>';
             equipmentInternetDamagedsData.forEach(t => {
-                options += `<option value="${t.id}">${t.name}</option>`;
+                options += `<option value="${t.id}"
+                    data-cost="${t.cost}">${t.name}</option>`;
             });
 
             const newRow = `
@@ -2087,6 +2133,22 @@
         $(document).on('click', '.remove-input-row', function () {
             $(this).closest('tr').remove();
         });
+
+        $(document).on('change', 'select[name="internet_equipment_damaged_ids[]"]', function () {
+
+            const selectedOption = $(this).find('option:selected');
+            const cost = selectedOption.data('cost');
+
+            const row = $(this).closest('tr');
+
+            // Find the closest <tr> and the corresponding cost input
+            const costInput = row.find('input[name^="internet_equipment_damaged_costs"]');
+
+            if (cost !== undefined) {
+                costInput.val(cost);
+            }
+        });
+
 
         const debounceTimers = {};
         $(document).on('input', '.internet-equipment-units, .internet-equipment-costs', function () {
@@ -2598,7 +2660,7 @@
             });
 
             const newRow = `
-                <tr>
+                <tr> 
                     <td>
                         <select name="internet_system_equipment_damaged_ids[]" 
                             class="selectpicker form-control" data-live-search="true">

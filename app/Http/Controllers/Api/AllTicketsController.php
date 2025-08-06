@@ -253,6 +253,7 @@ class AllTicketsController extends Controller
     // Handle the resolution actions for the ticket
     private function handleTicketActions($resolutionActions, $maintenanceTicketID)
     {
+        //dd($resolutionActions);
         if ($resolutionActions) {
             // Ensure actions are unique
             $uniqueActions = array_unique($resolutionActions);
@@ -266,6 +267,7 @@ class AllTicketsController extends Controller
 
                 // If the action doesn't exist, create and save it
                 if (!$existingAction) {
+
                     $newAction = new AllMaintenanceTicketAction();
                     $newAction->all_maintenance_ticket_id = $maintenanceTicketID;
                     $newAction->action_id = $actionId;
@@ -406,6 +408,7 @@ class AllTicketsController extends Controller
         }
     }
 
+
     // This function for getting the holder depends on both service & comet_id
     private function getHolderForIncident($incidentId, $comet_id, $department, $cameraFlag, $communityId)
     {
@@ -454,7 +457,7 @@ class AllTicketsController extends Controller
 
             $newIncident->save();
 
-            $status = AllIncidentStatus::where('status', "New")
+            $status= AllIncidentStatus::where('status', "New")
                 ->where("incident_id", $incidentTypeID)
                 ->first();
     
@@ -466,10 +469,21 @@ class AllTicketsController extends Controller
                 $incidentStatus->save();
             }
 
-            // Now we should filter the agent on Enrgy, water, internet, camera
+            // Now we should filter the agent on Energy, water, internet, camera
             $this->getHolderForIncident($newIncident->id, $ticket["comet_id"], $ticket['department'], 
                 $ticket['is_camera'], $community->id);
         } else {
+
+            if(!empty($ticket['incident'])) {
+
+                foreach ($ticket['incident'] as $incident) {
+
+                    $incidentTime = Carbon::parse($incident['incident_time'])->toDateString();
+                    $existingIncidentTicket->date = $incidentTime;
+                    $year = explode('-', $incidentTime);
+                    $existingIncidentTicket->year = $year[0];
+                }
+            }
 
             $existingIncidentTicket->description = $ticket["description"];
             $existingIncidentTicket->save();
