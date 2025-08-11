@@ -13,12 +13,23 @@
 label, table {
     margin-top: 20px;
 }
+
+.component-grid div {
+    background: #f5f5f5;
+    padding: 8px;
+    border-radius: 4px;
+}
+.component-grid label {
+    margin-left: 5px;
+    font-size: 15px;
+}
+
 </style>
  
 <p>
     <a class="btn btn-primary" data-toggle="collapse" href="#collapseEnergySystemVisualData" 
         role="button" aria-expanded="false" aria-controls="collapseEnergySystemVisualData">
-        <i class="menu-icon tf-icons bx bx-show-alt"></i>
+        <i class="menu-icon tf-icons bx bx-show-alt"></i> 
         Visualize Data
     </a>
     <button class="btn btn-primary" type="button" data-toggle="collapse" 
@@ -219,7 +230,7 @@ label, table {
                     <a type="button" class="btn btn-success" 
                         href="{{url('energy-system', 'create')}}">
                         Create New Energy System	
-                    </a>
+                    </a> 
                     <a type="button" class="btn btn-success" 
                         href="{{url('energy-component', 'create')}}">
                         Create New Energy Components	
@@ -394,6 +405,134 @@ label, table {
             }
         });
     });
+
+    // Copy record
+    $('#systemEnergyTable').on('click', '.copyEnergySystem', function () {
+
+        var id = $(this).data('id');
+
+        $.ajax({
+            url: "energy-system/copy/" + id, 
+            type: 'GET',
+            success: function (data) {
+
+                let systemOptions = '<option value="">-- Select a System --</option>';
+                data.systems.forEach(function (system) {
+                    systemOptions += `<option value="${system.id}">${system.name}</option>`;
+                });
+
+                let componentOptions = `
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="selectAllComponents">
+                        <label class="form-check-label fw-bold" for="selectAllComponents">Select All Components</label>
+                    </div>
+                `;
+                data.components.forEach(function (component, index) {
+                    const uniqueId = `component-${component.id}-${index}`;
+                    componentOptions += `
+                        <div class="form-check">
+                            <input class="form-check-input component-checkbox" type="checkbox" name="components[]" value="${component.id}" id="${uniqueId}">
+                            <label class="form-check-label" for="${uniqueId}">${component.name}</label>
+                        </div>`;
+                });
+
+                Swal.fire({
+                    title: 'Copy from Another System',
+                    width: '60%',
+                    html: `
+                        <form id="copySystemForm">
+                            <div style="text-align: left;">
+                                <div class="form-group mb-3">
+                                    <label for="systemSelect"><strong>Select Source System:</strong></label>
+                                    <select id="systemSelect" name="system_id" class="swal2-select selectpicker" data-live-search="true" style="width: 100%;">
+                                        ${systemOptions}
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group mt-4">
+                                    <label><strong>Select Components to Copy:</strong></label>
+                                    <div class="component-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                                        ${componentOptions}
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'Copy',
+                    preConfirm: () => {
+                        const systemId = $('#systemSelect').val();
+                        const selectedComponents = [];
+                        $('input[name="components[]"]:checked').each(function () {
+                            selectedComponents.push($(this).val());
+                        });
+
+                        if (!systemId || selectedComponents.length === 0) {
+                            Swal.showValidationMessage(`Please select a system and at least one component.`);
+                            return false;
+                        }
+
+                        return {
+                            system_id: systemId,
+                            components: selectedComponents
+                        };
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        const formData = result.value;
+                        $.ajax({
+                            url: "/energy-system/copy/components/" + formData.system_id + "/" + formData.components + "/" + id, 
+                            type: 'get',
+                            data: {
+                                system_id: formData.system_id,
+                                components: formData.components,
+                            },
+                            success: function (response) {
+
+                                console.log(response);
+                                Swal.fire('Success', 'Components copied successfully!', 'success');
+                                table.ajax.reload();
+                            },
+                            error: function (xhr) {
+                                Swal.fire('Error', 'Failed to copy components.', 'error');
+                            }
+                        });
+                    }
+                });
+
+                // Re-initialize selectpicker
+                setTimeout(() => {
+                    $('#systemSelect').selectpicker('render');
+                }, 100);
+
+
+                setTimeout(() => {
+
+                    $('#systemSelect').selectpicker('render');
+
+                    // Select All toggle
+                    $('#selectAllComponents').on('change', function () {
+
+                        const isChecked = $(this).is(':checked');
+                        $('.component-checkbox').prop('checked', isChecked);
+                    });
+
+                    // Optional: If all checkboxes are manually checked/unchecked, sync the "Select All" checkbox
+                    $('.component-checkbox').on('change', function () {
+
+                        const total = $('.component-checkbox').length;
+                        const checked = $('.component-checkbox:checked').length;
+                        $('#selectAllComponents').prop('checked', total === checked);
+                    });
+                }, 100);
+
+            }
+
+        });
+    });
+
 
 </script>
 @endsection

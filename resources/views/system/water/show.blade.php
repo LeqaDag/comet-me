@@ -51,11 +51,11 @@
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <h6>
-                        Community: 
-                        <span class="spanDetails">
-                            {{$waterSystem->Community->english_name}}
-                        </span>
-                    </h6>
+                        Community:  
+                        @if($waterSystem->community_id)
+                            <span class="spanDetails">{{ $waterSystem->Community->english_name }}</span>
+                        @endif
+                </h6>
                 </div>
             </div>
             <div class="row">

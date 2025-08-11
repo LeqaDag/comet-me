@@ -340,7 +340,8 @@ class AllIncidentController extends Controller
                         $deleteButton = "<a type='button' class='deleteAllIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
-                            Auth::guard('user')->user()->user_type_id == 2) 
+                            Auth::guard('user')->user()->user_type_id == 2 ||
+                            Auth::guard('user')->user()->role_id == 21) 
                         {
                                 
                             return $viewButton." ". $updateButton." ".$deleteButton;
@@ -1164,7 +1165,8 @@ class AllIncidentController extends Controller
                 ->select("internet_system_id")
                 ->first();
 
-            $internetSystemComponents = $this->extractInternetSystemComponents($internetSystemCommunity->internet_system_id);
+            if($internetSystemCommunity) $internetSystemComponents = $this->extractInternetSystemComponents($internetSystemCommunity->internet_system_id);
+            
             $internetAffectedHouseholds = DB::table('internet_users')
                 ->join('households', 'internet_users.household_id', 'households.id')
                 ->where('internet_users.is_archived', 0)

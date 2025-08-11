@@ -375,7 +375,7 @@ class AllTicketsController extends Controller
             $community = InternetSystemCommunity::where("is_archived", 0)
                 ->where("internet_system_id", $internetSystem->id)
                 ->first();
-            if ($community) $incident->community_id = $community->id;
+            if ($community) $incident->community_id = $community->community_id;
         }
 
         $incident->save();

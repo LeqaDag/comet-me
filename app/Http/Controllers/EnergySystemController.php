@@ -16,7 +16,7 @@ use App\Models\CommunityRole;
 use App\Models\Compound;
 use App\Models\Donor;
 use App\Models\EnergySystem;
-use App\Models\EnergyBattery; 
+use App\Models\EnergyBattery;  
 use App\Models\EnergyPv;
 use App\Models\EnergyAirConditioner; 
 use App\Models\EnergyBatteryStatusProcessor;
@@ -128,11 +128,14 @@ class EnergySystemController extends Controller
             $totalCost += EnergySystemElectricityBosRoom::where('energy_system_id', $energySystem->id)->sum('cost');
             $totalCost += EnergySystemGrid::where('energy_system_id', $energySystem->id)->sum('cost');
             $totalCost += EnergySystemRefrigeratorCost::where('energy_system_id', $energySystem->id)->sum('cost');
+            $totalCost += EnergySystemFbsCabinet::where('energy_system_id', $energySystem->id)->sum('cost');
+            $totalCost += EnergySystemFbsFan::where('energy_system_id', $energySystem->id)->sum('cost');
+            $totalCost += EnergySystemFbsLock::where('energy_system_id', $energySystem->id)->sum('cost');
+            $totalCost += EnergySystemFbsWiring::where('energy_system_id', $energySystem->id)->sum('cost');
 
             // Assign total cost to the energy system and save again
             $energySys->total_costs = $totalCost;
             $energySys->save();
-            
         }
     }
 
@@ -185,6 +188,7 @@ class EnergySystemController extends Controller
     
                         $viewButton = "<a type='button' class='viewEnergySystem' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergySystemModal' ><i class='fa-solid fa-eye text-info'></i></a>";
                         $updateButton = "<a type='button' class='updateEnergySystem' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $copyButton = "<a type='button' title='Copy' class='copyEnergySystem' data-id='".$row->id."' ><i class='fa-solid fa-copy text-warning'></i></a>";
                         $deleteButton = "<a type='button' class='deleteEnergySystem' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
                         
                         if(Auth::guard('user')->user()->user_type_id == 1 || 
@@ -193,7 +197,7 @@ class EnergySystemController extends Controller
                             Auth::guard('user')->user()->user_type_id == 4) 
                         {
                                 
-                            return $viewButton." ". $updateButton." ".$deleteButton;
+                            return $viewButton." ". $updateButton." ". $copyButton. " ". $deleteButton;
                         } else return $viewButton;
                     })
                    
@@ -1817,6 +1821,192 @@ class EnergySystemController extends Controller
         $response = $dataIncidents; 
       
         return response()->json($response); 
+    }
+
+
+    /** 
+     * This function for getting all the components for each system
+    */
+    public function getSystemComponentData($id)
+    {
+        $currentSystem = EnergySystem::findOrFail($id);
+        $systems = EnergySystem::where("is_archived", 0)
+            ->where("energy_system_type_id", $currentSystem->energy_system_type_id)
+            ->where("id", "!=", $id)
+            ->select('id', 'name')->get();
+
+        $sharedComponents = [
+
+            ['id' => 'batteries', 'name' => 'Battery Systems'],
+            ['id' => 'pv_panels', 'name' => 'PV Systems'],
+            ['id' => 'controllers', 'name' => 'Charge Controllers'],
+            ['id' => 'inverters', 'name' => 'Inverters'],
+            ['id' => 'relay_drivers', 'name' => 'Relay Drivers'],
+            ['id' => 'load_relays', 'name' => 'Load Relays'],
+            ['id' => 'bsp', 'name' => 'Battery Status Processors'],
+            ['id' => 'rcc', 'name' => 'Remote Control Centers'],
+            ['id' => 'logger', 'name' => 'Monitoring Systems'],
+            ['id' => 'generator', 'name' => 'Generators'],
+            ['id' => 'turbine', 'name' => 'Wind Turbines'],
+            ['id' => 'pv_mcb', 'name' => 'PV MCBs'],
+            ['id' => 'controller_mcb', 'name' => 'Charge Controller MCBs'],
+            ['id' => 'inverter_mcb', 'name' => 'Inverter MCBs'],
+            ['id' => 'pv_mount', 'name' => 'PV Mounts'],
+            ['id' => 'bts', 'name' => 'Battery Temp Sensors'],
+        ];
+
+
+        $mgComponents = [
+
+            ['id' => 'air_conditioner', 'name' => 'Air Conditioners'],
+            ['id' => 'battary_mount', 'name' => 'Battery Mounts']
+        ];
+
+
+
+        if($currentSystem->energy_system_type_id == 2) $sharedComponents = $sharedComponents;
+        else $sharedComponents = array_merge($sharedComponents, $mgComponents);
+
+        return response()->json([
+            'systems' => $systems,
+            'components' => $sharedComponents
+        ]);
+    }
+
+    /**
+     * Change resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function copyComponents($id, $components, $systemId)
+    {
+        $sourceSystem  = EnergySystem::findOrFail($id);
+        
+        $components = array_unique(array_map('trim', explode(',', $components)));
+
+        foreach ($components as $componentType) {
+  
+            $this->copyComponentData($componentType, $sourceSystem, $systemId);
+        }
+
+        return response()->json("Copied Successfully!"); 
+    }
+
+
+    private function copyComponentData($type, $sourceSystem, $systemId)
+    {
+        $componentModels = [
+            'batteries' => 'App\\Models\\EnergySystemBattery',
+            'pv_panels' => 'App\\Models\\EnergySystemPv',
+            'controllers' => 'App\\Models\\EnergySystemChargeController',
+            'inverters' => 'App\\Models\\EnergySystemInverter',
+            'relay_drivers' => 'App\\Models\\EnergySystemRelayDriver',
+            'load_relays' => 'App\\Models\\EnergySystemLoadRelay',
+            'bsp' => 'App\\Models\\EnergySystemBatteryStatusProcessor',
+            'rcc' => 'App\\Models\\EnergySystemRemoteControlCenter',
+            'logger' => 'App\\Models\\EnergySystemMonitoring',
+            'generator' => 'App\\Models\\EnergySystemGenerator',
+            'turbine' => 'App\\Models\\EnergySystemWindTurbine',
+            'pv_mcb' => 'App\\Models\\EnergySystemMcbPv',
+            'controller_mcb' => 'App\\Models\\EnergySystemMcbChargeController',
+            'inverter_mcb' => 'App\\Models\\EnergySystemMcbInverter',
+            'pv_mount' => 'App\\Models\\EnergySystemPvMount',
+            'bts' => 'App\\Models\\EnergySystemBatteryTemperatureSensor',
+            'air_conditioner' => 'App\\Models\\EnergySystemAirConditioner',
+            'battary_mount' => 'App\\Models\\EnergySystemBatteryMount',
+        ];
+
+        if (!isset($componentModels[$type])) {
+            return;
+        }
+
+        $modelClass = $componentModels[$type];
+
+        // Retrieve source components linked to the source system
+        $sourceComponents = $modelClass::where('energy_system_id', $sourceSystem->id)->get();
+
+        foreach ($sourceComponents as $component) {
+
+            $query = $modelClass::where('energy_system_id', $systemId);
+
+            if ($type === 'air_conditioner') {
+
+                $query->where('energy_air_conditioner_id', $component->energy_air_conditioner_id);
+            } elseif ($type === 'batteries') {
+
+                $query->where('battery_type_id', $component->battery_type_id);
+            } elseif ($type === 'battary_mount') {
+
+                $query->where('energy_battery_mount_id', $component->energy_battery_mount_id);
+            } elseif ($type === 'bsp') {
+
+                $query->where('energy_battery_status_processor_id', $component->energy_battery_status_processor_id);
+            } elseif ($type === 'bts') {
+
+                $query->where('energy_battery_temperature_sensor_id', $component->energy_battery_temperature_sensor_id);
+            } elseif ($type === 'controllers') {
+
+                $query->where('energy_charge_controller_id', $component->energy_charge_controller_id);
+            } elseif ($type === 'generator') {
+
+                $query->where('energy_generator_id', $component->energy_generator_id);
+            } elseif ($type === 'inverters') {
+
+                $query->where('energy_inverter_id', $component->energy_inverter_id);
+            } elseif ($type === 'load_relays') {
+
+                $query->where('energy_load_relay_id', $component->energy_load_relay_id);
+            } elseif ($type === 'controller_mcb') {
+
+                $query->where('energy_mcb_charge_controller_id', $component->energy_mcb_charge_controller_id);
+            } elseif ($type === 'inverter_mcb') {
+
+                $query->where('energy_mcb_inverter_id', $component->energy_mcb_inverter_id);
+            } elseif ($type === 'pv_mcb') {
+
+                $query->where('energy_mcb_pv_id', $component->energy_mcb_pv_id);
+            } elseif ($type === 'logger') {
+
+                $query->where('energy_monitoring_id', $component->energy_monitoring_id);
+            } elseif ($type === 'pv_panels') {
+
+                $query->where('pv_type_id', $component->pv_type_id);
+            } elseif ($type === 'pv_mount') {
+
+                $query->where('energy_pv_mount_id', $component->energy_pv_mount_id);
+            } elseif ($type === 'relay_drivers') {
+
+                $query->where('relay_driver_type_id', $component->relay_driver_type_id);
+            } elseif ($type === 'rcc') {
+
+                $query->where('energy_remote_control_center_id', $component->energy_remote_control_center_id);
+            } elseif ($type === 'turbine') {
+
+                $query->where('energy_wind_turbine_id', $component->energy_wind_turbine_id);
+            } elseif ($type === 'grid') {
+
+                $query->where('energy_system_id', $systemId);
+            } elseif ($type === 'refrigerator') {
+
+                $query->where('energy_system_id', $systemId);
+            } elseif ($type === 'electricity_room') {
+
+                $query->where('energy_system_id', $systemId);
+            } elseif ($type === 'electricity_bos_room') {
+
+                $query->where('energy_system_id', $systemId);
+            } 
+
+            if ($query->exists()) {
+                continue; 
+            }
+
+            $newComponent = $component->replicate();
+            $newComponent->energy_system_id = $systemId;
+            $newComponent->save();
+        }
+
     }
 
     /**

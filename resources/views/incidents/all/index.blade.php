@@ -181,7 +181,8 @@
         </div>
         <div class="card-body">
             @if(Auth::guard('user')->user()->user_type_id == 1 ||  
-                Auth::guard('user')->user()->user_type_id == 2 )
+                Auth::guard('user')->user()->user_type_id == 2 ||
+                Auth::guard('user')->user()->role_id == 21)
                 <div class="row">
                     <div class="col-xl-3 col-lg-3 col-md-3">
                         <button type="button" class="btn btn-warning" 

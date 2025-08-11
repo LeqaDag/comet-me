@@ -742,3 +742,10 @@ Route::get('/back-misc-household', [App\Http\Controllers\MiscHouseholdController
 Route::get('/back-misc-public', [App\Http\Controllers\MiscHouseholdController::class, 'backMISCPublic'])->name('backMISCPublic');
 Route::get('/note-misc-household', [App\Http\Controllers\MiscHouseholdController::class, 'notesMISCHousehold'])->name('notesMISCHousehold');
 Route::get('/note-misc-public', [App\Http\Controllers\MiscHouseholdController::class, 'notesMISCPublic'])->name('notesMISCPublic');
+
+
+
+Route::get('energy-system/copy/{id}', [App\Http\Controllers\EnergySystemController::class, 'getSystemComponentData'])
+    ->name('getSystemComponentData');
+Route::get('/energy-system/copy/components/{id}/{formData}/{systemId}', [App\Http\Controllers\EnergySystemController::class, 'copyComponents'])
+    ->name('copyComponents');
