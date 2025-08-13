@@ -9,9 +9,11 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use DB;
 
-class AllSWOIncidents implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, 
+class AllSWOIncidents implements FromCollection, WithHeadings, WithTitle, 
     WithStyles
 {
  
@@ -220,20 +222,32 @@ class AllSWOIncidents implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:TW1');
+        $sheet->setAutoFilter('A1:AI1');
 
         $highestRow = $sheet->getHighestRow();           
         $highestColumn = $sheet->getHighestColumn();        
         $fullRange = "A1:{$highestColumn}{$highestRow}";
 
-        $sheet->getStyle($fullRange)
-            ->getAlignment()
+        // Wrap text and vertical top alignment for all cells
+        $sheet->getStyle($fullRange)->getAlignment()
             ->setWrapText(true)
-            ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+            ->setVertical(Alignment::VERTICAL_TOP);
 
-        $sheet->getDefaultRowDimension()->setRowHeight(-1);
+        // Convert highest column letter to index
+        $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
 
-        // Make header bold
+        // Set fixed column width for all columns properly
+        for ($col = 1; $col <= $highestColumnIndex; $col++) {
+            $columnLetter = Coordinate::stringFromColumnIndex($col);
+            $sheet->getColumnDimension($columnLetter)->setWidth(40);
+        }
+
+        // Auto row height for all rows
+        for ($row = 1; $row <= $highestRow; $row++) {
+            $sheet->getRowDimension($row)->setRowHeight(-1);
+        }
+
+        // Header font style
         return [
             1 => ['font' => ['bold' => true, 'size' => 12]],
         ];

@@ -5,9 +5,11 @@ namespace App\Exports\Incidents;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use DB;
 
-class MainIncidentSheet implements WithMultipleSheets, ShouldAutoSize
+class MainIncidentSheet implements WithMultipleSheets
 {
     use Exportable;
 
@@ -21,9 +23,8 @@ class MainIncidentSheet implements WithMultipleSheets, ShouldAutoSize
     {
         $sheets = [
 
-            new Test($this->request),
-            // new AllIncidents($this->request),
-            // new AllSWOIncidents($this->request),
+            new AllIncidents($this->request),
+            new AllSWOIncidents($this->request),
         ];
 
         // Get all unique donors with related incidents

@@ -8,9 +8,11 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use DB;
 
-class AllIncidentsByDonor implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles
+class AllIncidentsByDonor implements FromCollection, WithHeadings, WithTitle, WithStyles
 {
     protected $request;
     protected $donorName;
@@ -28,8 +30,12 @@ class AllIncidentsByDonor implements FromCollection, WithHeadings, WithTitle, Sh
  
         return $query->filter(function ($row) {
 
-            return str_contains($row->donor_name, $this->donorName);
+            return str_contains($row->energy_donor_name ?? '', $this->donorName)
+                || str_contains($row->water_donor_name ?? '', $this->donorName)
+                || str_contains($row->internet_donor_name ?? '', $this->donorName)
+                || str_contains($row->camera_donor_name ?? '', $this->donorName);
         });
+
     }
 
     public function headings(): array
@@ -44,8 +50,32 @@ class AllIncidentsByDonor implements FromCollection, WithHeadings, WithTitle, Sh
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:T1');
+        $sheet->setAutoFilter('A1:AI1');
 
+        $highestRow = $sheet->getHighestRow();           
+        $highestColumn = $sheet->getHighestColumn();        
+        $fullRange = "A1:{$highestColumn}{$highestRow}";
+
+        // Wrap text and vertical top alignment for all cells
+        $sheet->getStyle($fullRange)->getAlignment()
+            ->setWrapText(true)
+            ->setVertical(Alignment::VERTICAL_TOP);
+
+        // Convert highest column letter to index
+        $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
+
+        // Set fixed column width for all columns properly
+        for ($col = 1; $col <= $highestColumnIndex; $col++) {
+            $columnLetter = Coordinate::stringFromColumnIndex($col);
+            $sheet->getColumnDimension($columnLetter)->setWidth(40);
+        }
+
+        // Auto row height for all rows
+        for ($row = 1; $row <= $highestRow; $row++) {
+            $sheet->getRowDimension($row)->setRowHeight(-1);
+        }
+
+        // Header font style
         return [
             1 => ['font' => ['bold' => true, 'size' => 12]],
         ];
