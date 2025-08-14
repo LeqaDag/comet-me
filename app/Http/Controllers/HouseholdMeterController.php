@@ -376,6 +376,15 @@ class HouseholdMeterController extends Controller
                     $newAllEnergyMeter->installation_type_id = 4;
                     $newAllEnergyMeter->energy_system_type_id = $energyUser->energy_system_type_id;
                     $newAllEnergyMeter->energy_system_id = $energyUser->energy_system_id ;
+
+                    $lastIncrementalNumber = AllEnergyMeter::whereNotNull('fake_meter_number')
+                        ->selectRaw('MAX(CAST(SUBSTRING_INDEX(fake_meter_number, \'s\', -1) AS UNSIGNED)) AS incremental_number')
+                        ->value('incremental_number');
+
+                    $lastIncrementalNumber = $lastIncrementalNumber + 1; 
+                    $newFakeMeterNumber = SequenceHelper::generateSequence($energyUser->meter_number, $lastIncrementalNumber);
+                    $newAllEnergyMeter->fake_meter_number = $newFakeMeterNumber;
+                    
                     $newAllEnergyMeter->save();
                 }
 

@@ -37,131 +37,7 @@ class AllEnergyMeterController extends Controller
         Cache::forget('energy_turbine_communities');
         Cache::forget('energy_generator_communities');
         Cache::forget('energy_systems');
-        // This code for adding the fake meter numbers for the existing records for the turbines.
-        // $allTurbines = EnergyTurbineCommunity::all();
-
-        // foreach($allTurbines as $allTurbine) {
-
-        //     $fakeMeterNumber = 'ET'. $turbineIndex;
-
-        //     $exist = EnergyTurbineCommunity::where('fake_meter_number', $fakeMeterNumber)->first();
-        //     if($exist) {
-        //     } else {
-
-        //         $allTurbine->fake_meter_number =$fakeMeterNumber;
-        //         $allTurbine->save();
-        //     }
-
-        //     $turbineIndex++;
-        // }
-
-        // This code for adding the fake meter numbers for the existing records for the generators.
-        // $allGenerators = EnergyGeneratorCommunity::all();
-
-        // foreach($allGenerators as $allGenerator) {
-
-        //     $fakeMeterNumber = 'EG'.  $generatorIndex;
-        //     $exist = EnergyGeneratorCommunity::where('fake_meter_number', $fakeMeterNumber)->first();
-        //     if($exist) {
-        //     } else {
-
-        //         $allGenerator->fake_meter_number =$fakeMeterNumber;
-        //         $allGenerator->save();
-        //     }
-
-        //     $generatorIndex++;
-        // }
-
-        // This code for adding the fake meter numbers for the existing records for the mg energy system.
-        // $energySystems = EnergySystem::all();
-
-        // foreach($energySystems as $energySystem) {
-
-        //     $fakeMeterNumber = 'ES'.  $energySystemIndex;
-        //     $exist = EnergySystem::where('fake_meter_number', $fakeMeterNumber)->first();
-        //     if($exist) {
-        //     } else {
-
-        //         $energySystem->fake_meter_number =$fakeMeterNumber;
-        //         $energySystem->save();
-        //     }
-
-        //     $energySystemIndex++;
-        // }
-
-        // This code for adding the fake meter numbers for the existing records for the mg water system.
-        // $waterSystems = WaterSystem::all();
-
-        // foreach($waterSystems as $waterSystem) {
-
-        //     $fakeMeterNumber = 'WS'.  $waterSystemIndex;
-        //     $exist = WaterSystem::where('fake_meter_number', $fakeMeterNumber)->first();
-        //     if($exist) {
-        //     } else {
-
-        //         $waterSystem->fake_meter_number =$fakeMeterNumber;
-        //         $waterSystem->save();
-        //     }
-
-        //     $waterSystemIndex++;
-        // }
-
-        // // This code for adding the fake meter numbers for the existing records for the public structures.
-        // $outOfCometPublicStructures = PublicStructure::where("is_archived", 0)
-        //     ->where("out_of_comet", 1)
-        //     ->get();
-
-        // foreach($outOfCometPublicStructures as $outOfCometPublicStructure) {
-        //     $fakeMeterNumber = SequenceHelper::generateSequencePublic($outOfCometPublic);
-        //     $exist = PublicStructure::where("is_archived", 0)
-        //         ->where("out_of_comet", 1)
-        //         ->where('fake_meter_number', $fakeMeterNumber)
-        //         ->first();
-        //     if($exist) {
-        //     } else {
-        //         $outOfCometPublicStructure->fake_meter_number = $fakeMeterNumber;
-        //         $outOfCometPublicStructure->save();
-        //     }
-        //     $outOfCometPublic++;
-        // }
-
-        // This code for adding the fake meter numbers for the existing records and it applies only once.
-
-        // foreach ($sharedUsers as $sharedUser) {
-
-        //     $fakeMeterNumber = SequenceHelper::generateSequence($sharedUser->meter_number, $incrementalNumber);
-
-        //     $exist = AllEnergyMeter::where('fake_meter_number', $fakeMeterNumber)->first();
-
-        //     if($exist) {
-
-        //         $incrementalNumber++;
-        //     } else {
-
-        //         $allEnergyMeter = null;
-        //         if($sharedUser->shared_household_id) {
-
-        //             $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
-        //                 ->whereNull("meter_number")
-        //                 ->where("household_id", $sharedUser->shared_household_id)
-        //                 ->first();
-        //         } else if($sharedUser->shared_public_id) {
-
-        //             $allEnergyMeter = AllEnergyMeter::where("is_archived", 0)
-        //                 ->whereNull("meter_number")
-        //                 ->where("public_structure_id", $sharedUser->shared_public_id)
-        //                 ->first();
-        //         }
-        //         if($allEnergyMeter) {
-
-        //             $allEnergyMeter->fake_meter_number = $fakeMeterNumber;
-        //             $allEnergyMeter->save();
-
-        //             $incrementalNumber++;
-        //         }
-        //     }
-        // }
-
+ 
 
         // Caching the households query
         $households =  DB::table('households')
@@ -252,8 +128,9 @@ class AllEnergyMeterController extends Controller
                 'public_structures.comet_id as comet_id',
                 'public_structures.phone_number',
                 'public_structure_statuses.status as energy_system_status',
-                DB::raw('IFNULL(all_energy_meters.meter_number, public_structures.fake_meter_number)
-                    as meter_number'),
+               DB::raw('COALESCE(all_energy_meters.meter_number, all_energy_meters.fake_meter_number, 
+               public_structures.fake_meter_number) as meter_number'),
+
                 'energy_system_types.name as energy_type',
                 'meter_cases.meter_case_name_english as meter_case',
                 'all_energy_meters.is_main', 'all_energy_meters.is_archived',

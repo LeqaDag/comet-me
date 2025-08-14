@@ -29,6 +29,7 @@ class AllMaintenanceExport implements WithMultipleSheets, ShouldAutoSize
             new MaintenanceSummary($this->request),
             new TicketSummary($this->request),
             new EnergySummary($this->request),
+            new RefrigeratorSummary($this->request),
             new WaterSummary($this->request),
             new InternetSummary($this->request),
             new MaintenanceLogs($this->request), 

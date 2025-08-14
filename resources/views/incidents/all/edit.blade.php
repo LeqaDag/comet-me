@@ -251,10 +251,10 @@
                 </div>
                 @endif
 
-                <div class="row">
+                <div class="row"> 
                     <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
                         <fieldset class="form-group">
-                            <label class='col-md-12 control-label'>Description (USS)</label>
+                            <label class='col-md-12 control-label'>Description (User - USS)</label>
                             <textarea name="description" class="form-control" 
                                 style="resize:none" cols="20" rows="5">
                             {{$allIncident->description}}
@@ -262,6 +262,17 @@
                         </fieldset>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Description (Manager - USS)</label>
+                            <textarea name="manager_description" class="form-control" 
+                                style="resize:none" cols="20" rows="5">
+                            {{$allIncident->manager_description}}
+                            </textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row"> 
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Description (Platform)</label>
                             <textarea name="notes" class="form-control" 

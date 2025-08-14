@@ -283,6 +283,7 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
             ->groupBy('all_internet_incident_system_damaged_equipment.all_internet_incident_id');
 
     
+        //die($equipmentSubqueryInternetNetwork->get());
         // foreach ($equipmentSubqueryInternetNetwork as $row) {
 
         //     $componentIds = $row->component_ids !== 'N/A' ? explode(',', $row->component_ids) : [];
@@ -471,6 +472,7 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
 
                 'all_incidents.notes',
                 'all_incidents.description',
+                'all_incidents.manager_description',
 
                 DB::raw("GROUP_CONCAT(DISTINCT COALESCE(
                     CASE WHEN community_donors.service_id = 1 THEN energy_system_donors.donor_name ELSE energy_holder_donors.donor_name END
@@ -616,7 +618,8 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
                 'Camera Equipment Damaged' => $item->camera_equipment,
                 'Losses Cameras (ILS)' => $item->total_camera_cost,
                 'Description of Incident' => $item->notes,
-                'Description (USS)' => $item->description,
+                'Description (User - USS)' => $item->description,
+                'Description (Manager - USS)' => $item->manager_description,
                 'Donor (Energy)' => $item->energy_donor_name,
                 'Donor (Water)' => $item->water_donor_name,
                 'Donor (Internet)' => $item->internet_donor_name,
@@ -647,8 +650,9 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
             "Water System Equipment Damaged", "Losses Water System (ILS)", "Internet Incident Status", 
             "Internet Equipment Damaged", "Losses Internet (ILS)", "Internet System Equipment Damaged", 
             "Losses Internet System (ILS)", "Camera Incident Status", "Camera Equipment Damaged", 
-            "Losses Cameras (ILS)", "Description of Incident", "Description (USS)", "Donor (Energy)", 
-            "Donor (Water)", "Donor (Internet)", "Donor (Camera)", "# of Adult", "# of Children", 
+            "Losses Cameras (ILS)", "Description of Incident", "Description (User - USS)", 
+            "Description (Manager - USS)", "Donor (Energy)", "Donor (Water)", "Donor (Internet)", 
+            "Donor (Camera)", "# of Adult", "# of Children", 
             "# of Male", "# of Female"];
     }
 
@@ -664,7 +668,7 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:AI1');
+        $sheet->setAutoFilter('A1:AJ1');
 
         $highestRow = $sheet->getHighestRow();           
         $highestColumn = $sheet->getHighestColumn();        

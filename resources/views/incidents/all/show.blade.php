@@ -48,8 +48,12 @@
                                 </small>
                             </div>
                             <div class="mb-sm-0 mb-2">
-                                <p class="mb-0">Description (USS)</p>
+                                <p class="mb-0">Description (User - USS)</p>
                                 <span class="text-muted">{{$allIncident->description}}</span>
+                            </div> <br>
+                            <div class="mb-sm-0 mb-2">
+                                <p class="mb-0">Description (Manager - USS)</p>
+                                <span class="text-muted">{{$allIncident->manager_description}}</span>
                             </div> <br>
                             <div class="mb-sm-0 mb-2">
                                 <p class="mb-0">Description (Platform)</p>

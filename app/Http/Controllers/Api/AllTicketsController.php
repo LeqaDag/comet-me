@@ -427,6 +427,7 @@ class AllTicketsController extends Controller
             $newIncident = new AllIncident();
             $newIncident->comet_id = $ticket["ticket_comet_id"];
             $newIncident->description = $ticket["description"];
+            $newIncident->manager_description = $ticket["manager_description"];
 
             $newIncident->community_id = $community->id;
 
@@ -486,6 +487,7 @@ class AllTicketsController extends Controller
             }
 
             $existingIncidentTicket->description = $ticket["description"];
+            $existingIncidentTicket->manager_description = $ticket["manager_description"];
             $existingIncidentTicket->save();
         }
     }

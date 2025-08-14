@@ -1298,6 +1298,7 @@ class AllIncidentController extends Controller
         if($request->monetary_losses) $allIncident->monetary_losses = $request->monetary_losses;
         if($request->next_step) $allIncident->next_step = $request->next_step;
         if($request->notes) $allIncident->notes = $request->notes;
+        if($request->manager_description) $allIncident->manager_description = $request->manager_description;
         $allIncident->save();
 
         if($request->new_statuses) {
