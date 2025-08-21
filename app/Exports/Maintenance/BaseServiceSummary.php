@@ -36,6 +36,7 @@ abstract class BaseServiceSummary implements FromCollection, WithTitle, ShouldAu
     protected function fetchTicketsAndCountCategories()
     {
         if ($this->pivotedCollection !== null) {
+
             return $this->pivotedCollection;
         }
 
@@ -53,9 +54,26 @@ abstract class BaseServiceSummary implements FromCollection, WithTitle, ShouldAu
                 DB::raw('categories.english_name as category'),
                 DB::raw('COUNT(*) as total')
             ])
-            ->groupBy('action', 'issue', 'category')
-            ->get();
+            ->groupBy('action', 'issue', 'category');
 
+        if($this->request->community_id) {
+
+            $tickets->where("t.community_id", $this->request->community_id);
+        }
+        if($this->request->service_id) {
+
+            $tickets->where("t.service_type_id", $this->request->service_id);
+        }
+        if($this->request->completed_date_from) {
+
+            $tickets->where("t.completed_date", ">=", $this->request->completed_date_from);
+        }
+        if($this->request->completed_date_to) {
+
+            $tickets->where("t.completed_date", "<=", $this->request->completed_date_to);
+        }
+
+        $tickets = $tickets->get();
         $pivoted = [];
         $categoryTotals = [];
 

@@ -149,7 +149,6 @@ class EnergyCompoundHousehold implements FromCollection, WithHeadings, WithTitle
             ->leftJoin('community_donors', 'community_donors.community_id', 'communities.id')
             ->leftJoin('donors', 'community_donors.donor_id', 'donors.id')
             ->where('communities.is_archived', 0)
-            ->where('communities.energy_system_cycle_id', '!=', null)
             ->select(
                 'public_structures.english_name as household',
                 'public_structure_statuses.status as status',

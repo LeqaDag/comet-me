@@ -43,8 +43,7 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
             ->join('households', 'households.id', 'all_energy_meters.household_id')
             ->where('communities.energy_system_cycle_id', NULL)
             ->where('all_energy_meters.is_archived', 0)
-            ->where('all_energy_meters.energy_system_type_id', 2)
-            ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
+            ->where('all_energy_meters.energy_system_type_id', 2);
 
         $this->activateMisc = DB::table('households')
             ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
@@ -53,8 +52,8 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
             ->where('households.is_archived', 0)
             ->where('households.household_status_id', 4) 
             ->where('all_energy_meters.energy_system_type_id', 2)
-            ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
             ->where('all_energy_meters.meter_active', 'Yes'); 
+
 
         // Requested
         $this->requestedHouseholds = DB::table('households')
@@ -72,15 +71,13 @@ class EnergyServedUsersByCommunity implements FromCollection, WithTitle, ShouldA
             ->join('communities', 'households.community_id', 'communities.id')
             ->join('meter_cases', 'all_energy_meters.meter_case_id', 'meter_cases.id')
             ->where('all_energy_meters.is_archived', 0)
-            ->whereNotNull('communities.energy_system_cycle_id')
-            ->where('all_energy_meters.energy_system_cycle_id', '!=', null);
+            ->whereNotNull('communities.energy_system_cycle_id');
 
         $this->activateRelocated = DB::table('all_energy_meters')
             ->join('displaced_households', 'all_energy_meters.household_id', 'displaced_households.household_id')
             ->join('communities', 'all_energy_meters.community_id', 'communities.id')
             ->where('all_energy_meters.is_archived', 0)
             ->whereNotNull('communities.energy_system_cycle_id')
-            ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
             ->where('all_energy_meters.meter_active', "Yes");
 
         $queryCommunities = DB::table('communities')

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\AllMaintenanceTicket;
 use App\Models\AllMaintenanceTicketAction;
+use App\Models\WorkshopCommunity;
 use App\Models\AllEnergyMeter;
 use App\Models\User;
 use App\Models\Community;

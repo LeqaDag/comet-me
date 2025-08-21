@@ -27,8 +27,8 @@ class EnergyRelocatedHousehold implements FromCollection, WithHeadings, WithTitl
     */
     public function collection()    
     {
-        $query = DB::table('all_energy_meters')
-            ->join('displaced_households', 'all_energy_meters.household_id', 'displaced_households.household_id')
+        $query = DB::table('displaced_households')
+            ->join('all_energy_meters', 'all_energy_meters.household_id', 'displaced_households.household_id')
             ->join('communities as old_communities', 'displaced_households.old_community_id', 'old_communities.id')
             ->join('households', 'all_energy_meters.household_id', 'households.id')
             ->join('household_statuses', 'households.household_status_id', 'household_statuses.id')
@@ -38,7 +38,6 @@ class EnergyRelocatedHousehold implements FromCollection, WithHeadings, WithTitl
             ->leftJoin('donors', 'all_energy_meter_donors.donor_id', 'donors.id')
             ->where('all_energy_meters.is_archived', 0)
            // ->whereNotNull('communities.energy_system_cycle_id')
-            ->where('all_energy_meters.energy_system_cycle_id', '!=', null)
             ->select(
                 'households.english_name as household',
                 'communities.english_name as community_name', 

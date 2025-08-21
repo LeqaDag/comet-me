@@ -58,6 +58,10 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
             ->leftJoin('refrigerator_actions', 'refrigerator_issues.refrigerator_action_id', 'refrigerator_actions.id')
             ->leftJoin('action_categories as refrigerator_categories', 'refrigerator_categories.id', 'refrigerator_actions.action_category_id')
 
+            ->leftJoin('workshop_communities', function ($join) {
+                $join->on('all_maintenance_tickets.community_id', 'workshop_communities.community_id')
+                ->where('workshop_communities.workshop_type_id', 5);
+            })
             ->select([
                 DB::raw("CASE 
                             WHEN households.english_name IS NOT NULL THEN 'Household'
@@ -72,7 +76,7 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
                 DB::raw("COALESCE(households.english_name, public_structures.english_name, 
                         energy_systems.name, energy_generator_communities.name, 
                         energy_turbine_communities.name, water_systems.name) as agent"),
-                
+                'workshop_communities.date as publish_date',
                 'communities.english_name as community_name',
                 'regions.english_name as region', 
                 'sub_regions.english_name as sub_region',
@@ -135,6 +139,10 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
 
             $data->where("all_maintenance_tickets.community_id", $this->request->community_id);
         }
+        if($this->request->service_id) {
+
+            $data->where("all_maintenance_tickets.service_type_id", $this->request->service_id);
+        }
         if($this->request->maintenance_status_id) {
 
             $data->where("maintenance_statuses.id", $this->request->maintenance_status_id);
@@ -143,9 +151,13 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
 
             $data->where("maintenance_types.id", $this->request->maintenance_type_id);
         }
-        if($this->request->completed_date) {
+        if($this->request->completed_date_from) {
 
-            $data->where("all_maintenance_tickets.completed_date", ">=", $this->request->completed_date);
+            $data->where("all_maintenance_tickets.completed_date", ">=", $this->request->completed_date_from);
+        }
+        if($this->request->completed_date_to) {
+
+            $data->where("all_maintenance_tickets.completed_date", "<=", $this->request->completed_date_to);
         }
 
         return $data->get();
@@ -158,9 +170,9 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function headings(): array
     {
-        return ["Agent Type", "Agent", "Community", "Region", "Sub Region", "Department", "Assigned to",  
-            "Status", "Type", "Resoultion (Arabic)", "Category", "Action", "Issue", "Created by", 
-            "Ticket created on", "Completed Date", "Hours (completed - created)", "Days Flag", "Notes"];
+        return ["Agent Type", "Agent", "Publish Date", "Community", "Region", "Sub Region", "Department", "Assigned to",  
+            "Status", "Type", "Resoultion (Arabic)", "Category", "Action", "Issue", "Created by", "Ticket created on", 
+            "Completed Date", "Hours (completed - created)", "Days Flag", "Notes"];
     }
 
     public function title(): string
@@ -175,7 +187,7 @@ class MaintenanceLogs implements FromCollection, WithHeadings, WithTitle, Should
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:R1');
+        $sheet->setAutoFilter('A1:T1');
 
         return [
             // Style the first row as bold text.

@@ -133,21 +133,66 @@ class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize,
                 ->join($config['issue_table'], "{$config['issue_table']}.comet_id", '=', 'all_maintenance_ticket_actions.action_id')
                 ->join($config['action_table'], "{$config['issue_table']}.{$config['action_field']}", '=', "{$config['action_table']}.id")
                 ->join('action_categories', 'action_categories.id', '=', "{$config['action_table']}.action_category_id")
-                ->where('all_maintenance_ticket_actions.is_archived', 0)
-                ->get();
+                ->join('all_maintenance_tickets as t', 't.id', 'all_maintenance_ticket_actions.all_maintenance_ticket_id')
+                ->where('all_maintenance_ticket_actions.is_archived', 0);
+
+            if($this->request->community_id) {
+
+            $tickets->where("t.community_id", $this->request->community_id);
+            }
+            if($this->request->service_id) {
+
+                $tickets->where("t.service_type_id", $this->request->service_id);
+            }
+            if($this->request->completed_date_from) {
+
+                $tickets->where("t.completed_date", ">=", $this->request->completed_date_from);
+            }
+            if($this->request->completed_date_to) {
+
+                $tickets->where("t.completed_date", "<=", $this->request->completed_date_to);
+            }
+
+            $tickets = $tickets->get();
 
             foreach ($tickets as $ticket) {
 
                 foreach ($this->categoryKeywords as $keyword => $property) {
-                    if (strpos($ticket->english_name, $keyword) !== false) {
+
+                    if (strpos(strtolower($ticket->english_name), strtolower($keyword)) !== false) {
                         $this->counts[$service][$property]++;
                     }
                 }
             }
 
-            $this->counts[$service]['Total'] = AllMaintenanceTicketAction::where('is_archived', 0)
-                ->where('action_id', 'like', '%' . $config['prefix'] . '%')
-                ->count();
+            $totalQuery = DB::table('all_maintenance_ticket_actions as a')
+                ->join('all_maintenance_tickets as t', 't.id', '=', 'a.all_maintenance_ticket_id')
+                ->where('a.is_archived', 0)
+                ->where('a.action_id', 'like', '%' . $config['prefix'] . '%');
+
+            // Apply the same filters
+            if ($this->request->community_id) {
+
+                $totalQuery->where("t.community_id", $this->request->community_id);
+            }
+            if ($this->request->service_id) {
+                
+                $totalQuery->where("t.service_type_id", $this->request->service_id);
+            }
+            if ($this->request->completed_date_from) {
+
+                $totalQuery->where("t.completed_date", ">=", $this->request->completed_date_from);
+            }
+            if ($this->request->completed_date_to) {
+
+                $totalQuery->where("t.completed_date", "<=", $this->request->completed_date_to);
+            }
+
+            $this->counts[$service]['Total'] = $totalQuery->count();
+
+            // $this->counts[$service]['Total'] = AllMaintenanceTicketAction::where('is_archived', 0)
+            //     ->where('action_id', 'like', '%' . $config['prefix'] . '%')
+            //     ->count();
         }
     }
 
@@ -225,8 +270,26 @@ class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize,
                     refrigerator_categories.english_name,
                     internet_categories.english_name
                 ) as category_name')
-            ])
-            ->get();
+            ]);
+
+        if($this->request->community_id) {
+
+            $tickets->where("t.community_id", $this->request->community_id);
+        }
+        if($this->request->service_id) {
+
+            $tickets->where("t.service_type_id", $this->request->service_id);
+        }
+        if($this->request->completed_date_from) {
+
+            $tickets->where("t.completed_date", ">=", $this->request->completed_date_from);
+        }
+        if($this->request->completed_date_to) {
+
+            $tickets->where("t.completed_date", "<=", $this->request->completed_date_to);
+        }
+
+        $tickets = $tickets->get();
 
         foreach ($tickets as $ticket) {
             if ($ticket->support_created_at && $ticket->supported_updated_at) {
@@ -303,8 +366,27 @@ class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize,
                         ELSE NULL
                     END as detected_service
                 ')
-            ])
-        ->get();
+            ]);
+
+
+        if($this->request->community_id) {
+
+            $tickets->where("t.community_id", $this->request->community_id);
+        }
+        if($this->request->service_id) {
+
+            $tickets->where("t.service_type_id", $this->request->service_id);
+        }
+        if($this->request->completed_date_from) {
+
+            $tickets->where("t.completed_date", ">=", $this->request->completed_date_from);
+        }
+        if($this->request->completed_date_to) {
+
+            $tickets->where("t.completed_date", "<=", $this->request->completed_date_to);
+        }
+
+        $tickets = $tickets->get();
 
 
         foreach ($tickets as $ticket) {
@@ -379,8 +461,26 @@ class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize,
                         ELSE NULL
                     END as detected_service
                 ')
-            ])
-            ->get();
+            ]);
+
+        if($this->request->community_id) {
+
+            $tickets->where("t.community_id", $this->request->community_id);
+        }
+        if($this->request->service_id) {
+
+            $tickets->where("t.service_type_id", $this->request->service_id);
+        }
+        if($this->request->completed_date_from) {
+
+            $tickets->where("t.completed_date", ">=", $this->request->completed_date_from);
+        }
+        if($this->request->completed_date_to) {
+
+            $tickets->where("t.completed_date", "<=", $this->request->completed_date_to);
+        }
+
+        $tickets = $tickets->get();
 
 
         foreach ($tickets as $ticket) {
@@ -462,8 +562,26 @@ class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize,
                         ELSE NULL
                     END as detected_service
                 ')
-            ])
-            ->get();
+            ]);
+
+        if($this->request->community_id) {
+
+            $tickets->where("t.community_id", $this->request->community_id);
+        }
+        if($this->request->service_id) {
+
+            $tickets->where("t.service_type_id", $this->request->service_id);
+        }
+        if($this->request->completed_date_from) {
+
+            $tickets->where("t.completed_date", ">=", $this->request->completed_date_from);
+        }
+        if($this->request->completed_date_to) {
+
+            $tickets->where("t.completed_date", "<=", $this->request->completed_date_to);
+        }
+
+        $tickets = $tickets->get();
 
 
         foreach ($tickets as $ticket) {
@@ -660,7 +778,7 @@ class MaintenanceSummary implements FromCollection, WithTitle, ShouldAutoSize,
                     $sheet->getStyle("A{$row}:R{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
 
-    
+     
                 $this->writeResponseTimeMatrix(
                     $sheet,
                     'Response Times by service',

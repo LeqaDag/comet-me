@@ -23,10 +23,11 @@ class EnergyRequestSystemExport implements WithMultipleSheets, ShouldAutoSize
      */ 
     public function sheets(): array
     {
-        $sheets = [   
+        $sheets = [    
             new EnergyRequestedSummary($this->request), 
-            new EnergyServedUsersByCommunity($this->request),
+           // new EnergyServedUsersByCommunity($this->request),
             new EnergyCompoundHousehold($this->request),
+            new EnergyMISCHousehold($this->request),
             new EnergyMISCFbs($this->request),
             new EnergyRelocatedHousehold($this->request),
             //new EnergyRequestedHousehold($this->request),

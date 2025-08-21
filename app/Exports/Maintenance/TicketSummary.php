@@ -87,7 +87,11 @@ class TicketSummary implements FromCollection, WithHeadings, WithTitle, ShouldAu
 
         if($this->request->community_id) {
 
-            $data->where("all_maintenance_tickets.community_id", $this->request->community_id);
+            $data->where("t.community_id", $this->request->community_id);
+        }
+        if($this->request->service_id) {
+
+            $data->where("t.service_type_id", $this->request->service_id);
         }
         if($this->request->maintenance_status_id) {
 
@@ -97,9 +101,13 @@ class TicketSummary implements FromCollection, WithHeadings, WithTitle, ShouldAu
 
             $data->where("maintenance_types.id", $this->request->maintenance_type_id);
         }
-        if($this->request->completed_date) {
+        if($this->request->completed_date_from) {
 
-            $data->where("all_maintenance_tickets.completed_date", ">=", $this->request->completed_date);
+            $data->where("t.completed_date", ">=", $this->request->completed_date_from);
+        }
+        if($this->request->completed_date_to) {
+
+            $data->where("t.completed_date", "<=", $this->request->completed_date_to);
         }
 
         return $data->get();

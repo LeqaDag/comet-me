@@ -18,7 +18,7 @@
         <i class="menu-icon tf-icons bx bx-export"></i>
         Export Data
     </button> 
-</p> 
+</p>  
 
 <div class="collapse multi-collapse container mb-4" id="collapseAllTicketsExport">
     <div class="container">
@@ -62,6 +62,18 @@
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Service</label>
+                                        <select name="service_id" class="selectpicker form-control" 
+                                            data-live-search="true">
+                                            <option disabled selected>Choose one...</option>
+                                            @foreach($serviceTypes as $serviceType)
+                                                <option value="{{$serviceType->id}}">{{$serviceType->service_name}}</option>
+                                            @endforeach
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
                                         <label class='col-md-12 control-label'>Maintenance Status</label>
                                         <select name="maintenance_status_id" class="selectpicker form-control" 
                                             data-live-search="true">
@@ -84,11 +96,21 @@
                                         </select> 
                                     </fieldset>
                                 </div>
+                            </div> <br>
+                            <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
-                                        <label class='col-md-12 control-label'>Completed Date</label>
-                                        <input type="date" name="completed_date" class="form-control"
-                                            id="filterByCompletedDateExport">
+                                        <label class='col-md-12 control-label'>Completed Date From</label>
+                                        <input type="date" name="completed_date_from" class="form-control"
+                                            id="filterByCompletedDateFromExport">
+                                        </select> 
+                                    </fieldset>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Completed Date To</label>
+                                        <input type="date" name="completed_date_to" class="form-control"
+                                            id="filterByCompletedDateToExport">
                                         </select> 
                                     </fieldset>
                                 </div>
@@ -264,7 +286,8 @@
 
         $('.selectpicker').prop('selectedIndex', 0);
         $('.selectpicker').selectpicker('refresh');
-        $('#filterByCompletedDateExport').val(' ');
+        $('#filterByCompletedDateFromExport').val(' ');
+        $('#filterByCompletedDateToExport').val(' ');
     });
 
     $(function () {
