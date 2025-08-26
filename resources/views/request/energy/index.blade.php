@@ -362,22 +362,60 @@ label, table {
             window.open('/household?id=' + id, '_blank'); 
         }); 
 
+        const cycleYearOptions = @json($energyCycles);
+
         // Move record
-        $('#energyRequestTable').on('click', '.moveEnergyRequest',function() {
-            var id = $(this).data('id');
+        $('#energyRequestTable').on('click', '.moveEnergyRequest', function() {
+
+            const id = $(this).data('id');
+            const notes = $(this).data('notes');
+            const cycleyear = $(this).data('cycle'); // Must be set in HTML
+
+            
+            // Generate dropdown options dynamically
+            let dropdownHTML = '<option value="" disabled selected>Select ...</option>';
+            cycleYearOptions.forEach(cycle => {
+
+                dropdownHTML += `<option value="${cycle.id}" ${cycle.id == cycleyear ? 'selected' : ''}>${cycle.name}</option>`;
+            });
+
 
             Swal.fire({
                 icon: 'warning',
-                title: 'Are you sure you want to confirm this requested household?',
+                title: 'Confirm Requested Household?',
+                html: `
+                    <div class="col-xl-12 col-lg-12 col-md-12">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Cycle Year:</label>
+                            <select name="cycle_year" id="editCycleYear"
+                                class="swal2-select">
+                                ${dropdownHTML}
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div >
+                        <label class='col-md-12 control-label'>Confirmation Notes:</label>
+                        <textarea id="editNotes" class="swal2-textarea" rows="1" cols="30">${notes}</textarea>
+                    </div>
+                `,
                 showDenyButton: true,
-                confirmButtonText: 'Confirm'
+                confirmButtonText: 'Confirm',
+           
             }).then((result) => {
-
-                if(result.isConfirmed) {
+                if (result.isConfirmed) {
+                    
+                    const updatedNotes = document.getElementById('editNotes').value;
+                    const updatedCycle = document.getElementById('editCycleYear').value;
+                    const updatedData = result.value;
+                   
                     $.ajax({
                         url: "{{ route('moveEnergyRequest') }}",
                         type: 'get',
-                        data: {id: id},
+                        data: {
+                            id: id,
+                            notes: updatedNotes,
+                            cycleyear: updatedCycle
+                        },
                         success: function(response) {
                             if(response.success == 1) {
 
@@ -396,12 +434,73 @@ label, table {
                             }
                         }
                     });
-                } else if (result.isDenied) {
-
-                    Swal.fire('Changes are not saved', '', 'info')
                 }
             });
         });
+
+        // $('#energyRequestTable').on('click', '.moveEnergyRequest',function() {
+
+        //     var id = $(this).data('id');
+        //     var notes = $(this).data('notes');
+        //     var cycleyear = $(this).data('cycle');
+
+        //     let dropdownHTML = '';
+        //     cycleYearOptions.forEach(year => {
+
+        //         dropdownHTML += `<option value="${year}" ${year == cycleyear ? 'selected' : ''}>${year}</option>`;
+        //     });
+
+        //     Swal.fire({
+        //         icon: 'warning',
+        //         title: 'Confirm Requested Household?',
+        //         html: `
+        //             <div style="text-align:left">
+        //                 <label><strong>Notes:</strong></label><br>
+        //                 <textarea id="editNotes" class="swal2-textarea" rows="4">${notes}</textarea><br>
+
+        //                 <label><strong>Cycle Year:</strong></label><br>
+        //                 <select id="editCycleYear" class="swal2-select">
+        //                     ${dropdownHTML}
+        //                 </select>
+        //             </div>
+        //         `,
+        //         showDenyButton: true,
+        //         confirmButtonText: 'Confirm'
+        //     }).then((result) => {
+
+        //         if(result.isConfirmed) {
+        //             $.ajax({
+        //                 url: "{{ route('moveEnergyRequest') }}",
+        //                 type: 'get',
+        //                 data: {
+        //                     id: id,
+        //                     notes: notes,
+        //                     cycleyear: cycleyear
+        //                 },
+        //                 success: function(response) {
+        //                     if(response.success == 1) {
+
+        //                         Swal.fire({
+        //                             icon: 'success',
+        //                             title: response.msg,
+        //                             showDenyButton: false,
+        //                             showCancelButton: false,
+        //                             confirmButtonText: 'Okay!'
+        //                         }).then((result) => {
+        //                             $('#energyRequestTable').DataTable().draw();
+        //                         });
+        //                     } else {
+
+        //                         alert("Invalid ID.");
+        //                     }
+        //                 }
+        //             });
+        //         } else if (result.isDenied) {
+
+        //             Swal.fire('Changes are not saved', '', 'info')
+        //         }
+        //     });
+        // }); 
 
         // Postponed record
         $('#energyRequestTable').on('click', '.postponedEnergyRequest',function() {

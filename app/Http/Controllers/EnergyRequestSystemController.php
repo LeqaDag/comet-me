@@ -65,6 +65,7 @@ class EnergyRequestSystemController extends Controller
                     ->leftJoin('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
                     ->leftJoin('users', 'households.referred_by_id', 'users.id')
                     ->leftJoin('energy_system_types as energy_types', 'households.energy_system_type_id', 'energy_types.id')
+                    ->leftJoin('energy_system_cycles', 'households.energy_system_cycle_id', 'energy_system_cycles.id')
                     ->where('households.is_archived', 0)
                     ->where('households.internet_holder_young', 0)
                     ->where('households.household_status_id', 5);
@@ -112,7 +113,9 @@ class EnergyRequestSystemController extends Controller
                     DB::raw('IFNULL(energy_system_types.name, energy_types.name) 
                         as type'),
                     'communities.english_name as community_name', 'households.phone_number',
-                    'communities.arabic_name as aname')
+                    'communities.arabic_name as aname',
+                    'households.confirmation_notes',
+                    'energy_system_cycles.name as cycle_year')
                 ->latest(); 
 
                 return Datatables::of($data)
@@ -120,7 +123,12 @@ class EnergyRequestSystemController extends Controller
                     ->addColumn('action', function($row) {
     
                         $viewButton = "<a type='button' class='viewEnergyRequest' data-id='".$row->id."' data-bs-toggle='modal' data-bs-target='#viewEnergyRequestModal' ><i class='fa-solid fa-eye text-info'></i></a>";
-                        $moveButton = "<a type='button' title='Start Working' class='moveEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-check text-success'></i></a>";
+                        $moveButton = "<a type='button' title='Start Working' class='moveEnergyRequest' 
+                            data-id='".$row->id."' 
+                            data-cycle='".$row->cycle_year."' 
+                            data-notes='".$row->confirmation_notes."'>
+                            <i class='fa-solid fa-check text-success'></i></a>";
+
                         $postponeButton = "<a type='button' title='Postpone this requested household' class='postponedEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-rotate-right text-warning'></i></a>";
                         $deleteButton = "<a type='button' class='deleteEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
          
@@ -154,11 +162,12 @@ class EnergyRequestSystemController extends Controller
             $requestStatuses = EnergyRequestStatus::where('is_archived', 0)
                 ->orderBy('name', 'ASC')
                 ->get();
-
+ 
             $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+            $energyCycles = EnergySystemCycle::select('id', 'name')->get();
 
             return view('request.energy.index', compact('communities', 'households',
-                'requestStatuses', 'energySystemTypes'));
+                'requestStatuses', 'energySystemTypes', 'energyCycles'));
         } else {
 
             return view('errors.not-found');
@@ -234,54 +243,73 @@ class EnergyRequestSystemController extends Controller
     public function moveEnergyRequest(Request $request)
     {
         $id = $request->id;
+        $notes = $request->notes;
+        $lastCycleYear = EnergySystemCycle::latest()->first();
+        $cycleyear = $request->cycleyear ?? $lastCycleYear->id;
 
         $household = Household::find($id);
+
+        if (!$household) {
+            return response()->json([
+                'success' => 0,
+                'msg' => 'Household not found.'
+            ], 404);
+        }
+
+        $household->confirmation_notes = $notes;
+        $household->energy_system_cycle_id = $cycleyear;
+
         $status = "Confirmed";
         $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
-        $lastCycleYear = EnergySystemCycle::latest()->first();
 
-        if($household) {
-            
-            $energySystem = EnergySystem::where("is_archived", 0)
-                ->where("community_id", $household->community_id)
-                ->first();
+        if (!$statusHousehold) {
+            return response()->json([
+                'success' => 0,
+                'msg' => 'Household status not found.'
+            ], 400);
+        }
 
-            if($household->energy_system_type_id == 2) { 
+        $energySystem = EnergySystem::where("is_archived", 0)
+            ->where("community_id", $household->community_id)
+            ->first();
 
-                $household->household_status_id = $statusHousehold->id;
-                $household->energy_system_cycle_id = $lastCycleYear->id; 
-                $household->save();
-            } else if($energySystem) {
+        if ($household->energy_system_type_id == 2) {
+            $household->household_status_id = $statusHousehold->id;
+            $household->save();
+        } elseif ($energySystem) {
+            $status = "AC Completed";
+            $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
 
-                $status = "AC Completed";
-                $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
-                $household->household_status_id = $statusHousehold->id;
-                $household->energy_system_cycle_id = $lastCycleYear->id; 
-                $household->save();
-
-                $allEnergyMeter = new AllEnergyMeter();
-                $allEnergyMeter->household_id = $household->id;
-                $allEnergyMeter->installation_type_id = 3;
-                $allEnergyMeter->community_id = $household->community_id;
-                $allEnergyMeter->energy_system_cycle_id = $lastCycleYear->id;
-                $allEnergyMeter->energy_system_type_id = $energySystem->energy_system_type_id;
-                $allEnergyMeter->ground_connected = "Yes";
-                $allEnergyMeter->energy_system_id = $energySystem->id;
-                $allEnergyMeter->meter_number = 0;
-                $allEnergyMeter->meter_case_id = 12; 
-                $allEnergyMeter->save();
-            } else {
-                
-                $household->household_status_id = $statusHousehold->id;
-                $household->energy_system_cycle_id = $lastCycleYear->id; 
-                $household->save();
+            if (!$statusHousehold) {
+                return response()->json([
+                    'success' => 0,
+                    'msg' => 'Household status not found for AC.'
+                ], 400);
             }
-        } 
 
-        $response['success'] = 1;
-        $response['msg'] = 'Requested Household Confirmed successfully'; 
+            $household->household_status_id = $statusHousehold->id;
+            $household->save();
 
-        return response()->json($response); 
+            $allEnergyMeter = new AllEnergyMeter();
+            $allEnergyMeter->household_id = $household->id;
+            $allEnergyMeter->installation_type_id = 3;
+            $allEnergyMeter->community_id = $household->community_id;
+            $allEnergyMeter->energy_system_cycle_id = $cycleyear;
+            $allEnergyMeter->energy_system_type_id = $energySystem->energy_system_type_id;
+            $allEnergyMeter->ground_connected = "Yes";
+            $allEnergyMeter->energy_system_id = $energySystem->id;
+            $allEnergyMeter->meter_number = 0;
+            $allEnergyMeter->meter_case_id = 12;
+            $allEnergyMeter->save();
+        } else {
+            $household->household_status_id = $statusHousehold->id;
+            $household->save();
+        }
+
+        return response()->json([
+            'success' => 1,
+            'msg' => 'Requested Household Confirmed successfully'
+        ]); 
     }
 
     /**

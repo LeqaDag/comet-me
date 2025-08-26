@@ -655,6 +655,7 @@ class AllEnergyController extends Controller
             }
         }
 
+        
         if($energyUser->household_id) {
 
             $displacedHousehold = DisplacedHousehold::where('household_id', 
@@ -664,9 +665,16 @@ class AllEnergyController extends Controller
                 
                 if($request->community_id) {
     
-                    $community = Community::findOrFail($request->community_id);
-                    $displacedHousehold->new_community_id = $request->community_id;
-                    $displacedHousehold->sub_region_id = $community->sub_region_id;
+                    $community = Community::find($request->community_id);
+    
+                    if (!$community) {
+                        
+                        return redirect()->back()->withErrors(['community_id' => 'Community not found.']);
+                    } else {
+                            
+                        $displacedHousehold->new_community_id = $request->community_id;
+                        $displacedHousehold->sub_region_id = $community->sub_region_id;
+                    }
                 }
                 if($request->energy_system_id) $displacedHousehold->new_energy_system_id = $request->energy_system_id;
                 if($request->meter_number) $displacedHousehold->new_meter_number = $request->meter_number;
@@ -676,8 +684,13 @@ class AllEnergyController extends Controller
             }
         }
 
+
+        $meterNumber = $energyUser->meter_number;
+
         // This code is for updating the fake_meter_numbers for the shared ones if the main meter number is changed
-        if($request->meter_number) {
+        if ($request->meter_number === $meterNumber) {
+
+        } else {
 
             $energyUser->meter_number = $request->meter_number;
 
@@ -698,10 +711,12 @@ class AllEnergyController extends Controller
                     )
                 ->distinct()
                 ->get();
-                
+
             foreach($sharedEnergyUsers as $sharedEnergyUser) {
                 
+                //die( $sharedEnergyUser);
                 $newFakeMeterNumber = null;
+                $incrementalNumber = 1;
                 if($sharedEnergyUser->fake_meter_number) $newFakeMeterNumber = SequenceHelper::updateSequence($sharedEnergyUser->fake_meter_number, $request->meter_number); 
 
                 else {
@@ -738,6 +753,7 @@ class AllEnergyController extends Controller
             }
         }
 
+        
         $energyUser->daily_limit = $request->daily_limit;
         $energyUser->installation_date = $request->installation_date;
         if($request->installation_type_id) $energyUser->installation_type_id = $request->installation_type_id;
@@ -792,12 +808,19 @@ class AllEnergyController extends Controller
                 ->get();
 
             if($householdMeters != []) {
+
                 foreach($householdMeters as $householdMeter) {
 
-                    $household = Household::findOrFail($householdMeter->household_id);
-                    $household->household_status_id = 4;
-                    $household->energy_system_status = "Served";
-                    $household->save();
+                    if($householdMeter->household_id) {
+
+                        $household = Household::find($householdMeter->household_id);
+                        if($household) {
+                            
+                            $household->household_status_id = 4;
+                            $household->energy_system_status = "Served";
+                            $household->save();
+                        }
+                    }
                 }
             } 
         }
