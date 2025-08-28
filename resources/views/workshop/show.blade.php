@@ -115,6 +115,13 @@
                                                         <h6 class="mb-0" id="workshopLawyer"></h6>
                                                     </div>
                                                 </li>
+                                                <li class="d-flex justify-content-start align-items-center text-primary mb-3">
+                                                    <i class="bx bx-user bx-sm me-3"></i>
+                                                    <div class="ps-3 border-start">
+                                                        <small class="text-muted mb-1">Household</small>
+                                                        <h6 class="mb-0" id="workshopHousehold"></h6>
+                                                    </div>
+                                                </li>
                                                 <li class="d-flex justify-content-start align-items-center text-warning mb-3">
                                                     <i class="bx bx-note bx-sm me-3"></i>
                                                     <div class="ps-3 border-start">

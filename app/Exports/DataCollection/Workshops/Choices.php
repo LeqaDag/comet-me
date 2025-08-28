@@ -16,7 +16,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
     WithStyles
 {
     protected $request;  
-
+ 
     function __construct($request) {
         $this->request = $request;
     }
@@ -74,8 +74,8 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->select(
                 DB::raw('"compound" as list_name'), 
                 'compounds.english_name as name',
-                'compounds.english_name as label:English (en)',
                 'compounds.arabic_name as label:Arabic (ar)',
+                'compounds.english_name as label:English (en)',
                 DB::raw('false as region'),
                 DB::raw('false as sub_region'),
                 'communities.english_name as community'
@@ -112,7 +112,8 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->where('users.is_archived', 0)
             ->select(
                 DB::raw('"co_trainer" as list_name'), 
-                DB::raw('REPLACE(users.name, " ", "_") as name'), 
+                'users.email as name',
+               // DB::raw('REPLACE(users.name, " ", "_") as name'), 
                 'users.name as label:Arabic (ar)',
                 'users.name as label:English (en)',
                 DB::raw('false as region'),
@@ -121,13 +122,52 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             )
             ->get(); 
 
+        $households = DB::table('households')
+            ->join('communities', 'households.community_id', 'communities.id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->where('households.is_archived', 0)
+            ->select(
+                DB::raw('"household" as list_name'), 
+                'households.comet_id as name',
+                'households.arabic_name as label:Arabic (ar)',
+                'households.english_name as label:English (en)',
+                'regions.english_name as region',
+                'sub_regions.english_name as sub_region',
+                'communities.english_name as community'
+            )
+            ->get();
+
+        $fixedList = [
+            [
+                'list_name' => 'individual', 
+                'name' => 'Yes',
+                'label:Arabic (ar)' => 'نعم',
+                'label:English (en)' => 'Yes',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ],
+            [
+                'list_name' => 'individual', 
+                'name' => 'No',
+                'label:Arabic (ar)' => 'لا',
+                'label:English (en)' => 'No',
+                'region' => false,
+                'sub_region' => false,
+                'community' => false,
+            ]
+        ];
+
         $query = collect($regions)
             ->merge($sub_regions)
             ->merge($communities)
             ->merge($compounds)
             ->merge($workshopTypes)
             ->merge($users)
-            ->merge($coTrainers); 
+            ->merge($coTrainers)
+            ->merge($households)
+            ->merge($fixedList); 
         
         return $query;
     }

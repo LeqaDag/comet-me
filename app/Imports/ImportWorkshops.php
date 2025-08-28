@@ -30,9 +30,11 @@ class ImportWorkshops implements ToModel, WithHeadingRow
     {
         // Get data from KOBO 
         if($row["select_community"]) { 
+
             $community = Community::where("english_name", $row["select_community"])->first();
             $compound = Compound::where("english_name", $row["select_compound"])->first();
             $workshopType = WorkshopType::where('unique_name', $row["select_workshop_type"])->first();
+            $individual = $row["select_individual"];
 
             $workshopDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['workshop_date']);
          
@@ -49,9 +51,18 @@ class ImportWorkshops implements ToModel, WithHeadingRow
                 $newWorkshopCommunity->workshop_type_id = $workshopType->id;
                 if($row["select_compound"]) $newWorkshopCommunity->compound_id = $compound->id;
                 $newWorkshopCommunity->date = $workshopDate->format('Y-m-d');
-                $newWorkshopCommunity->number_of_male = $row["attendance_male"];
-                $newWorkshopCommunity->number_of_female = $row["attendance_female"];
-                $newWorkshopCommunity->number_of_youth = $row["attendance_youth"];
+
+                if($individual == "Yes") {
+                    
+                    $household = Household::where('comet_id', $row["select_household_name"])->first();
+                    if($household) $newWorkshopCommunity->household_id = $household->id;
+                } else if($individual == "No"){  
+
+                    $newWorkshopCommunity->number_of_male = $row["attendance_male"];
+                    $newWorkshopCommunity->number_of_female = $row["attendance_female"];
+                    $newWorkshopCommunity->number_of_youth = $row["attendance_youth"];
+                }
+
                 $newWorkshopCommunity->number_of_hours = $row["workshop_hours"];
                 $newWorkshopCommunity->submitted_by = $submittedBy->id;
                 $newWorkshopCommunity->lead_by = $leadBy->id;
@@ -61,14 +72,14 @@ class ImportWorkshops implements ToModel, WithHeadingRow
     
                 $newWorkshopCommunity->save();
 
+                
                 if($row["select_co_trainer"]) {
 
                     $array = explode(" ", $row["select_co_trainer"]);
 
                     foreach ($array as $name) {
-                        
-                        $userName = preg_replace('/\d/', '', $name);  
-                        $coTrainer = User::where('name', 'like', '%' . $userName . '%')->first();
+
+                        $coTrainer = User::where('email', $name)->first();
 
                         if($coTrainer) {
 

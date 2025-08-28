@@ -188,6 +188,7 @@
                     <tr>
                         <th class="text-center">Community</th>
                         <th class="text-center">Compound</th>
+                        <th class="text-center">Household</th>
                         <th class="text-center">Type</th>
                         <th class="text-center">Date</th>
                         <th class="text-center">Lead By</th>
@@ -224,6 +225,7 @@
             columns: [
                 {data: 'community_name', name: 'community_name'},
                 {data: 'compound', name: 'compound'},
+                {data: 'household', name: 'household'},
                 {data: 'workshop_type', name: 'workshop_type'},
                 {data: 'date', name: 'date'},
                 {data: 'lead_user_name', name: 'lead_user_name'},
@@ -330,6 +332,10 @@
                         }
                     }
 
+                    $('#workshopHousehold').html('');
+                    if(response['household']) $('#workshopHousehold').html(response['household'].english_name);
+                    
+
                     $('#workshopPhotos').html('');
 
                     // Check if photos exist
@@ -349,7 +355,6 @@
                     } else {
                         $('#workshopPhotos').html('<p>No photos available.</p>');
                     }
-
                 }
             });
         });

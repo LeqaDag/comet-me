@@ -43,6 +43,7 @@ class AllWorkshopsController extends Controller
                 $data = DB::table('workshop_communities')
                     ->join('communities', 'workshop_communities.community_id', 'communities.id')
                     ->leftJoin('compounds', 'workshop_communities.compound_id', 'compounds.id')
+                    ->leftJoin('households', 'workshop_communities.household_id', 'households.id')
                     ->join('workshop_types', 'workshop_communities.workshop_type_id', 'workshop_types.id')
                     ->join('users as lead', 'workshop_communities.lead_by', 'lead.id')
                     ->leftJoin('workshop_community_co_trainers', 'workshop_communities.id', 
@@ -71,7 +72,9 @@ class AllWorkshopsController extends Controller
                         'workshop_communities.created_at as created_at',
                         'workshop_communities.updated_at as updated_at',
                         'lead.name as lead_user_name', 'compounds.english_name as compound',
-                        DB::raw('group_concat(DISTINCT co_trainers.name) as co_trainer')
+                        DB::raw('group_concat(DISTINCT co_trainers.name) as co_trainer'),
+                        DB::raw("IF(households.id IS NOT NULL, 'yes', 'no') as is_household"),
+                        'households.english_name as household'
                     )
                     ->groupBy('workshop_communities.id')
                     ->distinct()
@@ -146,6 +149,7 @@ class AllWorkshopsController extends Controller
             ->get();
         
         $workshopCommunityPhotos = WorkshopCommunityPhoto::where('workshop_community_id', $id)->get();
+        $household = Household::findOrFail($allWorkshop->household_id);
 
         $response['allWorkshop'] = $allWorkshop;
         $response['community'] = $community;
@@ -153,6 +157,7 @@ class AllWorkshopsController extends Controller
         $response['leadBy'] = $leadBy;
         $response['coTrainers'] = $coTrainers;
         $response['workshopCommunityPhotos'] = $workshopCommunityPhotos;
+        $response['household'] = $household;
 
         return response()->json($response);
     }
