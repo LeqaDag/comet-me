@@ -19,7 +19,7 @@ use Auth;
 use DB;
 use Route;
 
-class AllEnergyMeterController extends Controller
+class AllEnergyArchiveMeterController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -62,9 +62,6 @@ class AllEnergyMeterController extends Controller
             // ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
             //     'refrigerator_holder_receive_numbers.refrigerator_holder_id')
             ->where('households.is_archived', 0)
-            ->where(function ($query) {
-                $query->where('all_energy_meters.is_archived', 0);   
-            })
             ->select(
                 'communities.english_name as english_community_name',
                 'communities.arabic_name as arabic_community_name',
@@ -118,9 +115,6 @@ class AllEnergyMeterController extends Controller
             // ->leftJoin('refrigerator_holder_receive_numbers', 'refrigerator_holders.id', 
             //     'refrigerator_holder_receive_numbers.refrigerator_holder_id')
             ->where('public_structures.is_archived', 0)
-            ->where(function ($query) {
-                $query->where('all_energy_meters.is_archived', 0);   
-            })
             ->select(
                 'communities.english_name as english_community_name',
                 'communities.arabic_name as arabic_community_name',

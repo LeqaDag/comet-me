@@ -10,6 +10,7 @@ use App\Imports\ImportAcHousehold;
 use App\Imports\ImportHousehold;
 use App\Imports\ImportCommunity;
 use App\Imports\ImportRequestedHousehold;
+use App\Imports\ImportDisplacedHousehold;
 use App\Exports\DataCollection\DataCollectionExport;
 use App\Exports\DataCollection\Households;
 use App\Exports\DataCollection\RequestedHouseholds;
@@ -265,6 +266,33 @@ class DataCollectionController extends Controller
             }
     
             return redirect()->back()->with('success', 'Requested Households Imported Successfully!');
+        } else {
+
+            return redirect()->back()->with('error', 'File upload failed');
+        }
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function importDisplaced(Request $request)
+    {
+        $file = $request->file('excel_file');
+
+        if ($file->isValid()) {
+
+            $extension = $file->getClientOriginalExtension();
+    
+            if (in_array($extension, ['xlsx', 'xls', 'csv'])) {
+
+                Excel::import(new ImportDisplacedHousehold, $file);
+            } else {
+
+                return redirect()->back()->with('error', 'Invalid file format');
+            }
+     
+            return redirect()->back()->with('success', 'Displaced Data Imported Successfully!');
         } else {
 
             return redirect()->back()->with('error', 'File upload failed');

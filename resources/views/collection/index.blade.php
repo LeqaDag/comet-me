@@ -292,7 +292,7 @@
 
 
     <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
-        <span class="text-muted fw-light">Import </span>Community/Compound
+        <i class='fa-solid fa-home text-primary'></i><span class="text-muted fw-light"> Import </span>Community/Compound
     </h4>
 
     <!-- File Upload Form -->
@@ -318,7 +318,7 @@
 
 
     <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
-        <span class="text-muted fw-light">Import </span>Households Details
+        <i class='fa-solid fa-user text-info'></i><span class="text-muted fw-light"> Import </span>Households Details
     </h4>
 
 
@@ -344,7 +344,7 @@
     </div>
 
     <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
-        <span class="text-muted fw-light">Import </span>AC Households Details
+        <i class='fa-solid fa-users text-success'></i><span class="text-muted fw-light"> Import </span>AC Households Details
     </h4>
 
     <!-- File Upload Form -->
@@ -369,13 +369,38 @@
     </div>
 
     <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
-        <span class="text-muted fw-light">Import </span>Requested Households
+        <i class='fa-solid fa-question text-warning'></i><span class="text-muted fw-light"> Import </span>Requested Households
     </h4>
 
     <!-- File Upload Form -->
     <div class="card">
         <div class="card-body">
             <form action="{{route('data-collection.import-requested')}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <label for="excel_file">Choose Excel File</label>
+                    <input type="file" name="excel_file" class="form-control-file" id="excel_file"required>
+                    @error('excel_file')
+                    <div class="text-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div> <br>
+                <button type="submit" class="btn btn-success btn-block">
+                    
+                    <i class='fa-solid fa-upload'></i>
+                    Proccess
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
+        <i class='fa-solid fa-circle text-danger'></i><span class="text-muted fw-light"> Import </span>Displaced Households
+    </h4>
+
+    <!-- File Upload Form -->
+    <div class="card">
+        <div class="card-body">
+            <form action="{{route('data-collection.import-displaced')}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
                     <label for="excel_file">Choose Excel File</label>

@@ -23,3 +23,4 @@ Route::resource('actions', App\Http\Controllers\Api\AllActionsController::class)
 Route::resource('data', App\Http\Controllers\Api\AllSystemDevicesController::class);
 Route::resource('ticket', App\Http\Controllers\Api\AllTicketsController::class);
 Route::resource('incident', App\Http\Controllers\Api\AllInicdentTypeController::class);
+Route::resource('archive-energy-meter', App\Http\Controllers\Api\AllEnergyArchiveMeterController::class);

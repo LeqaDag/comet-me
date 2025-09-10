@@ -87,6 +87,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
             ->where('households.is_archived', 0)
+            ->where('households.household_status_id', '!=', 9)
             ->select(
                 DB::raw('"household" as list_name'), 
                 'households.comet_id as name',

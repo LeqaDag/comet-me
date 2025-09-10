@@ -38,6 +38,7 @@ class Households implements FromCollection, WithHeadings, WithTitle, ShouldAutoS
             ->where('households.is_archived', 0)  
             ->where('communities.is_archived', 0)
             ->where('internet_holder_young', 0) 
+            ->where('households.household_status_id', '!=', 9)
             ->select(
                 DB::raw('"household" as list_name'), 
                 'households.comet_id as name',

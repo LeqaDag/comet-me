@@ -22,7 +22,7 @@
         data-target=".multi-collapse" aria-expanded="false" 
         aria-controls="collapseEnergyPublicVisualData collapseEnergyPublicExport">
         <i class="menu-icon tf-icons bx bx-expand-alt"></i>
-        Toggle All
+        Toggle All 
     </button>
 </p>
 

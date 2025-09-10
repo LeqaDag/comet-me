@@ -16,7 +16,7 @@ use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\CometMeter;
 use App\Models\CometMeterDonor;
-use App\Models\Donor;
+use App\Models\Donor; 
 use App\Models\EnergyDonor;
 use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
@@ -120,7 +120,8 @@ class EnergyCometMeterController extends Controller
                                 Auth::guard('user')->user()->user_type_id == 2 ||
                                 Auth::guard('user')->user()->user_type_id == 3 ||
                                 Auth::guard('user')->user()->user_type_id == 4 ||
-                                Auth::guard('user')->user()->user_type_id == 12) 
+                                Auth::guard('user')->user()->user_type_id == 12||
+                                Auth::guard('user')->user()->role_id == 21) 
                             {
                                     
                                 return $viewButton." ". $updateButton." ".$deleteButton;
