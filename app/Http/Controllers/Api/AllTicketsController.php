@@ -209,7 +209,8 @@ class AllTicketsController extends Controller
                 $existingTicket->maintenance_type_id = $maintenanceType->id;
                 $existingTicket->maintenance_status_id = $maintenanceStatus->id;
                 $existingTicket->start_date = $ticket["created_at"];
-                $existingTicket->completed_date = $ticket["updated_at"];
+                $responseTime = Carbon::parse($ticket['response_time'])->toDateString();
+                $existingTicket->completed_date = $responseTime;
                 $existingTicket->support_created_at = $ticket["created_at"];
                 $existingTicket->supported_updated_at = $ticket["updated_at"];
                 $existingTicket->created_by = $ticket["created_by"];
@@ -238,7 +239,8 @@ class AllTicketsController extends Controller
                 $newTicket->maintenance_type_id = $maintenanceType->id;
                 $newTicket->maintenance_status_id = $maintenanceStatus->id;
                 $newTicket->start_date = $ticket["created_at"];
-                $newTicket->completed_date = $ticket["updated_at"];
+                $responseTime = Carbon::parse($ticket['response_time'])->toDateString();
+                $newTicket->completed_date = $responseTime;
                 $newTicket->support_created_at = $ticket["created_at"];
                 $newTicket->supported_updated_at = $ticket["updated_at"];
                 $newTicket->created_by = $ticket["created_by"];

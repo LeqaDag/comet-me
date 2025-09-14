@@ -222,14 +222,11 @@ class AllIncidentController extends Controller
                             }
                         }
 
-                        if(!empty($ticket['incident'])) {
+                        if(!empty($ticket['response_time'])) {
 
-                            foreach ($ticket['incident'] as $incident) {
-
-                                $responseTime = Carbon::parse($incident['response_time'])->toDateString();
-                                $incidentRecord->response_date = $responseTime;
-                                $incidentRecord->save();
-                            }
+                            $responseTime = Carbon::parse($ticket['response_time'])->toDateString();
+                            $incidentRecord->response_date = $responseTime;
+                            $incidentRecord->save();
                         }
                     }
                 }

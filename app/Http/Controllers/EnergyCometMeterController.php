@@ -118,7 +118,7 @@ class EnergyCometMeterController extends Controller
                         
                             if(Auth::guard('user')->user()->user_type_id == 1 || 
                                 Auth::guard('user')->user()->user_type_id == 2 ||
-                                Auth::guard('user')->user()->user_type_id == 3 ||
+                                Auth::guard('user')->user()->user_type_id == 3 || 
                                 Auth::guard('user')->user()->user_type_id == 4 ||
                                 Auth::guard('user')->user()->user_type_id == 12||
                                 Auth::guard('user')->user()->role_id == 21) 
@@ -137,7 +137,7 @@ class EnergyCometMeterController extends Controller
                                 ->orWhere('energy_systems.name', 'LIKE', "%$search%")
                                 ->orWhere('energy_system_types.name', 'LIKE', "%$search%")
                                 ->orWhere('public_structures.english_name', 'LIKE', "%$search%")
-                                ->orWhere('public_structures.meter_number', 'LIKE', "%$search%");
+                                ->orWhere('all_energy_meters.meter_number', 'LIKE', "%$search%");
                             });
                         }
                     })
