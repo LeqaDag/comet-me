@@ -976,7 +976,6 @@
         });
 
     
-
         // This for choosing the system
         $(document).on('change', '#energyHolderSelected', function() {
 
@@ -994,7 +993,7 @@
                 $.ajax({ 
                     url: `/energy-systems/${systemId}/components`,
                     method: 'GET',
-                    success: function(response) {
+                    success: function(response) { 
 
                         currentEquipmentData = response.equipment || [];
                         $('#dynamicAddRemoveEnergyEquipment tbody').empty();
@@ -1036,7 +1035,7 @@
                     <tr>
                         <td style="white-space: nowrap; width: 300px;">
                             <select class="selectpicker form-control" data-live-search="true" name="energy_equipment[]">
-                                ${options}
+                                ${options} 
                             </select>
                             <input type="hidden" name="equipment_type[${energyRowIndex}]" class="equipment-type-hidden" />
                         </td>
@@ -1648,6 +1647,7 @@
             $(this).parents('tr').remove();
         });
 
+        
     });
 </script>
 @endsection

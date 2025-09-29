@@ -333,13 +333,18 @@
                         <h6 class="mb-0">
                             @php $totalCamera = 0; @endphp
 
-                            @if(count($allCameraIncident->CameraInstallation->cameraCommunityTypes) > 0)
+                            @if(is_array($allCameraIncident->CameraInstallation->cameraCommunityTypes) || $allCameraIncident->CameraInstallation->cameraCommunityTypes instanceof Countable)
+
                                 @foreach($allCameraIncident->CameraInstallation->cameraCommunityTypes as $cameraCommunityType)
+                            
                                     @php
-                                        $totalCamera += $cameraCommunityType->number ?? 0; 
+                                        $totalCamera += $cameraCommunityType->number ?? 0;
                                     @endphp
+                            
                                 @endforeach
+                            
                             @endif
+
 
                             {{$totalCamera}}
                         </h6>

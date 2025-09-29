@@ -131,6 +131,7 @@ class AllWorkshopsController extends Controller
         $allWorkshop = WorkshopCommunity::findOrFail($id);
         
         $coTrainers = null;
+        $household = null;
 
         $community = Community::where("is_archived", 0)
             ->where('id', $allWorkshop->community_id)
@@ -149,7 +150,7 @@ class AllWorkshopsController extends Controller
             ->get();
         
         $workshopCommunityPhotos = WorkshopCommunityPhoto::where('workshop_community_id', $id)->get();
-        $household = Household::findOrFail($allWorkshop->household_id);
+        if($allWorkshop->household_id) $household = Household::findOrFail($allWorkshop->household_id);
 
         $response['allWorkshop'] = $allWorkshop;
         $response['community'] = $community;

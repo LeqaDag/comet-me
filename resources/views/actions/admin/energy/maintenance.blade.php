@@ -123,7 +123,7 @@
                         </a>
                         not yet completed
                     </p> 
-                    @include('actions.maintenance.energy.saftey.fbs_not_completed')
+                    @include('actions.admin.maintenance.energy.saftey.fbs_not_completed')
                 @endif
 
                 @if(count($notYetSafteyCheckedMg) > 0)

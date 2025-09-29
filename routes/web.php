@@ -751,3 +751,5 @@ Route::get('/energy-system/copy/components/{id}/{formData}/{systemId}', [App\Htt
     ->name('copyComponents');
 
 Route::post('data-collection-import-displaced', [App\Http\Controllers\DataCollectionController::class, 'importDisplaced'])->name('data-collection.import-displaced');
+
+// new routes

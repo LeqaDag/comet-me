@@ -127,7 +127,7 @@ class CommunitySummary implements FromCollection, WithHeadings, WithTitle, Shoul
 
     public function title(): string
     {
-        return 'Communities Summary (not including new communities)';
+        return 'Old Communities Summary';
     }
 
 
@@ -138,11 +138,11 @@ class CommunitySummary implements FromCollection, WithHeadings, WithTitle, Shoul
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:J1');
+        $sheet->setAutoFilter('A1:L1');
 
         $lastRow = $sheet->getHighestRow();
 
-        $sheet->getStyle('A' . $lastRow . ':J' . $lastRow)->applyFromArray([
+        $sheet->getStyle('A' . $lastRow . ':L' . $lastRow)->applyFromArray([
 
             'font' => ['bold' => true, 'size' => 12, 'color' => ['argb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '333333']],

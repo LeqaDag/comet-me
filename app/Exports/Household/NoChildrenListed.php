@@ -69,7 +69,7 @@ class NoChildrenListed implements FromCollection, WithHeadings, WithTitle, Shoul
                 'energy_system_cycles.name as cycle',
                 'households.phone_number', 'professions.profession_name', 
                 'number_of_male', 'number_of_female', 'number_of_children','number_of_adults', 
-                'school_students', 'household_statuses.status', 
+                'household_statuses.status', 
                 'all_energy_meters.is_main', 'energy_system_types.name',
                 'all_energy_meters.meter_number', 'all_energy_meters.installation_date',
                 DB::raw('group_concat(DISTINCT energy_donor.donor_name) as meter_donor'),
@@ -93,7 +93,7 @@ class NoChildrenListed implements FromCollection, WithHeadings, WithTitle, Shoul
     {
         return ["English Name", "Community", "Region", "Compound", "Cycle Year",
             "Phone Number", "Profession", "# of Male", "# of Female", "# of Children", "# of Adults",
-            "# of School students", "Energy System Status", "Main User", 
+            "Energy System Status", "Main User", 
             "Energy System Type", "Meter Number", "Installation Date", "Energy Donors",
             "Requset Date", "Water System Status", "Water Donors",
             "Internet System Status", "Internet Donors"];
