@@ -103,6 +103,87 @@
             </div>
         </div> 
     </div> 
+
+    @if(Auth::guard('user')->user()->user_type_id == 1 ||  
+        Auth::guard('user')->user()->user_type_id == 2 )
+        <div class="container mb-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-xl-10 col-lg-10 col-md-10">
+                                    <h5>
+                                    Export All Aggregated Incidents
+                                        <i class='fa-solid fa-file-excel text-info'></i>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('all-aggregated-incident.export') }}">
+                            @csrf
+                            <div class="card-body"> 
+                                <!-- <div class="row">
+                                    <div class="col-xl-3 col-lg-3 col-md-3">
+                                        <fieldset class="form-group">
+                                            <select name="service_ids1[]" 
+                                                class="selectpicker form-control" data-live-search="true" multiple>
+                                                <option disabled selected>Select Services</option>
+                                                @foreach($serviceTypes as $serviceType)
+                                                    <option value="{{$serviceType->id}}">
+                                                        {{$serviceType->service_name}}
+                                                    </option>
+                                                @endforeach
+                                            </select> 
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-xl-3 col-lg-3 col-md-3">
+                                        <fieldset class="form-group">
+                                            <select name="community_id1" class="selectpicker form-control" 
+                                                data-live-search="true">
+                                                <option disabled selected>Select Community</option>
+                                                @foreach($communities as $community)
+                                                    <option value="{{$community->id}}">{{$community->english_name}}</option>
+                                                @endforeach
+                                            </select> 
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-xl-3 col-lg-3 col-md-3">
+                                        <fieldset class="form-group">
+                                            <select name="incident_id1" 
+                                                class="selectpicker form-control" data-live-search="true">
+                                                <option disabled selected>Select Incident</option>
+                                                @foreach($incidents as $incident)
+                                                <option value="{{$incident->id}}">
+                                                    {{$incident->english_name}}
+                                                </option>
+                                                @endforeach
+                                            </select> 
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-xl-3 col-lg-3 col-md-3">
+                                        <fieldset class="form-group">
+                                            <input type="date" name="date1" id="incidentAggregatedDate"
+                                            class="form-control" title="Incident Data from"> 
+                                        </fieldset>
+                                    </div>
+                                </div> -->
+                                <div class="row">
+                                    <div class="col-xl-3 col-lg-3 col-md-3">
+                                        <button class="btn btn-info" type="submit">
+                                            <i class='fa-solid fa-file-excel'></i>
+                                            Export Excel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>  
+                </div>
+            </div> 
+        </div> 
+    @endif
 </div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -309,6 +390,14 @@
             $('.selectpicker').prop('selectedIndex', 0);
             $('.selectpicker').selectpicker('refresh');
             $('#incidentDate').val(' ');
+        });
+
+        // Clear Filters for Export
+        $('#clearAllAggregatedIncidentsFiltersButton').on('click', function() {
+
+            $('.selectpicker').prop('selectedIndex', 0);
+            $('.selectpicker').selectpicker('refresh');
+            $('#incidentAggregatedDate').val(' ');
         });
 
         // View record details

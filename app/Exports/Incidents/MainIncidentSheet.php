@@ -22,7 +22,7 @@ class MainIncidentSheet implements WithMultipleSheets
     public function sheets(): array
     {
         $sheets = [
-
+            
             new AllIncidents($this->request),
             new AllSWOIncidents($this->request),
         ];

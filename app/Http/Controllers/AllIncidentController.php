@@ -90,6 +90,7 @@ use App\Models\CameraIncidentEquipment;
 use App\Models\CameraIncidentPhoto;
 
 use App\Exports\Incidents\MainIncidentSheet;
+use App\Exports\Incidents\AllAggregatedIncidents;
 use App\Helpers\SequenceHelper;
 use Carbon\Carbon;
 use Image;
@@ -2658,6 +2659,16 @@ class AllIncidentController extends Controller
     {
 
         return Excel::download(new MainIncidentSheet($request), 'All Incidents.xlsx');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportAggregated(Request $request) 
+    {
+
+        return Excel::download(new AllAggregatedIncidents($request), 'All Incidents.xlsx');
     }
 
     /**

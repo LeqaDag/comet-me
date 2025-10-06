@@ -14,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use Illuminate\Support\Str;
 use DB;
 
-class AllIncidents implements FromCollection, WithHeadings, WithTitle, 
+class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle, 
     WithStyles
 {
  
@@ -30,12 +30,12 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
     */
     public function collection()
     { 
+        
         $equipmentSubqueryEnergy = IncidentEquipmentQueryBuilder::getEnergyEquipmentSubquery();
         $equipmentSubqueryWater = IncidentEquipmentQueryBuilder::getWaterEquipmentSubquery();
         $equipmentSubqueryInternet = IncidentEquipmentQueryBuilder::getInternetEquipmentSubquery();
         $equipmentSubqueryInternetNetwork = IncidentEquipmentQueryBuilder::getNetworkEquipmentSubquery();
-
-    
+        
         $data = DB::table('all_incidents')
             ->join('communities', 'all_incidents.community_id', 'communities.id')
             ->join('regions', 'communities.region_id', 'regions.id')
@@ -44,7 +44,7 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
             ->join('all_incident_occurred_statuses', 'all_incidents.id', 'all_incident_occurred_statuses.all_incident_id')
             ->join('all_incident_statuses', 'all_incident_statuses.id', 'all_incident_occurred_statuses.all_incident_status_id')
             ->where('all_incidents.is_archived', 0)
-            ->where('all_incidents.incident_id', '!=', 4)
+            //->where('all_incidents.incident_id', '!=', 4)
 
             ->leftJoin('all_energy_incidents', 'all_incidents.id', 'all_energy_incidents.all_incident_id')
             ->leftJoin('all_energy_meters', 'all_energy_meters.id', 'all_energy_incidents.all_energy_meter_id')
@@ -123,16 +123,32 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
 
 
             ->select([
+                DB::raw("CASE 
+                    WHEN energy_users.english_name IS NOT NULL THEN 'Energy User'
+                    WHEN energy_publics.english_name IS NOT NULL THEN 'Energy Public Structure'
+                    WHEN water_users.english_name IS NOT NULL THEN 'Water User'
+                    WHEN water_publics.english_name IS NOT NULL THEN 'Water Public Structure'
+                    WHEN internet_holders.english_name IS NOT NULL THEN 'Internet User'
+                    WHEN internet_publics.english_name IS NOT NULL THEN 'Internet Public Structure'
+                    WHEN energy_systems.name IS NOT NULL THEN 'Energy System'
+                    WHEN water_systems.name IS NOT NULL THEN 'Water System'
+                    WHEN internet_systems.system_name IS NOT NULL THEN 'Internet System'
+                    WHEN cameras_communities.english_name IS NOT NULL THEN 'Camera Community'
+                    ELSE 'Unknown'
+                END as agent_type"),
+
+                DB::raw("COALESCE(energy_users.english_name, energy_publics.english_name, 
+                    water_users.english_name, water_publics.english_name, 
+                    internet_holders.english_name, internet_publics.english_name,
+                    energy_systems.name, water_systems.name, internet_systems.system_name, 
+                    cameras_communities.english_name ) as agent"),
+
                 'all_incidents.date',
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(energy_users.english_name, energy_publics.english_name, 
-                    water_users.english_name, water_publics.english_name, internet_holders.english_name , 
-                    internet_publics.english_name) SEPARATOR ', ') as user"),
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(energy_systems.name, water_systems.name, internet_systems.system_name, 
-                    cameras_communities.english_name) SEPARATOR ', ') as system"),
-                DB::raw("GROUP_CONCAT(DISTINCT communities.english_name SEPARATOR ', ') as community_name"),
+
+                "communities.english_name as community_name",
                 'regions.english_name as region', 
                 'incidents.english_name as incident',
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(service_types.service_name) SEPARATOR ', ') as department"),
+                "service_types.service_name as department",
 
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 1 THEN 
                     all_incident_statuses.status END SEPARATOR ', ') as energy_status"),
@@ -229,10 +245,8 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
                     AS number_of_female
                 "),
             ])
-            ->orderBy('all_incidents.date', 'desc')
-            ->groupBy('all_incidents.date')
+            ->groupBy('all_incidents.id')
             ->get();
-
 
         foreach ($data as $row) {
 
@@ -277,29 +291,29 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
         }
 
 
-        if($this->request->service_ids) {
+        if($this->request->service_ids1) {
 
-            $data->whereIn('all_incidents.service_type_id', $this->request->service_ids);
+            $data->whereIn('all_incidents.service_type_id', $this->request->service_ids1);
         } 
-        if($this->request->community_id) {
+        if($this->request->community_id1) {
 
-            $data->where("all_incidents.community_id", $this->request->community_id);
+            $data->where("all_incidents.community_id", $this->request->community_id1);
         }
-        if($this->request->incident_id) {
+        if($this->request->incident_id1) {
 
-            $data->where("all_incidents.incident_id", $this->request->incident_id);
+            $data->where("all_incidents.incident_id", $this->request->incident_id1);
         }
-        if($this->request->date) {
+        if($this->request->date1) {
 
-            $data->where("all_incidents.date", ">=", $this->request->date);
+            $data->where("all_incidents.date", ">=", $this->request->date1);
         }
 
 
         $filtered = $data->map(function ($item) {
             return [
+                'Agent Type' => $item->agent_type,
+                'User/Public/System' => $item->agent,
                 'Incident Date' => $item->date,
-                'User/Public (any energy user - MG or FBS); Water user, Internet user' => $item->user,
-                'System' => $item->system,
                 'Community' => $item->community_name,
                 'Region' => $item->region,
                 'Incident Type' => $item->incident,
@@ -348,22 +362,20 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
      */
     public function headings(): array 
     {
-        return ["Incident Date", "User/Public (any energy user - MG or FBS); Water user, Internet user",
-            "System", "Community", "Region", "Incident Type", "Service Types", "Energy Incident Status", 
-            "Energy Holder Equipment Damaged", "Losses Energy Holder (ILS)", "Energy System Equipment Damaged", 
-            "Losses Energy System (ILS)", "Water Incident Status", "Water Equipment Damaged", "Losses Water (ILS)", 
-            "Water System Equipment Damaged", "Losses Water System (ILS)", "Internet Incident Status", 
-            "Internet Equipment Damaged", "Losses Internet (ILS)", "Internet System Equipment Damaged", 
-            "Losses Internet System (ILS)", "Camera Incident Status", "Camera Equipment Damaged", 
-            "Losses Cameras (ILS)", "Description of Incident", "Description (User - USS)", 
+        return ["Agent Type", "User/Public/System", "Incident Date", "Community", "Region", "Incident Type", 
+            "Service Types", "Energy Incident Status", "Energy Holder Equipment Damaged", "Losses Energy Holder (ILS)", 
+            "Energy System Equipment Damaged", "Losses Energy System (ILS)", "Water Incident Status", 
+            "Water Equipment Damaged", "Losses Water (ILS)", "Water System Equipment Damaged", "Losses Water System (ILS)", 
+            "Internet Incident Status", "Internet Equipment Damaged", "Losses Internet (ILS)", 
+            "Internet System Equipment Damaged", "Losses Internet System (ILS)", "Camera Incident Status", 
+            "Camera Equipment Damaged", "Losses Cameras (ILS)", "Description of Incident", "Description (User - USS)", 
             "Description (Manager - USS)", "Donor (Energy)", "Donor (Water)", "Donor (Internet)", 
-            "Donor (Camera)", "# of Adult", "# of Children", 
-            "# of Male", "# of Female"];
+            "Donor (Camera)", "# of Adult", "# of Children", "# of Male", "# of Female"];
     }
 
     public function title(): string
     {
-        return 'Total Incidents';
+        return 'All Aggregated Incidents';
     }
 
     /**
