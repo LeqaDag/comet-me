@@ -407,7 +407,7 @@ class RefrigeratorHolderController extends Controller
                 ->orderBy('public_structures.english_name', 'ASC')
                 ->select('public_structures.id as id', 'public_structures.english_name')
                 ->get();
-        }
+        } 
 
         foreach ($households as $household) {
             $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';
@@ -424,19 +424,13 @@ class RefrigeratorHolderController extends Controller
      */
     public function getPublicByCommunity($community_id)
     {
-        $publics = DB::table('refrigerator_holders')
-            ->join('public_structures', 'refrigerator_holders.public_structure_id', 
-                '=', 'public_structures.id')
-            ->where("refrigerator_holders.community_id", $community_id)
-            ->select('public_structures.id', 'public_structures.english_name')
-            ->get();
- 
+        $html = "<option disabled selected>Choose one...</option>";
+
         if (!$community_id) {
 
-            $html = '<option value="">Choose One...</option>';
+            $html = "<option disabled selected>Choose one...</option>";
         } else {
 
-            $html = '<option value="">Choose One...</option>';
             $publics = DB::table('refrigerator_holders')
                 ->join('public_structures', 'refrigerator_holders.public_structure_id', 
                     '=', 'public_structures.id')

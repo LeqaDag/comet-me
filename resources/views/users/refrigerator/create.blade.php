@@ -61,7 +61,7 @@ label, table {
                         <div class="col-xl-4 col-lg-4 col-md-4">
                             <fieldset class="form-group">
                                 <label class='col-md-12 control-label'>Refrigerator Holder</label>
-                                <select name="household_id" id="selectedRefrigeratorHolder" 
+                                <select name="" id="selectedRefrigeratorHolder" 
                                     class="selectpicker form-control" disabled>
                                     <option disabled selected>Choose one...</option>
                                 </select>
@@ -179,6 +179,7 @@ label, table {
 
     function UserOrPublic(community_id) {
         $(document).on('change', '#isHousehold', function () {
+
             is_household = $(this).val();
             
             if(is_household == "yes") {
@@ -196,11 +197,11 @@ label, table {
                     }
                 });
 
-            } else {
+            } else if(is_household == "no"){
 
                 $("#selectedRefrigeratorHolder").attr('name', 'public_structure_id');
                 $.ajax({
-                    url: "energy-public/get_by_community/" + community_id,
+                    url: "energy_public/get_by_community/" + community_id,
                     method: 'GET',
                     success: function(data) {
 

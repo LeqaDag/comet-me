@@ -439,6 +439,9 @@ Route::get('/delete-camera', [App\Http\Controllers\CameraComponentController::cl
 Route::resource('nvr-component', App\Http\Controllers\NvrComponentController::class);
 Route::get('nvr-component/{id}/editpage', [App\Http\Controllers\NvrComponentController::class, 'editPage']);
 Route::get('/delete-nvr', [App\Http\Controllers\NvrComponentController::class, 'deleteNvr'])->name('deleteNvr');
+Route::resource('camera-component-accessory', App\Http\Controllers\CameraComponentAccessoryController::class);
+Route::get('camera-component-accessory/{id}/editpage', [App\Http\Controllers\CameraComponentAccessoryController::class, 'editPage']);
+Route::get('/delete-component-accessory', [App\Http\Controllers\CameraComponentAccessoryController::class, 'deleteComponentAccessory'])->name('deleteComponentAccessory');
 
 Route::resource('hold-household', App\Http\Controllers\OnHoldHouseholdController::class);
 Route::get('/delete-hold-household', [App\Http\Controllers\OnHoldHouseholdController::class, 'deleteOnHoldHousehold'])->name('deleteOnHoldHousehold');
