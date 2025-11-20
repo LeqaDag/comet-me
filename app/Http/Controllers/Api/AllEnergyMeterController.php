@@ -38,6 +38,41 @@ class AllEnergyMeterController extends Controller
         Cache::forget('energy_generator_communities');
         Cache::forget('energy_systems');
  
+        $outOfCometHouseholds = DB::table('households')
+            ->join('communities', 'households.community_id', 'communities.id')
+            ->join('community_statuses', 'communities.community_status_id', 'community_statuses.id')
+            ->leftJoin('household_statuses', 'households.household_status_id', 'household_statuses.id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->leftJoin('internet_users as internet_household', 'households.id', 'internet_household.household_id')
+            ->where('households.is_archived', 0)
+            ->where('households.out_of_comet', 1)
+            ->select(
+                'communities.english_name as english_community_name',
+                'communities.arabic_name as arabic_community_name',
+                'community_statuses.name as community_status',
+                'regions.english_name as region_name',
+                'sub_regions.english_name as sub_region_name',
+                DB::raw('false as english_compound_name'),
+                DB::raw('false as arabic_compound_name'),
+                'households.english_name as holder_name_english',
+                'households.arabic_name as holder_name_arabic',
+                'households.comet_id as comet_id',
+                'households.fake_meter_number',
+                'households.phone_number', DB::raw('false as energy_system_status'),
+                'households.fake_meter_number as meter_number',
+                DB::raw('false as energy_type'), DB::raw('false as meter_case'),
+                DB::raw('false as is_main'), DB::raw('false as is_archived'),
+                DB::raw('false as water_system_status'), 'households.internet_system_status',
+                DB::raw('IFNULL(internet_household.is_ppp, 0) as is_ppp'),
+                DB::raw('IFNULL(internet_household.is_hotspot, 0) as is_hotspot'),
+                DB::raw('false as main_holder'), DB::raw('false as daily_limit'), 
+                DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
+                DB::raw('"Out of Comet holder" as holder_type'),
+            )
+            ->distinct()
+            ->groupBy('households.id')
+            ->get();
 
         // Caching the households query
         $households =  DB::table('households')
@@ -79,7 +114,7 @@ class AllEnergyMeterController extends Controller
                 'households.fake_meter_number',
                 'households.phone_number', 'household_statuses.status as energy_system_status',
                 DB::raw('IFNULL(all_energy_meters.meter_number,
-                    IFNULL(all_energy_meters.fake_meter_number, young_holders.fake_meter_number)) as meter_number'),
+                    IFNULL(all_energy_meters.fake_meter_number, households.fake_meter_number)) as meter_number'),
                 'energy_system_types.name as energy_type',
                 'meter_cases.meter_case_name_english as meter_case',
                 'all_energy_meters.is_main', 'all_energy_meters.is_archived',
@@ -91,12 +126,14 @@ class AllEnergyMeterController extends Controller
                 'main_users.english_name as main_holder',
                 'all_energy_meters.daily_limit',
                 'households.is_surveyed', 'households.last_surveyed_date',
+                DB::raw('"Comet holder" as holder_type')
                 // DB::raw("CASE WHEN refrigerator_holder_receive_numbers.receive_number IS NOT NULL THEN 'Yes'
                 //     ELSE 'No' END AS refrigerator_status"),
             )
             ->distinct()
             ->groupBy('households.id')
             ->get();
+
 
         $publics = DB::table('public_structures')
             ->join('communities', 'public_structures.community_id', 'communities.id')
@@ -150,12 +187,51 @@ class AllEnergyMeterController extends Controller
                     as main_holder'),
                 'all_energy_meters.daily_limit',
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
+                DB::raw('"Comet holder" as holder_type')
                 // DB::raw("CASE WHEN refrigerator_holder_receive_numbers.receive_number IS NOT NULL THEN 'Yes'
                 //     ELSE 'No' END AS refrigerator_status"),
             )
             ->distinct()
             ->get();
 
+
+        $outOfCometPublics = DB::table('public_structures')
+            ->join('communities', 'public_structures.community_id', 'communities.id')
+            ->join('community_statuses', 'communities.community_status_id', 'community_statuses.id')
+            ->leftJoin('public_structure_statuses', 'public_structures.public_structure_status_id', 
+                'public_structure_statuses.id')
+            ->join('regions', 'communities.region_id', 'regions.id')
+            ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
+            ->leftJoin('internet_users', 'public_structures.id', 'internet_users.public_structure_id')
+            ->where('public_structures.is_archived', 0)
+            ->where('public_structures.out_of_comet', 1)
+            ->select(
+                'communities.english_name as english_community_name',
+                'communities.arabic_name as arabic_community_name',
+                'community_statuses.name as community_status',
+                'regions.english_name as region_name',
+                'sub_regions.english_name as sub_region_name',
+                DB::raw('false as english_compound_name'),
+                DB::raw('false as arabic_compound_name'),
+                'public_structures.english_name as holder_name_english',
+                'public_structures.arabic_name as holder_name_arabic',
+                'public_structures.comet_id as comet_id',
+                'public_structures.fake_meter_number',
+                'public_structures.phone_number', DB::raw('false as energy_system_status'),
+                'public_structures.fake_meter_number as meter_number',
+                DB::raw('false as energy_type'), DB::raw('false as meter_case'),
+                DB::raw('false as is_main'), DB::raw('false as is_archived'),
+                DB::raw('false as water_system_status'), 
+                DB::raw('"Served" as internet_system_status'), 
+                DB::raw('IFNULL(internet_users.is_ppp, 0) as is_ppp'),
+                DB::raw('IFNULL(internet_users.is_hotspot, 0) as is_hotspot'),
+                DB::raw('false as main_holder'), DB::raw('false as daily_limit'), 
+                DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
+                DB::raw('"Out of Comet holder" as holder_type'),
+            )
+            ->distinct()
+            ->groupBy('public_structures.id')
+            ->get();
 
         $turbines = DB::table('energy_turbine_communities')
             ->join('communities', 'energy_turbine_communities.community_id', 'communities.id')
@@ -181,6 +257,7 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'), 
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
+                DB::raw('"Turbine" as holder_type'),
                 // DB::raw('false as refrigerator_status'),
             )
             ->get();
@@ -210,6 +287,7 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'),
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
+                DB::raw('"System" as holder_type'),
                 // DB::raw('false as refrigerator_status'),
             )
             ->get();
@@ -240,6 +318,7 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'),
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
+                DB::raw('"System" as holder_type'),
                 // DB::raw('false as refrigerator_status'),
 
             )
@@ -270,6 +349,7 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'),
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
+                DB::raw('"System" as holder_type'),
                 // DB::raw('false as refrigerator_status'),
             )
             ->get();
@@ -298,12 +378,13 @@ class AllEnergyMeterController extends Controller
                 DB::raw('false as is_ppp'),DB::raw('false as is_hotspot'), DB::raw('false as main_holder'),
                 DB::raw('false as daily_limit'),
                 DB::raw('false as is_surveyed'), DB::raw('false as last_surveyed_date'),
+                DB::raw('"Generator" as holder_type'),
                 // DB::raw('false as refrigerator_status'),
             )
             ->get();
 
         $data = collect([$households, $publics, $turbines, $generators, $energySystems, 
-            $waterSystems, $internetSystems])->flatten();
+            $waterSystems, $internetSystems, $outOfCometHouseholds, $outOfCometPublics])->flatten();
 
 
         return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);

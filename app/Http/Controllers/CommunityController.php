@@ -17,6 +17,7 @@ use App\Models\Community;
 use App\Models\CommunityDonor;
 use App\Models\CommunityStatus; 
 use App\Models\CommunityService;
+use App\Models\CameraCommunity;
 use App\Models\CommunityProduct;
 use App\Models\CommunityRepresentative;
 use App\Models\CommunityRole;
@@ -63,6 +64,25 @@ class CommunityController extends Controller
      */
     public function index(Request $request)
     {	
+        // Add Yes/No to camera_service & year for each community
+        $cameraCommunities = CommunityService::where("service_id", 4)->get();
+
+        foreach($cameraCommunities as $cameraCommunity) {
+
+            $cameraCom = CameraCommunity::where("community_id", $cameraCommunity->community_id)->first();
+            $community = Community::findOrFail($cameraCommunity->community_id);
+
+            if($cameraCom) {
+
+                $year = Carbon::parse($cameraCom->date)->year;
+                $community->camera_service_beginning_year = $year;
+            }
+
+            $community->camera_service = "yes";
+            $community->save();
+        }
+
+
         // $incrementalNumber = 1;
         // $communities = Community::all();
 
@@ -76,13 +96,14 @@ class CommunityController extends Controller
 
         $data = DB::table('households')
             ->join('communities', 'communities.id', 'households.community_id')
+            ->where('communities.community_status_id', '!=', 5)
             ->select(
                 'households.community_id AS id',
                 DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.internet_holder_young = 0
                 THEN 1 ELSE NULL END) as total_household'),
                 )
             ->groupBy('households.community_id')
-            ->get();
+            ->get(); 
        
         
         foreach($data as $d) {
@@ -1221,7 +1242,7 @@ class CommunityController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request, int $id
      * @return \Illuminate\Http\Response
-     */
+     */ 
     public function update(Request $request, $id)
     {
         $community = Community::findOrFail($id);
@@ -1273,19 +1294,9 @@ class CommunityController extends Controller
 
             $community->energy_service = $request->energy_service;
 
-            $existCommunityService = CommunityService::where("community_id", $id)
-                ->where("service_id", 1)
-                ->first();
-
-            if($existCommunityService) {
-
-            } else {
-
-                $communityService = new CommunityService();
-                $communityService->service_id = 1;
-                $communityService->community_id = $id;
-                $communityService->save();
-            }
+            $communityService = CommunityService::firstOrCreate(
+                ['community_id' => $id, 'service_id' => 1]
+            );
         }
         
         if($request->energy_service_beginning_year) $community->energy_service_beginning_year = $request->energy_service_beginning_year;
@@ -1293,19 +1304,9 @@ class CommunityController extends Controller
         if($request->water_service) {
 
             $community->water_service = $request->water_service;
-            $existCommunityService = CommunityService::where("community_id", $id)
-                ->where("service_id", 2)
-                ->first();
-
-            if($existCommunityService) {
-
-            } else {
-
-                $communityService = new CommunityService();
-                $communityService->service_id = 2;
-                $communityService->community_id = $id;
-                $communityService->save();
-            }
+            $communityService = CommunityService::firstOrCreate(
+                ['community_id' => $id, 'service_id' => 2]
+            );
         }
         
         if($request->water_service_beginning_year) $community->water_service_beginning_year = $request->water_service_beginning_year;
@@ -1313,22 +1314,32 @@ class CommunityController extends Controller
         if($request->internet_service) {
 
             $community->internet_service = $request->internet_service;
-            $existCommunityService = CommunityService::where("community_id", $id)
-                ->where("service_id", 3)
-                ->first();
-
-            if($existCommunityService) {
-
-            } else {
-
-                $communityService = new CommunityService();
-                $communityService->service_id = 3;
-                $communityService->community_id = $id;
-                $communityService->save();
-            }
+            $communityService = CommunityService::firstOrCreate(
+                ['community_id' => $id, 'service_id' => 3]
+            );
         }
       
         if($request->internet_service_beginning_year) $community->internet_service_beginning_year = $request->internet_service_beginning_year;
+        
+        if($request->camera_service) {
+
+            $community->camera_service = $request->camera_service;
+            $communityService = CommunityService::firstOrCreate(
+                ['community_id' => $id, 'service_id' => 4]
+            );
+        }
+        if($request->camera_service_beginning_year) $community->camera_service_beginning_year = $request->camera_service_beginning_year;
+
+        if($request->agriculture_service) {
+
+            $community->agriculture_service = $request->agriculture_service;
+            $communityService = CommunityService::firstOrCreate(
+                ['community_id' => $id, 'service_id' => 5]
+            );
+        }
+        if($request->agriculture_service_beginning_year) $community->agriculture_service_beginning_year = $request->agriculture_service_beginning_year;
+
+
         if($request->description) $community->description = $request->description;
         if($request->latitude) $community->latitude = $request->latitude; 
         if($request->longitude) $community->longitude = $request->longitude;

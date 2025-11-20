@@ -16,7 +16,7 @@ class Community extends Model
         'internet_service_beginning_year', 'grid_access', 'is_archived', 'community_status_id'];
     
 
-    public function Region() 
+    public function Region()  
     {
         return $this->belongsTo(Region::class, 'region_id', 'id');
     }
@@ -54,5 +54,15 @@ class Community extends Model
     public function SchoolTown()
     {
         return $this->belongsTo('App\Models\Town', 'school_town_id', 'id');
+    }
+
+    public function displacedHouseholds()
+    {
+        return $this->hasMany(DisplacedHousehold::class, 'old_community_id');
+    }
+
+    public function households()
+    {
+        return $this->hasMany(Household::class);
     }
 }

@@ -84,15 +84,15 @@ label, table {
                             <select class="selectpicker form-control" 
                                 data-live-search="true" 
                                 name="new_energy_system_id" required>
-                                @if($displacedHousehold->new_energy_system_id)
-                                    <option disabled selected>
-                                        {{$displacedHousehold->NewEnergySystem->name}}
-                                    </option>
-                                @endif
-                                @foreach($energySystems as $energySystem)
-                                <option value="{{$energySystem->id}}">
-                                    {{$energySystem->name}}
+                               <option value="" disabled {{ !$displacedHousehold->new_energy_system_id ? 'selected' : '' }}>
+                                    {{ $displacedHousehold->new_energy_system_id ? $displacedHousehold->NewEnergySystem->name : 'Choose one...' }}
                                 </option>
+
+                                @foreach($energySystems as $energySystem)
+                                    <option value="{{ $energySystem->id }}" 
+                                            {{ $displacedHousehold->new_energy_system_id == $energySystem->id ? 'selected' : '' }}>
+                                        {{ $energySystem->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </fieldset>

@@ -235,7 +235,34 @@
                         <div class="card-body">
                         <fieldset class="form-group">
                             <h6 class="">
-                               
+                                
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <form method="POST" enctype='multipart/form-data' 
+                            action="{{ route('data-collection.export-workshop') }}">
+                            @csrf
+                            <div class="card-body">
+                                <div class="row">
+                                    <fieldset class="form-group">
+                                        <button class="btn btn-dark" type="submit">
+                                            <i class='fa-solid fa-download'></i>
+                                            Export Excel format "Workshops"
+                                        </button>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-md-3"> 
+                        <div class="card-body">
+                            <fieldset class="form-group">
+                            <h6 class="text-success">
+                                <i class='fa-solid fa-tree'></i>
+                                Agriculture Project
                             </h6>
                         </div>
                     </div>
@@ -257,22 +284,20 @@
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <form method="POST" enctype='multipart/form-data' 
-                            action="{{ route('data-collection.export-workshop') }}">
+                            action="{{ route('data-collection.export-requested-agriculture') }}">
                             @csrf
                             <div class="card-body">
                                 <div class="row">
                                     <fieldset class="form-group">
                                         <button class="btn btn-success" type="submit">
                                             <i class='fa-solid fa-download'></i>
-                                            Export Excel format "Workshops"
+                                            Export Excel "Requested Agriculture"
                                         </button>
                                     </fieldset>
                                 </div>
                             </div>
                         </form>
                     </div>
-                </div>
-                <div class="row">
                 </div>
             </div>  
         </div>
@@ -407,6 +432,31 @@
                     <input type="file" name="excel_file" class="form-control-file" id="excel_file"required>
                     @error('excel_file')
                     <div class="text-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div> <br>
+                <button type="submit" class="btn btn-success btn-block">
+                    
+                    <i class='fa-solid fa-upload'></i>
+                    Proccess
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Requested Agriculture Upload Form -->
+     <h4 class="py-3 breadcrumb-wrapper mb-4" style="margin-top:50px">
+        <i class='fa-solid fa-tree text-success'></i><span class="text-muted fw-light"> Import 
+        </span>Requested Agriculture
+    </h4>
+    <div class="card">
+        <div class="card-body">
+            <form action="{{route('data-collection.import-requested-agriculture')}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <label for="excel_file">Choose Excel File</label>
+                    <input type="file" name="excel_file" class="form-control-file" id="excel_file"required>
+                    @error('excel_file')
+                    <div class="text-success mt-2">{{ $message }}</div>
                     @enderror
                 </div> <br>
                 <button type="submit" class="btn btn-success btn-block">

@@ -283,6 +283,23 @@ class InternetUserController extends Controller
             }
         }
 
+        $internetUsers = InternetUser::where("is_archived", 0)->get();
+        foreach($internetUsers as $internetUser) {
+
+            $internetUserDonor = InternetUserDonor::where("is_archived", 0)
+                ->where("internet_user_id", $internetUser->id)
+                ->first();
+
+            if(!$internetUserDonor) {
+
+                $newInternetDonor = new InternetUserDonor();
+                $newInternetDonor->community_id = $internetUser->community_id;
+                $newInternetDonor->internet_user_id = $internetUser->id;
+                $newInternetDonor->donor_id = 3;
+                $newInternetDonor->save();
+            }
+        }
+
         if (Auth::guard('user')->user() != null) {
 
             $this->getMetrix();

@@ -732,8 +732,8 @@ label {
                             <label class='col-md-12 control-label'>Energy Service</label>
                             <select name="energy_service" class="form-control">
                                 <option disabled selected>{{$community->energy_service}}</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
                             </select>
                         </fieldset>
                     </div>
@@ -749,8 +749,8 @@ label {
                             <label class='col-md-12 control-label'>Water Service</label>
                             <select name="water_service" class="form-control">
                                 <option disabled selected>{{$community->water_service}}</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
                             </select>
                         </fieldset>
                     </div>
@@ -769,8 +769,8 @@ label {
                             <label class='col-md-12 control-label'>Internet Service</label>
                             <select name="internet_service" class="form-control">
                                 <option disabled selected>{{$community->internet_service}}</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
                             </select>
                         </fieldset>
                     </div>
@@ -779,6 +779,46 @@ label {
                             <label class='col-md-12 control-label'>Internet Service Year</label>
                             <input type="text" name="internet_service_beginning_year" 
                             value="{{$community->internet_service_beginning_year}}" class="form-control">
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Camera Service</label>
+                            <select name="camera_service" class="form-control">
+                                <option disabled selected>{{$community->camera_service}}</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Camera Service Year</label>
+                            <input type="text" name="camera_service_beginning_year" 
+                            value="{{$community->camera_service_beginning_year}}" class="form-control">
+                        </fieldset>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Agriculture Service</label>
+                            <select name="agriculture_service" class="form-control">
+                                <option disabled selected>{{$community->agriculture_service}}</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
+                        <fieldset class="form-group">
+                            <label class='col-md-12 control-label'>Agriculture Service Year</label>
+                            <input type="text" name="agriculture_service_beginning_year" 
+                            value="{{$community->agriculture_service_beginning_year}}" class="form-control">
                         </fieldset>
                     </div>
                 </div>

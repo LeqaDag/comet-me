@@ -317,6 +317,20 @@
                 </ul>
             </li> 
 
+            <li class="menu-item" id="agriculture-service">
+                <a class="menu-link menu-toggle">
+                    <div>Agriculture</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="agriculture-user">
+                        <a href="{{url('argiculture-user')}}" class="menu-link">
+                            <i class=""></i>
+                            <div>Agriculture Users</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li class="menu-item" id="camera-service">
                 <a class="menu-link menu-toggle">
                 <!--  <i class="menu-icon tf-icons bx bx-wifi"></i>-->
@@ -593,6 +607,20 @@
                     </li> -->
                 </ul>
             </li> 
+
+            <li class="menu-item" id="agriculture-system-tab">   
+                <a class="menu-link menu-toggle">
+                    <div>Agriculture System</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item" id="agriculture-system">
+                        <a href="{{url('agriculture-system')}}" class="menu-link">
+                            <i class=""></i>
+                            <div>All Agriculture Systems</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </ul>
     </li>
 
@@ -1073,5 +1101,16 @@
         $("#camera-component").addClass("active");
         $("#camera-service").addClass("open");
         $("#services").addClass("open");
-    }
+    } else if(last_part == "agriculture-user") {
+
+        $("#agriculture-user").addClass("active");
+        $("#agriculture-service").addClass("open");
+        $("#services").addClass("open");
+    } else if(last_part == "agriculture-system") {
+
+        $("#agriculture-system").addClass("active");
+        $("#agriculture-system-tab").addClass("open");
+        $("#systems").addClass("open");
+    } 
+
 </script>

@@ -797,6 +797,15 @@ class AllEnergyController extends Controller
             $household->save();
             
             $energyUser->meter_case_id = $request->meter_case_id;
+
+            $communityService = CommunityService::firstOrCreate(
+                ['community_id' => $household->community_id, 'service_id' => 1]
+            );
+
+            $community = Community::FindOrFail($household->community_id);
+            $community->energy_service = "Yes";
+            $community->energy_service_beginning_year = now()->year;
+            $community->save();
         }
 
         $energyUser->save(); 

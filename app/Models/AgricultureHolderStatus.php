@@ -5,13 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CommunityService extends Model
+class AgricultureHolderStatus extends Model
 {
     use HasFactory;
-
-    
     protected $fillable = [
-        'community_id',
-        'service_id'
+        'comet_id',
+        'english_name',
+        'arabic_name'
     ];
 }

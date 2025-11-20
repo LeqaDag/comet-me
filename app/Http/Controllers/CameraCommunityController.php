@@ -12,6 +12,7 @@ use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\Donor;
 use App\Models\Community;
+use App\Models\Compound;
 use App\Models\CommunityService;
 use App\Models\CameraCommunityType;
 use App\Models\CameraCommunity;
@@ -58,24 +59,15 @@ class CameraCommunityController extends Controller
         
         foreach($allCommunityCameras as $allCommunityCamera) {
 
-            $existCommunityService = CommunityService::where('community_id', $allCommunityCamera->community_id)
-                ->where('service_id', 4)
-                ->first();
-
-            $community = Community::findOrFail($allCommunityCamera->community_id);
-     
-            if($existCommunityService) {
-
-            } else {
-
-                $communityService = new CommunityService();
-                $communityService->community_id = $allCommunityCamera->community_id;
-                $communityService->service_id = 4;
-                $communityService->save();
-            }
+            
+            $communityService = CommunityService::firstOrCreate(
+                ['community_id' => $allCommunityCamera->community_id, 'service_id' => 4]
+            );
 
             $dateTime = Carbon::createFromFormat('Y-m-d', $allCommunityCamera->date);
             $year = $dateTime->year;
+            $community = Community::findOrFail($allCommunityCamera->community_id);
+            $community->camera_service = "Yes";
             $community->camera_service_beginning_year = $year;
             $community->save();
         }
@@ -104,6 +96,7 @@ class CameraCommunityController extends Controller
                         'camera_community_types.camera_community_id')
                     ->leftJoin('nvr_community_types', 'camera_communities.id', 
                         'nvr_community_types.camera_community_id')
+                    ->leftJoin('compounds', 'camera_communities.compound_id', 'compounds.id')
                     ->where('camera_communities.is_archived', 0);
                     
                 $requestedData = DB::table('requested_cameras')
@@ -134,7 +127,8 @@ class CameraCommunityController extends Controller
                     'camera_communities.updated_at as updated_at', 'camera_communities.date as installation_date',
                     DB::raw('IFNULL(regions.english_name, repository_regions.english_name) as region'),
                     DB::raw('SUM(DISTINCT camera_community_types.number) as camera_number'),
-                    DB::raw('SUM(DISTINCT nvr_community_types.number) as nvr_number')
+                    DB::raw('SUM(DISTINCT nvr_community_types.number) as nvr_number'),
+                    'compounds.english_name as compound'
                 )->groupBy('camera_communities.id')->latest();  
  
                 return Datatables::of($data)
@@ -177,9 +171,10 @@ class CameraCommunityController extends Controller
             $cameras = Camera::all();
             $nvrCameras = NvrCamera::all();
             $repositories = Repository::all();
+            $compounds = Compound::where('is_archived', 0)->get();
 
             return view('services.camera.index', compact('communities', 'cameras', 'subRegions',
-                'nvrCameras', 'repositories', 'regions'));
+                'nvrCameras', 'repositories', 'regions', 'compounds'));
 
         } else {
 
@@ -207,6 +202,15 @@ class CameraCommunityController extends Controller
         if($request->community_id) {
 
             $cameraCommunity->community_id = $request->community_id;
+            $community = Community::findOrFail($request->community_id);
+            $community->camera_service = "Yes";
+            if($request->date) $year = Carbon::parse($request->date)->year;
+            $community->camera_service_beginning_year = $year;
+            $community->save();
+
+            $communityService = CommunityService::firstOrCreate(
+                ['community_id' =>  $request->community_id, 'service_id' => 4]
+            );
         } else if($request->repository_id ) {
 
             $cameraCommunity->repository_id = $request->repository_id;

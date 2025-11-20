@@ -44,7 +44,7 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
             ->join('all_incident_occurred_statuses', 'all_incidents.id', 'all_incident_occurred_statuses.all_incident_id')
             ->join('all_incident_statuses', 'all_incident_statuses.id', 'all_incident_occurred_statuses.all_incident_status_id')
             ->where('all_incidents.is_archived', 0)
-            //->where('all_incidents.incident_id', '!=', 4)
+            ->where('all_incidents.incident_id', '!=', 4)
 
             ->leftJoin('all_energy_incidents', 'all_incidents.id', 'all_energy_incidents.all_incident_id')
             ->leftJoin('all_energy_meters', 'all_energy_meters.id', 'all_energy_incidents.all_energy_meter_id')

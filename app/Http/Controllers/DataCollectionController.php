@@ -11,6 +11,7 @@ use App\Imports\ImportHousehold;
 use App\Imports\ImportCommunity;
 use App\Imports\ImportRequestedHousehold;
 use App\Imports\ImportDisplacedHousehold;
+use App\Imports\Agriculture\ImportAgricultureData;
 use App\Exports\DataCollection\DataCollectionExport;
 use App\Exports\DataCollection\Households;
 use App\Exports\DataCollection\RequestedHouseholds;
@@ -22,6 +23,7 @@ use App\Exports\DataCollection\Displacement\MainFileDisplacementExport;
 use App\Exports\DataCollection\Agriculture\MainFile;
 use App\Exports\DataCollection\MISC\MainMisc;
 use App\Exports\DataCollection\Workshops\MainFileWorkshop;
+use App\Exports\DataCollection\Agriculture\Requested\MainFileAgricultureExport;
 use Illuminate\Support\Facades\URL;
 use mikehaertl\wkhtmlto\Pdf;
 use App\Models\Region;
@@ -298,4 +300,59 @@ class DataCollectionController extends Controller
             return redirect()->back()->with('error', 'File upload failed');
         }
     }
+
+    /** 
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function exportRequestedAgriculture(Request $request) 
+    {
+                
+        return Excel::download(new MainFileAgricultureExport($request), 'Requested Agriculture.xlsx');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function importRequestedAgriculture(Request $request)
+    {
+        // Check if file exists in the request
+        if (!$request->hasFile('excel_file')) {
+            return redirect()->back()->with('error', 'No file uploaded.');
+        }
+
+        $file = $request->file('excel_file');
+
+        // Check if the file is valid
+        if (!$file->isValid()) {
+            return redirect()->back()->with('error', 'File upload failed.');
+        }
+
+        // Validate extension
+        $extension = $file->getClientOriginalExtension();
+        $allowedExtensions = ['xlsx', 'xls', 'csv'];
+
+        if (!in_array($extension, $allowedExtensions)) {
+            return redirect()->back()->with('error', 'Invalid file format. Please upload an Excel or CSV file.');
+        }
+
+        try {
+            // Clear the existing table before import
+            DB::table('agriculture_import_contexts')->truncate();
+
+            // Import data
+            Excel::import(new ImportAgricultureData, $file);
+
+            return redirect()->back()->with('success', 'Requested Agriculture Data Imported Successfully!');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            // Handles row validation errors from the import
+            $failures = $e->failures();
+            return redirect()->back()->with('error', 'Validation failed during import: ' . $failures[0]->errors()[0]);
+        } catch (\Exception $e) {
+            // Handles all other exceptions
+            return redirect()->back()->with('error', 'An error occurred during import: ' . $e->getMessage());
+        }
+    }
+
 }

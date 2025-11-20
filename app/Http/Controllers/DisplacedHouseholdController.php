@@ -13,6 +13,8 @@ use App\Models\AllEnergyMeter;
 use App\Models\Donor;
 use App\Models\Community;
 use App\Models\CommunityHousehold;
+use App\Models\DisplacedCommunity;
+use App\Models\CommunityStatus;
 use App\Models\Household;
 use App\Models\HouseholdMeter;
 use App\Models\MeterCase;
@@ -39,26 +41,29 @@ class DisplacedHouseholdController extends Controller
      */
     public function index(Request $request)
     {	
-        $displacedHouseholds = DisplacedHousehold::where('is_archived', 0)
-            ->where('old_community_id', 87)
-            ->get();
+        $displacedHouseholds = DisplacedHousehold::where('is_archived', 0)->get();
 
-        foreach($displacedHouseholds as $displacedHousehold) {
+        foreach ($displacedHouseholds as $displacedHousehold) {
 
-            //$household = Household::where("english_name", $displacedHousehold->household_name)->first();
-            //$displacedHousehold->displaced_household_status_id = 1;
-
-            $allEnergyMeter = AllEnergyMeter::where('household_id', $displacedHousehold->household_id)->first();
-            if($allEnergyMeter) {
-
-                $displacedHousehold->new_energy_system_id =  $allEnergyMeter->energy_system_id;
-                $displacedHousehold->new_meter_number =  $allEnergyMeter->meter_number;
-                $displacedHousehold->displaced_household_status_id = 4;
-            }
-            $displacedHousehold->save();
+            $community = $displacedHousehold->OldCommunity; 
             
-        }
+            // Check if all households in the community are displaced
+            $totalHouseholds = Household::where('is_archived', 0)->where('community_id', $community->id)->count();
+            $displacedHouseholdsCount = $community->displacedHouseholds()->where('is_archived', 0)->count(); 
+            
+            if ($totalHouseholds == $displacedHouseholdsCount) {
+                // All households are displaced, update community status
+                $communityStatus = CommunityStatus::where('name', "Displaced")->first();
+                $community->community_status_id = $communityStatus->id;
+                $community->save();
 
+                $year = \Carbon\Carbon::parse($displacedHousehold->displacement_date)->year;
+                // Record the year of displacement if not already recorded
+                $communityDisplacedYear = DisplacedCommunity::firstOrCreate(
+                    ['community_id' =>  $community->id, 'year' => $year]
+                );
+            }
+        }
 
 
         $oldCommunityFilter = $request->input('filter');
@@ -197,6 +202,15 @@ class DisplacedHouseholdController extends Controller
                     ->where("is_archived", 0)
                     ->get();
     
+                $communityStatus = CommunityStatus::where('name', "Displaced")->first();
+                $community = Community::findOrFail($request->old_community_id);
+                $community->community_status_id = $communityStatus->id;
+                $community->save();
+
+                $communityDisplacedYear = DisplacedCommunity::firstOrCreate(
+                    ['community_id' =>  $request->old_community_id, 'year' => now()->year]
+                );
+
                 foreach($households as $household) {
     
                     $householdStatus = HouseholdStatus::where('status', "Displaced")->first();
@@ -218,6 +232,7 @@ class DisplacedHouseholdController extends Controller
 
                         $displacedHousehold->old_meter_number = $energyUser->meter_number; 
                         $displacedHousehold->old_energy_system_id = $energyUser->energy_system_id;
+                        $displacedHousehold->new_energy_system_id = null;
 
                         $meterStatus = MeterCase::where('meter_case_name_english', "Displaced")->first();
 
@@ -228,7 +243,7 @@ class DisplacedHouseholdController extends Controller
                         }
                     }
 
-                    $sharedHousehold =  HouseholdMeter::where("is_archived", 0)
+                    $sharedHousehold = HouseholdMeter::where("is_archived", 0)
                         ->where("household_id", $household->id)
                         ->first();
                     if($sharedHousehold) {
@@ -244,7 +259,7 @@ class DisplacedHouseholdController extends Controller
                         $displacedHousehold->new_community_id = $request->new_community_id;
                         $household = Household::findOrFail($household->id);
                         $household->community_id = $request->new_community_id;
-                        $household->save();
+                        $household->save(); 
 
                         $allEnergyMeter = AllEnergyMeter::where("household_id", 
                             $household->id)
@@ -324,7 +339,7 @@ class DisplacedHouseholdController extends Controller
                         }
                     }
 
-                    $sharedHousehold =  HouseholdMeter::where("is_archived", 0)
+                    $sharedHousehold = HouseholdMeter::where("is_archived", 0)
                         ->where("household_id", $request->households[$i])
                         ->first();
                     if($sharedHousehold) {

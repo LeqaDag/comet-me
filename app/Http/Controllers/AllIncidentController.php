@@ -316,6 +316,7 @@ class AllIncidentController extends Controller
                         cameras_communities.english_name
                     ) AS holder"),
                     
+                    
                     DB::raw("GROUP_CONCAT(DISTINCT COALESCE(all_incident_statuses.status) 
                         SEPARATOR ', ') as incident_statuses"),
                     'all_incidents.date', 'all_incidents.year',
@@ -347,9 +348,11 @@ class AllIncidentController extends Controller
 
                     })
                     ->filter(function ($instance) use ($request) {
-                        if (!empty($request->get('search'))) {
-                                $instance->where(function($w) use($request) {
-                                $search = $request->get('search');
+
+                        $search = $request->input('search.value');
+
+                        if (!empty($search)) {
+                            $instance->where(function($w) use($search) {
                                 $w->orWhere('communities.english_name', 'LIKE', "%$search%")
                                 ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
                                 ->orWhere('incidents.english_name', 'LIKE', "%$search%")
@@ -357,10 +360,24 @@ class AllIncidentController extends Controller
                                 ->orWhere('service_types.service_name', 'LIKE', "%$search%")
                                 ->orWhere('all_incidents.date', 'LIKE', "%$search%")
                                 ->orWhere('all_incidents.year', 'LIKE', "%$search%")
-                                ->orWhere('all_incident_statuses.status', 'LIKE', "%$search%");
+                                ->orWhere('all_incident_statuses.status', 'LIKE', "%$search%")
+                                ->orWhere(DB::raw("COALESCE(
+                                    energy_users.english_name,
+                                    energy_publics.english_name,
+                                    water_users.english_name,
+                                    water_publics.english_name,
+                                    internet_holders.english_name,
+                                    internet_publics.english_name,
+                                    energy_systems.name,
+                                    water_systems.name,
+                                    internet_systems.system_name,
+                                    cameras_communities.english_name
+                                )"), 'LIKE', "%$search%");
+                                
                             });
                         }
                     })
+
                     ->rawColumns(['action'])
                     ->make(true);
             }
@@ -380,7 +397,7 @@ class AllIncidentController extends Controller
             return view('errors.not-found');
         }
     }
-
+ 
     /**
      * Show the form for creating a new resource.
      *

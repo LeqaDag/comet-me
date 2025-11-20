@@ -108,7 +108,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             )
             ->get(); 
 
-        $coTrainers = DB::table('users')
+        $coTrainers = DB::table('users') 
             ->where('users.is_archived', 0)
             ->select(
                 DB::raw('"co_trainer" as list_name'), 
@@ -127,6 +127,7 @@ class Choices implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize
             ->join('regions', 'communities.region_id', 'regions.id')
             ->join('sub_regions', 'communities.sub_region_id', 'sub_regions.id')
             ->where('households.is_archived', 0)
+            ->where('households.out_of_comet', 0)
             ->select(
                 DB::raw('"household" as list_name'), 
                 'households.comet_id as name',

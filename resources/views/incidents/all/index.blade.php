@@ -315,7 +315,7 @@
             ajax: {
                 url: "{{ route('all-incident.index') }}",
                 data: function (d) {
-                    d.search = $('input[type="search"]').val();
+                
                     d.service_filter = $('#filterByService').val();
                     d.community_filter = $('#filterByCommunity').val();
                     d.incident_filter = $('#filterByIncident').val();

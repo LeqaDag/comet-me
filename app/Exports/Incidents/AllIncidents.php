@@ -124,73 +124,70 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
 
             ->select([
                 'all_incidents.date',
+                DB::raw("GROUP_CONCAT(DISTINCT communities.english_name SEPARATOR ', ') as community_name"),
+                DB::raw("GROUP_CONCAT(DISTINCT regions.english_name SEPARATOR ', ') as region"),
                 DB::raw("GROUP_CONCAT(DISTINCT COALESCE(energy_users.english_name, energy_publics.english_name, 
                     water_users.english_name, water_publics.english_name, internet_holders.english_name , 
                     internet_publics.english_name) SEPARATOR ', ') as user"),
                 DB::raw("GROUP_CONCAT(DISTINCT COALESCE(energy_systems.name, water_systems.name, internet_systems.system_name, 
                     cameras_communities.english_name) SEPARATOR ', ') as system"),
-                DB::raw("GROUP_CONCAT(DISTINCT communities.english_name SEPARATOR ', ') as community_name"),
-                'regions.english_name as region', 
-                'incidents.english_name as incident',
                 DB::raw("GROUP_CONCAT(DISTINCT COALESCE(service_types.service_name) SEPARATOR ', ') as department"),
+                'incidents.english_name as incident',
 
-                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 1 THEN 
-                    all_incident_statuses.status END SEPARATOR ', ') as energy_status"),
-
+ 
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN energy_holder_equipment.count IS NULL 
                     THEN energy_equipment.name ELSE CONCAT(energy_equipment.name, 
                     ' (', energy_holder_equipment.count, ')') END SEPARATOR ', ') as energy_equipment"),
-                DB::raw('SUM(energy_holder_equipment.cost) as total_energy_cost'),
                 'energy_equipments.equipment_models as energy_system_equipment',
+                DB::raw('SUM(DISTINCT energy_holder_equipment.cost) as total_energy_cost'),
                 'energy_equipments.total_energy_system_cost as energy_system_cost',
+                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(
+                    CASE WHEN community_donors.service_id = 1 THEN energy_system_donors.donor_name ELSE energy_holder_donors.donor_name END
+                ) SEPARATOR ', ') as energy_donor_name"),
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 1 THEN 
+                    all_incident_statuses.status END SEPARATOR ', ') as energy_status"),
 
-
-                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 2 THEN 
-                    all_incident_statuses.status END SEPARATOR ', ') as water_status"),
 
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_water_incident_damaged_equipment.count IS NULL 
                     THEN water_equipment.name ELSE CONCAT(water_equipment.name, 
                     ' (', all_water_incident_damaged_equipment.count, ')') END SEPARATOR ', ') as water_equipment"),
-                DB::raw('SUM(all_water_incident_damaged_equipment.cost) as total_water_cost'),
                 'water_equipments.equipment_models as water_system_equipment',
+                DB::raw('SUM(DISTINCT all_water_incident_damaged_equipment.cost) as total_water_cost'),
                 'water_equipments.total_water_system_cost as water_system_cost',
+                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(water_holder_donors.donor_name, '') SEPARATOR ', ') as water_donor_name"),
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 2 THEN 
+                    all_incident_statuses.status END SEPARATOR ', ') as water_status"),
 
-                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 3 THEN 
-                    all_incident_statuses.status END SEPARATOR ', ') as internet_status"),
+
 
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_internet_incident_damaged_equipment.count IS NULL 
                     THEN internet_equipment.name ELSE CONCAT(internet_equipment.name, 
                     ' (', all_internet_incident_damaged_equipment.count, ')') END SEPARATOR ', ') as internet_equipment"),
-                DB::raw('SUM(all_internet_incident_damaged_equipment.cost) as total_internet_cost'),
                 'internet_equipments.equipment_models as internet_system_equipment',
-                'internet_equipments.total_internet_system_cost as internet_system_cost',
-
                 'internet_network_equipments.component_ids as component_ids',
                 'internet_network_equipments.component_types as component_types',
                 'internet_network_equipments.cabinet_models as cabinet_models',
+                DB::raw('SUM(DISTINCT all_internet_incident_damaged_equipment.cost) as total_internet_cost'),
+                'internet_equipments.total_internet_system_cost as internet_system_cost',
                 'internet_network_equipments.total_internet_system_cost as network_cost',
+                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(CASE WHEN community_donors.service_id = 3 THEN 
+                    internet_system_donors.donor_name ELSE internet_holder_donors.donor_name END
+                    ) SEPARATOR ', ') as internet_donor_name"),
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 3 THEN 
+                    all_incident_statuses.status END SEPARATOR ', ') as internet_status"),
 
-
-                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 4 THEN all_incident_statuses.status END SEPARATOR ', ') as camera_status"),
-                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_camera_incident_damaged_equipment.count IS NULL THEN camera_equipment.name ELSE CONCAT(camera_equipment.name, ' (', all_camera_incident_damaged_equipment.count, ')') END SEPARATOR ', ') as camera_equipment"),
-                DB::raw('SUM(all_camera_incident_damaged_equipment.cost) as total_camera_cost'),
+                
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_camera_incident_damaged_equipment.count IS NULL 
+                    THEN camera_equipment.name ELSE CONCAT(camera_equipment.name, ' (', 
+                    all_camera_incident_damaged_equipment.count, ')') END SEPARATOR ', ') as camera_equipment"),
+                DB::raw('SUM(DISTINCT all_camera_incident_damaged_equipment.cost) as total_camera_cost'),
+                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(camera_donors.donor_name, '') SEPARATOR ', ') as camera_donor_name"),
+                DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 4 THEN 
+                    all_incident_statuses.status END SEPARATOR ', ') as camera_status"),
 
                 'all_incidents.notes',
                 'all_incidents.description',
                 'all_incidents.manager_description',
-
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(
-                    CASE WHEN community_donors.service_id = 1 THEN energy_system_donors.donor_name ELSE energy_holder_donors.donor_name END
-                ) SEPARATOR ', ') as energy_donor_name"),
-
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(water_holder_donors.donor_name, '') SEPARATOR ', ') as water_donor_name"),
-
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(
-                    CASE WHEN community_donors.service_id = 3 THEN internet_system_donors.donor_name ELSE internet_holder_donors.donor_name END
-                ) SEPARATOR ', ') as internet_donor_name"),
-
-                DB::raw("GROUP_CONCAT(DISTINCT COALESCE(camera_donors.donor_name, '') SEPARATOR ', ') as camera_donor_name"),
-
 
                 DB::raw("
                     COALESCE(SUM(DISTINCT CASE WHEN energy_users.id IS NOT NULL THEN 
@@ -230,7 +227,7 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
                 "),
             ])
             ->orderBy('all_incidents.date', 'desc')
-            ->groupBy('all_incidents.date')
+            ->groupBy('all_incidents.date', 'all_incidents.community_id', 'all_incidents.incident_id')
             ->get();
 
 
@@ -298,37 +295,44 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
         $filtered = $data->map(function ($item) {
             return [
                 'Incident Date' => $item->date,
-                'User/Public (any energy user - MG or FBS); Water user, Internet user' => $item->user,
-                'System' => $item->system,
                 'Community' => $item->community_name,
                 'Region' => $item->region,
-                'Incident Type' => $item->incident,
+                'User/Public (any energy user - MG or FBS); Water user, Internet user' => $item->user,
+                'System' => $item->system,
                 'Service Types' => $item->department,
-                'Energy Incident Status' => $item->energy_status,
+                'Incident Type' => $item->incident,
+                
+                
                 'Energy Holder Equipment Damaged' => $item->energy_equipment,
-                'Losses Energy Holder (ILS)' => $item->total_energy_cost,
                 'Energy System Equipment Damaged' => $item->energy_system_equipment,
+                'Losses Energy Holder (ILS)' => $item->total_energy_cost,
                 'Losses Energy System (ILS)' => $item->energy_system_cost,
-                'Water Incident Status' => $item->water_status,
+                'Donor (Energy)' => $item->energy_donor_name,
+                'Energy Incident Status' => $item->energy_status,
+                
                 'Water Equipment Damaged' => $item->water_equipment,
-                'Losses Water (ILS)' => $item->total_water_cost,
                 'Water System Equipment Damaged' => $item->water_system_equipment,
+                'Losses Water (ILS)' => $item->total_water_cost,
                 'Losses Water System (ILS)' => $item->water_system_cost,
-                'Internet Incident Status' => $item->internet_status,
+                'Donor (Water)' => $item->water_donor_name,
+                'Water Incident Status' => $item->water_status,
+
                 'Internet Equipment Damaged' => $item->internet_equipment,
-                'Losses Internet (ILS)' => $item->total_internet_cost,
                 'Internet System Equipment Damaged' => $item->internet_system_equipment ?? $item->formatted_components,
+                'Losses Internet (ILS)' => $item->total_internet_cost,
                 'Losses Internet System (ILS)' => $item->internet_system_cost ?? $item->network_cost,
+                'Donor (Internet)' => $item->internet_donor_name,
+                'Internet Incident Status' => $item->internet_status,
+
                 'Camera Incident Status' => $item->camera_status,
                 'Camera Equipment Damaged' => $item->camera_equipment,
                 'Losses Cameras (ILS)' => $item->total_camera_cost,
+                'Donor (Camera)' => $item->camera_donor_name,
+
                 'Description of Incident' => $item->notes,
                 'Description (User - USS)' => $item->description,
                 'Description (Manager - USS)' => $item->manager_description,
-                'Donor (Energy)' => $item->energy_donor_name,
-                'Donor (Water)' => $item->water_donor_name,
-                'Donor (Internet)' => $item->internet_donor_name,
-                'Donor (Camera)' => $item->camera_donor_name,
+
                 '# of Adult' => $item->number_of_adults,
                 '# of Children' => $item->number_of_children,
                 '# of Male' => $item->number_of_male,
@@ -348,17 +352,25 @@ class AllIncidents implements FromCollection, WithHeadings, WithTitle,
      */
     public function headings(): array 
     {
-        return ["Incident Date", "User/Public (any energy user - MG or FBS); Water user, Internet user",
-            "System", "Community", "Region", "Incident Type", "Service Types", "Energy Incident Status", 
-            "Energy Holder Equipment Damaged", "Losses Energy Holder (ILS)", "Energy System Equipment Damaged", 
-            "Losses Energy System (ILS)", "Water Incident Status", "Water Equipment Damaged", "Losses Water (ILS)", 
-            "Water System Equipment Damaged", "Losses Water System (ILS)", "Internet Incident Status", 
-            "Internet Equipment Damaged", "Losses Internet (ILS)", "Internet System Equipment Damaged", 
-            "Losses Internet System (ILS)", "Camera Incident Status", "Camera Equipment Damaged", 
-            "Losses Cameras (ILS)", "Description of Incident", "Description (User - USS)", 
-            "Description (Manager - USS)", "Donor (Energy)", "Donor (Water)", "Donor (Internet)", 
-            "Donor (Camera)", "# of Adult", "# of Children", 
-            "# of Male", "# of Female"];
+        return [
+            "Incident Date", "Community", "Region", 
+            "User/Public (any energy user - MG or FBS); Water user, Internet user",
+            "System", "Service Types", "Incident Type",  
+            
+            "Energy Holder Equipment Damaged", "Losses Energy Holder (ILS)", "Energy MG System Equipment Damaged", 
+            "Losses Energy MG System (ILS)", "Donor (Energy)", "Energy Incident Status",
+            
+            "Water Equipment Damaged", "Water System Equipment Damaged", "Losses Water (ILS)", 
+            "Losses Water System (ILS)", "Donor (Water)", "Water Incident Status", 
+            
+            "Internet Equipment Damaged", "Internet System Equipment Damaged", "Losses Internet (ILS)",
+            "Losses Internet System (ILS)", "Donor (Internet)", "Internet Incident Status", 
+            
+            "Camera Incident Status", "Camera Equipment Damaged", "Losses Cameras (ILS)", "Donor (Camera)", 
+            
+            "Description of Incident", "Description (User - USS)", "Description (Manager - USS)",  
+
+            "# of Adult", "# of Children", "# of Male", "# of Female"];
     }
 
     public function title(): string

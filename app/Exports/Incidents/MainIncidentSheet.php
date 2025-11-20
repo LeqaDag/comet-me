@@ -24,33 +24,33 @@ class MainIncidentSheet implements WithMultipleSheets
         $sheets = [ 
             
             new AllIncidents($this->request),
-            new AllSWOIncidents($this->request),
+            //new AllSWOIncidents($this->request),
         ];
 
         // Get all unique donors with related incidents
-        $donors = DB::table('donors')
-            ->join('community_donors', 'community_donors.donor_id', 'donors.id')
-            ->join('all_incidents', 'all_incidents.community_id', 'community_donors.community_id')
-            ->where('all_incidents.is_archived', 0)
-            ->select('donors.id', 'donors.donor_name')
-            ->distinct()
-            ->get();
+        // $donors = DB::table('donors')
+        //     ->join('community_donors', 'community_donors.donor_id', 'donors.id')
+        //     ->join('all_incidents', 'all_incidents.community_id', 'community_donors.community_id')
+        //     ->where('all_incidents.is_archived', 0)
+        //     ->select('donors.id', 'donors.donor_name')
+        //     ->distinct()
+        //     ->get();
 
-        foreach ($donors as $donor) {
-            $donorRequest = clone $this->request;
-            $donorRequest->donor_id = $donor->id;
+        // foreach ($donors as $donor) {
+        //     $donorRequest = clone $this->request;
+        //     $donorRequest->donor_id = $donor->id;
 
-            // Check if the donor has data
-            $hasData = DB::table('all_incidents')
-                ->join('community_donors', 'community_donors.community_id', 'all_incidents.community_id')
-                ->where('all_incidents.is_archived', 0)
-                ->where('community_donors.donor_id', $donor->id)
-                ->exists();
+        //     // Check if the donor has data
+        //     $hasData = DB::table('all_incidents')
+        //         ->join('community_donors', 'community_donors.community_id', 'all_incidents.community_id')
+        //         ->where('all_incidents.is_archived', 0)
+        //         ->where('community_donors.donor_id', $donor->id)
+        //         ->exists();
 
-            if ($hasData) {
-                $sheets[] = new AllIncidentsByDonor($donorRequest, $donor->donor_name);
-            }
-        }
+        //     if ($hasData) {
+        //         $sheets[] = new AllIncidentsByDonor($donorRequest, $donor->donor_name);
+        //     }
+        // }
 
         return $sheets;
     }

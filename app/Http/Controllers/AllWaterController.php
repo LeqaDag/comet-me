@@ -75,6 +75,25 @@ class AllWaterController extends Controller
             }
         }
 
+        $waterUsers = AllWaterHolder::where("is_archived", 0)
+            ->where("is_main", "Yes")
+            ->get();
+        foreach($waterUsers as $waterUser) {
+
+            $waterUserDonor = AllWaterHolderDonor::where("is_archived", 0)
+                ->where("all_water_holder_id", $waterUser->id)
+                ->first();
+
+            if(!$waterUserDonor) {
+
+                $newWaterDonor = new AllWaterHolderDonor();
+                $newWaterDonor->community_id = $waterUser->community_id;
+                $newWaterDonor->all_water_holder_id = $waterUser->id;
+                $newWaterDonor->donor_id = 2;
+                $newWaterDonor->save();
+            }
+        }
+
 
         $h2oFlag = AllWaterHolder::where("water_system_id", 1)->count();
 

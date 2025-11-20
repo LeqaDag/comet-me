@@ -6,6 +6,10 @@ use App\Http\Controllers\CameraCommunityAdditionController;
 use App\Http\Controllers\ReplacementController;
 use App\Http\Controllers\InternetSystemController;
 use App\Http\Controllers\InternetComponentController;
+use App\Http\Controllers\DataCollectionController;
+// new code - leqa
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -757,3 +761,21 @@ Route::post('data-collection-import-displaced', [App\Http\Controllers\DataCollec
 
 // new routes
 Route::post('all-aggregated-incident-export', [App\Http\Controllers\AllIncidentController::class, 'exportAggregated'])->name('all-aggregated-incident.export');
+
+
+// new routes - Leqa
+Route::post('data-collection-export-requested-agriculture', [DataCollectionController::class, 
+    'exportRequestedAgriculture'])->name('data-collection.export-requested-agriculture');
+Route::post('data-collection-import-requested-agriculture', [DataCollectionController::class, 
+    'importRequestedAgriculture'])->name('data-collection.import-requested-agriculture');
+
+Route::resource('agriculture-system', App\Http\Controllers\AgricultureSystemController::class);
+Route:: resource('argiculture-user', controller: App\Http\Controllers\AgricultureUserController::class);
+Route::post('/argiculture-user/approve/{id}', [App\Http\Controllers\AgricultureUserController::class, 
+    'approve'])->name('argiculture-user.approve');
+Route::post('/argiculture-user/reject/{id}', [App\Http\Controllers\AgricultureUserController::class, 
+    'reject'])->name('argiculture-user.reject');
+Route::post('/argiculture-user/move-to-progress/{id}', [App\Http\Controllers\AgricultureUserController::class, 
+    'moveToProgress'])->name('argiculture-user.moveToProgress');
+Route::post('/argiculture-user/mark-complete/{id}', [App\Http\Controllers\AgricultureUserController::class, 
+    'markComplete'])->name('argiculture-user.markComplete');

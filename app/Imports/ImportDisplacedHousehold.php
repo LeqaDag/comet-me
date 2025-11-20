@@ -9,9 +9,11 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use App\Models\AllEnergyMeter;
 use App\Models\Community;
 use App\Models\Household;
+use App\Models\CommunityStatus;
 use App\Models\DisplacedHousehold;
+use App\Models\DisplacedCommunity;
 use App\Models\DisplacedHouseholdStatus;
-use App\Models\SubRegion;
+use App\Models\SubRegion; 
 use App\Models\PublicStructure;
 use App\Models\AllEnergyMeterDonor;
 use App\Models\AllWaterHolder;
@@ -34,13 +36,14 @@ use Excel;
 
 class ImportDisplacedHousehold implements ToModel, WithHeadingRow
 { 
-    /**
+    /** 
     * @param array $row
     *
     * @return \Illuminate\Database\Eloquent\Model|null
     */
     public function model(array $row)
     {
+
         // Get data from KOBO 
         if($row["select_community"]) { 
 
@@ -48,9 +51,6 @@ class ImportDisplacedHousehold implements ToModel, WithHeadingRow
             $household = null;
 
             if($community) {
-
-                $community->community_status_id = 5;
-                $community->save();
         
                 if($row["select_household_name"]) {
 
@@ -92,11 +92,9 @@ class ImportDisplacedHousehold implements ToModel, WithHeadingRow
 
                                 if($row["select_system_retrieved"] == "System Retrieved") $newDisplacedHousehold->system_retrieved = "Yes";
                                 else $newDisplacedHousehold->system_retrieved = "No";
-                                
-                                
+                                                            
                                 $displacedStatus = DisplacedHouseholdStatus::where('name', $row["select_household_status"])->first();
                                 $newDisplacedHousehold->displaced_household_status_id = $displacedStatus->id; 
-
 
                                 $energyUser = AllEnergyMeter::where("is_archived", 0)
                                     ->where("household_id", $household->id)
@@ -119,7 +117,6 @@ class ImportDisplacedHousehold implements ToModel, WithHeadingRow
                             }
                         }
                     }
-                  
                 } 
             }
         }

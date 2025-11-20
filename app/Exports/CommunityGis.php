@@ -29,7 +29,7 @@ class CommunityGis implements FromCollection, WithHeadings, WithTitle, ShouldAut
     public function collection()
     {
         $data = DB::table('communities')
-            ->leftJoin('displaced_households', 'displaced_households.old_community_id', 
+            ->leftJoin('displaced_communities', 'displaced_communities.community_id', 
                 'communities.id')
             ->leftJoin('community_donors', 'community_donors.community_id', 'communities.id')
             ->leftJoin('community_donors as energy_donors', function ($join) {
@@ -61,7 +61,7 @@ class CommunityGis implements FromCollection, WithHeadings, WithTitle, ShouldAut
                 'communities.water_service_beginning_year',
                 'communities.internet_service_beginning_year', 
                 'communities.camera_service_beginning_year', 
-                DB::raw('YEAR(displaced_households.displacement_date) as displacement_year'),
+                'displaced_communities.year as displacement_year',
                 DB::raw('group_concat(DISTINCT energy_donor.donor_name) as energy_donors'),
                 DB::raw('group_concat(DISTINCT water_donor.donor_name) as water_donors'),
                 DB::raw('group_concat(DISTINCT internet_donor.donor_name) as internet_donors'),

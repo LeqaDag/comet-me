@@ -178,19 +178,14 @@ class WaterUserController extends Controller
      */
     public function store(Request $request)
     {
-        $existCommunityService = CommunityService::where("community_id", $request->community_id[0])
-            ->where("service_id", 2)
-            ->first();
-            
-        if($existCommunityService) {
+        $communityService = CommunityService::firstOrCreate(
+            ['community_id' => $request->community_id[0], 'service_id' => 2]
+        );
 
-        } else {
-
-            $communityService = new CommunityService();
-            $communityService->service_id = 2;
-            $communityService->community_id = $request->community_id[0];
-            $communityService->save();
-        }
+        $community = Community::FindOrFail($household->community_id);
+        $community->water_service = "Yes";
+        $community->ewater_service_beginning_year = now()->year;
+        $community->save();
 
         $exist = AllWaterHolder::where("household_id", $request->household_id)->first();
 
