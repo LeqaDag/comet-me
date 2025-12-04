@@ -128,47 +128,11 @@
                 </li>
             @endif -->
             <li class="menu-item" id="in_progress_households">
-                <a class="menu-link menu-toggle">
+                <a href="{{ url('in-progress-households') }}" class="menu-link">
+                    <i class=""></i>
                     <div>In Progress</div>
                 </a>
-                <ul class="menu-sub">
-                    <li class="menu-item" id="initial-household">
-                        <a href="{{url('initial-household')}}" class="menu-link" >
-                            <i class=""></i>
-                            <div>Initial Survey</div>
-                        </a>
-                    </li>
-                    <li class="menu-item" id="ac-household">
-                        <a href="{{url('ac-household')}}" class="menu-link" >
-                            <i class=""></i>
-                            <div>AC Survey Completed</div>
-                        </a>
-                    </li> 
-                    <li class="menu-item" id="progress-household">
-                        <a href="{{url('progress-household')}}" class="menu-link" >
-                            <i class=""></i>
-                            <div>AC Completed</div>
-                        </a>
-                    </li>
-                    <li class="menu-item" id="misc-household">
-                        <a href="{{url('misc-household')}}" class="menu-link" >
-                            <i class=""></i>
-                            <div>MISC Confirmed</div>
-                        </a>
-                    </li>
-                    <li class="menu-item" id="postponed-household">
-                        <a href="{{url('postponed-household')}}" class="menu-link" >
-                            <i class=""></i>
-                            <div>Postponed</div>
-                        </a>
-                    </li>
-                    <li class="menu-item" id="hold-household">
-                        <a href="{{url('hold-household')}}" class="menu-link" >
-                            <i class=""></i>
-                            <div>On Hold</div>
-                        </a>
-                    </li>
-                </ul>
+                
             </li>
             <li class="menu-item" id="served-household">
                 <a href="{{url('served-household')}}" class="menu-link" >
@@ -198,19 +162,6 @@
             <div>Requested Services</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item" id="energy-request">
-                <a href="{{url('energy-request')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Requested Energy</div>
-                </a>
-            </li> 
-            
-            <li class="menu-item" id="water-request">
-                <a href="{{url('water-request')}}" class="menu-link" >
-                    <i class=""></i>
-                    <div>Requested Water</div>
-                </a>
-            </li> 
             <li class="menu-item" id="camera-request">
                 <a href="{{url('camera-request')}}" class="menu-link" >
                     <i class=""></i>
@@ -787,45 +738,13 @@
 
         $("#requested-household").addClass("active");
         $("#households").addClass("open");
-    } else if(last_part == "initial-household") {
-
-        $("#initial-household").addClass("active");
-        $("#households").addClass("open");
-        $("#in_progress_households").addClass("active");
-        $("#in_progress_households").addClass("open");
-    } else if(last_part == "ac-household") {
-
-        $("#ac-household").addClass("active");
-        $("#households").addClass("open");
-        $("#in_progress_households").addClass("active");
-        $("#in_progress_households").addClass("open");
-    } else if(last_part == "progress-household") {
-
-        $("#progress-household").addClass("active");
-        $("#households").addClass("open");
-        $("#in_progress_households").addClass("active");
-        $("#in_progress_households").addClass("open");
-    }  else if(last_part == "misc-household") {
-
-        $("#misc-household").addClass("active");
-        $("#households").addClass("open");
-        $("#in_progress_households").addClass("active");
-        $("#in_progress_households").addClass("open");
-    }  else if(last_part == "postponed-household") {
-
-        $("#postponed-household").addClass("active");
-        $("#households").addClass("open");
-        $("#in_progress_households").addClass("active");
-        $("#in_progress_households").addClass("open");
-    }  else if(last_part == "hold-household") {
-
-        $("#hold-household").addClass("active");
-        $("#households").addClass("open");
-        $("#in_progress_households").addClass("active");
-        $("#in_progress_households").addClass("open");
     } else if(last_part == "served-household") {
 
         $("#served-household").addClass("active");
+        $("#households").addClass("open");
+    }  else if(last_part == "in_progress_households") {
+
+        $("#in_progress_households").addClass("active");
         $("#households").addClass("open");
     }  else if(last_part == "displaced-household") {
 

@@ -120,7 +120,7 @@ label, table {
         <div class="alert alert-success">
             {{ session()->get('message') }}
         </div>
-    </div>
+    </div> 
 @endif
 
 <div class="container">

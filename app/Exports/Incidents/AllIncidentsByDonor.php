@@ -5,7 +5,6 @@ namespace App\Exports\Incidents;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -25,17 +24,19 @@ class AllIncidentsByDonor implements FromCollection, WithHeadings, WithTitle, Wi
 
     public function collection()
     {
-        $query = (new AllIncidents($this->request))->collection();
+        $allIncidents = new AllIncidents($this->request);
+        
+        // Get the collection from AllIncidents
+        $data = $allIncidents->collection();
 
- 
-        return $query->filter(function ($row) {
+  
+        return $data->filter(function ($item) {
 
-            return str_contains($row->energy_donor_name ?? '', $this->donorName)
-                || str_contains($row->water_donor_name ?? '', $this->donorName)
-                || str_contains($row->internet_donor_name ?? '', $this->donorName)
-                || str_contains($row->camera_donor_name ?? '', $this->donorName);
+            return stripos($item['Donor (Energy)'], $this->donorName) !== false ||
+                   stripos($item['Donor (Water)'], $this->donorName) !== false ||
+                   stripos($item['Donor (Internet)'], $this->donorName) !== false ||
+                   stripos($item['Donor (Camera)'], $this->donorName) !== false;
         });
-
     }
 
     public function headings(): array

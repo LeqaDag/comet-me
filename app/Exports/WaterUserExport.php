@@ -23,11 +23,21 @@ class WaterUserExport implements WithMultipleSheets, ShouldAutoSize
      */ 
     public function sheets(): array
     {
-        $sheets = [ 
-            new WaterUserHolder($this->request),
-            new WaterCommunityHolder($this->request),
-            new WaterCommunityNetwork($this->request)
-        ];
+        $sheets = [];
+        $type = $this->request->file_type;
+
+        if($type == "all") {
+
+            $sheets = [ 
+
+                new WaterUserHolder($this->request),
+                new WaterCommunityHolder($this->request),
+                new WaterCommunityNetwork($this->request)
+            ];
+        } else if($type == "requested") {
+
+            $sheets = [ new WaterRequestSystemExport($this->request)];
+        }
 
         return $sheets;
     }

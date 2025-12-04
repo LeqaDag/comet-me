@@ -49,6 +49,8 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
             ->leftJoin('all_energy_incidents', 'all_incidents.id', 'all_energy_incidents.all_incident_id')
             ->leftJoin('all_energy_meters', 'all_energy_meters.id', 'all_energy_incidents.all_energy_meter_id')
             ->leftJoin('households as energy_users', 'all_energy_meters.household_id', 'energy_users.id')
+            ->leftJoin('displaced_households as displaced_energy', 'displaced_energy.new_community_id', 'energy_users.community_id')
+            ->leftJoin('communities as old_communities_energy', 'old_communities_energy.id', 'displaced_energy.old_community_id')
             ->leftJoin('public_structures as energy_publics', 'all_energy_meters.public_structure_id', 'energy_publics.id')
             ->leftJoin('energy_systems', 'energy_systems.id', 'all_energy_incidents.energy_system_id')
             ->leftJoin('all_energy_incident_damaged_equipment as energy_holder_equipment', 'all_energy_incidents.id', 
@@ -62,6 +64,8 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
             ->leftJoin('all_water_incidents', 'all_incidents.id', 'all_water_incidents.all_incident_id')
             ->leftJoin('all_water_holders', 'all_water_holders.id', 'all_water_incidents.all_water_holder_id')
             ->leftJoin('households as water_users', 'all_water_holders.household_id', 'water_users.id')
+            ->leftJoin('displaced_households as displaced_water', 'displaced_water.new_community_id', 'water_users.community_id')
+            ->leftJoin('communities as old_communities_water', 'old_communities_water.id', 'displaced_water.old_community_id')
             ->leftJoin('public_structures as water_publics', 'all_water_holders.public_structure_id', 'water_publics.id')
             ->leftJoin('water_systems', 'water_systems.id', 'all_water_incidents.water_system_id')
             ->leftJoin('all_water_incident_damaged_equipment', 'all_water_incidents.id', 
@@ -77,6 +81,8 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
             ->leftJoin('all_internet_incidents', 'all_incidents.id', 'all_internet_incidents.all_incident_id')
             ->leftJoin('internet_users', 'internet_users.id', 'all_internet_incidents.internet_user_id')
             ->leftJoin('households as internet_holders', 'internet_holders.id', 'internet_users.household_id')
+            ->leftJoin('displaced_households as displaced_internet', 'displaced_internet.new_community_id', 'internet_holders.community_id')
+            ->leftJoin('communities as old_communities_internet', 'old_communities_internet.id', 'displaced_internet.old_community_id')
             ->leftJoin('public_structures as internet_publics', 'internet_users.public_structure_id', 'internet_publics.id')
             ->leftJoin('internet_system_communities', 'internet_system_communities.community_id', 'all_internet_incidents.community_id')
             ->leftJoin('internet_systems', 'internet_systems.id', 'internet_system_communities.internet_system_id')
@@ -144,8 +150,14 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
                     cameras_communities.english_name ) as agent"),
 
                 'all_incidents.date',
-
-                "communities.english_name as community_name",
+                DB::raw('
+                    CASE
+                        WHEN old_communities_energy.english_name IS NOT NULL THEN CONCAT(old_communities_energy.english_name, " (", communities.english_name, ")")
+                        WHEN old_communities_water.english_name IS NOT NULL THEN CONCAT(old_communities_water.english_name, " (", communities.english_name, ")")
+                        WHEN old_communities_internet.english_name IS NOT NULL THEN CONCAT(old_communities_internet.english_name, " (", communities.english_name, ")")
+                        ELSE communities.english_name
+                    END AS community_name
+                '),
                 'regions.english_name as region', 
                 'incidents.english_name as incident',
                 "service_types.service_name as department",
@@ -156,7 +168,7 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN energy_holder_equipment.count IS NULL 
                     THEN energy_equipment.name ELSE CONCAT(energy_equipment.name, 
                     ' (', energy_holder_equipment.count, ')') END SEPARATOR ', ') as energy_equipment"),
-                DB::raw('SUM(energy_holder_equipment.cost) as total_energy_cost'),
+                DB::raw('SUM(DISTINCT energy_holder_equipment.cost) as total_energy_cost'),
                 'energy_equipments.equipment_models as energy_system_equipment',
                 'energy_equipments.total_energy_system_cost as energy_system_cost',
 
@@ -167,7 +179,7 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_water_incident_damaged_equipment.count IS NULL 
                     THEN water_equipment.name ELSE CONCAT(water_equipment.name, 
                     ' (', all_water_incident_damaged_equipment.count, ')') END SEPARATOR ', ') as water_equipment"),
-                DB::raw('SUM(all_water_incident_damaged_equipment.cost) as total_water_cost'),
+                DB::raw('SUM(DISTINCT all_water_incident_damaged_equipment.cost) as total_water_cost'),
                 'water_equipments.equipment_models as water_system_equipment',
                 'water_equipments.total_water_system_cost as water_system_cost',
 
@@ -177,7 +189,7 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_internet_incident_damaged_equipment.count IS NULL 
                     THEN internet_equipment.name ELSE CONCAT(internet_equipment.name, 
                     ' (', all_internet_incident_damaged_equipment.count, ')') END SEPARATOR ', ') as internet_equipment"),
-                DB::raw('SUM(all_internet_incident_damaged_equipment.cost) as total_internet_cost'),
+                DB::raw('SUM(DISTINCT all_internet_incident_damaged_equipment.cost) as total_internet_cost'),
                 'internet_equipments.equipment_models as internet_system_equipment',
                 'internet_equipments.total_internet_system_cost as internet_system_cost',
 
@@ -189,7 +201,7 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
 
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_incidents.service_type_id = 4 THEN all_incident_statuses.status END SEPARATOR ', ') as camera_status"),
                 DB::raw("GROUP_CONCAT(DISTINCT CASE WHEN all_camera_incident_damaged_equipment.count IS NULL THEN camera_equipment.name ELSE CONCAT(camera_equipment.name, ' (', all_camera_incident_damaged_equipment.count, ')') END SEPARATOR ', ') as camera_equipment"),
-                DB::raw('SUM(all_camera_incident_damaged_equipment.cost) as total_camera_cost'),
+                DB::raw('SUM(DISTINCT all_camera_incident_damaged_equipment.cost) as total_camera_cost'),
 
                 'all_incidents.notes',
                 'all_incidents.description',
@@ -245,7 +257,7 @@ class AllAggregatedIncidents implements FromCollection, WithHeadings, WithTitle,
                     AS number_of_female
                 "),
             ])
-            ->groupBy('all_incidents.id')
+            ->groupBy('all_incidents.id', 'all_incidents.community_id')
             ->get();
 
         foreach ($data as $row) {

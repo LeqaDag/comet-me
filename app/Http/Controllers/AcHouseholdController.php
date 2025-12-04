@@ -59,6 +59,21 @@ class AcHouseholdController extends Controller
                         'communities.arabic_name as aname',
                         'households.energy_meter')
                     ->latest(); 
+
+                // Apply frontend filters if provided
+                $communityFilter = $request->input('community_filter');
+                $regionFilter = $request->input('region_filter');
+                $systemTypeFilter = $request->input('system_type_filter');
+
+                if ($communityFilter) {
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($regionFilter) {
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($systemTypeFilter) {
+                    $data->where('households.energy_system_type_id', $systemTypeFilter);
+                }
     
                 
                 return Datatables::of($data)

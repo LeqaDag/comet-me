@@ -10,6 +10,7 @@ use Auth;
 use DB; 
 use Route;
 use App\Models\AllEnergyMeter;
+use App\Models\MeterHistories;
 use App\Models\AllEnergyMeterDonor;
 use App\Models\User;
 use App\Models\Community;
@@ -74,6 +75,8 @@ class EnergyRequestSystemController extends Controller
 
                     $data->where('communities.id', $communityFilter);
                 }
+
+                //new check if status filter is displaced table displaced_households_status_id 
                 if ($statusFilter != null) {
 
                     if($statusFilter == "served") $data->where('all_energy_meters.is_main', 'No');
@@ -194,8 +197,24 @@ class EnergyRequestSystemController extends Controller
         $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
         $users = User::where('is_archived', 0)->get();
 
+        // Pull communities linked to FBS from all_energy_meters table.
+        // We try to join installation_types and match on english_name containing 'FBS'.
+        // This is a best-effort filter; if your installation types use a different column or naming,
+        // adjust the where clause accordingly.
+        $fbsCommunities = DB::table('all_energy_meters')
+            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+            ->leftJoin('installation_types', 'all_energy_meters.installation_type_id', 'installation_types.id')
+            ->where('all_energy_meters.is_archived', 0)
+            // installation_types table uses a 'type' column in this project (not english_name),
+            // so filter on that column for FBS values.
+            ->where('installation_types.type', 'like', '%FBS%')
+            ->select('communities.id', 'communities.english_name')
+            ->distinct()
+            ->orderBy('communities.english_name', 'ASC')
+            ->get();
+
         return view('request.energy.create', compact('communities', 'requestStatuses', 'energySystemTypes', 
-            'users', 'professions'));
+            'users', 'professions', 'fbsCommunities'));
     }
 
     /**
@@ -206,6 +225,132 @@ class EnergyRequestSystemController extends Controller
      */
     public function store(Request $request)
     {
+        // If a main household (existing) was selected — handle FBS upgrade flow
+        if ($request->filled('selected_household')) {
+            $selectedHouseholdId = $request->input('selected_household');
+            $household = Household::find($selectedHouseholdId);
+
+            if (!$household) {
+                return redirect('/energy-request')->with('error', 'Selected household not found.');
+            }
+
+            // If user chose to keep the same meter, do minimal updates and return
+            if ($request->input('keep_same_meter') == '1') {
+                // nothing to change to the meter allocation
+                return redirect('/energy-request')->with('message', 'FBS Upgrade: kept existing meter.');
+            }
+
+            // If user chose to assign a new meter, validate and process
+            if ($request->input('keep_same_meter') == '0') {
+                if (!$request->filled('new_meter_number')) {
+                    return redirect()->back()->withInput()->with('error', 'Please provide a new meter number when assigning a new meter.');
+                }
+
+                $newMeterNumber = $request->input('new_meter_number');
+
+                // Deactivate or mark previous main meter(s) for this household as not main
+                $prevMeters = AllEnergyMeter::where('household_id', $household->id)->get();
+                foreach ($prevMeters as $pm) {
+                    $pm->is_main = 'No';
+                    $pm->save();
+                }
+
+                // If an existing meter with that number exists, reassign it
+                $existingMeterRecord = AllEnergyMeter::where('meter_number', $newMeterNumber)->first();
+                if ($existingMeterRecord) {
+                    $existingMeterRecord->household_id = $household->id;
+                    $existingMeterRecord->is_main = 'Yes';
+                    $existingMeterRecord->community_id = $household->community_id ?? $existingMeterRecord->community_id;
+                    $existingMeterRecord->save();
+
+                    // Update HouseholdMeter mapping
+                    $householdMeter = \App\Models\HouseholdMeter::where('household_id', $household->id)->first();
+                    if (!$householdMeter) {
+                        $householdMeter = new \App\Models\HouseholdMeter();
+                        $householdMeter->household_id = $household->id;
+                    }
+                    $householdMeter->energy_user_id = $existingMeterRecord->id;
+                    $householdMeter->user_name = $household->english_name;
+                    $householdMeter->user_name_arabic = $household->arabic_name;
+                    $householdMeter->household_name = $household->english_name;
+                    $householdMeter->save();
+
+                    // Create meter history
+                    try {
+                        $status = \App\Models\MeterHistoryStatuses::where('english_name', 'like', '%used by other%')
+                            ->orWhere('english_name', 'like', '%replac%')
+                            ->first();
+
+                        $history = new MeterHistories();
+                        $history->date = now()->format('Y-m-d');
+                        $history->meter_history_status_id = $status->id ?? null;
+                        $history->old_meter_number = $existingMeterRecord->meter_number;
+                        $history->new_meter_number = $existingMeterRecord->meter_number;
+                        $history->household_id = $household->id;
+                        $history->community_id = $household->community_id;
+                        $history->main_energy_meter_id = $existingMeterRecord->id;
+                        $history->all_energy_meter_id = $existingMeterRecord->id;
+                        $history->notes = 'FBS upgrade: existing meter reassigned to household via request.';
+                        $history->save();
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to create meter history after reassigning existing meter', ['error' => $e->getMessage()]);
+                    }
+
+                    return redirect('/energy-request')->with('message', 'FBS Upgrade: assigned existing meter to household.');
+                }
+
+                // Otherwise create a new AllEnergyMeter record for the new meter number
+                if (AllEnergyMeter::where('meter_number', $newMeterNumber)->exists()) {
+                    return redirect()->back()->withInput()->with('error', 'Meter number already exists — please select the existing meter or choose a different number.');
+                }
+
+                $newAllEnergyMeter = new AllEnergyMeter();
+                $newAllEnergyMeter->household_id = $household->id;
+                $newAllEnergyMeter->community_id = $household->community_id;
+                $newAllEnergyMeter->installation_type_id = 3;
+                $newAllEnergyMeter->meter_number = $newMeterNumber;
+                $newAllEnergyMeter->is_main = 'Yes';
+                $newAllEnergyMeter->meter_case_id = $request->input('new_meter_case') ?? 12;
+                $newAllEnergyMeter->save();
+
+                $householdMeter = \App\Models\HouseholdMeter::where('household_id', $household->id)->first();
+                if (!$householdMeter) {
+                    $householdMeter = new \App\Models\HouseholdMeter();
+                    $householdMeter->household_id = $household->id;
+                }
+                $householdMeter->energy_user_id = $newAllEnergyMeter->id;
+                $householdMeter->user_name = $household->english_name;
+                $householdMeter->user_name_arabic = $household->arabic_name;
+                $householdMeter->household_name = $household->english_name;
+                $householdMeter->save();
+
+                try {
+                    $status = \App\Models\MeterHistoryStatuses::where('english_name', 'like', '%replac%')
+                        ->orWhere('english_name', 'like', '%used by other%')
+                        ->first();
+
+                    $history = new MeterHistories();
+                    $history->date = now()->format('Y-m-d');
+                    $history->meter_history_status_id = $status->id ?? null;
+                    $firstPrev = $prevMeters->first();
+                    $history->old_meter_number = $firstPrev->meter_number ?? null;
+                    $history->new_meter_number = $newAllEnergyMeter->meter_number;
+                    $history->household_id = $household->id;
+                    $history->community_id = $household->community_id;
+                    $history->main_energy_meter_id = $newAllEnergyMeter->id;
+                    $history->all_energy_meter_id = $newAllEnergyMeter->id;
+                    $history->notes = 'FBS upgrade: new meter assigned to household via request.';
+                    $history->save();
+                } catch (\Exception $e) {
+                    \Log::error('Failed to create meter history for new meter assignment', ['error' => $e->getMessage()]);
+                }
+
+                return redirect('/energy-request')->with('message', 'FBS Upgrade: new meter assigned and history updated.');
+            }
+            // end keep_same_meter == 0 handling
+        }
+
+        // Default flow: create a new requested household (original behavior)
         $last_comet_id = Household::latest('id')->value('comet_id');
 
         $energyRequestHousehold = new Household();
@@ -230,8 +375,31 @@ class EnergyRequestSystemController extends Controller
         $energyRequestHousehold->notes = $request->notes;
         $energyRequestHousehold->save();
 
-        return redirect('/energy-request')
-            ->with('message', 'New Energy Requested Household Added Successfully!');
+        return redirect('/energy-request')->with('message', 'New Energy Requested Household Added Successfully!');
+    }
+
+    /**
+     * AJAX: search meter numbers for autocomplete suggestions
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchMeters(Request $request)
+    {
+        $q = $request->get('q', null);
+
+        $query = AllEnergyMeter::where('is_archived', 0)
+            ->whereNotNull('meter_number');
+
+        if ($q) {
+            $query->where('meter_number', 'like', "%{$q}%");
+        }
+
+        $meters = $query->orderBy('meter_number', 'ASC')
+            ->limit(30)
+            ->pluck('meter_number');
+
+        return response()->json($meters);
     }
 
     /**
@@ -430,8 +598,57 @@ class EnergyRequestSystemController extends Controller
      */
     public function export(Request $request) 
     {
-                
-        return Excel::download(new EnergyRequestSystemExport($request), 'Energy Project.xlsx');
+        // Decide which export to run based on the chosen export_type
+        $type = $request->input('export_type');
+
+        // Normalize type
+        if ($type) $type = strtolower(trim($type));
+
+        // If called as an Energy Project export (client sets this when no choices are made),
+        // return the multi-sheet EnergyRequestSystemExport.
+        if ($request->input('energy_project') == '1') {
+            return Excel::download(new \App\Exports\EnergyRequestSystemExport($request), 'Energy Project.xlsx');
+        }
+
+        switch ($type) {
+            case 'requested':
+            case 'request':
+                return Excel::download(new \App\Exports\EnergyRequestedHousehold($request), 'Requested Households.xlsx');
+
+            case 'confirmed':
+            case 'misc_confirmed':
+                return Excel::download(new \App\Exports\ConfirmedHousehold($request), 'Confirmed Households.xlsx');
+
+            case 'served':
+                // ConfirmedHousehold  
+                $request->merge(['status' => 'served']);
+                return Excel::download(new \App\Exports\ConfirmedHousehold($request), 'Served Households.xlsx');
+
+            case 'initial':
+                // Initial status export
+                $initialStatus = HouseholdStatus::where('status', 'like', '%Initial%')->first();
+                if ($initialStatus) {
+                    $request->merge(['status' => [$initialStatus->id]]);
+                }
+                return Excel::download(\App\Exports\HouseholdExport::exportInitial($request), 'Initial households.xlsx');
+
+            case 'ac':
+            case 'ac_survey':
+            case 'ac_completed':
+                $acStatus = HouseholdStatus::where('status', 'like', '%AC%')->first();
+                if ($acStatus) {
+                    $request->merge(['status' => [$acStatus->id]]);
+                }
+                return Excel::download(new \App\Exports\HouseholdExport($request), 'AC Households.xlsx');
+
+            case 'dc':
+                // DC / Active No meter - fall back to EnergyMISCHousehold
+                return Excel::download(new \App\Exports\EnergyMISCHousehold($request), 'DC Households.xlsx');
+
+            default:
+                // Unknown type: default to confirmed export
+                return Excel::download(new \App\Exports\ConfirmedHousehold($request), 'Confirmed Households.xlsx');
+        }
     }
 
     /**

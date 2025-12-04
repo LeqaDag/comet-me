@@ -19,7 +19,7 @@ label, table {
     padding: 8px;
     border-radius: 4px;
 }
-.component-grid label {
+.component-grid label { 
     margin-left: 5px;
     font-size: 15px;
 }
@@ -348,7 +348,7 @@ label, table {
                 window.open(url, "_self"); 
             }
         });
-    }); 
+    });  
 
     // View record details
     $('#systemEnergyTable').on('click', '.viewEnergySystem',function() {

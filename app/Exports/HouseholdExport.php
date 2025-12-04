@@ -14,11 +14,30 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
 {
 
     protected $request;
+    protected $forceCommunityStatusName = null;
+    protected $ignoreRequestStatus = false;
   
-    function __construct($request) {
+    function __construct($request = null) {
 
-        $this->request = $request;
-    } 
+        $this->request = $request ?? (object)[];
+    }
+
+    /**
+     * Create an export that only includes households where household_status_id == 1
+     *
+     * @param mixed $request Optional request or filter object
+     * @return self
+     */
+    public static function exportInitial($request = null)
+    {
+        $instance = new self($request);
+        // only households whose community's status is 'Initial'
+        $instance->forceCommunityStatusName = 'Initial';
+
+        // When exporting initial by community status we should ignore any request->status
+        $instance->ignoreRequestStatus = true;
+        return $instance;
+    }
 
     /**
     * @return \Illuminate\Support\Collection
@@ -128,7 +147,7 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 }
             });
         }
-        if($this->request->status) {
+        if (!$this->ignoreRequestStatus && $this->request->status) {
 
             $statusIds = $this->request->status;
 
@@ -149,6 +168,11 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                     }
                 }
             });
+        }
+        
+        // If a forced community status name is set (e.g. exportInitial()), apply it
+        if (!empty($this->forceCommunityStatusName)) {
+            $data->where('community_statuses.name', $this->forceCommunityStatusName);
         }
         if($this->request->system_type) {
 
@@ -224,6 +248,8 @@ class HouseholdExport implements FromCollection, WithHeadings, WithTitle, Should
                 }
             });
         }
+
+
 
         return $data->get();
     }

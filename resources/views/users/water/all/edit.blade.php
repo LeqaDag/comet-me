@@ -53,7 +53,7 @@
                                 @endif
                             </select>
                         </fieldset>
-                    </div>
+                    </div> 
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Water Holder</label>
@@ -70,10 +70,11 @@
                             </select>
                         </fieldset>
                     </div>
-                </div>
+                </div> 
+                <hr>
+                <br>
 
                 @if($h2oUser)
-                <hr>
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <h5>H2O System</h5>
@@ -106,7 +107,7 @@
                                     @foreach($h2oStatuses as $h2oStatus)
                                         <option value="{{$h2oStatus->id}}">
                                             {{$h2oStatus->status}}
-                                        </option>
+                                        </option> 
                                     @endforeach
                                 @endif
                             </select>
@@ -146,12 +147,12 @@
                                 @endif
                             </select>
                         </fieldset>
-                    </div>
+                    </div> 
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>H2O Request Date</label>
                             <input type="date" name="h2o_request_date" 
-                            value="{{$h2oUser->h2o_request_date}}"
+                            value="{{$h2oUser->h2o_request_date ?? $allWaterHolder->request_date}}"
                                 class="form-control">
                         </fieldset>
                     </div>
@@ -253,7 +254,7 @@
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>H2O Request Date</label>
                             <input type="date" name="h2o_request_date" 
-                            value="{{$h2oPublic->h2o_request_date}}"
+                            value="{{$h2oPublic->h2o_request_date ?? $allWaterHolder->request_date}}"
                                 class="form-control">
                         </fieldset>
                     </div>
@@ -328,7 +329,7 @@
                     <div class="col-xl-4 col-lg-4 col-md-4 mb-1">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>H2O Request Date</label>
-                            <input type="date" name="h2o_request_date" 
+                            <input type="date" name="h2o_request_date" value="{{$allWaterHolder->request_date}}"
                                 class="form-control">
                         </fieldset>
                     </div>
@@ -418,9 +419,9 @@
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Request Date</label>
-                            @if($gridUser)
+                            @if($gridUser || $allWaterHolder->request_date)
                             <input type="date" name="request_date" 
-                            value="{{$gridUser->request_date}}"
+                            value="{{$gridUser->request_date ?? $allWaterHolder->request_date}}"
                             class="form-control">
                             @else
                             <input type="date" name="request_date" 
@@ -543,9 +544,9 @@
                     <div class="col-xl-4 col-lg-4 col-md-4">
                         <fieldset class="form-group">
                             <label class='col-md-12 control-label'>Request Date</label>
-                            @if($gridPublic)
+                            @if($gridPublic ||  $allWaterHolder->request_date)
                             <input type="date" name="request_date" 
-                            value="{{$gridPublic->request_date}}"
+                            value="{{$gridPublic->request_date ?? $allWaterHolder->request_date}}"
                             class="form-control">
                             @else
                             <input type="date" name="request_date" 

@@ -168,7 +168,6 @@ class WaterUserController extends Controller
         
     }
 
-   
 
     /** 
      * Store a newly created resource in storage.
@@ -532,23 +531,38 @@ class WaterUserController extends Controller
         $h2oSharedPublic = H2oSharedPublicStructure::where("public_structure_id", $allWaterHolder->public_structure_id)->first();
         $h2oSharedUser = H2oSharedUser::where("household_id", $allWaterHolder->household_id)->first();;
         
-        if($allWaterHolder->delete()) {
-
-            if($h2oUser) $h2oUser->delete();
-            if($gridUser) $gridUser->delete();
-            if($h2oPublic) $h2oPublic->delete();
-            if($gridPublic) $gridPublic->delete();
-            if($networkUser) $networkUser->delete();
-            if($h2oSharedUser) $h2oSharedUser->delete();
-            if($h2oSharedPublic) $h2oSharedPublic->delete();
-
-            $response['success'] = 1;
-            $response['msg'] = 'Water Holder Deleted successfully'; 
-        } else {
-
-            $response['success'] = 0;
-            $response['msg'] = 'Invalid ID.';
+     
+        if($h2oUser) {
+            $h2oUser->is_archived = 1;
+            $h2oUser->save();
         }
+        if($gridUser) {
+            $gridUser->is_archived = 1;
+            $gridUser->save();
+        }
+        if($h2oPublic) {
+            $h2oPublic->is_archived = 1;
+            $h2oPublic->save();
+        }
+        if($gridPublic) {
+            $gridPublic->is_archived = 1;
+            $gridPublic->save();
+        }
+        if($networkUser) {
+            $networkUser->is_archived = 1;
+            $networkUser->save();
+        }
+        if($h2oSharedUser) {
+            $h2oSharedUser->is_archived = 1;
+            $h2oSharedUser->save();
+        }
+        if($h2oSharedPublic) {
+            $h2oSharedPublic->is_archived = 1;
+            $h2oSharedPublic->save();
+        }
+
+        $response['success'] = 1;
+        $response['msg'] = 'Water Holder Deleted successfully'; 
 
         return response()->json($response); 
     }
@@ -661,6 +675,12 @@ class WaterUserController extends Controller
     public function export(Request $request) 
     {
                 
+        $request->validate([
+            'file_type' => 'required|in:all,requested'
+        ]);
+
         return Excel::download(new WaterUserExport($request), 'Water Holder Report.xlsx');
     }
+
+    
 }

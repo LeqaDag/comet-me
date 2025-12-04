@@ -332,9 +332,10 @@ class CameraCommunityController extends Controller
         $communityCameraTypes = CameraCommunityType::where("camera_community_id", $id)->get();
         $communityNvrTypes = NvrCommunityType::where("camera_community_id", $id)->get();
         $cameraCommunityPhotos = CameraCommunityPhoto::where("camera_community_id", $id)->get();
+        $compounds = Compound::where('is_archived', 0)->get();
             
         return view('services.camera.edit', compact('communities', 'cameras', 'donors',
-            'cameraCommunity', 'nvrCameras', 'households', 'communityCameraTypes',
+            'cameraCommunity', 'nvrCameras', 'households', 'communityCameraTypes', 'compounds',
             'communityNvrTypes', 'cameraCommunityPhotos', 'cameraDonors', 'moreDonors'));
     }
 

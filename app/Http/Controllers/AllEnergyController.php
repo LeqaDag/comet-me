@@ -8,6 +8,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Auth;
 use DB; 
+
 use Route;
 use App\Models\AllEnergyMeter;
 use App\Models\AllMissingMeter; 
@@ -30,6 +31,7 @@ use App\Models\DisplacedHouseholdStatus;
 use App\Models\EnergyDonor;
 use App\Models\EnergySystem;
 use App\Models\EnergySystemType;
+use App\Models\EnergyRequestSystem;
 use App\Models\EnergyUser;
 use App\Models\EnergyHolder;
 use App\Models\EnergyPublicStructure;
@@ -49,8 +51,10 @@ use App\Exports\PurchaseEnergyExport;
 use App\Exports\Purchase\PurchaseEnergyExport1;
 use App\Imports\PurchaseEnergyImport;
 use App\Imports\PurchaseEnergyImport1;
+Use App\Http\Controllers\ConfirmedHousehold;
 use App\Helpers\SequenceHelper;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Image;
 use DataTables;
 use Excel;
@@ -503,7 +507,7 @@ class AllEnergyController extends Controller
     public function edit($id)
     {
         $energyUser = AllEnergyMeter::findOrFail($id);
-
+        // die($energyUser);
         $energyDonors = AllEnergyMeterDonor::where("all_energy_meter_id", $id)
             ->where("is_archived", 0)
             ->get();
@@ -523,6 +527,7 @@ class AllEnergyController extends Controller
             ->get();
         
         $energySystems = EnergySystem::where('is_archived', 0)->get();
+        
         $household = Household::findOrFail($energyUser->household_id);
         $meterCases = MeterCase::where('is_archived', 0)->get();
         $vendor = VendorUserName::where('id', $energyUser->vendor_username_id)->first();
@@ -539,16 +544,30 @@ class AllEnergyController extends Controller
         $installationTypes = InstallationType::where('is_archived', 0)->get();
         $energyCycles = EnergySystemCycle::get();
 
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+
         $electricityCollectionBoxes = ElectricityCollectionBox::where('is_archived', 0)->get();
         $electricityPhases = ElectricityPhase::where('is_archived', 0)->get();
         $allEnergyMeterPhase = AllEnergyMeterPhase::where('is_archived', 0)
             ->where('all_energy_meter_id', $id)
             ->first();
 
+        $sharedHouseholdIds = HouseholdMeter::where('energy_user_id', $id)
+            ->where('is_archived', 0)
+            ->pluck('household_id')
+            ->toArray();
+
+        $sharedHouseholdMap = [];
+        if (count($sharedHouseholdIds) > 0) {
+            $sharedHouseholdMap = Household::whereIn('id', $sharedHouseholdIds)
+                ->pluck('english_name', 'id')
+                ->toArray();
+        }
+
         return view('users.energy.not_active.edit_energy', compact('household', 'communities',
             'meterCases', 'energyUser', 'communityVendors', 'vendor', 'energySystems', 'electricityPhases',
             'energyDonors', 'donors', 'installationTypes', 'energyCycles', 'electricityCollectionBoxes',
-            'allEnergyMeterPhase', 'moreDonors'));
+            'allEnergyMeterPhase', 'moreDonors', 'energySystemTypes', 'sharedHouseholdIds', 'sharedHouseholdMap'));
     }
 
     /**
@@ -642,6 +661,8 @@ class AllEnergyController extends Controller
         $energyUser = AllEnergyMeter::find($id);
 
         $oldMeterCase = $energyUser->meter_case_id;
+        // capture previous energy system type so we can detect changes to FBS (type id 2)
+        $oldEnergySystemType = $energyUser->energy_system_type_id;
 
         if($request->energy_system_cycle_id) {
 
@@ -762,6 +783,7 @@ class AllEnergyController extends Controller
         if($request->vendor_username_id) $energyUser->vendor_username_id = $request->vendor_username_id;
 
         if($request->energy_system_id) $energyUser->energy_system_id = $request->energy_system_id;
+        if($request->energy_system_type_id) $energyUser->energy_system_type_id = $request->energy_system_type_id;
         
         if($request->meter_case_id) {
 
@@ -797,19 +819,275 @@ class AllEnergyController extends Controller
             $household->save();
             
             $energyUser->meter_case_id = $request->meter_case_id;
-
-            $communityService = CommunityService::firstOrCreate(
-                ['community_id' => $household->community_id, 'service_id' => 1]
-            );
-
-            $community = Community::FindOrFail($household->community_id);
-            $community->energy_service = "Yes";
-            $community->energy_service_beginning_year = now()->year;
-            $community->save();
         }
 
         $energyUser->save(); 
-        
+
+        // Determine whether to apply FBS-upgrade to shared holders.
+        // Apply when the update request explicitly sets the energy system type to FBS (2),
+        // or when the saved record changed from a non-FBS type to FBS.
+        $shouldApplyFbsUpgrade = false;
+        if ($request->has('energy_system_type_id') && intval($request->energy_system_type_id) === 2) {
+            $shouldApplyFbsUpgrade = true;
+        } elseif ($energyUser->energy_system_type_id == 2 && $oldEnergySystemType != 2) {
+            $shouldApplyFbsUpgrade = true;
+        }
+
+
+
+        // Handle removals of shared FBS users requested from UI
+        if ($request->has('remove_shared_fbs')) {
+            $removeIds = $request->input('remove_shared_fbs');
+            if (is_array($removeIds) && count($removeIds) > 0) {
+                foreach ($removeIds as $rmId) {
+                    if (!$rmId) continue;
+                    $hm = HouseholdMeter::where('energy_user_id', $energyUser->id)
+                        ->where('household_id', $rmId)
+                        ->where('is_archived', 0)
+                        ->first();
+                    if ($hm) {
+                        $hm->is_archived = 1;
+                        $hm->save();
+                    }
+                }
+            }
+        }
+
+        // Handle FBS Shared users logic 
+        if ($request->has('shared_users_fbs')) {
+            $sharedIds = $request->input('shared_users_fbs');
+            if (is_array($sharedIds)) {
+                foreach ($sharedIds as $sharedHouseholdId) {
+                    if (!$sharedHouseholdId) continue;
+
+                    $household = Household::find($sharedHouseholdId);
+                    if (!$household) continue;
+
+                    $existingHM = HouseholdMeter::where('household_id', $sharedHouseholdId)
+                        ->where('is_archived', 0)->first();
+
+                    $sharedEnergy = AllEnergyMeter::where('household_id', $sharedHouseholdId)
+                        ->where('is_archived', 0)->first();
+
+                    $energyRequest = EnergyRequestSystem::where('household_id', $sharedHouseholdId)
+                        ->where('is_archived', 0)->orderBy('id', 'desc')->first();
+
+                    //  Already exists in household_meters
+                    if ($existingHM) {
+                        // Case 1: belongs to another main holder
+                        if ($existingHM->energy_user_id != $energyUser->id) {
+                            $existingHM->energy_user_id = $energyUser->id;
+                            $existingHM->save();
+
+                            // Ensure there is an AllEnergyMeter record for the shared household
+                            if (!$sharedEnergy) {
+                                $sharedEnergy = AllEnergyMeter::whereNull('meter_number')
+                                    ->where('household_id', $sharedHouseholdId)->first();
+                            }
+
+                            if ($sharedEnergy) {
+                                // generate or update fake meter number to match current main
+                                if ($sharedEnergy->fake_meter_number) {
+                                    $newFake = SequenceHelper::updateSequence($sharedEnergy->fake_meter_number, $energyUser->meter_number);
+                                } else {
+                                    $increment = 1;
+                                    $newFake = SequenceHelper::generateSequence($energyUser->meter_number, $increment);
+                                }
+
+                                // ensure uniqueness
+                                $i = 1;
+                                while (AllEnergyMeter::where('fake_meter_number', $newFake)->first()) {
+                                    $i++;
+                                    $newFake = SequenceHelper::generateSequence($energyUser->meter_number, $i);
+                                }
+
+                                $sharedEnergy->fake_meter_number = $newFake;
+                                $sharedEnergy->meter_number = null;
+                                $sharedEnergy->is_main = "No";
+                                $sharedEnergy->energy_system_id = $energyUser->energy_system_id;
+                                $sharedEnergy->energy_system_type_id = $energyUser->energy_system_type_id;
+                                $sharedEnergy->installation_type_id = $energyUser->installation_type_id;
+                                $sharedEnergy->community_id = $energyUser->community_id;
+                                $sharedEnergy->save();
+                            } else {
+                               
+                                $inc = 1;
+                                $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                                while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                                    $inc++;
+                                    $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                                }
+
+                                $newShared = new AllEnergyMeter();
+                                $newShared->household_id = $sharedHouseholdId;
+                                $newShared->community_id = $energyUser->community_id;
+                                $newShared->meter_number = null;
+                                $newShared->fake_meter_number = $fake;
+                                $newShared->is_main = "No";
+                                $newShared->energy_system_id = $energyUser->energy_system_id;
+                                $newShared->energy_system_type_id = $energyUser->energy_system_type_id;
+                                $newShared->installation_type_id = $energyUser->installation_type_id;
+                                $newShared->save();
+                            }
+                        } else {
+                            // already belongs to this main holder 
+                            if ($sharedEnergy) {
+                                $sharedEnergy->energy_system_type_id = $energyUser->energy_system_type_id;
+                                $sharedEnergy->energy_system_id = $energyUser->energy_system_id;
+                                $sharedEnergy->save();
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    // No existing household_meter -> either convert main to shared, requested, or new shared
+                    if ($sharedEnergy && $sharedEnergy->meter_number && $sharedEnergy->meter_number != 0) {
+                        //user was originally a main holder -> convert to shared
+                        $sharedEnergy->meter_number = null;
+                        $sharedEnergy->is_main = "No";
+
+                        $inc = 1;
+                        $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                        while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                            $inc++;
+                            $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                        }
+                        $sharedEnergy->fake_meter_number = $fake;
+                        $sharedEnergy->energy_system_type_id = $energyUser->energy_system_type_id;
+                        $sharedEnergy->energy_system_id = $energyUser->energy_system_id;
+                        $sharedEnergy->save();
+
+                        $existingHm = HouseholdMeter::where('household_id', $sharedHouseholdId)
+                            ->where('energy_user_id', $energyUser->id)
+                            ->first();
+
+                        if ($existingHm) {
+                            if ($existingHm->is_archived == 1) $existingHm->is_archived = 0;
+                            if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                                $existingHm->fbs_upgrade_new = 1;
+                            }
+                            $existingHm->save();
+                        } else {
+                            $hm = new HouseholdMeter();
+                            $hm->household_id = $sharedHouseholdId;
+                            $hm->energy_user_id = $energyUser->id;
+                            $hm->is_archived = 0;
+                            if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                                $hm->fbs_upgrade_new = 1;
+                            }
+                            $hm->save();
+                        }
+
+                        continue;
+                    }
+
+                    if ($energyRequest) {
+                        //  requested user -> create or update all_energy_meters and add household_meters
+                        if (!$sharedEnergy) {
+                            $inc = 1;
+                            $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                            while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                                $inc++;
+                                $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                            }
+
+                            $new = new AllEnergyMeter();
+                            $new->household_id = $sharedHouseholdId;
+                            $new->community_id = $energyUser->community_id;
+                            $new->meter_number = 0;
+                            $new->fake_meter_number = $fake;
+                            $new->is_main = "No";
+                            $new->energy_system_id = $energyUser->energy_system_id;
+                            $new->energy_system_type_id = $energyRequest->recommendede_energy_system_id ?: $energyUser->energy_system_type_id;
+                            $new->installation_type_id = $energyUser->installation_type_id;
+                            $new->save();
+                            $sharedEnergy = $new;
+                        } else {
+                            if (!$sharedEnergy->fake_meter_number) {
+                                $inc = 1;
+                                $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                                while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                                    $inc++;
+                                    $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                                }
+                                $sharedEnergy->fake_meter_number = $fake;
+                            }
+                            $sharedEnergy->energy_system_type_id = $energyRequest->recommendede_energy_system_id ?: $energyUser->energy_system_type_id;
+                            $sharedEnergy->energy_system_id = $energyUser->energy_system_id;
+                            $sharedEnergy->is_main = "No";
+                            $sharedEnergy->save();
+                        }
+
+                        $existingHm = HouseholdMeter::where('household_id', $sharedHouseholdId)
+                            ->where('energy_user_id', $energyUser->id)
+                            ->first();
+
+                        if ($existingHm) {
+                            if ($existingHm->is_archived == 1) $existingHm->is_archived = 0;
+                            if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                                $existingHm->fbs_upgrade_new = 1;
+                            }
+                            $existingHm->save();
+                        } else {
+                            $hm = new HouseholdMeter();
+                            $hm->household_id = $sharedHouseholdId;
+                            $hm->energy_user_id = $energyUser->id;
+                            $hm->is_archived = 0;
+                            if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                                $hm->fbs_upgrade_new = 1;
+                            }
+                            $hm->save();
+                        }
+
+                        continue;
+                    }
+
+                    // add shared link and create shared energy record if missing
+                    if (!$sharedEnergy) {
+                        $inc = 1;
+                        $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                        while (AllEnergyMeter::where('fake_meter_number', $fake)->first()) {
+                            $inc++;
+                            $fake = SequenceHelper::generateSequence($energyUser->meter_number, $inc);
+                        }
+
+                        $new = new AllEnergyMeter();
+                        $new->household_id = $sharedHouseholdId;
+                        $new->community_id = $energyUser->community_id;
+                        $new->meter_number = null;
+                        $new->fake_meter_number = $fake;
+                        $new->is_main = "No";
+                        $new->energy_system_id = $energyUser->energy_system_id;
+                        $new->energy_system_type_id = $energyUser->energy_system_type_id;
+                        $new->installation_type_id = $energyUser->installation_type_id;
+                        $new->save();
+                    }
+
+                    $existingHm = HouseholdMeter::where('household_id', $sharedHouseholdId)
+                        ->where('energy_user_id', $energyUser->id)
+                        ->first();
+
+                    if ($existingHm) {
+                        if ($existingHm->is_archived == 1) $existingHm->is_archived = 0;
+                        if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                            $existingHm->fbs_upgrade_new = 1;
+                        }
+                        $existingHm->save();
+                    } else {
+                        $hm = new HouseholdMeter();
+                        $hm->household_id = $sharedHouseholdId;
+                        $hm->energy_user_id = $energyUser->id;
+                        $hm->is_archived = 0;
+                        if (isset($energyUser->installation_type_id) && $energyUser->installation_type_id == 7) {
+                            $hm->fbs_upgrade_new = 1;
+                        }
+                        $hm->save();
+                    }
+                }
+            }
+        }
+
         if($energyUser->meter_active == "Yes" || $energyUser->meter_case_id == 1) {
 
             $householdMeters = HouseholdMeter::where('energy_user_id', $energyUser->id)
@@ -1025,11 +1303,19 @@ class AllEnergyController extends Controller
 
         return Excel::download(new AllEnergyExport($request), 'energy_meters_summary.xlsx');
     }
+        public function exportConfirmedHousehold(Request $request) 
+    {
+                
+        return Excel::download(new ConfirmedHousehold($request), 'MISC Confirmed.xlsx');
+    }
 
     /**
      * 
      * @return \Illuminate\Support\Collection
      */
+
+
+    
     public function import(Request $request) 
     {
         // $allEnergyMeters = AllEnergyMeter::where("is_archived", 0)
@@ -1088,4 +1374,5 @@ class AllEnergyController extends Controller
             return back()->with('error', 'Error occurred during import: ' . $e->getMessage());
         }
     }
+    
 }

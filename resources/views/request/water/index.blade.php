@@ -110,7 +110,7 @@
 @if(session()->has('message'))
     <div class="row">
         <div class="alert alert-success">
-            {{ session()->get('message') }}
+            {{ session()->get('message') }} 
         </div>
     </div>
 @endif
@@ -158,7 +158,7 @@
                 data: function (d) {
                     d.search = $('input[type="search"]').val()
                 }
-            },
+            }, 
             columns: [
                 {data: 'holder', name: 'holder'},
                 {data: 'community_name', name: 'community_name'},

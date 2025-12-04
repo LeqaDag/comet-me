@@ -61,6 +61,15 @@ class HouseholdController extends Controller
      */
     public function index(Request $request)
     {	
+        // $youngHolders = Household::where("internet_holder_young", 1)->get();
+
+        // foreach($youngHolders as $youngHolder) {
+
+        //     $youngHolder->household_status_id = 4;
+        //     $youngHolder->energy_service = "Yes";
+        //     $youngHolder->save();
+        // }
+        
         // $houses = Household::all();
         // foreach($houses as $house) {
         //     if($house->community_id == 1 || $house->community_id == 2 || 
@@ -81,8 +90,7 @@ class HouseholdController extends Controller
         //     }
         // }
         
-    
-
+             
         if (Auth::guard('user')->user() != null) {
 
             $communities = Community::where('is_archived', 0)
@@ -224,45 +232,36 @@ class HouseholdController extends Controller
 
                     })
                     ->addColumn('statusLabel', function($row) {
+                        // default label to avoid undefined variable when status is unexpected
+                        $statusLabel = "<span class='badge rounded-pill bg-label-secondary'>" . ($row->status ?? '') . "</span>";
 
-                        if($row->status == "Initial") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-dark'>".$row->status."</span>";
-
-                        else if($row->status == "AC Survey") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-primary'>".$row->status."</span>";
-                       
-                        else if($row->status == "AC Completed") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-warning'>".$row->status."</span>";
-
-                        else if($row->status == "Served") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-success'>".$row->status."</span>";
-
-                        else if($row->status == "Requested") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-info'>".$row->status."</span>";
-
-                        else if($row->status == "Displaced") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
-
-                        else if($row->status == "Not Served") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-dark'>".$row->status."</span>";
-                        
-                        else if($row->status == "On Hold") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-secondary'>".$row->status."</span>";
-
-                        else if($row->status == "Left") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
-                        
-                        else if($row->status == "Served by Third Party") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
-                        
-                        else if($row->status == "Confirmed") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-dark text-success'>".$row->status."</span>";
-
-                        else if($row->status == "Incident replacement") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
-
-                        else if($row->status == "Postponed") 
-                        $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
+                        if($row->status == "Initial") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-dark'>".$row->status."</span>";
+                        } else if($row->status == "AC Survey") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-primary'>".$row->status."</span>";
+                        } else if($row->status == "AC Completed") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-warning'>".$row->status."</span>";
+                        } else if($row->status == "Served") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-success'>".$row->status."</span>";
+                        } else if($row->status == "Requested") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-info'>".$row->status."</span>";
+                        } else if($row->status == "Displaced") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
+                        } else if($row->status == "Not Served") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-dark'>".$row->status."</span>";
+                        } else if($row->status == "On Hold") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-secondary'>".$row->status."</span>";
+                        } else if($row->status == "Left") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-danger'>".$row->status."</span>";
+                        } else if($row->status == "Served by Third Party") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
+                        } else if($row->status == "Confirmed") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-dark text-success'>".$row->status."</span>";
+                        } else if($row->status == "Incident replacement") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
+                        } else if($row->status == "Postponed") {
+                            $statusLabel = "<span class='badge rounded-pill bg-label-dark text-danger'>".$row->status."</span>";
+                        }
 
                         return $statusLabel;
                     })
@@ -356,9 +355,10 @@ class HouseholdController extends Controller
         $professions = Profession::where('is_archived', 0)->get();
         $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
         $energyCycles = EnergySystemCycle::get();
+        $compounds = \App\Models\Compound::orderBy('english_name', 'ASC')->get();
 
         return view('employee.household.create', compact('communities', 'regions', 
-            'professions', 'energySystemTypes', 'energyCycles'));
+            'professions', 'energySystemTypes', 'energyCycles', 'compounds'));
     }
 
     /**
@@ -587,22 +587,15 @@ class HouseholdController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getByCommunity(Request $request)
+    public function getByCommunity($community_id)
     {
-        $households = Household::where('community_id', $request->community_id)
-            ->where('is_archived', 0)
-            ->orderBy('english_name', 'ASC')
-            ->get();
-
-        if (!$request->community_id) {
-
+        if (!$community_id) {
             $html = '<option selected disabled>Choose One...</option>';
         } else {
-
             $html = '<option selected disabled>Choose One...</option>';
-            $households = Household::where('community_id', $request->community_id)
-                ->orderBy('english_name', 'ASC')
+            $households = Household::where('community_id', $community_id)
                 ->where('is_archived', 0)
+                ->orderBy('english_name', 'ASC')
                 ->get();
             foreach ($households as $household) {
                 $html .= '<option value="'.$household->id.'">'.$household->english_name.'</option>';

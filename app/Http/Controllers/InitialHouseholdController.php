@@ -59,6 +59,7 @@ class InitialHouseholdController extends Controller
                 $data = DB::table('households')
                     ->where('households.is_archived', 0)
                     ->where('households.internet_holder_young', 0)
+                    ->where('households.out_of_comet', 0)
                     ->where('households.household_status_id', 1)
                     ->join('communities', 'households.community_id', 'communities.id')
                     ->join('regions', 'communities.region_id', 'regions.id')
@@ -69,6 +70,21 @@ class InitialHouseholdController extends Controller
                         'communities.english_name as name',
                         'communities.arabic_name as aname',)
                     ->latest(); 
+
+                // Apply frontend filters if provided
+                $communityFilter = $request->input('community_filter');
+                $regionFilter = $request->input('region_filter');
+                $systemTypeFilter = $request->input('system_type_filter');
+
+                if ($communityFilter) {
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($regionFilter) {
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($systemTypeFilter) {
+                    $data->where('households.energy_system_type_id', $systemTypeFilter);
+                }
     
                 return Datatables::of($data)
                     ->addIndexColumn()

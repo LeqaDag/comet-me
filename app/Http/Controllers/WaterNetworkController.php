@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class H2oUserController extends Controller
+class WaterNetworkController extends Controller
 {
 
     // This method for generating the action buttons
@@ -40,25 +40,22 @@ class H2oUserController extends Controller
             return view('errors.not-found');
         }
 
-        $regionFilter = $request->input('region_filter');
-        $communityFilter = $request->input('community_filter');
-        $yearFilter = $request->input('year_filter');
-
         if ($request->ajax()) {
- 
+
             $query = DB::table('all_water_holders')
                 ->join('communities', 'all_water_holders.community_id', 'communities.id')
                 ->leftJoin('public_structures', 'all_water_holders.public_structure_id', 'public_structures.id')
                 ->leftJoin('households', 'all_water_holders.household_id', 'households.id')
                 ->leftJoin('water_holder_statuses', 'households.water_holder_status_id', 'water_holder_statuses.id')
-                ->join('h2o_users', 'h2o_users.household_id', 'households.id')
-                ->where('h2o_users.is_archived', 0)
+                ->join('water_network_users', 'water_network_users.household_id', 'households.id')
+                ->where('water_network_users.is_archived', 0)
                 ->select(
                     'all_water_holders.id',
                     'households.english_name as holder',
                     'communities.english_name as community_name',
-                    'h2o_users.installation_year',
-                    'h2o_users.number_of_h20',
+                    'water_network_users.is_delivery as delivered',
+                    'water_network_users.is_complete as completed',
+                    'water_network_users.is_paid as paid',
                     'all_water_holders.created_at'
                 );
 
@@ -66,18 +63,18 @@ class H2oUserController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('households.english_name', 'LIKE', "%{$search}%")
-                      ->orWhere('communities.english_name', 'LIKE', "%{$search}%")
-                      ->orWhere('households.arabic_name', 'LIKE', "%{$search}%")
-                      ->orWhere('communities.arabic_name', 'LIKE', "%{$search}%")
-                      ->orWhere('h2o_users.installation_year', 'LIKE', "%{$search}%")
-                      ->orWhere('h2o_users.number_of_h20', 'LIKE', "%{$search}%");
+                      ->orWhere('communities.english_name', 'LIKE', "%{$search}%");
                 });
             }
 
-            if ($regionFilter) $query->where('communities.region_id', $regionFilter);
-            if ($communityFilter) $query->where('communities.id', $communityFilter);
-            if ($yearFilter != null) $query->where('h2o_users.installation_year', $yearFilter);
-            
+            if ($request->region_filter) {
+                $query->where('communities.region_id', $request->region_filter);
+            }
+
+            if ($request->community_filter) {
+                $query->where('communities.id', $request->community_filter);
+            }
+
             $totalFiltered = $query->count();
 
             $columnIndex = $request->order[0]['column'] ?? 0;

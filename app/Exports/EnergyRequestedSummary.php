@@ -24,7 +24,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
 {
     private $misc = 0, $activateMisc = 0, $requestedHouseholds = 0, $relocatedHouseholds = 0,
         $activateRelocated = 0, $miscRefrigerator = 0, $relocatedRefrigerator, $miscHouseholds = 0,
-        $miscHouseholdsFBS = 0, $miscHouseholdsMGSMG = 0;
+        $miscHouseholdsFBS = 0, $miscHouseholdsMGSMG = 0,$activeNoMeterMG=0,$activeNoMeterFBS=0,$fbsUpgradeMGSMG=0;
 
     protected $request; 
 
@@ -47,6 +47,12 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         //     $household->energy_system_cycle_id = 2;
         //     $household->save();
         // }
+        $this->fbsUpgradeMGSMG = DB::table('all_energy_meters')
+            ->join('households', 'all_energy_meters.household_id', 'households.id')
+            ->join('communities', 'all_energy_meters.community_id', 'communities.id')
+            ->where('all_energy_meters.is_archived', 0)
+            ->where('all_energy_meters.installation_type_id', 7)
+            ->count();
 
         $this->miscHouseholds = DB::table('households')
             ->join('communities', 'households.community_id', 'communities.id')
@@ -71,6 +77,24 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             ->where('all_energy_meters.energy_system_type_id', 2)
             ->where('all_energy_meters.meter_active', 'Yes'); 
 
+
+        $this->activeNoMeterMG= DB::table('households')
+            ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+            ->join('communities', 'communities.id', 'all_energy_meters.community_id')
+            ->where('communities.energy_system_cycle_id', NULL)
+            ->where('households.is_archived', 0)
+            ->where('households.household_status_id', 14) 
+            ->where('all_energy_meters.energy_system_type_id', 1)
+            ->where('all_energy_meters.meter_active', 'No');
+
+        $this->activeNoMeterFBS= DB::table('households')
+            ->join('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+            ->join('communities', 'communities.id', 'all_energy_meters.community_id')
+            ->where('communities.energy_system_cycle_id', NULL)
+            ->where('households.is_archived', 0)
+            ->where('households.household_status_id', 14) 
+            ->where('all_energy_meters.energy_system_type_id', 2)
+            ->where('all_energy_meters.meter_active', 'No');    
         // Requested
         $this->requestedHouseholds = DB::table('households')
             ->join('energy_request_systems', 'energy_request_systems.household_id', 'households.id')
@@ -161,6 +185,10 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'grid_community_compounds.grid',
                 DB::raw('COUNT(CASE WHEN all_households.is_archived = 0 AND all_households.household_status_id = 1 THEN 1 END) as sum_inital'),
                 DB::raw('COUNT(CASE WHEN all_households.household_status_id = 3 THEN 1 END) as sum_AC'),
+                // Active No Meter Mg: energy_system_type_id != 2 and meter_number = 0
+                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_number = 0 AND all_energy_meters.energy_system_type_id != 2 THEN 1 END) as active_no_meter_MG'),
+                // Active No Meter FBS: energy_system_type_id = 2 and meter_number = 0
+                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_number = 0 AND all_energy_meters.energy_system_type_id = 2 THEN 1 END) as active_no_meter_FBS'),
                 DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
                     THEN 1 END) as sum_DC_MG'),
                 DB::raw('COUNT(CASE WHEN all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
@@ -246,6 +274,10 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
                 'grid_community_compounds.grid', 
                 DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.household_status_id = 1 THEN 1 END) as sum_inital'),
                 DB::raw('COUNT(CASE WHEN households.is_archived = 0 AND households.household_status_id = 3 THEN households.id END) as sum_AC'),
+                // Active No Meter Mg: energy_system_type_id != 2 and meter_number = 0
+                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_number = 0 AND all_energy_meters.energy_system_type_id != 2 THEN 1 END) as active_no_meter_MG'),
+                // Active No Meter FBS: energy_system_type_id = 2 and meter_number = 0
+                DB::raw('COUNT(CASE WHEN all_energy_meters.meter_number = 0 AND all_energy_meters.energy_system_type_id = 2 THEN 1 END) as active_no_meter_FBS'),
                 DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id != 2 
                     THEN households.id END) as sum_DC_MG'),
                 DB::raw('COUNT(DISTINCT CASE WHEN all_energy_meters.is_archived = 0 AND all_energy_meters.meter_case_id = 1 AND all_energy_meters.energy_system_type_id = 2 
@@ -359,6 +391,8 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $this->requestedHouseholds = $this->requestedHouseholds->count();
         $this->relocatedHouseholds = $this->relocatedHouseholds->count();
         $this->activateRelocated = $this->activateRelocated->count();
+        $this->activeNoMeterMG = $this->activeNoMeterMG->count();
+        $this->activeNoMeterFBS = $this->activeNoMeterFBS->count();
         $this->miscRefrigerator = $this->miscRefrigerator->count();
         $this->relocatedRefrigerator = $this->relocatedRefrigerator->count();
 
@@ -367,7 +401,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
 
     public function startCell(): string
     {
-        return 'A5'; 
+        return 'A6'; 
     }
 
     public function title(): string 
@@ -397,7 +431,7 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->setAutoFilter('A1:R1');
+        $sheet->setAutoFilter('A1:T1');
         $sheet->setCellValue('A1', 'Name');   
         $sheet->setCellValue('B1', 'Geographical Region'); 
         $sheet->setCellValue('C1', 'Total Confirmed / Relecoated');  
@@ -408,42 +442,47 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->setCellValue('H1', 'Grid'); 
         $sheet->setCellValue('I1', 'Initial Households/Public'); 
         $sheet->setCellValue('J1', 'Completed AC'); 
-        $sheet->setCellValue('K1', 'Activate Meter MG'); // household_status is in-progress
-        $sheet->setCellValue('L1', 'Activate Meter FBS'); // household_status is served// MG
-        $sheet->setCellValue('M1', 'Shared Households');
-        $sheet->setCellValue('N1', 'Public Structures MG');
-        $sheet->setCellValue('O1', 'Public Structures FBS');
-        $sheet->setCellValue('P1', 'Served');
-        $sheet->setCellValue('Q1', 'Delta');
-        $sheet->setCellValue('R1', 'Refrigerator');
+        $sheet->setCellValue('K1', 'Active NO Meter MG'); //New Column
+        $sheet->setCellValue('L1', 'Active NO Meter FBS');//New Column
+        $sheet->setCellValue('M1', 'Activate Meter MG'); // household_status is in-progress
+        $sheet->setCellValue('N1', 'Activate Meter FBS'); // household_status is served// MG
+        $sheet->setCellValue('O1', 'Shared Households');
+        $sheet->setCellValue('P1', 'Public Structures MG');
+        $sheet->setCellValue('Q1', 'Public Structures FBS');
+        $sheet->setCellValue('R1', 'Served');
+        $sheet->setCellValue('S1', 'Delta');
+        $sheet->setCellValue('T1', 'Refrigerator');
 
         $sheet->setCellValue('A2', 'MISC Households');
         $sheet->setCellValue('A3', 'MISC FBS Users');
-        $sheet->setCellValue('A4', 'Relocated Households');  
+        $sheet->setCellValue('A4', 'Relocated Households');
+        $sheet->setCellValue('A5', 'FBS Upgarade to MG/SMG');
         //$sheet->setCellValue('A4', 'Requested Households');     
         $sheet->setCellValue('B2', ' '); 
         $sheet->setCellValue('B3', ' ');
-        $sheet->setCellValue('B4', ' ');
+        // $sheet->setCellValue(coordinate: 'B4', $this->fbsUpgradeMGSMG);
         $sheet->setCellValue('C2', $this->miscHouseholds);
         $sheet->setCellValue('C3', $this->misc);
         $sheet->setCellValue('C4', $this->relocatedHouseholds);
+        $sheet->setCellValue('C5', $this->fbsUpgradeMGSMG);
         //$sheet->setCellValue('C4', $this->requestedHouseholds);
-        
-        $sheet->setCellValue('L2', '');
-        $sheet->setCellValue('L3', $this->activateMisc);
-        $sheet->setCellValue('L4', $this->activateRelocated);
+        $sheet->setCellValue('K2', $this->activeNoMeterMG);
+        $sheet->setCellValue('L3', $this->activeNoMeterFBS);
+        $sheet->setCellValue('N2', '');
+        $sheet->setCellValue('N3', $this->activateMisc);
+        $sheet->setCellValue('N4', $this->activateRelocated);
 
-        $sheet->setCellValue('Q2', '');
-        $sheet->setCellValue('Q3', ($this->misc - $this->activateMisc));
-        $sheet->setCellValue('Q4', ($this->relocatedHouseholds -$this->activateRelocated));
-
-        $sheet->setCellValue('P2', '');
-        $sheet->setCellValue('P3', ($this->activateMisc));
-        $sheet->setCellValue('P4', ($this->activateRelocated));
+        $sheet->setCellValue('S2', '');
+        $sheet->setCellValue('S3', ($this->misc - $this->activateMisc));
+        $sheet->setCellValue('S4', ($this->relocatedHouseholds -$this->activateRelocated));
 
         $sheet->setCellValue('R2', '');
-        $sheet->setCellValue('R3', ($this->miscRefrigerator));
-        $sheet->setCellValue('R4', ($this->relocatedRefrigerator));
+        $sheet->setCellValue('R3', ($this->activateMisc));
+        $sheet->setCellValue('R4', ($this->activateRelocated));
+
+        $sheet->setCellValue('T2', '');
+        $sheet->setCellValue('T3', ($this->miscRefrigerator));
+        $sheet->setCellValue('T4', ($this->relocatedRefrigerator));
 
         // Adding the summation row
         $lastRow = $sheet->getHighestRow() + 1;
@@ -454,14 +493,15 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->setCellValue('F'.$lastRow, '=SUM(F2:F'.($lastRow-1).')');
         $sheet->setCellValue('I'.$lastRow, '=SUM(I2:I'.($lastRow-1).')');
         $sheet->setCellValue('J'.$lastRow, '=SUM(J2:J'.($lastRow-1).')');
-        $sheet->setCellValue('K'.$lastRow, '=SUM(K2:K'.($lastRow-1).')');
-        $sheet->setCellValue('L'.$lastRow, '=SUM(L2:L'.($lastRow-1).')');
         $sheet->setCellValue('M'.$lastRow, '=SUM(M2:M'.($lastRow-1).')');
         $sheet->setCellValue('N'.$lastRow, '=SUM(N2:N'.($lastRow-1).')');
         $sheet->setCellValue('O'.$lastRow, '=SUM(O2:O'.($lastRow-1).')');
         $sheet->setCellValue('P'.$lastRow, '=SUM(P2:P'.($lastRow-1).')');
         $sheet->setCellValue('Q'.$lastRow, '=SUM(Q2:Q'.($lastRow-1).')');
         $sheet->setCellValue('R'.$lastRow, '=SUM(R2:R'.($lastRow-1).')');
+        $sheet->setCellValue('S'.$lastRow, '=SUM(S2:S'.($lastRow-1).')');
+        $sheet->setCellValue('R'.$lastRow, '=SUM(R2:R'.($lastRow-1).')');
+        $sheet->setCellValue('T'.$lastRow, 0);
 
         // Confirmed 
         $sheet->getStyle('D1:D' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
@@ -492,16 +532,16 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
         $sheet->getStyle('J1:J' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
         
         // Served
-        $sheet->getStyle('P1:P' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
-        $sheet->getStyle('P1:P' . ($lastRow - 1))->getFill()->setStartColor(new Color('86af49'));
-        $sheet->getStyle('P1:P' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('P1:P' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+        $sheet->getStyle('R1:R' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('R1:R' . ($lastRow - 1))->getFill()->setStartColor(new Color('86af49'));
+        $sheet->getStyle('R1:R' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('R1:R' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
 
         // Delta
-        $sheet->getStyle('Q1:Q' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
-        $sheet->getStyle('Q1:Q' . ($lastRow - 1))->getFill()->setStartColor(new Color('e60000'));
-        $sheet->getStyle('Q1:Q' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('Q1:Q' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
+        $sheet->getStyle('S1:S' . ($lastRow - 1))->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('S1:S' . ($lastRow - 1))->getFill()->setStartColor(new Color('e60000'));
+        $sheet->getStyle('S1:S' . ($lastRow - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('S1:S' . ($lastRow - 1))->getBorders()->getAllBorders()->setColor(new Color('000000'));
 
         return [
             // Style the first row as bold text.
@@ -510,5 +550,4 @@ class EnergyRequestedSummary implements FromCollection, WithTitle, ShouldAutoSiz
             $lastRow => ['font' => ['bold' => true, 'size' => 12]]
         ];
     }
-
 }

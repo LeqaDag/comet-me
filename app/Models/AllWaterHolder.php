@@ -11,7 +11,7 @@ class AllWaterHolder extends Model
 
     protected $fillable = ['community_id', 'household_id', 'public_structure_id'];
 
-    public function Community()
+    public function Community() 
     {
         return $this->belongsTo(Community::class, 'community_id', 'id');
     }
@@ -35,6 +35,11 @@ class AllWaterHolder extends Model
     public function gridUser()
     {
         return $this->hasOne(GridUser::class, 'household_id', 'household_id');
+    }
+
+    public function networkUser()
+    {
+        return $this->hasOne(WaterNetworkUser::class, 'household_id', 'household_id');
     }
 
     public function getSystemType()

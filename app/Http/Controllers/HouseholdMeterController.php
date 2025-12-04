@@ -28,6 +28,7 @@ use App\Models\ServiceType;
 use App\Models\PublicStructure;
 use App\Models\PublicStructureCategory;
 use App\Models\Region;
+use App\Models\HouseholdStatus;
 use App\Models\InstallationType;
 use App\Models\VendorUserName;
 use App\Exports\HouseholdMeters;
@@ -439,5 +440,90 @@ class HouseholdMeterController extends Controller
     {
 
         return Excel::download(new HouseholdMeters($request), 'shared_users.xlsx');
+    }
+
+    /**
+     * Display households with status "Served, no meter" (DC / Active No Meter)
+     */
+    public function dcIndex(Request $request)
+    {
+        if (Auth::guard('user')->user() != null) {
+
+            if ($request->ajax()) {
+
+                $statusText = "Served, no meter";
+                $statusObj = HouseholdStatus::where('status', 'like', '%' . $statusText . '%')->first();
+
+                $data = DB::table('households')
+                    ->where('households.is_archived', 0)
+                    ->join('communities', 'households.community_id', '=', 'communities.id')
+                    ->join('regions', 'communities.region_id', '=', 'regions.id');
+
+                if ($statusObj) {
+                    $data->where('households.household_status_id', $statusObj->id);
+                }
+
+                // Apply frontend filters if provided
+                $communityFilter = $request->input('community_filter');
+                $regionFilter = $request->input('region_filter');
+                $systemTypeFilter = $request->input('system_type_filter');
+
+                if ($communityFilter) {
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($regionFilter) {
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($systemTypeFilter) {
+                    $data->where('households.energy_system_type_id', $systemTypeFilter);
+                }
+
+                $data->select('households.english_name as english_name', 'households.arabic_name as arabic_name',
+                        'households.id as id', 'households.created_at as created_at', 
+                        'households.updated_at as updated_at',
+                        'regions.english_name as region_name',
+                        'communities.english_name as name',
+                        'communities.arabic_name as aname')
+                    ->latest(); 
+
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+
+                        $detailsButton = "<a type='button' class='detailsHouseholdButton' data-bs-toggle='modal' data-bs-target='#householdDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
+                        $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+                        $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+                        
+                        if(Auth::guard('user')->user()->user_type_id != 7 || 
+                            Auth::guard('user')->user()->user_type_id != 11 || 
+                            Auth::guard('user')->user()->user_type_id != 8) 
+                        {
+                                
+                            return $detailsButton." ". $updateButton." ".$deleteButton;
+                        } else return $detailsButton; 
+                    })
+                   
+                    ->filter(function ($instance) use ($request) {
+                        if (!empty($request->get('search'))) {
+                                $instance->where(function($w) use($request) {
+                                    $search = $request->get('search');
+                                    $w->orWhere('households.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('households.arabic_name', 'LIKE', "%$search%")
+                                    ->orWhere('regions.english_name', 'LIKE', "%$search%")
+                                    ->orWhere('regions.arabic_name', 'LIKE', "%$search%");
+                            });
+                        }
+                    })
+                ->rawColumns(['action'])
+                ->make(true);
+            }
+
+            return view('employee.household.served');
+        } else {
+
+            return view('errors.not-found');
+        }
     }
 }

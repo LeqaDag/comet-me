@@ -30,6 +30,7 @@ class EnergyRequestSystemExport implements WithMultipleSheets, ShouldAutoSize
             new EnergyMISCHousehold($this->request),
             new EnergyMISCFbs($this->request),
             new EnergyRelocatedHousehold($this->request),
+            new FBSUpgradetoMGUsers($this->request),
             //new EnergyRequestedHousehold($this->request),
         ];
 

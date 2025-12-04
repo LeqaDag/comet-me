@@ -65,7 +65,7 @@
                     <tr>
                         <th>English Name</th>
                         <th>Arabic Name</th>
-                        <th>Community</th>
+                        <th>Communitssy</th>
                         <th>Region</th>
                         <th>Options</th>
                     </tr>

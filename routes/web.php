@@ -759,11 +759,9 @@ Route::get('/energy-system/copy/components/{id}/{formData}/{systemId}', [App\Htt
 
 Route::post('data-collection-import-displaced', [App\Http\Controllers\DataCollectionController::class, 'importDisplaced'])->name('data-collection.import-displaced');
 
-// new routes
+
 Route::post('all-aggregated-incident-export', [App\Http\Controllers\AllIncidentController::class, 'exportAggregated'])->name('all-aggregated-incident.export');
 
-
-// new routes - Leqa
 Route::post('data-collection-export-requested-agriculture', [DataCollectionController::class, 
     'exportRequestedAgriculture'])->name('data-collection.export-requested-agriculture');
 Route::post('data-collection-import-requested-agriculture', [DataCollectionController::class, 
@@ -779,3 +777,16 @@ Route::post('/argiculture-user/move-to-progress/{id}', [App\Http\Controllers\Agr
     'moveToProgress'])->name('argiculture-user.moveToProgress');
 Route::post('/argiculture-user/mark-complete/{id}', [App\Http\Controllers\AgricultureUserController::class, 
     'markComplete'])->name('argiculture-user.markComplete');
+
+// new routes 2/12
+Route::get('in-progress-households', [App\Http\Controllers\InProgressHouseholdController::class, 'landing']);
+Route::get('/dc-household', [App\Http\Controllers\HouseholdMeterController::class, 'dcIndex'])->name('dc-household.index');
+Route::get('/compounds/by-community/{community_id}', [App\Http\Controllers\CompoundController::class, 'getByCommunity']);
+Route::resource('h2o-user', App\Http\Controllers\H2oUserController::class);
+Route::resource('grid-user', App\Http\Controllers\GridUserController::class);
+Route::resource('network-user', App\Http\Controllers\WaterNetworkController::class);
+Route::resource('water-confirmed-user', App\Http\Controllers\WaterConfirmedSystemController::class);
+Route::get('/delete-confirmed-water', [App\Http\Controllers\WaterConfirmedSystemController::class, 'deleteConfirmedWaterUser'])->name('deleteConfirmedWaterUser');
+Route::get('/water-counts', [App\Http\Controllers\AllWaterController::class, 'getCounts'])->name('water.counts');
+
+ 

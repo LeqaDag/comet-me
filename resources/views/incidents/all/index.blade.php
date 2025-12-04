@@ -26,7 +26,7 @@
                         <div class="row">
                             <div class="col-xl-10 col-lg-10 col-md-10">
                                 <h5>
-                                Export All Incidents Report
+                                Export Incidents Report
                                     <i class='fa-solid fa-file-excel text-info'></i>
                                 </h5>
                             </div>
@@ -40,13 +40,29 @@
                             </div>
                         </div>
                     </div>
-                    <form method="POST" enctype='multipart/form-data' 
+                    <form method="POST" enctype='multipart/form-data' id="exportFormIncident"
                         action="{{ route('all-incident.export') }}">
                         @csrf
                         <div class="card-body"> 
                             <div class="row">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>File Type</label>
+                                        <select name="file_type" required id="fileType"
+                                            class="selectpicker form-control" data-live-search="true" >
+                                            <option disabled selected>Select File Type</option>
+                                            <option value="all">All Incidents</option>
+                                            <option value="aggregated">Aggregated Incidents</option>
+                                            <option value="donor">By Donor Incidents</option>
+                                            <option value="swo">SWO Incidents</option>
+                                        </select> 
+                                        <div id="file_type_error" style="color: red;"></div>
+                                    </fieldset>
+                                </div>
+
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Services</label>
                                         <select name="service_ids[]" 
                                             class="selectpicker form-control" data-live-search="true" multiple>
                                             <option disabled selected>Select Services</option>
@@ -60,6 +76,7 @@
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Community</label>
                                         <select name="community_id" class="selectpicker form-control" 
                                             data-live-search="true">
                                             <option disabled selected>Select Community</option>
@@ -71,6 +88,7 @@
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Incident</label>
                                         <select name="incident_id" 
                                             class="selectpicker form-control" data-live-search="true">
                                             <option disabled selected>Select Incident</option>
@@ -82,13 +100,25 @@
                                         </select> 
                                     </fieldset>
                                 </div>
+                            </div>
+
+                            <div class="row" style="margin-top:20px">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Incident Date (From)</label>
                                         <input type="date" name="date" id="incidentDate"
                                         class="form-control" title="Incident Data from"> 
                                     </fieldset>
                                 </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3">
+                                    <fieldset class="form-group">
+                                        <label class='col-md-12 control-label'>Incident Date (To)</label>
+                                        <input type="date" name="date_to" id="incidentDateTo"
+                                        class="form-control" title="Incident Data from"> 
+                                    </fieldset>
+                                </div>
                             </div>
+
                             <div class="row" style="margin-top:20px">
                                 <div class="col-xl-3 col-lg-3 col-md-3">
                                     <button class="btn btn-info" type="submit">
@@ -103,87 +133,6 @@
             </div>
         </div> 
     </div> 
-
-    @if(Auth::guard('user')->user()->user_type_id == 1 ||  
-        Auth::guard('user')->user()->user_type_id == 2 )
-        <div class="container mb-4">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="row">
-                                <div class="col-xl-10 col-lg-10 col-md-10">
-                                    <h5>
-                                    Export All Aggregated Incidents
-                                        <i class='fa-solid fa-file-excel text-info'></i>
-                                    </h5>
-                                </div>
-                            </div>
-                        </div>
-                        <form method="POST" enctype='multipart/form-data' 
-                            action="{{ route('all-aggregated-incident.export') }}">
-                            @csrf
-                            <div class="card-body"> 
-                                <!-- <div class="row">
-                                    <div class="col-xl-3 col-lg-3 col-md-3">
-                                        <fieldset class="form-group">
-                                            <select name="service_ids1[]" 
-                                                class="selectpicker form-control" data-live-search="true" multiple>
-                                                <option disabled selected>Select Services</option>
-                                                @foreach($serviceTypes as $serviceType)
-                                                    <option value="{{$serviceType->id}}">
-                                                        {{$serviceType->service_name}}
-                                                    </option>
-                                                @endforeach
-                                            </select> 
-                                        </fieldset>
-                                    </div>
-                                    <div class="col-xl-3 col-lg-3 col-md-3">
-                                        <fieldset class="form-group">
-                                            <select name="community_id1" class="selectpicker form-control" 
-                                                data-live-search="true">
-                                                <option disabled selected>Select Community</option>
-                                                @foreach($communities as $community)
-                                                    <option value="{{$community->id}}">{{$community->english_name}}</option>
-                                                @endforeach
-                                            </select> 
-                                        </fieldset>
-                                    </div>
-                                    <div class="col-xl-3 col-lg-3 col-md-3">
-                                        <fieldset class="form-group">
-                                            <select name="incident_id1" 
-                                                class="selectpicker form-control" data-live-search="true">
-                                                <option disabled selected>Select Incident</option>
-                                                @foreach($incidents as $incident)
-                                                <option value="{{$incident->id}}">
-                                                    {{$incident->english_name}}
-                                                </option>
-                                                @endforeach
-                                            </select> 
-                                        </fieldset>
-                                    </div>
-                                    <div class="col-xl-3 col-lg-3 col-md-3">
-                                        <fieldset class="form-group">
-                                            <input type="date" name="date1" id="incidentAggregatedDate"
-                                            class="form-control" title="Incident Data from"> 
-                                        </fieldset>
-                                    </div>
-                                </div> -->
-                                <div class="row">
-                                    <div class="col-xl-3 col-lg-3 col-md-3">
-                                        <button class="btn btn-info" type="submit">
-                                            <i class='fa-solid fa-file-excel'></i>
-                                            Export Excel
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>  
-                </div>
-            </div> 
-        </div> 
-    @endif
 </div>
 
 <h4 class="py-3 breadcrumb-wrapper mb-4">
@@ -304,6 +253,33 @@
  
 <script type="text/javascript">
 
+    $('#exportFormIncident').on('submit', function (event) {
+
+        event.preventDefault(); 
+
+        let valid = true;
+
+        var fileTypeValue = $('#fileType').val();
+
+        if (fileTypeValue == null) {
+
+            $('#file_type_error').html('Please select a type!'); 
+            return false;
+        } else  if (fileTypeValue != null) {
+
+            $('#file_type_error').empty();
+        }
+
+        $('#file_type_error').empty();
+
+        if (valid) {
+
+            $(this).addClass('was-validated');
+            this.submit(); // submit the form
+        }
+    });
+
+
     var table;
 
     function DataTableContent() {
@@ -314,12 +290,18 @@
             serverSide: true,
             ajax: {
                 url: "{{ route('all-incident.index') }}",
+                beforeSend: function() {
+                    $('#loader').show();  
+                },
+                complete: function() {
+                    $('#loader').hide();  // Hide loader when data is loaded
+                },
                 data: function (d) {
                 
-                    d.service_filter = $('#filterByService').val();
-                    d.community_filter = $('#filterByCommunity').val();
-                    d.incident_filter = $('#filterByIncident').val();
-                    d.date_filter = $('#filterByDate').val();
+                    d.service_filter = $('#filterByService').val() || '';
+                    d.community_filter = $('#filterByCommunity').val() || '';
+                    d.incident_filter = $('#filterByIncident').val() || '';
+                    d.date_filter = $('#filterByDate').val() || '';
                 }
             },
             dom: 'Blfrtip',
@@ -347,7 +329,7 @@
                 {data: 'service', name: 'service'},
                 {data: 'incident', name: 'incident'},
                 {data: 'date', name: 'date'},
-                {data: 'action'}
+                {data: 'action', name: 'action', orderable: false, searchable: false}
             ]
         });
     }
@@ -390,6 +372,7 @@
             $('.selectpicker').prop('selectedIndex', 0);
             $('.selectpicker').selectpicker('refresh');
             $('#incidentDate').val(' ');
+            $('#incidentDateTo').val(' ');
         });
 
         // Clear Filters for Export

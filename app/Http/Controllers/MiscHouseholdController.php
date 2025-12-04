@@ -73,24 +73,34 @@ class MiscHouseholdController extends Controller
                     ->where('households.internet_holder_young', 0)
                     ->where('households.household_status_id', $statusHousehold->id)
                     ->join('communities', 'households.community_id', 'communities.id')
-                    ->join('regions', 'communities.region_id', 'regions.id');
+                    ->join('regions', 'communities.region_id', 'regions.id')
+                    ->leftJoin('users', 'households.referred_by_id', 'users.id');
                     
                 $dataPublic = DB::table('public_structures')
                     ->where('public_structures.is_archived', 0)
                     ->where('public_structures.public_structure_status_id', $statusPublic->id)
                     ->join('communities', 'public_structures.community_id', 'communities.id')
-                    ->join('regions', 'communities.region_id', 'regions.id');
+                    ->join('regions', 'communities.region_id', 'regions.id')
+                    ->leftJoin('users', 'public_structures.referred_by_id', 'users.id');
 
-                if ($communityFilter != null) {
+                // also accept frontend filter param names used on in_progress view
+                $frontendCommunity = $request->input('community_filter') ?: $communityFilter;
+                $frontendRegion = $request->input('region_filter') ?: $regionFilter;
+                $frontendSystemType = $request->input('system_type_filter');
 
-                    $dataHousehold->where('communities.id', $communityFilter);
-                    $dataPublic->where('communities.id', $communityFilter);
+                if ($frontendCommunity != null) {
+                    $dataHousehold->where('communities.id', $frontendCommunity);
+                    $dataPublic->where('communities.id', $frontendCommunity);
                 }
 
-                if ($regionFilter != null) {
+                if ($frontendRegion != null) {
+                    $dataHousehold->where('regions.id', $frontendRegion);
+                    $dataPublic->where('regions.id', $frontendRegion);
+                }
 
-                    $dataHousehold->where('regions.id', $regionFilter);
-                    $dataPublic->where('regions.id', $regionFilter);
+                if ($frontendSystemType != null) {
+                    // system type applies to households (not public_structures)
+                    $dataHousehold->where('households.energy_system_type_id', $frontendSystemType);
                 }
 
                 $dataHousehold->select(
@@ -102,6 +112,7 @@ class MiscHouseholdController extends Controller
                     'communities.english_name as name',
                     'communities.arabic_name as aname',
                     'households.confirmation_notes',
+                    'users.name as referred_by',
                     DB::raw("'household' as source"))
                 ->latest(); 
                 
@@ -115,6 +126,7 @@ class MiscHouseholdController extends Controller
                     'communities.english_name as name',
                     'communities.arabic_name as aname',
                     'public_structures.confirmation_notes',
+                    'users.name as referred_by',
                     DB::raw("'public' as source")
                 )->latest(); 
                 
@@ -197,12 +209,18 @@ class MiscHouseholdController extends Controller
     public function moveMISCHousehold(Request $request)
     {
         $id = $request->id;
+        $meterOption = $request->input('meter_option', '');
+
+        if (strtolower($meterOption) === 'no_meter' || strtolower($meterOption) === 'no-meter' || strtolower($meterOption) === 'no meter') {
+            $status = "Served, no meter";
+        } else {
+            $status = "AC Completed";
+        }
 
         $household = Household::find($id);
-        $status = "AC Completed";
         $statusHousehold = HouseholdStatus::where('status', 'like', '%' . $status . '%')->first();
         $lastCycleYear = EnergySystemCycle::latest()->first();
-        $energySystem = EnergySystem::where("energy_system_type_id", 2)->latest()->first();
+        // $energySystem = EnergySystem::where("energy_system_type_id", 2)->latest()->first();
 
         if($household) {
             
@@ -219,7 +237,7 @@ class MiscHouseholdController extends Controller
                 $allEnergyMeter->energy_system_cycle_id = $lastCycleYear->id;
                 $allEnergyMeter->energy_system_type_id = 2;
                 $allEnergyMeter->ground_connected = "No";
-                $allEnergyMeter->energy_system_id = $energySystem->id;
+                // $allEnergyMeter->energy_system_id = $energySystem->id;
                 $allEnergyMeter->meter_number = 0;
                 $allEnergyMeter->meter_case_id = 12; 
                 $allEnergyMeter->save();
@@ -241,13 +259,20 @@ class MiscHouseholdController extends Controller
     public function moveMISCPublic(Request $request)
     {
         $id = $request->id;
+        $meterOption = $request->input('meter_option', '');
+
+        // determine target status based on meter option
+        if (strtolower($meterOption) === 'no_meter' || strtolower($meterOption) === 'no-meter' || strtolower($meterOption) === 'no meter') {
+            $status = "Served, no meter";
+        } else {
+            $status = "AC Completed";
+        }
 
         $public = PublicStructure::find($id);
-        $status = "AC Completed";
         $statusPublic = PublicStructureStatus::where('status', 'like', '%' . $status . '%')->first();
         $lastCycleYear = EnergySystemCycle::latest()->first();
-        $energySystem = EnergySystem::where("energy_system_type_id", 2)->latest()->first();
-
+        // $energySystem = EnergySystem::where("energy_system_type_id", 2)->latest()->first();
+        
         if($public) {
             
             if($statusPublic) {
@@ -263,7 +288,7 @@ class MiscHouseholdController extends Controller
                 $allEnergyMeter->energy_system_cycle_id = $lastCycleYear->id;
                 $allEnergyMeter->energy_system_type_id = 2;
                 $allEnergyMeter->ground_connected = "No";
-                $allEnergyMeter->energy_system_id = $energySystem->id;
+                // $allEnergyMeter->energy_system_id = $energySystem->id;
                 $allEnergyMeter->meter_number = 0;
                 $allEnergyMeter->meter_case_id = 12; 
                 $allEnergyMeter->save();
@@ -388,9 +413,5 @@ class MiscHouseholdController extends Controller
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function export(Request $request) 
-    {
-                
-        return Excel::download(new ConfirmedHousehold($request), 'MISC Confirmed.xlsx');
-    }
+    
 }

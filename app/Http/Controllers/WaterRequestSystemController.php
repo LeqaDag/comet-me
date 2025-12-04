@@ -28,6 +28,10 @@ use App\Models\PublicStructure;
 use App\Models\InstallationType;
 use App\Models\MeterCase;
 use App\Models\Region;
+use App\Models\H2oUser;
+use App\Models\GridUser;
+use App\Models\H2oPublicStructure;
+use App\Models\GridPublicStructure;
 use App\Exports\WaterRequestSystemExport;
 use App\Exports\Water\WaterProgressExport;
 use Carbon\Carbon;
@@ -44,33 +48,54 @@ class WaterRequestSystemController extends Controller
      */
     public function index(Request $request)
     {
+        // this doen only one time
+        // $allRequestedWaters = WaterRequestSystem::all();
+        // foreach($allRequestedWaters as $allRequestedWater) {
+        //     $allRequestedWater->water_holder_status_id = 1;
+        //     $allRequestedWater->save();
+        // }
+
+
+        $regionFilter = $request->input('region_filter');
+        $communityFilter = $request->input('community_filter');
+        $statusFilter = $request->input('status_filter');
+        $dateFilter = $request->input('date_filter');
+
         if (Auth::guard('user')->user() != null) {
  
             if ($request->ajax()) {
 
-                $dataPublic = DB::table('water_request_systems')
+                $data = DB::table('water_request_systems')
                     ->leftJoin('households', 'water_request_systems.household_id', 'households.id')
                     ->leftJoin('public_structures', 'water_request_systems.public_structure_id', 'public_structures.id')
                     ->join('communities', 'water_request_systems.community_id', 'communities.id')
-                    ->leftJoin('water_request_statuses', 'water_request_systems.water_request_status_id', 
-                        'water_request_statuses.id')
+                    ->leftJoin('water_system_types', 'water_request_systems.water_system_type_id', 
+                        'water_system_types.id') 
                     ->leftJoin('all_energy_meters as users', 'users.household_id', 'households.id')
                     ->leftJoin('all_energy_meters as publics', 'publics.public_structure_id', 'public_structures.id')
                     ->where('water_request_systems.is_archived', 0) 
+                    ->where('water_request_systems.water_holder_status_id', 1) 
                     ->select(
                         'water_request_systems.date', 
                         'water_request_systems.id as id', 'water_request_systems.created_at as created_at', 
                         'water_request_systems.updated_at as updated_at', 
-                        'communities.english_name as community_name', 'water_request_statuses.name',
+                        'communities.english_name as community_name', 'water_system_types.type',
                         DB::raw('IFNULL(users.meter_number, publics.meter_number) 
                             as meter_number'),  
                         DB::raw('IFNULL(users.is_main, publics.is_main) 
                             as is_main'),
                         DB::raw('IFNULL(households.english_name, public_structures.english_name) 
-                            as holder'))
+                            as holder'),
+                        DB::raw("'action' AS action"))
                     ->orderBy('water_request_systems.date', 'asc');
                  
-                return Datatables::of($dataPublic)
+                if ($regionFilter) $data->where('communities.region_id', $regionFilter);
+                if ($communityFilter) $data->where('communities.id', $communityFilter);
+                if ($statusFilter) $data->where('water_request_systems.water_system_status_id', $statusFilter);
+                if ($dateFilter != null) $data->where('water_request_systems.date', $dateFilter);
+
+
+                return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
     
@@ -98,13 +123,13 @@ class WaterRequestSystemController extends Controller
                                 ->orWhere('water_request_systems.date', 'LIKE', "%$search%")
                                 ->orWhere('households.english_name', 'LIKE', "%$search%")
                                 ->orWhere('households.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('water_request_statuses.name', 'LIKE', "%$search%");
+                                ->orWhere('water_system_types.type', 'LIKE', "%$search%");
                             });
                         }
                     })
                     ->rawColumns(['action'])
                     ->make(true);
-            }
+            } 
     
             $communities = Community::where('is_archived', 0)
                 ->orderBy('english_name', 'ASC')
@@ -172,7 +197,7 @@ class WaterRequestSystemController extends Controller
         $waterRequestSystem->notes = $request->notes;
         $waterRequestSystem->save(); 
 
-        return redirect('/water-request')
+        return redirect('/all-water')
             ->with('message', 'New Water Requested System Added Successfully!');
     }
 
@@ -322,7 +347,7 @@ class WaterRequestSystemController extends Controller
             }
         }
 
-        return redirect('/water-request')->with('message', 'Requested Water Holder Updated Successfully!');
+        return redirect('/all-water')->with('message', 'Requested Water Holder Updated Successfully!');
     }
 
     /**
@@ -364,14 +389,14 @@ class WaterRequestSystemController extends Controller
         $id = $request->id;
 
         $waterRequestSystem = WaterRequestSystem::find($id);
+        $waterRequestSystem->water_holder_status_id = 2;
+        $waterRequestSystem->save();
 
         $existCommunityService = CommunityService::where("community_id", $waterRequestSystem->community_id)
             ->where("service_id", 2)
             ->first();
             
-        if($existCommunityService) {
-
-        } else {
+        if(!$existCommunityService) {
 
             $communityService = new CommunityService();
             $communityService->service_id = 2;
@@ -382,9 +407,8 @@ class WaterRequestSystemController extends Controller
         if($waterRequestSystem->household_id) {
 
             $exist = AllWaterHolder::where("household_id", $waterRequestSystem->household_id)->first();
-            if($exist) {
-
-            } else {
+            
+            if(!$exist) {
 
                 $newHolder = new AllWaterHolder();
                 $newHolder->household_id = $waterRequestSystem->household_id;
@@ -410,11 +434,8 @@ class WaterRequestSystemController extends Controller
             $newHolder->save();
         }
 
-        $waterRequestSystem->is_archived = 1;
-        $waterRequestSystem->save();
-
         $response['success'] = 1;
-        $response['msg'] = 'Water Requested Holder moved to the water holders list successfully'; 
+        $response['msg'] = 'Water Requested Holder Confirmed successfully'; 
 
         return response()->json($response); 
     }

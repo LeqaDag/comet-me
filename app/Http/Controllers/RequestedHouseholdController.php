@@ -41,7 +41,7 @@ use App\Models\MovedHousehold;
 use App\Models\EnergyRequestSystem;
 use App\Models\EnergySystemCycle;
 use Carbon\Carbon;
-use DataTables;
+use Yajra\DataTables\Facades\DataTables;
 use mikehaertl\wkhtmlto\Pdf;
 
 class RequestedHouseholdController extends Controller
@@ -58,36 +58,94 @@ class RequestedHouseholdController extends Controller
             if ($request->ajax()) {
             
                 $data = DB::table('households')
+                    ->leftJoin('all_energy_meters', 'all_energy_meters.household_id', 'households.id')
+                    ->leftJoin('energy_system_types', 'all_energy_meters.energy_system_type_id', 'energy_system_types.id')
+                    ->leftJoin('household_statuses', 'households.household_status_id', 'household_statuses.id')
+                    ->leftJoin('users', 'households.referred_by_id', 'users.id')
+                    ->leftJoin('energy_system_types as energy_types', 'households.energy_system_type_id', 'energy_types.id')
                     ->join('communities', 'households.community_id', 'communities.id')
                     ->join('regions', 'communities.region_id', 'regions.id')
-                    ->where('households.is_archived', 0)
-                    ->where('households.internet_holder_young', 0)
-                    ->where('households.household_status_id', 5)
+                                        ->where('households.is_archived', 0)
+                                        ->where('households.internet_holder_young', 0)
+                                        ->where(function($q) {
+                                                $q->where('households.household_status_id', 5)
+                                                    ->orWhere('household_statuses.status', 'Displaced');
+                                        })
                     ->select('households.english_name as english_name', 
                         'households.arabic_name as arabic_name',
-                        'households.id as id', 'households.created_at as created_at', 
-                        'households.updated_at as updated_at',
-                        'regions.english_name as region_name',
+                        'households.id as id', 
+                        DB::raw('CASE WHEN households.request_date IS NOT NULL THEN households.request_date ELSE DATE(households.created_at) END as created_at'),
+                        DB::raw("CASE WHEN household_statuses.status = 'Displaced' THEN 'Displaced' WHEN all_energy_meters.is_main = 'No' THEN 'Served' ELSE 'Service requested' END AS status"),
+                        'households.updated_at as updated_at', 'users.name as referred_by',
+                        'regions.english_name as region_name', 
+                        DB::raw('IFNULL(energy_system_types.name, energy_types.name) as type'),
                         'communities.english_name as name', 'households.phone_number',
-                        'communities.arabic_name as aname',)
-                    ->latest(); 
+                        'communities.arabic_name as aname')
+                    ->latest();
+
+                $communityFilter = $request->input('community_filter');
+                $regionFilter = $request->input('region_filter');
+                $systemTypeFilter = $request->input('system_type_filter');
+                $statusFilter = $request->input('household_status');
+                $dateFilter = $request->input('date_filter');
+
+                if ($communityFilter) {
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($regionFilter) {
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($systemTypeFilter) {
+                    $data->where('households.energy_system_type_id', $systemTypeFilter);
+                }
+                if ($statusFilter) {
+                    // map filter values from the UI to DB conditions
+                    switch ($statusFilter) {
+                        case 'displaced':
+                            $data->where('household_statuses.status', 'Displaced');
+                            break;
+                        case 'served':
+                            $data->where('all_energy_meters.is_main', 'No');
+                            break;
+                        case 'service_requested':
+                            $data->where(function($q) {
+                                $q->where('all_energy_meters.is_main', 'Yes')
+                                  ->orWhereNull('all_energy_meters.is_main');
+                            });
+                            break;
+                        case 'requested':
+                            $data->where('households.household_status_id', 5);
+                            break;
+                        case 'confirmed':
+                            $data->where('household_statuses.status', 'Confirmed');
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if ($dateFilter) {
+                    // filter by request_date or created_at 
+                    $data->where(function($q) use ($dateFilter) {
+                        $q->whereRaw('DATE(households.created_at) = ?', [$dateFilter])
+                          ->orWhereRaw('households.request_date = ?', [$dateFilter]);
+                    });
+                }
     
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->addColumn('action', function($row) {
-    
-                        $detailsButton = "<a type='button' class='detailsHouseholdButton' data-bs-toggle='modal' data-bs-target='#householdDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-primary'></i></a>";
-                        $updateButton = "<a type='button' class='updateHousehold' data-id='".$row->id."'><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+
+                        $moveButton = "<a type='button' title='Start Working' class='moveEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-check text-success'></i></a>";
+                        $detailsButton = "<a type='button' class='detailsHouseholdButton' data-bs-toggle='modal' data-bs-target='#householdDetails' data-id='".$row->id."'><i class='fa-solid fa-eye text-info'></i></a>";
+                        $postponeButton = "<a type='button' title='Postpone' class='postponedEnergyRequest' data-id='".$row->id."'><i class='fa-solid fa-rotate-right text-warning'></i></a>";
                         $deleteButton = "<a type='button' class='deleteHousehold' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                        
-                        if(Auth::guard('user')->user()->user_type_id != 7 || 
-                            Auth::guard('user')->user()->user_type_id != 11 || 
-                            Auth::guard('user')->user()->user_type_id != 8) 
-                        {
-                                
-                            return $detailsButton." ". $updateButton." ".$deleteButton;
-                        } else return $detailsButton; 
-       
+
+                        // Show move + view + postpone + delete for most users; else only view
+                        if(Auth::guard('user')->user()->user_type_id != 7 && Auth::guard('user')->user()->user_type_id != 11 && Auth::guard('user')->user()->user_type_id != 8) {
+                            return $moveButton . ' ' . $detailsButton . ' ' . $postponeButton . ' ' . $deleteButton;
+                        }
+
+                        return $detailsButton;
                     })
                    
                     ->filter(function ($instance) use ($request) {

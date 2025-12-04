@@ -235,13 +235,33 @@ class AllIncidentController extends Controller
         }
     }
 
+    // This method for generating the action buttons
+    private function generateActionButtons($row)
+    {
+        $viewButton = "<a type='button' class='viewAllIncident' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
+        $updateButton = "<a type='button' class='updateAllIncident' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
+        $deleteButton = "<a type='button' class='deleteAllIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
+
+        if (Auth::guard('user')->user()->user_type_id == 1 || 
+            Auth::guard('user')->user()->user_type_id == 2 || 
+            Auth::guard('user')->user()->role_id == 21) 
+        {
+
+            return $viewButton . " " . $updateButton . " " . $deleteButton;
+        } else {
+            
+            return $viewButton;
+        }
+    }
+
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    { 
         $serviceFilter = $request->input('service_filter');
         $communityFilter = $request->input('community_filter');
         $incidentTypeFilter = $request->input('incident_filter');
@@ -252,7 +272,7 @@ class AllIncidentController extends Controller
             $this->getTickets();
 
             if ($request->ajax()) {  
- 
+
                 $data = DB::table('all_incidents')
                     ->join('communities', 'all_incidents.community_id', 'communities.id')
                     ->join('service_types', 'all_incidents.service_type_id', 'service_types.id')
@@ -285,24 +305,43 @@ class AllIncidentController extends Controller
 
                     ->where('all_incidents.is_archived', 0);
      
-                if($serviceFilter != null) {
+                $data->when($serviceFilter, fn($query) => $query->where('service_types.id', $serviceFilter))
+                    ->when($communityFilter, fn($query) => $query->where('communities.id', $communityFilter))
+                    ->when($incidentTypeFilter, fn($query) => $query->where('incidents.id', $incidentTypeFilter))
+                    ->when($dateFilter, fn($query) => $query->where('all_incidents.date', '>=', $dateFilter));
 
-                    $data->where('service_types.id', $serviceFilter);
+                $search = $request->input('search.value'); // Get the search value
+
+                if (!empty($search)) {
+                    $data->where(function($w) use($search) {
+                        // Apply the search to multiple columns
+                        $w->orWhere('communities.english_name', 'LIKE', "%$search%")
+                        ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
+                        ->orWhere('incidents.english_name', 'LIKE', "%$search%")
+                        ->orWhere('incidents.arabic_name', 'LIKE', "%$search%")
+                        ->orWhere('service_types.service_name', 'LIKE', "%$search%")
+                        ->orWhere('all_incidents.date', 'LIKE', "%$search%")
+                        ->orWhere('all_incidents.year', 'LIKE', "%$search%")
+                        ->orWhere('all_incident_statuses.status', 'LIKE', "%$search%")
+                        ->orWhere(DB::raw("COALESCE(
+                            energy_users.english_name,
+                            energy_publics.english_name,
+                            water_users.english_name,
+                            water_publics.english_name,
+                            internet_holders.english_name,
+                            internet_publics.english_name,
+                            energy_systems.name,
+                            water_systems.name,
+                            internet_systems.system_name,
+                            cameras_communities.english_name
+                        )"), 'LIKE', "%$search%");
+                    });
                 }
-                if($communityFilter != null) {
 
-                    $data->where('communities.id', $communityFilter);
-                }
-                if ($incidentTypeFilter != null) {
+                $totalRecords = $data->count(); 
+                $filteredRecords = $data->clone()->count(); 
 
-                    $data->where('incidents.id', $incidentTypeFilter);
-                }
-                if ($dateFilter != null) {
-
-                    $data->where('all_incidents.date', '>=', $dateFilter);
-                }
-
-                $data->select(
+                $data = $data->select([
                     DB::raw("COALESCE(
                         energy_users.english_name,
                         energy_publics.english_name,
@@ -315,8 +354,6 @@ class AllIncidentController extends Controller
                         internet_systems.system_name,
                         cameras_communities.english_name
                     ) AS holder"),
-                    
-                    
                     DB::raw("GROUP_CONCAT(DISTINCT COALESCE(all_incident_statuses.status) 
                         SEPARATOR ', ') as incident_statuses"),
                     'all_incidents.date', 'all_incidents.year',
@@ -324,72 +361,44 @@ class AllIncidentController extends Controller
                     'all_incidents.updated_at as updated_at', 
                     'communities.english_name as community_name',
                     'service_types.service_name as service',
-                    'incidents.english_name as incident')
-                ->latest()
-                ->distinct()
-                ->groupBy('all_incidents.id')
-                ->orderBy('all_incidents.date', 'desc');
+                    'incidents.english_name as incident',
+                    DB::raw("'action' AS action")
+                ])
+                    ->latest()->distinct()
+                    ->groupBy('all_incidents.id')
+                    ->orderBy('all_incidents.date', 'desc')
+                    ->skip($request->start)->take($request->length)
+                    ->get();
 
-                return Datatables::of($data)
-                    ->addIndexColumn()
-                    ->addColumn('action', function($row) {
-                        
-                        $viewButton = "<a type='button' class='viewAllIncident' data-id='".$row->id."' ><i class='fa-solid fa-eye text-info'></i></a>";
-                        $updateButton = "<a type='button' class='updateAllIncident' data-id='".$row->id."' ><i class='fa-solid fa-pen-to-square text-success'></i></a>";
-                        $deleteButton = "<a type='button' class='deleteAllIncident' data-id='".$row->id."'><i class='fa-solid fa-trash text-danger'></i></a>";
-                        
-                        if(Auth::guard('user')->user()->user_type_id == 1 || 
-                            Auth::guard('user')->user()->user_type_id == 2 ||
-                            Auth::guard('user')->user()->role_id == 21) 
-                        {
-                                
-                            return $viewButton." ". $updateButton." ".$deleteButton;
-                        } else return $viewButton;
 
-                    })
-                    ->filter(function ($instance) use ($request) {
+                foreach ($data as $row) {
+                    $row->action = $this->generateActionButtons($row); // Add the action buttons
+                }
 
-                        $search = $request->input('search.value');
-
-                        if (!empty($search)) {
-                            $instance->where(function($w) use($search) {
-                                $w->orWhere('communities.english_name', 'LIKE', "%$search%")
-                                ->orWhere('communities.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('incidents.english_name', 'LIKE', "%$search%")
-                                ->orWhere('incidents.arabic_name', 'LIKE', "%$search%")
-                                ->orWhere('service_types.service_name', 'LIKE', "%$search%")
-                                ->orWhere('all_incidents.date', 'LIKE', "%$search%")
-                                ->orWhere('all_incidents.year', 'LIKE', "%$search%")
-                                ->orWhere('all_incident_statuses.status', 'LIKE', "%$search%")
-                                ->orWhere(DB::raw("COALESCE(
-                                    energy_users.english_name,
-                                    energy_publics.english_name,
-                                    water_users.english_name,
-                                    water_publics.english_name,
-                                    internet_holders.english_name,
-                                    internet_publics.english_name,
-                                    energy_systems.name,
-                                    water_systems.name,
-                                    internet_systems.system_name,
-                                    cameras_communities.english_name
-                                )"), 'LIKE', "%$search%");
-                                
-                            });
-                        }
-                    })
-
-                    ->rawColumns(['action'])
-                    ->make(true);
+                return response()->json([
+                    "draw" => $request->draw,  // DataTables draw count
+                    "recordsTotal" => $totalRecords,
+                    "recordsFiltered" => $filteredRecords,
+                    "data" => $data
+                ]);
             }
 
-            $communities = Community::where('is_archived', 0)
-                ->orderBy('english_name', 'ASC')
-                ->get();
-            $regions = Region::where('is_archived', 0)
-                ->orderBy('english_name', 'ASC')
-                ->get();
-            $serviceTypes = ServiceType::where('is_archived', 0)->get();
-            $incidents = Incident::where('is_archived', 0)->get();
+            $communities = cache()->remember('communities', 60, function () {
+                return Community::where('is_archived', 0)->orderBy('english_name', 'ASC')->get();
+            });
+
+            $regions = cache()->remember('regions', 60, function () {
+                return Region::where('is_archived', 0)->orderBy('english_name', 'ASC')->get();
+            });
+
+            $serviceTypes = cache()->remember('service_types', 60, function () {
+                return ServiceType::where('is_archived', 0)->get();
+            });
+
+            $incidents = cache()->remember('incidents', 60, function () {
+                return Incident::where('is_archived', 0)->get();
+            });
+
 
             return view('incidents.all.index', compact('communities', 'regions', 'serviceTypes', 'incidents'));
         } else {
@@ -2674,9 +2683,12 @@ class AllIncidentController extends Controller
      */
     public function export(Request $request) 
     {
+        $request->validate([
+            'file_type' => 'required|in:all,aggregated,donor,swo'
+        ]);
 
-        return Excel::download(new MainIncidentSheet($request), 'All Incidents.xlsx');
-    }
+        return Excel::download(new MainIncidentSheet($request), 'Incidents.xlsx');
+    } 
 
     /**
      * 
@@ -2685,7 +2697,7 @@ class AllIncidentController extends Controller
     public function exportAggregated(Request $request) 
     {
 
-        return Excel::download(new AllAggregatedIncidents($request), 'All Incidents.xlsx');
+        return Excel::download(new AllAggregatedIncidents($request), 'All Aggregated Incidents.xlsx');
     }
 
     /**

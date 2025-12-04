@@ -68,7 +68,7 @@
                                             <option disabled selected>Choose one...</option>
                                             <option value="served">Served</option>
                                             <option value="service_requested">Service requested</option>
-                                        </select> 
+                                        </select>  
                                     </fieldset>
                                 </div>
                                 <div class="col-xl-3 col-lg-3 col-md-3">
@@ -171,6 +171,7 @@
                         <th class="text-center">Arabic Name</th>
                         <th class="text-center">Community</th>
                         <th class="text-center">Region</th>
+                        <th class="text-center">Referred By</th>
                         <th class="text-center">Notes</th>
                         <th class="text-center">Options</th>
                     </tr>
@@ -203,6 +204,7 @@
                 {data: 'arabic_name', name: 'arabic_name'},
                 {data: 'name', name: 'name'},
                 {data: 'region_name', name: 'region_name'},
+                {data: 'referred_by', name: 'referred_by'},
                 {data: 'confirmation_notes', name: 'confirmation_notes'},
                 {data: 'action' }
             ]

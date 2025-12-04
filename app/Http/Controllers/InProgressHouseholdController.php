@@ -77,6 +77,21 @@ class InProgressHouseholdController extends Controller
                         'communities.arabic_name as aname',
                         'households.energy_meter')
                     ->latest(); 
+
+                // Apply frontend filters if provided
+                $communityFilter = $request->input('community_filter');
+                $regionFilter = $request->input('region_filter');
+                $systemTypeFilter = $request->input('system_type_filter');
+
+                if ($communityFilter) {
+                    $data->where('communities.id', $communityFilter);
+                }
+                if ($regionFilter) {
+                    $data->where('regions.id', $regionFilter);
+                }
+                if ($systemTypeFilter) {
+                    $data->where('households.energy_system_type_id', $systemTypeFilter);
+                }
     
                 
                 return Datatables::of($data)
@@ -140,7 +155,7 @@ class InProgressHouseholdController extends Controller
             $energySystems = EnergySystem::where('is_archived', 0)->get();
             $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
             $meters = MeterCase::where('is_archived', 0)->get();
-            $professions  = Profession::where('is_archived', 0)->get();
+            $professions  = Profession::where('is_archived', 0)->get(); 
     
             return view('employee.household.progress', compact('communities', 'households', 
                 'energySystems', 'energySystemTypes', 'meters', 'professions'))
@@ -149,6 +164,27 @@ class InProgressHouseholdController extends Controller
 
             return view('errors.not-found');
         }
+    }
+
+    /**
+     * Landing page for in-progress households (tabs view).
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function landing()
+    {
+        $communities = Community::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+        $energySystemTypes = EnergySystemType::where('is_archived', 0)->get();
+
+        $regions = Region::where('is_archived', 0)
+            ->orderBy('english_name', 'ASC')
+            ->get();
+
+        $energyCycles = EnergySystemCycle::orderBy('name', 'ASC')->get();
+
+        return view('employee.household.in_progress', compact('communities', 'energySystemTypes', 'regions', 'energyCycles'));
     }
 
        /**
@@ -169,9 +205,10 @@ class InProgressHouseholdController extends Controller
         $professions  = Profession::where('is_archived', 0)->get();
         $energySystemCycles = EnergySystemCycle::orderBy('name', 'ASC')
             ->get();
+        $compounds = \App\Models\Compound::orderBy('english_name', 'ASC')->get();
 
         return view('employee.household.elc_create', compact('communities', 'energySystemTypes', 
-            'households', 'professions', 'installationTypes', 'energySystemCycles'));
+            'households', 'professions', 'installationTypes', 'energySystemCycles', 'compounds'));
     }
 
      /**
@@ -201,9 +238,22 @@ class InProgressHouseholdController extends Controller
             for($i=0; $i < count($request->household_id); $i++) {
 
                 $household = Household::findOrFail($request->household_id[$i]);
-                $household->household_status_id = 3;
+
+                // Set household status based on whether meter was added (radio `meter_added`)
+                // If meter_added == 1 (Yes) → status 3, otherwise (No) → status 14
+                if (isset($request->meter_added)) {
+                    if ($request->meter_added == '1' || $request->meter_added == 1) {
+                        $household->household_status_id = 3;
+                    } else {
+                        $household->household_status_id = 14;
+                    }
+                } else {
+                    // Fallback: keep previous behaviour (mark as in-progress)
+                    $household->household_status_id = 3;
+                }
+
                 $household->energy_system_cycle_id = $request->energy_system_cycle_id;
-                $household->save(); 
+                $household->save();
 
                 $energyUser = new AllEnergyMeter();
                 $energyUser->installation_type_id = $request->misc;
@@ -232,7 +282,7 @@ class InProgressHouseholdController extends Controller
             }
         }
      
-        return redirect('/progress-household')
+        return redirect()->action([InProgressHouseholdController::class, 'landing'])
             ->with('message', 'New Elc. Added Successfully!');
     }
 
